@@ -1,0 +1,298 @@
+TAG = {}
+TAG["FILECONTROLPARAMETERS"]    = 0x62
+TAG["FILEMANAGEMENTDATA"]       = 0x64
+TAG["FILECONTROLINFORMATION"]   = 0x6F
+TAG["BYTES_EXCLUDINGSTRUCTURE"] = 0x80
+TAG["BYTES_INCLUDINGSTRUCTURE"] = 0x81
+TAG["FILEDISCRIPTORBYTE"]       = 0x82
+TAG["FILEIDENTIFIER"]           = 0x83
+TAG["DFNAME"]                   = 0x84
+TAG["PROPRIETARY_NOTBERTLV"]    = 0x85
+TAG["PROPRIETARY_SECURITY"]     = 0x86
+TAG["FIDEF_CONTAININGFCI"]      = 0x87
+TAG["SHORTFID"]                 = 0x88
+TAG["LIFECYCLESTATUS"]          = 0x8A
+TAG["SA_EXPANDEDFORMAT"]        = 0x8B
+TAG["SA_COMPACTFORMAT"]         = 0x8C
+TAG["FIDEF_CONTAININGSET"]      = 0x8D
+TAG["CHANNELSECURITY"]          = 0x8E
+TAG["SA_DATAOBJECTS"]           = 0xA0
+TAG["PROPRIETARY_SECURITYTEMP"] = 0xA1
+TAG["PROPRIETARY_BERTLV"]       = 0xA5
+TAG["SA_EXPANDEDFORMAT_TEMP"]   = 0xAB
+TAG["CRYPTIDENTIFIER_TEMP"]     = 0xAC
+TAG["DISCRETIONARY_DATA"]       = 0x53
+TAG["DISCRETIONARY_TEMPLATE"]   = 0x73
+TAG["OFFSET_DATA"]              = 0x54
+TAG["TAG_LIST"]                 = 0x5C
+TAG["HEADER_LIST"]              = 0x5D
+TAG["EXTENDED_HEADER_LIST"]     = 0x4D
+MAX_EXTENDED_LE                 = 0xffff
+MAX_SHORT_LE                    = 0xff
+
+def tlv_unpack(data): # {{{
+    ber_class = (ord(data[0]) & 0xC0) >> 6
+    constructed = (ord(data[0]) & 0x20) != 0 ## 0 = primitive, 0x20 = constructed
+    tag = ord(data[0]) 
+    data = data[1:]
+    if (tag & 0x1F) == 0x1F:
+        tag = (tag << 8) | ord(data[0])
+        while ord(data[0]) & 0x80 == 0x80:
+            data = data[1:]
+            tag = (tag << 8) | ord(data[0])
+        data = data[1:]
+    
+    length = ord(data[0])
+    if length < 0x80:
+        data = data[1:]
+    elif length & 0x80 == 0x80:
+        length_ = 0
+        data = data[1:]
+        for i in range(0,length & 0x7F):
+            length_ = length_ * 256 + ord(data[0])
+            data = data[1:]
+        length = length_
+    
+    value = data[:length]
+    rest = data[length:]
+    
+    return ber_class, constructed, tag, length, value, rest
+# }}}
+
+def tlv_find_tags(tlv_data, tags, num_results = None): # {{{
+    """Find (and return) all instances of tags in the given tlv structure (as
+    returned by unpack).  If num_results is specified then at most that many
+    results will be returned."""
+    
+    results = []
+    def find_recursive(tlv_data):
+        for d in tlv_data:
+            t,l,v = d[:3]
+            if t in tags:
+                results.append(d)
+            else:
+                if isinstance(v, list): # FIXME Refactor the whole TLV code into a class
+                    find_recursive(v)
+            
+            if num_results is not None and len(results) >= num_results:
+                return
+    
+    find_recursive(tlv_data)
+    
+    return results
+# }}}
+
+def tlv_find_tag(tlv_data, tag, num_results = None): # {{{
+    """Find (and return) all instances of tag in the given tlv structure (as returned by unpack).
+    If num_results is specified then at most that many results will be returned."""
+    
+    return tlv_find_tags(tlv_data, [tag], num_results)
+# }}}
+
+def pack(tlv_data, recalculate_length = False): # {{{
+    result = []
+    
+    for data in tlv_data:
+        tag, length, value = data[:3]
+        if tag in (0xff, 0x00):
+            result.append( chr(tag) )
+            continue
+        
+        if not isinstance(value, str):
+            value = pack(value, recalculate_length)
+        
+        if recalculate_length:
+            length = len(value)
+        
+        t = ""
+        while tag > 0:
+            t = chr( tag & 0xff ) + t
+            tag = tag >> 8
+        
+        if length < 0x7F:
+            l = chr(length)
+        else:
+            l = ""
+            while length > 0:
+                l = chr( length & 0xff ) + l
+                length = length >> 8
+            assert len(l) < 0x7f
+            l = chr( 0x80 | len(l) ) + l
+        
+        result.append(t)
+        result.append(l)
+        result.append(value)
+    
+    return "".join(result)
+# }}}
+
+def bertlv_pack(data): # {{{
+    """Packs a bertlv list of 3-tuples (tag, length, newvalue) into a string"""
+    return pack(data)
+# }}}
+
+def unpack(data, with_marks = None, offset = 0, include_filler=False): # {{{
+    result = []
+    while len(data) > 0:
+        if ord(data[0]) in (0x00, 0xFF):
+            if include_filler:
+                if with_marks is None:
+                    result.append( (ord(data[0]), None, None) )
+                else:
+                    result.append( (ord(data[0]), None, None, () ) )
+            data = data[1:]
+            offset = offset + 1
+            continue
+        
+        l = len(data)
+        ber_class, constructed, tag, length, value, data = tlv_unpack(data)
+        stop = offset + (l - len(data))
+        start = stop - length
+        
+        if with_marks is not None:
+            marks = []
+            for type, mark_start, mark_stop in with_marks:
+                if (mark_start, mark_stop) == (start, stop):
+                    marks.append(type)
+            marks = (marks, )
+        else:
+            marks = ()
+        
+        if not constructed:
+            result.append( (tag, length, value) + marks )
+        else:
+            result.append( (tag, length, unpack(value, with_marks, offset = start)) + marks )
+        
+        offset = stop
+    
+    return result
+# }}}
+
+def bertlv_unpack(data): # {{{
+    """Unpacks a bertlv coded string into a list of 3-tuples (tag, length,
+    newvalue)."""
+    return unpack(data)
+# }}}
+
+def simpletlv_pack(tlv_data, recalculate_length = False): # {{{
+    result = ""
+
+    for tag, length, value in tlv_data:
+        if tag >= 0xff or tag <= 0x00:
+            # invalid
+            continue
+
+        if recalculate_length:
+            length = len(value)
+        if length > 0xffff or length < 0:
+            # invalid
+            continue
+
+        if length < 0xff:
+            result += chr(tag) + chr(length) + value
+        else:
+            result += chr(tag) + chr(0xff)+chr(length>>8)+chr(length&0xff) + value
+
+    return result
+# }}}
+
+def simpletlv_unpack(data): # {{{
+    """Unpacks a simpletlv coded string into a list of 3-tuples (tag, length,
+    newvalue)."""
+    result = []
+    rest = data
+    while rest != '':
+        tag = ord(rest[0])
+        if tag == 0 or tag == 0xff:
+            raise ValueError
+
+        length = ord(rest[1])
+        if length == 0xff:
+            length   = (ord(rest[2])<<8) + ord(rest[3])
+            newvalue = rest[4:4+length]
+            rest     = rest[4+length:]
+        else:
+            newvalue = rest[2:2+length]
+            rest     = rest[2+length:]
+        result.append((tag, length, newvalue))
+
+    return result
+# }}}
+
+
+def decodeDiscretionaryDataObjects(tlv_data): # {{{
+    datalist = []
+    for (tag, length, newvalue) in (tlv_find_tags(tlv_data,
+            [TAG["DISCRETIONARY_DATA"], TAG["DISCRETIONARY_TEMPLATE"]])):
+        datalist.append(newvalue)
+    return datalist
+# }}}
+def decodeOffsetDataObjects(tlv_data): # {{{
+    offsets = []
+    for (tag, length, newvalue) in tlv_find_tag(tlv_data,
+            TAG["OFFSET_DATA"]):
+        offsets.append(stringtoint(newvalue))
+    return offsets
+# }}}
+
+def decodeTagList(tlv_data): # {{{
+    taglist = []
+    for (t, l, data) in tlv_find_tag(tlv_data, TAG["TAG_LIST"]):
+        while data != "":
+            tag = ord(data[0]) 
+            data = data[1:]
+            if (tag & 0x1F) == 0x1F:
+                tag = (tag << 8) | ord(data[0])
+                while ord(data[0]) & 0x80 == 0x80:
+                    data = data[1:]
+                    tag = (tag << 8) | ord(data[0])
+                data = data[1:]
+            taglist.append((tag, 0))
+    return taglist
+# }}}
+
+def decodeHeaderList(tlv_data): # {{{
+    headerlist = []
+    for (t, l, data) in tlv_find_tag(tlv_data, TAG["HEADER_LIST"]):
+        while data != "":
+            tag = ord(data[0]) 
+            data = data[1:]
+            if (tag & 0x1F) == 0x1F:
+                tag = (tag << 8) | ord(data[0])
+                while ord(data[0]) & 0x80 == 0x80:
+                    data = data[1:]
+                    tag = (tag << 8) | ord(data[0])
+                data = data[1:]
+
+                length = ord(data[0])
+                if length < 0x80:
+                    data = data[1:]
+                elif length & 0x80 == 0x80:
+                    length_ = 0
+                    data = data[1:]
+                    for i in range(0,length & 0x7F):
+                        length_ = length_ * 256 + ord(data[0])
+                        data = data[1:]
+                    length = length_
+
+            headerlist.append((tag, length))
+    return headerlist
+# }}}
+
+def decodeExtendedHeaderList(tlv_data): # {{{
+    # TODO
+    return []
+# }}}
+
+def encodebertlvDatalist(tag, datalist): # {{{ 
+    tlvlist = []
+    for data in datalist:
+        tlvlist.append((tag, len(data), data))
+    return bertlv_pack(tlvlist)
+# }}}
+def encodeDiscretionaryDataObjects(datalist): # {{{
+    return encodebertlvDatalist(TAG["DISCRETIONARY_DATA"], datalist)
+# }}}
+def encodeDataOffsetObjects(datalist): # {{{
+    return encodebertlvDatalist(TAG["OFFSET_DATA"], datalist)
+# }}}

@@ -1,0 +1,26 @@
+Title            : ccid
+Authors          : Frank Morgner
+Version          : 1.0.0 27 Jul 2009
+License          : See file COPYING
+Tested Platforms : Linux 2.6 (Debian, Ubuntu, Om 2008)
+
+Welcome to ccid.  The purpose of ccid is to forward a PCSC smartcard reader
+as a standard USB CCID reader. If the host system is in USB device mode, ccid
+forwards the local reader via USB to an other device. If in USB host mode,
+ccid virtually plugges in a USB CCID reader to the host system.
+
+ccid is implemented using GadgetFS. The source code is based on the GadgetFS
+example at http://www.linux-usb.org/gadget/.
+
+
+INSTALLATION
+------------
+
+See file INSTALL.
+
+
+QUESTIONS
+---------
+
+For questions, please email me at:
+Frank Morgner <morgner@informatik.hu-berlin.de>
