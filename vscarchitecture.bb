@@ -34,9 +34,6 @@ do_compile() {
     ${CC} ${S}/vsmartcard/ccid/ccid.c ${S}/vsmartcard/ccid/usbstring.c -o ccid \
         ${LIBPCSCLITE_CFLAGS} ${GADGETFS_CFLAGS} ${PTHREAD_CFLAGS} ${CFLAGS}
 
-    ${CC} ${S}/vsmartcard/picc_to_pcsc/picc_to_pcsc.c -o picc_to_pcsc \
-        ${LIBPCSCLITE_CFLAGS} ${CFLAGS}
-
     ${CC} -c ${S}/vsmartcard/virtualsmartcard/vpcd/vpcd.c \
         ${S}/vsmartcard/virtualsmartcard/vpcd/vpcd.h \
         ${LIBPCSCLITE_CFLAGS} ${SO_CFLAGS} ${CFLAGS}
@@ -62,7 +59,6 @@ do_install() {
     ${INSTALL} -d ${D}${sysconfdir}/reader.conf.d/
     ${INSTALL} -d ${D}${python_sitelib}
     ${INSTALL_PROGRAM} ccid             ${D}${bindir}
-    ${INSTALL_PROGRAM} picc_to_pcsc     ${D}${bindir}
     ${INSTALL_PROGRAM} virtualsmartcard ${D}${bindir}
     ${INSTALL_PROGRAM} libvpcd.so       ${D}${serialdropdir}
     ${INSTALL_DATA} vpcd.conf           ${D}${readerconfdir}
