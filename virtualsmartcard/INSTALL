@@ -1,0 +1,17 @@
+Installation is simple; type `make install`.  If you want to customize the
+compilation or install process, you will need to pass variables to make.
+
+    DESTDIR             prefix for installation
+    LIBPCSCLITE_CFLAGS  compiler flags for pcsclite usage (needed if no
+                        pkg-config is available)
+    python_sitelib      where to install the virtual smartcard
+    serialdropdir       where to install the virtual smartcard driver  (needed
+                        if no pkg-config is available)
+
+See the Makefile for more details.
+
+Example:
+    make DESTDIR=/tmp/stage install
+
+Note: If you want to uninstall the binary, you need to pass the same DESTDIR
+to make, for example `make DESTDIR=/tmp/stage uninstall`.

@@ -1,0 +1,29 @@
+Title            : virtualsmartcard
+Authors          : Frank Morgner, Dominik Oepen
+Version          : 1.0.0 27 Jul 2009
+License          : See file COPYING
+Tested Platforms : Linux 2.6 (Debian, Ubuntu, Om 2008)
+
+Welcome to virtualsmartcard. The purpose of virtualsmartcard is to emulate a
+smartcard and make it accessible through PCSC. Currently the virtual smartcard
+supports almost all commands of ISO-7816 including secure messaging. Besides a
+plain ISO-7816 smartcard it is also possible to emulate a German ePass (only
+basic access control) and a rudimentary Cryptoflex smartcard.
+
+The virtual smartcard communicates with the virtual smartcard driver through a
+socket on port 35963. The file utils.py was taken from Henryk Plötz's
+cyberflex-shell.
+
+
+INSTALLATION
+------------
+
+See file INSTALL.
+
+
+QUESTIONS
+---------
+
+For questions, please email us at:
+Frank Morgner <morgner@informatik.hu-berlin.de>
+Dominik Oepen <oepen@informatik.hu-berlin.de>
