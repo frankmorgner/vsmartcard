@@ -21,6 +21,22 @@ INSTALLATION
 See file INSTALL.
 
 
+RUNNING virtualsmartcard
+------------------------
+
+First you need to make sure that pcscd loads the virtual smartcard driver. You
+might run "update-reader.conf" to update pcscd's configuration file. Then
+"pcscd -f -d" should say something like
+readerfactory.c:1024:RFInitializeReader() Attempting startup of Virtual PCD 00 00 using /usr/lib/pcsc/drivers/serial/libvpcd.so
+
+Now you can run "virtualsmartcard" which connects to the virtual reader. The
+command "virtualsmartcard --help" gives an overview about the command line
+options.
+
+You should now be able to access the virtual smartcard through the system's
+PC/SC API. You can use the opensc-explorer or pcsc_scan to test that.
+
+
 QUESTIONS
 ---------
 
