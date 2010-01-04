@@ -1029,7 +1029,7 @@ static void *ccid (void *param)
         pthread_testcancel ();
 
         if (debug)
-            fprintf(stderr, "reading %u bytes... ", bufsize);
+            fprintf(stderr, "reading %lu bytes... ", (long unsigned) bufsize);
         result = read(sink_fd, inbuf, bufsize);
         if (result < 0) break;
         if (debug)
@@ -1317,8 +1317,8 @@ static int init_device (void)
 		close (fd);
 		return result;
 	} else if (result != (cp - buf)) {
-		fprintf (stderr, "dev init, wrote %d expected %d\n",
-				result, cp - buf);
+		fprintf (stderr, "dev init, wrote %d expected %ld\n",
+				result, (long int) (cp - buf));
 		close (fd);
 		return -EIO;
 	}
