@@ -160,7 +160,7 @@ unsigned int read_from_device(unsigned char *inputBuffer) {
 		buf = malloc(length);
 		if(buf == NULL) { fprintf(stderr, "WAHH!\n"); return 0; }
 		int pos=0;
-		while(sscanf(line+(pos*3+5), " %x ", &(buf[pos])) == 1) {
+		while(sscanf(line+(pos*3+5), " %x ", (unsigned int *) &(buf[pos])) == 1) {
 			printf("[%02X]", buf[pos]);
 			if(++pos >= length) break;
 		}

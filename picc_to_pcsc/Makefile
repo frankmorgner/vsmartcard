@@ -1,6 +1,13 @@
-SUBDIRS = ccid picc_to_pcsc virtualsmartcard
+MAKEFLAGS         += -rR --no-print-directory
 
-default: all
+# Compiler
+CC      = gcc
+CFLAGS  = -Wall -g
+LIBPCSCLITE_CFLAGS = `pkg-config --cflags --libs libpcsclite`
 
-%:
-	for d in $(SUBDIRS); do $(MAKE) $@ -C $$d; done
+TARGETS = picc_to_pcsc
+            
+all: $(TARGETS)
+
+picc_to_pcsc: picc_to_pcsc.c picc_to_pcsc.h
+	$(CC) $(CFLAGS) $(LIBPCSCLITE_CFLAGS) picc_to_pcsc.c -o $@
