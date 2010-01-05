@@ -69,6 +69,21 @@ typedef struct {
 } __attribute__ ((packed)) abProtocolDataStructure_T1_t;
 
 typedef struct {
+    __u8   bPINOperation;
+    __u8   bTimeOut;
+    __u8   bmFormatString;
+    __u8   bmPINBlockString;
+    __u8   bmPINLengthFormat;
+    __le16 wPINMaxExtraDigit;
+    __u8   bEntryValidationCondition;
+    __u8   bNumberMessage;
+    __le16 wLangId;
+    __u8   bMsgIndex;
+    __u8   bTeoPrologue1;
+    __le16 bTeoPrologue2;
+} __attribute__ ((packed)) abPINOperationDataStucture
+
+typedef struct {
     __u8   bMessageType;
     __le32 dwLength;
     __u8   bSlot;
@@ -116,6 +131,14 @@ typedef struct {
     __u8   bProtocolNum;
     __le16 abRFU;
 } __attribute__ ((packed)) PC_to_RDR_SetParameters_t;
+typedef struct {
+    __u8   bMessageType;
+    __le32 dwLength;
+    __u8   bSlot;
+    __u8   bSeq;
+    __u8   bBWI;
+    __le16 wLevelParameter;
+} __attribute__ ((packed)) PC_to_RDR_Secure_t;
 typedef struct {
     __u8   bMessageType;
     __le32 dwLength;
@@ -185,8 +208,8 @@ ccid_desc = {
     .dwMaxIFSD              = __constant_cpu_to_le32(0xFF),     // FIXME
     .dwSynchProtocols       = __constant_cpu_to_le32(0),
     .dwMechanical           = __constant_cpu_to_le32(0),
-    .dwFeatures             = __constant_cpu_to_le32(0x2|
-                                        // Automatic parameter configuration based on ATR data
+    .dwFeatures             = __constant_cpu_to_le32(
+                              0x2|      // Automatic parameter configuration based on ATR data
                               0x8|      // Automatic ICC voltage selection
                               0x10|     // Automatic ICC clock frequency change
                               0x20|     // Automatic baud rate change
@@ -197,9 +220,14 @@ ccid_desc = {
     .dwMaxCCIDMessageLength = __constant_cpu_to_le32(261+10),
     .bClassGetResponse      = 0xFF,
     .bclassEnvelope         = 0xFF,
-    .wLcdLayout             = __constant_cpu_to_le16(0),
-    .bPINSupport            = 0,
-    .bMaxCCIDBusySlots      = 1,
+    .wLcdLayout             = __constant_cpu_to_le16(
+                              0),
+                              //0xFF00|   // Number of lines for the LCD display
+                              //0x00FF),  // Number of characters per line
+    .bPINSupport            = 0,      // PIN Modification supported
+    //.bPINSupport            = 0x1|      // PIN Verification supported
+                              //0x2,      // PIN Modification supported
+    .bMaxCCIDBusySlots      = 0x01,
 };
 
 
@@ -592,6 +620,17 @@ perform_PC_to_RDR_GetParamters(const PC_to_RDR_GetParameters_t request,
     return get_RDR_to_PC_Parameters(request.bSlot, request.bSeq,
             pcsc_result, abProtocolDataStructure);
 }
+
+//RDR_to_PC_Parameters_t
+//perform_PC_to_RDR_Secure(const PC_to_RDR_Secure_t request,
+        //__u8* abData)
+//{
+    //if (    request.bMessageType != 0x69 ||
+            //request.bSlot != 0 ||
+            //request.wLevelParameter != __constant_cpu_to_le16(0))
+        //fprintf(stderr, "warning: malformed PC_to_RDR_Secure\n");
+
+//}
 
 RDR_to_PC_NotifySlotChange_t
 get_RDR_to_PC_NotifySlotChange ()

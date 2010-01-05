@@ -46,9 +46,9 @@
 #include "ccid.h"
 
 
-#define DRIVER_VENDOR_NUM	0x08E6		/* FIXME */
-#define DRIVER_ISO_PRODUCT_NUM	0x8000		/* FIXME */
-#define DRIVER_PRODUCT_NUM	0x8000		/* FIXME */
+#define DRIVER_VENDOR_NUM	0x0D46		/* KOBIL Systems */
+#define DRIVER_ISO_PRODUCT_NUM	0x3010		/* KOBIL Class 3 Reader */
+#define DRIVER_PRODUCT_NUM	0x3010		/* KOBIL Class 3 Reader */
 static int vendorid   = DRIVER_VENDOR_NUM;
 static int productid  = DRIVER_PRODUCT_NUM;
 static int verbose    = 0;
@@ -239,7 +239,8 @@ static const struct usb_endpoint_descriptor *hs_eps [] = {
 
 /*-------------------------------------------------------------------------*/
 
-static char serial [64];
+/* 56 is the maximum for the KOBIL Class 3 Reader */
+static char serial [57];
 
 static struct usb_string stringtab [] = {
 	{ STRINGID_MFGR,	"morgner@informatik.hu-berlin.de", },
@@ -1706,11 +1707,11 @@ main (int argc, char **argv)
             }
             continue;
         }
-        if (sscanf(argv[i], "--serial=%64s", serial) == 1) continue;
+        if (sscanf(argv[i], "--serial=%56s", serial) == 1) continue;
         if (strcmp(argv[i], "-s") == 0) {
             i++;
-            if (sscanf(argv[i], "%64s", serial) != 1) {
-                fprintf(stderr, "string (max 63 bytes) expected: \"%s\"\n", argv[i]);
+            if (sscanf(argv[i], "%56s", serial) != 1) {
+                fprintf(stderr, "string (max 56 bytes) expected: \"%s\"\n", argv[i]);
                 return 1;
             }
             continue;
