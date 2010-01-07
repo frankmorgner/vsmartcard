@@ -517,13 +517,9 @@ class VirtualICC(object): # {{{
             return ""
 	else:
 		msg = self.sock.recv(size)
-		#print("Incoming Message % s") % hexdump(msg) #TEST
 		return msg
-	#return self.sock.recv(size) TEST, wieder auskommentieren!
 
     def run(self):
-	fd_in = open("input","w") #TEST
-	fd_out = open("output","w") #TEST
         while True :
             msg = self.__recvFromVPICC()
             if msg == "":
@@ -538,12 +534,8 @@ class VirtualICC(object): # {{{
                 self.os.powerUp()
             else:
                 print "APDU (%d Bytes):\n%s" % (len(msg),hexdump(msg, short=True))
-		apdu = struct.pack("i" + str(len(msg)) + "s",len(msg),msg) #TEST
-		fd_in.write(apdu) #TEST
                 answer = self.os.execute(msg)
                 print "RESP (%d Bytes):\n%s\n" % (len(answer),hexdump(answer, short=True))
-		rapdu = struct.pack("!i" + str(len(answer)) + "s",len(answer),answer) #TEST
-		fd_out.write(rapdu) #TEST
                 self.__sendToVPICC(answer)
 # }}} 
 
