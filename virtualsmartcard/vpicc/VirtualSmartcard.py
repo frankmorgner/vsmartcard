@@ -418,17 +418,12 @@ class CryptoflexOS(SmartcardOS): # {{{
     def __init__(self, filename, mf=None, ins2handler=None, maxle=MAX_SHORT_LE):
         if filename == None and mf == None:
             mf = CryptoflexMF()
+        mf.append(TransparentStructureEF(parent=mf, fid=0x0002, filedescriptor=0x01,
+            data="\x00\x00\x00\x01\x00\x01\x00\x00"))#EF.ICCSN
         #TODO: Load objects from disk
-        self.firstrun = True
         SmartcardOS.__init__(self, None,mf=mf, ins2handler=ins2handler, maxle=maxle,
                              sam=CryptoflexSAM("testconfig.sam","DUMMYKEYDUMMYKEY"))
-        card_capabilities = self.mf.firstSFT + self.mf.secondSFT + SmartcardOS.makeThirdSoftwareFunctionTable()
-        SmartcardOS.atr = SmartcardOS.makeATR(T=0, directConvention = True, TA1=0x13,
-                histChars = chr(0x80) + chr(0x70 + len(card_capabilities)) +
-                card_capabilities)
-
-    def powerUp(self):
-        self.firstrun = True
+        self.atr = '\x3B\xE2\x00\x00\x40\x20\x49\x06'
 
     def execute(self, msg):
         def notImplemented(*argz, **args):
@@ -452,20 +447,15 @@ class CryptoflexOS(SmartcardOS): # {{{
             # cryptoflex does not inpterpret le==0 as maxle
             self.lastCommandSW = sw
             self.lastCommandOffcut = data
-            return inttostring(SW["ERR_WRONGLENGTH"]|min(0xff,len(data)))
+            r = R_APDU(inttostring(SW["ERR_WRONGLENGTH"] + min(0xff,len(data)))).render()
         else:
-            r = SmartcardOS.formatResult(self, le, data, sw, False)
-
-        if self.firstrun:
-            # FIXME: other than Cryptoflex Access TM Software Development Kit
-            # Release 3C, smartcard_login-0.1.1 requires:
-            self.firstrun = False
-            if ord(r[0]) == SW["NORMAL_REST"]>>8:
-                r = inttostring(SW["NORMAL"])
-
-        # be fully successfull if at least one databyte has been returned
-        if len(r) > 2 and r[-2] == chr(SW["NORMAL_REST"]>>8):
-            return r[:-2] + inttostring(SW["NORMAL"])
+            if ins == 0xa4 and len(data):
+                # get response should be followed by select file
+                self.lastCommandSW = sw
+                self.lastCommandOffcut = data
+                r = R_APDU(inttostring(SW["NORMAL_REST"] + min(0xff, len(data)))).render()
+            else:
+                r = SmartcardOS.formatResult(self, le, data, sw, False)
 
         return r
 # }}}

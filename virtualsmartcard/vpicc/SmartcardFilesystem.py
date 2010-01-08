@@ -219,7 +219,6 @@ def make_property(prop, doc): # {{{
 # }}}
 
 
-
 class File(object): # {{{
     """Template class for a smartcard file."""
     bertlv_data    = make_property("bertlv_data", "list of (tag, length, value)-tuples of BER-TLV coded data objects (encrypted)")
@@ -398,16 +397,13 @@ class DF(File): # {{{
     data    = make_property("data", "unknown")
     content = make_property("content", "list of files of the DF")
     dfname  = make_property("dfname", "string with up to 16 bytes. DF name, which can also be used as application identifier.")
-    def __init__(self, parent, fid, filedescriptor=FDB["NOTSHAREABLEFILE"],
+    def __init__(self, parent, fid, filedescriptor=FDB["NOTSHAREABLEFILE"]|FDB["DF"],
             lifecycle=LCB["ACTIVATED"], 
             simpletlv_data=None, bertlv_data=None, dfname=None, data=""):
         """
-        The flag FDB["DF"] is automatically added to the file descriptor byte
-        filedescriptor.
-
         See File for more.
         """
-        File.__init__(self, parent, fid, filedescriptor|FDB["DF"], lifecycle,
+        File.__init__(self, parent, fid, filedescriptor, lifecycle,
                 simpletlv_data, bertlv_data)
         if dfname:
             if len(dfname)>16:
@@ -501,16 +497,14 @@ class MF(DF): # {{{
     current   = make_property("current", "the currently selected file")
     firstSFT  = make_property("firstSFT", "string of length 1. The first software function table from the historical bytes.")
     secondSFT = make_property("secondSFT", "string of length 1. The second software function table from the historical bytes.")
-    def __init__(self, filedescriptor=FDB["NOTSHAREABLEFILE"],
+    def __init__(self, filedescriptor=FDB["NOTSHAREABLEFILE"]|FDB["DF"],
         lifecycle=LCB["ACTIVATED"], 
         simpletlv_data=None, bertlv_data=None, dfname=None):
-        """The flag FDB["DF"] is automatically added to the file descriptor
-        bytey filedescriptor. The file identifier FID["MF"] is automatically
-        added.
+        """The file identifier FID["MF"] is automatically added.
 
         See DF for more.
         """
-        DF.__init__(self, None, FID["MF"], filedescriptor|FDB["DF"], lifecycle,
+        DF.__init__(self, None, FID["MF"], filedescriptor, lifecycle,
             simpletlv_data, bertlv_data, dfname)
         self.current   = self
         self.firstSFT  = inttostring(MF.makeFirstSoftwareFunctionTable(), 1)
@@ -635,7 +629,7 @@ class MF(DF): # {{{
 
         return "".join(fdm)
 
-    def __selectFile(self, p1, p2, data):
+    def _selectFile(self, p1, p2, data):
         """
         Returns the file specified by 'p1' and 'data' from the select
         file command APDU.
@@ -698,7 +692,7 @@ class MF(DF): # {{{
         P2_FCP  = 1<<2
         P2_FMD  = 2<<2
         P2_NONE = 3<<2
-        file = self.__selectFile(p1, p2, data)
+        file = self._selectFile(p1, p2, data)
 
         if p2 == P2_NONE:
             data = ""
@@ -1107,7 +1101,7 @@ class MF(DF): # {{{
                 tlv_data = []
             isSimpleTlv = True
         else:
-            raise SwError(SW["ERR_INCORRECTP1P2"])
+            raise SwError(SW["ERR_NOTSUPPORTED"])
 
         return file, isSimpleTlv, tlv_data
 
@@ -1295,7 +1289,7 @@ class MF(DF): # {{{
         integers and 'data' as binary string. Returns the status bytes as two
         byte long integer and the response data as binary string.
         """
-        file = self.__selectFile(p1, p2, data)
+        file = self._selectFile(p1, p2, data)
         file.parent.content.remove(file)
         # FIXME: free memory of file and remove its content from the security device
 
@@ -1334,18 +1328,15 @@ class EF(File): # {{{
 class TransparentStructureEF(EF): # {{{
     """Class for an elementary file with transparent structure."""
     data = make_property("data", "string (encrypted). The file's data.")
-    def __init__(self, parent, fid, filedescriptor,
+    def __init__(self, parent, fid, filedescriptor=FDB["EFSTRUCTURE_TRANSPARENT"],
             lifecycle=LCB["ACTIVATED"], 
             simpletlv_data=None, bertlv_data=None,
             datacoding=DCB["ONETIMEWRITE"], shortfid=0, data=""):
         """
-        The flag FDB["EFSTRUCTURE_TRANSPARENT"] is automatically added to
-        'filedescriptor'.
-
         See EF for more.
         """
         EF.__init__(self, parent, fid,
-                filedescriptor|FDB["EFSTRUCTURE_TRANSPARENT"], lifecycle,
+                filedescriptor, lifecycle,
                 simpletlv_data, bertlv_data,
                 datacoding, shortfid)
         self.setdec('data', data)
@@ -1701,4 +1692,68 @@ class CryptoflexMF(MF): # {{{
 
         datalist = [data]
         return ef, offsets, datalist
+
+    def selectFile(self, p1, p2, data):
+        """
+        Function for instruction 0xa4. Takes the parameter bytes 'p1', 'p2' as
+        integers and 'data' as binary string. Returns the status bytes as two
+        byte long integer and the response data as binary string.
+        """
+        P2_FCI  = 0
+        P2_FCP  = 1<<2
+        P2_FMD  = 2<<2
+        P2_NONE = 3<<2
+        file = self._selectFile(p1, p2, data)
+
+        if isinstance(file, EF):
+            size = inttostring(min(0xffff, len(file.getenc('data'))), 2) # File size (body only)
+            extra = chr(0) # RFU
+            if isinstance(file, RecordStructureEF) and file.hasFixedRecordSize() and not file.isCyclic():
+                extra += chr(0) + chr(min(file.records, 0xff)) # Length of records
+        elif isinstance(file, DF):
+            size = inttostring(0xffff, 2) # Number of unused EEPROM bytes available in the DF
+            efcount = 0
+            dfcount = 0
+            chv1 = None
+            chv2 = None
+            chv1lifecycle = 0
+            chv2lifecycle = 0
+            for f in self.content:
+                if f.fid == 0x0000:
+                    chv1 = f
+                    chv1lifecycle = f.lifecycle & 1
+                if f.fid == 0x0100:
+                    chv2 = f
+                    chv2lifecycle = f.lifecycle & 1
+                if isinstance(f, EF):
+                    efcount += 1
+                if isinstance(f, DF):
+                    dfcount += 1
+            if chv1:
+                extra = chr(1) # TODO LSB correct?
+            else:
+                extra = chr(0) # TODO LSB correct?
+            extra += chr(efcount)
+            extra += chr(dfcount)
+            extra += chr(0) # TODO Number of PINs and unblock CHV PINs
+            extra += chr(0) # RFU
+            if chv1:
+                extra += chr(0) # TODO Number of remaining CHV1 attempts
+                extra += chr(0) # TODO Number of remaining unblock CHV1 attempts
+                if chv2:
+                    extra += chr(0) # TODO CHV2 key status
+                    extra += chr(0) # TODO CHV2 unblocking key status
+
+        data = inttostring(0, 2) # RFU
+        data += size
+        data += inttostring(file.fid, 2)
+        data += inttostring(file.filedescriptor) # File type
+        data += inttostring(0, 4) # ACs TODO
+        data += chr(file.lifecycle & 1) # File status
+        data += chr(len(extra))
+        data += extra
+
+        self.current = file
+
+        return SW["NORMAL"], data
 # }}}
