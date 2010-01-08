@@ -1106,6 +1106,8 @@ class MF(DF): # {{{
             else:
                 tlv_data = []
             isSimpleTlv = True
+        else:
+            raise SwError(SW["ERR_INCORRECTP1P2"])
 
         return file, isSimpleTlv, tlv_data
 
