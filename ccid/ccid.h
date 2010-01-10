@@ -69,7 +69,6 @@ typedef struct {
 } __attribute__ ((packed)) abProtocolDataStructure_T1_t;
 
 typedef struct {
-    __u8   bPINOperation;
     __u8   bTimeOut;
     __u8   bmFormatString;
     __u8   bmPINBlockString;
@@ -81,7 +80,25 @@ typedef struct {
     __u8   bMsgIndex;
     __u8   bTeoPrologue1;
     __le16 bTeoPrologue2;
-} __attribute__ ((packed)) abPINOperationDataStucture
+} __attribute__ ((packed)) abPINDataStucture_Verification_t;
+typedef struct {
+    __u8   bTimeOut;
+    __u8   bmFormatString;
+    __u8   bmPINBlockString;
+    __u8   bmPINLengthFormat;
+    __u8   bInsertionOffsetOld;
+    __u8   bInsertionOffsetNew;
+    __le16 wPINMaxExtraDigit;
+    __u8   bConfirmPIN;
+    __u8   bEntryValidationCondition;
+    __u8   bNumberMessage;
+    __le16 wLangId;
+    __u8   bMsgIndex1;
+    __u8   bMsgIndex2;
+    __u8   bMsgIndex3;
+    __u8   bTeoPrologue1;
+    __le16 bTeoPrologue2;
+} __attribute__ ((packed)) abPINDataStucture_Modification_t;
 
 typedef struct {
     __u8   bMessageType;
@@ -221,12 +238,12 @@ ccid_desc = {
     .bClassGetResponse      = 0xFF,
     .bclassEnvelope         = 0xFF,
     .wLcdLayout             = __constant_cpu_to_le16(
-                              0),
-                              //0xFF00|   // Number of lines for the LCD display
-                              //0x00FF),  // Number of characters per line
-    .bPINSupport            = 0,      // PIN Modification supported
-    //.bPINSupport            = 0x1|      // PIN Verification supported
-                              //0x2,      // PIN Modification supported
+                              //0),
+                              0xFF00|   // Number of lines for the LCD display
+                              0x00FF),  // Number of characters per line
+    //.bPINSupport            = 0,
+    .bPINSupport            = 0x1|      // PIN Verification supported
+                              0x2,      // PIN Modification supported
     .bMaxCCIDBusySlots      = 0x01,
 };
 
@@ -378,12 +395,12 @@ __u8 get_bStatus(LONG pcsc_result)
             bStatus = 1;
         } else {
             // active
-            fprintf(stderr, "card active\n");
+            /*fprintf(stderr, "card active\n");*/
             bStatus = 0;
         }
     } else {
         // absent
-        fprintf(stderr, "card absent\n");
+        /*fprintf(stderr, "card absent\n");*/
         bStatus = 2;
         if (hcard != 0) {
             pcsc_result = SCardDisconnect(hcard, SCARD_UNPOWER_CARD);
@@ -621,16 +638,232 @@ perform_PC_to_RDR_GetParamters(const PC_to_RDR_GetParameters_t request,
             pcsc_result, abProtocolDataStructure);
 }
 
-//RDR_to_PC_Parameters_t
-//perform_PC_to_RDR_Secure(const PC_to_RDR_Secure_t request,
-        //__u8* abData)
-//{
-    //if (    request.bMessageType != 0x69 ||
-            //request.bSlot != 0 ||
-            //request.wLevelParameter != __constant_cpu_to_le16(0))
-        //fprintf(stderr, "warning: malformed PC_to_RDR_Secure\n");
+RDR_to_PC_DataBlock_t
+perform_PC_to_RDR_Secure(const PC_to_RDR_Secure_t request,
+        const __u8* abData, __u8** abDataOut)
+{
+    /* only short APDUs supported so Lc is always the fiths byte */
+    if (    request.bMessageType != 0x69 ||
+            request.bSlot != 0)
+        fprintf(stderr, "warning: malformed PC_to_RDR_Secure\n");
 
-//}
+    if (request.wLevelParameter != __constant_cpu_to_le16(0)) {
+        fprintf(stderr, "warning: Only APDUs, that begin and end with this command are supported.\n");
+        return get_RDR_to_PC_DataBlock(request.bSlot, request.bSeq,
+                SCARD_E_READER_UNSUPPORTED, __constant_cpu_to_le32(0));
+    }
+
+    __u8 PINMin, PINMax, bmPINLengthFormat, bmPINBlockString, bmFormatString;
+    __u8 *abPINApdu;
+    uint32_t apdulen;
+    abPINDataStucture_Verification_t *verify = NULL;
+    abPINDataStucture_Modification_t *modify = NULL;
+    switch (*abData) { // first byte of abData is bPINOperation
+        case 0x00:
+            // PIN Verification
+            verify = (abPINDataStucture_Verification_t *)
+                (abData + sizeof(__u8));
+            PINMin = verify->wPINMaxExtraDigit >> 8;
+            PINMax = verify->wPINMaxExtraDigit & 0x00ff;
+            bmPINLengthFormat = verify->bmPINLengthFormat;
+            bmPINBlockString = verify->bmPINBlockString;
+            bmFormatString = verify->bmFormatString;
+            abPINApdu = (__u8*) (verify + sizeof(*verify));
+            apdulen = __le32_to_cpu(request.dwLength) - sizeof(*verify);
+            break;
+        case 0x01:
+            // PIN Modification
+            modify = (abPINDataStucture_Modification_t *)
+                (abData + sizeof(__u8));
+            PINMin = modify->wPINMaxExtraDigit >> 8;
+            PINMax = modify->wPINMaxExtraDigit & 0x00ff;
+            bmPINLengthFormat = modify->bmPINLengthFormat;
+            bmPINBlockString = modify->bmPINBlockString;
+            bmFormatString = modify->bmFormatString;
+            abPINApdu = (__u8*) (modify + sizeof(*modify));
+            apdulen = __le32_to_cpu(request.dwLength) - sizeof(*modify);
+            break;
+        case 0x04:
+            // Cancel PIN function
+        default:
+            fprintf(stderr, "warning: unknown pin operation\n");
+            return get_RDR_to_PC_DataBlock(request.bSlot, request.bSeq,
+                    SCARD_E_READER_UNSUPPORTED, __constant_cpu_to_le32(0));
+    }
+
+    printf("verify=%d abPINApdu=%d sizoeof(verify)=%d\n", verify, abPINApdu, sizeof(*verify));
+    printf("%x %x %x %x %x %x\n", abPINApdu[0], abPINApdu[1], abPINApdu[2], abPINApdu[3], abPINApdu[4], abPINApdu[5]);
+
+    // copy the apdu
+    __u8 *apdu = (__u8*) malloc(apdulen);
+    if (!apdu) {
+        return get_RDR_to_PC_DataBlock(request.bSlot, request.bSeq,
+                SCARD_E_NO_MEMORY, __constant_cpu_to_le32(0));
+    }
+    memcpy(apdu, abPINApdu, apdulen);
+
+    // TODO
+    char *pin = "123456";
+
+    __u8 *p;
+    /* if system units are bytes or bits */
+    uint8_t bytes = bmFormatString >> 7;
+    /* PIN position after format in the APDU command (relative to the first
+     * data after Lc). The position is based on the system units’ type
+     * indicator (maximum1111 for fifteen system units */
+    uint8_t pos = (bmFormatString >> 3) & 0xf;
+    /* Right or left justify data */
+    uint8_t right = (bmFormatString >> 2) & 1;
+    /* Bit wise for the PIN format type */
+    uint8_t type = bmFormatString & 2;
+
+    uint8_t pinlen = strnlen(pin, PINMax + 1);
+    if (pinlen > PINMax) {
+        fprintf(stderr, "warning: PIN was too long, "
+                "should be between %d and %d\n", PINMin, PINMax);
+        return get_RDR_to_PC_DataBlock(request.bSlot, request.bSeq,
+                SCARD_F_INTERNAL_ERROR, __constant_cpu_to_le32(0));
+    }
+
+    /* Size in bits of the PIN length inserted in the APDU command. */
+    uint8_t lenlen = bmPINBlockString >> 4;
+    /* PIN block size in bytes after justification and formatting. */
+    uint8_t blocksize = bmPINBlockString & 0xf;
+    /* PIN length position in the APDU command */
+    uint8_t lenshift = bmPINLengthFormat & 0xf;
+    if (lenlen) {
+        /* write PIN Length */
+        if (lenlen == 8) {
+            if (bytes) {
+                p = apdu + 5 + lenshift;
+            } else {
+                if (lenshift == 0)
+                    p = apdu + 5;
+                if (lenshift == 8)
+                    p = apdu + 5 + 1;
+                else {
+                    fprintf(stderr, "warning: PIN Block too complex, aborting\n");
+                    fprintf(stderr, "%s:%d\n", __FILE__, __LINE__);
+                    return get_RDR_to_PC_DataBlock(request.bSlot, request.bSeq,
+                            SCARD_F_INTERNAL_ERROR,
+                            __constant_cpu_to_le32(0));
+                }
+            }
+            *p = pinlen;
+        }
+
+        fprintf(stderr, "warning: PIN Block too complex, aborting\n");
+        fprintf(stderr, "%s:%d\n", __FILE__, __LINE__);
+        return get_RDR_to_PC_DataBlock(request.bSlot, request.bSeq,
+                SCARD_F_INTERNAL_ERROR, __constant_cpu_to_le32(0));
+    }
+
+    uint8_t justify;
+    if (right)
+        justify = blocksize - pinlen;
+    else
+        justify = 0;
+
+    if (bytes) {
+        p = apdu + 5 + pos + justify;
+    } else {
+        if (pos == 0)
+            p = apdu + 5 + justify;
+        else if (pos == 8)
+            p = apdu + 5 + 1 + justify;
+        else {
+            fprintf(stderr, "warning: PIN Block too complex, aborting\n");
+            fprintf(stderr, "%s:%d\n", __FILE__, __LINE__);
+            fprintf(stderr, "%x\n", bmFormatString);
+            return get_RDR_to_PC_DataBlock(request.bSlot, request.bSeq,
+                    SCARD_F_INTERNAL_ERROR,
+                    __constant_cpu_to_le32(0));
+        }
+    }
+
+    while (*pin) {
+        uint8_t c;
+        switch (type) {
+            case 0:
+                // binary
+                switch (*pin) {
+                    case '0':
+                        c = 0x00;
+                        break;
+                    case '1':
+                        c = 0x01;
+                        break;
+                    case '2':
+                        c = 0x02;
+                        break;
+                    case '3':
+                        c = 0x03;
+                        break;
+                    case '4':
+                        c = 0x04;
+                        break;
+                    case '5':
+                        c = 0x05;
+                        break;
+                    case '6':
+                        c = 0x06;
+                        break;
+                    case '7':
+                        c = 0x07;
+                        break;
+                    case '8':
+                        c = 0x08;
+                        break;
+                    case '9':
+                        c = 0x09;
+                        break;
+                    default:
+                        fprintf(stderr, "warning: PIN character %c not supported, aborting", *pin);
+                        return get_RDR_to_PC_DataBlock(request.bSlot,
+                                request.bSeq, SCARD_F_INTERNAL_ERROR,
+                                __constant_cpu_to_le32(0));
+                }
+                break;
+            case 1:
+                // BCD
+                fprintf(stderr, "warning: BCD format not supported, aborting");
+                return get_RDR_to_PC_DataBlock(request.bSlot, request.bSeq,
+                        SCARD_F_INTERNAL_ERROR, __constant_cpu_to_le32(0));
+            case 2:
+                // ASCII
+                c = *pin;
+                break;
+            default:
+                fprintf(stderr, "warning: unknown formatting, aborting");
+                return get_RDR_to_PC_DataBlock(request.bSlot, request.bSeq,
+                        SCARD_F_INTERNAL_ERROR, __constant_cpu_to_le32(0));
+        }
+        *p = c;
+        p++;
+        pin++;
+    }
+
+    printf("%x %x %x %x %x %x\n", apdu[0], apdu[1], apdu[2], apdu[3], apdu[4], apdu[5]);
+
+
+    DWORD dwRecvLength = MAX_BUFFER_SIZE;
+    *abDataOut         = (__u8 *) malloc(dwRecvLength);
+    if (*abDataOut == NULL) {
+        return get_RDR_to_PC_DataBlock(request.bSlot, request.bSeq,
+                SCARD_E_NO_MEMORY, __constant_cpu_to_le32(0));
+    }
+
+    LPCSCARD_IO_REQUEST pioSendPci;
+    if (dwActiveProtocol == SCARD_PROTOCOL_T0)
+        pioSendPci = SCARD_PCI_T0;
+    else
+        pioSendPci = SCARD_PCI_T1;
+    int pcsc_result = SCardTransmit(hcard, pioSendPci, apdu, apdulen, NULL,
+            *abDataOut, &dwRecvLength);
+
+    return get_RDR_to_PC_DataBlock(request.bSlot, request.bSeq,
+            pcsc_result, __cpu_to_le32(dwRecvLength));
+}
 
 RDR_to_PC_NotifySlotChange_t
 get_RDR_to_PC_NotifySlotChange ()
@@ -744,7 +977,7 @@ int parse_ccid(const __u8* inbuf, __u8** outbuf) {
             }   break;
 
         case 0x65:
-            {   fprintf(stderr, "PC_to_RDR_GetSlotStatus\n");
+            {   /*fprintf(stderr, "PC_to_RDR_GetSlotStatus\n");*/
 
                 PC_to_RDR_GetSlotStatus_t input =
                     *(PC_to_RDR_GetSlotStatus_t*) inbuf;
@@ -807,6 +1040,29 @@ int parse_ccid(const __u8* inbuf, __u8** outbuf) {
                         __le32_to_cpu(output.dwLength));
                 if (abProtocolDataStructure)
                     free(abProtocolDataStructure);
+            }   break;
+
+        case 0x69:
+            {   fprintf(stderr, "PC_to_RDR_Secure\n");
+
+                __u8* rapdu;
+                PC_to_RDR_Secure_t input = *(PC_to_RDR_Secure_t *) inbuf;
+                RDR_to_PC_DataBlock_t output =
+                    perform_PC_to_RDR_Secure(input, inbuf + sizeof input,
+                            &rapdu);
+
+                result  = sizeof output + __le32_to_cpu(output.dwLength);
+                *outbuf = realloc(*outbuf, result);
+                if (*outbuf == NULL) {
+                    free(rapdu);
+                    result = -1;
+                    break;
+                }
+
+                memcpy(*outbuf, &output, sizeof output);
+                memcpy(*outbuf + sizeof output, rapdu,
+                        __le32_to_cpu(output.dwLength));
+                free(rapdu);
             }   break;
 
         default:
@@ -886,6 +1142,8 @@ int parse_ccid_control(struct usb_ctrlrequest *setup, __u8 **outbuf) {
                     __le32 drate  = ccid_desc.dwDataRate;
                     memcpy(*outbuf, &drate,  sizeof (__le32));
                 }   break;
+            default:
+                printf("unknown status setup->bRequest == %d", setup->bRequest);
         }
 
     return result;
