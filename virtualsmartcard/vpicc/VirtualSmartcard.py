@@ -280,7 +280,11 @@ class SmartcardOS(object): # {{{
         def notImplemented(*argz, **args):
             raise SwError(SW["ERR_INSNOTSUPPORTED"])
 
-        c = C_APDU(msg)
+        try:
+            c = C_APDU(msg)
+        except ValueError, e:
+            print e
+            return self.formatResult(0, 0, "", SW["ERR_INCORRECTPARAMETERS"])
 
         #Handle Class Byte{{{
         class_byte = c.cla
@@ -429,7 +433,12 @@ class CryptoflexOS(SmartcardOS): # {{{
         def notImplemented(*argz, **args):
             raise SwError(SW["ERR_INSNOTSUPPORTED"])
 
-        c = C_APDU(msg)
+        try:
+            c = C_APDU(msg)
+        except ValueError, e:
+            print e
+            return self.formatResult(0, 0, "", SW["ERR_INCORRECTPARAMETERS"])
+
         try:
             sw, result = self.ins2handler.get(c.ins, notImplemented)(c.p1, c.p2, c.data)
             #print type(result)
