@@ -653,6 +653,8 @@ perform_PC_to_RDR_Secure(const PC_to_RDR_Secure_t request,
                 SCARD_E_READER_UNSUPPORTED, __constant_cpu_to_le32(0));
     }
 
+    printf(":");
+
     __u8 PINMin, PINMax, bmPINLengthFormat, bmPINBlockString, bmFormatString;
     __u8 *abPINApdu;
     uint32_t apdulen;
@@ -668,8 +670,8 @@ perform_PC_to_RDR_Secure(const PC_to_RDR_Secure_t request,
             bmPINLengthFormat = verify->bmPINLengthFormat;
             bmPINBlockString = verify->bmPINBlockString;
             bmFormatString = verify->bmFormatString;
-            abPINApdu = (__u8*) (verify + sizeof(*verify));
-            apdulen = __le32_to_cpu(request.dwLength) - sizeof(*verify);
+            abPINApdu = (__u8*) verify + sizeof(*verify);
+            apdulen = __le32_to_cpu(request.dwLength) - sizeof(*verify) - sizeof(__u8);
             break;
         case 0x01:
             // PIN Modification
@@ -680,8 +682,8 @@ perform_PC_to_RDR_Secure(const PC_to_RDR_Secure_t request,
             bmPINLengthFormat = modify->bmPINLengthFormat;
             bmPINBlockString = modify->bmPINBlockString;
             bmFormatString = modify->bmFormatString;
-            abPINApdu = (__u8*) (modify + sizeof(*modify));
-            apdulen = __le32_to_cpu(request.dwLength) - sizeof(*modify);
+            abPINApdu = (__u8*) modify + sizeof(*modify);
+            apdulen = __le32_to_cpu(request.dwLength) - sizeof(*modify) - sizeof(__u8);
             break;
         case 0x04:
             // Cancel PIN function
@@ -690,9 +692,6 @@ perform_PC_to_RDR_Secure(const PC_to_RDR_Secure_t request,
             return get_RDR_to_PC_DataBlock(request.bSlot, request.bSeq,
                     SCARD_E_READER_UNSUPPORTED, __constant_cpu_to_le32(0));
     }
-
-    printf("verify=%d abPINApdu=%d sizoeof(verify)=%d\n", verify, abPINApdu, sizeof(*verify));
-    printf("%x %x %x %x %x %x\n", abPINApdu[0], abPINApdu[1], abPINApdu[2], abPINApdu[3], abPINApdu[4], abPINApdu[5]);
 
     // copy the apdu
     __u8 *apdu = (__u8*) malloc(apdulen);
@@ -703,7 +702,7 @@ perform_PC_to_RDR_Secure(const PC_to_RDR_Secure_t request,
     memcpy(apdu, abPINApdu, apdulen);
 
     // TODO
-    char *pin = "123456";
+    char *pin = "1234";
 
     __u8 *p;
     /* if system units are bytes or bits */
@@ -743,7 +742,6 @@ perform_PC_to_RDR_Secure(const PC_to_RDR_Secure_t request,
                     p = apdu + 5 + 1;
                 else {
                     fprintf(stderr, "warning: PIN Block too complex, aborting\n");
-                    fprintf(stderr, "%s:%d\n", __FILE__, __LINE__);
                     return get_RDR_to_PC_DataBlock(request.bSlot, request.bSeq,
                             SCARD_F_INTERNAL_ERROR,
                             __constant_cpu_to_le32(0));
@@ -753,7 +751,6 @@ perform_PC_to_RDR_Secure(const PC_to_RDR_Secure_t request,
         }
 
         fprintf(stderr, "warning: PIN Block too complex, aborting\n");
-        fprintf(stderr, "%s:%d\n", __FILE__, __LINE__);
         return get_RDR_to_PC_DataBlock(request.bSlot, request.bSeq,
                 SCARD_F_INTERNAL_ERROR, __constant_cpu_to_le32(0));
     }
@@ -773,8 +770,6 @@ perform_PC_to_RDR_Secure(const PC_to_RDR_Secure_t request,
             p = apdu + 5 + 1 + justify;
         else {
             fprintf(stderr, "warning: PIN Block too complex, aborting\n");
-            fprintf(stderr, "%s:%d\n", __FILE__, __LINE__);
-            fprintf(stderr, "%x\n", bmFormatString);
             return get_RDR_to_PC_DataBlock(request.bSlot, request.bSeq,
                     SCARD_F_INTERNAL_ERROR,
                     __constant_cpu_to_le32(0));
@@ -842,8 +837,6 @@ perform_PC_to_RDR_Secure(const PC_to_RDR_Secure_t request,
         p++;
         pin++;
     }
-
-    printf("%x %x %x %x %x %x\n", apdu[0], apdu[1], apdu[2], apdu[3], apdu[4], apdu[5]);
 
 
     DWORD dwRecvLength = MAX_BUFFER_SIZE;
