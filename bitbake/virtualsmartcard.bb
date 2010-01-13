@@ -27,12 +27,15 @@ FILES_${PN} = "\
 "
 
 do_compile() {
-    ${CC} -c ${S}/virtualsmartcard/vpcd/vpcd.c \
+    ${CC} ${SO_CFLAGS} ${CFLAGS} -c \
+        ${S}/virtualsmartcard/vpcd/vpcd.c \
         ${S}/virtualsmartcard/vpcd/vpcd.h \
-        ${LIBPCSCLITE_CFLAGS} ${SO_CFLAGS} ${CFLAGS}
-    ${CC} ${S}/vpcd.o -o ${S}/virtualsmartcard/libvpcd.so \
+    ${CC} ${SO_CFLAGS} ${CFLAGS} ${LIBPCSCLITE_CFLAGS} -c \
+        ${S}/virtualsmartcard/vpcd/ifd.c
+        
+    ${CC} ${S}/ifd.o ${S}/vpcd.o -o ${S}/virtualsmartcard/libvpcd.so \
         ${LIBPCSCLITE_CFLAGS} ${SO_LDFLAGS} ${LDFLAGS}
-    rm -f ${S}/vpcd.o
+    rm -f ${S}/vpcd.o ${S}/ifd.o
 
     echo '#!/bin/sh' > ${S}/virtualsmartcard/virtualsmartcard
     echo "cd \"${python_sitelib}\"" \
