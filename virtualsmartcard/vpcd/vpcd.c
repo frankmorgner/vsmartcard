@@ -16,156 +16,183 @@
  * You should have received a copy of the GNU General Public License along with
  * virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <stdio.h>
-#include <stdlib.h>
+#include <arpa/inet.h>
+#include <stdint.h>
 #include <string.h>
-#include <ifdhandler.h>
-#include <debuglog.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+
+#include <stdlib.h>
 
 #include "vpcd.h"
 
+static int server_sock = -1;
+static int client_sock = -1;
+
 /*
- * List of Defined Functions Available to IFD_Handler 1.0
+ * Send all size bytes from buffer to sock
  */
-RESPONSECODE
-IO_Create_Channel(DWORD channelid)
-{
-    if (vicc_init() < 0) return IFD_COMMUNICATION_ERROR;
+static int sendall(int sock, size_t size, const char* buffer);
+/*
+ * Receive size bytes from sock
+ */
+static char* recvall(int sock, size_t size);
 
-    return IFD_SUCCESS;
+
+int sendall(int sock, size_t size, const char* buffer) {
+    size_t sent = 0;
+    int i;
+    while (sent < size) {
+        i = send(sock, buffer, size-sent, 0);
+        if (i < 0) return i;
+        sent += i;
+    }
+    return 0;
 }
 
-RESPONSECODE
-IO_Close_Channel()
-{
-    RESPONSECODE r = IFD_Eject_ICC();
-    if (vicc_exit() < 0) return IFD_COMMUNICATION_ERROR;
+char* recvall(int sock, size_t size) {
+    char* buffer = (char*) malloc(size);
+    if (buffer == NULL) return NULL;
 
-    return r;
+    if (recv(sock, buffer, size, MSG_WAITALL) < size) {
+        free(buffer);
+        return NULL;
+    }
+    return buffer;
 }
 
-RESPONSECODE
-IFD_Get_Capabilities(DWORD tag, PUCHAR value)
-{
-    char * atr;
-    int size;
-    switch (tag) {
-        case TAG_IFD_ATR:
-
-            size = vicc_getatr(&atr);
-            if (size < 0) {
-                Log1(PCSC_LOG_ERROR, "could not get ATR");
-                return IFD_COMMUNICATION_ERROR;
-            }
-
-            value = memcpy(value, atr, size);
-            free(atr);
-            return IFD_SUCCESS;
-
-        case TAG_IFD_SLOTS_NUMBER:
-            (*value) = 0;
-            return IFD_SUCCESS;
-
-        //case TAG_IFD_POLLING_THREAD_KILLABLE:
-            //return IFD_SUCCESS;
-
-        default:
-            Log2(PCSC_LOG_DEBUG, "unknown tag %d", (int)tag);
+int sendToVICC(uint16_t size, const char* buffer) {
+    /* send size of message */
+    uint16_t i = htons(size);
+    i = sendall(client_sock, sizeof i, (char *) &i);
+    if (i<0) {
+        vicc_eject();
+        return i;
+    }
+    /* send message */
+    i = sendall(client_sock, size, buffer);
+    if (i<0) {
+        vicc_eject();
+        return i;
     }
 
-    return IFD_ERROR_TAG;
+    return 0;
 }
 
-RESPONSECODE
-IFD_Set_Capabilities(DWORD tag, PUCHAR value)
-{
-    return IFD_NOT_SUPPORTED;
+/*
+ * Receive a message from icc
+ */
+int recvFromVICC(char** buffer) {
+    /* receive size of message on LENLEN bytes */
+    uint16_t *p = (uint16_t *) recvall(client_sock, sizeof *p);
+    if (p == NULL) {
+        vicc_eject();
+        return -1;
+    }
+    uint16_t size = ntohs(*p);
+    free(p);
+
+    /* receive message */
+    *buffer = recvall(client_sock, size);
+    if (*buffer == NULL) {
+        vicc_eject();
+        return -1;
+    }
+
+    return size;
 }
 
-RESPONSECODE
-IFD_Set_Protocol_Parameters(DWORD protocoltype, UCHAR selectionflags, UCHAR
-        pts1, UCHAR pts2, UCHAR pts3)
-{
-    return IFD_SUCCESS;
+int vicc_eject() {
+    if (client_sock > 0) {
+        client_sock = close(client_sock);
+        if (client_sock < 0) {
+            return -1;
+        }
+    }
+    return 0;
 }
 
-RESPONSECODE
-IFD_Power_ICC(DWORD a)
-{
+int vicc_init() {
+    server_sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (server_sock < 0) return -1;
 
-    if ((a == IFD_POWER_DOWN) || (a == IFD_RESET)) {
-        if (vicc_poweroff() < 0) {
-            Log1(PCSC_LOG_ERROR, "could not powerdown");
-            return IFD_COMMUNICATION_ERROR;
+    struct sockaddr_in server_sockaddr;
+    memset(&server_sockaddr, 0, sizeof(server_sockaddr));
+    server_sockaddr.sin_family      = PF_INET;
+    server_sockaddr.sin_port        = htons(VPCDPORT);
+    server_sockaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+
+    if (bind(server_sock, (struct sockaddr*)&server_sockaddr,
+                sizeof(server_sockaddr)) < 0) return -1;
+
+    if (listen(server_sock, 0) < 0) return -1;
+
+    return 0;
+}
+
+int vicc_exit() {
+    if (server_sock > 0) {
+        server_sock = close(server_sock);
+        if (server_sock < 0) return -1;
+    }
+
+    return 0;
+}
+
+int vicc_transmit(int apdu_len, const char *apdu, char **rapdu) {
+    if (sendToVICC(apdu_len, apdu) < 0) return -1;
+
+    return recvFromVICC(rapdu);
+}
+
+int vicc_present() {
+    if (client_sock > 0) return 1;
+    else {
+        fd_set rfds;
+        FD_ZERO(&rfds);
+        FD_SET(server_sock, &rfds);
+
+        /* Wait up to one microsecond. */
+        struct timeval tv;
+        tv.tv_sec = 0;
+        tv.tv_usec = 1;
+
+        if (select(server_sock+1, &rfds, NULL, NULL, &tv) < 0) return -1;
+
+        if (FD_ISSET(server_sock, &rfds)) {
+            struct sockaddr_in client_sockaddr;
+            socklen_t client_socklen = sizeof(client_sockaddr);
+            client_sock = accept(server_sock,
+                    (struct sockaddr*)&client_sockaddr,
+                    &client_socklen);
+            if (client_sock == -1) return -1;
+
+            return 1;
         }
     }
 
-    if ((a == IFD_POWER_UP) || (a == IFD_RESET)) {
-        if (vicc_poweron() < 0) {
-            Log1(PCSC_LOG_ERROR, "could not powerup");
-            return IFD_COMMUNICATION_ERROR;
-        }
-    }
-
-    return IFD_SUCCESS;
+    return 0;
 }
 
-RESPONSECODE
-IFD_Swallow_ICC()
-{
-    Log1(PCSC_LOG_DEBUG, "");
-    return IFD_NOT_SUPPORTED;
+int vicc_getatr(char** atr) {
+    char i = VPCD_CTRL_ATR;
+    return vicc_transmit(VPCD_CTRL_LEN, &i, atr);
 }
 
-RESPONSECODE
-IFD_Eject_ICC()
-{
-    if (vicc_eject() < 0) {
-        return IFD_COMMUNICATION_ERROR;
-    }
-    return IFD_SUCCESS;
+int vicc_poweron() {
+    char i = VPCD_CTRL_ON;
+    return sendToVICC(VPCD_CTRL_LEN, &i);
 }
 
-RESPONSECODE
-IFD_Confiscate_ICC()
-{
-    Log1(PCSC_LOG_DEBUG, "");
-    return IFD_NOT_SUPPORTED;
+int vicc_poweroff() {
+    char i = VPCD_CTRL_OFF;
+    return sendToVICC(VPCD_CTRL_LEN, &i);
 }
 
-RESPONSECODE
-IFD_Transmit_to_ICC(SCARD_IO_HEADER SendPci, PUCHAR TxBuffer, DWORD TxLength,
-        PUCHAR RxBuffer, PDWORD RxLength, PSCARD_IO_HEADER RecvPci)
-{
-    (*RxLength) = 0;
-    char *rapdu;
-
-    int size = vicc_transmit(TxLength, (char *) TxBuffer, &rapdu);
-    if (size < 0) {
-        Log1(PCSC_LOG_ERROR, "could not send apdu or receive rapdu");
-        return IFD_COMMUNICATION_ERROR;
-    }
-
-    (*RxLength) = size;
-    RxBuffer = memcpy(RxBuffer, rapdu, size);
-    free(rapdu);
-
-    return IFD_SUCCESS;
-}
-
-RESPONSECODE
-IFD_Is_ICC_Present()
-{
-    switch (vicc_present()) {
-        case 0:  return IFD_ICC_NOT_PRESENT;
-        case 1:  return IFD_ICC_PRESENT;
-        default: return IFD_COMMUNICATION_ERROR;
-    }
-    return IFD_COMMUNICATION_ERROR;
-}
-
-RESPONSECODE
-IFD_Is_ICC_Absent()
-{
-    return IFD_Is_ICC_Present();
+int vicc_reset() {
+    char i = VPCD_CTRL_RESET;
+    return sendToVICC(VPCD_CTRL_LEN, &i);
 }

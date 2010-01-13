@@ -20,10 +20,11 @@ from ConstantDefinitions import *
 from TLVutils import *
 from SWutils import SwError, SW
 from SmartcardFilesystem import prettyprint_anything, MF, DF, CryptoflexMF, TransparentStructureEF
-from utils import C_APDU, R_APDU, hexdump, stringtoint, inttostring
+from utils import C_APDU, R_APDU, hexdump, inttostring
 from SmartcardSAM import CardContainer, SAM, PassportSAM, CryptoflexSAM
 from pickle import dumps, loads
 import socket, struct, sys, signal, atexit, traceback
+import struct
 
 
 class SmartcardOS(object): # {{{ 
@@ -147,6 +148,9 @@ class SmartcardOS(object): # {{{
         pass
 
     def powerDown(self):
+        pass
+
+    def reset(self):
         pass
 
     @staticmethod
@@ -470,6 +474,17 @@ class CryptoflexOS(SmartcardOS): # {{{
 # }}}
 
 
+# sizeof(int) taken from asizof-package {{{
+_Csizeof_short = len(struct.pack('h', 0))
+# }}}
+
+VPCD_CTRL_LEN 	= 1
+
+VPCD_CTRL_OFF   = 0
+VPCD_CTRL_ON    = 1
+VPCD_CTRL_RESET = 2
+VPCD_CTRL_ATR	= 4
+
 class VirtualICC(object): # {{{ 
 
     def __init__(self, filename,os=None, lenlen=3, host="localhost", port=35963):
@@ -503,34 +518,39 @@ class VirtualICC(object): # {{{
         return sock
 
     def __sendToVPICC(self, msg):
-        size = inttostring(len(msg), self.lenlen)
-        self.sock.sendall("%s%s" % (size, msg))
+        #size = inttostring(len(msg), self.lenlen)
+	self.sock.send(struct.pack('!H', len(msg)) + msg)
 
     def __recvFromVPICC(self):
         # receive message size
-        size = self.sock.recv(self.lenlen)
-        size = stringtoint(size)
+        size = struct.unpack('!H', self.sock.recv(_Csizeof_short))[0]
 
         # receive and return message
-        if size == 0:
-            return ""
+	if size:
+	    msg = self.sock.recv(size)
 	else:
-		msg = self.sock.recv(size)
-		return msg
+	    msg = None
+	return size, msg
 
     def run(self):
         while True :
-            msg = self.__recvFromVPICC()
-            if msg == "":
-                self.__sendToVPICC(self.os.atr)
-            elif msg == chr(0):
-                # powerdown
-                print "Power Down"
-                self.os.powerDown()
-            elif msg == chr(1):
-                # powerup
-                print "Power Up"
-                self.os.powerUp()
+            (size, msg) = self.__recvFromVPICC()
+            if not size:
+                print "error in communication protocol"
+	    elif size == VPCD_CTRL_LEN:
+		if msg == chr(VPCD_CTRL_OFF):
+		    print "Power Down"
+		    self.os.powerDown()
+		elif msg == chr(VPCD_CTRL_ON):
+		    print "Power Up"
+		    self.os.powerUp()
+		elif msg == chr(VPCD_CTRL_RESET):
+		    print "Reset"
+		    self.os.reset()
+		elif msg == chr(VPCD_CTRL_ATR):
+		    self.__sendToVPICC(self.os.atr)
+		else:
+		    print "unknown control command"
             else:
                 print "APDU (%d Bytes):\n%s" % (len(msg),hexdump(msg, short=True))
                 answer = self.os.execute(msg)

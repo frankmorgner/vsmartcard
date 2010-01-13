@@ -34,10 +34,14 @@ TARGETS		   = libvpcd.so configuration virtualsmartcard
 # top-level rule
 all: $(TARGETS)
 
-libvpcd.so: vpcd/vpcd.c vpcd/vpcd.h
-	$(CC) $(LIBPCSCLITE_CFLAGS) $(SO_CFLAGS) $(CFLAGS) -c $< -o $(@:%.so=%.o)
-	$(LD) $(LDFLAGS) $(@:%.so=%.o) -o $@ -soname=$@.1 -lc
-	rm -f $(@:%.so=%.o)
+ifd.o: vpcd/ifd.c
+	$(CC) $(SO_CFLAGS) $(CFLAGS) $(LIBPCSCLITE_CFLAGS) -c $< -o $@
+
+vpcd.o: vpcd/vpcd.c vpcd/vpcd.h
+	$(CC) $(SO_CFLAGS) $(CFLAGS) -c $< -o $@
+
+libvpcd.so: ifd.o vpcd.o
+	$(LD) $(LDFLAGS) $^ -o $@ -soname=$@.1 -lc
 
 .PHONY: virtualsmartcard
 virtualsmartcard:
@@ -103,6 +107,8 @@ uninstall:
 
 .PHONY: clean
 clean:
-	rm -f libvpcd.so
-	rm -f vpcd.conf
-	rm -f virtualsmartcard
+	rm -f libvpcd.so \
+	    ifd.o \
+	    vpcd.o \
+	    vpcd.conf \
+	    virtualsmartcard
