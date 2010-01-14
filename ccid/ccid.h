@@ -251,40 +251,12 @@ ccid_desc = {
                               0x2,      // PIN Modification supported
     .bMaxCCIDBusySlots      = 0x01,
 };
-char* perform_initialization(int num);
-int perform_shutdown();
+const char* ccid_initialize(int num);
+int ccid_shutdown();
 
-__u8 get_bError(LONG pcsc_result);
-__u8 get_bStatus(LONG pcsc_result);
-RDR_to_PC_SlotStatus_t get_RDR_to_PC_SlotStatus(__u8 bSlot, __u8 bSeq,
-        LONG pcsc_result);
-RDR_to_PC_DataBlock_t get_RDR_to_PC_DataBlock(__u8 bSlot, __u8 bSeq,
-        LONG pcsc_result, __le32 dwLength);
-RDR_to_PC_SlotStatus_t perform_PC_to_RDR_GetSlotStatus(
-        const PC_to_RDR_GetSlotStatus_t request);
-RDR_to_PC_SlotStatus_t perform_PC_to_RDR_GetSlotStatus(
-        const PC_to_RDR_GetSlotStatus_t request);
-RDR_to_PC_SlotStatus_t perform_PC_to_RDR_IccPowerOn(
-        const PC_to_RDR_IccPowerOn_t request, char ** pATR);
-RDR_to_PC_SlotStatus_t perform_PC_to_RDR_IccPowerOff(
-        const PC_to_RDR_IccPowerOff_t request);
-RDR_to_PC_DataBlock_t perform_PC_to_RDR_XfrBlock(
-        const PC_to_RDR_XfrBlock_t request, const __u8*
-        abDataIn, __u8** abDataOut);
-RDR_to_PC_Parameters_t get_RDR_to_PC_Parameters(__u8 bSlot, __u8 bSeq,
-        LONG pcsc_result, __u8 **abProtocolDataStructure);
-RDR_to_PC_Parameters_t perform_PC_to_RDR_GetParamters(
-        const PC_to_RDR_GetParameters_t request,
-        __u8** abProtocolDataStructure);
-RDR_to_PC_DataBlock_t perform_PC_to_RDR_Secure(
-        const PC_to_RDR_Secure_t request, const __u8* abData,
-        __u8** abDataOut);
-RDR_to_PC_NotifySlotChange_t get_RDR_to_PC_NotifySlotChange ();
-RDR_to_PC_SlotStatus_t perform_unknown(
-        const PC_to_RDR_GetSlotStatus_t request);
-
-int parse_ccid(const __u8* inbuf, __u8** outbuf);
-int parse_ccid_control(struct usb_ctrlrequest *setup, __u8 **outbuf);
+int ccid_parse_bulkin(const __u8* inbuf, __u8** outbuf);
+int ccid_parse_control(struct usb_ctrlrequest *setup, __u8 **outbuf);
+int ccid_state_changed(RDR_to_PC_NotifySlotChange_t *slotchange);
 
 #ifdef  __cplusplus
 }

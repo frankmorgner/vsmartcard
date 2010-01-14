@@ -8,14 +8,15 @@
 #include "ccid.h"
 
 
-SCARDCONTEXT      hcontext = 0;
-SCARDHANDLE       hcard    = 0;
-SCARD_READERSTATE rstate;
-DWORD             dwActiveProtocol;
-char reader_name[MAX_READERNAME];
-int  reader_num;
+static SCARDCONTEXT      hcontext = 0;
+static SCARDHANDLE       hcard    = 0;
+static SCARD_READERSTATE rstate;
+static DWORD             dwActiveProtocol;
+static char reader_name[MAX_READERNAME];
+static int  reader_num;
 
-char* perform_initialization(int num)
+
+const char* ccid_initialize(int num)
 {
     char *readers, *str;
     DWORD size;
@@ -79,7 +80,7 @@ char* perform_initialization(int num)
 }
 
 
-int perform_shutdown()
+int ccid_shutdown()
 {
     SCardDisconnect(hcard, SCARD_UNPOWER_CARD);
     hcard = 0;
@@ -680,13 +681,13 @@ perform_unknown(const PC_to_RDR_GetSlotStatus_t request)
     return result;
 }
 
-int parse_ccid(const __u8* inbuf, __u8** outbuf)
+int ccid_parse_bulkin(const __u8* inbuf, __u8** outbuf)
 {
     if (inbuf == NULL)
         return 0;
     int result = -1;
     if (SCardIsValidContext(hcontext) != SCARD_S_SUCCESS) {
-        if (perform_initialization(reader_num) == NULL)
+        if (ccid_initialize(reader_num) == NULL)
             goto error;
     }
 
@@ -842,7 +843,7 @@ error:
     return result;
 }
 
-int parse_ccid_control(struct usb_ctrlrequest *setup, __u8 **outbuf)
+int ccid_parse_control(struct usb_ctrlrequest *setup, __u8 **outbuf)
 {
     int result = -1;
     __u16 value, index, length;
@@ -902,4 +903,16 @@ int parse_ccid_control(struct usb_ctrlrequest *setup, __u8 **outbuf)
         }
 
     return result;
+}
+
+int ccid_state_changed(RDR_to_PC_NotifySlotChange_t *slotchange)
+{
+    if (slotchange) {
+        *slotchange = get_RDR_to_PC_NotifySlotChange();
+
+        if (slotchange->bmSlotICCState)
+            return 1;
+    }
+
+    return 0;
 }

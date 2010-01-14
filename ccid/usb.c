@@ -54,7 +54,7 @@ static int verbose    = 0;
 static int debug      = 0;
 static int dohid      = 0;
 static int doint      = 0;
-char *usb_reader_name = NULL;
+const char *usb_reader_name = NULL;
 int usb_reader_num = 0;
 
 /* NOTE:  these IDs don't imply endpoint numbering; host side drivers
@@ -924,8 +924,7 @@ static void *ccid (void *param)
             /* so test for it explicitly. */
             pthread_testcancel ();
 
-            slotchange = get_RDR_to_PC_NotifySlotChange();
-            if (slotchange.bmSlotICCState) {
+            if (ccid_state_changed(&slotchange)) {
                 /* don't bother host, when nothing changed */
                 if (debug)
                     fprintf(stderr, "interrupt loop: writing RDR_to_PC_NotifySlotChange... ");
@@ -959,7 +958,7 @@ static void *ccid (void *param)
 
     void close_pcsc()
     {
-        int result  = perform_shutdown();
+        int result  = ccid_shutdown();
         if (result != SCARD_S_SUCCESS)
             fprintf(stderr, "pc/sc error: %s\n", pcsc_stringify_error(result));
         else if (verbose)
@@ -988,10 +987,10 @@ static void *ccid (void *param)
     }
     pthread_cleanup_push (close_fd,   &sink_fd);
 
-    usb_reader_name = perform_initialization(usb_reader_num);
+    usb_reader_name = ccid_initialize(usb_reader_num);
     if (usb_reader_name == NULL) {
         if (debug)
-            perror("perform_initialization");
+            perror("ccid_initialize");
         goto error;
     }
     pthread_cleanup_push (close_pcsc, NULL);
@@ -1037,7 +1036,7 @@ static void *ccid (void *param)
             fprintf(stderr, "got %d, done.\n", result);
         if (!result) break;
 
-        result = parse_ccid(inbuf, &outbuf);
+        result = ccid_parse_bulkin(inbuf, &outbuf);
         if (result < 0) break;
 
         if (debug)
@@ -1485,7 +1484,7 @@ special:
         switch (setup->bRequestType) {
             case USB_REQ_CCID: {
                     __u8 *outbuf = NULL;
-                    result = parse_ccid_control(setup, &outbuf);
+                    result = ccid_parse_control(setup, &outbuf);
                     if (result < 0 || result > 256)
                         goto stall;
                     if (debug)
