@@ -47,7 +47,6 @@
 
 
 #define DRIVER_VENDOR_NUM	0x0D46		/* KOBIL Systems */
-#define DRIVER_ISO_PRODUCT_NUM	0x3010		/* KOBIL Class 3 Reader */
 #define DRIVER_PRODUCT_NUM	0x3010		/* KOBIL Class 3 Reader */
 static int vendorid   = DRIVER_VENDOR_NUM;
 static int productid  = DRIVER_PRODUCT_NUM;
@@ -569,7 +568,7 @@ static int iso_autoconfig ()
 	 *
 	 * This code doesn't adjust the sample rate based on feedback.
 	 */
-	device_desc.idProduct = __constant_cpu_to_le16(DRIVER_ISO_PRODUCT_NUM);
+	device_desc.idProduct = __constant_cpu_to_le16(productid);
 
 	/* NetChip 2280 PCI device or dummy_hcd, high/full speed */
 	if (stat (DEVNAME = "net2280", &statb) == 0 ||
