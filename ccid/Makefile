@@ -22,8 +22,8 @@ TARGETS		   = ccid
 all: $(TARGETS)
 
 
-ccid: ccid.h ccid.c usbstring.c usbstring.h
-	$(CC) $(LIBPCSCLITE_CFLAGS) $(PTHREAD_CFLAGS) $(CFLAGS) usbstring.c ccid.c -o $@
+ccid: ccid.h ccid.c usbstring.c usbstring.h usb.c
+	$(CC) $(LIBPCSCLITE_CFLAGS) $(PTHREAD_CFLAGS) $(CFLAGS) usbstring.c ccid.c usb.c -o $@
 
 
 install: $(TARGETS) installdirs
