@@ -16,21 +16,69 @@
  * You should have received a copy of the GNU General Public License along with
  * ccid.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _VPCD_H_
-#define _VPCD_H_
+#ifndef _VPCD_H
+#define _VPCD_H
 
 #include <linux/usb/ch9.h>
-#include <winscard.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#ifndef USB_REQ_CCID
 #define USB_REQ_CCID        0xA1
+
 #define CCID_CONTROL_ABORT                  0x01
 #define CCID_CONTROL_GET_CLOCK_FREQUENCIES  0x02
 #define CCID_CONTROL_GET_DATA_RATES 0x03
+
+#define CCID_BERROR_CMD_ABORTED 0xff /* Host aborted the current activity */
+#define CCID_BERROR_ICC_MUTE 0xfe /* CCID timed out while talking to the ICC */
+#define CCID_BERROR_XFR_PARITY_ERROR 0xfd /* Parity error while talking to the ICC */
+#define CCID_BERROR_XFR_OVERRUN 0xfc /* Overrun error while talking to the ICC */
+#define CCID_BERROR_HW_ERROR 0xfb /* An all inclusive hardware error occurred */
+#define CCID_BERROR_BAD_ATR_TS 0xf
+#define CCID_BERROR_BAD_ATR_TCK 0xf
+#define CCID_BERROR_ICC_PROTOCOL_NOT_SUPPORTED 0xf6
+#define CCID_BERROR_ICC_CLASS_NOT_SUPPORTED 0xf5
+#define CCID_BERROR_PROCEDURE_BYTE_CONFLICT 0xf4
+#define CCID_BERROR_DEACTIVATED_PROTOCOL 0xf3
+#define CCID_BERROR_BUSY_WITH_AUTO_SEQUENCE 0xf2 /* Automatic Sequence Ongoing */
+#define CCID_BERROR_PIN_TIMEOUT 0xf0
+#define CCID_BERROR_PIN_CANCELLED 0xef
+#define CCID_BERROR_CMD_SLOT_BUSY 0xe0 /* A second command was sent to a slot which was already processing a command. */
+#define CCID_BERROR_CMD_NOT_SUPPORTED 0x00
+#define CCID_BERROR_OK 0x00
+
+#define CCID_BSTATUS_OK_ACTIVE 0x00 /* No error. An ICC is present and active */
+#define CCID_BSTATUS_OK_INACTIVE 0x01 /* No error. ICC is present and inactive */
+#define CCID_BSTATUS_OK_NOICC 0x02 /* No error. No ICC is present */
+#define CCID_BSTATUS_ERROR_ACTIVE 0x40 /* Failed. An ICC is present and active */
+#define CCID_BSTATUS_ERROR_INACTIVE 0x41 /* Failed. ICC is present and inactive */
+#define CCID_BSTATUS_ERROR_NOICC 0x42 /* Failed. No ICC is present */
+
+#define CCID_WLEVEL_DIRECT __constant_cpu_to_le16(0) /* APDU begins and ends with this command */
+#define CCID_WLEVEL_CHAIN_NEXT_XFRBLOCK __constant_cpu_to_le16(1) /* APDU begins with this command, and continue in the next PC_to_RDR_XfrBlock */
+#define CCID_WLEVEL_CHAIN_END __constant_cpu_to_le16(2) /* abData field continues a command APDU and ends the APDU command */
+#define CCID_WLEVEL_CHAIN_CONTINUE __constant_cpu_to_le16(3) /* abData field continues a command APDU and another block is to follow */
+#define CCID_WLEVEL_RESPONSE_IN_DATABLOCK __constant_cpu_to_le16(0x10) /* empty abData field, continuation of response APDU is expected in the next RDR_to_PC_DataBlock */
+
+#define CCID_PIN_ENCODING_BIN   0x00
+#define CCID_PIN_ENCODING_BCD   0x01
+#define CCID_PIN_ENCODING_ASCII 0x02
+
+#define CCID_PIN_UNITS_BYTES    0x80
+#define CCID_PIN_JUSTIFY_RIGHT  0x04
+
+#define CCID_SLOTS_UNCHANGED    0x00
+#define CCID_SLOT1_CARD_PRESENT 0x01
+#define CCID_SLOT1_CHANGED      0x02
+#define CCID_SLOT2_CARD_PRESENT 0x04
+#define CCID_SLOT2_CHANGED      0x08
+#define CCID_SLOT3_CARD_PRESENT 0x10
+#define CCID_SLOT3_CHANGED      0x20
+#define CCID_SLOT4_CARD_PRESENT 0x40
+#define CCID_SLOT4_CHANGED      0x80
+
 struct ccid_class_descriptor {
     __u8   bLength;
     __u8   bDescriptorType;
@@ -199,9 +247,8 @@ typedef struct {
 } __attribute__ ((packed)) RDR_to_PC_Parameters_t;
 typedef struct {
     __u8   bMessageType;
-    __u8   bmSlotICCState;
+    __u8   bmSlotICCState; /* we support 4 slots, so we need 2*4 bits = 1 byte */
 } __attribute__ ((packed)) RDR_to_PC_NotifySlotChange_t;
-#endif
 
 struct hid_class_descriptor {
     __u8   bLength;
@@ -211,47 +258,7 @@ struct hid_class_descriptor {
     __u8   bNumDescriptors;
 } __attribute__ ((packed));
 
-
-static struct ccid_class_descriptor
-ccid_desc = {
-    .bLength                = sizeof ccid_desc,
-    .bDescriptorType        = 0x21,
-    .bcdCCID                = __constant_cpu_to_le16(0x0110),
-    .bMaxSlotIndex          = 0,
-    .bVoltageSupport        = 0x01,
-    .dwProtocols            = __constant_cpu_to_le32(0x01|     // T=0
-                              0x02),     // T=1
-    .dwDefaultClock         = __constant_cpu_to_le32(0xDFC),
-    .dwMaximumClock         = __constant_cpu_to_le32(0xDFC),
-    .bNumClockSupport       = 1,
-    .dwDataRate             = __constant_cpu_to_le32(0x2580),
-    .dwMaxDataRate          = __constant_cpu_to_le32(0x2580),
-    .bNumDataRatesSupported = 1,
-    .dwMaxIFSD              = __constant_cpu_to_le32(0xFF),     // FIXME
-    .dwSynchProtocols       = __constant_cpu_to_le32(0),
-    .dwMechanical           = __constant_cpu_to_le32(0),
-    .dwFeatures             = __constant_cpu_to_le32(
-                              0x2|      // Automatic parameter configuration based on ATR data
-                              0x8|      // Automatic ICC voltage selection
-                              0x10|     // Automatic ICC clock frequency change
-                              0x20|     // Automatic baud rate change
-                              0x40|     // Automatic parameters negotiation
-                              0x80|     // Automatic PPS   
-                              0x20000|  // Short APDU level exchange
-                              0x100000),// USB Wake up signaling supported
-    .dwMaxCCIDMessageLength = __constant_cpu_to_le32(261+10),
-    .bClassGetResponse      = 0xFF,
-    .bclassEnvelope         = 0xFF,
-    .wLcdLayout             = __constant_cpu_to_le16(
-                              //0),
-                              0xFF00|   // Number of lines for the LCD display
-                              0x00FF),  // Number of characters per line
-    //.bPINSupport            = 0,
-    .bPINSupport            = 0x1|      // PIN Verification supported
-                              0x2,      // PIN Modification supported
-    .bMaxCCIDBusySlots      = 0x01,
-};
-const char* ccid_initialize(int num);
+int ccid_initialize(int reader_id, int verbose);
 int ccid_shutdown();
 
 int ccid_parse_bulkin(const __u8* inbuf, __u8** outbuf);

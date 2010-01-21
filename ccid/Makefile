@@ -9,7 +9,9 @@ bindir		   = $(exec_prefix)/bin
 # Compiler
 CC                 = gcc
 CFLAGS             = -Wall -g 
-LIBPCSCLITE_CFLAGS = `pkg-config --cflags --libs libpcsclite`
+#LIBPCSCLITE_CFLAGS = `pkg-config --cflags --libs libpcsclite`
+#OPENSSL_CFLAGS 	   = `pkg-config --cflags --libs libssl`
+OPENSC_CFLAGS 	   = `pkg-config --cflags --libs libopensc`
 PTHREAD_CFLAGS     = -pthread
 
 INSTALL		   = install
@@ -23,7 +25,7 @@ all: $(TARGETS)
 
 
 ccid: ccid.h ccid.c usbstring.c usbstring.h usb.c
-	$(CC) $(LIBPCSCLITE_CFLAGS) $(PTHREAD_CFLAGS) $(CFLAGS) usbstring.c ccid.c usb.c -o $@
+	$(CC) $(LIBPCSCLITE_CFLAGS) $(OPENSC_CFLAGS) $(OPENSSL_CFLAGS) $(PTHREAD_CFLAGS) $(CFLAGS) usbstring.c ccid.c usb.c -o $@
 
 
 install: $(TARGETS) installdirs

@@ -35,7 +35,11 @@
 #include <linux/types.h>
 #include <linux/usb/gadgetfs.h>
 #include <linux/usb/ch9.h>
+#include <openssl/evp.h>
+#include <opensc/ui.h>
 //#include <usb.h>
+//
+#include <getopt.h>
 
 #ifdef	AIO
 /* this aio code works with libaio-0.3.106 */
@@ -50,12 +54,31 @@
 #define DRIVER_PRODUCT_NUM	0x3010		/* KOBIL Class 3 Reader */
 static int vendorid   = DRIVER_VENDOR_NUM;
 static int productid  = DRIVER_PRODUCT_NUM;
-static int verbose    = 0;
-static int debug      = 0;
+static int verbose    = 1;
+static int debug      = 1;
 static int dohid      = 0;
 static int doint      = 0;
-const char *usb_reader_name = NULL;
 int usb_reader_num = 0;
+
+/*static const struct option options[] = {*/
+    /*{ "hid", no_argument, &dohid, 1 },*/
+    /*{ "interrupt", no_argument, &doint, 1 },*/
+    /*{ "product", required_argument, NULL, 'p' },*/
+    /*{ "reader",	required_argument, NULL, 'r' },*/
+    /*{ "serial", required_argument, NULL, 's' },*/
+    /*{ "vendor", required_argument, NULL, 'v' },*/
+    /*{ "verbose", no_argument, NULL, 'b' },*/
+    /*{ NULL, 0, NULL, 0 }*/
+/*};*/
+/*static const char *option_help[] = {*/
+    /*"Emulate HID device",*/
+    /*"Uses reader number <arg> [auto-detect]",*/
+    /*"Serial number of gadget [random]",*/
+    /*"Add interrupt pipe for CCID",*/
+    /*"Verbose operation. Use several times to enable debug output.",*/
+    /*"USB vendor ID [0x0D46]",*/
+    /*"USB product ID [0x3010]",*/
+/*};*/
 
 /* NOTE:  these IDs don't imply endpoint numbering; host side drivers
  * should use endpoint descriptors, or perhaps bcdDevice, to configure
@@ -65,6 +88,8 @@ int usb_reader_num = 0;
 /*-------------------------------------------------------------------------*/
 
 /* these descriptors are modified based on what controller we find */
+
+extern struct ccid_class_descriptor ccid_desc;
 
 #define	STRINGID_MFGR		1
 #define	STRINGID_PRODUCT	2
@@ -899,9 +924,7 @@ ep_config (char *name, const char *label,
 
 /* ccid thread, forwards ccid requests to pcsc and returns results  */
 static void *ccid (void *param)
-{
-
-    //int tmp;
+{   
     pthread_t interrupt_thread;
 
     void *interrupt (void *param)
@@ -958,11 +981,10 @@ static void *ccid (void *param)
 
     void close_pcsc()
     {
-        int result  = ccid_shutdown();
-        if (result != SCARD_S_SUCCESS)
-            fprintf(stderr, "pc/sc error: %s\n", pcsc_stringify_error(result));
+        if (!ccid_shutdown())
+            fprintf(stderr, "pc/sc error\n");
         else if (verbose)
-            fprintf(stderr, "closed connection to %s\n", usb_reader_name);
+            fprintf(stderr, "closed connection\n");
     }
 
     char	**names      = (char **) param;
@@ -987,15 +1009,7 @@ static void *ccid (void *param)
     }
     pthread_cleanup_push (close_fd,   &sink_fd);
 
-    usb_reader_name = ccid_initialize(usb_reader_num);
-    if (usb_reader_name == NULL) {
-        if (debug)
-            perror("ccid_initialize");
-        goto error;
-    }
     pthread_cleanup_push (close_pcsc, NULL);
-    if (verbose)
-        fprintf (stderr, "connected to %s\n", usb_reader_name);
 
     if (doint) {
         static char * interruptnames[1];
@@ -1071,7 +1085,7 @@ error:
 
 static void *hid (void *param)
 {
-
+    printf("%s:%d\n", __FILE__, __LINE__);
     char	**names      = (char **) param;
     char	*status_name = names[0];
     int		result = 0;
@@ -1502,7 +1516,6 @@ special:
 
 stall:
 	if (verbose) {
-                fprintf(stderr, "%s:%d\n", __FILE__, __LINE__);
 		fprintf (stderr, "... protocol stall %02x.%02x\n",
 			setup->bRequestType, setup->bRequest);
                 for (tmp = 0; tmp<5; tmp++) {
@@ -1678,11 +1691,53 @@ done:
 }
 
 /*-------------------------------------------------------------------------*/
+void util_print_usage_and_die(const char *app_name, const struct option options[],
+	const char *option_help[])
+{
+	int i = 0;
+	printf("Usage: %s [OPTIONS]\nOptions:\n", app_name);
+
+	while (options[i].name) {
+		char buf[40], tmp[5];
+		const char *arg_str;
+		
+		/* Skip "hidden" options */
+		if (option_help[i] == NULL) {
+			i++;
+			continue;
+		}
+
+		if (options[i].val > 0 && options[i].val < 128)
+			sprintf(tmp, ", -%c", options[i].val);
+		else
+			tmp[0] = 0;
+		switch (options[i].has_arg) {
+		case 1:
+			arg_str = " <arg>";
+			break;
+		case 2:
+			arg_str = " [arg]";
+			break;
+		default:
+			arg_str = "";
+			break;
+		}
+		sprintf(buf, "--%s%s%s", options[i].name, tmp, arg_str);
+		if (strlen(buf) > 29) {
+			printf("  %s\n", buf);
+			buf[0] = '\0';
+		}
+		printf("  %-29s %s\n", buf, option_help[i]);
+		i++;
+	}
+	exit(2);
+}
 
 int
 main (int argc, char **argv)
 {
     int		fd, c, i;
+    /*int long_optind = 0;*/
 
     /* random initial serial number */
     srand ((int) time (0));
@@ -1721,8 +1776,9 @@ main (int argc, char **argv)
                 (strcmp(argv[i], "-d") == 0)) {
             verbose++;
             if ((strcmp(argv[i], "--debug") == 0) ||
-                    (strcmp(argv[i], "-d") == 0))
+                    (strcmp(argv[i], "-d") == 0)) {
                 debug++;
+            }
             continue;
         }
         if (strcmp(argv[i], "--hid") == 0) {
@@ -1768,12 +1824,38 @@ main (int argc, char **argv)
         fprintf(stderr, "unrecognized option \"%s\"\n", argv[i]);
         return 1;
     }
+    /*while (1) {*/
+        /*c = getopt_long(argc, argv, "p:r:s:v:b", options, &long_optind);*/
+        /*if (c == -1)*/
+            /*break;*/
+        /*if (c == '?')*/
+            /*util_print_usage_and_die("ccid" , options, option_help);*/
+        /*switch (c) {*/
+            /*case 'r':*/
+                /*opt_reader = atoi(optarg);*/
+                /*break;*/
+            /*case 'c':*/
+                /*opt_driver = optarg;*/
+                /*break;*/
+            /*case 'w':*/
+                /*opt_wait = 1;*/
+                /*break;*/
+            /*case 'v':*/
+                /*verbose++;*/
+                /*break;*/
+        /*}*/
+    /*}*/
 
     if (verbose)
         fprintf (stderr, "serial=\"%s\"\n", serial);
 
     if (chdir ("/dev/gadget") < 0) {
         perror ("can't chdir /dev/gadget");
+        return 1;
+    }
+
+    if (!ccid_initialize(usb_reader_num, verbose)) {
+        perror("can't initialize ccid");
         return 1;
     }
 
