@@ -697,11 +697,12 @@ perform_PC_to_RDR_Secure(const PC_to_RDR_Secure_t request,
     int sc_result = SC_SUCCESS;
     size_t resplen = 0;
     sc_apdu_t apdu;
-    struct sc_pin_cmd_pin pin;
+    struct sc_pin_cmd_pin curr_pin, new_pin;
     sc_ui_hints_t hints;
 
     memset(&hints, 0, sizeof(hints));
-    memset(&pin, 0, sizeof(pin));
+    memset(&curr_pin, 0, sizeof(curr_pin));
+    memset(&new_pin, 0, sizeof(new_pin));
 
     if (request.bMessageType != 0x69)
         sc_ui_display_debug(ctx, "warning: malformed PC_to_RDR_Secure");
@@ -756,8 +757,8 @@ perform_PC_to_RDR_Secure(const PC_to_RDR_Secure_t request,
     }
     apdu.sensitive = 1;
 
-    pin.min_length = wPINMaxExtraDigit >> 8;
-    pin.max_length = wPINMaxExtraDigit & 0x00ff;
+    new_pin.min_length = curr_pin.min_length = wPINMaxExtraDigit >> 8;
+    new_pin.min_length = curr_pin.max_length = wPINMaxExtraDigit & 0x00ff;
     uint8_t system_units = bmFormatString & CCID_PIN_UNITS_BYTES;
     uint8_t pin_offset = (bmFormatString >> 3) & 0xf;
     uint8_t length_offset = bmPINLengthFormat & 0xf;
@@ -767,49 +768,75 @@ perform_PC_to_RDR_Secure(const PC_to_RDR_Secure_t request,
     uint8_t blocksize = bmPINBlockString & 0xf;
 
     snprintf(dbg, sizeof dbg,
-            "PIN block (%d bytes) proberties:\n"
+            "PIN %s block (%d bytes) proberties:\n"
             "\tminimum %d, maximum %d PIN digits\n"
             "\t%s PIN encoding, %s justification\n"
             "\tsystem units are %s\n"
             "\twrite PIN length on %d bits with %d system units offset\n"
-            "\tPIN offset is %d %s\n",
-            blocksize, (unsigned int) pin.min_length,
-            (unsigned int) pin.max_length,
+            "\tcurrent PIN offset is %d %s\n",
+            modify ? "modification" : "verification",
+            blocksize, (unsigned int) curr_pin.min_length,
+            (unsigned int) curr_pin.max_length,
             encoding == CCID_PIN_ENCODING_BIN ? "binary" :
             encoding == CCID_PIN_ENCODING_BCD ? "BCD" :
             encoding == CCID_PIN_ENCODING_ASCII ? "ASCII" :"unknown",
             justify_right ? "right" : "left",
             system_units ? "bytes" : "bits",
-            length_size, length_offset, pin_offset,
+            length_size, length_offset,
+            modify ? modify->bInsertionOffsetOld : pin_offset,
             modify ? "bytes" : "system units");
     sc_ui_display_debug(ctx, dbg);
 
     /* get the PIN */
-    hints.prompt = "PIN Verification";
     hints.dialog_name = "ccid.PC_to_RDR_Secure";
-    hints.usage = SC_UI_USAGE_OTHER;
     hints.card = card_in_slot[request.bSlot];
-    sc_result = sc_ui_get_pin(&hints, (char **) &pin.data);
+    if (verify) {
+        hints.prompt = "PIN Verification";
+        hints.usage = SC_UI_USAGE_OTHER;
+        sc_result = sc_ui_get_pin(&hints, (char **) &curr_pin.data);
+    } else {
+        hints.prompt = "PIN Modification";
+        hints.usage = SC_UI_USAGE_CHANGE_PIN;
+        sc_result = sc_ui_get_pin_pair(&hints, (char **) &curr_pin.data,
+                (char **) &new_pin.data);
+    }
     if (sc_result < 0)
         goto err;
 
     /* set and check length of PIN */
-    pin.len = strlen((char *) pin.data);
-    if ((pin.max_length && pin.len > pin.max_length)
-            || pin.len < pin.min_length) {
+    curr_pin.len = strlen((char *) curr_pin.data);
+    if ((curr_pin.max_length && curr_pin.len > curr_pin.max_length)
+            || curr_pin.len < curr_pin.min_length) {
         sc_result = SC_ERROR_PIN_CODE_INCORRECT;
         goto err;
+    }
+    if (modify) {
+        new_pin.len = strlen((char *) new_pin.data);
+        if ((new_pin.max_length && new_pin.len > new_pin.max_length)
+                || new_pin.len < new_pin.min_length) {
+            sc_result = SC_ERROR_PIN_CODE_INCORRECT;
+            goto err;
+        }
     }
 
     /* Note: pin.offset and pin.length_offset are relative to the first
      * databyte */
-    if (!get_effective_offset(system_units, pin_offset, &pin.offset,
+    if (verify) {
+        if (!get_effective_offset(system_units, pin_offset, &curr_pin.offset,
+                    &sc_result))
+            goto err;
+    } else {
+        curr_pin.offset = modify->bInsertionOffsetOld;
+        new_pin.offset = modify->bInsertionOffsetNew;
+        if (!write_pin(&apdu, &new_pin, blocksize, justify_right, encoding,
+                    &sc_result))
+            goto err;
+    }
+    if (!get_effective_offset(system_units, length_offset,
+                &curr_pin.length_offset, &sc_result)
+            || !write_pin_length(&apdu, &curr_pin, system_units, length_size,
                 &sc_result)
-            || !get_effective_offset(system_units, length_offset,
-                &pin.length_offset, &sc_result)
-            || !write_pin_length(&apdu, &pin, system_units, length_size,
-                &sc_result)
-            || !write_pin(&apdu, &pin, blocksize, justify_right, encoding,
+            || !write_pin(&apdu, &curr_pin, blocksize, justify_right, encoding,
                 &sc_result)
             || !get_rapdu(&apdu, request.bSlot, abDataOut, &resplen,
                 &sc_result))
@@ -818,11 +845,16 @@ perform_PC_to_RDR_Secure(const PC_to_RDR_Secure_t request,
 err:
     if (sc_result < 0)
         sc_ui_display_error(ctx, sc_strerror(sc_result));
-    if (pin.data) {
-        sc_mem_clear((u8 *) pin.data, pin.len);
-        sc_mem_clear(abPINApdu, apdulen);
-        free((u8 *) pin.data);
+
+    if (curr_pin.data) {
+        sc_mem_clear((u8 *) curr_pin.data, curr_pin.len);
+        free((u8 *) curr_pin.data);
     }
+    if (new_pin.data) {
+        sc_mem_clear((u8 *) new_pin.data, new_pin.len);
+        free((u8 *) new_pin.data);
+    }
+    sc_mem_clear(abPINApdu, apdulen);
 
     return get_RDR_to_PC_DataBlock(request.bSlot, request.bSeq, sc_result,
             __constant_cpu_to_le32(resplen));
