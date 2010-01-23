@@ -797,8 +797,15 @@ perform_PC_to_RDR_Secure(const PC_to_RDR_Secure_t request,
     } else {
         hints.prompt = "PIN Modification";
         hints.usage = SC_UI_USAGE_CHANGE_PIN;
-        sc_result = sc_ui_get_pin_pair(&hints, (char **) &curr_pin.data,
-                (char **) &new_pin.data);
+        if (modify->bConfirmPIN & CCID_PIN_CONFIRM_NEW)
+            hints.flags |= SC_UI_PIN_RETYPE;
+        if (modify->bConfirmPIN & CCID_PIN_INSERT_OLD) {
+            sc_result = sc_ui_get_pin_pair(&hints, (char **) &curr_pin.data,
+                    (char **) &new_pin.data);
+        } else {
+            /* if only the new pin is requested, it is stored in curr_pin */
+            sc_result = sc_ui_get_pin(&hints, (char **) &curr_pin.data);
+        }
     }
     if (sc_result < 0)
         goto err;
@@ -826,11 +833,15 @@ perform_PC_to_RDR_Secure(const PC_to_RDR_Secure_t request,
                     &sc_result))
             goto err;
     } else {
-        curr_pin.offset = modify->bInsertionOffsetOld;
-        new_pin.offset = modify->bInsertionOffsetNew;
-        if (!write_pin(&apdu, &new_pin, blocksize, justify_right, encoding,
-                    &sc_result))
-            goto err;
+        if (modify->bConfirmPIN & CCID_PIN_INSERT_OLD) {
+            curr_pin.offset = modify->bInsertionOffsetOld;
+            new_pin.offset = modify->bInsertionOffsetNew;
+            if (!write_pin(&apdu, &new_pin, blocksize, justify_right, encoding,
+                        &sc_result))
+                goto err;
+        } else {
+            curr_pin.offset = modify->bInsertionOffsetNew;
+        }
     }
     if (!get_effective_offset(system_units, length_offset,
                 &curr_pin.length_offset, &sc_result)
