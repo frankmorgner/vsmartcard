@@ -373,10 +373,8 @@ class PassportOS(SmartcardOS):
         SmartcardOS.__init__(self, None, mf=mf, ins2handler=ins2handler, maxle=maxle,sam=self.SAM)
      
     def generate_data_structure(self,mf):
-        #MRZ1 = "P<UTOERIKSSON<<ANNA<MARIX<<<<<<<<<<<<<<<<<<<"
-        #MRZ2 = "L898902C<3UTO6908061F9406236ZE184226B<<<<<14"
-        MRZ1 = "IDD<<OEPEN<<DOMINIK<<<<<<<<<<<<<<<<<"
-        MRZ2 = "6863089495D<<8312251<0908195<<<<<<<0"
+        MRZ1 = "P<UTOERIKSSON<<ANNA<MARIX<<<<<<<<<<<<<<<<<<<"
+        MRZ2 = "L898902C<3UTO6908061F9406236ZE184226B<<<<<14"
         MRZ = MRZ1+MRZ2        
         from PIL import Image
         picturepath = "jp2.jpg"

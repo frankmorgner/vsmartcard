@@ -537,10 +537,8 @@ class SAM(object):
         return self.SM_handler.manage_security_environment(p1, p2, data)
 
 class PassportSAM(SAM):       
-    #MRZ1 = "P<UTOERIKSSON<<ANNA<MARIA<<<<<<<<<<<<<<<<<<<"
-    #MRZ2 = "L898902C<3UTO6908061F9406236ZE184226B<<<<<14"
-    MRZ1 = "IDD<<OEPEN<<DOMINIK<<<<<<<<<<<<<<<<<"
-    MRZ2 = "6863089495D<<8312251<0908195<<<<<<<0"
+    MRZ1 = "P<UTOERIKSSON<<ANNA<MARIA<<<<<<<<<<<<<<<<<<<"
+    MRZ2 = "L898902C<3UTO6908061F9406236ZE184226B<<<<<14"
     
     def __init__(self,mf,path="testconfig.sam",key="DUMMYKEYDUMMYKEY"):
         self.mrz1 = self.MRZ1
