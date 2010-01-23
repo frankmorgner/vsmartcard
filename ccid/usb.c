@@ -54,8 +54,8 @@
 #define DRIVER_PRODUCT_NUM	0x3010		/* KOBIL Class 3 Reader */
 static int vendorid   = DRIVER_VENDOR_NUM;
 static int productid  = DRIVER_PRODUCT_NUM;
-static int verbose    = 1;
-static int debug      = 1;
+static int verbose    = 0;
+static int debug      = 0;
 static int dohid      = 0;
 static int doint      = 0;
 int usb_reader_num = 0;

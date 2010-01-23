@@ -58,15 +58,10 @@ ccid_desc = {
 
 int ccid_initialize(int reader_id, int verbose)
 {
-    sc_context_param_t ctx_param;
     int sc_result;
     int i;
 
-    memset(&ctx_param, 0, sizeof(ctx_param));
-    //ctx_param.ver      = 0;
-    //ctx_param.app_name = app_name;
-
-    sc_result = sc_context_create(&ctx, &ctx_param);
+    sc_result = sc_context_create(&ctx, NULL);
     if (sc_result < 0) {
         fprintf(stderr, "Failed to establish context: %s\n", sc_strerror(sc_result));
         return 0;
@@ -126,11 +121,11 @@ int ccid_shutdown()
     return 1;
 }
 
-
 int build_apdu(const __u8 *buf, size_t len, sc_apdu_t *apdu)
 {
 	const __u8 *p;
 	size_t len0;
+        char dbg[40];
 
 	len0 = len;
 	if (len < 4) {
@@ -183,13 +178,22 @@ int build_apdu(const __u8 *buf, size_t len, sc_apdu_t *apdu)
 
         apdu->flags = SC_APDU_FLAGS_NO_GET_RESP|SC_APDU_FLAGS_NO_RETRY_WL;
 
+        snprintf(dbg, sizeof dbg, "APDU, %d byte(s):\tins=%02x p1=%02x p2=%02x",
+                (unsigned int) len, apdu->ins, apdu->p1, apdu->p2);
+        sc_ui_display_debug(ctx, dbg);
+
         return 1;
 }
 
 int get_rapdu(sc_apdu_t *apdu, size_t slot, __u8 **buf, size_t *resplen, int *sc_result)
 {
-    if (!apdu || !buf || !resplen || slot > sizeof card_in_slot || !sc_result)
+    char dbg[40];
+
+    if (!apdu || !buf || !resplen || slot > sizeof card_in_slot || !sc_result) {
+        if (sc_result)
+            *sc_result = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
+    }
 
     apdu->resplen = apdu->le;
     /* Get two more bytes to later use as return buffer including sw1 and sw2 */
@@ -214,6 +218,10 @@ int get_rapdu(sc_apdu_t *apdu, size_t slot, __u8 **buf, size_t *resplen, int *sc
 
     *buf = apdu->resp;
     *resplen = apdu->resplen + sizeof(__u8) + sizeof(__u8);
+
+    snprintf(dbg, sizeof dbg, "R-APDU, %d byte(s):\tsw1=%02x sw2=%02x",
+            (unsigned int) *resplen, apdu->sw1, apdu->sw2);
+    sc_ui_display_debug(ctx, dbg);
 
     return 1;
 
@@ -403,7 +411,6 @@ RDR_to_PC_DataBlock_t
 perform_PC_to_RDR_XfrBlock(const PC_to_RDR_XfrBlock_t request, const __u8*
         abDataIn, __u8** abDataOut)
 {
-    char buf[50];
     int sc_result;
     size_t resplen = 0;
     sc_apdu_t apdu;
@@ -420,20 +427,12 @@ perform_PC_to_RDR_XfrBlock(const PC_to_RDR_XfrBlock_t request, const __u8*
         goto err;
     }
 
-    snprintf(buf, sizeof buf, "APDU, %d byte(s):\tins=%02x p1=%02x p2=%02x lc=%02x le=%02x",
-            request.dwLength, apdu.ins, apdu.p1, apdu.p2, (int) apdu.lc, (int) apdu.le);
-    sc_ui_display_debug(ctx, buf);
-
-    if (!get_rapdu(&apdu, request.bSlot, abDataOut, &resplen, &sc_result))
-        goto err;
-
-    snprintf(buf, sizeof buf, "RAPDU, %d byte(s):\tsw1=%02x sw2=%02x",
-            (int) resplen, apdu.sw1, apdu.sw2);
-    sc_ui_display_debug(ctx, buf);
+    get_rapdu(&apdu, request.bSlot, abDataOut, &resplen, &sc_result);
 
 err:
     if (sc_result < 0)
         sc_ui_display_error(ctx, sc_strerror(sc_result));
+
     return get_RDR_to_PC_DataBlock(request.bSlot, request.bSeq,
             sc_result, __cpu_to_le32(resplen));
 }
@@ -536,11 +535,165 @@ perform_PC_to_RDR_GetParamters(const PC_to_RDR_GetParameters_t request,
             SC_SUCCESS, abProtocolDataStructure);
 }
 
+int
+get_effective_offset(uint8_t system_units, uint8_t off, size_t *eff_off,
+        int *sc_result)
+{
+    if (!eff_off || !sc_result) {
+        if (sc_result)
+            *sc_result = SC_ERROR_INVALID_ARGUMENTS;
+        return 0;
+    }
+
+    if (system_units)
+        *eff_off = off;
+    else
+        if (off == 0)
+            *eff_off = 0;
+        else if (off == 8)
+            *eff_off = 1;
+
+    *sc_result = SC_SUCCESS;
+
+    return 1;
+}
+
+int
+write_pin_length(sc_apdu_t *apdu, const struct sc_pin_cmd_pin *pin,
+        uint8_t system_units, uint8_t length_size, int *sc_result)
+{
+    u8 *p;
+
+    if (!apdu || !apdu->data || !pin || apdu->datalen <= pin->length_offset || !sc_result) {
+        if (sc_result)
+            *sc_result = SC_ERROR_INVALID_ARGUMENTS;
+        return 0;
+    }
+
+    if (length_size) {
+        if (length_size != 8) {
+            *sc_result = SC_ERROR_NOT_SUPPORTED;
+            return 0;
+        }
+        p = (u8 *) apdu->data;
+        p[pin->length_offset] = pin->len;
+    }
+
+    *sc_result = SC_SUCCESS;
+
+    return 1;
+}
+
+int
+encode_pin(u8 *buf, size_t buf_len, struct sc_pin_cmd_pin *pin,
+        uint8_t encoding, int *sc_result)
+{
+    const u8 *p;
+
+    if (!pin || !buf || !sc_result) {
+        if (sc_result)
+            *sc_result = SC_ERROR_INVALID_ARGUMENTS;
+        return 0;
+    }
+
+    if (encoding == CCID_PIN_ENCODING_BIN) {
+        for (p = pin->data; *p && buf_len>0; buf++, p++, buf_len--) {
+            switch (*p) {
+                case '0':
+                    *buf = 0x00;
+                    break;
+                case '1':
+                    *buf = 0x01;
+                    break;
+                case '2':
+                    *buf = 0x02;
+                    break;
+                case '3':
+                    *buf = 0x03;
+                    break;
+                case '4':
+                    *buf = 0x04;
+                    break;
+                case '5':
+                    *buf = 0x05;
+                    break;
+                case '6':
+                    *buf = 0x06;
+                    break;
+                case '7':
+                    *buf = 0x07;
+                    break;
+                case '8':
+                    *buf = 0x08;
+                    break;
+                case '9':
+                    *buf = 0x09;
+                    break;
+                default:
+                    *sc_result = SC_ERROR_INVALID_ARGUMENTS;
+                    return 0;
+            }
+        }
+        if (!buf_len && *p) {
+            *sc_result = SC_ERROR_OUT_OF_MEMORY;
+            return 0;
+        }
+
+        *sc_result = SC_SUCCESS;
+    } else {
+        if (encoding == CCID_PIN_ENCODING_BCD)
+            pin->encoding = SC_PIN_ENCODING_BCD;
+        else if (encoding == CCID_PIN_ENCODING_ASCII)
+            pin->encoding = SC_PIN_ENCODING_ASCII;
+        else {
+            *sc_result = SC_ERROR_NOT_SUPPORTED;
+            return 0;
+        }
+
+        *sc_result = sc_build_pin(buf, buf_len, pin, 0);
+
+        if (*sc_result < 0)
+            return 0;
+    }
+
+    return 1;
+}
+
+int
+write_pin(sc_apdu_t *apdu, struct sc_pin_cmd_pin *pin, uint8_t blocksize,
+        uint8_t justify_right, uint8_t encoding, int *sc_result)
+{
+    /* offset due to right alignment */
+    uint8_t justify_offset;
+
+    if (!apdu || !pin || !sc_result) {
+        if (sc_result)
+        *sc_result = SC_ERROR_INVALID_ARGUMENTS;
+        return 0;
+    }
+
+    if (justify_right) {
+        if (encoding == CCID_PIN_ENCODING_BCD) {
+            if (pin->len % 2) {
+                *sc_result = SC_ERROR_NOT_SUPPORTED;
+                return 0;
+            } else
+                justify_offset = blocksize - pin->len/2;
+        } else
+            justify_offset = blocksize - pin->len;
+    }
+    else
+        justify_offset = 0;
+
+    return encode_pin((u8 *) apdu->data + justify_offset,
+            blocksize - justify_offset, pin, encoding, sc_result);
+}
+
 RDR_to_PC_DataBlock_t
 perform_PC_to_RDR_Secure(const PC_to_RDR_Secure_t request,
         const __u8* abData, __u8** abDataOut)
 {
-    char buf[50];
+    char dbg[256];
     int sc_result = SC_SUCCESS;
     size_t resplen = 0;
     sc_apdu_t apdu;
@@ -603,21 +756,33 @@ perform_PC_to_RDR_Secure(const PC_to_RDR_Secure_t request,
     }
     apdu.sensitive = 1;
 
-    snprintf(buf, sizeof buf, "APDU, %d byte(s):\tins=%02x p1=%02x p2=%02x lc=%02x le=%02x",
-            request.dwLength, apdu.ins, apdu.p1, apdu.p2, (int) apdu.lc, (int) apdu.le);
-    sc_ui_display_debug(ctx, buf);
-
-    __u8 *p;
-    /* Note: offset and length_offset are relative to the first databyte */
     pin.min_length = wPINMaxExtraDigit >> 8;
     pin.max_length = wPINMaxExtraDigit & 0x00ff;
-    pin.offset = (bmFormatString >> 3) & 0xf;
-    uint8_t system_units_bytes = bmFormatString & CCID_PIN_UNITS_BYTES;
+    uint8_t system_units = bmFormatString & CCID_PIN_UNITS_BYTES;
+    uint8_t pin_offset = (bmFormatString >> 3) & 0xf;
+    uint8_t length_offset = bmPINLengthFormat & 0xf;
+    uint8_t length_size = bmPINBlockString >> 4;
     uint8_t justify_right = bmFormatString & CCID_PIN_JUSTIFY_RIGHT;
     uint8_t encoding = bmFormatString & 2;
-    uint8_t offset_length = bmPINBlockString >> 4;
     uint8_t blocksize = bmPINBlockString & 0xf;
-    uint8_t length_shift = bmPINLengthFormat & 0xf;
+
+    snprintf(dbg, sizeof dbg,
+            "PIN block (%d bytes) proberties:\n"
+            "\tminimum %d, maximum %d PIN digits\n"
+            "\t%s PIN encoding, %s justification\n"
+            "\tsystem units are %s\n"
+            "\twrite PIN length on %d bits with %d system units offset\n"
+            "\tPIN offset is %d %s\n",
+            blocksize, (unsigned int) pin.min_length,
+            (unsigned int) pin.max_length,
+            encoding == CCID_PIN_ENCODING_BIN ? "binary" :
+            encoding == CCID_PIN_ENCODING_BCD ? "BCD" :
+            encoding == CCID_PIN_ENCODING_ASCII ? "ASCII" :"unknown",
+            justify_right ? "right" : "left",
+            system_units ? "bytes" : "bits",
+            length_size, length_offset, pin_offset,
+            modify ? "bytes" : "system units");
+    sc_ui_display_debug(ctx, dbg);
 
     /* get the PIN */
     hints.prompt = "PIN Verification";
@@ -628,122 +793,27 @@ perform_PC_to_RDR_Secure(const PC_to_RDR_Secure_t request,
     if (sc_result < 0)
         goto err;
 
-    /* check length of PIN */
-    pin.len = strlen((char *)pin.data);
-    if (pin.len > pin.max_length || pin.len < pin.min_length) {
+    /* set and check length of PIN */
+    pin.len = strlen((char *) pin.data);
+    if ((pin.max_length && pin.len > pin.max_length)
+            || pin.len < pin.min_length) {
         sc_result = SC_ERROR_PIN_CODE_INCORRECT;
         goto err;
     }
 
-    /* write length of PIN */
-    if (offset_length) {
-        if (offset_length == 8) {
-            if (system_units_bytes) {
-                pin.length_offset = length_shift;
-            } else {
-                if (length_shift == 0)
-                    pin.length_offset = 0;
-                if (length_shift == 8)
-                    pin.length_offset = 1;
-                else {
-                    goto err;
-                }
-            }
-            p = (u8 *) apdu.data + pin.length_offset;
-            *p = pin.len;
-        } else {
-            goto err;
-        }
-    }
-
-    /* offset due to right alignment */
-    uint8_t justify_offset;
-    if (justify_right) {
-        if (encoding == CCID_PIN_ENCODING_BCD) {
-            if (pin.len % 2)
-                goto err;
-            else
-                justify_offset = pin.len/2;
-        } else
-            justify_offset = blocksize - pin.len;
-    }
-    else
-        justify_offset = 0;
-
-    /* set p to the first byte where to write the PIN */
-    if (system_units_bytes) {
-        p = (u8 *) apdu.data + pin.offset + justify_offset;
-    } else {
-        if (pin.offset == 0)
-            p = (u8 *) apdu.data + justify_offset;
-        else if (pin.offset == 8)
-            p = (u8 *) apdu.data + 1 + justify_offset;
-        else {
-            goto err;
-        }
-    }
-
-    /* encode and write the pin into the APDU */
-    const u8 *ppin;
-    if (encoding == CCID_PIN_ENCODING_BIN) {
-        for (ppin = pin.data; *ppin; p++, ppin++) {
-            switch (*ppin) {
-                case '0':
-                    *p = 0x00;
-                    break;
-                case '1':
-                    *p = 0x01;
-                    break;
-                case '2':
-                    *p = 0x02;
-                    break;
-                case '3':
-                    *p = 0x03;
-                    break;
-                case '4':
-                    *p = 0x04;
-                    break;
-                case '5':
-                    *p = 0x05;
-                    break;
-                case '6':
-                    *p = 0x06;
-                    break;
-                case '7':
-                    *p = 0x07;
-                    break;
-                case '8':
-                    *p = 0x08;
-                    break;
-                case '9':
-                    *p = 0x09;
-                    break;
-                default:
-                    sc_result = SC_ERROR_PIN_CODE_INCORRECT;
-                    goto err;
-            }
-        }
-    } else {
-        if (encoding == CCID_PIN_ENCODING_BCD)
-            pin.encoding = SC_PIN_ENCODING_BCD;
-        else if (encoding == CCID_PIN_ENCODING_ASCII)
-            pin.encoding = SC_PIN_ENCODING_ASCII;
-        else {
-            sc_result = SC_ERROR_NOT_SUPPORTED;
-            goto err;
-        }
-        sc_result = sc_build_pin(p, abPINApdu - p, &pin, 0);
-        if (sc_result < 0) {
-            goto err;
-        }
-    }
-
-    if (!get_rapdu(&apdu, request.bSlot, abDataOut, &resplen, &sc_result))
+    /* Note: pin.offset and pin.length_offset are relative to the first
+     * databyte */
+    if (!get_effective_offset(system_units, pin_offset, &pin.offset,
+                &sc_result)
+            || !get_effective_offset(system_units, length_offset,
+                &pin.length_offset, &sc_result)
+            || !write_pin_length(&apdu, &pin, system_units, length_size,
+                &sc_result)
+            || !write_pin(&apdu, &pin, blocksize, justify_right, encoding,
+                &sc_result)
+            || !get_rapdu(&apdu, request.bSlot, abDataOut, &resplen,
+                &sc_result))
         goto err;
-
-    snprintf(buf, sizeof buf, "RAPDU, %d byte(s):\tsw1=%02x sw2=%02x",
-            (int) resplen, apdu.sw1, apdu.sw2);
-    sc_ui_display_debug(ctx, buf);
 
 err:
     if (sc_result < 0)
