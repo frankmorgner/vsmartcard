@@ -715,7 +715,7 @@ perform_PC_to_RDR_Secure(const PC_to_RDR_Secure_t request,
         goto err;
     }
 
-    __u8 bmPINLengthFormat, bmPINBlockString, bmFormatString;
+    __u8 bmPINLengthFormat, bmPINBlockString, bmFormatString, bNumberMessage;
     __u8 *abPINApdu;
     uint32_t apdulen;
     uint16_t wPINMaxExtraDigit;
@@ -730,6 +730,7 @@ perform_PC_to_RDR_Secure(const PC_to_RDR_Secure_t request,
             bmPINLengthFormat = verify->bmPINLengthFormat;
             bmPINBlockString = verify->bmPINBlockString;
             bmFormatString = verify->bmFormatString;
+            bNumberMessage = verify->bNumberMessage;
             abPINApdu = (__u8*) verify + sizeof(*verify);
             apdulen = __le32_to_cpu(request.dwLength) - sizeof(*verify) - sizeof(__u8);
             break;
@@ -741,6 +742,7 @@ perform_PC_to_RDR_Secure(const PC_to_RDR_Secure_t request,
             bmPINLengthFormat = modify->bmPINLengthFormat;
             bmPINBlockString = modify->bmPINBlockString;
             bmFormatString = modify->bmFormatString;
+            bNumberMessage = modify->bNumberMessage;
             abPINApdu = (__u8*) modify + sizeof(*modify);
             apdulen = __le32_to_cpu(request.dwLength) - sizeof(*modify) - sizeof(__u8);
             break;
@@ -790,13 +792,27 @@ perform_PC_to_RDR_Secure(const PC_to_RDR_Secure_t request,
     /* get the PIN */
     hints.dialog_name = "ccid.PC_to_RDR_Secure";
     hints.card = card_in_slot[request.bSlot];
+    if (bNumberMessage == CCID_PIN_MSG_DEFAULT
+            || bNumberMessage == CCID_PIN_MSG_REF
+            || bNumberMessage == CCID_PIN_NO_MSG) {
+        /* don't interprete bMsgIndex*, just use defaults */
+        if (verify)
+            hints.usage = SC_UI_USAGE_OTHER;
+        else
+            hints.usage = SC_UI_USAGE_CHANGE_PIN;
+    } else if (bNumberMessage == CCID_PIN_MSG1)
+        hints.usage = SC_UI_USAGE_OTHER;
+    else if (bNumberMessage == CCID_PIN_MSG2)
+        hints.usage = SC_UI_USAGE_NEW_PIN;
+    else {
+        sc_result = SC_ERROR_INVALID_ARGUMENTS;
+        goto err;
+    }
     if (verify) {
         hints.prompt = "PIN Verification";
-        hints.usage = SC_UI_USAGE_OTHER;
         sc_result = sc_ui_get_pin(&hints, (char **) &curr_pin.data);
     } else {
         hints.prompt = "PIN Modification";
-        hints.usage = SC_UI_USAGE_CHANGE_PIN;
         if (modify->bConfirmPIN & CCID_PIN_CONFIRM_NEW)
             hints.flags |= SC_UI_PIN_RETYPE;
         if (modify->bConfirmPIN & CCID_PIN_INSERT_OLD) {

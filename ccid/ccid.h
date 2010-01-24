@@ -65,12 +65,15 @@ extern "C" {
 #define CCID_PIN_ENCODING_BIN   0x00
 #define CCID_PIN_ENCODING_BCD   0x01
 #define CCID_PIN_ENCODING_ASCII 0x02
-
 #define CCID_PIN_UNITS_BYTES    0x80
 #define CCID_PIN_JUSTIFY_RIGHT  0x04
-
 #define CCID_PIN_CONFIRM_NEW    0x01
 #define CCID_PIN_INSERT_OLD     0x02
+#define CCID_PIN_NO_MSG         0x00
+#define CCID_PIN_MSG1           0x01
+#define CCID_PIN_MSG2           0x02
+#define CCID_PIN_MSG_REF        0x03
+#define CCID_PIN_MSG_DEFAULT    0xff
 
 #define CCID_SLOTS_UNCHANGED    0x00
 #define CCID_SLOT1_CARD_PRESENT 0x01
