@@ -32,6 +32,8 @@ RESTARTPCSCD       = /etc/init.d/pcscd restart
 TARGETS		   = libvpcd.so configuration virtualsmartcard
 
 # top-level rule
+default: all
+
 all: $(TARGETS)
 
 ifd.o: vpcd/ifd.c
