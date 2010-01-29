@@ -940,22 +940,20 @@ static void *ccid (void *param)
         pthread_cleanup_push (close_fd, &status_fd);
 
         int result;
-        RDR_to_PC_NotifySlotChange_t slotchange;
+        RDR_to_PC_NotifySlotChange_t *slotchange;
         do {
-
             /* original LinuxThreads cancelation didn't work right */
             /* so test for it explicitly. */
             pthread_testcancel ();
 
-            if (ccid_state_changed(&slotchange)) {
+            if (ccid_state_changed(&slotchange, -1)) {
                 /* don't bother host, when nothing changed */
                 if (debug)
                     fprintf(stderr, "interrupt loop: writing RDR_to_PC_NotifySlotChange... ");
-                result = write(status_fd, &slotchange, sizeof slotchange);
+                result = write(status_fd, slotchange, sizeof *slotchange);
                 if (debug)
                     fprintf(stderr, "done.\n");
             }
-            sleep(10);
         } while (result >= 0);
 
         if (errno != ESHUTDOWN || result < 0) {
@@ -977,14 +975,6 @@ static void *ccid (void *param)
                 perror ("can't join interrupt thread");
             fprintf (stderr, "cancled interrupt loop\n");
         }
-    }
-
-    void close_pcsc()
-    {
-        if (!ccid_shutdown())
-            fprintf(stderr, "pc/sc error\n");
-        else if (verbose)
-            fprintf(stderr, "closed connection\n");
     }
 
     char	**names      = (char **) param;
@@ -1009,7 +999,7 @@ static void *ccid (void *param)
     }
     pthread_cleanup_push (close_fd,   &sink_fd);
 
-    pthread_cleanup_push (close_pcsc, NULL);
+    pthread_cleanup_push (ccid_shutdown, NULL);
 
     if (doint) {
         static char * interruptnames[1];
@@ -1027,7 +1017,7 @@ static void *ccid (void *param)
     __u8 *outbuf = NULL;
     pthread_cleanup_push (free, outbuf);
     size_t bufsize = 512;
-    __u8 *inbuf = (__u8 *) malloc(bufsize);
+    __u8 *inbuf = malloc(bufsize);
     pthread_cleanup_push (free, inbuf);
     if (inbuf == NULL) {
         if (debug)
@@ -1101,7 +1091,7 @@ static void *hid (void *param)
     __u8 *outbuf = NULL;
     pthread_cleanup_push (free, outbuf);
     size_t bufsize = 512;
-    __u8 *inbuf = (__u8 *) malloc(bufsize);
+    __u8 *inbuf = malloc(bufsize);
     pthread_cleanup_push (free, inbuf);
     if (inbuf == NULL) {
         if (debug)
@@ -1507,6 +1497,7 @@ special:
                     if (debug)
                         fprintf(stderr, "done.\n");
                     free(outbuf);
+                    outbuf = NULL; // XXX
                     if (result < 0)
                         goto stall;
                 } return;
@@ -1854,7 +1845,7 @@ main (int argc, char **argv)
         return 1;
     }
 
-    if (!ccid_initialize(usb_reader_num, verbose)) {
+    if (ccid_initialize(usb_reader_num, verbose) < 0) {
         perror("can't initialize ccid");
         return 1;
     }
