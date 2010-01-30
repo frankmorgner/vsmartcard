@@ -257,8 +257,9 @@ int get_rapdu(sc_apdu_t *apdu, size_t slot, __u8 **buf, size_t *resplen)
     SC_FUNC_RETURN(ctx, SC_LOG_TYPE_VERBOSE, SC_SUCCESS);
 
 err:
-    if (apdu->resp)
+    if (apdu->resp) {
         free(apdu->resp);
+    }
 
     SC_FUNC_RETURN(ctx, SC_LOG_TYPE_VERBOSE, sc_result);
 }
@@ -345,6 +346,7 @@ get_RDR_to_PC_SlotStatus(__u8 bSlot, __u8 bSeq, int sc_result, RDR_to_PC_SlotSta
     RDR_to_PC_SlotStatus_t *result = realloc(*out, sizeof *result);
     if (!result)
         SC_FUNC_RETURN(ctx, SC_LOG_TYPE_VERBOSE, SC_ERROR_OUT_OF_MEMORY);
+    *out = result;
 
     result->bMessageType = 0x81;
     result->dwLength     = __constant_cpu_to_le32(0);
@@ -353,8 +355,6 @@ get_RDR_to_PC_SlotStatus(__u8 bSlot, __u8 bSeq, int sc_result, RDR_to_PC_SlotSta
     result->bStatus      = get_bStatus(sc_result, bSlot);
     result->bError       = get_bError(sc_result);
     result->bClockStatus = 0;
-
-    *out = result;
 
     SC_FUNC_RETURN(ctx, SC_LOG_TYPE_VERBOSE, SC_SUCCESS);
 }
@@ -368,6 +368,7 @@ get_RDR_to_PC_DataBlock(__u8 bSlot, __u8 bSeq, int sc_result, RDR_to_PC_DataBloc
     RDR_to_PC_DataBlock_t *result = realloc(*out, sizeof *result);
     if (!result)
         SC_FUNC_RETURN(ctx, SC_LOG_TYPE_VERBOSE, SC_ERROR_OUT_OF_MEMORY);
+    *out = result;
 
     result->bMessageType    = 0x80;
     result->dwLength        = __constant_cpu_to_le32(0);
@@ -377,17 +378,18 @@ get_RDR_to_PC_DataBlock(__u8 bSlot, __u8 bSeq, int sc_result, RDR_to_PC_DataBloc
     result->bError          = get_bError(sc_result);
     result->bChainParameter = 0;
 
-    *out = result;
-
     SC_FUNC_RETURN(ctx, SC_LOG_TYPE_VERBOSE, SC_SUCCESS);
 }
 
 int
 perform_PC_to_RDR_GetSlotStatus(const __u8 *in, __u8 **out, size_t *outlen)
 {
+    int r;
     const PC_to_RDR_GetSlotStatus_t *request = (PC_to_RDR_GetSlotStatus_t *) in;
     RDR_to_PC_SlotStatus_t *result = realloc(*out, sizeof *result);
-    int r;
+    if (!result)
+        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_OUT_OF_MEMORY);
+    *out = (__u8 *) result;
 
     if (!out || !outlen)
         SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_INVALID_ARGUMENTS);
@@ -403,7 +405,6 @@ perform_PC_to_RDR_GetSlotStatus(const __u8 *in, __u8 **out, size_t *outlen)
     r = get_RDR_to_PC_SlotStatus(request->bSlot, request->bSeq, SC_SUCCESS, &result);
 
     if (r >= 0) {
-        *out = (__u8 *) result;
         *outlen = sizeof *result;
     }
 
@@ -416,6 +417,9 @@ perform_PC_to_RDR_IccPowerOn(const __u8 *in, __u8 **out, size_t *outlen)
     const PC_to_RDR_IccPowerOn_t *request = (PC_to_RDR_IccPowerOn_t *) in;
     int sc_result, r;
     RDR_to_PC_SlotStatus_t *result = realloc(*out, sizeof *result);
+    if (!result)
+        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_OUT_OF_MEMORY);
+    *out = (__u8 *) result;
 
     if (    request->bMessageType != 0x62 ||
             request->dwLength     != __constant_cpu_to_le32(0) ||
@@ -445,16 +449,14 @@ perform_PC_to_RDR_IccPowerOn(const __u8 *in, __u8 **out, size_t *outlen)
         if (sc_result >= 0) {
             result->dwLength = __cpu_to_le32(card_in_slot[request->bSlot]->atr_len);
             *outlen = sizeof *result + card_in_slot[request->bSlot]->atr_len;
-            *out = realloc(result, *outlen);
-            if (!*out) {
-                free(result);
+            result = realloc(*out, *outlen);
+            if (!result)
                 SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_OUT_OF_MEMORY);
-            }
+            *out = (__u8 *) result;
             memcpy(*out + sizeof *result, card_in_slot[request->bSlot]->atr, card_in_slot[request->bSlot]->atr_len);
         } else {
             debug_sc_result(sc_result);
             *outlen = sizeof *result;
-            *out = (__u8 *) result;
         }
     }
 
@@ -500,9 +502,12 @@ perform_PC_to_RDR_XfrBlock(const u8 *in,  __u8** out, size_t *outlen)
     size_t resplen = 0;
     sc_apdu_t apdu;
     const PC_to_RDR_XfrBlock_t *request = (PC_to_RDR_XfrBlock_t *) in;
-    RDR_to_PC_DataBlock_t *result = realloc(*out, sizeof *result);
     const __u8 *abDataIn = in + sizeof *request;
     __u8 *abDataOut;
+    RDR_to_PC_DataBlock_t *result = realloc(*out, sizeof *result);
+    if (!result)
+        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_OUT_OF_MEMORY);
+    *out = (__u8 *) result;
 
     if (    request->bMessageType != 0x6F ||
             request->bBWI  != 0)
@@ -520,15 +525,15 @@ perform_PC_to_RDR_XfrBlock(const u8 *in,  __u8** out, size_t *outlen)
 
     if (r >= 0) {
         *outlen = sizeof *result + resplen;
-        *out = realloc(result, *outlen);
-        if (!*out) {
+        result = realloc(*out, *outlen);
+        if (!result) {
             free(abDataOut);
             sc_result = SC_ERROR_OUT_OF_MEMORY;
             result->bError = get_bError(sc_result);
             result->bStatus = get_bStatus(sc_result, request->bSlot);
             *outlen = sizeof *result;
-            *out = (__u8 *) result;
         } else {
+            *out = (__u8 *) result;
             result->dwLength =  __cpu_to_le32(resplen);
             memcpy(*out + sizeof *result, abDataOut, resplen);
         }
@@ -563,6 +568,7 @@ perform_PC_to_RDR_GetParamters(const __u8 *in, __u8** out, size_t *outlen)
             result = realloc(*out, sizeof *result + sizeof *t0);
             if (!result)
                 SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_OUT_OF_MEMORY);
+            *out = (__u8 *) result;
 
             result->bProtocolNum = 0;
             result->dwLength = __constant_cpu_to_le32(sizeof *t0);
@@ -585,6 +591,7 @@ perform_PC_to_RDR_GetParamters(const __u8 *in, __u8** out, size_t *outlen)
             result = realloc(*out, sizeof *result + sizeof *t1);
             if (!result)
                 SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_OUT_OF_MEMORY);
+            *out = (__u8 *) result;
 
             result->bProtocolNum = 1;
             result->dwLength = __constant_cpu_to_le32(sizeof *t1);
@@ -614,6 +621,7 @@ perform_PC_to_RDR_GetParamters(const __u8 *in, __u8** out, size_t *outlen)
             result = realloc(*out, sizeof *result);
             if (!result)
                 SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_OUT_OF_MEMORY);
+            *out = (__u8 *) result;
 
             sc_result = SC_ERROR_INVALID_DATA;
     }
@@ -786,7 +794,6 @@ write_pin(sc_apdu_t *apdu, struct sc_pin_cmd_pin *pin, uint8_t blocksize,
 int
 perform_PC_to_RDR_Secure(const __u8 *in, __u8** out, size_t *outlen)
 {
-    RDR_to_PC_DataBlock_t *result = realloc(*out, sizeof *result);
     int sc_result, r;
     sc_apdu_t apdu;
     struct sc_pin_cmd_pin curr_pin, new_pin;
@@ -795,6 +802,10 @@ perform_PC_to_RDR_Secure(const __u8 *in, __u8** out, size_t *outlen)
     const __u8* abData = in + sizeof *request;
     u8 *abDataOut;
     size_t resplen = 0;
+    RDR_to_PC_DataBlock_t *result = realloc(*out, sizeof *result);
+    if (!result)
+        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_OUT_OF_MEMORY);
+    *out = (__u8 *) result;
 
     memset(&hints, 0, sizeof(hints));
     memset(&curr_pin, 0, sizeof(curr_pin));
@@ -979,8 +990,9 @@ err:
         *outlen = sizeof *result + resplen;
         *out = realloc(result, *outlen);
         if (!*out) {
-            if (abDataOut)
+            if (abDataOut) {
                 free(abDataOut);
+            }
             sc_result = SC_ERROR_OUT_OF_MEMORY;
             result->bError = get_bError(sc_result);
             result->bStatus = get_bStatus(sc_result, request->bSlot);
@@ -1023,6 +1035,7 @@ get_RDR_to_PC_NotifySlotChange(RDR_to_PC_NotifySlotChange_t **out)
     RDR_to_PC_NotifySlotChange_t *result = realloc(*out, sizeof *result);
     if (!result)
         SC_FUNC_RETURN(ctx, SC_LOG_TYPE_VERBOSE, SC_ERROR_OUT_OF_MEMORY);
+    *out = result;
 
     result->bMessageType = 0x50;
     result->bmSlotICCState = CCID_SLOTS_UNCHANGED;
@@ -1053,6 +1066,7 @@ perform_unknown(const __u8 *in, __u8 **out, size_t *outlen)
     RDR_to_PC_SlotStatus_t *result = realloc(*out, sizeof *result);
     if (!result)
         SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_OUT_OF_MEMORY);
+    *out = (__u8 *) result;
 
     switch (request->bMessageType) {
         case 0x62:
@@ -1151,6 +1165,7 @@ int ccid_parse_control(struct usb_ctrlrequest *setup, __u8 **outbuf)
 {
     int result = -1;
     __u16 value, index, length;
+    __u8 *tmp;
 
     value = __le16_to_cpu(setup->wValue);
     index = __le16_to_cpu(setup->wIndex);
@@ -1173,11 +1188,12 @@ int ccid_parse_control(struct usb_ctrlrequest *setup, __u8 **outbuf)
                     }
 
                     result = sizeof(__le32);
-                    *outbuf = realloc(*outbuf, result);
-                    if (*outbuf == NULL) {
+                    tmp = realloc(*outbuf, result);
+                    if (tmp == NULL) {
                         result = -1;
                         break;
                     }
+                    *outbuf = tmp;
                     __le32 clock  = ccid_desc.dwDefaultClock;
                     memcpy(*outbuf, &clock,  sizeof (__le32));
                 }   break;
@@ -1189,11 +1205,12 @@ int ccid_parse_control(struct usb_ctrlrequest *setup, __u8 **outbuf)
                     }
 
                     result = sizeof (__le32);
-                    *outbuf = realloc(*outbuf, result);
-                    if (*outbuf == NULL) {
+                    tmp = realloc(*outbuf, result);
+                    if (tmp == NULL) {
                         result = -1;
                         break;
                     }
+                    *outbuf = tmp;
                     __le32 drate  = ccid_desc.dwDataRate;
                     memcpy(*outbuf, &drate,  sizeof (__le32));
                 }   break;

@@ -1496,8 +1496,6 @@ special:
                     result = write (fd, outbuf, result);
                     if (debug)
                         fprintf(stderr, "done.\n");
-                    free(outbuf);
-                    outbuf = NULL; // XXX
                     if (result < 0)
                         goto stall;
                 } return;
