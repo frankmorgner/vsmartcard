@@ -25,42 +25,17 @@ from SmartcardSAM import CardContainer, SAM, PassportSAM, CryptoflexSAM
 from pickle import dumps, loads
 import socket, struct, sys, signal, atexit, traceback
 import struct
-
+import getpass
+import shelve, anydbm
 
 class SmartcardOS(object): # {{{ 
-    def __init__(self, filename,mf=None,ins2handler=None, maxle=MAX_SHORT_LE,sam=None):
-        self.config_key = "DUMMYKEYDUMMYKEY" #TODO: Let user enter password
-        self.filename = filename
+    def __init__(self, mf=None, sam=None, ins2handler=None, maxle=MAX_SHORT_LE):
+        from CardGenerator import generate_iso_card
         self.mf = mf
         self.SAM = sam
-        
-        if self.filename != None:
-            try:
-                self.load(filename,self.config_key)
-            except ValueError:
-                print "Failed to load configuration %s" % filename
 
-        if self.SAM == None:
-            print "Using default SAM. Insecure!!!"
-            self.SAM = SAM("testconfig.sam",self.config_key) #FIXME: Replace by defaul_SAM()
-        if self.mf == None:
-            print "Using default MF."
-            self.mf = MF(filedescriptor=FDB["DF"], lifecycle=LCB["ACTIVATED"], dfname=None)
-        self.SAM.set_MF(self.mf)
-        
-        # pgp directory
-        #self.mf.append(DF(parent=self.mf,
-            #fid=4, dfname='\xd2\x76\x00\x01\x24\x01', bertlv_data=[]))
-        # pkcs-15 directories
-        #self.mf.append(DF(parent=self.mf,
-            #fid=1, dfname='\xa0\x00\x00\x00\x01'))
-        #self.mf.append(DF(parent=self.mf,
-            #fid=2, dfname='\xa0\x00\x00\x03\x08\x00\x00\x10\x00'))
-        #self.mf.append(DF(parent=self.mf,
-            #fid=3, dfname='\xa0\x00\x00\x03\x08\x00\x00\x10\x00\x01\x00'))
-            
-        #import imp, os.path
-        #SAM_config = os.path.join(os.path.dirname(imp.find_module("SmartcardSAM")[1]), "testconfig.sam") #Path to initial SAM configuration, stored on disk        
+        if self.mf == None and self.SAM == None:
+            self.mf, self.SAM = generate_iso_card()    
 
         if not ins2handler:
             self.ins2handler = {
@@ -108,42 +83,7 @@ class SmartcardOS(object): # {{{
         self.atr = SmartcardOS.makeATR(T=1, directConvention = True, TA1=0x13,
                 histChars = chr(0x80) + chr(0x70 + len(card_capabilities)) +
                 card_capabilities)
-
-    def save(self):
-        """
-        Save the configuration of the current Smartcard (MF + SAM) to disk.
-        To files will be stored: <filename>.mf for the mf and <filename>.sam
-        for the SAM.
-        Both files will be encrypted.
-        """
-        if self.filename == None:
-            raise ValueError, "No filename specified"
-        else:
-            mf = dumps(self.mf)
-            path = self.filename + ".mf"
-            mf = self.SAM.saveToDisk(mf,path)
-            path = self.filename + ".sam"
-            self.SAM.saveConfiguration(path)
-            #self.SAM.saveConfiguration(path,"DUMMYKEYDUMMYKEY")
-         
-    def load(self,filename,password):
-        """
-        Try to load a configuration from the filesystem. MF or SAM are only loaded if
-        they aren't yet specified.
-        """
-        if self.SAM == None:
-            self.SAM = SAM("testconfig.sam","DUMMYKEYDUMMYKEY",None) #FIXME: replace by default_SAM()
-            path = filename + ".sam"
-            try:
-                self.SAM.loadConfiguration(path,password)
-            except IOError:
-                print "Failed to open %s" % path
-        if self.mf == None:
-            path = filename + ".mf"
-            data = self.SAM.loadFromDisk(path,password)
-            self.mf = loads(data)
-            print "Succesfully loaded MF from %s" % path
-
+        
     def powerUp(self):
         pass
 
@@ -363,72 +303,32 @@ class PassportOS(SmartcardOS):
     Basic Access Control (BAC) mechanisms.
     """
     
-    def __init__(self, filename,mf=None, ins2handler=None, maxle=MAX_SHORT_LE):
-        if filename == None and mf == None:
-            mf = MF()
-        else:
-            pass #TODO: Load data from disk
-        self.generate_data_structure(mf)
-        self.SAM = PassportSAM(mf)
-        SmartcardOS.__init__(self, None, mf=mf, ins2handler=ins2handler, maxle=maxle,sam=self.SAM)
-     
-    def generate_data_structure(self,mf):
-        MRZ1 = "P<UTOERIKSSON<<ANNA<MARIX<<<<<<<<<<<<<<<<<<<"
-        MRZ2 = "L898902C<3UTO6908061F9406236ZE184226B<<<<<14"
-        MRZ = MRZ1+MRZ2        
-        from PIL import Image
-        picturepath = "jp2.jpg"
-        try:
-            im = Image.open(picturepath)
-            pic_width, pic_height = im.size
-            fd = open(picturepath,"rb")
-            picture = fd.read()
-            fd.close()
-        except IOError:
-            print "Could not find picture %s" % picturepath
-            pic_width = 0
-            pic_height = 0
-            picture = None  
-
-        #We need a MF with Application DF \xa0\x00\x00\x02G\x10\x01
-        mf.append(DF(parent=mf,fid=4, dfname='\xa0\x00\x00\x02G\x10\x01', bertlv_data=[]))
-        df = mf.currentDF()
-        mf.append(TransparentStructureEF(parent=df, fid=0x011E, filedescriptor=0, data=""))#EF.COM
-        mf.append(TransparentStructureEF(parent=df, fid=0x0101, filedescriptor=0, data=""))#EF.DG1
-        mf.append(TransparentStructureEF(parent=df, fid=0x0102, filedescriptor=0, data=""))#EF.DG2
-        mf.append(TransparentStructureEF(parent=df, fid=0x010D, filedescriptor=0, data=""))#EF.SOD
-        #EF.COM
-        COM = pack([(0x5F01,4,"0107"),(0x5F36,6,"040000"),(0x5C,2,"6175")])
-        COM = pack(((0x60,len(COM),COM),))
-        fid = df.select("fid",0x011E)
-        fid.writebinary([0],[COM])        
-        #EF.DG1
-        DG1 = pack([(0x5F1F,len(MRZ),MRZ)])
-        DG1 = pack([(0x61,len(DG1),DG1)])
-        fid = df.select("fid",0x0101)
-        fid.writebinary([0],[DG1])        
-        #EF.DG2
-        if picture != None:
-            IIB = "\x00\x01" + inttostring(pic_width,2) + inttostring(pic_height,2) + 6 * "\x00" 
-            length = 32 + len(picture) #32 is the length of IIB + FIB
-            FIB = inttostring(length,4) + 16 * "\x00"
-            FRH = "FAC" + "\x00" + "010" + "\x00" + inttostring(14+length,4) + inttostring(1,2)
-            picture = FRH + FIB + IIB + picture
-            DG2 = pack([(0xA1,8,"\x87\x02\x01\x01\x88\x02\x05\x01"),(0x5F2E,len(picture),picture)])
-            DG2 = pack([(0x02,1,"\x01"),(0x7F60,len(DG2),DG2)])
-            DG2 = pack([(0x7F61,len(DG2),DG2)])
-            fid = df.select("fid",0x0102)
-            fid.writebinary([0],[DG2])
+    def __init__(self, mf=None, sam=None, ins2handler=None, maxle=MAX_SHORT_LE):
+        from CardGenerator import generate_ePass
+        
+        if mf == None and sam == None:
+            mf, sam = generate_ePass()
+        else: #TODO: Sanity check if mf or sam are provided
+            if mf == None:               
+                mf, tmp = generate_ePass()              
+            if sam == None: 
+                sam = PassportSAM(mf)
+        SmartcardOS.__init__(self, mf=mf, sam=sam, ins2handler=ins2handler, maxle=maxle)
         
 class CryptoflexOS(SmartcardOS): # {{{ 
-    def __init__(self, filename, mf=None, ins2handler=None, maxle=MAX_SHORT_LE):
-        if filename == None and mf == None:
-            mf = CryptoflexMF()
-        mf.append(TransparentStructureEF(parent=mf, fid=0x0002, filedescriptor=0x01,
-            data="\x00\x00\x00\x01\x00\x01\x00\x00"))#EF.ICCSN
-        #TODO: Load objects from disk
-        SmartcardOS.__init__(self, None,mf=mf, ins2handler=ins2handler, maxle=maxle,
-                             sam=CryptoflexSAM("testconfig.sam","DUMMYKEYDUMMYKEY"))
+    def __init__(self, mf=None, sam=None, ins2handler=None, maxle=MAX_SHORT_LE):
+        from GenerateCard import generate_cryptoflex
+        
+        if mf == None and sam == None:
+            mf, sam = generate_cryptoflex()
+        else:
+            if mf == None:
+                mf, tmp = generate_cryptoflex()
+                del tmp
+            if sam == None:
+                sam = CryptoflexSAM(mf)
+        
+        SmartcardOS.__init__(self, mf, sam, ins2handler, maxle)
         self.atr = '\x3B\xE2\x00\x00\x40\x20\x49\x06'
 
     def execute(self, msg):
@@ -484,29 +384,56 @@ VPCD_CTRL_RESET = 2
 VPCD_CTRL_ATR	= 4
 
 class VirtualICC(object): # {{{ 
-
-    def __init__(self, filename,os=None, lenlen=3, host="localhost", port=35963):
-        if os == None:
-            self.os = SmartcardOS(filename)
+    
+    def __init__(self, filename, type, lenlen=3, host="localhost", port=35963):
+        from os.path import exists
+        from CardGenerator import loadCard
+        
+        self.filename = None
+        SAM = None
+        MF = None
+        
+        #If a filename is specified, try to load the card from disk      
+        if filename == None:
+            print "No filename specified. The card will not be safed!"
         else:
-            self.os = os
-        self.filename = filename
-        self.sock = self.connectToPort(host, port)
-        self.sock.settimeout(None)           
+            self.filename = filename
+            if exists(filename):
+                print "Found existing card " + filename + ". Will try to open it"
+                SAM, MF = loadCard(filename)
+            else:
+                print "No file " + filename + " found. Will create new file at termination of program."
+        
+        #Generate an OS object of the correct type
+        if type == "iso7816":
+            self.os = SmartcardOS(MF, SAM)
+        elif type == "ePass":
+            self.os = PassportOS(MF, SAM)
+        elif type == "cryptoflex":
+            self.os = CryptoflexOS(MF, SAM)
+        else:
+            print "Unknown cardtype " + type + ". Will use standard ISO 7816 cardtype"
+            type = "iso7816"
+            self.os = SmartcardOS(MF, SAM)
+        self.type = type
+            
+        #Connect to the VPCD
+        try:
+            self.sock = self.connectToPort(host, port)
+            self.sock.settimeout(None)
+        except socket.error as e:
+            print "Failed to open socket: " + str(e) + ". Is pcscd running? Is vpcd installed?"
+            sys.exit()
+                       
         self.lenlen = lenlen
         signal.signal(signal.SIGINT, self.signalHandler)
-        atexit.register(self.signalHandler)
-        atexit.register(self.saveCard)
-
-    def saveCard(self):
-        if self.filename != None:
-            print "Saving smartcard configuration to %s" % self.filename
-            self.os.save()           
-        else:
-            print "No filename specified, card configuration will not be saved."
-
+        #atexit.register(self.signalHandler)
+        #atexit.register(saveCard)
+    
     def signalHandler(self, signal=None, frame=None):
+        from CardGenerator import saveCard
         self.sock.close()
+        saveCard(self.os.mf, self.os.SAM, self.filename)
         sys.exit()
 
     @staticmethod
@@ -567,11 +494,6 @@ if __name__ == "__main__":
             dest="filename", default=None,
             help="Name of a smartcard stored in the filesystem. The card will be loaded")
     (options, args) = parser.parse_args()
-    if options.type == 'cryptoflex':
-        vicc = VirtualICC(options.filename,os=CryptoflexOS(options.filename))
-    elif options.type == 'ePass':
-        #raise ValueError, "Not implemented yet!"
-        vicc = VirtualICC(options.filename,os=PassportOS(options.filename))
-    else:
-        vicc = VirtualICC(options.filename)
+
+    vicc = VirtualICC(options.filename, options.type)
     vicc.run()

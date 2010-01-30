@@ -26,16 +26,6 @@ from Crypto.Cipher import DES3
 from ConstantDefinitions import *
 from SEutils import ControlReferenceTemplate as CRT
 
-def generate_SAM_config(cardNumber,PIN,cardSecret,path,password):
-    """
-    This method generates a new SAM configuration using the given parameters,
-    stores it in a KeyContainer, serialises the container, encrypts it and
-    writes it to the disk.
-    """
-    container = CardContainer(cardNumber,PIN,cardSecret)
-    container.saveConfiguration(path,password)
-    del container
-
 def get_referenced_cipher(p1):  
     """
     P1 defines the algorithm and mode to use. We dispatch it and return a
@@ -43,6 +33,7 @@ def get_referenced_cipher(p1):
     """
           
     ciphertable = {
+        0x00: "DES3-ECB",
         0x01: "DES3-ECB",
         0x02: "DES3-CBC",
         0x03: "DES-ECB",
@@ -67,17 +58,26 @@ class CardContainer:
     to the corresponding container.
     """
     
-    def __init__(self,cardNumber=None,PIN=None,cardSecret=None):
+    def __init__(self, PIN=None, cardNumber=None, cardSecret=None):
+        from os import urandom
+        
         self.cardNumber = cardNumber
         self.PIN = PIN
-        self.cardSecret = cardSecret
         self.FSkeys = {}
         self.cipher = 0x01 # Algorithm reference defined in __get_referenced_algorithm(p1)
-        self.block_size = 16 #Need to be set according to the needs of self.cipher. Ugly!
         self.master_password = None
         self.master_key = None
         self.salt = None
         self.asym_key = None
+        
+        keylen = CryptoUtils.get_cipher_keylen(get_referenced_cipher(self.cipher))
+        if cardSecret is None: #Generate a random card secret
+            self.cardSecret = urandom(keylen)
+        else:
+            if len(cardSecret) != keylen:
+                raise ValueError, "cardSecret has the wrong key length for: " + get_referenced_cipher(self.cipher)
+            else:
+                self.cardSecret = cardSecret            
 
     def __delete__(self):
         print "Smartcard configuration is NOT saved!!!"
@@ -119,135 +119,21 @@ class CardContainer:
             return plain_key
         else:
             return None
-        
-    def loadConfiguration(self,path,password):
-        """
-        Reads the configuration of a key container from the disk, decrypts
-        it and applies it to the current key_ container. 
-        The current configuration gets overwritten. The HMAC is used to verify
-        data integrity.
-        """
-        decryptedContainer = self.loadFromDisk(path, password, True)
-        container = loads(decryptedContainer)
-        self.PIN = container.PIN
-        self.cardNumber = container.cardNumber
-        self.cardSecret = container.cardSecret
-        self.FSkeys = container.FSkeys
-        self.master_password = password
-        del decryptedContainer
-        del container
-    
-    def saveConfiguration(self,path,password=None):
-        """
-        Encrypts the configuration of the current key container and writes it
-        to the disk. Password is used to derivate a key using PBKDF2. A salt and
-        a HMAC is stored along with the data
-        """
-        serialisedContainer = dumps(self)
-        if self.master_key == None: #New Configuration
-            if password == None:
-                raise ValueError, "Need password but none specified"
-            pbk = CryptoUtils.crypt(password)
-            regex = re.compile('\$p5k2\$\$[\w./]*\$')
-            match = regex.match(pbk)
-            if match != None:
-                self.salt = pbk[7:match.end()-1]
-                self.master_key = pbk[match.end():]
-            else:
-                raise ValueError
-            del pbk
-        
-        self.saveToDisk(serialisedContainer,path)
-        
-    def saveToDisk(self,data,path,password=None):
-        if password == None:
-            key = self.master_key
-            salt = self.salt
-        else:
-            regex = re.compile('\$p5k2\$\$[\w./]*\$')
-            pbk = CryptoUtils.crypt(password)
-            match = regex.match(pbk)
-            salt = pbk[7:match.end()-1]
-            print salt
-            key = pbk[match.end():]
-
-        cipher = get_referenced_cipher(self.cipher)
-        paddedData = CryptoUtils.append_padding(cipher,data)                
-        cryptedData = CryptoUtils.cipher(True,cipher,key,paddedData)
-        hmac = CryptoUtils.crypto_checksum("HMAC",key,cryptedData)
-        data = "$p5k2$$" + salt + "$" + cryptedData + hmac
-        
-        try:
-            fd = open(path,"w")
-            fd.write(data)
-            fd.close()
-        except IOError:
-            print "Failed to write data to disk"
-            
-            
-    def loadFromDisk(self,path,password=None,loading_sam=False):
-        hmac_length = 32 #FIXME: Ugly
-        #Read data
-        try:
-            fd = open(path,"r")
-            data = fd.read()
-            fd.close()
-        except IOError:
-            print "Failed to read data from disk"
-        #Check file structure, ectract components 
-        regex = re.compile('\$p5k2\$\$[\w./]*\$') #TODO: Ensure the right format!
-        match = regex.match(data)
-        if match != None:
-            crypted = data[match.end():len(data) - hmac_length]
-            salt = data[7:match.end() - 1]
-            hmac = data[len(data) - hmac_length:]
-        else:
-            raise ValueError, "Wrong file format"
-        if password == None:
-            if salt != self.salt: 
-                raise ValueError, "Could not decode data"
-            else:
-                key = self.master_key
-        else:
-            pbk = CryptoUtils.crypt(password,salt)
-            match = regex.match(pbk)
-            key = pbk[match.end():]
-        #Verify HMAC
-        checksum = CryptoUtils.crypto_checksum("HMAC",key,crypted)
-        if checksum != hmac:
-            print "Found HMAC %s expected %s" % (str(hmac), str(checksum))
-            raise ValueError, "Failed to authenticate data. Wrong password?"
-        #Decrypt data
-        cipher = get_referenced_cipher(self.cipher)
-        decrypted = CryptoUtils.cipher(False,cipher,key,crypted)
-        
-        #If we are loading the SAM config (paramter loading_sam) we set
-        #the master key and the salt
-        #This is ugly and should be changed
-        if loading_sam:
-            self.master_key = key
-            self.salt = salt
-        
-        return decrypted
-
                 
 class SAM(object):
        
-    def __init__(self,path,password,mf=None):
-        """
-        Reads the encrypted SAM configuration from the disk and applies it.
-        """
-        self.CardContainer = CardContainer()
-        if len(password) % self.CardContainer.block_size != 0:
-            print "Wrong key length, must be a multiple of %s Bytes" % self.CardContainer.block_size 
-            raise ValueError
-        
-        self.CardContainer.loadConfiguration(path, password)
+    def __init__(self, PIN, cardNumber, mf=None):
+
+        self.CardContainer = CardContainer(PIN, cardNumber)      
+        #self.CardContainer.loadConfiguration(path, password)
         self.mf = mf
-        self.card_number = self.CardContainer.cardNumber
+
+        self.cardNumber = cardNumber
+        self.cardSecret = self.CardContainer.cardSecret
+
         self.last_challenge = None #Will contain non-readable binary string
         self.counter = 3 #Number of tries for PIN validation
-        self.cardSecret = self.CardContainer.cardSecret
+
         self.SM_handler = Secure_Messaging(self.mf)
 
     def set_MF(self,mf):
@@ -322,6 +208,7 @@ class SAM(object):
                 return SW["NORMAL"], ""
             else:
                 self.counter -= 1
+                print self.CardContainer.getPIN() + " != " + PIN
                 raise SwError(SW["WARN_NOINFO63"])
                 #raise SwError(0X63C0 + self.counter) #Be verbose
         else:
@@ -343,16 +230,16 @@ class SAM(object):
         to prove key posession
         """
         
-	if p1 == 0x00: #No information given
+        if p1 == 0x00: #No information given
             cipher = get_referenced_cipher(self.CardContainer.cipher)   
         else:
             cipher = get_referenced_cipher(p1)
 
         if cipher == "RSA" or cipher == "DSA":
-	    crypted_challenge = self.CardContainer.asym_key.sign(data,"")
-	    crypted_challenge = crypted_challenge[0]
-	    crypted_challenge = inttostring(crypted_challenge)
-	else:
+            crypted_challenge = self.CardContainer.asym_key.sign(data,"")
+            crypted_challenge = crypted_challenge[0]
+            crypted_challenge = inttostring(crypted_challenge)
+        else:
             key = self._get_referenced_key(p1,p2)
             crypted_challenge = CryptoUtils.cipher(True,cipher,key,data)
         
@@ -442,7 +329,7 @@ class SAM(object):
         return SW["NORMAL"], self.last_challenge
     
     def get_card_number(self):
-        return SW["NORMAL"], inttostring(self.card_number)
+        return SW["NORMAL"], inttostring(self.cardNumber)
       
     def _get_referenced_key(self,p1,p2):
         """
@@ -464,8 +351,7 @@ class SAM(object):
         key = None
         qualifier = p2 & 0x1F
         algo = get_referenced_cipher(p1)        
-        cipher = CryptoUtils.get_cipher(p1)
-        keylength = cipher.key_size
+        keylength = CryptoUtils.get_cipher_keylen(algo)
 
         if (p2 == 0x00): #No information given, use the global card key
             key = self.CardContainer.cardSecret
@@ -507,19 +393,6 @@ class SAM(object):
         sw, result = file.readbinary(0)
         return sw, result
 
-    #The following commands define the interface to the CardContainer functions
-    def saveConfiguration(self,path,password=None):
-        return self.CardContainer.saveConfiguration(path, password)
-    
-    def loadConfiguration(self,path,password):
-        return self.CardContainer.loadConfiguration(path, password)
-    
-    def loadFromDisk(self,path,password=None):
-        return self.CardContainer.loadFromDisk(path, password)
-    
-    def saveToDisk(self,data,path,password=None):
-        return self.CardContainer.saveToDisk(data, path, password)
-
     #The following commands define the interface to the Secure Messaging functions
     def generate_public_key_pair(self,p1,p2,data):
         return self.SM_handler.generate_public_key_pair(p1, p2, data)
@@ -537,7 +410,7 @@ class SAM(object):
         return self.SM_handler.manage_security_environment(p1, p2, data)
 
 class PassportSAM(SAM):       
-    def __init__(self,mf,path="testconfig.sam",key="DUMMYKEYDUMMYKEY"):
+    def __init__(self, mf):
         df = mf.currentDF()
         ef_dg1 = df.select("fid", 0x0101)
         dg1 = ef_dg1.readbinary(5)
@@ -549,8 +422,9 @@ class PassportSAM(SAM):
         self.KSenc = None
         self.KSmac = None
         self.__computeKeys()
-        SAM.__init__(self,path,key,None)
-        self.SM_handler = ePass_SM(mf,None,None,None)
+        #SAM.__init__(self, path, key,None)
+        SAM.__init__(self, None, None, mf)
+        self.SM_handler = ePass_SM(mf, None, None, None)
         self.SM_handler.CAPDU_SE.cct.algo = "CC"
         self.SM_handler.RAPDU_SE.cct.algo = "CC"
         self.SM_handler.CAPDU_SE.ct.algo = "DES3-CBC"
@@ -634,8 +508,8 @@ class PassportSAM(SAM):
         return c
     
 class CryptoflexSAM(SAM):
-    def __init__(self,path="testconfig.sam",key="DUMMYKEYDUMMYKEY",mf=None):
-        SAM.__init__(self,path,key,mf)
+    def __init__(self, mf=None):
+        SAM.__init__(self, None, None, mf)
         self.SM_handler = CryptoflexSM(mf)
         
     def generate_public_key_pair(self,p1,p2,data):
@@ -847,7 +721,7 @@ class Secure_Messaging(object):
         
         if header_authentication:
             to_authenticate = inttostring(CAPDU.cla) + inttostring(CAPDU.ins) + inttostring(CAPDU.p1) + inttostring(CAPDU.p2)
-            to_authenticate = CryptoUtils.append_padding("DES-CBC",to_authenticate,0x01,8)
+            to_authenticate = CryptoUtils.append_padding("DES-CBC", to_authenticate)
         else:
             to_authenticate = ""
 
@@ -915,7 +789,7 @@ class Secure_Messaging(object):
 
             #SM data objects for authentication 
             if tag == SM_Class["CHECKSUM"]:
-                auth = CryptoUtils.append_padding("DES-CBC",to_authenticate,0x01,8)
+                auth = CryptoUtils.append_padding("DES-CBC", to_authenticate)
                 sw, checksum = self.compute_cryptographic_checksum(0x8E, 0x80, auth)
                 if checksum != value:
                     print "Failed to verify checksum!"
@@ -1002,7 +876,7 @@ class Secure_Messaging(object):
                 raise SwError(SW["CONDITIONSNOTSATISFIED"])
             elif self.CAPDU_SE.cct.algo == "CCT":
                 tag = SM_Class["CHECKSUM"]
-                to_auth = CryptoUtils.append_padding("DES-ECB",return_data,0x01,8)
+                to_auth = CryptoUtils.append_padding("DES-ECB", return_data)
                 sw, auth = self.compute_cryptographic_checksum(0x8E, 0x80, to_auth)
                 length = len(auth)
                 return_data += TLVutils.pack([(tag,length,auth)])
@@ -1192,8 +1066,8 @@ class Secure_Messaging(object):
         if key == None or algo == None:
             return SW["ERR_CONDITIONNOTSATISFIED"], ""
         else:
-            padded = CryptoUtils.append_padding(algo,data)
-            crypted = CryptoUtils.cipher(True,algo,key,padded,self.current_SE.ct.iv)
+            padded = CryptoUtils.append_padding(algo, data)
+            crypted = CryptoUtils.cipher(True, algo, key, padded, self.current_SE.ct.iv)
             return SW["NORMAL"], crypted
     
     def decipher(self,p1,p2,data):
@@ -1344,27 +1218,26 @@ if __name__ == "__main__":
     Unit test:
     """
     
-    path = "testconfig.sam"
     password = "DUMMYKEYDUMMYKEY"
-    generate_SAM_config("1234567890","1234","keykeykeykeykeyk",path,password)
+    #generate_SAM_config("1234567890", "1234", "keykeykeykeykeyk", path, password)
        
-    MyCard = SAM(path,password,None)
+    MyCard = SAM("1234", "1234567890")
     try:
         print MyCard.verify(0x00, 0x00, "5678")
     except SwError, e:
         print e.message
     
     print "Counter = " + str(MyCard.counter)
-    print MyCard.verify(0x00, 0x00, "1234")
+    print MyCard.verify(0x00,  0x00, "1234")
     print "Counter = " + str(MyCard.counter)
-    sw, challenge = MyCard.get_challenge(0x00,0x00,"")
+    sw, challenge = MyCard.get_challenge(0x00, 0x00, "")
     print "Before encryption: " + challenge
-    padded = CryptoUtils.append_padding("DES3-ECB",challenge)
-    sw, result = MyCard.internal_authenticate(0x00,0x00,padded)
+    padded = CryptoUtils.append_padding("DES3-ECB", challenge)
+    sw, result = MyCard.internal_authenticate(0x00, 0x00, padded)
     print "Internal Authenticate status code: %x" % sw
     
     try:
-        sw, res = MyCard.external_authenticate(0x00,0x00,result)
+        sw, res = MyCard.external_authenticate(0x00, 0x00, result)
     except SwError, e:
         print e.message
         sw = e.sw

@@ -23,6 +23,7 @@ from binascii import b2a_hex
 from random import randint
 from utils import inttostring, stringtoint, hexdump
 import string
+import re
 
 try:
     # Use PyCrypto (if available)
@@ -33,8 +34,7 @@ except ImportError:
     import hmac as HMAC
     import sha as SHA1
 
-iv = '\x00' * 8
-PADDING = '\x80' + '\x00' * 7
+CYBERFLEX_IV = '\x00' * 8
 
 ## *******************************************************************
 ## * Generic methods                                                 *
@@ -63,38 +63,64 @@ def get_cipher(cipherspec, key, iv = None):
 
     return cipher
 
-def append_padding(cipherspec, data, padding_class=0x01,keylength = 16):
+def get_cipher_keylen(cipherspec):
+    cipherparts = cipherspec.split("-")
+    
+    if len(cipherparts) > 2:
+        raise ValueError, 'cipherspec must be of the form "cipher-mode" or "cipher"'
+
+    cipher = cipherparts[0].upper()
+    #cipher = globals().get(cipherparts[0].upper(), None)
+    #Note: return cipher.key_size does not work on Ubuntu, because e.g. AES.key_size == 0
+    if cipher == "AES": #Pycrypto uses AES128 
+        return 16
+    elif cipher == "DES":
+        return 8
+    elif cipher == "DES3":
+        return 16
+    else:
+       raise ValueError, "Unsupported Encryption Algorithm: " + cipher
+
+def get_cipher_blocklen(cipherspec):
+    cipherparts = cipherspec.split("-")
+    
+    if len(cipherparts) > 2:
+        raise ValueError, 'cipherspec must be of the form "cipher-mode" or "cipher"'
+
+    cipher = globals().get(cipherparts[0].upper(), None)
+    return cipher.block_size
+
+def append_padding(cipherspec, data, padding_class=0x01):
     """Append padding to the data. 
     Length of padding depends on length of data and the block size of the
     specified encryption algorithm.
     Different types of padding may be selected via the padding_class parameter
     """
-    key = "DUMMYKEY" * (keylength / 8) #Key doesn't matter for padding
-    cipher = get_cipher(cipherspec,key,iv)
-    if padding_class == 0x01: #ISO padding
-        last_block_length = len(data) % cipher.block_size
-        padding_length = cipher.block_size - last_block_length
-        if padding_length == 0:
-            padding = PADDING
-        else:
-            padding = PADDING[:padding_length]
+    blocklen = get_cipher_blocklen(cipherspec)
 
-    del cipher
+    if padding_class == 0x01: #ISO padding
+        last_block_length = len(data) % blocklen
+        padding_length = blocklen - last_block_length
+        if padding_length == 0:
+            padding = '\x80' + '\x00' * (blocklen - 1)
+        else:
+            padding = '\x80' + '\x00' * (blocklen - last_block_length - 1)
+
     return data + padding
 
-def strip_padding(cipherspec,data,padding_class=0x01,keylength = 16):
+def strip_padding(cipherspec,data,padding_class=0x01):
     """
     Strip the padding of decrypted data. Returns data without padding
     """
-    key = "DUMMYKEY" * (keylength / 8) #Key doesn't matter for padding
-    cipher = get_cipher(cipherspec,key,iv)
+    
+    #TODO: Sanity check
     if padding_class == 0x01:
         tail = len(data) - 1
         while data[tail] != '\x80':
             tail = tail - 1
         return data[:tail]
     
-def crypto_checksum(algo,key,data,iv=None,ssc=None):
+def crypto_checksum(algo, key, data, iv=None, ssc=None):
     if algo not in ("HMAC","MAC","CC"):
         raise ValueError, "Unknown Algorithm %s" % algo
     
@@ -119,7 +145,7 @@ def cipher(do_encrypt, cipherspec, key, data, iv = None):
     operation = do_encrypt ? encrypt : decrypt,
     cipherspec must be of the form "cipher-mode", or "cipher\""""        
     
-    cipher = get_cipher(cipherspec,key,iv)
+    cipher = get_cipher(cipherspec, key, iv)
     
     result = None
     if do_encrypt:
@@ -148,37 +174,92 @@ def operation_on_string(string1, string2, op):
         result.append( chr(op(ord(string1[i]),ord(string2[i]))) )
     return "".join(result)
 
+def protect_string(string, password, cipherspec=None):
+    """
+    Encrypt and authenticate a string
+    """
+     
+    #Derive a key and a salt from password
+    pbk = crypt(password)
+    regex = re.compile('\$p5k2\$\$[\w./]*\$')
+    match = regex.match(pbk)
+    if match != None:
+        salt = pbk[7:match.end()-1]
+        key = pbk[match.end():]
+    else:
+        raise ValueError
+    
+    #Encrypt the string, authenticate and format it
+    if cipherspec == None:
+        cipherspec = "AES-CBC"
+    else:
+        pass #TODO: Sanity check for cipher
+    paddedString = append_padding(cipherspec, string)                
+    cryptedString = cipher(True, cipherspec, key, paddedString)
+    hmac = crypto_checksum("HMAC", key, cryptedString)
+    protectedString = "$p5k2$$" + salt + "$" + cryptedString + hmac
+    
+    return protectedString
+
+def read_protected_string(string, password, cipherspec=None):
+    """
+    Decrypt a protected string and verify the authentication data
+    """
+    hmac_length = 32 #FIXME: Ugly
+
+    #Check if the string has the structure, that is generated by protect_string 
+    
+    regex = re.compile('\$p5k2\$\$[\w./]*\$') #TODO: Ensure the right format!
+    match = regex.match(string)
+    if match != None:
+        crypted = string[match.end():len(string) - hmac_length]
+        salt = string[7:match.end() - 1]
+        hmac = string[len(string) - hmac_length:]
+    else:
+        raise ValueError, "Wrong string format"
+    
+    #Derive key
+    pbk = crypt(password, salt)
+    match = regex.match(pbk)
+    key = pbk[match.end():]
+    
+    #Verify HMAC
+    checksum = crypto_checksum("HMAC", key, crypted)
+    if checksum != hmac:
+        print "Found HMAC %s expected %s" % (str(hmac), str(checksum))
+        raise ValueError, "Failed to authenticate data. Wrong password?"
+    
+    #Decrypt data
+    if cipherspec == None:
+        cipherspec = "AES-CBC"
+    decrypted = cipher(False, cipherspec, key, crypted)
+        
+    return strip_padding(cipherspec, decrypted)  
 
 ## *******************************************************************
 ## * Cyberflex specific methods                                      *
 ## *******************************************************************
-def verify_card_cryptogram(session_key, host_challenge, 
-    card_challenge, card_cryptogram):
+def verify_card_cryptogram(session_key, host_challenge, card_challenge, card_cryptogram):
     message = host_challenge + card_challenge
-    expected = calculate_MAC(session_key, message, iv)
-    
-    print >>sys.stderr, "Original: %s" % binascii.b2a_hex(card_cryptogram)
-    print >>sys.stderr, "Expected: %s" % binascii.b2a_hex(expected)
-    
+    expected = calculate_MAC(session_key, message, CYBERFLEX_IV)
+        
     return card_cryptogram == expected
 
-def calculate_host_cryptogram(session_key, card_challenge, 
-    host_challenge):
+def calculate_host_cryptogram(session_key, card_challenge, host_challenge):
     message = card_challenge + host_challenge
-    return calculate_MAC(session_key, message, iv)
+    return calculate_MAC(session_key, message, CYBERFLEX_IV)
 
-def calculate_MAC(session_key, message, iv):
-    print >>sys.stderr, "Doing MAC for: %s" % utils.hexdump(message, indent = 17)
+def calculate_MAC(session_key, message, iv=CYBERFLEX_IV):
+    """"
+    Cyberflex MAC is the last Block of the input encrypted with DES3-CBC
+    """
     
     cipher = DES3.new(session_key, DES3.MODE_CBC, iv)
-    block_count = len(message) / cipher.block_size
-    for i in range(block_count):
-        cipher.encrypt(message[i*cipher.block_size:(i+1)*cipher.block_size])
-    
-    last_block_length = len(message) % cipher.block_size
-    last_block = (message[len(message)-last_block_length:]+PADDING)[:cipher.block_size]
-    
-    return cipher.encrypt( last_block )
+    padded = append_padding("DES3", message, 0x01)
+    block_count = len(padded) / cipher.block_size
+    crypted = cipher.encrypt(padded)
+   
+    return crypted[len(padded) - cipher.block_size : ]
 
 def get_derivation_data(host_challenge, card_challenge):
     return card_challenge[4:8] + host_challenge[:4] + \
@@ -546,11 +627,22 @@ if __name__ == "__main__":
     print "Host-Crypto:  ", utils.hexdump( host_crypto )
 
     external_authenticate = binascii.a2b_hex("".join("84 82 01 00 10".split())) + host_crypto
-    print utils.hexdump(calculate_MAC(session_key, external_authenticate, iv))
+    print utils.hexdump(calculate_MAC(session_key, external_authenticate))
     
     too_short = binascii.a2b_hex("".join("89 45 19 BF".split()))
-    padded = append_padding("DES3-ECB",len(too_short),too_short)
+    padded = append_padding("DES3-ECB", too_short)
     print "Padded data: " + utils.hexdump(padded)
-    unpadded = strip_padding("DES3-ECB",padded)
+    unpadded = strip_padding("DES3-ECB", padded)
     print "Without padding: " + utils.hexdump(unpadded)
-    test_pbkdf2()
+    
+    teststring = "DEADBEEFistatsyksdvhihewohfwoehcowc8hw8rogfq8whv75tsgohsav8wress"
+    foo = append_padding("AES", teststring)
+    print len(foo)
+    print strip_padding("AES", foo)
+    testpass = "SomeRandomPassphrase"
+    protectedString = protect_string(teststring, testpass)
+    unprotectedString = read_protected_string(protectedString, testpass)
+    if teststring != unprotectedString:
+        print "protect_string test failed"
+    
+    #test_pbkdf2()
