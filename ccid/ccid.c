@@ -87,26 +87,37 @@ debug_sc_result(const char *func, int sc_result)
     error("%s: %s", func, sc_strerror(sc_result));
 }
 
-void
-cleanup_card(int flags, __u8 bSlot)
+int
+detect_card_presence(int slot)
 {
-    if (bSlot < sizeof *card_in_slot) {
-        if (flags & SC_SLOT_CARD_CHANGED) {
-            sc_disconnect_card(card_in_slot[bSlot], 0);
-            debug("Card exchanged in slot %d", bSlot);
-        }
-        if (flags == 0
-                && card_in_slot[bSlot]
-                && sc_card_valid(card_in_slot[bSlot])) {
-            sc_disconnect_card(card_in_slot[bSlot], 0);
-            debug("Card removed from slot %d", bSlot);
-        }
-        if (flags & SC_SLOT_CARD_PRESENT
-                && (!card_in_slot[bSlot]
-                    || !sc_card_valid(card_in_slot[bSlot]))) {
-            debug("Unused card in slot %d", bSlot);
-        }
+    int sc_result;
+
+    if (slot >= sizeof *card_in_slot)
+        return SC_ERROR_INVALID_ARGUMENTS;
+
+    if (card_in_slot[slot] && sc_card_valid(card_in_slot[slot])) {
+        sc_result = SC_SLOT_CARD_PRESENT;
+    } else {
+        sc_result = sc_detect_card_presence(reader, slot);
     }
+
+    if (sc_result == 0
+            && card_in_slot[slot]
+            && sc_card_valid(card_in_slot[slot])) {
+        sc_disconnect_card(card_in_slot[slot], 0);
+        debug("Card removed from slot %d", slot);
+    }
+    if (sc_result & SC_SLOT_CARD_CHANGED) {
+        sc_disconnect_card(card_in_slot[slot], 0);
+        debug("Card exchanged in slot %d", slot);
+    }
+    if (sc_result & SC_SLOT_CARD_PRESENT
+            && (!card_in_slot[slot]
+                || !sc_card_valid(card_in_slot[slot]))) {
+        debug("Unused card in slot %d", slot);
+    }
+
+    return sc_result;
 }
 
 
@@ -242,7 +253,7 @@ int get_rapdu(sc_apdu_t *apdu, size_t slot, __u8 **buf, size_t *resplen)
 {
     int sc_result;
 
-    if (!apdu || !buf || !resplen || slot > sizeof *card_in_slot) {
+    if (!apdu || !buf || !resplen || slot >= sizeof *card_in_slot) {
         sc_result = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
     }
@@ -315,51 +326,28 @@ __u8 get_bStatus(int sc_result, __u8 bSlot)
     int flags;
     __u8 result = 0;
 
-    if (bSlot < sizeof *card_in_slot) {
-        /* FIXME testing for the presence of a card yields a segmentation fault:
-         * opensc-0.11.4/src/libopensc/reader-pcsc.c:291 calls
-         * SCardGetStatusChange, which crashes. This could be a bug in libpcsc
-         *
-         * To avoid this always assume, that the card is (still) present when
-         * the context is valid.
-         */
-#if 0
-        flags = sc_detect_card_presence(reader, bSlot);
-#else
-        if (card_in_slot[bSlot] && sc_card_valid(card_in_slot[bSlot])) {
-            flags = SC_SLOT_CARD_PRESENT;
+    flags = detect_card_presence(bSlot);
+
+    if (flags >= 0) {
+        if (sc_result < 0) {
+            if (flags & SC_SLOT_CARD_PRESENT) {
+                if (flags & SC_SLOT_CARD_CHANGED)
+                    result = CCID_BSTATUS_ERROR_INACTIVE;
+                else
+                    result = CCID_BSTATUS_ERROR_ACTIVE;
+            } else
+                result = CCID_BSTATUS_ERROR_NOICC;
         } else {
-            flags = sc_detect_card_presence(reader, bSlot);
+            if (flags & SC_SLOT_CARD_PRESENT) {
+                if (flags & SC_SLOT_CARD_CHANGED)
+                    result = CCID_BSTATUS_OK_INACTIVE;
+                else
+                    result = CCID_BSTATUS_OK_ACTIVE;
+            } else
+                result = CCID_BSTATUS_OK_NOICC;
         }
-#endif
-        cleanup_card(flags, bSlot);
     } else {
-        flags = SC_ERROR_INVALID_DATA;
-        goto err;
-    }
-
-    if (sc_result < 0) {
-        if (flags & SC_SLOT_CARD_PRESENT) {
-            if (flags & SC_SLOT_CARD_CHANGED)
-                result = CCID_BSTATUS_ERROR_INACTIVE;
-            else
-                result = CCID_BSTATUS_ERROR_ACTIVE;
-        } else
-            result = CCID_BSTATUS_ERROR_NOICC;
-    } else {
-        if (flags & SC_SLOT_CARD_PRESENT) {
-            if (flags & SC_SLOT_CARD_CHANGED)
-                result = CCID_BSTATUS_OK_INACTIVE;
-            else
-                result = CCID_BSTATUS_OK_ACTIVE;
-        } else
-            result = CCID_BSTATUS_OK_NOICC;
-    }
-
-err:
-    if (flags < 0) {
         DEBUG_SC_RESULT(flags);
-        flags = 0;
     }
 
     return result;
@@ -457,6 +445,7 @@ perform_PC_to_RDR_IccPowerOn(const __u8 *in, __u8 **out, size_t *outlen)
     if (!out || !outlen)
         return SC_ERROR_INVALID_ARGUMENTS;
 
+    printf("%s:%d\n", __FILE__, __LINE__);
     *outlen = 0;
     if (request->bSlot <= sizeof *card_in_slot) {
         sc_result = sc_connect_card(reader, request->bSlot,
@@ -464,10 +453,13 @@ perform_PC_to_RDR_IccPowerOn(const __u8 *in, __u8 **out, size_t *outlen)
     } else {
         sc_result = SC_ERROR_INVALID_DATA;
     }
+    printf("%s:%d\n", __FILE__, __LINE__);
 
     r = get_RDR_to_PC_SlotStatus(request->bSlot, request->bSeq, sc_result, &result);
 
+    printf("%s:%d\n", __FILE__, __LINE__);
     if (r >= 0) {
+    printf("%s:%d\n", __FILE__, __LINE__);
         if (sc_result >= 0) {
             result->dwLength = __cpu_to_le32(card_in_slot[request->bSlot]->atr_len);
             *outlen = sizeof *result + card_in_slot[request->bSlot]->atr_len;
@@ -478,11 +470,13 @@ perform_PC_to_RDR_IccPowerOn(const __u8 *in, __u8 **out, size_t *outlen)
             }
             memcpy(*out + sizeof *result, card_in_slot[request->bSlot]->atr, card_in_slot[request->bSlot]->atr_len);
         } else {
+    printf("%s:%d\n", __FILE__, __LINE__);
             DEBUG_SC_RESULT(sc_result);
             *outlen = sizeof *result;
             *out = (__u8 *) result;
         }
     }
+    printf("%s:%d\n", __FILE__, __LINE__);
 
     return r;
 }
@@ -1054,8 +1048,7 @@ get_RDR_to_PC_NotifySlotChange(RDR_to_PC_NotifySlotChange_t **out)
     result->bmSlotICCState = CCID_SLOTS_UNCHANGED;
 
     for (i = 0; i < reader->slot_count; i++) {
-        sc_result = sc_detect_card_presence(reader, i);
-        cleanup_card(sc_result, i);
+        sc_result = detect_card_presence(i);
         if (sc_result < 0) {
             DEBUG_SC_RESULT(sc_result);
             continue;
