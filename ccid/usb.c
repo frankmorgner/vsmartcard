@@ -35,8 +35,7 @@
 #include <linux/types.h>
 #include <linux/usb/gadgetfs.h>
 #include <linux/usb/ch9.h>
-#include <openssl/evp.h>
-#include <opensc/ui.h>
+#include <getopt.h>
 //#include <usb.h>
 //
 #include <getopt.h>
@@ -60,25 +59,29 @@ static int dohid      = 0;
 static int doint      = 0;
 int usb_reader_num = 0;
 
-/*static const struct option options[] = {*/
+static const struct option options[] = {
     /*{ "hid", no_argument, &dohid, 1 },*/
-    /*{ "interrupt", no_argument, &doint, 1 },*/
-    /*{ "product", required_argument, NULL, 'p' },*/
-    /*{ "reader",	required_argument, NULL, 'r' },*/
-    /*{ "serial", required_argument, NULL, 's' },*/
-    /*{ "vendor", required_argument, NULL, 'v' },*/
-    /*{ "verbose", no_argument, NULL, 'b' },*/
-    /*{ NULL, 0, NULL, 0 }*/
-/*};*/
-/*static const char *option_help[] = {*/
+    { "help", no_argument, NULL, 'h' },
+    { "interrupt", no_argument, &doint, 'n' },
+    { "reader",	required_argument, NULL, 'r' },
+    { "serial", required_argument, NULL, 's' },
+    { "product", required_argument, NULL, 'p' },
+    { "vendor", required_argument, NULL, 'e' },
+    { "verbose", no_argument, NULL, 'v' },
+    { "version", no_argument, NULL, 'i' },
+    { NULL, 0, NULL, 0 }
+};
+static const char *option_help[] = {
     /*"Emulate HID device",*/
-    /*"Uses reader number <arg> [auto-detect]",*/
-    /*"Serial number of gadget [random]",*/
-    /*"Add interrupt pipe for CCID",*/
-    /*"Verbose operation. Use several times to enable debug output.",*/
-    /*"USB vendor ID [0x0D46]",*/
-    /*"USB product ID [0x3010]",*/
-/*};*/
+    "Print help and exit",
+    "Add interrupt pipe for CCID",
+    "Number of the reader to use (default: auto-detect)",
+    "Serial number (max 56 bytes) of gadget (default: random)",
+    "USB product ID (default: 0x3010)",
+    "USB vendor ID (0default: x0D46)",
+    "Use (several times) to be more verbose",
+    "Print version and exit.",
+};
 
 /* NOTE:  these IDs don't imply endpoint numbering; host side drivers
  * should use endpoint descriptors, or perhaps bcdDevice, to configure
@@ -273,7 +276,7 @@ static struct usb_string stringtab [] = {
 	{ STRINGID_SERIAL,	serial, },
 	{ STRINGID_CONFIG,	"The Configuration", },
 	{ STRINGID_INTERFACE,	"CCID to PCSC", },
-        { STRINGID_HID_INTERFACE,	"blakeks", },
+        { STRINGID_HID_INTERFACE,	"Human Device Interface Gadget", },
 };
 
 static struct usb_gadget_strings strings = {
@@ -904,7 +907,7 @@ ep_config (char *name, const char *label,
 			label, name, errno, strerror (errno));
 		close (fd);
 		return result;
-	} else if (debug) {
+	} else if (verbose > 1) {
 		unsigned long	id;
 
 		id = pthread_self ();
@@ -933,7 +936,7 @@ static void *ccid (void *param)
         if (source_fd < 0) {
              /* an error concerning status endpoint is not fatal for in/out bulk*/
              /* transfer */
-            if (debug)
+            if (verbose > 1)
                 perror("status_fd");
             pthread_exit(0);
         }
@@ -948,10 +951,10 @@ static void *ccid (void *param)
 
             if (ccid_state_changed(&slotchange, -1)) {
                 /* don't bother host, when nothing changed */
-                if (debug)
+                if (verbose > 1)
                     fprintf(stderr, "interrupt loop: writing RDR_to_PC_NotifySlotChange... ");
                 result = write(status_fd, slotchange, sizeof *slotchange);
-                if (debug)
+                if (verbose > 1)
                     fprintf(stderr, "done.\n");
             }
         } while (result >= 0);
@@ -985,7 +988,7 @@ static void *ccid (void *param)
 
     source_fd = source_open (source_name);
     if (source_fd < 0) {
-        if (debug)
+        if (verbose > 1)
             perror("source_fd");
         goto error;
     }
@@ -993,7 +996,7 @@ static void *ccid (void *param)
 
     sink_fd   = sink_open (sink_name);
     if (sink_fd   < 0) {
-        if (debug)
+        if (verbose > 1)
             perror("sink_fd");
         goto error;
     }
@@ -1020,7 +1023,7 @@ static void *ccid (void *param)
     __u8 *inbuf = malloc(bufsize);
     pthread_cleanup_push (free, inbuf);
     if (inbuf == NULL) {
-        if (debug)
+        if (verbose > 1)
             perror("malloc");
         goto error;
     }
@@ -1032,21 +1035,21 @@ static void *ccid (void *param)
          */
         pthread_testcancel ();
 
-        if (debug)
+        if (verbose > 1)
             fprintf(stderr, "reading %lu bytes... ", (long unsigned) bufsize);
         result = read(sink_fd, inbuf, bufsize);
         if (result < 0) break;
-        if (debug)
+        if (verbose > 1)
             fprintf(stderr, "got %d, done.\n", result);
         if (!result) break;
 
         result = ccid_parse_bulkin(inbuf, &outbuf);
         if (result < 0) break;
 
-        if (debug)
+        if (verbose > 1)
             fprintf(stderr, "writing %d bytes... ", result);
         result = write(source_fd, outbuf, result);
-        if (debug)
+        if (verbose > 1)
             fprintf(stderr, "done.\n");
     } while (result >= 0);
 
@@ -1082,7 +1085,7 @@ static void *hid (void *param)
 
     hidstatus_fd = hidstatus_open (status_name);
     if (hidstatus_fd < 0) {
-        if (debug)
+        if (verbose > 1)
             perror("hidstatus_fd");
         goto error;
     }
@@ -1094,7 +1097,7 @@ static void *hid (void *param)
     __u8 *inbuf = malloc(bufsize);
     pthread_cleanup_push (free, inbuf);
     if (inbuf == NULL) {
-        if (debug)
+        if (verbose > 1)
             perror("malloc");
         goto error;
     }
@@ -1344,14 +1347,14 @@ static void handle_control (int fd, struct usb_ctrlrequest *setup)
 
 	switch (setup->bRequest) {	/* usb 2.0 spec ch9 requests */
 	case USB_REQ_GET_DESCRIPTOR:
-                if (debug)
+                if (verbose > 1)
                     fprintf(stderr, "USB_REQ_GET_DESCRIPTOR\n");
 		if (setup->bRequestType != USB_DIR_IN)
 			goto stall;
 		switch (value >> 8) {
 		case USB_DT_STRING:
 			tmp = value & 0x0ff;
-			if (debug)
+			if (verbose > 1)
 				fprintf (stderr,
 					"... get string %d lang %04x\n",
 					tmp, index);
@@ -1384,7 +1387,7 @@ static void handle_control (int fd, struct usb_ctrlrequest *setup)
 		}
 		return;
 	case USB_REQ_SET_CONFIGURATION:
-		if (debug)
+		if (verbose > 1)
 			fprintf (stderr, "USB_REQ_SET_CONFIGURATION #%d\n", value);
 		if (setup->bRequestType != USB_DIR_OUT)
 			goto stall;
@@ -1421,7 +1424,7 @@ static void handle_control (int fd, struct usb_ctrlrequest *setup)
 			perror ("ack SET_CONFIGURATION");
 		return;
 	case USB_REQ_GET_INTERFACE:
-		if (debug)
+		if (verbose > 1)
 			fprintf (stderr, "USB_REQ_GET_INTERFACE\n");
 		if (setup->bRequestType != (USB_DIR_IN|USB_RECIP_INTERFACE)
 				|| index != 0
@@ -1442,7 +1445,7 @@ static void handle_control (int fd, struct usb_ctrlrequest *setup)
 		}
 		return;
 	case USB_REQ_SET_INTERFACE:
-		if (debug)
+		if (verbose > 1)
 			fprintf (stderr, "USB_REQ_SET_INTERFACE\n");
 		if (setup->bRequestType != USB_RECIP_INTERFACE
 				|| index != 0
@@ -1491,10 +1494,10 @@ special:
                     result = ccid_parse_control(setup, &outbuf);
                     if (result < 0 || result > 256)
                         goto stall;
-                    if (debug)
+                    if (verbose > 1)
                         fprintf(stderr, "writing %d bytes... ", result);
                     result = write (fd, outbuf, result);
-                    if (debug)
+                    if (verbose > 1)
                         fprintf(stderr, "done.\n");
                     if (result < 0)
                         goto stall;
@@ -1530,7 +1533,7 @@ stall:
 static void signothing (int sig, siginfo_t *info, void *ptr)
 {
 	/* NOP */
-	if (debug)
+	if (verbose > 1)
 		fprintf (stderr, "%s %d\n", __FUNCTION__, sig);
 }
 
@@ -1621,7 +1624,7 @@ static void *ep0_thread (void *param)
 			goto done;
 		}
 		nevent = tmp / sizeof event [0];
-		if (nevent != 1 && debug)
+		if (nevent != 1 && verbose > 1)
 			fprintf (stderr, "read %d ep0 events\n",
 				nevent);
 
@@ -1680,53 +1683,59 @@ done:
 }
 
 /*-------------------------------------------------------------------------*/
-void util_print_usage_and_die(const char *app_name, const struct option options[],
+void print_usage(const char *app_name, const struct option options[],
 	const char *option_help[])
 {
-	int i = 0;
-	printf("Usage: %s [OPTIONS]\nOptions:\n", app_name);
+    int i = 0;
+    printf("Usage: %s [OPTIONS]\nOptions:\n", app_name);
 
-	while (options[i].name) {
-		char buf[40], tmp[5];
-		const char *arg_str;
-		
-		/* Skip "hidden" options */
-		if (option_help[i] == NULL) {
-			i++;
-			continue;
-		}
+    while (options[i].name) {
+        char buf[40], tmp[5];
+        const char *arg_str;
 
-		if (options[i].val > 0 && options[i].val < 128)
-			sprintf(tmp, ", -%c", options[i].val);
-		else
-			tmp[0] = 0;
-		switch (options[i].has_arg) {
-		case 1:
-			arg_str = " <arg>";
-			break;
-		case 2:
-			arg_str = " [arg]";
-			break;
-		default:
-			arg_str = "";
-			break;
-		}
-		sprintf(buf, "--%s%s%s", options[i].name, tmp, arg_str);
-		if (strlen(buf) > 29) {
-			printf("  %s\n", buf);
-			buf[0] = '\0';
-		}
-		printf("  %-29s %s\n", buf, option_help[i]);
-		i++;
-	}
-	exit(2);
+        /* Skip "hidden" options */
+        if (option_help[i] == NULL) {
+            i++;
+            continue;
+        }
+
+        if (options[i].val > 0 && options[i].val < 128)
+            sprintf(tmp, ", -%c", options[i].val);
+        else
+            tmp[0] = 0;
+        switch (options[i].has_arg) {
+            case 1:
+                arg_str = " <arg>";
+                break;
+            case 2:
+                arg_str = " [arg]";
+                break;
+            default:
+                arg_str = "";
+                break;
+        }
+        sprintf(buf, "--%s%s%s", options[i].name, tmp, arg_str);
+        if (strlen(buf) > 20) {
+            printf("  %s\n", buf);
+            buf[0] = '\0';
+        }
+        printf("  %-20s %s\n", buf, option_help[i]);
+        i++;
+    }
+}
+
+void parse_error(const char *app_name, const char *optarg, int opt_ind)
+{
+    printf("Could not parse %s ('%s').\n", options[opt_ind].name, optarg);
+    print_usage(app_name , options, option_help);
+    exit(2);
 }
 
 int
 main (int argc, char **argv)
 {
     int		fd, c, i;
-    /*int long_optind = 0;*/
+    int long_optind = 0;
 
     /* random initial serial number */
     srand ((int) time (0));
@@ -1736,104 +1745,41 @@ main (int argc, char **argv)
             serial [i++] = c;
     }
 
-    for (i=1; i<argc; i++)
-    {
-        if (sscanf(argv[i], "--vendor=%x", &vendorid) == 1) continue;
-        if (sscanf(argv[i], "--product=%x", &productid) == 1) continue;
-
-        if (sscanf(argv[i], "--reader=%d", &usb_reader_num) == 1) continue;
-        if (strcmp(argv[i], "-r") == 0) {
-            i++;
-            if (sscanf(argv[i], "%d", &usb_reader_num) != 1) {
-                fprintf(stderr, "integer expected: \"%s\"\n", argv[i]);
-                return 1;
-            }
-            continue;
+    while (1) {
+        c = getopt_long(argc, argv, "r:s:p:e:vih", options, &long_optind);
+        if (c == -1)
+            break;
+        if (c == '?' || c == 'h') {
+            print_usage(argv[0] , options, option_help);
+            exit(0);
         }
-        if (sscanf(argv[i], "--serial=%56s", serial) == 1) continue;
-        if (strcmp(argv[i], "-s") == 0) {
-            i++;
-            if (sscanf(argv[i], "%56s", serial) != 1) {
-                fprintf(stderr, "string (max 56 bytes) expected: \"%s\"\n", argv[i]);
-                return 1;
-            }
-            continue;
+        switch (c) {
+            case 'r':
+                if (sscanf(optarg, "%d", &usb_reader_num) != 1)
+                    parse_error(argv[0], optarg, long_optind);
+                break;
+            case 's':
+                if (sscanf(optarg, "%56s", serial) != 1)
+                    parse_error(argv[0], optarg, long_optind);
+                break;
+            case 'p':
+                if (sscanf(optarg, "%x", &productid) != 1)
+                    parse_error(argv[0], optarg, long_optind);
+                break;
+            case 'e':
+                if (sscanf(optarg, "%x", &vendorid) != 1)
+                    parse_error(argv[0], optarg, long_optind);
+                break;
+            case 'v':
+                verbose++;
+                break;
+            case 'i':
+                fprintf(stderr, "%s 0.9  written by Frank Morgner.\n" ,
+                        argv[0]);
+                exit(0);
+                break;
         }
-        if ((strcmp(argv[i], "--verbose") == 0) ||
-                (strcmp(argv[i], "-v") == 0) ||
-                (strcmp(argv[i], "--debug") == 0) ||
-                (strcmp(argv[i], "-d") == 0)) {
-            verbose++;
-            if ((strcmp(argv[i], "--debug") == 0) ||
-                    (strcmp(argv[i], "-d") == 0)) {
-                debug++;
-            }
-            continue;
-        }
-        if (strcmp(argv[i], "--hid") == 0) {
-            dohid++;
-            continue;
-        }
-        if (strcmp(argv[i], "--int") == 0) {
-            doint++;
-            continue;
-        }
-        if ((strcmp(argv[i], "--help") == 0) ||
-                (strcmp(argv[i], "-h") == 0)) {
-            fprintf(stderr,
-                    "%s emulates an CCID USB device. The program connects to a PC/SC smartcard reader and forwards USB requests to this particular reader. Changing the vendor or product ID of the CCID reader will modify the USB device descriptor, but it will not effect the execution of the program.\n"
-                    "\n"
-                    "Usage: %s [Options]\n"
-                    "\n"
-                    "Options:\n"
-                    "  -h, --help              show this help message and exit\n"
-                    "  -r, --reader=READER     number of reader to use [default: 0]\n"
-                    "  -s, --serial=SERIAL     serial number of gadget [default: random]\n"
-                    "  -v, --verbose           more verbosity\n"
-                    "  -d, --debug             even more verbosity in combination with `-v'\n"
-                    "      --version           print version information and exit\n"
-                    "      --hid               emulate HID device\n"
-                    "      --int               add interrupt pipe for CCID\n"
-                    "      --vendor=0xVENDOR   USB vendor ID  [default:%x]\n"
-                    "      --product=0xPRODUCT USB product ID [default:%x]\n"
-                    , argv[0], argv[0], DRIVER_VENDOR_NUM, DRIVER_PRODUCT_NUM
-                   );
-            return 0;
-        }
-        if (strcmp(argv[i], "--version") == 0) {
-            fprintf(stderr,
-                    "%s 0.9\n"
-                    "\n"
-                    "Written by Frank Morgner.\n"
-                    , argv[0]
-                   );
-            return 0;
-        }
-
-        fprintf(stderr, "unrecognized option \"%s\"\n", argv[i]);
-        return 1;
     }
-    /*while (1) {*/
-        /*c = getopt_long(argc, argv, "p:r:s:v:b", options, &long_optind);*/
-        /*if (c == -1)*/
-            /*break;*/
-        /*if (c == '?')*/
-            /*util_print_usage_and_die("ccid" , options, option_help);*/
-        /*switch (c) {*/
-            /*case 'r':*/
-                /*opt_reader = atoi(optarg);*/
-                /*break;*/
-            /*case 'c':*/
-                /*opt_driver = optarg;*/
-                /*break;*/
-            /*case 'w':*/
-                /*opt_wait = 1;*/
-                /*break;*/
-            /*case 'v':*/
-                /*verbose++;*/
-                /*break;*/
-        /*}*/
-    /*}*/
 
     if (verbose)
         fprintf (stderr, "serial=\"%s\"\n", serial);
