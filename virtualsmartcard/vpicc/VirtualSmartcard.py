@@ -21,21 +21,21 @@ from TLVutils import *
 from SWutils import SwError, SW
 from SmartcardFilesystem import prettyprint_anything, MF, DF, CryptoflexMF, TransparentStructureEF
 from utils import C_APDU, R_APDU, hexdump, inttostring
-from SmartcardSAM import CardContainer, SAM, PassportSAM, CryptoflexSAM
+from SmartcardSAM import SAM, PassportSAM, CryptoflexSAM
+import CardGenerator
+
 from pickle import dumps, loads
 import socket, struct, sys, signal, atexit, traceback
-import struct
-import getpass
-import shelve, anydbm
+import struct, getpass, anydbm
+
 
 class SmartcardOS(object): # {{{ 
-    def __init__(self, mf=None, sam=None, ins2handler=None, maxle=MAX_SHORT_LE):
-        from CardGenerator import generate_iso_card
+    def __init__(self, mf, sam, ins2handler=None, maxle=MAX_SHORT_LE):
         self.mf = mf
         self.SAM = sam
 
-        if self.mf == None and self.SAM == None:
-            self.mf, self.SAM = generate_iso_card()    
+        #if self.mf == None and self.SAM == None:
+        #    self.mf, self.SAM = generate_iso_card()    
 
         if not ins2handler:
             self.ins2handler = {
@@ -294,40 +294,9 @@ class SmartcardOS(object): # {{{
 
         return answer
 # }}}
-
-class PassportOS(SmartcardOS):
-    """
-    The PassportOS emulates a Passport Application according to ICAO MRTD standard.
-    It generates a data structure ...
-    It also integrates a SAM derived from the standard SmartcardSAM, providing the
-    Basic Access Control (BAC) mechanisms.
-    """
-    
-    def __init__(self, mf=None, sam=None, ins2handler=None, maxle=MAX_SHORT_LE):
-        from CardGenerator import generate_ePass
-        
-        if mf == None and sam == None:
-            mf, sam = generate_ePass()
-        else: #TODO: Sanity check if mf or sam are provided
-            if mf == None:               
-                mf, tmp = generate_ePass()              
-            if sam == None: 
-                sam = PassportSAM(mf)
-        SmartcardOS.__init__(self, mf=mf, sam=sam, ins2handler=ins2handler, maxle=maxle)
-        
+      
 class CryptoflexOS(SmartcardOS): # {{{ 
-    def __init__(self, mf=None, sam=None, ins2handler=None, maxle=MAX_SHORT_LE):
-        from GenerateCard import generate_cryptoflex
-        
-        if mf == None and sam == None:
-            mf, sam = generate_cryptoflex()
-        else:
-            if mf == None:
-                mf, tmp = generate_cryptoflex()
-                del tmp
-            if sam == None:
-                sam = CryptoflexSAM(mf)
-        
+    def __init__(self, mf, sam, ins2handler=None, maxle=MAX_SHORT_LE):
         SmartcardOS.__init__(self, mf, sam, ins2handler, maxle)
         self.atr = '\x3B\xE2\x00\x00\x40\x20\x49\x06'
 
@@ -387,11 +356,9 @@ class VirtualICC(object): # {{{
     
     def __init__(self, filename, type, lenlen=3, host="localhost", port=35963):
         from os.path import exists
-        from CardGenerator import loadCard
         
         self.filename = None
-        SAM = None
-        MF = None
+        self.cardGenerator = CardGenerator.CardGenerator(type)
         
         #If a filename is specified, try to load the card from disk      
         if filename == None:
@@ -399,16 +366,15 @@ class VirtualICC(object): # {{{
         else:
             self.filename = filename
             if exists(filename):
-                print "Found existing card " + filename + ". Will try to open it"
-                SAM, MF = loadCard(filename)
+                self.cardGenerator.loadCard(self.filename)
             else:
-                print "No file " + filename + " found. Will create new file at termination of program."
+                print "No file " + self.filename + " found. Will create new file at termination of program."
+        
+        MF, SAM = self.cardGenerator.getCard()
         
         #Generate an OS object of the correct type
-        if type == "iso7816":
+        if type == "iso7816" or type == "ePass":
             self.os = SmartcardOS(MF, SAM)
-        elif type == "ePass":
-            self.os = PassportOS(MF, SAM)
         elif type == "cryptoflex":
             self.os = CryptoflexOS(MF, SAM)
         else:
@@ -431,9 +397,10 @@ class VirtualICC(object): # {{{
         #atexit.register(saveCard)
     
     def signalHandler(self, signal=None, frame=None):
-        from CardGenerator import saveCard
         self.sock.close()
-        saveCard(self.os.mf, self.os.SAM, self.filename)
+        if self.filename != None:
+            self.cardGenerator.setCard(self.os.mf, self.os.SAM)
+            self.cardGenerator.saveCard(self.filename)
         sys.exit()
 
     @staticmethod

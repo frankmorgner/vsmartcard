@@ -17,11 +17,11 @@
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import sys, getpass, anydbm
+import sys, getpass, anydbm, readline, os, dircache
 from pickle import loads, dumps
 from TLVutils import pack
 from utils import inttostring
-from SmartcardFilesystem import MF, TransparentStructureEF 
+from SmartcardFilesystem import * 
 
 # pgp directory
 #self.mf.append(DF(parent=self.mf,
@@ -34,133 +34,164 @@ from SmartcardFilesystem import MF, TransparentStructureEF
 #self.mf.append(DF(parent=self.mf,
     #fid=3, dfname='\xa0\x00\x00\x03\x08\x00\x00\x10\x00\x01\x00'))  
 
-def generate_iso_card():
-    from SmartcardSAM import SAM
-     
-    print "Using default SAM. Insecure!!!"
-    sam = SAM("1234", "1234567890") #FIXME: Use user provided data
+class CardGenerator(object):
     
-    mf = MF(filedescriptor=FDB["DF"], lifecycle=LCB["ACTIVATED"], dfname=None)
-    self.SAM.set_MF(self.mf)
-    
-    return mf, sam
-
-def generate_ePass():
-        from PIL import Image
-        from SmartcardFilesystem import DF 
-        from SmartcardSAM import PassportSAM
+    def __init__(self, type='iso7816', sam=None, mf=None):
+        types = ['iso7816', 'ePass', 'cryptoflex']
+        if not type in types:
+            raise ValueError, "Unsupported type " % type
         
-        MRZ1 = "P<UTOERIKSSON<<ANNA<MARIX<<<<<<<<<<<<<<<<<<<"
-        MRZ2 = "L898902C<3UTO6908061F9406236ZE184226B<<<<<14"
-        MRZ = MRZ1 + MRZ2        
-
-        picturepath = "jp2.jpg"
-        try:
-            im = Image.open(picturepath)
-            pic_width, pic_height = im.size
-            fd = open(picturepath,"rb")
-            picture = fd.read()
-            fd.close()
-        except IOError:
-            print "Could not find picture %s" % picturepath
-            pic_width = 0
-            pic_height = 0
-            picture = None  
-
-        mf = MF()
+        self.type = type
+        self.mf = None
+        self.sam = None
+    
+    def __generate_iso_card(self):
+        from SmartcardSAM import SAM
+         
+        print "Using default SAM. Insecure!!!"
+        self.sam = SAM("1234", "1234567890") #FIXME: Use user provided data
         
-        #We need a MF with Application DF \xa0\x00\x00\x02G\x10\x01
-        mf.append(DF(parent=mf, fid=4, dfname='\xa0\x00\x00\x02G\x10\x01', bertlv_data=[]))
-        df = mf.currentDF()
-        mf.append(TransparentStructureEF(parent=df, fid=0x011E, filedescriptor=0, data=""))#EF.COM
-        mf.append(TransparentStructureEF(parent=df, fid=0x0101, filedescriptor=0, data=""))#EF.DG1
-        mf.append(TransparentStructureEF(parent=df, fid=0x0102, filedescriptor=0, data=""))#EF.DG2
-        mf.append(TransparentStructureEF(parent=df, fid=0x010D, filedescriptor=0, data=""))#EF.SOD
-        #EF.COM
-        COM = pack([(0x5F01,4,"0107"),(0x5F36,6,"040000"),(0x5C,2,"6175")])
-        COM = pack(((0x60,len(COM),COM),))
-        fid = df.select("fid",0x011E)
-        fid.writebinary([0],[COM])        
-        #EF.DG1
-        DG1 = pack([(0x5F1F,len(MRZ),MRZ)])
-        DG1 = pack([(0x61,len(DG1),DG1)])
-        fid = df.select("fid",0x0101)
-        fid.writebinary([0],[DG1])        
-        #EF.DG2
-        if picture != None:
-            IIB = "\x00\x01" + inttostring(pic_width,2) + inttostring(pic_height,2) + 6 * "\x00" 
-            length = 32 + len(picture) #32 is the length of IIB + FIB
-            FIB = inttostring(length,4) + 16 * "\x00"
-            FRH = "FAC" + "\x00" + "010" + "\x00" + inttostring(14+length,4) + inttostring(1,2)
-            picture = FRH + FIB + IIB + picture
-            DG2 = pack([(0xA1,8,"\x87\x02\x01\x01\x88\x02\x05\x01"),(0x5F2E,len(picture),picture)])
-            DG2 = pack([(0x02,1,"\x01"),(0x7F60,len(DG2),DG2)])
-            DG2 = pack([(0x7F61,len(DG2),DG2)])
-            fid = df.select("fid",0x0102)
-            fid.writebinary([0],[DG2])
-
-        sam = PassportSAM(mf)
-        return mf, sam
-
-def generate_cryptoflex():
-    from SmartcardFilesystem import CryptoflexMF
-    from SmartcardSAM import CryptoflexSAM
-                    
-    mf = CryptoflexMF()
-    mf.append(TransparentStructureEF(parent=mf, fid=0x0002, filedescriptor=0x01,
-                                     data="\x00\x00\x00\x01\x00\x01\x00\x00")) #EF.ICCSN
-    sam = CryptoflexSAM(mf)
+        self.mf = MF(filedescriptor=FDB["DF"], lifecycle=LCB["ACTIVATED"], dfname=None)
+        self.sam.set_MF(self.mf)
+           
+    def __generate_ePass(self):
+            from PIL import Image
+            from SmartcardSAM import PassportSAM
+            
+            MRZ = raw_input("Please enter the MRZ as one string: ") #TODO: Sanity checks
     
-    return mf, sam
-
-def loadCard(filename, password=None):
-    from CryptoUtils import read_protected_string
+            readline.set_completer_delims("")
+            readline.parse_and_bind("tab: complete")
+            
+            picturepath = raw_input("Please enter the path to an image: ")
+            picturepath = picturepath.rstrip() #FIXME
+            
+            #MRZ1 = "P<UTOERIKSSON<<ANNA<MARIX<<<<<<<<<<<<<<<<<<<"
+            #MRZ2 = "L898902C<3UTO6908061F9406236ZE184226B<<<<<14"
+            #MRZ = MRZ1 + MRZ2        
     
-    try:
-        db = anydbm.open(filename, 'r')
-    except anydbm.error:
-        print "Failed to open " + filename
+            try:
+                im = Image.open(picturepath)
+                pic_width, pic_height = im.size
+                fd = open(picturepath,"rb")
+                picture = fd.read()
+                fd.close()
+            except IOError:
+                print "Failed to open file: " + picturepath
+                pic_width = 0
+                pic_height = 0
+                picture = None  
     
-    if password is None:
-        password = getpass.getpass("Please enter your password.")
+            mf = MF()
+            
+            #We need a MF with Application DF \xa0\x00\x00\x02G\x10\x01
+            mf.append(DF(parent=mf, fid=4, dfname='\xa0\x00\x00\x02G\x10\x01', bertlv_data=[]))
+            df = mf.currentDF()
+            mf.append(TransparentStructureEF(parent=df, fid=0x011E, filedescriptor=0, data=""))#EF.COM
+            mf.append(TransparentStructureEF(parent=df, fid=0x0101, filedescriptor=0, data=""))#EF.DG1
+            mf.append(TransparentStructureEF(parent=df, fid=0x0102, filedescriptor=0, data=""))#EF.DG2
+            mf.append(TransparentStructureEF(parent=df, fid=0x010D, filedescriptor=0, data=""))#EF.SOD
+            #EF.COM
+            COM = pack([(0x5F01,4,"0107"),(0x5F36,6,"040000"),(0x5C,2,"6175")])
+            COM = pack(((0x60,len(COM),COM),))
+            fid = df.select("fid",0x011E)
+            fid.writebinary([0],[COM])        
+            #EF.DG1
+            DG1 = pack([(0x5F1F,len(MRZ),MRZ)])
+            DG1 = pack([(0x61,len(DG1),DG1)])
+            fid = df.select("fid",0x0101)
+            fid.writebinary([0],[DG1])        
+            #EF.DG2
+            if picture != None:
+                IIB = "\x00\x01" + inttostring(pic_width,2) + inttostring(pic_height,2) + 6 * "\x00" 
+                length = 32 + len(picture) #32 is the length of IIB + FIB
+                FIB = inttostring(length,4) + 16 * "\x00"
+                FRH = "FAC" + "\x00" + "010" + "\x00" + inttostring(14+length,4) + inttostring(1,2)
+                picture = FRH + FIB + IIB + picture
+                DG2 = pack([(0xA1,8,"\x87\x02\x01\x01\x88\x02\x05\x01"),(0x5F2E,len(picture),picture)])
+                DG2 = pack([(0x02,1,"\x01"),(0x7F60,len(DG2),DG2)])
+                DG2 = pack([(0x7F61,len(DG2),DG2)])
+                fid = df.select("fid",0x0102)
+                fid.writebinary([0],[DG2])
     
-    serializedMF = read_protected_string(db["mf"], password)
-    serializedSAM = read_protected_string(db["sam"], password)
-    SAM = loads(serializedSAM)
-    MF = loads(serializedMF)
-    #self.type = db["type"]
+            self.mf = mf
+            self.sam = PassportSAM(self.mf)
     
-    return SAM, MF
-
-def saveCard(mf, sam, filename, password=None):      
-    from CryptoUtils import protect_string        
-    
-    if filename != None:
-        print "Saving smartcard configuration to %s" % filename
-    else: #TODO: Ask user for filename 
-        pass
-    
-    if password is None:
-        passwd1 = getpass.getpass("Please enter a password.")
-        passwd2 = getpass.getpass("Please retype your password.")
-        if (passwd1 != passwd2):
-            raise ValueError, "Passwords did not match. Will now exit"
+    def __generate_cryptoflex(self):
+        from SmartcardSAM import CryptoflexSAM
+                        
+        self.mf = CryptoflexMF()
+        self.mf.append(TransparentStructureEF(parent=self.mf, fid=0x0002, filedescriptor=0x01,
+                                         data="\x00\x00\x00\x01\x00\x01\x00\x00")) #EF.ICCSN
+        self.sam = CryptoflexSAM(self.mf)
+        
+    def generateCard(self):
+        if self.type == 'iso7816':
+            self.__generate_iso_card()
+        elif self.type == 'ePass':
+            self.__generate_ePass()
+        elif self.type == 'cryptoflex':
+            self.__generate_cryptoflex()
         else:
-            password = passwd1
+            raise ValueError, "Unsupported card type " % self.type
     
-    mf_string = dumps(mf)
-    sam_string = dumps(sam)
-    protectedMF = protect_string(mf_string, password)
-    protectedSAM = protect_string(sam_string, password)
+    def getCard(self):
+        if self.sam is None or self.mf is None:
+            self.generateCard()
+        return self.mf, self.sam
     
-    try:
-        db = anydbm.open(filename, 'c')
-        db["mf"] = protectedMF
-        db["sam"] = protectedSAM
-        #db["type"] = self.type
-        db.close()
-    except anydbm.error:
-        print "Failed to write data to disk"
+    def setCard(self, mf=None, sam=None):
+        if mf != None:
+            self.mf = mf
+        if sam != None:
+            self.sam = sam
+        
+    
+    def loadCard(self, filename, password=None):
+        from CryptoUtils import read_protected_string
+        
+        try:
+            db = anydbm.open(filename, 'r')
+        except anydbm.error:
+            print "Failed to open " + filename
+        
+        if password is None:
+            password = getpass.getpass("Please enter your password.")
+        
+        serializedMF = read_protected_string(db["mf"], password)
+        serializedSAM = read_protected_string(db["sam"], password)
+        self.sam = loads(serializedSAM)
+        self.mf = loads(serializedMF)
+        self.type = db["type"]
+            
+    def saveCard(self, filename, password=None):      
+        from CryptoUtils import protect_string        
+               
+        if password is None:
+            passwd1 = getpass.getpass("Please enter a password.")
+            passwd2 = getpass.getpass("Please retype your password.")
+            if (passwd1 != passwd2):
+                raise ValueError, "Passwords did not match. Will now exit"
+            else:
+                password = passwd1
+        
+        if self.mf == None or self.sam == None: #TODO: Sanity checks
+            raise ValueError, "Card Generator was not set up properly (missing mf or sam)"
+        
+        mf_string = dumps(self.mf)
+        sam_string = dumps(self.sam)
+        protectedMF = protect_string(mf_string, password)
+        protectedSAM = protect_string(sam_string, password)
+        
+        try:
+            db = anydbm.open(filename, 'c')
+            db["mf"] = protectedMF
+            db["sam"] = protectedSAM
+            db["type"] = self.type
+            db["version"] = "0.1"
+            db.close()
+        except anydbm.error:
+            print "Failed to write data to disk"
                           
 if __name__ == "__main__":
     from optparse import OptionParser
@@ -178,11 +209,7 @@ if __name__ == "__main__":
         print "You have to provide a filename using the -f option"
         sys.exit()
     
-    if options.type == 'iso7816':
-        mf, sam = generate_iso_card()
-    elif options.type == 'ePass':
-        mf, sam = generate_ePass()
-    elif options.type == 'cryptoflex':
-        mf, sam = generate_cryptoflex()
-        
-    saveCard(mf, sam, options.filename)
+    generator = CardGenerator(options.type)
+    generator.generateCard()
+    generator.saveCard(options.filename)
+    
