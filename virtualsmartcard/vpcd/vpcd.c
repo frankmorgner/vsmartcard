@@ -40,6 +40,10 @@ static int sendall(int sock, size_t size, const char* buffer);
  * Receive size bytes from sock
  */
 static char* recvall(int sock, size_t size);
+/*
+ * Open a TCP socket and listen.
+ */
+static int opensock(unsigned short port);
 
 
 int sendall(int sock, size_t size, const char* buffer) {
@@ -62,6 +66,52 @@ char* recvall(int sock, size_t size) {
         return NULL;
     }
     return buffer;
+}
+
+int opensock(unsigned short port)
+{
+    int sock;
+
+    sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock < 0) return -1;
+
+    struct sockaddr_in server_sockaddr;
+    memset(&server_sockaddr, 0, sizeof(server_sockaddr));
+    server_sockaddr.sin_family      = PF_INET;
+    server_sockaddr.sin_port        = htons(VPCDPORT);
+    server_sockaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+
+    if (bind(sock, (struct sockaddr*)&server_sockaddr,
+                sizeof(server_sockaddr)) < 0) return -1;
+
+    if (listen(sock, 0) < 0) return -1;
+
+    return sock;
+}
+
+int waitforclient(int server, long int secs, long int usecs) {
+    int sock;
+
+    fd_set rfds;
+    FD_ZERO(&rfds);
+    FD_SET(server, &rfds);
+
+    /* Wait up to one microsecond. */
+    struct timeval tv;
+    tv.tv_sec = secs;
+    tv.tv_usec = usecs;
+
+    if (select(server+1, &rfds, NULL, NULL, &tv) < 0) return -1;
+
+    if (FD_ISSET(server, &rfds)) {
+        struct sockaddr_in client_sockaddr;
+        socklen_t client_socklen = sizeof(client_sockaddr);
+        sock = accept(server,
+                (struct sockaddr*)&client_sockaddr,
+                &client_socklen);
+    }
+
+    return sock;
 }
 
 int sendToVICC(uint16_t size, const char* buffer) {
@@ -116,19 +166,9 @@ int vicc_eject() {
 }
 
 int vicc_init() {
-    server_sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (server_sock < 0) return -1;
-
-    struct sockaddr_in server_sockaddr;
-    memset(&server_sockaddr, 0, sizeof(server_sockaddr));
-    server_sockaddr.sin_family      = PF_INET;
-    server_sockaddr.sin_port        = htons(VPCDPORT);
-    server_sockaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-
-    if (bind(server_sock, (struct sockaddr*)&server_sockaddr,
-                sizeof(server_sockaddr)) < 0) return -1;
-
-    if (listen(server_sock, 0) < 0) return -1;
+    server_sock = opensock(VPCDPORT);
+    if (server_sock < 0)
+        return -1;
 
     return 0;
 }
@@ -151,27 +191,10 @@ int vicc_transmit(int apdu_len, const char *apdu, char **rapdu) {
 int vicc_present() {
     if (client_sock > 0) return 1;
     else {
-        fd_set rfds;
-        FD_ZERO(&rfds);
-        FD_SET(server_sock, &rfds);
-
         /* Wait up to one microsecond. */
-        struct timeval tv;
-        tv.tv_sec = 0;
-        tv.tv_usec = 1;
-
-        if (select(server_sock+1, &rfds, NULL, NULL, &tv) < 0) return -1;
-
-        if (FD_ISSET(server_sock, &rfds)) {
-            struct sockaddr_in client_sockaddr;
-            socklen_t client_socklen = sizeof(client_sockaddr);
-            client_sock = accept(server_sock,
-                    (struct sockaddr*)&client_sockaddr,
-                    &client_socklen);
-            if (client_sock == -1) return -1;
-
-            return 1;
-        }
+        client_sock = waitforclient(server_sock, 0, 1);
+        if (client_sock < 0)
+            return -1;
     }
 
     return 0;
