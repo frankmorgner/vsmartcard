@@ -2,8 +2,12 @@ Installation is simple; type `make install`.  If you want to customize the
 compilation or install process, you will need to pass variables to make.
 
     DESTDIR             prefix for installation
-    LIBPCSCLITE_CFLAGS  compiler flags for pcsclite usage (needed if no
+    OPENSC_CFLAGS       compiler flags for libopensc usage (needed if no
                         pkg-config is available)
+    OPENSSL_CFLAGS      compiler flags for libssl usage (needed if no
+                        pkg-config is available)
+    EXTRA_CFLAGS        set it to "" to enable PACE, make sure that your
+                        openssl is compiled with the OpenPACE patch
 
 See the Makefile for more details.
 

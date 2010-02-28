@@ -9,6 +9,10 @@ as a standard USB CCID reader. If the host system is in USB device mode, ccid
 forwards the local reader via USB to an other device. If in USB host mode,
 ccid virtually plugges in a USB CCID reader to the host system.
 
+ccid has support for Password Authenticated Connection Establishment (PACE)
+using OpenPACE (see http://sourceforge.net/projects/openpace/).  PACE is
+experimental and disabled by default. See file INSTALL how to compile it.
+
 ccid is implemented using GadgetFS. The source code is based on the GadgetFS
 example at http://www.linux-usb.org/gadget/.
 
