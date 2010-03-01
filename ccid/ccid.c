@@ -27,6 +27,7 @@
 #include <opensc/log.h>
 
 #include "ccid.h"
+#include "pace.h"
 
 //static const char *app_name = "ccid";
 static sc_context_t *ctx = NULL;
@@ -1276,4 +1277,9 @@ int ccid_state_changed(RDR_to_PC_NotifySlotChange_t **slotchange, int timeout)
         return 1;
 
     return 0;
+}
+
+void ccid_testpace()
+{
+    pace_test(ctx, card_in_slot[0]);
 }

@@ -19,6 +19,109 @@
 #include <opensc/log.h>
 #include "pace.h"
 
+
+#define ASN1_APP_EXP_OPT(stname, field, type, tag) ASN1_EX_TYPE(ASN1_TFLG_EXPTAG|ASN1_TFLG_APPLICATION|ASN1_TFLG_OPTIONAL, tag, stname, field, type)
+
+/*
+ * MSE:Set AT
+ */
+
+typedef struct pace_mse_set_at_cd_st {
+    ASN1_OBJECT *cryptographic_mechanism_reference;
+    ASN1_INTEGER *key_reference1;
+    ASN1_INTEGER *key_reference2;
+    ASN1_INTEGER *auxiliary_data;
+    ASN1_INTEGER *eph_pub_key;
+    ASN1_INTEGER *cha_template;
+} PACE_MSE_SET_AT_C;
+ASN1_SEQUENCE(PACE_MSE_SET_AT_C) = {
+    /* 0x80
+     * Cryptographic mechanism reference */
+    ASN1_IMP_OPT(PACE_MSE_SET_AT_C, cryptographic_mechanism_reference, ASN1_OBJECT, 0),
+    /* 0x83
+     * Reference of a public key / secret key */
+    ASN1_IMP_OPT(PACE_MSE_SET_AT_C, key_reference1, ASN1_INTEGER, 3),
+    /* 0x84
+     * Reference of a private key / Reference for computing a session key */
+    ASN1_IMP_OPT(PACE_MSE_SET_AT_C, key_reference2, ASN1_INTEGER, 4),
+    /* 0x67
+     * Auxiliary authenticated data */
+    ASN1_APP_EXP_OPT(PACE_MSE_SET_AT_C, auxiliary_data, ASN1_INTEGER, 7),
+    /* 0x91
+     * Ephemeral Public Key */
+    ASN1_IMP_OPT(PACE_MSE_SET_AT_C, eph_pub_key, ASN1_INTEGER, 0x11),
+    /* 0x7F4C
+     * Certificate Holder Authorization Template */
+    ASN1_APP_EXP_OPT(PACE_MSE_SET_AT_C, cha_template, ASN1_INTEGER, 0x4c),
+} ASN1_SEQUENCE_END(PACE_MSE_SET_AT_C)
+IMPLEMENT_ASN1_FUNCTIONS(PACE_MSE_SET_AT_C)
+
+
+/*
+ * General Authenticate
+ */
+
+/* Protocol Command Data */
+typedef struct pace_gen_auth_cd_st {
+    ASN1_OCTET_STRING *mapping_data;
+    ASN1_OCTET_STRING *eph_pub_key;
+    ASN1_OCTET_STRING *auth_token;
+} PACE_GEN_AUTH_C;
+ASN1_SEQUENCE(PACE_GEN_AUTH_C) = {
+    /* 0x81
+     * Mapping Data */
+    ASN1_IMP_OPT(PACE_GEN_AUTH_C, mapping_data, ASN1_INTEGER, 1),
+    /* 0x83
+     * Ephemeral Public Key */
+    ASN1_IMP_OPT(PACE_GEN_AUTH_C, eph_pub_key, ASN1_INTEGER, 3),
+    /* 0x85
+     * Authentication Token */
+    ASN1_IMP_OPT(PACE_GEN_AUTH_C, auth_token, ASN1_INTEGER, 5),
+} ASN1_SEQUENCE_END(PACE_GEN_AUTH_C)
+IMPLEMENT_ASN1_FUNCTIONS(PACE_GEN_AUTH_C)
+
+/* Protocol Response Data */
+typedef struct pace_gen_auth_rapdu_body_st {
+    ASN1_INTEGER *enc_nonce;
+    ASN1_INTEGER *mapping_data;
+    ASN1_INTEGER *eph_pub_key;
+    ASN1_INTEGER *auth_token;
+    ASN1_INTEGER *cert_auth1;
+    ASN1_INTEGER *cert_auth2;
+} PACE_GEN_AUTH_R_BODY;
+ASN1_SEQUENCE(PACE_GEN_AUTH_R_BODY) = {
+    /* 0x80
+     * Encrypted Nonce */
+    ASN1_IMP_OPT(PACE_GEN_AUTH_R_BODY, enc_nonce, ASN1_INTEGER, 0),
+    /* 0x82
+     * Mapping Data */
+    ASN1_IMP_OPT(PACE_GEN_AUTH_R_BODY, mapping_data, ASN1_INTEGER, 2),
+    /* 0x84
+     * Ephemeral Public Key */
+    ASN1_IMP_OPT(PACE_GEN_AUTH_R_BODY, eph_pub_key, ASN1_INTEGER, 4),
+    /* 0x86
+     * Authentication Token */
+    ASN1_IMP_OPT(PACE_GEN_AUTH_R_BODY, auth_token, ASN1_INTEGER, 6),
+    /* 0x87
+     * Certification Authority Reference */
+    ASN1_IMP_OPT(PACE_GEN_AUTH_R_BODY, cert_auth1, ASN1_INTEGER, 7),
+    /* 0x88
+     * Certification Authority Reference */
+    ASN1_IMP_OPT(PACE_GEN_AUTH_R_BODY, cert_auth2, ASN1_INTEGER, 8),
+} ASN1_SEQUENCE_END(PACE_GEN_AUTH_R_BODY)
+IMPLEMENT_ASN1_FUNCTIONS(PACE_GEN_AUTH_R_BODY)
+
+typedef PACE_GEN_AUTH_R_BODY PACE_GEN_AUTH_R;
+/* 0x7C
+ * Dynamic Authentication Data */
+ASN1_ITEM_TEMPLATE(PACE_GEN_AUTH_R) =
+    ASN1_EX_TEMPLATE_TYPE(
+            ASN1_TFLG_IMPTAG|ASN1_TFLG_APPLICATION,
+            0x1c, PACE_GEN_AUTH_R, PACE_GEN_AUTH_R_BODY)
+ASN1_ITEM_TEMPLATE_END(PACE_GEN_AUTH_R)
+IMPLEMENT_ASN1_FUNCTIONS(PACE_GEN_AUTH_R)
+
+
 #ifdef NO_PACE
 inline int GetReadersPACECapabilities(sc_context_t *ctx, sc_card_t *card,
         const __u8 *in, __u8 **out, size_t *outlen) {
@@ -28,15 +131,18 @@ inline int EstablishPACEChannel(sc_context_t *ctx, sc_card_t *card,
         const __u8 *in, __u8 **out, size_t *outlen) {
     SC_FUNC_RETURN(ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_NOT_SUPPORTED);
 }
+void pace_test(sc_context_t *ctx, sc_card_t *card) {
+    SC_FUNC_RETURN(ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_NOT_SUPPORTED);
+}
 #else
 
 #include <opensc/opensc.h>
 #include <opensc/ui.h>
-#include <openssl/pace.h>
 #include <openssl/objects.h>
 #include <openssl/err.h>
 #include <asm/byteorder.h>
 #include <string.h>
+#include <openssl/pace.h>
 
 uint16_t ssc = 0;
 
@@ -72,8 +178,10 @@ int get_ef_card_access(sc_context_t *ctx, sc_card_t *card,
     snprintf(buf, sizeof buf, "3f00%04x", FID_EF_CARDACCESS);
     sc_format_path(buf, &path);
 
+    //printf("%s:%d\n", __FILE__, __LINE__);
     SC_TEST_RET(ctx, sc_select_file(card, &path, &file),
             "Could not select EF.CardAccess.");
+    //printf("%s:%d\n", __FILE__, __LINE__);
     ssc++;
 
     *length_ef_cardaccess = file->size;
@@ -580,4 +688,26 @@ err:
 
     SC_FUNC_RETURN(ctx, SC_LOG_TYPE_DEBUG, r);
 }
+
+void pace_test(sc_context_t *ctx, sc_card_t *card)
+{
+    __u8 in[16];
+    __u8 *out = NULL;
+    size_t outlen;
+
+    in[0] = PACE_CAN; // pin_id
+    in[1] = 0;        // length_chat
+    in[2] = 6;        // length_pin
+    in[3] = '8';
+    in[4] = '4';
+    in[5] = '0';
+    in[6] = '1';
+    in[7] = '7';
+    in[8] = '9';
+    in[9] = 0;        // length_cert_desc
+    in[10]= 0;        // length_cert_desc
+
+    EstablishPACEChannel(ctx, card, in, &out, &outlen);
+}
+
 #endif

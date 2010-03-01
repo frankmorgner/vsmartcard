@@ -57,6 +57,7 @@ static int verbose    = 0;
 static int debug      = 0;
 static int dohid      = 0;
 static int doint      = 0;
+static int dotest     = 0;
 int usb_reader_num = 0;
 
 static const struct option options[] = {
@@ -65,6 +66,7 @@ static const struct option options[] = {
     { "interrupt", no_argument, &doint, 'n' },
     { "reader",	required_argument, NULL, 'r' },
     { "serial", required_argument, NULL, 's' },
+    { "test-pace", no_argument, &dotest, 't' },
     { "product", required_argument, NULL, 'p' },
     { "vendor", required_argument, NULL, 'e' },
     { "verbose", no_argument, NULL, 'v' },
@@ -77,6 +79,7 @@ static const char *option_help[] = {
     "Add interrupt pipe for CCID",
     "Number of the reader to use (default: auto-detect)",
     "Serial number (max 56 bytes) of gadget (default: random)",
+    "test PACE implementation",
     "USB product ID (default: 0x3010)",
     "USB vendor ID (0default: x0D46)",
     "Use (several times) to be more verbose",
@@ -927,7 +930,7 @@ ep_config (char *name, const char *label,
 
 /* ccid thread, forwards ccid requests to pcsc and returns results  */
 static void *ccid (void *param)
-{   
+{
     pthread_t interrupt_thread;
 
     void *interrupt (void *param)
@@ -1026,6 +1029,11 @@ static void *ccid (void *param)
         if (verbose > 1)
             perror("malloc");
         goto error;
+    }
+
+    if (dotest) {
+        sleep(2);
+        ccid_testpace();
     }
 
     do {
