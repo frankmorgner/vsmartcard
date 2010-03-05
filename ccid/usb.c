@@ -58,7 +58,7 @@ static int debug      = 0;
 static int dohid      = 0;
 static int doint      = 0;
 static int dotest     = 0;
-int usb_reader_num = 0;
+static int usb_reader_num = -1;
 
 static const struct option options[] = {
     /*{ "hid", no_argument, &dohid, 1 },*/
@@ -1031,11 +1031,6 @@ static void *ccid (void *param)
         goto error;
     }
 
-    if (dotest) {
-        sleep(2);
-        ccid_testpace();
-    }
-
     do {
 
         /* original LinuxThreads cancelation didn't work right
@@ -1800,6 +1795,10 @@ main (int argc, char **argv)
     if (ccid_initialize(usb_reader_num, verbose) < 0) {
         perror("can't initialize ccid");
         return 1;
+    }
+
+    if (dotest) {
+        return ccid_testpace();
     }
 
     fd = init_device ();

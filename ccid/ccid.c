@@ -1279,7 +1279,19 @@ int ccid_state_changed(RDR_to_PC_NotifySlotChange_t **slotchange, int timeout)
     return 0;
 }
 
-void ccid_testpace()
+int ccid_testpace()
 {
-    pace_test(ctx, card_in_slot[0]);
+    int i;
+    for (i = 0; i < sizeof *card_in_slot; i++) {
+        if (!card_in_slot[i]
+                && (sc_detect_card_presence(reader, 0) & SC_SLOT_CARD_PRESENT)) {
+            sc_connect_card(reader, i, &card_in_slot[i]);
+        }
+
+        if (sc_card_valid(card_in_slot[i])) {
+            return pace_test(ctx, card_in_slot[i]);
+        }
+    }
+
+    return SC_ERROR_SLOT_NOT_FOUND;
 }

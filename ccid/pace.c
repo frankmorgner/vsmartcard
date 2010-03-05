@@ -171,28 +171,37 @@ int get_ef_card_access(sc_context_t *ctx, sc_card_t *card,
         __u8 **ef_cardaccess, size_t *length_ef_cardaccess)
 {
     int r;
-    char buf[9];
     sc_path_t path;
     sc_file_t *file;
+    __u8 *p;
+    size_t maxresp = SC_MAX_APDU_BUFFER_SIZE - 2;
 
-    snprintf(buf, sizeof buf, "3f00%04x", FID_EF_CARDACCESS);
-    sc_format_path(buf, &path);
+    memset(&path, 0, sizeof path);
+    SC_TEST_RET(ctx, sc_append_file_id(&path, FID_EF_CARDACCESS),
+            "Could not create path object.");
+    SC_TEST_RET(ctx, sc_concatenate_path(&path, sc_get_mf_path(), &path),
+            "Could not create path object.");
 
-    //printf("%s:%d\n", __FILE__, __LINE__);
+    memset(&file, 0, sizeof file);
     SC_TEST_RET(ctx, sc_select_file(card, &path, &file),
             "Could not select EF.CardAccess.");
-    //printf("%s:%d\n", __FILE__, __LINE__);
     ssc++;
 
-    *length_ef_cardaccess = file->size;
-    *ef_cardaccess = malloc(*length_ef_cardaccess);
-    if (!*ef_cardaccess)
-        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_OUT_OF_MEMORY);
+    for (*length_ef_cardaccess = 0; ; *length_ef_cardaccess += r, ssc++) {
+        p = realloc(*ef_cardaccess, *length_ef_cardaccess + maxresp);
+        if (!p)
+            SC_FUNC_RETURN(ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_OUT_OF_MEMORY);
+        *ef_cardaccess = p;
 
-    r = sc_read_binary(card, 0, *ef_cardaccess, *length_ef_cardaccess, 0);
-    ssc++;
-    SC_TEST_RET(ctx, r, "Could not read EF.CardAccess.");
-    *length_ef_cardaccess = r;
+        r = sc_read_binary(card, *length_ef_cardaccess,
+                *ef_cardaccess + *length_ef_cardaccess, maxresp, 0);
+        SC_TEST_RET(ctx, r, "Could not read EF.CardAccess.");
+    }
+
+    /* test cards only return an empty FCI template,
+     * so we can't determine any file proberties */
+    if (*length_ef_cardaccess < file->size)
+        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_FILE_TOO_SMALL);
 
     SC_FUNC_RETURN(ctx, SC_LOG_TYPE_DEBUG, SC_SUCCESS);
 }
@@ -500,8 +509,8 @@ get_psec(sc_card_t *card, const char *pin, size_t length_pin, u8 pin_id)
 }
 
 void debug_ossl(sc_context_t *ctx) {
-    unsigned long r = ERR_get_error();
-    while (r) {
+    unsigned long r;
+    for (r = ERR_get_error(); r; r = ERR_get_error()) {
         sc_error(ctx, ERR_error_string(r, NULL));
     }
 }
@@ -552,12 +561,15 @@ int EstablishPACEChannel(sc_context_t *ctx, sc_card_t *card,
     if (r < 0) {
         goto err;
     }
+    //printf("%s:%d\n", __FILE__, __LINE__);
     if (!parse_ef_card_access(ef_cardaccess, length_ef_cardaccess,
                 &info, &static_dp)) {
         r = SC_ERROR_INTERNAL;
         debug_ossl(ctx);
         goto err;
     }
+    //printf("%s:%d\n", __FILE__, __LINE__);
+    //return 0;
     r = pace_mse_set_at(ctx, card, info->protocol, pin_id, 1);
     if (r < 0) {
         goto err;
@@ -689,7 +701,7 @@ err:
     SC_FUNC_RETURN(ctx, SC_LOG_TYPE_DEBUG, r);
 }
 
-void pace_test(sc_context_t *ctx, sc_card_t *card)
+int pace_test(sc_context_t *ctx, sc_card_t *card)
 {
     __u8 in[16];
     __u8 *out = NULL;
@@ -707,7 +719,7 @@ void pace_test(sc_context_t *ctx, sc_card_t *card)
     in[9] = 0;        // length_cert_desc
     in[10]= 0;        // length_cert_desc
 
-    EstablishPACEChannel(ctx, card, in, &out, &outlen);
+    return EstablishPACEChannel(ctx, card, in, &out, &outlen);
 }
 
 #endif

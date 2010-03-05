@@ -38,11 +38,13 @@ extern "C" {
 
 #define FID_EF_CARDACCESS 0x011C
 
+#define MAX_EF_CARDACCESS 2048
+
 int GetReadersPACECapabilities(sc_context_t *ctx, sc_card_t *card, const __u8
         *in, __u8 **out, size_t *outlen);
 int EstablishPACEChannel(sc_context_t *ctx, sc_card_t *card, const __u8 *in,
         __u8 **out, size_t *outlen);
-void pace_test(sc_context_t *ctx, sc_card_t *card);
+int pace_test(sc_context_t *ctx, sc_card_t *card);
 
 #ifdef  __cplusplus
 }
