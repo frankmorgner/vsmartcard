@@ -20,8 +20,7 @@
 #define _PACE_H
 
 #include <linux/usb/ch9.h>
-#include <openssl/asn1.h>
-#include <openssl/asn1t.h>
+#include <opensc/opensc.h>
 
 #ifdef __cplusplus
 extern "C" {

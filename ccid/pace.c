@@ -16,8 +16,10 @@
  * You should have received a copy of the GNU General Public License along with
  * ccid.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <opensc/log.h>
 #include "pace.h"
+#include <opensc/log.h>
+#include <openssl/asn1.h>
+#include <openssl/asn1t.h>
 
 
 #define ASN1_APP_EXP_OPT(stname, field, type, tag) ASN1_EX_TYPE(ASN1_TFLG_EXPTAG|ASN1_TFLG_APPLICATION|ASN1_TFLG_OPTIONAL, tag, stname, field, type)
@@ -131,18 +133,20 @@ inline int EstablishPACEChannel(sc_context_t *ctx, sc_card_t *card,
         const __u8 *in, __u8 **out, size_t *outlen) {
     SC_FUNC_RETURN(ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_NOT_SUPPORTED);
 }
-void pace_test(sc_context_t *ctx, sc_card_t *card) {
+int pace_test(sc_context_t *ctx, sc_card_t *card) {
     SC_FUNC_RETURN(ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_NOT_SUPPORTED);
 }
 #else
 
+#include <asm/byteorder.h>
 #include <opensc/opensc.h>
 #include <opensc/ui.h>
-#include <openssl/objects.h>
 #include <openssl/err.h>
-#include <asm/byteorder.h>
-#include <string.h>
+#include <openssl/objects.h>
 #include <openssl/pace.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 
 uint16_t ssc = 0;
 
