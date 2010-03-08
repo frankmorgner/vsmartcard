@@ -68,18 +68,28 @@ typedef struct pace_gen_auth_cd_st {
     ASN1_OCTET_STRING *mapping_data;
     ASN1_OCTET_STRING *eph_pub_key;
     ASN1_OCTET_STRING *auth_token;
-} PACE_GEN_AUTH_C;
-ASN1_SEQUENCE(PACE_GEN_AUTH_C) = {
+} PACE_GEN_AUTH_C_BODY;
+ASN1_SEQUENCE(PACE_GEN_AUTH_C_BODY) = {
     /* 0x81
      * Mapping Data */
-    ASN1_IMP_OPT(PACE_GEN_AUTH_C, mapping_data, ASN1_INTEGER, 1),
+    ASN1_IMP_OPT(PACE_GEN_AUTH_C_BODY, mapping_data, ASN1_INTEGER, 1),
     /* 0x83
      * Ephemeral Public Key */
-    ASN1_IMP_OPT(PACE_GEN_AUTH_C, eph_pub_key, ASN1_INTEGER, 3),
+    ASN1_IMP_OPT(PACE_GEN_AUTH_C_BODY, eph_pub_key, ASN1_INTEGER, 3),
     /* 0x85
      * Authentication Token */
-    ASN1_IMP_OPT(PACE_GEN_AUTH_C, auth_token, ASN1_INTEGER, 5),
-} ASN1_SEQUENCE_END(PACE_GEN_AUTH_C)
+    ASN1_IMP_OPT(PACE_GEN_AUTH_C_BODY, auth_token, ASN1_INTEGER, 5),
+} ASN1_SEQUENCE_END(PACE_GEN_AUTH_C_BODY)
+IMPLEMENT_ASN1_FUNCTIONS(PACE_GEN_AUTH_C_BODY)
+
+typedef PACE_GEN_AUTH_C_BODY PACE_GEN_AUTH_C;
+/* 0x7C
+ * Dynamic Authentication Data */
+ASN1_ITEM_TEMPLATE(PACE_GEN_AUTH_C) =
+    ASN1_EX_TEMPLATE_TYPE(
+            ASN1_TFLG_IMPTAG|ASN1_TFLG_APPLICATION,
+            0x1c, PACE_GEN_AUTH_C, PACE_GEN_AUTH_C_BODY)
+ASN1_ITEM_TEMPLATE_END(PACE_GEN_AUTH_C)
 IMPLEMENT_ASN1_FUNCTIONS(PACE_GEN_AUTH_C)
 
 /* Protocol Response Data */
@@ -139,6 +149,7 @@ int pace_test(sc_context_t *ctx, sc_card_t *card) {
 #else
 
 #include <asm/byteorder.h>
+#include <opensc/asn1.h>
 #include <opensc/opensc.h>
 #include <opensc/ui.h>
 #include <openssl/err.h>
@@ -147,8 +158,19 @@ int pace_test(sc_context_t *ctx, sc_card_t *card) {
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "apdu.h"
 
 uint16_t ssc = 0;
+
+void bin_log(sc_context_t *ctx, const char *label, const u8 *data, size_t len)
+{
+    char buf[1024];
+
+    sc_hex_dump(ctx, data, len, buf, sizeof buf);
+    sc_debug(ctx, "%s (%u bytes):\n%s"
+            "======================================================================",
+            label, len, buf);
+}
 
 int GetReadersPACECapabilities(sc_context_t *ctx, sc_card_t *card,
         const __u8 *in, __u8 **out, size_t *outlen) {
@@ -190,8 +212,9 @@ int get_ef_card_access(sc_context_t *ctx, sc_card_t *card,
     SC_TEST_RET(ctx, sc_select_file(card, &path, &file),
             "Could not select EF.CardAccess.");
     ssc++;
+    *length_ef_cardaccess = 0;
 
-    for (*length_ef_cardaccess = 0; ; *length_ef_cardaccess += r, ssc++) {
+    while(1) {
         p = realloc(*ef_cardaccess, *length_ef_cardaccess + maxresp);
         if (!p)
             SC_FUNC_RETURN(ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_OUT_OF_MEMORY);
@@ -199,7 +222,16 @@ int get_ef_card_access(sc_context_t *ctx, sc_card_t *card,
 
         r = sc_read_binary(card, *length_ef_cardaccess,
                 *ef_cardaccess + *length_ef_cardaccess, maxresp, 0);
+        ssc++;
+
+        if (r > 0 && r != maxresp) {
+            *length_ef_cardaccess += r;
+            break;
+        }
+
         SC_TEST_RET(ctx, r, "Could not read EF.CardAccess.");
+
+        *length_ef_cardaccess += r;
     }
 
     /* test cards only return an empty FCI template,
@@ -222,6 +254,7 @@ int pace_mse_set_at(sc_context_t *ctx, sc_card_t *card,
     apdu.ins = 0x22;
     apdu.p1 = 0xc1;
     apdu.p2 = 0xa4;
+    apdu.cse = SC_APDU_CASE_3;
     apdu.flags = SC_APDU_FLAGS_NO_GET_RESP|SC_APDU_FLAGS_NO_RETRY_WL;
 
     data = PACE_MSE_SET_AT_C_new();
@@ -234,12 +267,14 @@ int pace_mse_set_at(sc_context_t *ctx, sc_card_t *card,
     data->key_reference2 = ASN1_INTEGER_new();
     if (!data->cryptographic_mechanism_reference
             || !data->key_reference1
-            || !data->key_reference2) {
+            || !data->key_reference2
+            ) {
         r = SC_ERROR_OUT_OF_MEMORY;
         goto err;
     }
     if (!ASN1_INTEGER_set(data->key_reference1, secret_key)
-            || !ASN1_INTEGER_set(data->key_reference2, reference)) {
+            || !ASN1_INTEGER_set(data->key_reference2, reference)
+            ) {
         r = SC_ERROR_INTERNAL;
         goto err;
     }
@@ -248,9 +283,13 @@ int pace_mse_set_at(sc_context_t *ctx, sc_card_t *card,
         r = SC_ERROR_INTERNAL;
         goto err;
     }
-    apdu.data = (const u8 *) d;
-    apdu.datalen = r;
-    apdu.lc = r;
+    /* The tag/length for the sequence (0x30) is omitted in the command apdu. */
+    /* FIXME is there a OpenSSL way to get the value only or even a define for
+     * the tag? */
+    apdu.data = sc_asn1_find_tag(ctx, d, r, 0x30, &apdu.datalen);
+    apdu.lc = apdu.datalen;
+
+    bin_log(ctx, "MSE:Set AT command data", apdu.data, apdu.datalen);
 
     r = sc_transmit_apdu(card, &apdu);
     ssc++;
@@ -258,6 +297,7 @@ int pace_mse_set_at(sc_context_t *ctx, sc_card_t *card,
         goto err;
 
     if (apdu.resplen) {
+        sc_error(ctx, "MSE:Set AT response data should be empty");
         r = SC_ERROR_UNKNOWN_DATA_RECEIVED;
         goto err;
     }
@@ -266,8 +306,7 @@ int pace_mse_set_at(sc_context_t *ctx, sc_card_t *card,
         if ((apdu.sw2 & 0xc0) == 0xc0) {
              sc_error(card->ctx, "Verification failed (remaining tries: %d%s)\n",
                    apdu.sw2 & 0x0f,
-                   (apdu.sw2 & 0x0f) == 1? ", password must be resumed":
-                   (apdu.sw2 & 0x0f) == 0? ", password must be unblocked":
+                   (apdu.sw2 & 0x0f) == 1? ", password must be resumed": (apdu.sw2 & 0x0f) == 0? ", password must be unblocked":
                    "");
              r = SC_ERROR_PIN_CODE_INCORRECT;
              goto err;
@@ -287,12 +326,13 @@ int pace_mse_set_at(sc_context_t *ctx, sc_card_t *card,
 
 err:
     if (data) {
-        if (data->cryptographic_mechanism_reference)
-            ASN1_OBJECT_free(data->cryptographic_mechanism_reference);
-        if (data->key_reference1)
-            ASN1_INTEGER_free(data->key_reference1);
-        if (data->key_reference2)
-            ASN1_INTEGER_free(data->key_reference2);
+        // XXX
+        //if (data->cryptographic_mechanism_reference)
+            //ASN1_OBJECT_free(data->cryptographic_mechanism_reference);
+        //if (data->key_reference1)
+            //ASN1_INTEGER_free(data->key_reference1);
+        //if (data->key_reference2)
+            //ASN1_INTEGER_free(data->key_reference2);
         PACE_MSE_SET_AT_C_free(data);
     }
     if (d)
@@ -313,9 +353,11 @@ int pace_gen_auth(sc_context_t *ctx, sc_card_t *card,
     int r, l;
 
     memset(&apdu, 0, sizeof apdu);
+    apdu.cla = 0x10;
     apdu.ins = 0x86;
     apdu.p1 = 0;
     apdu.p2 = 0;
+    apdu.cse = SC_APDU_CASE_4;
     apdu.flags = SC_APDU_FLAGS_NO_GET_RESP|SC_APDU_FLAGS_NO_RETRY_WL;
 
     c_data = PACE_GEN_AUTH_C_new();
@@ -366,7 +408,10 @@ int pace_gen_auth(sc_context_t *ctx, sc_card_t *card,
     apdu.datalen = r;
     apdu.lc = r;
 
-    r = sc_transmit_apdu(card, &apdu);
+    bin_log(ctx, "General authenticate command data", apdu.data, apdu.datalen);
+
+    /* sanity checks in sc_transmit_apdu forbid case 4 apdus with le == 0 */
+    r = my_transmit_apdu(card, &apdu);
     ssc++;
     if (r < 0)
         goto err;
@@ -375,18 +420,24 @@ int pace_gen_auth(sc_context_t *ctx, sc_card_t *card,
     if (r < 0)
         goto err;
 
+    bin_log(ctx, "General authenticate response data", apdu.resp, apdu.resplen);
+
     if (!d2i_PACE_GEN_AUTH_R(&r_data,
                 (const unsigned char **) &apdu.resp, apdu.resplen)) {
+        sc_error(ctx, "Could not parse general authenticate response data.");
         r = SC_ERROR_INTERNAL;
         goto err;
     }
 
-    switch(step) {
+    switch (step) {
         case 1:
             if (!r_data->enc_nonce
                     || r_data->mapping_data
                     || r_data->eph_pub_key
                     || r_data->auth_token) {
+                sc_error(ctx, "Response data of general authenticate for "
+                        "step %d should (only) contain the "
+                        "encrypted nonce.", step);
                 r = SC_ERROR_UNKNOWN_DATA_RECEIVED;
                 goto err;
             }
@@ -398,6 +449,9 @@ int pace_gen_auth(sc_context_t *ctx, sc_card_t *card,
                     || !r_data->mapping_data
                     || r_data->eph_pub_key
                     || r_data->auth_token) {
+                sc_error(ctx, "Response data of general authenticate for "
+                        "step %d should (only) contain the "
+                        "mapping data.", step);
                 r = SC_ERROR_UNKNOWN_DATA_RECEIVED;
                 goto err;
             }
@@ -409,6 +463,9 @@ int pace_gen_auth(sc_context_t *ctx, sc_card_t *card,
                     || r_data->mapping_data
                     || !r_data->eph_pub_key
                     || r_data->auth_token) {
+                sc_error(ctx, "Response data of general authenticate for "
+                        "step %d should (only) contain the "
+                        "ephemeral public key.", step);
                 r = SC_ERROR_UNKNOWN_DATA_RECEIVED;
                 goto err;
             }
@@ -420,6 +477,9 @@ int pace_gen_auth(sc_context_t *ctx, sc_card_t *card,
                     || r_data->mapping_data
                     || r_data->eph_pub_key
                     || !r_data->auth_token) {
+                sc_error(ctx, "Response data of general authenticate for "
+                        "step %d should (only) contain the "
+                        "authentication token.", step);
                 r = SC_ERROR_UNKNOWN_DATA_RECEIVED;
                 goto err;
             }
@@ -441,23 +501,25 @@ int pace_gen_auth(sc_context_t *ctx, sc_card_t *card,
 
 err:
     if (c_data) {
+        /* FIXME
         if (c_data->mapping_data)
             ASN1_OCTET_STRING_free(c_data->mapping_data);
         if (c_data->eph_pub_key)
             ASN1_OCTET_STRING_free(c_data->eph_pub_key);
         if (c_data->auth_token)
-            ASN1_OCTET_STRING_free(c_data->auth_token);
+            ASN1_OCTET_STRING_free(c_data->auth_token);*/
         PACE_GEN_AUTH_C_free(c_data);
     }
     if (d)
         free(d);
     if (r_data) {
+        /* FIXME
         if (r_data->mapping_data)
             ASN1_OCTET_STRING_free(r_data->mapping_data);
         if (r_data->eph_pub_key)
             ASN1_OCTET_STRING_free(r_data->eph_pub_key);
         if (r_data->auth_token)
-            ASN1_OCTET_STRING_free(r_data->auth_token);
+            ASN1_OCTET_STRING_free(r_data->auth_token);*/
         PACE_GEN_AUTH_R_free(r_data);
     }
     if (apdu.resplen)
@@ -525,7 +587,7 @@ int EstablishPACEChannel(sc_context_t *ctx, sc_card_t *card,
     __u8 pin_id;
     size_t length_chat, length_pin, length_cert_desc, length_ef_cardaccess;
     const __u8 *chat, *pin, *certificate_description;
-    __u8 *ef_cardaccess;
+    __u8 *ef_cardaccess = NULL;
     PACEInfo *info = NULL;
     PACEDomainParameterInfo *static_dp = NULL, *eph_dp = NULL;
     BUF_MEM *enc_nonce, *nonce = NULL, *mdata = NULL, *mdata_opp = NULL,
@@ -565,15 +627,13 @@ int EstablishPACEChannel(sc_context_t *ctx, sc_card_t *card,
     if (r < 0) {
         goto err;
     }
-    //printf("%s:%d\n", __FILE__, __LINE__);
+    bin_log(ctx, "EF.CardAccess", ef_cardaccess, length_ef_cardaccess);
     if (!parse_ef_card_access(ef_cardaccess, length_ef_cardaccess,
                 &info, &static_dp)) {
         r = SC_ERROR_INTERNAL;
         debug_ossl(ctx);
         goto err;
     }
-    //printf("%s:%d\n", __FILE__, __LINE__);
-    //return 0;
     r = pace_mse_set_at(ctx, card, info->protocol, pin_id, 1);
     if (r < 0) {
         goto err;
