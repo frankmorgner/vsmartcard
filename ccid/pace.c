@@ -657,6 +657,7 @@ int EstablishPACEChannel(sc_context_t *ctx, sc_card_t *card,
         debug_ossl(ctx);
         goto err;
     }
+    pctx->tr_version = PACE_TR_VERSION_2_01;
 
     nonce = PACE_STEP2_dec_nonce(sec, enc_nonce, pctx);
 
