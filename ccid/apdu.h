@@ -1,11 +1,11 @@
-#ifndef _PACE_H
-#define _PACE_H
+#ifndef _APDU_H
+#define _APDU_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <opensc.h>
+#include <opensc/opensc.h>
 
 /** Sends a APDU to the card
  *  @param  card  sc_card_t object to which the APDU should be send

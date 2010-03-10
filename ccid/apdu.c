@@ -21,6 +21,8 @@
 #include "apdu.h"
 #include <opensc/log.h>
 #include <opensc/types.h>
+#include <string.h>
+
 
 /*********************************************************************/
 /*   higher level APDU transfer handling functions                   */
@@ -46,6 +48,15 @@
  *                                                        v
  *                                               card->reader->ops->tranmit
  */
+
+
+#ifndef _WIN32
+#include <unistd.h>
+#define msleep(t)       usleep((t) * 1000)
+#else
+#define msleep(t)       Sleep(t)
+#define sleep(t)        Sleep((t) * 1000)
+#endif
 
 
 /** Tries to determine the APDU type (short or extended) of the supplied
