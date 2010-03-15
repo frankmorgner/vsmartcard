@@ -32,9 +32,9 @@ typedef struct pace_mse_set_at_cd_st {
     ASN1_OBJECT *cryptographic_mechanism_reference;
     ASN1_INTEGER *key_reference1;
     ASN1_INTEGER *key_reference2;
-    ASN1_INTEGER *auxiliary_data;
-    ASN1_INTEGER *eph_pub_key;
-    ASN1_INTEGER *cha_template;
+    ASN1_OCTET_STRING *auxiliary_data;
+    ASN1_OCTET_STRING *eph_pub_key;
+    ASN1_OCTET_STRING *cha_template;
 } PACE_MSE_SET_AT_C;
 ASN1_SEQUENCE(PACE_MSE_SET_AT_C) = {
     /* 0x80
@@ -48,13 +48,13 @@ ASN1_SEQUENCE(PACE_MSE_SET_AT_C) = {
     ASN1_IMP_OPT(PACE_MSE_SET_AT_C, key_reference2, ASN1_INTEGER, 4),
     /* 0x67
      * Auxiliary authenticated data */
-    ASN1_APP_EXP_OPT(PACE_MSE_SET_AT_C, auxiliary_data, ASN1_INTEGER, 7),
+    ASN1_APP_EXP_OPT(PACE_MSE_SET_AT_C, auxiliary_data, ASN1_OCTET_STRING, 7),
     /* 0x91
      * Ephemeral Public Key */
-    ASN1_IMP_OPT(PACE_MSE_SET_AT_C, eph_pub_key, ASN1_INTEGER, 0x11),
+    ASN1_IMP_OPT(PACE_MSE_SET_AT_C, eph_pub_key, ASN1_OCTET_STRING, 0x11),
     /* 0x7F4C
      * Certificate Holder Authorization Template */
-    ASN1_APP_EXP_OPT(PACE_MSE_SET_AT_C, cha_template, ASN1_INTEGER, 0x4c),
+    ASN1_APP_EXP_OPT(PACE_MSE_SET_AT_C, cha_template, ASN1_OCTET_STRING, 0x4c),
 } ASN1_SEQUENCE_END(PACE_MSE_SET_AT_C)
 IMPLEMENT_ASN1_FUNCTIONS(PACE_MSE_SET_AT_C)
 
@@ -72,13 +72,13 @@ typedef struct pace_gen_auth_cd_st {
 ASN1_SEQUENCE(PACE_GEN_AUTH_C_BODY) = {
     /* 0x81
      * Mapping Data */
-    ASN1_IMP_OPT(PACE_GEN_AUTH_C_BODY, mapping_data, ASN1_INTEGER, 1),
+    ASN1_IMP_OPT(PACE_GEN_AUTH_C_BODY, mapping_data, ASN1_OCTET_STRING, 1),
     /* 0x83
      * Ephemeral Public Key */
-    ASN1_IMP_OPT(PACE_GEN_AUTH_C_BODY, eph_pub_key, ASN1_INTEGER, 3),
+    ASN1_IMP_OPT(PACE_GEN_AUTH_C_BODY, eph_pub_key, ASN1_OCTET_STRING, 3),
     /* 0x85
      * Authentication Token */
-    ASN1_IMP_OPT(PACE_GEN_AUTH_C_BODY, auth_token, ASN1_INTEGER, 5),
+    ASN1_IMP_OPT(PACE_GEN_AUTH_C_BODY, auth_token, ASN1_OCTET_STRING, 5),
 } ASN1_SEQUENCE_END(PACE_GEN_AUTH_C_BODY)
 IMPLEMENT_ASN1_FUNCTIONS(PACE_GEN_AUTH_C_BODY)
 
@@ -94,32 +94,32 @@ IMPLEMENT_ASN1_FUNCTIONS(PACE_GEN_AUTH_C)
 
 /* Protocol Response Data */
 typedef struct pace_gen_auth_rapdu_body_st {
-    ASN1_INTEGER *enc_nonce;
-    ASN1_INTEGER *mapping_data;
-    ASN1_INTEGER *eph_pub_key;
-    ASN1_INTEGER *auth_token;
-    ASN1_INTEGER *cert_auth1;
-    ASN1_INTEGER *cert_auth2;
+    ASN1_OCTET_STRING *enc_nonce;
+    ASN1_OCTET_STRING *mapping_data;
+    ASN1_OCTET_STRING *eph_pub_key;
+    ASN1_OCTET_STRING *auth_token;
+    ASN1_OCTET_STRING *cert_auth1;
+    ASN1_OCTET_STRING *cert_auth2;
 } PACE_GEN_AUTH_R_BODY;
 ASN1_SEQUENCE(PACE_GEN_AUTH_R_BODY) = {
     /* 0x80
      * Encrypted Nonce */
-    ASN1_IMP_OPT(PACE_GEN_AUTH_R_BODY, enc_nonce, ASN1_INTEGER, 0),
+    ASN1_IMP_OPT(PACE_GEN_AUTH_R_BODY, enc_nonce, ASN1_OCTET_STRING, 0),
     /* 0x82
      * Mapping Data */
-    ASN1_IMP_OPT(PACE_GEN_AUTH_R_BODY, mapping_data, ASN1_INTEGER, 2),
+    ASN1_IMP_OPT(PACE_GEN_AUTH_R_BODY, mapping_data, ASN1_OCTET_STRING, 2),
     /* 0x84
      * Ephemeral Public Key */
-    ASN1_IMP_OPT(PACE_GEN_AUTH_R_BODY, eph_pub_key, ASN1_INTEGER, 4),
+    ASN1_IMP_OPT(PACE_GEN_AUTH_R_BODY, eph_pub_key, ASN1_OCTET_STRING, 4),
     /* 0x86
      * Authentication Token */
-    ASN1_IMP_OPT(PACE_GEN_AUTH_R_BODY, auth_token, ASN1_INTEGER, 6),
+    ASN1_IMP_OPT(PACE_GEN_AUTH_R_BODY, auth_token, ASN1_OCTET_STRING, 6),
     /* 0x87
      * Certification Authority Reference */
-    ASN1_IMP_OPT(PACE_GEN_AUTH_R_BODY, cert_auth1, ASN1_INTEGER, 7),
+    ASN1_IMP_OPT(PACE_GEN_AUTH_R_BODY, cert_auth1, ASN1_OCTET_STRING, 7),
     /* 0x88
      * Certification Authority Reference */
-    ASN1_IMP_OPT(PACE_GEN_AUTH_R_BODY, cert_auth2, ASN1_INTEGER, 8),
+    ASN1_IMP_OPT(PACE_GEN_AUTH_R_BODY, cert_auth2, ASN1_OCTET_STRING, 8),
 } ASN1_SEQUENCE_END(PACE_GEN_AUTH_R_BODY)
 IMPLEMENT_ASN1_FUNCTIONS(PACE_GEN_AUTH_R_BODY)
 
