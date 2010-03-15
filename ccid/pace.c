@@ -160,6 +160,7 @@ int pace_test(sc_context_t *ctx, sc_card_t *card) {
 #include <string.h>
 #include "apdu.h"
 
+const size_t maxresp = SC_MAX_APDU_BUFFER_SIZE - 2;
 uint16_t ssc = 0;
 
 void bin_log(sc_context_t *ctx, const char *label, const u8 *data, size_t len)
@@ -200,7 +201,6 @@ int get_ef_card_access(sc_context_t *ctx, sc_card_t *card,
     sc_path_t path;
     sc_file_t *file;
     __u8 *p;
-    size_t maxresp = SC_MAX_APDU_BUFFER_SIZE - 2;
 
     memset(&path, 0, sizeof path);
     SC_TEST_RET(ctx, sc_append_file_id(&path, FID_EF_CARDACCESS),
@@ -264,16 +264,16 @@ int pace_mse_set_at(sc_context_t *ctx, sc_card_t *card,
     }
     data->cryptographic_mechanism_reference = OBJ_nid2obj(protocol);
     data->key_reference1 = ASN1_INTEGER_new();
-    data->key_reference2 = ASN1_INTEGER_new();
+    //data->key_reference2 = ASN1_INTEGER_new();
     if (!data->cryptographic_mechanism_reference
             || !data->key_reference1
-            || !data->key_reference2
+            //|| !data->key_reference2
             ) {
         r = SC_ERROR_OUT_OF_MEMORY;
         goto err;
     }
     if (!ASN1_INTEGER_set(data->key_reference1, secret_key)
-            || !ASN1_INTEGER_set(data->key_reference2, reference)
+            //|| !ASN1_INTEGER_set(data->key_reference2, reference)
             ) {
         r = SC_ERROR_INTERNAL;
         goto err;
@@ -411,6 +411,8 @@ int pace_gen_auth(sc_context_t *ctx, sc_card_t *card,
     bin_log(ctx, "General authenticate command data", apdu.data, apdu.datalen);
 
     /* sanity checks in sc_transmit_apdu forbid case 4 apdus with le == 0 */
+    apdu.resplen = maxresp;
+    apdu.resp = malloc(apdu.resplen);
     r = my_transmit_apdu(card, &apdu);
     ssc++;
     if (r < 0)
@@ -496,7 +498,7 @@ int pace_gen_auth(sc_context_t *ctx, sc_card_t *card,
         r = SC_ERROR_OUT_OF_MEMORY;
         goto err;
     }
-    memcpy(p, *out, l);
+    memcpy(*out, p, l);
     *out_len = l;
 
 err:
@@ -522,8 +524,9 @@ err:
             ASN1_OCTET_STRING_free(r_data->auth_token);*/
         PACE_GEN_AUTH_R_free(r_data);
     }
-    if (apdu.resplen)
-        free(apdu.resp);
+    // XXX
+    //if (apdu.resplen)
+        //free(apdu.resp);
 
     SC_FUNC_RETURN(ctx, SC_LOG_TYPE_DEBUG, r);
 }
@@ -643,6 +646,7 @@ int EstablishPACEChannel(sc_context_t *ctx, sc_card_t *card,
     if (r < 0) {
         goto err;
     }
+    bin_log(ctx, "Encrypted nonce from MRTD", (u8 *)enc_nonce->data, enc_nonce->length);
     enc_nonce->max = enc_nonce->length;
 
     sec = get_psec(card, (char *) pin, length_pin, pin_id);
@@ -674,6 +678,7 @@ int EstablishPACEChannel(sc_context_t *ctx, sc_card_t *card,
         goto err;
     }
     mdata_opp->max = mdata_opp->length;
+    bin_log(ctx, "Mapping data from MRTD", (u8 *) mdata_opp->data, mdata_opp->length);
 
     eph_dp = PACE_STEP3A_map_compute_key(static_dp, pctx, nonce, mdata_opp);
     pub = PACE_STEP3B_dh_generate_key(eph_dp, pctx);
@@ -689,16 +694,17 @@ int EstablishPACEChannel(sc_context_t *ctx, sc_card_t *card,
         goto err;
     }
     pub_opp->max = pub_opp->length;
+    bin_log(ctx, "Public key from MRTD", (u8 *) pub_opp->data, pub_opp->length);
 
     key = PACE_STEP3B_dh_compute_key(eph_dp, pctx, pub_opp);
     if (!key ||
-            !PACE_STEP3C_derive_keys(key, pctx, &k_mac, &k_enc)) {
+            !PACE_STEP3C_derive_keys(key, pctx, info, &k_mac, &k_enc)) {
         r = SC_ERROR_INTERNAL;
         debug_ossl(ctx);
         goto err;
     }
     token = PACE_STEP3D_compute_authentication_token(pctx,
-            eph_dp, info, pub_opp, k_mac, ssc);
+            eph_dp, info, pub_opp, k_mac);
     token_opp = BUF_MEM_new();
     if (!token || !token_opp) {
         r = SC_ERROR_INTERNAL;
@@ -711,9 +717,10 @@ int EstablishPACEChannel(sc_context_t *ctx, sc_card_t *card,
         goto err;
     }
     token_opp->max = token_opp->length;
+    bin_log(ctx, "Authentication token from MRTD", (u8 *) token_opp->data, token_opp->length);
 
     if (!PACE_STEP3D_verify_authentication_token(pctx,
-            eph_dp, info, pub_opp, k_mac, token_opp, ssc)) {
+            eph_dp, info, k_mac, token_opp)) {
         r = SC_ERROR_INTERNAL;
         debug_ossl(ctx);
         goto err;
