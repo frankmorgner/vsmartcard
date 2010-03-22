@@ -387,6 +387,7 @@ int pace_gen_auth(sc_context_t *ctx, sc_card_t *card,
             }
             break;
         case 4:
+            apdu.cla = 0;
             c_data->auth_token = ASN1_OCTET_STRING_new();
             if (!c_data->auth_token
                     || !M_ASN1_OCTET_STRING_set(
@@ -666,7 +667,7 @@ int EstablishPACEChannel(sc_context_t *ctx, sc_card_t *card,
     nonce = PACE_STEP2_dec_nonce(sec, enc_nonce, pctx);
 
     mdata_opp = BUF_MEM_new();
-    mdata = PACE_STEP3A_map_generate_key(static_dp, pctx);
+    mdata = PACE_STEP3A_generate_mapping_data(static_dp, pctx);
     if (!nonce || !mdata || !mdata_opp) {
         r = SC_ERROR_INTERNAL;
         debug_ossl(ctx);
@@ -680,8 +681,8 @@ int EstablishPACEChannel(sc_context_t *ctx, sc_card_t *card,
     mdata_opp->max = mdata_opp->length;
     bin_log(ctx, "Mapping data from MRTD", (u8 *) mdata_opp->data, mdata_opp->length);
 
-    eph_dp = PACE_STEP3A_map_compute_key(static_dp, pctx, nonce, mdata_opp);
-    pub = PACE_STEP3B_dh_generate_key(eph_dp, pctx);
+    eph_dp = PACE_STEP3A_map_dp(static_dp, pctx, nonce, mdata_opp);
+    pub = PACE_STEP3B_generate_ephemeral_key(eph_dp, pctx);
     pub_opp = BUF_MEM_new();
     if (!eph_dp || !pub || !pub_opp) {
         r = SC_ERROR_INTERNAL;
@@ -696,7 +697,7 @@ int EstablishPACEChannel(sc_context_t *ctx, sc_card_t *card,
     pub_opp->max = pub_opp->length;
     bin_log(ctx, "Public key from MRTD", (u8 *) pub_opp->data, pub_opp->length);
 
-    key = PACE_STEP3B_dh_compute_key(eph_dp, pctx, pub_opp);
+    key = PACE_STEP3B_compute_ephemeral_key(eph_dp, pctx, pub_opp);
     if (!key ||
             !PACE_STEP3C_derive_keys(key, pctx, info, &k_mac, &k_enc)) {
         r = SC_ERROR_INTERNAL;
