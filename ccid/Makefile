@@ -25,10 +25,10 @@ TARGETS		   = ccid
 all: $(TARGETS)
 
 
-ccid: ccid.h ccid.c pace.h pace.c apdu.h apdu.c usbstring.c usbstring.h usb.c
+ccid: ccid.h ccid.c pace.h pace.c sm.c sm.h utils.h utils.c apdu.h apdu.c usbstring.c usbstring.h usb.c
 	$(CC) $(LIBPCSCLITE_CFLAGS) $(OPENSC_CFLAGS) $(OPENSSL_CFLAGS) \
 	    $(PTHREAD_CFLAGS) $(CFLAGS) $(EXTRA_CFLAGS) \
-	    usbstring.c ccid.c pace.c apdu.c usb.c -o $@
+	    usbstring.c ccid.c pace.c sm.c utils.c apdu.c usb.c -o $@
 
 
 install: $(TARGETS) installdirs
