@@ -35,14 +35,14 @@ hash(const EVP_MD * md, EVP_MD_CTX * ctx, ENGINE * impl, const BUF_MEM * in);
  * @param iv only evaluated if init is 1. (optional)
  * @param enc only evaluated if init is 1.
  * @param in
- * @param init whether to initialize (1) the given ctx or not (0).
  *
  * @return cipher of in or NULL if an error occurred
+ *
+ * @note automatic padding is disabled
  */
 BUF_MEM *
 cipher(EVP_CIPHER_CTX *ctx, const EVP_CIPHER *type, ENGINE *impl,
-        unsigned char *key, unsigned char *iv, int enc, const BUF_MEM * in,
-        const int init);
+        unsigned char *key, unsigned char *iv, int enc, const BUF_MEM * in);
 /**
  * @brief Padds a buffer using ISO/IEC 9797-1 padding method 2.
  *

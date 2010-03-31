@@ -20,6 +20,3 @@ struct sm_ctx {
     EVP_MD_CTX * md_ctx;
     ENGINE *md_engine;
 };
-
-int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card, sc_apdu_t *apdu,
-        sc_apdu_t *sm_apdu);

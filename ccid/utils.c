@@ -56,8 +56,7 @@ err:
 
 BUF_MEM *
 cipher(EVP_CIPHER_CTX *ctx, const EVP_CIPHER *type, ENGINE *impl,
-        unsigned char *key, unsigned char *iv, int enc, const BUF_MEM * in,
-        int init)
+        unsigned char *key, unsigned char *iv, int enc, const BUF_MEM * in)
 {
     BUF_MEM * out = NULL;
     EVP_CIPHER_CTX * tmp_ctx = NULL;
@@ -75,7 +74,7 @@ cipher(EVP_CIPHER_CTX *ctx, const EVP_CIPHER *type, ENGINE *impl,
         EVP_CIPHER_CTX_init(tmp_ctx);
     }
 
-    if (ctx->flags & EVP_CIPH_NO_PADDING) {
+    if (tmp_ctx->flags & EVP_CIPH_NO_PADDING) {
         i = in->length;
         if (in->length % EVP_CIPHER_block_size(type) != 0) {
             printf("Input length is not a multiple of block length\n");
@@ -89,20 +88,20 @@ cipher(EVP_CIPHER_CTX *ctx, const EVP_CIPHER *type, ENGINE *impl,
         goto err;
 
     /* get cipher */
-    if (ctx && init)
-        if (!EVP_CipherInit_ex(tmp_ctx, type, impl, key, iv, enc))
-            goto err;
+    if (!EVP_CipherInit_ex(tmp_ctx, type, impl, key, iv, enc)
+        || !EVP_CIPHER_CTX_set_padding(tmp_ctx, 0))
+        goto err;
 
-    if (!EVP_CipherUpdate(ctx, (unsigned char *) out->data, &i,
+    if (!EVP_CipherUpdate(tmp_ctx, (unsigned char *) out->data, &i,
             (unsigned char *) in->data, in->length))
         goto err;
     out->length = i;
 
-    if (!EVP_CipherFinal_ex(ctx, (unsigned char *) (out->data + out->length),
+    if (!EVP_CipherFinal_ex(tmp_ctx, (unsigned char *) (out->data + out->length),
             &i))
             goto err;
 
-    if (!(ctx->flags & EVP_CIPH_NO_PADDING))
+    if (!(tmp_ctx->flags & EVP_CIPH_NO_PADDING))
         out->length += i;
 
     if (!ctx) {
