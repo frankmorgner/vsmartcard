@@ -19,6 +19,7 @@
 #ifndef _PACE_H
 #define _PACE_H
 
+#include "sm.h"
 #include <linux/usb/ch9.h>
 #include <opensc/opensc.h>
 
@@ -39,11 +40,11 @@ extern "C" {
 
 #define MAX_EF_CARDACCESS 2048
 
-int GetReadersPACECapabilities(sc_context_t *ctx, sc_card_t *card, const __u8
+int GetReadersPACECapabilities(sc_card_t *card, const __u8
         *in, __u8 **out, size_t *outlen);
-int EstablishPACEChannel(sc_context_t *ctx, sc_card_t *card, const __u8 *in,
-        __u8 **out, size_t *outlen);
-int pace_test(sc_context_t *ctx, sc_card_t *card);
+int EstablishPACEChannel(sc_card_t *card, const __u8 *in,
+        __u8 **out, size_t *outlen, struct sm_ctx *sm_ctx);
+int pace_test(sc_card_t *card);
 
 #ifdef  __cplusplus
 }

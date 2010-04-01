@@ -17,6 +17,7 @@
  * ccid.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "pace.h"
+#include "sm.h"
 #include <opensc/log.h>
 #include <openssl/asn1.h>
 #include <openssl/asn1t.h>
@@ -135,16 +136,16 @@ IMPLEMENT_ASN1_FUNCTIONS(PACE_GEN_AUTH_R)
 
 
 #ifdef NO_PACE
-inline int GetReadersPACECapabilities(sc_context_t *ctx, sc_card_t *card,
+inline int GetReadersPACECapabilities(sc_card_t *card,
         const __u8 *in, __u8 **out, size_t *outlen) {
-    SC_FUNC_RETURN(ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_NOT_SUPPORTED);
+    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_NOT_SUPPORTED);
 }
-inline int EstablishPACEChannel(sc_context_t *ctx, sc_card_t *card,
-        const __u8 *in, __u8 **out, size_t *outlen) {
-    SC_FUNC_RETURN(ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_NOT_SUPPORTED);
+inline int EstablishPACEChannel(sc_card_t *card, const __u8 *in,
+        __u8 **out, size_t *outlen, struct sm_ctx *sm_ctx) {
+    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_NOT_SUPPORTED);
 }
-int pace_test(sc_context_t *ctx, sc_card_t *card) {
-    SC_FUNC_RETURN(ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_NOT_SUPPORTED);
+int pace_test(sc_card_t *card) {
+    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_NOT_SUPPORTED);
 }
 #else
 
@@ -173,14 +174,14 @@ void bin_log(sc_context_t *ctx, const char *label, const u8 *data, size_t len)
             label, len, buf);
 }
 
-int GetReadersPACECapabilities(sc_context_t *ctx, sc_card_t *card,
+int GetReadersPACECapabilities(sc_card_t *card,
         const __u8 *in, __u8 **out, size_t *outlen) {
     if (!out || !outlen)
-        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_INVALID_ARGUMENTS);
+        SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_INVALID_ARGUMENTS);
 
     __u8 *result = realloc(*out, 2);
     if (!result)
-        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_OUT_OF_MEMORY);
+        SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_OUT_OF_MEMORY);
     *out = result;
     *outlen = 2;
 
@@ -190,11 +191,11 @@ int GetReadersPACECapabilities(sc_context_t *ctx, sc_card_t *card,
     /* BitMap */
     *result = PACE_BITMAP_PACE|PACE_BITMAP_EID;
 
-    SC_FUNC_RETURN(ctx, SC_LOG_TYPE_DEBUG, SC_SUCCESS);
+    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_SUCCESS);
 }
 
 /** select and read EF.CardAccess */
-int get_ef_card_access(sc_context_t *ctx, sc_card_t *card,
+int get_ef_card_access(sc_card_t *card,
         __u8 **ef_cardaccess, size_t *length_ef_cardaccess)
 {
     int r;
@@ -203,13 +204,13 @@ int get_ef_card_access(sc_context_t *ctx, sc_card_t *card,
     __u8 *p;
 
     memset(&path, 0, sizeof path);
-    SC_TEST_RET(ctx, sc_append_file_id(&path, FID_EF_CARDACCESS),
+    SC_TEST_RET(card->ctx, sc_append_file_id(&path, FID_EF_CARDACCESS),
             "Could not create path object.");
-    SC_TEST_RET(ctx, sc_concatenate_path(&path, sc_get_mf_path(), &path),
+    SC_TEST_RET(card->ctx, sc_concatenate_path(&path, sc_get_mf_path(), &path),
             "Could not create path object.");
 
     memset(&file, 0, sizeof file);
-    SC_TEST_RET(ctx, sc_select_file(card, &path, &file),
+    SC_TEST_RET(card->ctx, sc_select_file(card, &path, &file),
             "Could not select EF.CardAccess.");
     ssc++;
     *length_ef_cardaccess = 0;
@@ -217,7 +218,7 @@ int get_ef_card_access(sc_context_t *ctx, sc_card_t *card,
     while(1) {
         p = realloc(*ef_cardaccess, *length_ef_cardaccess + maxresp);
         if (!p)
-            SC_FUNC_RETURN(ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_OUT_OF_MEMORY);
+            SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_OUT_OF_MEMORY);
         *ef_cardaccess = p;
 
         r = sc_read_binary(card, *length_ef_cardaccess,
@@ -229,7 +230,7 @@ int get_ef_card_access(sc_context_t *ctx, sc_card_t *card,
             break;
         }
 
-        SC_TEST_RET(ctx, r, "Could not read EF.CardAccess.");
+        SC_TEST_RET(card->ctx, r, "Could not read EF.CardAccess.");
 
         *length_ef_cardaccess += r;
     }
@@ -237,12 +238,12 @@ int get_ef_card_access(sc_context_t *ctx, sc_card_t *card,
     /* test cards only return an empty FCI template,
      * so we can't determine any file proberties */
     if (*length_ef_cardaccess < file->size)
-        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_FILE_TOO_SMALL);
+        SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_FILE_TOO_SMALL);
 
-    SC_FUNC_RETURN(ctx, SC_LOG_TYPE_DEBUG, SC_SUCCESS);
+    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_SUCCESS);
 }
 
-int pace_mse_set_at(sc_context_t *ctx, sc_card_t *card,
+int pace_mse_set_at(sc_card_t *card,
         int protocol, int secret_key, int reference)
 {
     sc_apdu_t apdu;
@@ -286,10 +287,10 @@ int pace_mse_set_at(sc_context_t *ctx, sc_card_t *card,
     /* The tag/length for the sequence (0x30) is omitted in the command apdu. */
     /* FIXME is there a OpenSSL way to get the value only or even a define for
      * the tag? */
-    apdu.data = sc_asn1_find_tag(ctx, d, r, 0x30, &apdu.datalen);
+    apdu.data = sc_asn1_find_tag(card->ctx, d, r, 0x30, &apdu.datalen);
     apdu.lc = apdu.datalen;
 
-    bin_log(ctx, "MSE:Set AT command data", apdu.data, apdu.datalen);
+    bin_log(card->ctx, "MSE:Set AT command data", apdu.data, apdu.datalen);
 
     r = sc_transmit_apdu(card, &apdu);
     ssc++;
@@ -297,7 +298,7 @@ int pace_mse_set_at(sc_context_t *ctx, sc_card_t *card,
         goto err;
 
     if (apdu.resplen) {
-        sc_error(ctx, "MSE:Set AT response data should be empty");
+        sc_error(card->ctx, "MSE:Set AT response data should be empty");
         r = SC_ERROR_UNKNOWN_DATA_RECEIVED;
         goto err;
     }
@@ -340,10 +341,10 @@ err:
     if (apdu.resplen)
         free(apdu.resp);
 
-    SC_FUNC_RETURN(ctx, SC_LOG_TYPE_DEBUG, r);
+    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, r);
 }
 
-int pace_gen_auth(sc_context_t *ctx, sc_card_t *card,
+int pace_gen_auth(sc_card_t *card,
         int step, const u8 *in, size_t in_len, u8 **out, size_t *out_len)
 {
     sc_apdu_t apdu;
@@ -409,7 +410,7 @@ int pace_gen_auth(sc_context_t *ctx, sc_card_t *card,
     apdu.datalen = r;
     apdu.lc = r;
 
-    bin_log(ctx, "General authenticate command data", apdu.data, apdu.datalen);
+    bin_log(card->ctx, "General authenticate command data", apdu.data, apdu.datalen);
 
     /* sanity checks in sc_transmit_apdu forbid case 4 apdus with le == 0 */
     apdu.resplen = maxresp;
@@ -423,11 +424,11 @@ int pace_gen_auth(sc_context_t *ctx, sc_card_t *card,
     if (r < 0)
         goto err;
 
-    bin_log(ctx, "General authenticate response data", apdu.resp, apdu.resplen);
+    bin_log(card->ctx, "General authenticate response data", apdu.resp, apdu.resplen);
 
     if (!d2i_PACE_GEN_AUTH_R(&r_data,
                 (const unsigned char **) &apdu.resp, apdu.resplen)) {
-        sc_error(ctx, "Could not parse general authenticate response data.");
+        sc_error(card->ctx, "Could not parse general authenticate response data.");
         r = SC_ERROR_INTERNAL;
         goto err;
     }
@@ -438,7 +439,7 @@ int pace_gen_auth(sc_context_t *ctx, sc_card_t *card,
                     || r_data->mapping_data
                     || r_data->eph_pub_key
                     || r_data->auth_token) {
-                sc_error(ctx, "Response data of general authenticate for "
+                sc_error(card->ctx, "Response data of general authenticate for "
                         "step %d should (only) contain the "
                         "encrypted nonce.", step);
                 r = SC_ERROR_UNKNOWN_DATA_RECEIVED;
@@ -452,7 +453,7 @@ int pace_gen_auth(sc_context_t *ctx, sc_card_t *card,
                     || !r_data->mapping_data
                     || r_data->eph_pub_key
                     || r_data->auth_token) {
-                sc_error(ctx, "Response data of general authenticate for "
+                sc_error(card->ctx, "Response data of general authenticate for "
                         "step %d should (only) contain the "
                         "mapping data.", step);
                 r = SC_ERROR_UNKNOWN_DATA_RECEIVED;
@@ -466,7 +467,7 @@ int pace_gen_auth(sc_context_t *ctx, sc_card_t *card,
                     || r_data->mapping_data
                     || !r_data->eph_pub_key
                     || r_data->auth_token) {
-                sc_error(ctx, "Response data of general authenticate for "
+                sc_error(card->ctx, "Response data of general authenticate for "
                         "step %d should (only) contain the "
                         "ephemeral public key.", step);
                 r = SC_ERROR_UNKNOWN_DATA_RECEIVED;
@@ -480,7 +481,7 @@ int pace_gen_auth(sc_context_t *ctx, sc_card_t *card,
                     || r_data->mapping_data
                     || r_data->eph_pub_key
                     || !r_data->auth_token) {
-                sc_error(ctx, "Response data of general authenticate for "
+                sc_error(card->ctx, "Response data of general authenticate for "
                         "step %d should (only) contain the "
                         "authentication token.", step);
                 r = SC_ERROR_UNKNOWN_DATA_RECEIVED;
@@ -529,7 +530,7 @@ err:
     //if (apdu.resplen)
         //free(apdu.resp);
 
-    SC_FUNC_RETURN(ctx, SC_LOG_TYPE_DEBUG, r);
+    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, r);
 }
 
 PACE_SEC *
@@ -585,12 +586,13 @@ void debug_ossl(sc_context_t *ctx) {
     }
 }
 
-int EstablishPACEChannel(sc_context_t *ctx, sc_card_t *card,
-        const __u8 *in, __u8 **out, size_t *outlen)
+int EstablishPACEChannel(sc_card_t *card, const __u8 *in,
+        __u8 **out, size_t *outlen, struct sm_ctx *sm_ctx)
 {
     __u8 pin_id;
     size_t length_chat, length_pin, length_cert_desc, length_ef_cardaccess;
     const __u8 *chat, *pin, *certificate_description;
+    u8 *buf;
     __u8 *ef_cardaccess = NULL;
     PACEInfo *info = NULL;
     PACEDomainParameterInfo *static_dp = NULL, *eph_dp = NULL;
@@ -602,7 +604,7 @@ int EstablishPACEChannel(sc_context_t *ctx, sc_card_t *card,
     int r;
 
     if (!in || !out || !outlen)
-        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_INVALID_ARGUMENTS);
+        SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_INVALID_ARGUMENTS);
 
     pin_id = *in;
     in++;
@@ -624,42 +626,42 @@ int EstablishPACEChannel(sc_context_t *ctx, sc_card_t *card,
     enc_nonce = BUF_MEM_new();
     if (!enc_nonce) {
         r = SC_ERROR_INTERNAL;
-        debug_ossl(ctx);
+        debug_ossl(card->ctx);
         goto err;
     }
-    r = get_ef_card_access(ctx, card, &ef_cardaccess, &length_ef_cardaccess);
+    r = get_ef_card_access(card, &ef_cardaccess, &length_ef_cardaccess);
     if (r < 0) {
         goto err;
     }
-    bin_log(ctx, "EF.CardAccess", ef_cardaccess, length_ef_cardaccess);
+    bin_log(card->ctx, "EF.CardAccess", ef_cardaccess, length_ef_cardaccess);
     if (!parse_ef_card_access(ef_cardaccess, length_ef_cardaccess,
                 &info, &static_dp)) {
         r = SC_ERROR_INTERNAL;
-        debug_ossl(ctx);
+        debug_ossl(card->ctx);
         goto err;
     }
-    r = pace_mse_set_at(ctx, card, info->protocol, pin_id, 1);
+    r = pace_mse_set_at(card, info->protocol, pin_id, 1);
     if (r < 0) {
         goto err;
     }
-    r = pace_gen_auth(ctx, card, 1, NULL, 0, (u8 **) &enc_nonce->data,
+    r = pace_gen_auth(card, 1, NULL, 0, (u8 **) &enc_nonce->data,
             &enc_nonce->length);
     if (r < 0) {
         goto err;
     }
-    bin_log(ctx, "Encrypted nonce from MRTD", (u8 *)enc_nonce->data, enc_nonce->length);
+    bin_log(card->ctx, "Encrypted nonce from MRTD", (u8 *)enc_nonce->data, enc_nonce->length);
     enc_nonce->max = enc_nonce->length;
 
     sec = get_psec(card, (char *) pin, length_pin, pin_id);
     if (!sec) {
         r = SC_ERROR_INTERNAL;
-        debug_ossl(ctx);
+        debug_ossl(card->ctx);
         goto err;
     }
     pctx = PACE_CTX_new();
     if (!pctx || !PACE_CTX_init(pctx, info)) {
         r = SC_ERROR_INTERNAL;
-        debug_ossl(ctx);
+        debug_ossl(card->ctx);
         goto err;
     }
     pctx->tr_version = PACE_TR_VERSION_2_01;
@@ -670,38 +672,38 @@ int EstablishPACEChannel(sc_context_t *ctx, sc_card_t *card,
     mdata = PACE_STEP3A_generate_mapping_data(static_dp, pctx);
     if (!nonce || !mdata || !mdata_opp) {
         r = SC_ERROR_INTERNAL;
-        debug_ossl(ctx);
+        debug_ossl(card->ctx);
         goto err;
     }
-    r = pace_gen_auth(ctx, card, 2, (u8 *) mdata->data, mdata->length,
+    r = pace_gen_auth(card, 2, (u8 *) mdata->data, mdata->length,
             (u8 **) &mdata_opp->data, &mdata_opp->length);
     if (r < 0) {
         goto err;
     }
     mdata_opp->max = mdata_opp->length;
-    bin_log(ctx, "Mapping data from MRTD", (u8 *) mdata_opp->data, mdata_opp->length);
+    bin_log(card->ctx, "Mapping data from MRTD", (u8 *) mdata_opp->data, mdata_opp->length);
 
     eph_dp = PACE_STEP3A_map_dp(static_dp, pctx, nonce, mdata_opp);
     pub = PACE_STEP3B_generate_ephemeral_key(eph_dp, pctx);
     pub_opp = BUF_MEM_new();
     if (!eph_dp || !pub || !pub_opp) {
         r = SC_ERROR_INTERNAL;
-        debug_ossl(ctx);
+        debug_ossl(card->ctx);
         goto err;
     }
-    r = pace_gen_auth(ctx, card, 3, (u8 *) pub->data, pub->length,
+    r = pace_gen_auth(card, 3, (u8 *) pub->data, pub->length,
             (u8 **) &pub_opp->data, &pub_opp->length);
     if (r < 0) {
         goto err;
     }
     pub_opp->max = pub_opp->length;
-    bin_log(ctx, "Public key from MRTD", (u8 *) pub_opp->data, pub_opp->length);
+    bin_log(card->ctx, "Public key from MRTD", (u8 *) pub_opp->data, pub_opp->length);
 
     key = PACE_STEP3B_compute_ephemeral_key(eph_dp, pctx, pub_opp);
     if (!key ||
             !PACE_STEP3C_derive_keys(key, pctx, info, &k_mac, &k_enc)) {
         r = SC_ERROR_INTERNAL;
-        debug_ossl(ctx);
+        debug_ossl(card->ctx);
         goto err;
     }
     token = PACE_STEP3D_compute_authentication_token(pctx,
@@ -709,25 +711,49 @@ int EstablishPACEChannel(sc_context_t *ctx, sc_card_t *card,
     token_opp = BUF_MEM_new();
     if (!token || !token_opp) {
         r = SC_ERROR_INTERNAL;
-        debug_ossl(ctx);
+        debug_ossl(card->ctx);
         goto err;
     }
-    r = pace_gen_auth(ctx, card, 4, (u8 *) token->data, token->length,
+    r = pace_gen_auth(card, 4, (u8 *) token->data, token->length,
             (u8 **) &token_opp->data, &token_opp->length);
     if (r < 0) {
         goto err;
     }
     token_opp->max = token_opp->length;
-    bin_log(ctx, "Authentication token from MRTD", (u8 *) token_opp->data, token_opp->length);
+    bin_log(card->ctx, "Authentication token from MRTD", (u8 *) token_opp->data, token_opp->length);
 
     if (!PACE_STEP3D_verify_authentication_token(pctx,
             eph_dp, info, k_mac, token_opp)) {
         r = SC_ERROR_INTERNAL;
-        debug_ossl(ctx);
+        debug_ossl(card->ctx);
         goto err;
     }
 
     /* XXX parse CHAT to check role of terminal */
+    buf = realloc(sm_ctx->key_mac, k_mac->length);
+    if (!buf) {
+        r = SC_ERROR_OUT_OF_MEMORY;
+        goto err;
+    }
+    sm_ctx->key_mac = buf;
+    memcpy(sm_ctx->key_mac, k_mac->data, k_mac->length);
+    sm_ctx->key_mac_len = k_mac->length;
+
+    buf = realloc(sm_ctx->key_enc, k_enc->length);
+    if (!buf) {
+        r = SC_ERROR_OUT_OF_MEMORY;
+        goto err;
+    }
+    sm_ctx->key_enc = buf;
+    memcpy(sm_ctx->key_enc, k_enc->data, k_enc->length);
+    sm_ctx->key_enc_len = k_enc->length;
+
+    sm_ctx->cipher = pctx->cipher;
+    sm_ctx->cipher_ctx = pctx->cipher_ctx;
+    sm_ctx->cipher_engine = pctx->cipher_engine;
+    sm_ctx->md = pctx->md;
+    sm_ctx->md_ctx = pctx->md_ctx;
+    sm_ctx->md_engine = pctx->md_engine;
 
 err:
     if (info)
@@ -771,14 +797,16 @@ err:
     if (pctx)
         PACE_CTX_clear_free(pctx);
 
-    SC_FUNC_RETURN(ctx, SC_LOG_TYPE_DEBUG, r);
+    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, r);
 }
 
-int pace_test(sc_context_t *ctx, sc_card_t *card)
+int pace_test(sc_card_t *card)
 {
     __u8 in[16];
     __u8 *out = NULL;
     size_t outlen;
+    struct sm_ctx sm;
+    memset(&sm, 0, sizeof(sm));
 
     in[0] = PACE_CAN; // pin_id
     in[1] = 0;        // length_chat
@@ -792,7 +820,8 @@ int pace_test(sc_context_t *ctx, sc_card_t *card)
     in[9] = 0;        // length_cert_desc
     in[10]= 0;        // length_cert_desc
 
-    return EstablishPACEChannel(ctx, card, in, &out, &outlen);
+    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR,
+            EstablishPACEChannel(card, in, &out, &outlen, &sm));
 }
 
 #endif

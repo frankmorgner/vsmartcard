@@ -1289,7 +1289,7 @@ int ccid_testpace()
         }
 
         if (sc_card_valid(card_in_slot[i])) {
-            return pace_test(ctx, card_in_slot[i]);
+            return pace_test(card_in_slot[i]);
         }
     }
 
