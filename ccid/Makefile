@@ -21,14 +21,20 @@ INSTALL_PROGRAM    = $(INSTALL)
 
 TARGETS		   = ccid
 
+CCID_SRC = ccid.h ccid.c \
+	   sm.c sm.h \
+	   pace.h pace.c pace_lib.c \
+	   apdu.h apdu.c \
+	   usbstring.c usbstring.h usb.c
+
 # top-level rule
 all: $(TARGETS)
 
 
-ccid: ccid.h ccid.c pace.h pace.c sm.c sm.h utils.h utils.c apdu.h apdu.c usbstring.c usbstring.h usb.c
+ccid: $(CCID_SRC)
 	$(CC) $(LIBPCSCLITE_CFLAGS) $(OPENSC_CFLAGS) $(OPENSSL_CFLAGS) \
 	    $(PTHREAD_CFLAGS) $(CFLAGS) $(EXTRA_CFLAGS) \
-	    usbstring.c ccid.c pace.c sm.c utils.c apdu.c usb.c -o $@
+	    $(filter %.c, $(CCID_SRC)) -o $@
 
 
 install: $(TARGETS) installdirs

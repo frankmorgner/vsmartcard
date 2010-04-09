@@ -16,12 +16,13 @@
  * You should have received a copy of the GNU General Public License along with
  * ccid.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _PACE_H
-#define _PACE_H
+#ifndef _CCID_PACE_H
+#define _CCID_PACE_H
 
 #include "sm.h"
 #include <linux/usb/ch9.h>
 #include <opensc/opensc.h>
+#include <openssl/pace.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,10 +41,34 @@ extern "C" {
 
 #define MAX_EF_CARDACCESS 2048
 
+struct pace_sm_ctx {
+    int protocol;
+    /* XXX SSC is up to 16 Bytes long, not only 16 Bits */
+    uint16_t ssc;
+    const BUF_MEM *key_mac;
+    const BUF_MEM *key_enc;
+    PACE_CTX *ctx;
+};
+
+struct pace_sm_ctx *
+pace_sm_ctx_create(int protocol, const BUF_MEM *key_mac,
+        const BUF_MEM *key_enc, PACE_CTX *ctx);
+void
+pace_sm_ctx_free(struct pace_sm_ctx *ctx);
+void
+pace_sm_ctx_clear_free(struct pace_sm_ctx *ctx);
+
+int pace_sm_encrypt(sc_card_t *card, const struct sm_ctx *ctx,
+        const u8 *data, size_t datalen, u8 **enc);
+int pace_sm_decrypt(sc_card_t *card, const struct sm_ctx *ctx,
+        const u8 *enc, size_t enclen, u8 **data);
+int pace_sm_authenticate(sc_card_t *card, const struct sm_ctx *ctx,
+        const u8 *data, size_t datalen, u8 **outdata);
+
 int GetReadersPACECapabilities(sc_card_t *card, const __u8
         *in, __u8 **out, size_t *outlen);
 int EstablishPACEChannel(sc_card_t *card, const __u8 *in,
-        __u8 **out, size_t *outlen, struct sm_ctx *sm_ctx);
+        __u8 **out, size_t *outlen, struct sm_ctx *ctx);
 int pace_test(sc_card_t *card);
 
 #ifdef  __cplusplus

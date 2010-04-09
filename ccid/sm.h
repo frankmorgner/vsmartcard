@@ -16,11 +16,11 @@
  * You should have received a copy of the GNU General Public License along with
  * ccid.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _SM_H
-#define _SM_H
+#ifndef _CCID_SM_H
+#define _CCID_SM_H
 
 #include <opensc/opensc.h>
-#include <openssl/evp.h>
+#include <openssl/buffer.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,25 +31,32 @@ extern "C" {
 
 struct sm_ctx {
     u8 padding_indicator;
-    u8 *key_mac;
-    size_t key_mac_len;
-    u8 *key_enc;
-    size_t key_enc_len;
+    size_t block_length;
 
-    const EVP_CIPHER *cipher;
-    EVP_CIPHER_CTX *cipher_ctx;
-    ENGINE *cipher_engine;
-    unsigned char *iv;
 
-    const EVP_MD * md;
-    EVP_MD_CTX * md_ctx;
-    ENGINE *md_engine;
+    void *authentication_ctx;
+    int (*authenticate)(sc_card_t *card, const struct sm_ctx *ctx,
+            const u8 *data, size_t datalen, u8 **outdata);
+    int (*verify_authentication)(sc_card_t *card, const struct sm_ctx *ctx,
+            const u8 *mac, size_t maclen,
+            const u8 *macdata, size_t macdatalen);
+
+    void *cipher_ctx;
+    int (*encrypt)(sc_card_t *card, const struct sm_ctx *ctx,
+            const u8 *data, size_t datalen, u8 **enc);
+    int (*decrypt)(sc_card_t *card, const struct sm_ctx *ctx,
+            const u8 *enc, size_t enclen, u8 **data);
 };
 
 int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
         const sc_apdu_t *apdu, sc_apdu_t *sm_apdu);
 int sm_decrypt(const struct sm_ctx *ctx, sc_card_t *card,
         const sc_apdu_t *sm_apdu, sc_apdu_t *apdu);
+
+BUF_MEM * add_iso_pad(const BUF_MEM * m, int block_size);
+BUF_MEM * add_padding(const struct sm_ctx *ctx, const char *data, size_t datalen);
+
+void bin_log(sc_context_t *ctx, const char *label, const u8 *data, size_t len);
 
 #ifdef  __cplusplus
 }

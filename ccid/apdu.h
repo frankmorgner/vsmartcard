@@ -1,5 +1,5 @@
-#ifndef _APDU_H
-#define _APDU_H
+#ifndef _CCID_APDU_H
+#define _CCID_APDU_H
 
 #ifdef __cplusplus
 extern "C" {

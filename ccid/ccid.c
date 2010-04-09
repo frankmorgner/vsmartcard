@@ -178,7 +178,7 @@ int build_apdu(const __u8 *buf, size_t len, sc_apdu_t *apdu)
 
 	len0 = len;
 	if (len < 4) {
-                sc_debug(ctx, "APDU too short (must be at least 4 bytes)");
+                sc_error(ctx, "APDU too short (must be at least 4 bytes)");
                 SC_FUNC_RETURN(ctx, SC_LOG_TYPE_VERBOSE, SC_ERROR_INVALID_DATA);
 	}
 
@@ -195,7 +195,7 @@ int build_apdu(const __u8 *buf, size_t len, sc_apdu_t *apdu)
 		apdu->data = p;
 		apdu->datalen = apdu->lc;
 		if (len < apdu->lc) {
-                        sc_debug(ctx, "APDU too short (need %lu bytes)\n",
+                        sc_error(ctx, "APDU too short (need %lu bytes)\n",
                                 (unsigned long) apdu->lc - len);
                         SC_FUNC_RETURN(ctx, SC_LOG_TYPE_VERBOSE, SC_ERROR_INVALID_DATA);
 		}
@@ -211,7 +211,7 @@ int build_apdu(const __u8 *buf, size_t len, sc_apdu_t *apdu)
 			apdu->cse = SC_APDU_CASE_3_SHORT;
 		}
 		if (len) {
-			sc_debug(ctx, "APDU too long (%lu bytes extra)\n",
+			sc_error(ctx, "APDU too long (%lu bytes extra)\n",
 				(unsigned long) len);
                         SC_FUNC_RETURN(ctx, SC_LOG_TYPE_VERBOSE, SC_ERROR_INVALID_DATA);
 		}
@@ -227,7 +227,7 @@ int build_apdu(const __u8 *buf, size_t len, sc_apdu_t *apdu)
 
         apdu->flags = SC_APDU_FLAGS_NO_GET_RESP|SC_APDU_FLAGS_NO_RETRY_WL;
 
-        sc_debug(ctx, "APDU, %d byte(s):\tins=%02x p1=%02x p2=%02x",
+        sc_error(ctx, "APDU, %d byte(s):\tins=%02x p1=%02x p2=%02x",
                 (unsigned int) len0, apdu->ins, apdu->p1, apdu->p2);
 
         SC_FUNC_RETURN(ctx, SC_LOG_TYPE_VERBOSE, SC_SUCCESS);
@@ -347,6 +347,8 @@ __u8 get_bStatus(int sc_result, __u8 bSlot)
         }
     } else {
         debug_sc_result(flags);
+        sc_error(ctx, "Could not detect card presence."
+                " Falling back to default (bStatus=0x%02X).", result);
     }
 
     return result;
@@ -461,10 +463,14 @@ perform_PC_to_RDR_IccPowerOn(const __u8 *in, __u8 **out, size_t *outlen)
             result->dwLength = __cpu_to_le32(card_in_slot[request->bSlot]->atr_len);
         } else {
             debug_sc_result(SC_ERROR_OUT_OF_MEMORY);
+            sc_error(ctx, "Could not get memory for ATR."
+                    " Returning package without payload.");
             *outlen = sizeof *result;
         }
     } else {
         debug_sc_result(sc_result);
+        sc_error(ctx, "Could not connect to card in slot %d."
+                " Returning default status package.", request->bSlot);
         *outlen = sizeof *result;
     }
 
@@ -551,6 +557,8 @@ perform_PC_to_RDR_XfrBlock(const u8 *in,  __u8** out, size_t *outlen)
     } else {
         *outlen = sizeof *result;
         debug_sc_result(sc_result);
+        sc_error(ctx, "Could not get memory for response apdu."
+                " Returning package without payload.");
     }
     result->bError = get_bError(sc_result);
     result->bStatus = get_bStatus(sc_result, request->bSlot);
@@ -1028,6 +1036,8 @@ err:
     } else {
         *outlen = sizeof *result;
         debug_sc_result(sc_result);
+        sc_error(ctx, "Could not get memory for response apdu."
+                " Returning package without payload.");
     }
     result->bError = get_bError(sc_result);
     result->bStatus = get_bStatus(sc_result, request->bSlot);
@@ -1068,6 +1078,8 @@ get_RDR_to_PC_NotifySlotChange(RDR_to_PC_NotifySlotChange_t **out)
         sc_result = detect_card_presence(i);
         if (sc_result < 0) {
             debug_sc_result(sc_result);
+            sc_error(ctx, "Could not detect card presence, skipping slot %d.",
+                    i);
             continue;
         }
 
@@ -1121,7 +1133,8 @@ perform_unknown(const __u8 *in, __u8 **out, size_t *outlen)
             result->bMessageType = 0x84;
             break;
         default:
-            sc_debug(ctx,  "unknown message type");
+            sc_debug(ctx, "Unknown message type in request. "
+                    "Using bMessageType=0x%2x for output.", 0);
             result->bMessageType = 0;
     }
     result->dwLength     = __constant_cpu_to_le32(0);
@@ -1177,7 +1190,8 @@ int ccid_parse_bulkin(const __u8* inbuf, __u8** outbuf)
                 break;
 
         default:
-                sc_debug(ctx,  "unknown ccid bulk-in message");
+                sc_debug(ctx, "Unknown ccid bulk-in message. "
+                        "Starting default handler.");
                 sc_result = perform_unknown(inbuf, outbuf, &outlen);
     }
 
@@ -1248,7 +1262,7 @@ int ccid_parse_control(struct usb_ctrlrequest *setup, __u8 **outbuf)
                 break;
 
             default:
-                sc_debug(ctx, "unknown ccid control command");
+                sc_error(ctx, "Unknown ccid control command.");
 
                 result = SC_ERROR_NOT_SUPPORTED;
         }

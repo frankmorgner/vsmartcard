@@ -1,28 +1,88 @@
+/*
+ * Copyright (C) 2010 Frank Morgner
+ *
+ * This file is part of ccid.
+ *
+ * ccid is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * ccid is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * ccid.  If not, see <http://www.gnu.org/licenses/>.
+ */
 #include "sm.h"
-#include "utils.h"
+#include <arpa/inet.h>
 #include <opensc/asn1.h>
 #include <opensc/log.h>
+#include <stdlib.h>
 #include <string.h>
 
 static const struct sc_asn1_entry c_sm_capdu[] = {
     { "Padding-content indicator followed by cryptogram",
-        SC_ASN1_INTEGER     , 0x87, SC_ASN1_OPTIONAL|SC_ASN1_UNSIGNED, NULL, NULL },
+        SC_ASN1_OCTET_STRING, SC_ASN1_CTX|0x07, SC_ASN1_OPTIONAL                 , NULL, NULL },
     { "Protected Le",
-        SC_ASN1_INTEGER     , 0x97, SC_ASN1_OPTIONAL|SC_ASN1_UNSIGNED, NULL, NULL },
+        SC_ASN1_INTEGER     , SC_ASN1_CTX|0x17, SC_ASN1_OPTIONAL|SC_ASN1_UNSIGNED, NULL, NULL },
     { "Cryptographic Checksum",
-        SC_ASN1_OCTET_STRING, 0x8E,                                 0, NULL, NULL },
+        SC_ASN1_OCTET_STRING, SC_ASN1_CTX|0x0E, SC_ASN1_OPTIONAL                 , NULL, NULL },
     { NULL , 0 , 0 , 0 , NULL , NULL }
 };
 
 static const struct sc_asn1_entry c_sm_rapdu[] = {
     { "Padding-content indicator followed by cryptogram" ,
-        SC_ASN1_INTEGER     , 0x87, SC_ASN1_OPTIONAL|SC_ASN1_UNSIGNED, NULL, NULL },
+        SC_ASN1_OCTET_STRING, SC_ASN1_CTX|0x07, SC_ASN1_OPTIONAL                 , NULL, NULL },
     { "Processing Status",
-        SC_ASN1_INTEGER     , 0x99, SC_ASN1_OPTIONAL|SC_ASN1_UNSIGNED, NULL, NULL },
+        SC_ASN1_INTEGER     , SC_ASN1_CTX|0x19, SC_ASN1_OPTIONAL|SC_ASN1_UNSIGNED, NULL, NULL },
     { "Cryptographic Checksum",
-        SC_ASN1_OCTET_STRING, 0x8E,                                 0, NULL, NULL },
+        SC_ASN1_OCTET_STRING, SC_ASN1_CTX|0x0E, SC_ASN1_OPTIONAL                 , NULL, NULL },
     { NULL, 0, 0, 0, NULL, NULL }
 };
+
+void bin_log(sc_context_t *ctx, const char *label, const u8 *data, size_t len)
+{
+    char buf[1024];
+
+    sc_hex_dump(ctx, data, len, buf, sizeof buf);
+    sc_debug(ctx, "%s (%u bytes):\n%s"
+            "======================================================================",
+            label, len, buf);
+}
+
+BUF_MEM *
+add_iso_pad(const BUF_MEM * m, int block_size)
+{
+    BUF_MEM * out = NULL;
+    int p_len;
+
+    if (!m)
+        goto err;
+
+    /* calculate length of padded message */
+    p_len = (m->length / block_size) * block_size + block_size;
+
+    out = BUF_MEM_create(p_len);
+    if (!out)
+        goto err;
+
+    memcpy(out->data, m->data, m->length);
+
+    /* now add iso padding */
+    memset(out->data + m->length, 0x80, 1);
+    memset(out->data + m->length + 1, 0, p_len - m->length - 1);
+
+    return out;
+
+err:
+    if (out)
+        BUF_MEM_free(out);
+
+    return NULL;
+}
 
 BUF_MEM * add_padding(const struct sm_ctx *ctx, const char *data, size_t datalen)
 {
@@ -35,21 +95,20 @@ BUF_MEM * add_padding(const struct sm_ctx *ctx, const char *data, size_t datalen
             tmp = NULL;
             break;
         case SM_ISO_PADDING:
-            padded = add_iso_pad(tmp, EVP_CIPHER_block_size(ctx->cipher));
+            padded = add_iso_pad(tmp, ctx->block_length);
+            /* fall through */
+        default:
             if (tmp) {
-                OPENSSL_cleanse(tmp->data, tmp->max);
+                sc_mem_clear(tmp->data, tmp->max);
                 BUF_MEM_free(tmp);
             }
             break;
-        default:
-            return NULL;
     }
 
     return padded;
 }
 
-int no_padding(u8 padding_indicator, const char *data, size_t datalen,
-        size_t *raw_len)
+int no_padding(u8 padding_indicator, const u8 *data, size_t datalen)
 {
     if (!datalen || !data)
         return SC_ERROR_INVALID_ARGUMENTS;
@@ -72,9 +131,7 @@ int no_padding(u8 padding_indicator, const char *data, size_t datalen,
             return SC_ERROR_NOT_SUPPORTED;
     }
 
-    *raw_len = len;
-
-    return SC_SUCCESS;
+    return len;
 }
 
 u8 * format_le(size_t le_len, size_t le, struct sc_asn1_entry *le_entry)
@@ -117,29 +174,36 @@ BUF_MEM * prefix_buf(u8 prefix, BUF_MEM *buf)
     return cat;
 }
 
-BUF_MEM * format_data(const struct sm_ctx *ctx, const u8 *data, size_t datalen,
+BUF_MEM * format_data(sc_card_t *card, const struct sm_ctx *ctx, const u8 *data, size_t datalen,
         struct sc_asn1_entry *formatted_encrypted_data_entry)
 {
+    int r;
+
+    if (!ctx)
+        return NULL;
 
     BUF_MEM *pad_data = add_padding(ctx, (char *) data, datalen);
-    BUF_MEM *enc_data = cipher(ctx->cipher_ctx, ctx->cipher,
-            ctx->cipher_engine, ctx->key_enc, ctx->iv, 1, pad_data);
+    BUF_MEM *enc_data = BUF_MEM_new();
+    if (!pad_data || !enc_data)
+        return NULL;
 
-    if (pad_data) {
-        OPENSSL_cleanse(pad_data->data, pad_data->max);
-        BUF_MEM_free(pad_data);
-    }
+    r = ctx->encrypt(card, ctx, (u8 *) pad_data->data, pad_data->length,
+            (u8 **) &enc_data->data);
+    if (r < 0)
+        return NULL;
+    enc_data->length = r;
 
     BUF_MEM *indicator_encdata = prefix_buf(ctx->padding_indicator, enc_data);
 
-    if (enc_data) {
-        BUF_MEM_free(enc_data);
-    }
+    sc_mem_clear(pad_data->data, pad_data->max);
+    BUF_MEM_free(pad_data);
+    BUF_MEM_free(enc_data);
 
     if (indicator_encdata)
         sc_format_asn1_entry(formatted_encrypted_data_entry,
-                indicator_encdata->data, &(indicator_encdata->length),
+                indicator_encdata->data, &indicator_encdata->length,
                 SC_ASN1_PRESENT);
+
     return indicator_encdata;
 }
 
@@ -173,6 +237,7 @@ int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
 
     mac_data = format_head(ctx, apdu);
     if (!mac_data) {
+        sc_error(card->ctx, "Could not format header of SM apdu.");
         r = SC_ERROR_WRONG_PADDING;
         goto err;
     }
@@ -184,6 +249,7 @@ int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
 	case SC_APDU_CASE_2_SHORT:
             le = format_le(1, apdu->le, sm_capdu + 1);
             if (!le) {
+                sc_error(card->ctx, "Could not format Le of SM apdu.");
                 r = SC_ERROR_WRONG_LENGTH;
                 goto err;
             }
@@ -193,6 +259,7 @@ int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
                 /* T0 extended APDUs look just like short APDUs */
                 le = format_le(1, apdu->le, sm_capdu + 1);
                 if (!le) {
+                    sc_error(card->ctx, "Could not format Le of SM apdu.");
                     r = SC_ERROR_WRONG_LENGTH;
                     goto err;
                 }
@@ -200,6 +267,7 @@ int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
                 /* in case of T1 always use 3 bytes for length */
                 le = format_le(3, apdu->le, sm_capdu + 1);
                 if (!le) {
+                    sc_error(card->ctx, "Could not format Le of SM apdu.");
                     r = SC_ERROR_WRONG_LENGTH;
                     goto err;
                 }
@@ -207,9 +275,10 @@ int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
             break;
         case SC_APDU_CASE_3_SHORT:
         case SC_APDU_CASE_3_EXT:
-            fdata = format_data(ctx, apdu->data, apdu->datalen,
+            fdata = format_data(card, ctx, apdu->data, apdu->datalen,
                     sm_capdu + 0);
             if (!fdata) {
+                sc_error(card->ctx, "Could not format data of SM apdu.");
                 r = SC_ERROR_OUT_OF_MEMORY;
                 goto err;
             }
@@ -219,14 +288,16 @@ int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
             if (card->slot->active_protocol != SC_PROTO_T0) {
                 le = format_le(1, apdu->le, sm_capdu + 1);
                 if (!le) {
+                    sc_error(card->ctx, "Could not format Le of SM apdu.");
                     r = SC_ERROR_WRONG_LENGTH;
                     goto err;
                 }
             }
 
-            fdata = format_data(ctx, apdu->data, apdu->datalen,
+            fdata = format_data(card, ctx, apdu->data, apdu->datalen,
                     sm_capdu + 0);
             if (!fdata) {
+                sc_error(card->ctx, "Could not format data of SM apdu.");
                 r = SC_ERROR_OUT_OF_MEMORY;
                 goto err;
             }
@@ -241,19 +312,22 @@ int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
                  * expected data */
                 le = format_le(2, apdu->le, sm_capdu + 1);
                 if (!le) {
+                    sc_error(card->ctx, "Could not format Le of SM apdu.");
                     r = SC_ERROR_WRONG_LENGTH;
                     goto err;
                 }
             }
 
-            fdata = format_data(ctx, apdu->data, apdu->datalen,
+            fdata = format_data(card, ctx, apdu->data, apdu->datalen,
                     sm_capdu + 0);
             if (!fdata) {
+                sc_error(card->ctx, "Could not format data of SM apdu.");
                 r = SC_ERROR_OUT_OF_MEMORY;
                 goto err;
             }
             break;
         default:
+            sc_error(card->ctx, "Unhandled apdu case.");
             r = SC_ERROR_INVALID_DATA;
             goto err;
     }
@@ -273,20 +347,24 @@ int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
     memcpy(mac_data->data + oldlen, tmp->data, tmp->length);
     BUF_MEM_free(tmp);
     tmp = add_padding(ctx, mac_data->data, mac_data->length);
-    BUF_MEM_free(mac_data);
-    mac_data = hash(ctx->md, ctx->md_ctx, ctx->md_engine, tmp);
-    mac = cipher(ctx->cipher_ctx, ctx->cipher, ctx->cipher_engine,
-            ctx->key_mac, ctx->iv, 1, mac_data);
+    mac = BUF_MEM_new();
     if (!mac) {
-        r = SC_ERROR_INTERNAL;
+        r = SC_ERROR_OUT_OF_MEMORY;
         goto err;
     }
-    sc_format_asn1_entry(sm_capdu + 2, mac->data, &(mac->length),
+    r = ctx->authenticate(card, ctx, (u8 *) tmp->data, tmp->length,
+            (u8 **) &mac->data);
+    if (r < 0) {
+        sc_error(card->ctx, "Could not get authentication code");
+        goto err;
+    }
+    mac->length = r;
+    bin_log(card->ctx, "mac", (u8 *)mac->data, mac->length);
+    sc_format_asn1_entry(sm_capdu + 2, mac->data, &mac->length,
             SC_ASN1_PRESENT);
 
 
     /* format SM apdu */
-    BUF_MEM_free(sm_data);
     sm_data = BUF_MEM_new();
     if (!sm_data) {
         r = SC_ERROR_OUT_OF_MEMORY;
@@ -296,6 +374,7 @@ int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
     if (r < 0)
         goto err;
     memcpy(sm_apdu, apdu, sizeof *sm_apdu);
+    sm_apdu->cla = 0x0C;
     sm_apdu->data = (u8 *) sm_data->data;
     sm_apdu->lc = sm_data->length;
     sm_apdu->le = 0;
@@ -335,12 +414,13 @@ int sm_decrypt(const struct sm_ctx *ctx, sc_card_t *card,
 {
     int r;
     struct sc_asn1_entry sm_rapdu[4];
-    u8 sw[2], mac[EVP_CIPHER_block_size(ctx->cipher)], fdata[1024];
+    struct sc_asn1_entry my_sm_rapdu[4];
+    u8 sw[2], mac[256], fdata[1024];
     size_t sw_len = sizeof sw, mac_len = sizeof mac, fdata_len = sizeof fdata,
-           buf_len, oldlen;
+           buf_len;
     const u8 *buf;
-    BUF_MEM *mac_data = NULL, *tmp = NULL, *my_mac = NULL, *data = NULL,
-            enc_data;
+    u8 *data;
+    BUF_MEM *mac_data = NULL, *tmp = NULL, *my_mac = NULL;
 
     sc_copy_asn1_entry(c_sm_rapdu, sm_rapdu);
     sc_format_asn1_entry(sm_rapdu + 0, fdata, &fdata_len, 0);
@@ -352,71 +432,61 @@ int sm_decrypt(const struct sm_ctx *ctx, sc_card_t *card,
     if (r < 0)
         goto err;
     if (buf_len > 0) {
-        r = SC_ERROR_TOO_MANY_OBJECTS;
+        r = SC_ERROR_UNKNOWN_DATA_RECEIVED;
         goto err;
     }
+
+
+    if (sm_rapdu[2].flags & SC_ASN1_PRESENT) {
+        sc_copy_asn1_entry(sm_rapdu, my_sm_rapdu);
+
+        tmp = BUF_MEM_new();
+        if (!tmp) {
+            r = SC_ERROR_OUT_OF_MEMORY;
+            goto err;
+        }
+        sc_format_asn1_entry(my_sm_rapdu + 2, NULL, NULL, 0);
+        r = sc_asn1_encode(card->ctx, my_sm_rapdu, (u8 **) &tmp->data, &tmp->length);
+        if (r < 0)
+            goto err;
+        mac_data = add_padding(ctx, tmp->data, tmp->length);
+        if (!mac_data) {
+            r = SC_ERROR_INTERNAL;
+            goto err;
+        }
+        
+        r = ctx->verify_authentication(card, ctx, mac, mac_len,
+                (u8 *) mac_data->data, mac_data->length);
+        if (r < 0)
+            goto err;
+    }
+
+
 
 
     if (sm_rapdu[0].flags & SC_ASN1_PRESENT) {
         if (ctx->padding_indicator != fdata[0]) {
-            r = SC_ERROR_DECRYPT_FAILED;
+            r = SC_ERROR_UNKNOWN_DATA_RECEIVED;
             goto err;
         }
-        enc_data.data = (char *) fdata + 1;
-        enc_data.length = fdata_len - 1;
-        enc_data.max = enc_data.length;
+        r = ctx->decrypt(card, ctx, fdata + 1, fdata_len - 1, &data);
+        if (r < 0)
+            goto err;
+        buf_len = r;
+
+        r = no_padding(ctx->padding_indicator, data, buf_len);
+        if (r < 0)
+            goto err;
+
+        memcpy(apdu, sm_apdu, sizeof *apdu);
+        apdu->resp = data;
+        apdu->resplen = r;
+    } else {
+        apdu->resplen = r;
     }
 
 
-    mac_data = format_head(ctx, sm_apdu);
-
-    tmp = BUF_MEM_new();
-    if (!tmp) {
-        r = SC_ERROR_OUT_OF_MEMORY;
-        goto err;
-    }
-    sc_format_asn1_entry(sm_rapdu + 2, NULL, NULL, 0);
-    r = sc_asn1_encode(card->ctx, sm_rapdu, (u8 **) &tmp->data, &tmp->length);
-    if (r < 0)
-        goto err;
-    oldlen = mac_data->length;
-    BUF_MEM_grow(mac_data, oldlen + tmp->length);
-    memcpy(mac_data->data + oldlen, tmp->data, tmp->length);
-    free(tmp->data);
-    tmp = add_padding(ctx, mac_data->data, mac_data->length);
-    BUF_MEM_free(mac_data);
-    mac_data = hash(ctx->md, ctx->md_ctx, ctx->md_engine, tmp);
-    my_mac = cipher(ctx->cipher_ctx, ctx->cipher, ctx->cipher_engine,
-            ctx->key_mac, ctx->iv, 1, mac_data);
-    if (!my_mac) {
-        r = SC_ERROR_INTERNAL;
-        goto err;
-    }
-
-    if (my_mac->length != mac_len ||
-            memcmp(my_mac->data, mac, mac_len) != 0) {
-        r = SC_ERROR_DECRYPT_FAILED;
-        goto err;
-    }
-
-
-    data = cipher(ctx->cipher_ctx, ctx->cipher, ctx->cipher_engine,
-            ctx->key_enc, ctx->iv, 0, &enc_data);
-    r = no_padding(ctx->padding_indicator, data->data, data->length,
-            &data->length);
-    if (r < 0)
-        goto err;
-
-
-    memcpy(apdu, sm_apdu, sizeof *apdu);
-    apdu->resp = (u8 *) data->data;
-    apdu->resplen = data->length;
-
-
-    /* BUF_MEM_free must not free data->data */
-    data->data = NULL;
-    data->length = 0;
-    data->max = 0;
+    r = SC_SUCCESS;
 
 err:
     if (tmp) {
@@ -427,9 +497,6 @@ err:
     }
     if (my_mac) {
         BUF_MEM_free(my_mac);
-    }
-    if (data) {
-        BUF_MEM_free(data);
     }
 
     SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, r);

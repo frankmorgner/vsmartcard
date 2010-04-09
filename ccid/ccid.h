@@ -16,8 +16,8 @@
  * You should have received a copy of the GNU General Public License along with
  * ccid.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _VPCD_H
-#define _VPCD_H
+#ifndef _CCID_H
+#define _CCID_H
 
 #include <linux/usb/ch9.h>
 
