@@ -74,13 +74,13 @@ ccid_desc = {
     .bMaxCCIDBusySlots      = 0x01,
 };
 
-void
+static void
 debug_sc_result(int sc_result)
 {
     sc_debug(ctx, sc_strerror(sc_result));
 }
 
-int
+static int
 detect_card_presence(int slot)
 {
     int sc_result;
@@ -168,7 +168,7 @@ void ccid_shutdown()
         sc_release_context(ctx);
 }
 
-int build_apdu(const __u8 *buf, size_t len, sc_apdu_t *apdu)
+static int build_apdu(const __u8 *buf, size_t len, sc_apdu_t *apdu)
 {
 	const __u8 *p;
 	size_t len0;
@@ -233,7 +233,7 @@ int build_apdu(const __u8 *buf, size_t len, sc_apdu_t *apdu)
         SC_FUNC_RETURN(ctx, SC_LOG_TYPE_VERBOSE, SC_SUCCESS);
 }
 
-int get_rapdu(sc_apdu_t *apdu, size_t slot, __u8 **buf, size_t *resplen)
+static int get_rapdu(sc_apdu_t *apdu, size_t slot, __u8 **buf, size_t *resplen)
 {
     int sc_result;
 
@@ -279,7 +279,7 @@ err:
     SC_FUNC_RETURN(ctx, SC_LOG_TYPE_VERBOSE, sc_result);
 }
 
-__u8 get_bError(int sc_result)
+static __u8 get_bError(int sc_result)
 {
     if (sc_result < 0) {
         switch (sc_result) {
@@ -306,7 +306,7 @@ __u8 get_bError(int sc_result)
         return CCID_BERROR_OK;
 }
 
-__u8 get_bStatus(int sc_result, __u8 bSlot)
+static __u8 get_bStatus(int sc_result, __u8 bSlot)
 {
     int flags;
     __u8 result = 0;
@@ -354,7 +354,7 @@ __u8 get_bStatus(int sc_result, __u8 bSlot)
     return result;
 }
 
-int
+static int
 get_RDR_to_PC_SlotStatus(__u8 bSlot, __u8 bSeq, int sc_result, RDR_to_PC_SlotStatus_t **out)
 {
     if (!out)
@@ -376,7 +376,7 @@ get_RDR_to_PC_SlotStatus(__u8 bSlot, __u8 bSeq, int sc_result, RDR_to_PC_SlotSta
     SC_FUNC_RETURN(ctx, SC_LOG_TYPE_DEBUG, SC_SUCCESS);
 }
 
-int
+static int
 get_RDR_to_PC_DataBlock(__u8 bSlot, __u8 bSeq, int sc_result, RDR_to_PC_DataBlock_t **out)
 {
     if (!out)
@@ -398,7 +398,7 @@ get_RDR_to_PC_DataBlock(__u8 bSlot, __u8 bSeq, int sc_result, RDR_to_PC_DataBloc
     SC_FUNC_RETURN(ctx, SC_LOG_TYPE_DEBUG, SC_SUCCESS);
 }
 
-int
+static int
 perform_PC_to_RDR_GetSlotStatus(const __u8 *in, __u8 **out, size_t *outlen)
 {
     const PC_to_RDR_GetSlotStatus_t *request = (PC_to_RDR_GetSlotStatus_t *) in;
@@ -419,7 +419,7 @@ perform_PC_to_RDR_GetSlotStatus(const __u8 *in, __u8 **out, size_t *outlen)
                 (RDR_to_PC_SlotStatus_t **) out));
 }
 
-int
+static int
 perform_PC_to_RDR_IccPowerOn(const __u8 *in, __u8 **out, size_t *outlen)
 {
     const PC_to_RDR_IccPowerOn_t *request = (PC_to_RDR_IccPowerOn_t *) in;
@@ -477,7 +477,7 @@ perform_PC_to_RDR_IccPowerOn(const __u8 *in, __u8 **out, size_t *outlen)
     SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_SUCCESS);
 }
 
-int
+static int
 perform_PC_to_RDR_IccPowerOff(const __u8 *in, __u8 **out, size_t *outlen)
 {
     const PC_to_RDR_IccPowerOff_t *request = (PC_to_RDR_IccPowerOff_t *) in;
@@ -507,7 +507,7 @@ perform_PC_to_RDR_IccPowerOff(const __u8 *in, __u8 **out, size_t *outlen)
     SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_SUCCESS);
 }
 
-int
+static int
 perform_PC_to_RDR_XfrBlock(const u8 *in,  __u8** out, size_t *outlen)
 {
     const PC_to_RDR_XfrBlock_t *request = (PC_to_RDR_XfrBlock_t *) in;
@@ -566,7 +566,7 @@ perform_PC_to_RDR_XfrBlock(const u8 *in,  __u8** out, size_t *outlen)
     SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_SUCCESS);
 }
 
-int
+static int
 perform_PC_to_RDR_GetParamters(const __u8 *in, __u8** out, size_t *outlen)
 {
     const PC_to_RDR_GetParameters_t *request = (PC_to_RDR_GetParameters_t *) in;
@@ -662,7 +662,7 @@ invaliddata:
     SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_SUCCESS);
 }
 
-int
+static int
 get_effective_offset(uint8_t system_units, uint8_t off, size_t *eff_off,
         int *sc_result)
 {
@@ -685,7 +685,7 @@ get_effective_offset(uint8_t system_units, uint8_t off, size_t *eff_off,
     return 1;
 }
 
-int
+static int
 write_pin_length(sc_apdu_t *apdu, const struct sc_pin_cmd_pin *pin,
         uint8_t system_units, uint8_t length_size, int *sc_result)
 {
@@ -713,7 +713,7 @@ write_pin_length(sc_apdu_t *apdu, const struct sc_pin_cmd_pin *pin,
     return 1;
 }
 
-int
+static int
 encode_pin(u8 *buf, size_t buf_len, struct sc_pin_cmd_pin *pin,
         uint8_t encoding, int *sc_result)
 {
@@ -789,7 +789,7 @@ encode_pin(u8 *buf, size_t buf_len, struct sc_pin_cmd_pin *pin,
     return 1;
 }
 
-int
+static int
 write_pin(sc_apdu_t *apdu, struct sc_pin_cmd_pin *pin, uint8_t blocksize,
         uint8_t justify_right, uint8_t encoding, int *sc_result)
 {
@@ -820,7 +820,7 @@ write_pin(sc_apdu_t *apdu, struct sc_pin_cmd_pin *pin, uint8_t blocksize,
             blocksize - justify_offset, pin, encoding, sc_result);
 }
 
-int
+static int
 perform_PC_to_RDR_Secure(const __u8 *in, __u8** out, size_t *outlen)
 {
     int sc_result, r;
@@ -1045,7 +1045,7 @@ err:
     SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, r);
 }
 
-int
+static int
 get_RDR_to_PC_NotifySlotChange(RDR_to_PC_NotifySlotChange_t **out)
 {
     int i;
@@ -1093,7 +1093,7 @@ get_RDR_to_PC_NotifySlotChange(RDR_to_PC_NotifySlotChange_t **out)
     SC_FUNC_RETURN(ctx, SC_LOG_TYPE_DEBUG, SC_SUCCESS);
 }
 
-int
+static int
 perform_unknown(const __u8 *in, __u8 **out, size_t *outlen)
 {
     const PC_to_RDR_GetSlotStatus_t *request = (PC_to_RDR_GetSlotStatus_t *) in;

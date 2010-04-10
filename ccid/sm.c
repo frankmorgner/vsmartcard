@@ -17,6 +17,7 @@
  * ccid.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "sm.h"
+#include "apdu.h"
 #include <arpa/inet.h>
 #include <opensc/asn1.h>
 #include <opensc/log.h>
@@ -42,25 +43,6 @@ static const struct sc_asn1_entry c_sm_rapdu[] = {
         SC_ASN1_OCTET_STRING, SC_ASN1_CTX|0x0E, SC_ASN1_OPTIONAL                 , NULL, NULL },
     { NULL, 0, 0, 0, NULL, NULL }
 };
-
-static const struct sc_card_error sm_errors[] = {
-    { 0x6987, SC_ERROR_DATA_OBJECT_NOT_FOUND,         "Secure Messaging data objects are missing" },
-    { 0x6988, SC_ERROR_SECURITY_STATUS_NOT_SATISFIED, "Secure Messaging data objects are incorrect" },
-};
-
-int sm_check_sw(sc_card_t *card, unsigned int sw1, unsigned int sw2)
-{
-    const int err_count = sizeof(sm_errors)/sizeof(sm_errors[0]);
-    int i;
-
-    for (i = 0; i < err_count; i++)
-        if (sm_errors[i].SWs == ((sw1 << 8) | sw2)) {
-            sc_error(card->ctx, "%s\n", sm_errors[i].errorstr);
-            return sm_errors[i].errorno;
-        }
-
-    return sc_check_sw(card, sw1, sw2);
-}
 
 void bin_log(sc_context_t *ctx, const char *label, const u8 *data, size_t len)
 {
@@ -153,7 +135,7 @@ int no_padding(u8 padding_indicator, const u8 *data, size_t datalen)
     return len;
 }
 
-u8 * format_le(size_t le_len, size_t le, struct sc_asn1_entry *le_entry)
+static u8 * format_le(size_t le_len, size_t le, struct sc_asn1_entry *le_entry)
 {
     u8 * lebuf = malloc(le_len);
     if (lebuf) {
@@ -181,7 +163,7 @@ u8 * format_le(size_t le_len, size_t le, struct sc_asn1_entry *le_entry)
     return lebuf;
 }
 
-BUF_MEM * prefix_buf(u8 prefix, BUF_MEM *buf)
+static BUF_MEM * prefix_buf(u8 prefix, BUF_MEM *buf)
 {
     if (!buf) return NULL;
     BUF_MEM *cat = BUF_MEM_create(buf->length + 1);
@@ -193,7 +175,7 @@ BUF_MEM * prefix_buf(u8 prefix, BUF_MEM *buf)
     return cat;
 }
 
-BUF_MEM * format_data(sc_card_t *card, const struct sm_ctx *ctx, const u8 *data, size_t datalen,
+static BUF_MEM * format_data(sc_card_t *card, const struct sm_ctx *ctx, const u8 *data, size_t datalen,
         struct sc_asn1_entry *formatted_encrypted_data_entry)
 {
     int r;
@@ -226,7 +208,7 @@ BUF_MEM * format_data(sc_card_t *card, const struct sm_ctx *ctx, const u8 *data,
     return indicator_encdata;
 }
 
-BUF_MEM * format_head(const struct sm_ctx *ctx, const sc_apdu_t *apdu)
+static BUF_MEM * format_head(const struct sm_ctx *ctx, const sc_apdu_t *apdu)
 {
     char head[4];
 
@@ -237,7 +219,7 @@ BUF_MEM * format_head(const struct sm_ctx *ctx, const sc_apdu_t *apdu)
     return add_padding(ctx, head, sizeof head);
 }
 
-int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
+static int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
         const sc_apdu_t *apdu, sc_apdu_t *sm_apdu)
 {
     struct sc_asn1_entry sm_capdu[4];
@@ -401,7 +383,6 @@ int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
     sm_apdu->le = 0;
     sm_apdu->cse = SC_APDU_CASE_4;
     bin_log(card->ctx, "sm apdu data", sm_apdu->data, sm_apdu->datalen);
-    printf("%s:%d\n", __FILE__, __LINE__);
 
 err:
     if (fdata) {
@@ -423,7 +404,7 @@ err:
     SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, r);
 }
 
-int sm_decrypt(const struct sm_ctx *ctx, sc_card_t *card,
+static int sm_decrypt(const struct sm_ctx *ctx, sc_card_t *card,
         const sc_apdu_t *sm_apdu, sc_apdu_t *apdu)
 {
     int r;
@@ -512,4 +493,28 @@ err:
     }
 
     SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, r);
+}
+
+int sm_transmit_apdu(const struct sm_ctx *sctx, sc_card_t *card,
+        sc_apdu_t *apdu)
+{
+    sc_apdu_t sm_apdu;
+    u8 buf[SC_MAX_APDU_BUFFER_SIZE - 2];
+
+    SC_TEST_RET(card->ctx, sm_encrypt(sctx, card, apdu, &sm_apdu),
+            "Could not encrypt APDU.");
+    bin_log(card->ctx, "SM APDU data", sm_apdu.data, sm_apdu.datalen);
+
+    sm_apdu.resplen = sizeof *buf;
+    sm_apdu.resp = buf;
+    SC_TEST_RET(card->ctx, my_transmit_apdu(card, &sm_apdu),
+            "Could not send SM APDU.");
+
+    SC_TEST_RET(card->ctx, sc_check_sw(card, sm_apdu.sw1, sm_apdu.sw2),
+            "Card returned error.");
+    SC_TEST_RET(card->ctx, sm_decrypt(sctx, card, &sm_apdu, apdu),
+            "Could not decrypt APDU.");
+    bin_log(card->ctx, "SM APDU response", apdu->resp, apdu->resplen);
+
+    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, SC_SUCCESS);
 }

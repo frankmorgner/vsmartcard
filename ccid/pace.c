@@ -173,7 +173,6 @@ int pace_sm_decrypt(sc_card_t *card, struct *sm_ctx,
 #include "apdu.h"
 
 const size_t maxresp = SC_MAX_APDU_BUFFER_SIZE - 2;
-uint16_t ssc = 0;
 
 int GetReadersPACECapabilities(sc_card_t *card,
         const __u8 *in, __u8 **out, size_t *outlen) {
@@ -196,7 +195,7 @@ int GetReadersPACECapabilities(sc_card_t *card,
 }
 
 /** select and read EF.CardAccess */
-int get_ef_card_access(sc_card_t *card,
+static int get_ef_card_access(sc_card_t *card,
         __u8 **ef_cardaccess, size_t *length_ef_cardaccess)
 {
     int r;
@@ -213,7 +212,6 @@ int get_ef_card_access(sc_card_t *card,
     memset(&file, 0, sizeof file);
     SC_TEST_RET(card->ctx, sc_select_file(card, &path, &file),
             "Could not select EF.CardAccess.");
-    ssc++;
     *length_ef_cardaccess = 0;
 
     while(1) {
@@ -224,7 +222,6 @@ int get_ef_card_access(sc_card_t *card,
 
         r = sc_read_binary(card, *length_ef_cardaccess,
                 *ef_cardaccess + *length_ef_cardaccess, maxresp, 0);
-        ssc++;
 
         if (r > 0 && r != maxresp) {
             *length_ef_cardaccess += r;
@@ -244,7 +241,7 @@ int get_ef_card_access(sc_card_t *card,
     SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_SUCCESS);
 }
 
-int pace_mse_set_at(sc_card_t *card,
+static int pace_mse_set_at(sc_card_t *card,
         int protocol, int secret_key, int reference)
 {
     sc_apdu_t apdu;
@@ -294,7 +291,6 @@ int pace_mse_set_at(sc_card_t *card,
     bin_log(card->ctx, "MSE:Set AT command data", apdu.data, apdu.datalen);
 
     r = sc_transmit_apdu(card, &apdu);
-    ssc++;
     if (r < 0)
         goto err;
 
@@ -345,7 +341,7 @@ err:
     SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, r);
 }
 
-int pace_gen_auth(sc_card_t *card,
+static int pace_gen_auth(sc_card_t *card,
         int step, const u8 *in, size_t in_len, u8 **out, size_t *out_len)
 {
     sc_apdu_t apdu;
@@ -417,7 +413,6 @@ int pace_gen_auth(sc_card_t *card,
     apdu.resplen = maxresp;
     apdu.resp = malloc(apdu.resplen);
     r = my_transmit_apdu(card, &apdu);
-    ssc++;
     if (r < 0)
         goto err;
 
@@ -534,7 +529,7 @@ err:
     SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, r);
 }
 
-PACE_SEC *
+static PACE_SEC *
 get_psec(sc_card_t *card, const char *pin, size_t length_pin, u8 pin_id)
 {
     sc_ui_hints_t hints;
@@ -811,7 +806,6 @@ int pace_test(sc_card_t *card)
     __u8 *out = NULL;
     size_t outlen;
     struct sm_ctx sctx;
-    sc_apdu_t sm_apdu;
     sc_apdu_t apdu;
 
     memset(&sctx, 0, sizeof(sctx));
@@ -845,25 +839,12 @@ int pace_test(sc_card_t *card)
     apdu.le = 0x00;
     apdu.cse = SC_APDU_CASE_4_SHORT;
 
-    SC_TEST_RET(card->ctx, reset_ssc(&sctx),
-            "Could not reset send sequence counter.");
-    SC_TEST_RET(card->ctx, sm_encrypt(&sctx, card, &apdu, &sm_apdu),
-            "Could not encrypt APDU.");
-    bin_log(card->ctx, "SM APDU data", sm_apdu.data, sm_apdu.datalen);
-    sm_apdu.resplen = maxresp;
-    sm_apdu.resp = malloc(apdu.resplen);
-    SC_TEST_RET(card->ctx, my_transmit_apdu(card, &sm_apdu),
-            "Could not send SM APDU.");
-    SC_TEST_RET(card->ctx, sm_check_sw(card, sm_apdu.sw1, sm_apdu.sw2),
-            "Card returned error.");
-    SC_TEST_RET(card->ctx, sm_decrypt(&sctx, card, &sm_apdu, &apdu),
-            "Could not decrypt APDU.");
-    bin_log(card->ctx, "SM APDU response", sm_apdu.resp, apdu.resplen);
+    sm_transmit_apdu(&sctx, card, &apdu);
 
     return SC_SUCCESS;
 }
 
-BUF_MEM *
+static BUF_MEM *
 encoded_ssc(const uint16_t ssc, const PACE_CTX *ctx)
 {
     BUF_MEM * out = NULL;
@@ -890,7 +871,7 @@ err:
     return NULL;
 }
 
-int
+static int
 update_iv(struct sm_ctx *ctx)
 {
     if (!ctx || !ctx->cipher_ctx)
@@ -967,9 +948,7 @@ increment_ssc(struct sm_ctx *ctx)
         psmctx->ssc++;
     }
 
-    update_iv(ctx);
-
-    return SC_SUCCESS;
+    return update_iv(ctx);
 }
 
 int
@@ -981,7 +960,7 @@ reset_ssc(struct sm_ctx *ctx)
     struct pace_sm_ctx *psmctx = ctx->cipher_ctx;
     psmctx->ssc = 0;
 
-    return increment_ssc(ctx);
+    return update_iv(ctx);
 }
 
 int pace_sm_encrypt(sc_card_t *card, const struct sm_ctx *ctx,
