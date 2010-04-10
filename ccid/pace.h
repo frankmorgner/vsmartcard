@@ -58,6 +58,9 @@ pace_sm_ctx_free(struct pace_sm_ctx *ctx);
 void
 pace_sm_ctx_clear_free(struct pace_sm_ctx *ctx);
 
+int reset_ssc(struct sm_ctx *ctx);
+int increment_ssc(struct sm_ctx *ctx);
+
 int pace_sm_encrypt(sc_card_t *card, const struct sm_ctx *ctx,
         const u8 *data, size_t datalen, u8 **enc);
 int pace_sm_decrypt(sc_card_t *card, const struct sm_ctx *ctx,

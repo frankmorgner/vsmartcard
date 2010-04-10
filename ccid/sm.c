@@ -222,10 +222,9 @@ int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
         const sc_apdu_t *apdu, sc_apdu_t *sm_apdu)
 {
     struct sc_asn1_entry sm_capdu[4];
-    u8 *le = NULL;
-    size_t oldlen;
-    BUF_MEM *fdata = NULL, *sm_data = NULL,
-            *mac_data = NULL, *mac = NULL, *tmp = NULL;
+    u8 *le = NULL, *sm_data = NULL;
+    size_t oldlen, sm_data_len;
+    BUF_MEM *fdata = NULL, *mac_data = NULL, *mac = NULL, *tmp = NULL;
     int r;
 
     if (!apdu || !ctx || !card || !card->slot || !sm_apdu) {
@@ -235,6 +234,11 @@ int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
 
     sc_copy_asn1_entry(c_sm_capdu, sm_capdu);
 
+    sm_apdu->flags = apdu->flags;
+    sm_apdu->cla = 0x0C;
+    sm_apdu->ins = apdu->ins;
+    sm_apdu->p1 = apdu->p1;
+    sm_apdu->p2 = apdu->p2;
     mac_data = format_head(ctx, apdu);
     if (!mac_data) {
         sc_error(card->ctx, "Could not format header of SM apdu.");
@@ -365,26 +369,16 @@ int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
 
 
     /* format SM apdu */
-    sm_data = BUF_MEM_new();
-    if (!sm_data) {
-        r = SC_ERROR_OUT_OF_MEMORY;
-        goto err;
-    }
-    r = sc_asn1_encode(card->ctx, sm_capdu, (u8 **) &sm_data->data, &sm_data->length);
+    r = sc_asn1_encode(card->ctx, sm_capdu, (u8 **) &sm_data, &sm_data_len);
     if (r < 0)
         goto err;
-    memcpy(sm_apdu, apdu, sizeof *sm_apdu);
-    sm_apdu->cla = 0x0C;
-    sm_apdu->data = (u8 *) sm_data->data;
-    sm_apdu->lc = sm_data->length;
+    sm_apdu->data = sm_data;
+    sm_apdu->datalen = sm_data_len;
+    sm_apdu->lc = sm_apdu->datalen;
     sm_apdu->le = 0;
     sm_apdu->cse = SC_APDU_CASE_4;
-
-
-    /* BUF_MEM_free must not free sm_data->data */
-    sm_data->data = NULL;
-    sm_data->length = 0;
-    sm_data->max = 0;
+    bin_log(card->ctx, "sm apdu data", sm_apdu->data, sm_apdu->datalen);
+    printf("%s:%d\n", __FILE__, __LINE__);
 
 err:
     if (fdata) {
@@ -398,9 +392,6 @@ err:
     }
     if (mac) {
         BUF_MEM_free(mac);
-    }
-    if (sm_data) {
-        BUF_MEM_free(sm_data);
     }
     if (le) {
         free(le);

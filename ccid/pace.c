@@ -749,7 +749,7 @@ int EstablishPACEChannel(sc_card_t *card, const __u8 *in,
         goto err;
     }
     sctx->authenticate = pace_sm_authenticate;
-    sctx->cipher_ctx = sctx->authenticate;
+    sctx->cipher_ctx = sctx->authentication_ctx;
     sctx->encrypt = pace_sm_encrypt;
     sctx->decrypt = pace_sm_decrypt;
     sctx->padding_indicator = SM_ISO_PADDING;
@@ -829,12 +829,12 @@ int pace_test(sc_card_t *card)
     in[9] = 0;        // length_cert_desc
     in[10]= 0;        // length_cert_desc
 
-    SC_TEST_RET(card->ctx, SC_LOG_TYPE_ERROR,
-            EstablishPACEChannel(card, in, &out, &outlen, &sctx));
+    SC_TEST_RET(card->ctx, EstablishPACEChannel(card, in, &out, &outlen, &sctx),
+            "Could not establish PACE channel.");
 
     /* select CardSecurity */
-    in[0] = 0x00;
-    in[1] = 0xA4;
+    apdu.cla = 0x00;
+    apdu.ins = 0xA4;
     apdu.p1 = 0x08;
     apdu.p2 = 0x00;
     apdu.lc = 0x02;
@@ -843,12 +843,18 @@ int pace_test(sc_card_t *card)
     apdu.data = in;
     apdu.datalen = 2;
     apdu.le = 0x00;
-    apdu.lc = SC_APDU_CASE_4_SHORT;
+    apdu.cse = SC_APDU_CASE_4_SHORT;
 
-    sm_encrypt(&sctx, card, &apdu, &sm_apdu);
-    SC_TEST_RET(card->ctx, SC_LOG_TYPE_ERROR,
-            my_transmit_apdu(card, &sm_apdu));
-    sm_decrypt(&sctx, card, &sm_apdu, &apdu);
+    SC_TEST_RET(card->ctx, reset_ssc(&sctx),
+            "Could not reset send sequence counter.");
+    SC_TEST_RET(card->ctx, sm_encrypt(&sctx, card, &apdu, &sm_apdu),
+            "Could not encrypt APDU.");
+    bin_log(card->ctx, "SM APDU data", sm_apdu.data, sm_apdu.datalen);
+    SC_TEST_RET(card->ctx, my_transmit_apdu(card, &sm_apdu),
+            "Could not send SM APDU.");
+    SC_TEST_RET(card->ctx, sm_decrypt(&sctx, card, &sm_apdu, &apdu),
+            "Could not decrypt APDU");
+    bin_log(card->ctx, "SM APDU response", sm_apdu.resp, apdu.resplen);
 
     return SC_SUCCESS;
 }
@@ -971,7 +977,7 @@ reset_ssc(struct sm_ctx *ctx)
     struct pace_sm_ctx *psmctx = ctx->cipher_ctx;
     psmctx->ssc = 0;
 
-    return SC_SUCCESS;
+    return increment_ssc(ctx);
 }
 
 int pace_sm_encrypt(sc_card_t *card, const struct sm_ctx *ctx,
@@ -1069,6 +1075,7 @@ int pace_sm_authenticate(sc_card_t *card, const struct sm_ctx *ctx,
     BUF_MEM *databuf = NULL, *macbuf = NULL;
     u8 *p = NULL;
     int r;
+    size_t oldlen;
 
     if (!ctx || !ctx->cipher_ctx) {
         r = SC_ERROR_INVALID_ARGUMENTS;
@@ -1077,12 +1084,17 @@ int pace_sm_authenticate(sc_card_t *card, const struct sm_ctx *ctx,
     struct pace_sm_ctx *psmctx = ctx->cipher_ctx;
 
     databuf = encoded_ssc(psmctx->ssc, psmctx->ctx);
-    if (!databuf ||
-            !BUF_MEM_grow(databuf, databuf->length + datalen)) {
+    if (!databuf) {
         r = SC_ERROR_INTERNAL;
         goto err;
     }
-    memcpy(databuf->data + databuf->length, data, datalen);
+    oldlen = databuf->length;
+    if (!BUF_MEM_grow(databuf, oldlen + datalen)) {
+        r = SC_ERROR_INTERNAL;
+        goto err;
+    }
+    memcpy(databuf->data + oldlen, data, datalen);
+    databuf->length = oldlen + datalen;
 
     macbuf = PACE_authenticate(psmctx->ctx, psmctx->protocol,
             psmctx->key_mac, databuf);
