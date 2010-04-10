@@ -850,6 +850,8 @@ int pace_test(sc_card_t *card)
     SC_TEST_RET(card->ctx, sm_encrypt(&sctx, card, &apdu, &sm_apdu),
             "Could not encrypt APDU.");
     bin_log(card->ctx, "SM APDU data", sm_apdu.data, sm_apdu.datalen);
+    sm_apdu.resplen = maxresp;
+    sm_apdu.resp = malloc(apdu.resplen);
     SC_TEST_RET(card->ctx, my_transmit_apdu(card, &sm_apdu),
             "Could not send SM APDU.");
     SC_TEST_RET(card->ctx, sm_decrypt(&sctx, card, &sm_apdu, &apdu),
