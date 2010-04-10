@@ -20,7 +20,6 @@
 #define _CCID_SM_H
 
 #include <opensc/opensc.h>
-#include <openssl/buffer.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -50,8 +49,9 @@ struct sm_ctx {
 int sm_transmit_apdu(const struct sm_ctx *sctx, sc_card_t *card,
         sc_apdu_t *apdu);
 
-BUF_MEM * add_iso_pad(const BUF_MEM * m, int block_size);
-BUF_MEM * add_padding(const struct sm_ctx *ctx, const char *data, size_t datalen);
+int add_iso_pad(const u8 *data, size_t datalen, int block_size, u8 **padded);
+int add_padding(const struct sm_ctx *ctx, const u8 *data, size_t datalen,
+        u8 **padded);
 
 void bin_log(sc_context_t *ctx, const char *label, const u8 *data, size_t len);
 
