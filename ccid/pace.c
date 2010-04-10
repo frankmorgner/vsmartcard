@@ -854,8 +854,10 @@ int pace_test(sc_card_t *card)
     sm_apdu.resp = malloc(apdu.resplen);
     SC_TEST_RET(card->ctx, my_transmit_apdu(card, &sm_apdu),
             "Could not send SM APDU.");
+    SC_TEST_RET(card->ctx, sm_check_sw(card, sm_apdu.sw1, sm_apdu.sw2),
+            "Card returned error.");
     SC_TEST_RET(card->ctx, sm_decrypt(&sctx, card, &sm_apdu, &apdu),
-            "Could not decrypt APDU");
+            "Could not decrypt APDU.");
     bin_log(card->ctx, "SM APDU response", sm_apdu.resp, apdu.resplen);
 
     return SC_SUCCESS;

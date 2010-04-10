@@ -53,6 +53,8 @@ int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
 int sm_decrypt(const struct sm_ctx *ctx, sc_card_t *card,
         const sc_apdu_t *sm_apdu, sc_apdu_t *apdu);
 
+int sm_check_sw(sc_card_t *card, unsigned int sw1, unsigned int sw2);
+
 BUF_MEM * add_iso_pad(const BUF_MEM * m, int block_size);
 BUF_MEM * add_padding(const struct sm_ctx *ctx, const char *data, size_t datalen);
 

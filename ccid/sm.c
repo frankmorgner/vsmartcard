@@ -43,6 +43,25 @@ static const struct sc_asn1_entry c_sm_rapdu[] = {
     { NULL, 0, 0, 0, NULL, NULL }
 };
 
+static const struct sc_card_error sm_errors[] = {
+    { 0x6987, SC_ERROR_DATA_OBJECT_NOT_FOUND,         "Secure Messaging data objects are missing" },
+    { 0x6988, SC_ERROR_SECURITY_STATUS_NOT_SATISFIED, "Secure Messaging data objects are incorrect" },
+};
+
+int sm_check_sw(sc_card_t *card, unsigned int sw1, unsigned int sw2)
+{
+    const int err_count = sizeof(sm_errors)/sizeof(sm_errors[0]);
+    int i;
+
+    for (i = 0; i < err_count; i++)
+        if (sm_errors[i].SWs == ((sw1 << 8) | sw2)) {
+            sc_error(card->ctx, "%s\n", sm_errors[i].errorstr);
+            return sm_errors[i].errorno;
+        }
+
+    return sc_check_sw(card, sw1, sw2);
+}
+
 void bin_log(sc_context_t *ctx, const char *label, const u8 *data, size_t len)
 {
     char buf[1024];
@@ -455,8 +474,6 @@ int sm_decrypt(const struct sm_ctx *ctx, sc_card_t *card,
         if (r < 0)
             goto err;
     }
-
-
 
 
     if (sm_rapdu[0].flags & SC_ASN1_PRESENT) {
