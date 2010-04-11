@@ -840,6 +840,7 @@ int pace_test(sc_card_t *card)
     apdu.le = 0x00;
     apdu.cse = SC_APDU_CASE_4_SHORT;
 
+    /*increment_ssc(&sctx);*/
     sm_transmit_apdu(&sctx, card, &apdu);
 
     return SC_SUCCESS;
@@ -934,7 +935,8 @@ update_iv(struct sm_ctx *ctx)
             psmctx->ctx->iv = NULL;
             break;
         default:
-            break;
+            r = SC_ERROR_INVALID_ARGUMENTS;
+            goto err;
     }
 
     r = SC_SUCCESS;
