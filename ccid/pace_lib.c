@@ -28,6 +28,12 @@ pace_sm_ctx_create(int protocol, const BUF_MEM *key_mac,
     if (!out)
         return NULL;
 
+    out->ssc = BN_new();
+    if (!out->ssc) {
+        free(out);
+        return NULL;
+    }
+
     out->key_enc = key_enc;
     out->key_mac = key_mac;
     out->protocol = protocol;
@@ -40,6 +46,8 @@ void
 pace_sm_ctx_free(struct pace_sm_ctx *ctx)
 {
     if (ctx) {
+        if (ctx->ssc)
+            BN_clear_free(ctx->ssc);
         free(ctx);
     }
 }

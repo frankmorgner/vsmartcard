@@ -23,6 +23,7 @@
 #include <linux/usb/ch9.h>
 #include <opensc/opensc.h>
 #include <openssl/pace.h>
+#include <openssl/bn.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,7 +45,7 @@ extern "C" {
 struct pace_sm_ctx {
     int protocol;
     /* XXX SSC is up to 16 Bytes long, not only 16 Bits */
-    uint16_t ssc;
+    BIGNUM *ssc;
     const BUF_MEM *key_mac;
     const BUF_MEM *key_enc;
     PACE_CTX *ctx;
