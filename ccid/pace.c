@@ -832,15 +832,26 @@ int pace_test(sc_card_t *card)
     apdu.ins = 0xA4;
     apdu.p1 = 0x08;
     apdu.p2 = 0x00;
-    apdu.lc = 0x02;
     in[0] = 0x01;
     in[1] = 0x1D;
     apdu.data = in;
     apdu.datalen = 2;
+    apdu.lc = apdu.datalen;
     apdu.le = 0x00;
     apdu.cse = SC_APDU_CASE_4_SHORT;
 
     /*increment_ssc(&sctx);*/
+    sm_transmit_apdu(&sctx, card, &apdu);
+
+    /* read CardSecurity */
+    apdu.cla = 0x00;
+    apdu.ins = 0xB0;
+    apdu.p1 = 0x02;
+    apdu.p2 = 0x00;
+    apdu.le = 0x00;
+    apdu.cse = SC_APDU_CASE_2_SHORT;
+
+    increment_ssc(&sctx);
     sm_transmit_apdu(&sctx, card, &apdu);
 
     return SC_SUCCESS;
