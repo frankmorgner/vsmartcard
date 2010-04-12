@@ -75,6 +75,9 @@ int EstablishPACEChannel(sc_card_t *card, const __u8 *in,
         __u8 **out, size_t *outlen, struct sm_ctx *ctx);
 int pace_test(sc_card_t *card);
 
+int pace_transmit_apdu(struct sm_ctx *sctx, sc_card_t *card,
+        sc_apdu_t *apdu);
+
 #ifdef  __cplusplus
 }
 #endif

@@ -828,6 +828,16 @@ int pace_test(sc_card_t *card)
     SC_TEST_RET(card->ctx, EstablishPACEChannel(card, in, &out, &outlen, &sctx),
             "Could not establish PACE channel.");
 
+    /* reset retry counter */
+    apdu.cla = 0x00;
+    apdu.ins = 0x2C;
+    apdu.p1 = 0x03;
+    apdu.p2 = 0x02;
+    apdu.cse = SC_APDU_CASE_1;
+
+    SC_TEST_RET(card->ctx, pace_transmit_apdu(&sctx, card, &apdu),
+            "Could not reset retry counter of CAN");
+
     /* select CardSecurity */
     apdu.cla = 0x00;
     apdu.ins = 0xA4;
@@ -841,8 +851,8 @@ int pace_test(sc_card_t *card)
     apdu.le = 0x00;
     apdu.cse = SC_APDU_CASE_4_SHORT;
 
-    /*increment_ssc(&sctx);*/
-    sm_transmit_apdu(&sctx, card, &apdu);
+    SC_TEST_RET(card->ctx, pace_transmit_apdu(&sctx, card, &apdu),
+            "Could not select EF.CardSecurity");
 
     /* read CardSecurity */
     apdu.cla = 0x00;
@@ -852,8 +862,8 @@ int pace_test(sc_card_t *card)
     apdu.le = 0x00;
     apdu.cse = SC_APDU_CASE_2_SHORT;
 
-    increment_ssc(&sctx);
-    sm_transmit_apdu(&sctx, card, &apdu);
+    SC_TEST_RET(card->ctx, pace_transmit_apdu(&sctx, card, &apdu),
+            "Could not read EF.CardSecurity");
 
     return SC_SUCCESS;
 }
@@ -1138,6 +1148,16 @@ err:
         free(ssc);
 
     SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, r);
+}
+
+int pace_transmit_apdu(struct sm_ctx *sctx, sc_card_t *card,
+        sc_apdu_t *apdu)
+{
+    SC_TEST_RET(card->ctx, sm_transmit_apdu(sctx, card, apdu),
+            "Could not send SM APDU");
+    increment_ssc(sctx);
+
+    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_SUCCESS);
 }
 
 #endif
