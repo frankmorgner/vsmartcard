@@ -22,6 +22,7 @@
 #include <openssl/evp.h>
 #include <openssl/asn1.h>
 #include <openssl/asn1t.h>
+#include <openssl/buffer.h>
 
 
 #define ASN1_APP_EXP_OPT(stname, field, type, tag) ASN1_EX_TYPE(ASN1_TFLG_EXPTAG|ASN1_TFLG_APPLICATION|ASN1_TFLG_OPTIONAL, tag, stname, field, type)
