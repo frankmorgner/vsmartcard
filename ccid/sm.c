@@ -278,7 +278,7 @@ static int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
     sm_apdu->ins = apdu->ins;
     sm_apdu->p1 = apdu->p1;
     sm_apdu->p2 = apdu->p2;
-    r = format_head(ctx, sm_apdu, &mac_data);
+    r = format_head(ctx, apdu, &mac_data);
     if (r < 0) {
         sc_error(card->ctx, "Could not format header of SM apdu");
         goto err;
