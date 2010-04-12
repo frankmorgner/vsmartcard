@@ -36,11 +36,11 @@ static const struct sc_asn1_entry c_sm_capdu[] = {
 
 static const struct sc_asn1_entry c_sm_rapdu[] = {
     { "Padding-content indicator followed by cryptogram" ,
-        SC_ASN1_OCTET_STRING, SC_ASN1_CTX|0x07, SC_ASN1_OPTIONAL                 , NULL, NULL },
+        SC_ASN1_OCTET_STRING, SC_ASN1_CTX|0x07, SC_ASN1_OPTIONAL, NULL, NULL },
     { "Processing Status",
-        SC_ASN1_INTEGER     , SC_ASN1_CTX|0x19, SC_ASN1_OPTIONAL|SC_ASN1_UNSIGNED, NULL, NULL },
+        SC_ASN1_OCTET_STRING, SC_ASN1_CTX|0x19, 0               , NULL, NULL },
     { "Cryptographic Checksum",
-        SC_ASN1_OCTET_STRING, SC_ASN1_CTX|0x0E, SC_ASN1_OPTIONAL                 , NULL, NULL },
+        SC_ASN1_OCTET_STRING, SC_ASN1_CTX|0x0E, SC_ASN1_OPTIONAL, NULL, NULL },
     { NULL, 0, 0, 0, NULL, NULL }
 };
 
@@ -270,8 +270,6 @@ static int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
     sc_copy_asn1_entry(c_sm_capdu, sm_capdu);
 
     sm_apdu->sensitive = 0;
-    sm_apdu->resp = apdu->resp;
-    sm_apdu->resplen = apdu->resplen;
     sm_apdu->control = apdu->control;
     sm_apdu->flags = apdu->flags;
     sm_apdu->cla = 0x0C;
@@ -455,7 +453,7 @@ static int sm_decrypt(const struct sm_ctx *ctx, sc_card_t *card,
     int r;
     struct sc_asn1_entry sm_rapdu[4];
     struct sc_asn1_entry my_sm_rapdu[4];
-    u8 sw[2], mac[256], fdata[1024];
+    u8 sw[2], mac[8], fdata[SC_MAX_APDU_BUFFER_SIZE];
     size_t sw_len = sizeof sw, mac_len = sizeof mac, fdata_len = sizeof fdata,
            buf_len, asn1_len;
     const u8 *buf;
@@ -466,7 +464,7 @@ static int sm_decrypt(const struct sm_ctx *ctx, sc_card_t *card,
     sc_format_asn1_entry(sm_rapdu + 1, sw, &sw_len, 0);
     sc_format_asn1_entry(sm_rapdu + 2, mac, &mac_len, 0);
 
-    r = sc_asn1_decode(card->ctx, sm_rapdu, apdu->resp, apdu->resplen,
+    r = sc_asn1_decode(card->ctx, sm_rapdu, sm_apdu->resp, sm_apdu->resplen,
             &buf, &buf_len);
     if (r < 0)
         goto err;
@@ -477,9 +475,10 @@ static int sm_decrypt(const struct sm_ctx *ctx, sc_card_t *card,
 
 
     if (sm_rapdu[2].flags & SC_ASN1_PRESENT) {
+        /* copy from sm_apdu to my_sm_apdu, but leave mac at default */
         sc_copy_asn1_entry(sm_rapdu, my_sm_rapdu);
+        sc_copy_asn1_entry(&c_sm_rapdu[2], &my_sm_rapdu[2]);
 
-        sc_format_asn1_entry(my_sm_rapdu + 2, NULL, NULL, 0);
         r = sc_asn1_encode(card->ctx, my_sm_rapdu, &asn1, &asn1_len);
         if (r < 0)
             goto err;
@@ -488,10 +487,16 @@ static int sm_decrypt(const struct sm_ctx *ctx, sc_card_t *card,
             goto err;
         }
         
+#if 0
+        /* XXX */
         r = ctx->verify_authentication(card, ctx, mac, mac_len,
                 mac_data, r);
         if (r < 0)
             goto err;
+#endif
+    } else {
+        r = SC_ERROR_ASN1_OBJECT_NOT_FOUND;
+        goto err;
     }
 
 
@@ -509,11 +514,28 @@ static int sm_decrypt(const struct sm_ctx *ctx, sc_card_t *card,
         if (r < 0)
             goto err;
 
-        memcpy(apdu, sm_apdu, sizeof *apdu);
-        apdu->resp = data;
+        if (apdu->resplen < r) {
+            sc_error(card->ctx, "Response of SM APDU too long");
+            r = SC_ERROR_OUT_OF_MEMORY;
+            goto err;
+        }
+        memcpy(apdu->resp, data, r);
         apdu->resplen = r;
     } else {
         apdu->resplen = 0;
+    }
+
+    if (sm_rapdu[1].flags & SC_ASN1_PRESENT) {
+        if (sw_len != 2) {
+            sc_error(card->ctx, "Length of processing status bytes must be 2");
+            r = SC_ERROR_ASN1_END_OF_CONTENTS;
+            goto err;
+        }
+        apdu->sw1 = sw[0];
+        apdu->sw2 = sw[1];
+    } else {
+        r = SC_ERROR_ASN1_OBJECT_NOT_FOUND;
+        goto err;
     }
 
     sc_debug(card->ctx, "Decrypted APDU sw1=%02x sw2=%02x",
@@ -550,11 +572,11 @@ int sm_transmit_apdu(const struct sm_ctx *sctx, sc_card_t *card,
     SC_TEST_RET(card->ctx, sm_encrypt(sctx, card, apdu, &sm_apdu),
             "Could not encrypt APDU.");
     SC_TEST_RET(card->ctx, my_transmit_apdu(card, &sm_apdu),
-            "Could not send SM APDU.");
-    SC_TEST_RET(card->ctx, sc_check_sw(card, sm_apdu.sw1, sm_apdu.sw2),
-            "Card returned error.");
+            "Could not transmit SM APDU.");
     SC_TEST_RET(card->ctx, sm_decrypt(sctx, card, &sm_apdu, apdu),
             "Could not decrypt APDU.");
+    SC_TEST_RET(card->ctx, sc_check_sw(card, apdu->sw1, apdu->sw2),
+            "Card returned error.");
 
     SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, SC_SUCCESS);
 }

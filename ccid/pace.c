@@ -828,7 +828,7 @@ err:
 
 int pace_test(sc_card_t *card)
 {
-    __u8 in[16];
+    __u8 in[16], buf[SC_MAX_APDU_BUFFER_SIZE - 2];
     __u8 *out = NULL;
     size_t outlen;
     struct sm_ctx sctx;
@@ -863,6 +863,8 @@ int pace_test(sc_card_t *card)
     apdu.datalen = 2;
     apdu.lc = apdu.datalen;
     apdu.le = 0x00;
+    apdu.resp = buf;
+    apdu.resplen = sizeof buf;
     apdu.cse = SC_APDU_CASE_4_SHORT;
 
     SC_TEST_RET(card->ctx, pace_transmit_apdu(&sctx, card, &apdu),
