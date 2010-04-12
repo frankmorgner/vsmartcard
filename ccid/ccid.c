@@ -29,7 +29,6 @@
 #include "ccid.h"
 #include "pace.h"
 
-//static const char *app_name = "ccid";
 static sc_context_t *ctx = NULL;
 static sc_card_t *card_in_slot[SC_MAX_SLOTS];
 static sc_reader_t *reader;
@@ -118,7 +117,11 @@ int ccid_initialize(int reader_id, int verbose)
 {
     unsigned int i, reader_count;
 
-    SC_TEST_RET(ctx, sc_context_create(&ctx, NULL), "Failed to create initial context.");
+    int r = sc_context_create(&ctx, NULL);
+    if (r < 0) {
+        printf("Failed to create initial context: %s", sc_strerror(r));
+        return r;
+    }
 
     ctx->debug = verbose;
 

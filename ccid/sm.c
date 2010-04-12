@@ -177,7 +177,7 @@ static int prefix_buf(u8 prefix, u8 *buf, size_t buflen, u8 **cat)
         return SC_ERROR_OUT_OF_MEMORY;
 
     if (*cat == buf) {
-        memmove(p + 1, buf, buflen);
+        memmove(p + 1, p, buflen);
     } else {
         memcpy(p + 1, buf, buflen);
     }
@@ -420,7 +420,12 @@ static int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
     r = sc_asn1_encode(card->ctx, sm_capdu, (u8 **) &sm_data, &sm_data_len);
     if (r < 0)
         goto err;
-    sm_apdu->data = sm_data;
+    if (sm_apdu->datalen < sm_data_len) {
+        sc_error(card->ctx, "Data for SM APDU too long");
+        r = SC_ERROR_OUT_OF_MEMORY;
+        goto err;
+    }
+    memcpy((u8 *) sm_apdu->data, sm_data, sm_data_len);
     sm_apdu->datalen = sm_data_len;
     sm_apdu->lc = sm_apdu->datalen;
     sm_apdu->le = 0;
@@ -428,21 +433,18 @@ static int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
     bin_log(card->ctx, "ASN.1 encoded APDU data", sm_apdu->data, sm_apdu->datalen);
 
 err:
-    if (fdata) {
+    if (fdata)
         free(fdata);
-    }
-    if (asn1) {
+    if (asn1)
         free(asn1);
-    }
-    if (mac_data) {
+    if (mac_data)
         free(mac_data);
-    }
-    if (mac) {
+    if (mac)
         free(mac);
-    }
-    if (le) {
+    if (le)
         free(le);
-    }
+    if (sm_data)
+        free(sm_data);
 
     SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, r);
 }
@@ -538,16 +540,17 @@ int sm_transmit_apdu(const struct sm_ctx *sctx, sc_card_t *card,
         sc_apdu_t *apdu)
 {
     sc_apdu_t sm_apdu;
-    u8 buf[SC_MAX_APDU_BUFFER_SIZE - 2];
+    u8 rbuf[SC_MAX_APDU_BUFFER_SIZE - 2], sbuf[SC_MAX_APDU_BUFFER_SIZE - 4];
+
+    sm_apdu.data = sbuf;
+    sm_apdu.datalen = sizeof sbuf;
+    sm_apdu.resp = rbuf;
+    sm_apdu.resplen = sizeof rbuf;
 
     SC_TEST_RET(card->ctx, sm_encrypt(sctx, card, apdu, &sm_apdu),
             "Could not encrypt APDU.");
-
-    sm_apdu.resplen = sizeof *buf;
-    sm_apdu.resp = buf;
     SC_TEST_RET(card->ctx, my_transmit_apdu(card, &sm_apdu),
             "Could not send SM APDU.");
-
     SC_TEST_RET(card->ctx, sc_check_sw(card, sm_apdu.sw1, sm_apdu.sw2),
             "Card returned error.");
     SC_TEST_RET(card->ctx, sm_decrypt(sctx, card, &sm_apdu, apdu),

@@ -1798,7 +1798,9 @@ main (int argc, char **argv)
     }
 
     if (dotest) {
-        return ccid_testpace();
+        i = ccid_testpace();
+        ccid_shutdown();
+        return i;
     }
 
     fd = init_device ();

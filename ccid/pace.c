@@ -201,24 +201,34 @@ static int get_ef_card_access(sc_card_t *card,
 {
     int r;
     sc_path_t path;
-    sc_file_t *file;
+    sc_file_t *file = NULL;
     __u8 *p;
 
     memset(&path, 0, sizeof path);
-    SC_TEST_RET(card->ctx, sc_append_file_id(&path, FID_EF_CARDACCESS),
-            "Could not create path object.");
-    SC_TEST_RET(card->ctx, sc_concatenate_path(&path, sc_get_mf_path(), &path),
-            "Could not create path object.");
+    r = sc_append_file_id(&path, FID_EF_CARDACCESS);
+    if (r < 0) {
+        sc_error(card->ctx, "Could not create path object.");
+        goto err;
+    }
+    r = sc_concatenate_path(&path, sc_get_mf_path(), &path);
+    if (r < 0) {
+        sc_error(card->ctx, "Could not create path object.");
+        goto err;
+    }
 
-    memset(&file, 0, sizeof file);
-    SC_TEST_RET(card->ctx, sc_select_file(card, &path, &file),
-            "Could not select EF.CardAccess.");
+    r = sc_select_file(card, &path, &file);
+    if (r < 0) {
+        sc_error(card->ctx, "Could not select EF.CardAccess.");
+        goto err;
+    }
+
     *length_ef_cardaccess = 0;
-
     while(1) {
         p = realloc(*ef_cardaccess, *length_ef_cardaccess + maxresp);
-        if (!p)
-            SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_OUT_OF_MEMORY);
+        if (!p) {
+            r = SC_ERROR_OUT_OF_MEMORY;
+            goto err;
+        }
         *ef_cardaccess = p;
 
         r = sc_read_binary(card, *length_ef_cardaccess,
@@ -229,17 +239,29 @@ static int get_ef_card_access(sc_card_t *card,
             break;
         }
 
-        SC_TEST_RET(card->ctx, r, "Could not read EF.CardAccess.");
+        if (r < 0) {
+            sc_error(card->ctx, "Could not read EF.CardAccess.");
+            goto err;
+        }
 
         *length_ef_cardaccess += r;
     }
 
     /* test cards only return an empty FCI template,
      * so we can't determine any file proberties */
-    if (*length_ef_cardaccess < file->size)
-        SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_FILE_TOO_SMALL);
+    if (*length_ef_cardaccess < file->size) {
+        r = SC_ERROR_FILE_TOO_SMALL;
+        goto err;
+    }
 
-    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_SUCCESS);
+    r = SC_SUCCESS;
+
+err:
+    if (file) {
+        free(file);
+    }
+
+    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, r);
 }
 
 static int pace_mse_set_at(sc_card_t *card,
@@ -324,6 +346,8 @@ static int pace_mse_set_at(sc_card_t *card,
     }
 
 err:
+    if (apdu.resp)
+        free(apdu.resp);
     if (data) {
         // XXX
         //if (data->cryptographic_mechanism_reference)
@@ -336,8 +360,6 @@ err:
     }
     if (d)
         free(d);
-    if (apdu.resplen)
-        free(apdu.resp);
 
     SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, r);
 }
@@ -523,9 +545,9 @@ err:
             ASN1_OCTET_STRING_free(r_data->auth_token);*/
         PACE_GEN_AUTH_R_free(r_data);
     }
-    // XXX
-    //if (apdu.resplen)
-        //free(apdu.resp);
+    /* XXX */
+    /*if (apdu.resp)*/
+        /*free(apdu.resp);*/
 
     SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, r);
 }
@@ -753,6 +775,8 @@ int EstablishPACEChannel(sc_card_t *card, const __u8 *in,
     r = reset_ssc(sctx);
 
 err:
+    if (ef_cardaccess)
+        free(ef_cardaccess);
     if (info)
         PACEInfo_free(info);
     if (static_dp)
@@ -965,6 +989,8 @@ update_iv(struct sm_ctx *ctx)
     r = SC_SUCCESS;
 
 err:
+    if (ssc)
+        free(ssc);
     if (sscbuf)
         BUF_MEM_free(sscbuf);
     if (ivbuf)
