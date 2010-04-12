@@ -43,7 +43,6 @@ extern "C" {
 #define MAX_EF_CARDACCESS 2048
 
 struct pace_sm_ctx {
-    int protocol;
     /* XXX SSC is up to 16 Bytes long, not only 16 Bits */
     BIGNUM *ssc;
     const BUF_MEM *key_mac;
@@ -52,7 +51,7 @@ struct pace_sm_ctx {
 };
 
 struct pace_sm_ctx *
-pace_sm_ctx_create(int protocol, const BUF_MEM *key_mac,
+pace_sm_ctx_create(const BUF_MEM *key_mac,
         const BUF_MEM *key_enc, PACE_CTX *ctx);
 void
 pace_sm_ctx_free(struct pace_sm_ctx *ctx);

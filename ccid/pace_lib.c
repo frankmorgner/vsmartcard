@@ -21,7 +21,7 @@
 #include <openssl/pace.h>
 
 struct pace_sm_ctx *
-pace_sm_ctx_create(int protocol, const BUF_MEM *key_mac,
+pace_sm_ctx_create(const BUF_MEM *key_mac,
         const BUF_MEM *key_enc, PACE_CTX *ctx)
 {
     struct pace_sm_ctx *out = malloc(sizeof *out);
@@ -36,7 +36,6 @@ pace_sm_ctx_create(int protocol, const BUF_MEM *key_mac,
 
     out->key_enc = key_enc;
     out->key_mac = key_mac;
-    out->protocol = protocol;
     out->ctx = ctx;
 
     return out;

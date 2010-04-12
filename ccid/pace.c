@@ -743,7 +743,7 @@ int EstablishPACEChannel(sc_card_t *card, const __u8 *in,
     sctx->decrypt = pace_sm_decrypt;
     sctx->padding_indicator = SM_ISO_PADDING;
     sctx->block_length = EVP_CIPHER_block_size(pctx->cipher);
-    sctx->authentication_ctx = pace_sm_ctx_create(info->protocol, k_mac,
+    sctx->authentication_ctx = pace_sm_ctx_create(k_mac,
             k_enc, pctx);
     sctx->cipher_ctx = sctx->authentication_ctx;
     if (!sctx->authentication_ctx) {
@@ -907,31 +907,22 @@ update_iv(struct sm_ctx *ctx)
         return SC_ERROR_INVALID_ARGUMENTS;
 
     BUF_MEM *sscbuf = NULL, *ivbuf = NULL;
-    EVP_CIPHER *ivcipher = NULL;
+    const EVP_CIPHER *ivcipher = NULL, *oldcipher;
     u8 *ssc = NULL;
     unsigned char *p;
     struct pace_sm_ctx *psmctx = ctx->cipher_ctx;
     int r;
 
-    switch (psmctx->protocol) {
-        case NID_id_PACE_DH_GM_AES_CBC_CMAC_128:
-        case NID_id_PACE_DH_IM_AES_CBC_CMAC_128:
-        case NID_id_PACE_ECDH_GM_AES_CBC_CMAC_128:
-        case NID_id_PACE_ECDH_IM_AES_CBC_CMAC_128:
+    switch (EVP_CIPHER_nid(psmctx->ctx->cipher)) {
+        case NID_aes_128_cbc:
             if (!ivcipher)
                 ivcipher = EVP_aes_128_ecb();
             /* fall through */
-        case NID_id_PACE_DH_GM_AES_CBC_CMAC_192:
-        case NID_id_PACE_DH_IM_AES_CBC_CMAC_192:
-        case NID_id_PACE_ECDH_GM_AES_CBC_CMAC_192:
-        case NID_id_PACE_ECDH_IM_AES_CBC_CMAC_192:
+        case NID_aes_192_cbc:
             if (!ivcipher)
                 ivcipher = EVP_aes_192_ecb();
             /* fall through */
-        case NID_id_PACE_DH_GM_AES_CBC_CMAC_256:
-        case NID_id_PACE_DH_IM_AES_CBC_CMAC_256:
-        case NID_id_PACE_ECDH_GM_AES_CBC_CMAC_256:
-        case NID_id_PACE_ECDH_IM_AES_CBC_CMAC_256:
+        case NID_aes_256_cbc:
             if (!ivcipher)
                 ivcipher = EVP_aes_256_ecb();
 
@@ -961,10 +952,7 @@ update_iv(struct sm_ctx *ctx)
             psmctx->ctx->iv = p;
             memcpy(psmctx->ctx->iv, ivbuf->data, ivbuf->length);
             break;
-        case NID_id_PACE_DH_GM_3DES_CBC_CBC:
-        case NID_id_PACE_DH_IM_3DES_CBC_CBC:
-        case NID_id_PACE_ECDH_GM_3DES_CBC_CBC:
-        case NID_id_PACE_ECDH_IM_3DES_CBC_CBC:
+        case NID_des_ede_cbc:
             /* For 3DES encryption or decryption the IV is always NULL */
             free(psmctx->ctx->iv);
             psmctx->ctx->iv = NULL;
@@ -1129,8 +1117,7 @@ int pace_sm_authenticate(sc_card_t *card, const struct sm_ctx *ctx,
     bin_log(card->ctx, "Data to authenticate (PACE)",
             (u8 *) databuf->data, databuf->length);
 
-    macbuf = PACE_authenticate(psmctx->ctx, psmctx->protocol,
-            psmctx->key_mac, databuf);
+    macbuf = PACE_authenticate(psmctx->ctx, psmctx->key_mac, databuf);
     if (!macbuf) {
         sc_error(card->ctx, "Could not get MAC\n");
         r = SC_ERROR_INTERNAL;
