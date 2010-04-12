@@ -207,11 +207,13 @@ static int format_data(sc_card_t *card, const struct sm_ctx *ctx,
         goto err;
     pad_data_len = r;
 
+    bin_log(card->ctx, "Data to encrypt", pad_data, pad_data_len);
     r = ctx->encrypt(card, ctx, pad_data, pad_data_len, formatted_data);
     if (r < 0) {
         sc_error(card->ctx, "Could not encrypt the data");
         goto err;
     }
+    bin_log(card->ctx, "Cryptogram", *formatted_data, r);
 
     r = prefix_buf(ctx->padding_indicator, *formatted_data, r, formatted_data);
     if (r < 0)
@@ -276,7 +278,7 @@ static int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
     sm_apdu->ins = apdu->ins;
     sm_apdu->p1 = apdu->p1;
     sm_apdu->p2 = apdu->p2;
-    r = format_head(ctx, apdu, &mac_data);
+    r = format_head(ctx, sm_apdu, &mac_data);
     if (r < 0) {
         sc_error(card->ctx, "Could not format header of SM apdu");
         goto err;
