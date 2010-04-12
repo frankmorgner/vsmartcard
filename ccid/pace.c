@@ -828,16 +828,6 @@ int pace_test(sc_card_t *card)
     SC_TEST_RET(card->ctx, EstablishPACEChannel(card, in, &out, &outlen, &sctx),
             "Could not establish PACE channel.");
 
-    /* reset retry counter */
-    apdu.cla = 0x00;
-    apdu.ins = 0x2C;
-    apdu.p1 = 0x03;
-    apdu.p2 = 0x02;
-    apdu.cse = SC_APDU_CASE_1;
-
-    SC_TEST_RET(card->ctx, pace_transmit_apdu(&sctx, card, &apdu),
-            "Could not reset retry counter of CAN");
-
     /* select CardSecurity */
     apdu.cla = 0x00;
     apdu.ins = 0xA4;
@@ -861,6 +851,16 @@ int pace_test(sc_card_t *card)
     apdu.p2 = 0x00;
     apdu.le = 0x00;
     apdu.cse = SC_APDU_CASE_2_SHORT;
+
+    /* reset retry counter */
+    apdu.cla = 0x00;
+    apdu.ins = 0x2C;
+    apdu.p1 = 0x03;
+    apdu.p2 = 0x02;
+    apdu.cse = SC_APDU_CASE_1;
+
+    SC_TEST_RET(card->ctx, pace_transmit_apdu(&sctx, card, &apdu),
+            "Could not reset retry counter of CAN");
 
     SC_TEST_RET(card->ctx, pace_transmit_apdu(&sctx, card, &apdu),
             "Could not read EF.CardSecurity");
@@ -907,6 +907,7 @@ update_iv(struct sm_ctx *ctx)
         return SC_ERROR_INVALID_ARGUMENTS;
 
     BUF_MEM *sscbuf = NULL, *ivbuf = NULL;
+    EVP_CIPHER *ivcipher = NULL;
     u8 *ssc = NULL;
     unsigned char *p;
     struct pace_sm_ctx *psmctx = ctx->cipher_ctx;
@@ -914,17 +915,26 @@ update_iv(struct sm_ctx *ctx)
 
     switch (psmctx->protocol) {
         case NID_id_PACE_DH_GM_AES_CBC_CMAC_128:
-        case NID_id_PACE_DH_GM_AES_CBC_CMAC_192:
-        case NID_id_PACE_DH_GM_AES_CBC_CMAC_256:
         case NID_id_PACE_DH_IM_AES_CBC_CMAC_128:
-        case NID_id_PACE_DH_IM_AES_CBC_CMAC_192:
-        case NID_id_PACE_DH_IM_AES_CBC_CMAC_256:
         case NID_id_PACE_ECDH_GM_AES_CBC_CMAC_128:
-        case NID_id_PACE_ECDH_GM_AES_CBC_CMAC_192:
-        case NID_id_PACE_ECDH_GM_AES_CBC_CMAC_256:
         case NID_id_PACE_ECDH_IM_AES_CBC_CMAC_128:
+            if (!ivcipher)
+                ivcipher = EVP_aes_128_ecb();
+            /* fall through */
+        case NID_id_PACE_DH_GM_AES_CBC_CMAC_192:
+        case NID_id_PACE_DH_IM_AES_CBC_CMAC_192:
+        case NID_id_PACE_ECDH_GM_AES_CBC_CMAC_192:
         case NID_id_PACE_ECDH_IM_AES_CBC_CMAC_192:
+            if (!ivcipher)
+                ivcipher = EVP_aes_192_ecb();
+            /* fall through */
+        case NID_id_PACE_DH_GM_AES_CBC_CMAC_256:
+        case NID_id_PACE_DH_IM_AES_CBC_CMAC_256:
+        case NID_id_PACE_ECDH_GM_AES_CBC_CMAC_256:
         case NID_id_PACE_ECDH_IM_AES_CBC_CMAC_256:
+            if (!ivcipher)
+                ivcipher = EVP_aes_256_ecb();
+
             /* For AES decryption the IV is not needed,
              * so we always set it to the encryption IV=E(K_Enc, SSC) */
             r = encode_ssc(psmctx->ssc, psmctx->ctx, &ssc);
@@ -935,7 +945,10 @@ update_iv(struct sm_ctx *ctx)
                 r = SC_ERROR_OUT_OF_MEMORY;
                 goto err;
             }
+            oldcipher = psmctx->ctx->cipher;
+            psmctx->ctx->cipher = ivcipher;
             ivbuf = PACE_encrypt(psmctx->ctx, psmctx->key_enc, sscbuf);
+            psmctx->ctx->cipher = oldcipher;
             if (!ivbuf) {
                 r = SC_ERROR_INTERNAL;
                 goto err;
@@ -980,11 +993,7 @@ increment_ssc(struct sm_ctx *ctx)
 
     struct pace_sm_ctx *psmctx = ctx->cipher_ctx;
 
-    if (BN_is_zero(psmctx->ssc)) {
-        BN_set_word(psmctx->ssc, 2);
-    } else {
-        BN_add_word(psmctx->ssc, 1);
-    }
+    BN_add_word(psmctx->ssc, 1);
 
     return update_iv(ctx);
 }
@@ -1153,9 +1162,9 @@ err:
 int pace_transmit_apdu(struct sm_ctx *sctx, sc_card_t *card,
         sc_apdu_t *apdu)
 {
+    increment_ssc(sctx);
     SC_TEST_RET(card->ctx, sm_transmit_apdu(sctx, card, apdu),
             "Could not send SM APDU");
-    increment_ssc(sctx);
 
     SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_SUCCESS);
 }

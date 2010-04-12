@@ -278,7 +278,7 @@ static int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
     sm_apdu->ins = apdu->ins;
     sm_apdu->p1 = apdu->p1;
     sm_apdu->p2 = apdu->p2;
-    r = format_head(ctx, apdu, &mac_data);
+    r = format_head(ctx, sm_apdu, &mac_data);
     if (r < 0) {
         sc_error(card->ctx, "Could not format header of SM apdu");
         goto err;
@@ -387,19 +387,21 @@ static int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
     if (r < 0) {
         goto err;
     }
-    p = realloc(mac_data, mac_data_len + asn1_len);
-    if (!p) {
-        r = SC_ERROR_OUT_OF_MEMORY;
-        goto err;
+    if (asn1_len) {
+        p = realloc(mac_data, mac_data_len + asn1_len);
+        if (!p) {
+            r = SC_ERROR_OUT_OF_MEMORY;
+            goto err;
+        }
+        mac_data = p;
+        memcpy(mac_data + mac_data_len, asn1, asn1_len);
+        mac_data_len += asn1_len;
+        r = add_padding(ctx, mac_data, mac_data_len, &mac_data);
+        if (r < 0) {
+            goto err;
+        }
+        mac_data_len = r;
     }
-    mac_data = p;
-    memcpy(mac_data + mac_data_len, asn1, asn1_len);
-    mac_data_len += asn1_len;
-    r = add_padding(ctx, mac_data, mac_data_len, &mac_data);
-    if (r < 0) {
-        goto err;
-    }
-    mac_data_len = r;
     bin_log(card->ctx, "Data to authenticate", mac_data, mac_data_len);
 
     r = ctx->authenticate(card, ctx, mac_data, mac_data_len,
