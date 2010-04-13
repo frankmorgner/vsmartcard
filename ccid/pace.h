@@ -58,8 +58,9 @@ pace_sm_ctx_free(struct pace_sm_ctx *ctx);
 void
 pace_sm_ctx_clear_free(struct pace_sm_ctx *ctx);
 
-int reset_ssc(struct sm_ctx *ctx);
-int increment_ssc(struct sm_ctx *ctx);
+int increment_ssc(struct pace_sm_ctx *psmctx);
+int decrement_ssc(struct pace_sm_ctx *psmctx);
+int reset_ssc(struct pace_sm_ctx *psmctx);
 
 int pace_sm_encrypt(sc_card_t *card, const struct sm_ctx *ctx,
         const u8 *data, size_t datalen, u8 **enc);
@@ -67,6 +68,9 @@ int pace_sm_decrypt(sc_card_t *card, const struct sm_ctx *ctx,
         const u8 *enc, size_t enclen, u8 **data);
 int pace_sm_authenticate(sc_card_t *card, const struct sm_ctx *ctx,
         const u8 *data, size_t datalen, u8 **outdata);
+int pace_sm_verify_authentication(sc_card_t *card, const struct sm_ctx *ctx,
+        const u8 *mac, size_t maclen,
+        const u8 *macdata, size_t macdatalen);
 
 int GetReadersPACECapabilities(sc_card_t *card, const __u8
         *in, __u8 **out, size_t *outlen);

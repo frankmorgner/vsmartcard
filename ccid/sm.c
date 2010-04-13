@@ -487,13 +487,10 @@ static int sm_decrypt(const struct sm_ctx *ctx, sc_card_t *card,
             goto err;
         }
         
-#if 0
-        /* XXX */
         r = ctx->verify_authentication(card, ctx, mac, mac_len,
                 mac_data, r);
         if (r < 0)
             goto err;
-#endif
     } else {
         r = SC_ERROR_ASN1_OBJECT_NOT_FOUND;
         goto err;

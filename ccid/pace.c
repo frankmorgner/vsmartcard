@@ -159,6 +159,17 @@ int pace_sm_decrypt(sc_card_t *card, struct *sm_ctx,
 {
     SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, SC_ERROR_NOT_SUPPORTED);
 }
+int pace_sm_authenticate(sc_card_t *card, const struct sm_ctx *ctx,
+        const u8 *data, size_t datalen, u8 **macdata)
+{
+    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, SC_ERROR_NOT_SUPPORTED);
+}
+int pace_sm_verify_authentication(sc_card_t *card, struct sm_ctx *ctx,
+        const u8 *mac, size_t maclen,
+        const u8 *macdata, size_t macdatalen)
+{
+    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, SC_ERROR_NOT_SUPPORTED);
+}
 #else
 
 #include <asm/byteorder.h>
@@ -763,6 +774,7 @@ int EstablishPACEChannel(sc_card_t *card, const __u8 *in,
     sctx->authenticate = pace_sm_authenticate;
     sctx->encrypt = pace_sm_encrypt;
     sctx->decrypt = pace_sm_decrypt;
+    sctx->verify_authentication = pace_sm_verify_authentication;
     sctx->padding_indicator = SM_ISO_PADDING;
     sctx->block_length = EVP_CIPHER_block_size(pctx->cipher);
     sctx->authentication_ctx = pace_sm_ctx_create(k_mac,
@@ -772,7 +784,7 @@ int EstablishPACEChannel(sc_card_t *card, const __u8 *in,
         r = SC_ERROR_OUT_OF_MEMORY;
         goto err;
     }
-    r = reset_ssc(sctx);
+    r = reset_ssc(sctx->authentication_ctx);
 
 err:
     if (ef_cardaccess)
@@ -833,6 +845,7 @@ int pace_test(sc_card_t *card)
     size_t outlen;
     struct sm_ctx sctx;
     sc_apdu_t apdu;
+    int r;
 
     memset(&sctx, 0, sizeof(sctx));
     memset(&apdu, 0, sizeof(apdu));
@@ -866,9 +879,10 @@ int pace_test(sc_card_t *card)
     apdu.resp = buf;
     apdu.resplen = sizeof buf;
     apdu.cse = SC_APDU_CASE_4_SHORT;
-
-    SC_TEST_RET(card->ctx, pace_transmit_apdu(&sctx, card, &apdu),
-            "Could not select EF.CardSecurity");
+    r = pace_transmit_apdu(&sctx, card, &apdu);
+    if (r < 0)
+        sc_error(card->ctx, "Could not select EF.CardSecurity: %s",
+                sc_strerror(r));
 
     /* read CardSecurity */
     apdu.cla = 0x00;
@@ -876,20 +890,26 @@ int pace_test(sc_card_t *card)
     apdu.p1 = 0x02;
     apdu.p2 = 0x00;
     apdu.le = 0x00;
+    apdu.resp = buf;
+    apdu.resplen = sizeof buf;
     apdu.cse = SC_APDU_CASE_2_SHORT;
+    r = pace_transmit_apdu(&sctx, card, &apdu);
+    if (r < 0)
+        sc_error(card->ctx, "Could not read EF.CardSecurity: %s",
+                sc_strerror(r));
 
     /* reset retry counter */
     apdu.cla = 0x00;
     apdu.ins = 0x2C;
     apdu.p1 = 0x03;
     apdu.p2 = 0x02;
+    apdu.resp = buf;
+    apdu.resplen = sizeof buf;
     apdu.cse = SC_APDU_CASE_1;
-
-    SC_TEST_RET(card->ctx, pace_transmit_apdu(&sctx, card, &apdu),
-            "Could not reset retry counter of CAN");
-
-    SC_TEST_RET(card->ctx, pace_transmit_apdu(&sctx, card, &apdu),
-            "Could not read EF.CardSecurity");
+    r = pace_transmit_apdu(&sctx, card, &apdu);
+    if (r < 0)
+        sc_error(card->ctx, "Could not reset retry counter of CAN: %s",
+                sc_strerror(r));
 
     return SC_SUCCESS;
 }
@@ -927,17 +947,16 @@ encode_ssc(const BIGNUM *ssc, const PACE_CTX *ctx, u8 **encoded)
 }
 
 static int
-update_iv(struct sm_ctx *ctx)
+update_iv(struct pace_sm_ctx *psmctx)
 {
-    if (!ctx || !ctx->cipher_ctx)
-        return SC_ERROR_INVALID_ARGUMENTS;
-
     BUF_MEM *sscbuf = NULL, *ivbuf = NULL;
     const EVP_CIPHER *ivcipher = NULL, *oldcipher;
     u8 *ssc = NULL;
     unsigned char *p;
-    struct pace_sm_ctx *psmctx = ctx->cipher_ctx;
     int r;
+
+    if (!psmctx)
+        return SC_ERROR_INVALID_ARGUMENTS;
 
     switch (EVP_CIPHER_nid(psmctx->ctx->cipher)) {
         case NID_aes_128_cbc:
@@ -1002,28 +1021,36 @@ err:
 }
 
 int
-increment_ssc(struct sm_ctx *ctx)
+increment_ssc(struct pace_sm_ctx *psmctx)
 {
-    if (!ctx || !ctx->cipher_ctx)
+    if (!psmctx)
         return SC_ERROR_INVALID_ARGUMENTS;
-
-    struct pace_sm_ctx *psmctx = ctx->cipher_ctx;
 
     BN_add_word(psmctx->ssc, 1);
 
-    return update_iv(ctx);
+    return update_iv(psmctx);
 }
 
 int
-reset_ssc(struct sm_ctx *ctx)
+decrement_ssc(struct pace_sm_ctx *psmctx)
 {
-    if (!ctx || !ctx->cipher_ctx)
+    if (!psmctx)
         return SC_ERROR_INVALID_ARGUMENTS;
 
-    struct pace_sm_ctx *psmctx = ctx->cipher_ctx;
+    BN_sub_word(psmctx->ssc, 1);
+
+    return update_iv(psmctx);
+}
+
+int
+reset_ssc(struct pace_sm_ctx *psmctx)
+{
+    if (!psmctx)
+        return SC_ERROR_INVALID_ARGUMENTS;
+
     BN_zero(psmctx->ssc);
 
-    return update_iv(ctx);
+    return update_iv(psmctx);
 }
 
 int pace_sm_encrypt(sc_card_t *card, const struct sm_ctx *ctx,
@@ -1174,14 +1201,105 @@ err:
     SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, r);
 }
 
-int pace_transmit_apdu(struct sm_ctx *sctx, sc_card_t *card,
+int pace_sm_verify_authentication(sc_card_t *card, const struct sm_ctx *ctx,
+        const u8 *mac, size_t maclen,
+        const u8 *macdata, size_t macdatalen)
+{
+    int r;
+    char *p;
+    BUF_MEM authdata, *my_mac = NULL;
+    authdata.data = NULL;
+
+    if (!ctx || !ctx->cipher_ctx) {
+        r = SC_ERROR_INVALID_ARGUMENTS;
+        goto incerr;
+    }
+    struct pace_sm_ctx *psmctx = ctx->cipher_ctx;
+
+    r = increment_ssc(psmctx);
+    if (r < 0)
+        goto incerr;
+
+    r = encode_ssc(psmctx->ssc, psmctx->ctx, (u8 **) &authdata.data);
+    if (r < 0)
+        goto err;
+    authdata.length = r;
+
+    p = realloc(authdata.data, authdata.length + macdatalen);
+    if (!p) {
+        r = SC_ERROR_OUT_OF_MEMORY;
+        goto err;
+    }
+    authdata.data = p;
+    memcpy(authdata.data + authdata.length, macdata, macdatalen);
+    authdata.length += macdatalen;
+    bin_log(card->ctx, "Authentication data to verify (PACE)",
+            (u8 *) authdata.data, authdata.length);
+
+    authdata.max = authdata.length;
+    my_mac = PACE_authenticate(psmctx->ctx, psmctx->key_mac, &authdata);
+    if (!my_mac) {
+        r = SC_ERROR_INTERNAL;
+        goto err;
+    }
+
+    if (my_mac->length != maclen ||
+            memcmp(my_mac->data, mac, maclen) != 0) {
+        r = SC_ERROR_OBJECT_NOT_VALID;
+        sc_debug(card->ctx, "Authentication data not verified");
+        goto err;
+    }
+
+    sc_debug(card->ctx, "Authentication data verified");
+
+err:
+    if (authdata.data)
+        free(authdata.data);
+    if (my_mac)
+        BUF_MEM_free(my_mac);
+    if (r >= 0)
+        decrement_ssc(psmctx);
+    else
+        r = decrement_ssc(psmctx);
+
+incerr:
+    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, r);
+}
+
+int pace_transmit_apdu(struct sm_ctx *ctx, sc_card_t *card,
         sc_apdu_t *apdu)
 {
-    increment_ssc(sctx);
-    SC_TEST_RET(card->ctx, sm_transmit_apdu(sctx, card, apdu),
-            "Could not send SM APDU");
+    int r;
 
-    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_SUCCESS);
+    if (!ctx || !ctx->cipher_ctx) {
+        SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_INVALID_ARGUMENTS);
+    }
+
+    /* SW1 and SW2 are used to determine if really something has been sent and
+     * received. Only if this is the case, the send sequence counter needs to
+     * be incremented. */
+
+    apdu->sw1 = 0;
+    apdu->sw2 = 0;
+
+    SC_TEST_RET(card->ctx, increment_ssc(ctx->cipher_ctx),
+            "Could not increment send sequence counter");
+
+    r = sm_transmit_apdu(ctx, card, apdu);
+
+    if (apdu->sw1 || apdu->sw2) {
+        if (r < 0) {
+            if (increment_ssc(ctx->cipher_ctx) < 0)
+                sc_error(card->ctx,
+                        "Could not increment send sequence counter");
+        } else
+            r = increment_ssc(ctx->cipher_ctx);
+    } else
+        if (decrement_ssc(ctx->cipher_ctx) < 0)
+            sc_error(card->ctx,
+                    "Could not decrement send sequence counter");
+
+    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, r);
 }
 
 #endif
