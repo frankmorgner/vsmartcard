@@ -24,7 +24,6 @@ TARGETS		   = ccid
 CCID_SRC = ccid.h ccid.c \
 	   sm.c sm.h \
 	   pace.h pace.c pace_lib.c \
-	   apdu.h apdu.c \
 	   usbstring.c usbstring.h usb.c
 
 # top-level rule

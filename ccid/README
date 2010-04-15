@@ -13,8 +13,9 @@ ccid has support for Password Authenticated Connection Establishment (PACE)
 using OpenPACE (see http://sourceforge.net/projects/openpace/).  PACE is
 experimental and disabled by default. See file INSTALL how to compile it.
 
-ccid is implemented using GadgetFS. The source code is based on the GadgetFS
-example at http://www.linux-usb.org/gadget/.
+ccid is implemented using GadgetFS. Some fragments of the source code is based
+on the GadgetFS example at http://www.linux-usb.org/gadget/ and on the source
+code of the OpenSC tools.
 
 
 INSTALLATION
@@ -39,8 +40,17 @@ https://docs.openmoko.org/trac/ticket/2240).
 If you only use PACE for testing your card, you don't need gadgetfs.
 
 
+HINTS ON OPENSC
+-----------------
+
+If ccid runs into a checking error, because the Le field of the APDU is 0 (as
+set for the General Authenticate APDU during PACE), you need to patch libopensc
+(see http://www.opensc-project.org/opensc/ticket/209)
+
+
 USAGE
 -----
+
 When testing PACE with either PIN, CAN, MRZ or PUK, the program will be in
 interactive mode. Here you can enter APDUs which are to be converted according
 to the secure messaging parameter and to be sent to the card. Herefor insert
@@ -48,7 +58,6 @@ the APDU in hex with a colon to separate the bytes or without it. So to read
 the current selected file both of these forms would be valid:
 00:b0:02:00:00
 00B0020000
-
 
 
 QUESTIONS

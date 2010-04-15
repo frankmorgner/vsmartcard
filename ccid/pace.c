@@ -188,7 +188,6 @@ int pace_sm_verify_authentication(sc_card_t *card, struct sm_ctx *ctx,
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "apdu.h"
 
 const size_t maxresp = SC_MAX_APDU_BUFFER_SIZE - 2;
 
@@ -452,7 +451,7 @@ static int pace_gen_auth(sc_card_t *card,
     /* sanity checks in sc_transmit_apdu forbid case 4 apdus with le == 0 */
     apdu.resplen = maxresp;
     apdu.resp = malloc(apdu.resplen);
-    r = my_transmit_apdu(card, &apdu);
+    r = sc_transmit_apdu(card, &apdu);
     if (r < 0)
         goto err;
 

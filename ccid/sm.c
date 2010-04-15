@@ -17,7 +17,6 @@
  * ccid.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "sm.h"
-#include "apdu.h"
 #include <arpa/inet.h>
 #include <opensc/asn1.h>
 #include <opensc/log.h>
@@ -575,7 +574,7 @@ int sm_transmit_apdu(const struct sm_ctx *sctx, sc_card_t *card,
 
     SC_TEST_RET(card->ctx, sm_encrypt(sctx, card, apdu, &sm_apdu),
             "Could not encrypt APDU.");
-    SC_TEST_RET(card->ctx, my_transmit_apdu(card, &sm_apdu),
+    SC_TEST_RET(card->ctx, sc_transmit_apdu(card, &sm_apdu),
             "Could not transmit SM APDU.");
     SC_TEST_RET(card->ctx, sm_decrypt(sctx, card, &sm_apdu, apdu),
             "Could not decrypt APDU.");
