@@ -47,7 +47,7 @@
 
 #include "usbstring.h"
 #include "ccid.h"
-
+#include "pace.h"
 
 #define DRIVER_VENDOR_NUM	0x0D46		/* KOBIL Systems */
 #define DRIVER_PRODUCT_NUM	0x3010		/* KOBIL Class 3 Reader */
@@ -57,31 +57,51 @@ static int verbose    = 0;
 static int debug      = 0;
 static int dohid      = 0;
 static int doint      = 0;
-static int dotest     = 0;
+static u8  dopacetest = 0;
 static int usb_reader_num = -1;
+static const char *pin;
+
+#define OPT_HELP        'h'
+#define OPT_INTERRUPT   'n'
+#define OPT_READER      'r'
+#define OPT_SERIAL      's'
+#define OPT_PIN         'i'
+#define OPT_PUK         'u'
+#define OPT_CAN         'a'
+#define OPT_MRZ         'z'
+#define OPT_PRODUCT     'p'
+#define OPT_VENDOR      'e'
+#define OPT_VERBOSE     'v'
+#define OPT_VERSION     'o'
 
 static const struct option options[] = {
     /*{ "hid", no_argument, &dohid, 1 },*/
-    { "help", no_argument, NULL, 'h' },
-    { "interrupt", no_argument, &doint, 'n' },
-    { "reader",	required_argument, NULL, 'r' },
-    { "serial", required_argument, NULL, 's' },
-    { "test-pace", no_argument, &dotest, 't' },
-    { "product", required_argument, NULL, 'p' },
-    { "vendor", required_argument, NULL, 'e' },
-    { "verbose", no_argument, NULL, 'v' },
-    { "version", no_argument, NULL, 'i' },
+    { "help", no_argument, NULL, OPT_HELP },
+    { "reader",	required_argument, NULL, OPT_READER },
+    { "test-pin", optional_argument, NULL, OPT_PIN },
+    { "test-puk", optional_argument, NULL, OPT_PUK },
+    { "test-can", optional_argument, NULL, OPT_CAN },
+    { "test-mrz", optional_argument, NULL, OPT_MRZ },
+    { "serial", required_argument, NULL, OPT_SERIAL },
+    { "product", required_argument, NULL, OPT_PRODUCT },
+    { "vendor", required_argument, NULL, OPT_VENDOR },
+    { "interrupt", no_argument, &doint, OPT_INTERRUPT },
+    { "verbose", no_argument, NULL, OPT_VERBOSE },
+    { "version", no_argument, NULL, OPT_VERSION },
     { NULL, 0, NULL, 0 }
 };
 static const char *option_help[] = {
     /*"Emulate HID device",*/
     "Print help and exit",
+    "Number of reader to use (default: auto-detect)",
+    "Run PACE with PIN",
+    "Run PACE with PUK",
+    "Run PACE with CAN",
+    "Run PACE with MRZ",
+    "USB serial number       (default: random)",
+    "USB product ID          (default: 0x3010)",
+    "USB vendor ID           (default: 0x0D46)",
     "Add interrupt pipe for CCID",
-    "Number of the reader to use (default: auto-detect)",
-    "Serial number (max 56 bytes) of gadget (default: random)",
-    "test PACE implementation",
-    "USB product ID (default: 0x3010)",
-    "USB vendor ID (0default: x0D46)",
     "Use (several times) to be more verbose",
     "Print version and exit.",
 };
@@ -1081,7 +1101,6 @@ error:
 
 static void *hid (void *param)
 {
-    printf("%s:%d\n", __FILE__, __LINE__);
     char	**names      = (char **) param;
     char	*status_name = names[0];
     int		result = 0;
@@ -1718,11 +1737,11 @@ void print_usage(const char *app_name, const struct option options[],
                 break;
         }
         sprintf(buf, "--%s%s%s", options[i].name, tmp, arg_str);
-        if (strlen(buf) > 20) {
+        if (strlen(buf) > 22) {
             printf("  %s\n", buf);
             buf[0] = '\0';
         }
-        printf("  %-20s %s\n", buf, option_help[i]);
+        printf("  %-22s %s\n", buf, option_help[i]);
         i++;
     }
 }
@@ -1749,39 +1768,70 @@ main (int argc, char **argv)
     }
 
     while (1) {
-        c = getopt_long(argc, argv, "r:s:p:e:vih", options, &long_optind);
+        c = getopt_long(argc, argv, "hnr:s:i::u::a::z::p:e:vo", options, &long_optind);
         if (c == -1)
             break;
-        if (c == '?' || c == 'h') {
+        if (c == '?' || c == OPT_HELP) {
             print_usage(argv[0] , options, option_help);
             exit(0);
         }
         switch (c) {
-            case 'r':
+            case OPT_READER:
                 if (sscanf(optarg, "%d", &usb_reader_num) != 1)
                     parse_error(argv[0], optarg, long_optind);
                 break;
-            case 's':
+            case OPT_SERIAL:
                 if (sscanf(optarg, "%56s", serial) != 1)
                     parse_error(argv[0], optarg, long_optind);
                 break;
-            case 'p':
+            case OPT_PRODUCT:
                 if (sscanf(optarg, "%x", &productid) != 1)
                     parse_error(argv[0], optarg, long_optind);
                 break;
-            case 'e':
+            case OPT_VENDOR:
                 if (sscanf(optarg, "%x", &vendorid) != 1)
                     parse_error(argv[0], optarg, long_optind);
                 break;
-            case 'v':
+            case OPT_VERBOSE:
                 verbose++;
                 break;
-            case 'i':
+            case OPT_VERSION:
                 fprintf(stderr, "%s 0.9  written by Frank Morgner.\n" ,
                         argv[0]);
                 exit(0);
                 break;
+            case OPT_PUK:
+                /* PACE_PIN from openssl/pace.h */
+                dopacetest = 4;
+                pin = optarg;
+                break;
+            case OPT_PIN:
+                /* PACE_PIN from openssl/pace.h */
+                dopacetest = 3;
+                pin = optarg;
+                break;
+            case OPT_CAN:
+                /* PACE_PIN from openssl/pace.h */
+                dopacetest = 2;
+                pin = optarg;
+                break;
+            case OPT_MRZ:
+                /* PACE_PIN from openssl/pace.h */
+                dopacetest = 1;
+                pin = optarg;
+                break;
         }
+    }
+
+    if (ccid_initialize(usb_reader_num, verbose) < 0) {
+        perror("Can't initialize ccid");
+        return 1;
+    }
+
+    if (dopacetest) {
+        i = ccid_testpace(dopacetest, pin, !pin ? 0 : strlen(pin));
+        ccid_shutdown();
+        return i;
     }
 
     if (verbose)
@@ -1790,17 +1840,6 @@ main (int argc, char **argv)
     if (chdir ("/dev/gadget") < 0) {
         perror ("can't chdir /dev/gadget");
         return 1;
-    }
-
-    if (ccid_initialize(usb_reader_num, verbose) < 0) {
-        perror("can't initialize ccid");
-        return 1;
-    }
-
-    if (dotest) {
-        i = ccid_testpace();
-        ccid_shutdown();
-        return i;
     }
 
     fd = init_device ();

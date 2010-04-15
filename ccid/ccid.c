@@ -171,7 +171,7 @@ void ccid_shutdown()
         sc_release_context(ctx);
 }
 
-static int build_apdu(const __u8 *buf, size_t len, sc_apdu_t *apdu)
+int build_apdu(const __u8 *buf, size_t len, sc_apdu_t *apdu)
 {
 	const __u8 *p;
 	size_t len0;
@@ -230,7 +230,7 @@ static int build_apdu(const __u8 *buf, size_t len, sc_apdu_t *apdu)
 
         apdu->flags = SC_APDU_FLAGS_NO_GET_RESP|SC_APDU_FLAGS_NO_RETRY_WL;
 
-        sc_error(ctx, "APDU, %d byte(s):\tins=%02x p1=%02x p2=%02x",
+        sc_debug(ctx, "APDU, %d bytes:\tins=%02x p1=%02x p2=%02x",
                 (unsigned int) len0, apdu->ins, apdu->p1, apdu->p2);
 
         SC_FUNC_RETURN(ctx, SC_LOG_TYPE_VERBOSE, SC_SUCCESS);
@@ -269,8 +269,9 @@ static int get_rapdu(sc_apdu_t *apdu, size_t slot, __u8 **buf, size_t *resplen)
     *buf = apdu->resp;
     *resplen = apdu->resplen + sizeof(__u8) + sizeof(__u8);
 
-    sc_debug(ctx, "R-APDU, %d byte(s):\tsw1=%02x sw2=%02x",
-            (unsigned int) *resplen, apdu->sw1, apdu->sw2);
+    sc_debug(ctx, "R-APDU, %d byte%s:\tsw1=%02x sw2=%02x",
+            (unsigned int) *resplen, !*resplen ? "" : "s",
+            apdu->sw1, apdu->sw2);
 
     SC_FUNC_RETURN(ctx, SC_LOG_TYPE_VERBOSE, SC_SUCCESS);
 
@@ -1296,19 +1297,19 @@ int ccid_state_changed(RDR_to_PC_NotifySlotChange_t **slotchange, int timeout)
     return 0;
 }
 
-int ccid_testpace()
+int ccid_testpace(u8 pin_id, const char *pin, size_t pinlen)
 {
     int i;
     for (i = 0; i < sizeof *card_in_slot; i++) {
-        if (!card_in_slot[i]
-                && (sc_detect_card_presence(reader, 0) & SC_SLOT_CARD_PRESENT)) {
-            sc_connect_card(reader, i, &card_in_slot[i]);
-        }
-
-        if (sc_card_valid(card_in_slot[i])) {
-            return pace_test(card_in_slot[i]);
+        if (sc_detect_card_presence(reader, 0) & SC_SLOT_CARD_PRESENT) {
+            if (!card_in_slot[i] || !sc_card_valid(card_in_slot[i])) {
+                sc_connect_card(reader, i, &card_in_slot[i]);
+            }
+            return pace_test(card_in_slot[i], pin_id, pin, pinlen);
         }
     }
+
+    sc_error(ctx, "No card found.");
 
     return SC_ERROR_SLOT_NOT_FOUND;
 }

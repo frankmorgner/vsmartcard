@@ -23,6 +23,32 @@ INSTALLATION
 See file INSTALL.
 
 
+HINTS ON GADGETFS
+-----------------
+
+To create an USB Gadget in both USB host and USB client mode, you need to load
+the kernel module gadgetfs. A guide focused on Debian based systems to run and
+compile gadgetfs, you can find here:
+http://wiki.openmoko.org/wiki/Building_Gadget_USB_Module
+
+On OpenMoko it is likely, that you need to patch your kernel (see
+http://docs.openmoko.org/trac/ticket/2206). If you also want to switch multiple
+times between gadgetfs and g_ether an other patch is needed (see
+https://docs.openmoko.org/trac/ticket/2240).
+
+
+USAGE
+-----
+When testing PACE with either PIN, CAN, MRZ or PUK, the program will be in
+interactive mode. Here you can enter APDUs which are to be converted according
+to the secure messaging parameter and to be sent to the card. Herefor insert
+the APDU in hex with a colon to separate the bytes or without it. So to read
+the current selected file both of these forms would be valid:
+00:b0:02:00:00
+00B0020000
+
+
+
 QUESTIONS
 ---------
 

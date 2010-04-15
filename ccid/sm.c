@@ -45,15 +45,22 @@ static const struct sc_asn1_entry c_sm_rapdu[] = {
 };
 
 void _bin_log(sc_context_t *ctx, int type, const char *file, int line,
-        const char *func, const char *label, const u8 *data, size_t len)
+        const char *func, const char *label, const u8 *data, size_t len,
+        FILE *f)
 {
     char buf[1024];
 
     sc_hex_dump(ctx, data, len, buf, sizeof buf);
-    sc_do_log(ctx, type, file, line, func,
-            "\n%s (%u byte%s):\n%s"
-            "======================================================================",
-            label, len, len==1?"":"s", buf);
+    if (!f) {
+        sc_do_log(ctx, type, file, line, func,
+                "\n%s (%u byte%s):\n%s"
+                "======================================================================",
+                label, len, len==1?"":"s", buf);
+    } else {
+        fprintf(f, "%s (%u byte%s):\n%s"
+                "======================================================================\n",
+                label, len, len==1?"":"s", buf);
+    }
 }
 
 int
