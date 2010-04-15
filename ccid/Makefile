@@ -10,7 +10,6 @@ bindir		   = $(exec_prefix)/bin
 CC                 = gcc
 CFLAGS             = -Wall -g
 EXTRA_CFLAGS       = -DNO_PACE
-#LIBPCSCLITE_CFLAGS = `pkg-config --cflags --libs libpcsclite`
 OPENSSL_CFLAGS 	   = `pkg-config --cflags --libs libssl`
 OPENSC_CFLAGS 	   = `pkg-config --cflags --libs libopensc`
 PTHREAD_CFLAGS     = -pthread
@@ -23,7 +22,8 @@ TARGETS		   = ccid
 
 CCID_SRC = ccid.h ccid.c \
 	   sm.c sm.h \
-	   pace.h pace.c pace_lib.c \
+	   pace.h pace.c \
+	   pace_lib.c pace_lib.h \
 	   usbstring.c usbstring.h usb.c
 
 # top-level rule
@@ -31,7 +31,7 @@ all: $(TARGETS)
 
 
 ccid: $(CCID_SRC)
-	$(CC) $(LIBPCSCLITE_CFLAGS) $(OPENSC_CFLAGS) $(OPENSSL_CFLAGS) \
+	$(CC) $(OPENSC_CFLAGS) $(OPENSSL_CFLAGS) \
 	    $(PTHREAD_CFLAGS) $(CFLAGS) $(EXTRA_CFLAGS) \
 	    $(filter %.c, $(CCID_SRC)) -o $@
 

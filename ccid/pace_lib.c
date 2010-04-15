@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License along with
  * ccid.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "pace.h"
+#include "pace_lib.h"
 #include <openssl/buffer.h>
 #include <openssl/pace.h>
 

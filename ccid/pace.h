@@ -19,11 +19,12 @@
 #ifndef _CCID_PACE_H
 #define _CCID_PACE_H
 
+#include "pace_lib.h"
 #include "sm.h"
 #include <linux/usb/ch9.h>
 #include <opensc/opensc.h>
-#include <openssl/pace.h>
 #include <openssl/bn.h>
+#include <openssl/pace.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,22 +42,6 @@ extern "C" {
 #define FID_EF_CARDACCESS 0x011C
 
 #define MAX_EF_CARDACCESS 2048
-
-struct pace_sm_ctx {
-    /* XXX SSC is up to 16 Bytes long, not only 16 Bits */
-    BIGNUM *ssc;
-    const BUF_MEM *key_mac;
-    const BUF_MEM *key_enc;
-    PACE_CTX *ctx;
-};
-
-struct pace_sm_ctx *
-pace_sm_ctx_create(const BUF_MEM *key_mac,
-        const BUF_MEM *key_enc, PACE_CTX *ctx);
-void
-pace_sm_ctx_free(struct pace_sm_ctx *ctx);
-void
-pace_sm_ctx_clear_free(struct pace_sm_ctx *ctx);
 
 int increment_ssc(struct pace_sm_ctx *psmctx);
 int decrement_ssc(struct pace_sm_ctx *psmctx);
