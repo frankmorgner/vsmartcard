@@ -36,6 +36,8 @@ http://docs.openmoko.org/trac/ticket/2206). If you also want to switch multiple
 times between gadgetfs and g_ether an other patch is needed (see
 https://docs.openmoko.org/trac/ticket/2240).
 
+If you only use PACE for testing your card, you don't need gadgetfs.
+
 
 USAGE
 -----
