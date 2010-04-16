@@ -1313,3 +1313,35 @@ int ccid_testpace(u8 pin_id, const char *pin, size_t pinlen)
 
     return SC_ERROR_SLOT_NOT_FOUND;
 }
+
+int ccid_list_readers(int verbose)
+{
+	static sc_context_t *ctx = NULL;
+
+        int r;
+	r = sc_context_create(&ctx, NULL);
+	if (r) {
+		fprintf(stderr, "Failed to establish context: %s\n", sc_strerror(r));
+		return 1;
+	}
+        ctx->debug = verbose;
+
+	unsigned int i, rcount = sc_ctx_get_reader_count(ctx);
+	
+	if (rcount == 0) {
+		printf("No smart card readers found.\n");
+		return 0;
+	}
+	printf("Readers known about:\n");
+	printf("Nr.    Driver     Name\n");
+	for (i = 0; i < rcount; i++) {
+		sc_reader_t *screader = sc_ctx_get_reader(ctx, i);
+		printf("%-7d%-11s%s\n", i, screader->driver->short_name,
+		       screader->name);
+	}
+
+	if (ctx)
+		sc_release_context(ctx);
+
+	return 0;
+}

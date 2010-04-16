@@ -57,6 +57,7 @@ static int verbose    = 0;
 static int debug      = 0;
 static int dohid      = 0;
 static int doint      = 0;
+static int dolist     = 0;
 static u8  dopacetest = 0;
 static int usb_reader_num = -1;
 static const char *pin;
@@ -64,6 +65,7 @@ static const char *pin;
 #define OPT_HELP        'h'
 #define OPT_INTERRUPT   'n'
 #define OPT_READER      'r'
+#define OPT_LIST        'l'
 #define OPT_SERIAL      's'
 #define OPT_PIN         'i'
 #define OPT_PUK         'u'
@@ -78,6 +80,7 @@ static const struct option options[] = {
     /*{ "hid", no_argument, &dohid, 1 },*/
     { "help", no_argument, NULL, OPT_HELP },
     { "reader",	required_argument, NULL, OPT_READER },
+    { "list-reader", no_argument, NULL, OPT_LIST },
     { "test-pin", optional_argument, NULL, OPT_PIN },
     { "test-puk", optional_argument, NULL, OPT_PUK },
     { "test-can", optional_argument, NULL, OPT_CAN },
@@ -94,6 +97,7 @@ static const char *option_help[] = {
     /*"Emulate HID device",*/
     "Print help and exit",
     "Number of reader to use (default: auto-detect)",
+    "Lists all configured readers",
     "Run PACE with PIN",
     "Run PACE with PUK",
     "Run PACE with CAN",
@@ -1768,7 +1772,7 @@ main (int argc, char **argv)
     }
 
     while (1) {
-        c = getopt_long(argc, argv, "hnr:s:i::u::a::z::p:e:vo", options, &long_optind);
+        c = getopt_long(argc, argv, "hnr:ls:i::u::a::z::p:e:vo", options, &long_optind);
         if (c == -1)
             break;
         if (c == '?' || c == OPT_HELP) {
@@ -1779,6 +1783,9 @@ main (int argc, char **argv)
             case OPT_READER:
                 if (sscanf(optarg, "%d", &usb_reader_num) != 1)
                     parse_error(argv[0], optarg, long_optind);
+                break;
+            case OPT_LIST:
+                dolist++;
                 break;
             case OPT_SERIAL:
                 if (sscanf(optarg, "%56s", serial) != 1)
@@ -1822,6 +1829,9 @@ main (int argc, char **argv)
                 break;
         }
     }
+
+    if (dolist)
+        return ccid_list_readers(verbose);
 
     if (ccid_initialize(usb_reader_num, verbose) < 0) {
         perror("Can't initialize ccid");
