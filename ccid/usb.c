@@ -1760,8 +1760,8 @@ void parse_error(const char *app_name, const char *optarg, int opt_ind)
 int
 main (int argc, char **argv)
 {
-    int		fd, c, i;
-    int long_optind = 0;
+    int fd, c, i;
+    int oindex = 0;
 
     /* random initial serial number */
     srand ((int) time (0));
@@ -1772,32 +1772,32 @@ main (int argc, char **argv)
     }
 
     while (1) {
-        c = getopt_long(argc, argv, "hnr:ls:i::u::a::z::p:e:vo", options, &long_optind);
+        c = getopt_long(argc, argv, "hnr:ls:i::u::a::z::p:e:vo", options, &oindex);
         if (c == -1)
             break;
-        if (c == '?' || c == OPT_HELP) {
-            print_usage(argv[0] , options, option_help);
-            exit(0);
-        }
         switch (c) {
+            case OPT_HELP:
+                print_usage(argv[0] , options, option_help);
+                exit(0);
+                break;
             case OPT_READER:
                 if (sscanf(optarg, "%d", &usb_reader_num) != 1)
-                    parse_error(argv[0], optarg, long_optind);
+                    parse_error(argv[0], optarg, oindex);
                 break;
             case OPT_LIST:
                 dolist++;
                 break;
             case OPT_SERIAL:
                 if (sscanf(optarg, "%56s", serial) != 1)
-                    parse_error(argv[0], optarg, long_optind);
+                    parse_error(argv[0], optarg, oindex);
                 break;
             case OPT_PRODUCT:
                 if (sscanf(optarg, "%x", &productid) != 1)
-                    parse_error(argv[0], optarg, long_optind);
+                    parse_error(argv[0], optarg, oindex);
                 break;
             case OPT_VENDOR:
                 if (sscanf(optarg, "%x", &vendorid) != 1)
-                    parse_error(argv[0], optarg, long_optind);
+                    parse_error(argv[0], optarg, oindex);
                 break;
             case OPT_VERBOSE:
                 verbose++;
@@ -1827,8 +1827,23 @@ main (int argc, char **argv)
                 dopacetest = 1;
                 pin = optarg;
                 break;
+            case '?':
+                /* fall through */
+            default:
+                exit(1);
+                break;
         }
     }
+
+    if (optind < argc) {
+        fprintf (stderr, "Unknown argument%s:", optind+1 == argc ? "" : "s");
+        while (optind < argc) {
+            fprintf(stderr, " \"%s\"", argv[optind++]);
+            fprintf(stderr, "%c", optind == argc ? '\n' : ',');
+        }
+        exit(1);
+    }
+
 
     if (dolist)
         return ccid_list_readers(verbose);
