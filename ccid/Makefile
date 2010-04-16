@@ -10,9 +10,12 @@ bindir		   = $(exec_prefix)/bin
 CC                 = gcc
 CFLAGS             = -Wall -g
 EXTRA_CFLAGS       = -DNO_PACE
+
 OPENSSL_CFLAGS 	   = `pkg-config --cflags --libs libssl`
 OPENSC_CFLAGS 	   = `pkg-config --cflags --libs libopensc`
 PTHREAD_CFLAGS     = -pthread
+a_flags		   = $(CFLAGS) $(OPENSC_CFLAGS) $(OPENSSL_CFLAGS) \
+		     $(PTHREAD_CFLAGS) $(EXTRA_CFLAGS)
 
 INSTALL		   = install
 INSTALL_PROGRAM    = $(INSTALL)
@@ -20,20 +23,16 @@ INSTALL_PROGRAM    = $(INSTALL)
 
 TARGETS		   = ccid
 
-CCID_SRC = ccid.h ccid.c \
-	   sm.c sm.h \
-	   pace.h pace.c \
-	   pace_lib.c pace_lib.h \
-	   usbstring.c usbstring.h usb.c
+CCID_OBJ = ccid.o sm.o pace.o pace_lib.o usbstring.o usb.o
 
 # top-level rule
 all: $(TARGETS)
 
 
-ccid: $(CCID_SRC)
-	$(CC) $(OPENSC_CFLAGS) $(OPENSSL_CFLAGS) \
-	    $(PTHREAD_CFLAGS) $(CFLAGS) $(EXTRA_CFLAGS) \
-	    $(filter %.c, $(CCID_SRC)) -o $@
+ccid: $(CCID_OBJ)
+	$(CC) $^ -o $@    $(a_flags)
+%.o: %.c %.h
+	$(CC) $< -o $@ -c $(a_flags)
 
 
 install: $(TARGETS) installdirs
@@ -53,4 +52,4 @@ uninstall:
 
 .PHONY: clean
 clean:
-	rm -f ccid
+	rm -f $(TARGETS) $(CCID_OBJ)
