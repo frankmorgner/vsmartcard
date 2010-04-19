@@ -33,6 +33,8 @@ ccid: $(CCID_OBJ)
 	$(CC) $^ -o $@    $(a_flags)
 %.o: %.c %.h
 	$(CC) $< -o $@ -c $(a_flags)
+%.o: %.c
+	$(CC) $< -o $@ -c $(a_flags)
 
 
 install: $(TARGETS) installdirs

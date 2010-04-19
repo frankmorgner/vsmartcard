@@ -265,8 +265,8 @@ struct hid_class_descriptor {
     __u8   bNumDescriptors;
 } __attribute__ ((packed));
 
-int ccid_list_readers(int verbose);
-int ccid_initialize(int reader_id, int verbose);
+int ccid_print_avail(int verbose);
+int ccid_initialize(int reader_id, const char *cdriver, int verbose);
 void ccid_shutdown();
 
 int ccid_parse_bulkin(const __u8* inbuf, __u8** outbuf);

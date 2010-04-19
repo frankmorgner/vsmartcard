@@ -57,15 +57,15 @@ static int verbose    = 0;
 static int debug      = 0;
 static int dohid      = 0;
 static int doint      = 0;
-static int dolist     = 0;
+static int doinfo     = 0;
 static u8  dopacetest = 0;
 static int usb_reader_num = -1;
-static const char *pin;
+static const char *pin = NULL;
+static const char *cdriver = NULL;
 
 #define OPT_HELP        'h'
 #define OPT_INTERRUPT   'n'
 #define OPT_READER      'r'
-#define OPT_LIST        'l'
 #define OPT_SERIAL      's'
 #define OPT_PIN         'i'
 #define OPT_PUK         'u'
@@ -74,13 +74,14 @@ static const char *pin;
 #define OPT_PRODUCT     'p'
 #define OPT_VENDOR      'e'
 #define OPT_VERBOSE     'v'
-#define OPT_VERSION     'o'
+#define OPT_INFO        'o'
+#define OPT_CARD        'c'
 
 static const struct option options[] = {
     /*{ "hid", no_argument, &dohid, 1 },*/
     { "help", no_argument, NULL, OPT_HELP },
     { "reader",	required_argument, NULL, OPT_READER },
-    { "list-reader", no_argument, NULL, OPT_LIST },
+    { "card-driver", required_argument, NULL, OPT_CARD },
     { "test-pin", optional_argument, NULL, OPT_PIN },
     { "test-puk", optional_argument, NULL, OPT_PUK },
     { "test-can", optional_argument, NULL, OPT_CAN },
@@ -90,24 +91,24 @@ static const struct option options[] = {
     { "vendor", required_argument, NULL, OPT_VENDOR },
     { "interrupt", no_argument, &doint, OPT_INTERRUPT },
     { "verbose", no_argument, NULL, OPT_VERBOSE },
-    { "version", no_argument, NULL, OPT_VERSION },
+    { "info", no_argument, NULL, OPT_INFO },
     { NULL, 0, NULL, 0 }
 };
 static const char *option_help[] = {
     /*"Emulate HID device",*/
     "Print help and exit",
-    "Number of reader to use (default: auto-detect)",
-    "Lists all configured readers",
+    "Number of reader to use  (default: auto-detect)",
+    "Which card driver to use (default: auto-detect)",
     "Run PACE with PIN",
     "Run PACE with PUK",
     "Run PACE with CAN",
     "Run PACE with MRZ",
-    "USB serial number       (default: random)",
-    "USB product ID          (default: 0x3010)",
-    "USB vendor ID           (default: 0x0D46)",
+    "USB serial number        (default: random)",
+    "USB product ID           (default: 0x3010)",
+    "USB vendor ID            (default: 0x0D46)",
     "Add interrupt pipe for CCID",
     "Use (several times) to be more verbose",
-    "Print version and exit.",
+    "Print version, available readers and drivers.",
 };
 
 /* NOTE:  these IDs don't imply endpoint numbering; host side drivers
@@ -1726,7 +1727,7 @@ void print_usage(const char *app_name, const struct option options[],
         }
 
         if (options[i].val > 0 && options[i].val < 128)
-            sprintf(tmp, ", -%c", options[i].val);
+            sprintf(tmp, "-%c", options[i].val);
         else
             tmp[0] = 0;
         switch (options[i].has_arg) {
@@ -1740,12 +1741,12 @@ void print_usage(const char *app_name, const struct option options[],
                 arg_str = "";
                 break;
         }
-        sprintf(buf, "--%s%s%s", options[i].name, tmp, arg_str);
-        if (strlen(buf) > 22) {
+        sprintf(buf, "--%-13s%s%s", options[i].name, tmp, arg_str);
+        if (strlen(buf) > 24) {
             printf("  %s\n", buf);
             buf[0] = '\0';
         }
-        printf("  %-22s %s\n", buf, option_help[i]);
+        printf("  %-24s %s\n", buf, option_help[i]);
         i++;
     }
 }
@@ -1772,7 +1773,7 @@ main (int argc, char **argv)
     }
 
     while (1) {
-        c = getopt_long(argc, argv, "hnr:ls:i::u::a::z::p:e:vo", options, &oindex);
+        c = getopt_long(argc, argv, "hnr:s:i::u::a::z::p:e:voc:", options, &oindex);
         if (c == -1)
             break;
         switch (c) {
@@ -1783,9 +1784,6 @@ main (int argc, char **argv)
             case OPT_READER:
                 if (sscanf(optarg, "%d", &usb_reader_num) != 1)
                     parse_error(argv[0], optarg, oindex);
-                break;
-            case OPT_LIST:
-                dolist++;
                 break;
             case OPT_SERIAL:
                 if (sscanf(optarg, "%56s", serial) != 1)
@@ -1799,13 +1797,14 @@ main (int argc, char **argv)
                 if (sscanf(optarg, "%x", &vendorid) != 1)
                     parse_error(argv[0], optarg, oindex);
                 break;
+            case OPT_CARD:
+                cdriver = optarg;
+                break;
             case OPT_VERBOSE:
                 verbose++;
                 break;
-            case OPT_VERSION:
-                fprintf(stderr, "%s 0.9  written by Frank Morgner.\n" ,
-                        argv[0]);
-                exit(0);
+            case OPT_INFO:
+                doinfo++;
                 break;
             case OPT_PUK:
                 /* PACE_PIN from openssl/pace.h */
@@ -1845,10 +1844,13 @@ main (int argc, char **argv)
     }
 
 
-    if (dolist)
-        return ccid_list_readers(verbose);
+    if (doinfo) {
+        fprintf(stderr, "%s 0.9  written by Frank Morgner.\n\n" ,
+                argv[0]);
+        return ccid_print_avail(verbose);
+    }
 
-    if (ccid_initialize(usb_reader_num, verbose) < 0) {
+    if (ccid_initialize(usb_reader_num, cdriver, verbose) < 0) {
         perror("Can't initialize ccid");
         return 1;
     }

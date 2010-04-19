@@ -113,7 +113,7 @@ detect_card_presence(int slot)
 }
 
 
-int ccid_initialize(int reader_id, int verbose)
+int ccid_initialize(int reader_id, const char *cdriver, int verbose)
 {
     unsigned int i, reader_count;
 
@@ -121,6 +121,14 @@ int ccid_initialize(int reader_id, int verbose)
     if (r < 0) {
         printf("Failed to create initial context: %s", sc_strerror(r));
         return r;
+    }
+
+    if (cdriver != NULL) {
+        r = sc_set_card_driver(ctx, cdriver);
+        if (r < 0) {
+            sc_error(ctx, "Card driver '%s' not found!\n", cdriver);
+            return r;
+        }
     }
 
     ctx->debug = verbose;
@@ -1314,18 +1322,8 @@ int ccid_testpace(u8 pin_id, const char *pin, size_t pinlen)
     return SC_ERROR_SLOT_NOT_FOUND;
 }
 
-int ccid_list_readers(int verbose)
+static int ccid_list_readers(sc_context_t *ctx)
 {
-	static sc_context_t *ctx = NULL;
-
-        int r;
-	r = sc_context_create(&ctx, NULL);
-	if (r) {
-		fprintf(stderr, "Failed to establish context: %s\n", sc_strerror(r));
-		return 1;
-	}
-        ctx->debug = verbose;
-
 	unsigned int i, rcount = sc_ctx_get_reader_count(ctx);
 	
 	if (rcount == 0) {
@@ -1340,8 +1338,42 @@ int ccid_list_readers(int verbose)
 		       screader->name);
 	}
 
+	return 0;
+}
+
+static int ccid_list_drivers(sc_context_t *ctx)
+{
+	int i;
+	
+	if (ctx->card_drivers[0] == NULL) {
+		printf("No card drivers installed!\n");
+		return 0;
+	}
+	printf("Configured card drivers:\n");
+	for (i = 0; ctx->card_drivers[i] != NULL; i++) {
+		printf("  %-16s %s\n", ctx->card_drivers[i]->short_name,
+		       ctx->card_drivers[i]->name);
+	}
+
+	return 0;
+}
+
+int ccid_print_avail(int verbose)
+{
+	sc_context_t *ctx = NULL;
+
+	int r;
+	r = sc_context_create(&ctx, NULL);
+	if (r) {
+		fprintf(stderr, "Failed to establish context: %s\n", sc_strerror(r));
+		return 1;
+	}
+	ctx->debug = verbose;
+
+	r = ccid_list_readers(ctx)|ccid_list_drivers(ctx);
+
 	if (ctx)
 		sc_release_context(ctx);
 
-	return 0;
+	return r;
 }
