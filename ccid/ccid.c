@@ -27,7 +27,9 @@
 #include <opensc/log.h>
 
 #include "ccid.h"
+#ifndef NO_PACE
 #include "pace.h"
+#endif
 
 static sc_context_t *ctx = NULL;
 static sc_card_t *card_in_slot[SC_MAX_SLOTS];
@@ -1305,6 +1307,14 @@ int ccid_state_changed(RDR_to_PC_NotifySlotChange_t **slotchange, int timeout)
     return 0;
 }
 
+#ifdef NO_PACE
+int ccid_testpace(u8 pin_id, const char *pin, size_t pinlen)
+{
+    sc_error(ctx, "ccid not compiled with support for PACE.");
+
+    return SC_ERROR_NOT_SUPPORTED;
+}
+#else
 int ccid_testpace(u8 pin_id, const char *pin, size_t pinlen)
 {
     int i;
@@ -1321,6 +1331,7 @@ int ccid_testpace(u8 pin_id, const char *pin, size_t pinlen)
 
     return SC_ERROR_SLOT_NOT_FOUND;
 }
+#endif
 
 static int ccid_list_readers(sc_context_t *ctx)
 {

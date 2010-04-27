@@ -273,6 +273,12 @@ static int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
         goto err;
     }
 
+    if ((apdu->cla & 0x0C) == 0x0C) {
+        r = SC_ERROR_INVALID_ARGUMENTS;
+        sc_error(card->ctx, "Given APDU is already protected with some secure messaging.");
+        goto err;
+    }
+
     sc_copy_asn1_entry(c_sm_capdu, sm_capdu);
 
     sm_apdu->sensitive = 0;

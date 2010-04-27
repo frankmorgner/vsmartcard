@@ -9,21 +9,24 @@ bindir		   = $(exec_prefix)/bin
 # Compiler
 CC                 = gcc
 CFLAGS             = -Wall -g
-EXTRA_CFLAGS       = -DNO_PACE
 
 OPENSSL_CFLAGS 	   = `pkg-config --cflags --libs libssl`
 OPENSC_CFLAGS 	   = `pkg-config --cflags --libs libopensc`
 PTHREAD_CFLAGS     = -pthread
-a_flags		   = $(CFLAGS) $(OPENSC_CFLAGS) $(OPENSSL_CFLAGS) \
-		     $(PTHREAD_CFLAGS) $(EXTRA_CFLAGS)
+a_flags		   = $(CFLAGS) $(OPENSC_CFLAGS) $(OPENSSL_CFLAGS) $(PTHREAD_CFLAGS)
 
 INSTALL		   = install
 INSTALL_PROGRAM    = $(INSTALL)
 
 
 TARGETS		   = ccid
+CCID_OBJ 	   = ccid.o sm.o usbstring.o usb.o
 
-CCID_OBJ = ccid.o sm.o pace.o pace_lib.o usbstring.o usb.o
+ifdef PACE
+    CCID_OBJ += pace.o pace_lib.o
+else
+    a_flags  += -DNO_PACE
+endif
 
 # top-level rule
 all: $(TARGETS)

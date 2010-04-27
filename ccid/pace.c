@@ -1296,6 +1296,11 @@ int pace_transmit_apdu(struct sm_ctx *ctx, sc_card_t *card,
 {
     int r;
 
+    if ((apdu->cla & 0x0C) == 0x0C) {
+        sc_debug(card->ctx, "Given APDU is already protected with some secure messaging.");
+        SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, sc_transmit_apdu(card, apdu));
+    }
+
     if (!ctx || !ctx->cipher_ctx) {
         SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_INVALID_ARGUMENTS);
     }
