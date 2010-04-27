@@ -6,8 +6,9 @@ compilation or install process, you will need to pass variables to make.
                         pkg-config is available)
     OPENSSL_CFLAGS      compiler flags for libssl usage (needed if no
                         pkg-config is available)
-    EXTRA_CFLAGS        set it to "" to enable PACE, make sure that your
-                        openssl is compiled with the OpenPACE patch
+    PACE                set it to something (e.g. "yes") to enable PACE, make
+                        sure that your openssl is compiled with the OpenPACE
+                        patch
 
 See the Makefile for more details.
 
