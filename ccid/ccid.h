@@ -272,7 +272,8 @@ void ccid_shutdown();
 int ccid_parse_bulkin(const __u8* inbuf, __u8** outbuf);
 int ccid_parse_control(struct usb_ctrlrequest *setup, __u8 **outbuf);
 int ccid_state_changed(RDR_to_PC_NotifySlotChange_t **slotchange, int timeout);
-int ccid_testpace(u8 pin_id, const char *pin, size_t pinlen);
+int ccid_testpace(u8 pin_id, const char *pin, size_t pinlen,
+        u8 new_pin_id, const char *new_pin, size_t new_pinlen);
 
 int build_apdu(const __u8 *buf, size_t len, sc_apdu_t *apdu);
 

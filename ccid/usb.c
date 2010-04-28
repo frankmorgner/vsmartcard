@@ -58,6 +58,8 @@ static int dohid      = 0;
 static int doint      = 0;
 static int doinfo     = 0;
 static u8  dopacetest = 0;
+static u8  dochangepin = 0;
+static const char *newpin = NULL;
 static int usb_reader_num = -1;
 static const char *pin = NULL;
 static const char *cdriver = NULL;
@@ -70,6 +72,8 @@ static const char *cdriver = NULL;
 #define OPT_PUK         'u'
 #define OPT_CAN         'a'
 #define OPT_MRZ         'z'
+#define OPT_CHANGE_PIN  'I'
+#define OPT_CHANGE_CAN  'A'
 #define OPT_PRODUCT     'p'
 #define OPT_VENDOR      'e'
 #define OPT_VERBOSE     'v'
@@ -85,6 +89,8 @@ static const struct option options[] = {
     { "test-puk", optional_argument, NULL, OPT_PUK },
     { "test-can", optional_argument, NULL, OPT_CAN },
     { "test-mrz", optional_argument, NULL, OPT_MRZ },
+    { "new-pin", optional_argument, NULL, OPT_CHANGE_PIN },
+    { "new-can", optional_argument, NULL, OPT_CHANGE_CAN },
     { "serial", required_argument, NULL, OPT_SERIAL },
     { "product", required_argument, NULL, OPT_PRODUCT },
     { "vendor", required_argument, NULL, OPT_VENDOR },
@@ -102,6 +108,8 @@ static const char *option_help[] = {
     "Run PACE with PUK",
     "Run PACE with CAN",
     "Run PACE with MRZ",
+    "Change PIN when PACE is finished",
+    "Change CAN when PACE is finished",
     "USB serial number        (default: random)",
     "USB product ID           (default: 0x3010)",
     "USB vendor ID            (default: 0x0D46)",
@@ -1772,7 +1780,7 @@ main (int argc, char **argv)
     }
 
     while (1) {
-        c = getopt_long(argc, argv, "hnr:s:i::u::a::z::p:e:voc:", options, &oindex);
+        c = getopt_long(argc, argv, "hnr:s:i::u::a::z::I::A::p:e:voc:", options, &oindex);
         if (c == -1)
             break;
         switch (c) {
@@ -1821,9 +1829,17 @@ main (int argc, char **argv)
                 pin = optarg;
                 break;
             case OPT_MRZ:
-                /* PACE_PIN from openssl/pace.h */
+                /* PACE_MRZ from openssl/pace.h */
                 dopacetest = 1;
                 pin = optarg;
+                break;
+            case OPT_CHANGE_CAN:
+                dochangepin = 2;
+                newpin = optarg;
+                break;
+            case OPT_CHANGE_PIN:
+                dochangepin = 3;
+                newpin = optarg;
                 break;
             case '?':
                 /* fall through */
@@ -1855,7 +1871,8 @@ main (int argc, char **argv)
     }
 
     if (dopacetest) {
-        i = ccid_testpace(dopacetest, pin, !pin ? 0 : strlen(pin));
+        i = ccid_testpace(dopacetest, pin, !pin ? 0 : strlen(pin),
+                dochangepin, newpin, !newpin ? 0 : strlen(newpin));
         ccid_shutdown();
         return i;
     }

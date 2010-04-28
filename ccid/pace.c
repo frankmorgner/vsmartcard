@@ -151,7 +151,8 @@ inline int EstablishPACEChannel(sc_card_t *card, const __u8 *in,
     SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, SC_ERROR_NOT_SUPPORTED);
 }
 int pace_test(sc_card_t *card,
-        enum s_type pin_id, const char *pin, size_t pinlen)
+        enum s_type pin_id, const char *pin, size_t pinlen,
+        enum s_type new_pin_id, const char *new_pin, size_t new_pinlen)
 {
     SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, SC_ERROR_NOT_SUPPORTED);
 }
@@ -173,6 +174,11 @@ int pace_sm_authenticate(sc_card_t *card, const struct sm_ctx *ctx,
 int pace_sm_verify_authentication(sc_card_t *card, struct sm_ctx *ctx,
         const u8 *mac, size_t maclen,
         const u8 *macdata, size_t macdatalen)
+{
+    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, SC_ERROR_NOT_SUPPORTED);
+}
+int pace_change_p(struct sm_ctx *ctx, sc_card_t *card, enum s_type pin_id,
+        const char *newp, size_t newplen)
 {
     SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, SC_ERROR_NOT_SUPPORTED);
 }
@@ -568,38 +574,62 @@ err:
     SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, r);
 }
 
+static int
+pace_reset_retry_counter(struct sm_ctx *ctx, sc_card_t *card,
+        enum s_type pin_id, const char *new, size_t new_len)
+{
+    sc_apdu_t apdu;
+
+    apdu.cla = 0;
+    apdu.ins = 0x2C;
+    apdu.p2 = pin_id;
+    apdu.data = (u8 *) new;
+    apdu.datalen = new_len;
+    apdu.lc = apdu.datalen;
+    apdu.flags = SC_APDU_FLAGS_NO_GET_RESP|SC_APDU_FLAGS_NO_RETRY_WL;
+
+    if (new_len) {
+        apdu.p1 = 0x02;
+        apdu.cse = SC_APDU_CASE_3_SHORT;
+    } else {
+        apdu.p1 = 0x03;
+        apdu.cse = SC_APDU_CASE_1;
+    }
+
+    return pace_transmit_apdu(ctx, card, &apdu);
+}
+
 static PACE_SEC *
-get_psec(sc_card_t *card, const char *pin, size_t length_pin, u8 pin_id)
+get_psec(sc_card_t *card, const char *pin, size_t length_pin, enum s_type pin_id)
 {
     sc_ui_hints_t hints;
     char *p = NULL;
     PACE_SEC *r;
     int sc_result;
-    size_t len;
 
-    if (pin && length_pin)
-       return PACE_SEC_new(pin, length_pin, pin_id);
-
-    memset(&hints, 0, sizeof(hints));
-    hints.dialog_name = "ccid.PACE";
-    hints.card = card;
-    hints.prompt = NULL;
-    hints.obj_label = pace_secret_name(pin_id);
-    hints.usage = SC_UI_USAGE_OTHER;
-    sc_result = sc_ui_get_pin(&hints, &p);
-    if (sc_result < 0) {
-        sc_error(card->ctx, "Could not read PACE secret (%s).\n",
-                sc_strerror(sc_result));
-        return NULL;
+    if (!length_pin || !pin) {
+        memset(&hints, 0, sizeof(hints));
+        hints.dialog_name = "ccid.PACE";
+        hints.card = card;
+        hints.prompt = NULL;
+        hints.obj_label = pace_secret_name(pin_id);
+        hints.usage = SC_UI_USAGE_OTHER;
+        sc_result = sc_ui_get_pin(&hints, &p);
+        if (sc_result < 0) {
+            sc_error(card->ctx, "Could not read PACE secret (%s).\n",
+                    sc_strerror(sc_result));
+            return NULL;
+        }
+        length_pin = strlen(p);
+        pin = p;
     }
 
-    len = strlen(p);
-    r = PACE_SEC_new(p, len, pin_id);
+    r = PACE_SEC_new(pin, length_pin, pin_id);
 
-    if (len) {
-        OPENSSL_cleanse(p, len);
+    if (p) {
+        OPENSSL_cleanse(p, length_pin);
+        free(p);
     }
-    free(p);
 
     return r;
 }
@@ -854,7 +884,8 @@ const char *pace_secret_name(enum s_type pin_id) {
 }
 
 int pace_test(sc_card_t *card,
-        enum s_type pin_id, const char *pin, size_t pinlen)
+        enum s_type pin_id, const char *pin, size_t pinlen,
+        enum s_type new_pin_id, const char *new_pin, size_t new_pinlen)
 {
     u8 buf[0xff + 5];
     char *read = NULL;
@@ -893,6 +924,12 @@ int pace_test(sc_card_t *card,
     SC_TEST_RET(card->ctx,
             EstablishPACEChannel(card, buf, &out, &outlen, &sctx),
             "Could not establish PACE channel.");
+
+    if (new_pin_id) {
+        SC_TEST_RET(card->ctx,
+                pace_change_p(&sctx, card, new_pin_id, new_pin, new_pinlen),
+                "Could not change PACE secret.");
+    }
 
     while (1) {
         printf("Enter unencrypted APDU (empty line to exit)\n");
@@ -1328,6 +1365,40 @@ int pace_transmit_apdu(struct sm_ctx *ctx, sc_card_t *card,
         if (decrement_ssc(ctx->cipher_ctx) < 0)
             sc_error(card->ctx,
                     "Could not decrement send sequence counter");
+
+    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, r);
+}
+
+int pace_change_p(struct sm_ctx *ctx, sc_card_t *card, enum s_type pin_id,
+        const char *newp, size_t newplen)
+{
+    sc_ui_hints_t hints;
+    char *p = NULL;
+    int r;
+
+    if (!newplen || !newp) {
+        memset(&hints, 0, sizeof(hints));
+        hints.dialog_name = "ccid.PACE";
+        hints.card = card;
+        hints.prompt = NULL;
+        hints.obj_label = pace_secret_name(pin_id);
+        hints.usage = SC_UI_USAGE_NEW_PIN;
+        r = sc_ui_get_pin(&hints, &p);
+        if (r < 0) {
+            sc_error(card->ctx, "Could not read new %s (%s).\n",
+                    hints.obj_label, sc_strerror(r));
+            SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, r);
+        }
+        newplen = strlen(p);
+        newp = p;
+    }
+
+    r = pace_reset_retry_counter(ctx, card, pin_id, newp, newplen);
+
+    if (p) {
+        OPENSSL_cleanse(p, newplen);
+        free(p);
+    }
 
     SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, r);
 }

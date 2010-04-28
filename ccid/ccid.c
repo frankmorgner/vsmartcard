@@ -1308,14 +1308,16 @@ int ccid_state_changed(RDR_to_PC_NotifySlotChange_t **slotchange, int timeout)
 }
 
 #ifdef NO_PACE
-int ccid_testpace(u8 pin_id, const char *pin, size_t pinlen)
+int ccid_testpace(u8 pin_id, const char *pin, size_t pinlen,
+        u8 new_pin_id, const char *new_pin, size_t new_pinlen)
 {
     sc_error(ctx, "ccid not compiled with support for PACE.");
 
     return SC_ERROR_NOT_SUPPORTED;
 }
 #else
-int ccid_testpace(u8 pin_id, const char *pin, size_t pinlen)
+int ccid_testpace(u8 pin_id, const char *pin, size_t pinlen,
+        u8 new_pin_id, const char *new_pin, size_t new_pinlen)
 {
     int i;
     for (i = 0; i < sizeof *card_in_slot; i++) {
@@ -1323,7 +1325,8 @@ int ccid_testpace(u8 pin_id, const char *pin, size_t pinlen)
             if (!card_in_slot[i] || !sc_card_valid(card_in_slot[i])) {
                 sc_connect_card(reader, i, &card_in_slot[i]);
             }
-            return pace_test(card_in_slot[i], pin_id, pin, pinlen);
+            return pace_test(card_in_slot[i], pin_id, pin, pinlen,
+                    new_pin_id, new_pin, new_pinlen);
         }
     }
 
