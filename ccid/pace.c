@@ -890,7 +890,8 @@ int pace_test(sc_card_t *card,
     u8 buf[0xff + 5];
     char *read = NULL;
     __u8 *out = NULL;
-    size_t outlen, readlen = 0, linelen, apdulen;
+    size_t outlen, readlen = 0, apdulen;
+    ssize_t linelen;
     struct sm_ctx sctx;
     sc_apdu_t apdu;
     int r;
