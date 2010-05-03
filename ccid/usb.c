@@ -35,7 +35,6 @@
 #include <linux/types.h>
 #include <linux/usb/gadgetfs.h>
 #include <linux/usb/ch9.h>
-#include <getopt.h>
 //#include <usb.h>
 //
 #include <getopt.h>
@@ -47,6 +46,7 @@
 
 #include "usbstring.h"
 #include "ccid.h"
+#include "util.h"
 
 #define DRIVER_VENDOR_NUM	0x0D46		/* KOBIL Systems */
 #define DRIVER_PRODUCT_NUM	0x3010		/* KOBIL Class 3 Reader */
@@ -57,23 +57,13 @@ static int debug      = 0;
 static int dohid      = 0;
 static int doint      = 0;
 static int doinfo     = 0;
-static u8  dopacetest = 0;
-static u8  dochangepin = 0;
-static const char *newpin = NULL;
 static int usb_reader_num = -1;
-static const char *pin = NULL;
 static const char *cdriver = NULL;
 
 #define OPT_HELP        'h'
 #define OPT_INTERRUPT   'n'
 #define OPT_READER      'r'
 #define OPT_SERIAL      's'
-#define OPT_PIN         'i'
-#define OPT_PUK         'u'
-#define OPT_CAN         'a'
-#define OPT_MRZ         'z'
-#define OPT_CHANGE_PIN  'I'
-#define OPT_CHANGE_CAN  'A'
 #define OPT_PRODUCT     'p'
 #define OPT_VENDOR      'e'
 #define OPT_VERBOSE     'v'
@@ -85,12 +75,6 @@ static const struct option options[] = {
     { "help", no_argument, NULL, OPT_HELP },
     { "reader",	required_argument, NULL, OPT_READER },
     { "card-driver", required_argument, NULL, OPT_CARD },
-    { "test-pin", optional_argument, NULL, OPT_PIN },
-    { "test-puk", optional_argument, NULL, OPT_PUK },
-    { "test-can", optional_argument, NULL, OPT_CAN },
-    { "test-mrz", optional_argument, NULL, OPT_MRZ },
-    { "new-pin", optional_argument, NULL, OPT_CHANGE_PIN },
-    { "new-can", optional_argument, NULL, OPT_CHANGE_CAN },
     { "serial", required_argument, NULL, OPT_SERIAL },
     { "product", required_argument, NULL, OPT_PRODUCT },
     { "vendor", required_argument, NULL, OPT_VENDOR },
@@ -104,12 +88,6 @@ static const char *option_help[] = {
     "Print help and exit",
     "Number of reader to use  (default: auto-detect)",
     "Which card driver to use (default: auto-detect)",
-    "Run PACE with PIN",
-    "Run PACE with PUK",
-    "Run PACE with CAN",
-    "Run PACE with MRZ",
-    "Change PIN when PACE is finished",
-    "Change CAN when PACE is finished",
     "USB serial number        (default: random)",
     "USB product ID           (default: 0x3010)",
     "USB vendor ID            (default: 0x0D46)",
@@ -1716,55 +1694,6 @@ done:
 	return 0;
 }
 
-/*-------------------------------------------------------------------------*/
-void print_usage(const char *app_name, const struct option options[],
-	const char *option_help[])
-{
-    int i = 0;
-    printf("Usage: %s [OPTIONS]\nOptions:\n", app_name);
-
-    while (options[i].name) {
-        char buf[40], tmp[5];
-        const char *arg_str;
-
-        /* Skip "hidden" options */
-        if (option_help[i] == NULL) {
-            i++;
-            continue;
-        }
-
-        if (options[i].val > 0 && options[i].val < 128)
-            sprintf(tmp, "-%c", options[i].val);
-        else
-            tmp[0] = 0;
-        switch (options[i].has_arg) {
-            case 1:
-                arg_str = " <arg>";
-                break;
-            case 2:
-                arg_str = " [arg]";
-                break;
-            default:
-                arg_str = "";
-                break;
-        }
-        sprintf(buf, "--%-13s%s%s", options[i].name, tmp, arg_str);
-        if (strlen(buf) > 24) {
-            printf("  %s\n", buf);
-            buf[0] = '\0';
-        }
-        printf("  %-24s %s\n", buf, option_help[i]);
-        i++;
-    }
-}
-
-void parse_error(const char *app_name, const char *optarg, int opt_ind)
-{
-    printf("Could not parse %s ('%s').\n", options[opt_ind].name, optarg);
-    print_usage(app_name , options, option_help);
-    exit(2);
-}
-
 int
 main (int argc, char **argv)
 {
@@ -1789,20 +1718,28 @@ main (int argc, char **argv)
                 exit(0);
                 break;
             case OPT_READER:
-                if (sscanf(optarg, "%d", &usb_reader_num) != 1)
-                    parse_error(argv[0], optarg, oindex);
+                if (sscanf(optarg, "%d", &usb_reader_num) != 1) {
+                    parse_error(argv[0], options, option_help, optarg, oindex);
+                    exit(2);
+                }
                 break;
             case OPT_SERIAL:
-                if (sscanf(optarg, "%56s", serial) != 1)
-                    parse_error(argv[0], optarg, oindex);
+                if (sscanf(optarg, "%56s", serial) != 1) {
+                    parse_error(argv[0], options, option_help, optarg, oindex);
+                    exit(2);
+                }
                 break;
             case OPT_PRODUCT:
-                if (sscanf(optarg, "%x", &productid) != 1)
-                    parse_error(argv[0], optarg, oindex);
+                if (sscanf(optarg, "%x", &productid) != 1) {
+                    parse_error(argv[0], options, option_help, optarg, oindex);
+                    exit(2);
+                }
                 break;
             case OPT_VENDOR:
-                if (sscanf(optarg, "%x", &vendorid) != 1)
-                    parse_error(argv[0], optarg, oindex);
+                if (sscanf(optarg, "%x", &vendorid) != 1) {
+                    parse_error(argv[0], options, option_help, optarg, oindex);
+                    exit(2);
+                }
                 break;
             case OPT_CARD:
                 cdriver = optarg;
@@ -1812,34 +1749,6 @@ main (int argc, char **argv)
                 break;
             case OPT_INFO:
                 doinfo++;
-                break;
-            case OPT_PUK:
-                /* PACE_PIN from openssl/pace.h */
-                dopacetest = 4;
-                pin = optarg;
-                break;
-            case OPT_PIN:
-                /* PACE_PIN from openssl/pace.h */
-                dopacetest = 3;
-                pin = optarg;
-                break;
-            case OPT_CAN:
-                /* PACE_PIN from openssl/pace.h */
-                dopacetest = 2;
-                pin = optarg;
-                break;
-            case OPT_MRZ:
-                /* PACE_MRZ from openssl/pace.h */
-                dopacetest = 1;
-                pin = optarg;
-                break;
-            case OPT_CHANGE_CAN:
-                dochangepin = 2;
-                newpin = optarg;
-                break;
-            case OPT_CHANGE_PIN:
-                dochangepin = 3;
-                newpin = optarg;
                 break;
             case '?':
                 /* fall through */
@@ -1868,13 +1777,6 @@ main (int argc, char **argv)
     if (ccid_initialize(usb_reader_num, cdriver, verbose) < 0) {
         perror("Can't initialize ccid");
         return 1;
-    }
-
-    if (dopacetest) {
-        i = ccid_testpace(dopacetest, pin, !pin ? 0 : strlen(pin),
-                dochangepin, newpin, !newpin ? 0 : strlen(newpin));
-        ccid_shutdown();
-        return i;
     }
 
     if (verbose)
