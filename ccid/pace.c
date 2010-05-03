@@ -351,8 +351,8 @@ static int pace_mse_set_at(sc_card_t *card,
                    apdu.sw2 & 0x0f,
                    (apdu.sw2 & 0x0f) == 1? ", password must be resumed": (apdu.sw2 & 0x0f) == 0? ", password must be unblocked":
                    "");
-             r = SC_ERROR_PIN_CODE_INCORRECT;
-             goto err;
+             /* this is only a warning */
+             r = SC_SUCCESS;
         } else {
             sc_error(card->ctx, "Unknown SWs; SW1=%02X, SW2=%02X\n",
                     apdu.sw1, apdu.sw2);
