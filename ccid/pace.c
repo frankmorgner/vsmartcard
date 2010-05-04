@@ -222,6 +222,9 @@ static int get_ef_card_access(sc_card_t *card,
         __u8 **ef_cardaccess, size_t *length_ef_cardaccess)
 {
     int r;
+    /* we read less bytes than possible. this is a workaround for acr 122,
+     * which only supports apdus of max 250 bytes */
+    size_t read = maxresp - 8;
     sc_path_t path;
     sc_file_t *file = NULL;
     __u8 *p;
@@ -246,7 +249,7 @@ static int get_ef_card_access(sc_card_t *card,
 
     *length_ef_cardaccess = 0;
     while(1) {
-        p = realloc(*ef_cardaccess, *length_ef_cardaccess + maxresp);
+        p = realloc(*ef_cardaccess, *length_ef_cardaccess + read);
         if (!p) {
             r = SC_ERROR_OUT_OF_MEMORY;
             goto err;
@@ -254,9 +257,9 @@ static int get_ef_card_access(sc_card_t *card,
         *ef_cardaccess = p;
 
         r = sc_read_binary(card, *length_ef_cardaccess,
-                *ef_cardaccess + *length_ef_cardaccess, maxresp, 0);
+                *ef_cardaccess + *length_ef_cardaccess, read, 0);
 
-        if (r > 0 && r != maxresp) {
+        if (r > 0 && r != read) {
             *length_ef_cardaccess += r;
             break;
         }
