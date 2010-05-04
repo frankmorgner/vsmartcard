@@ -19,12 +19,22 @@
 #include "pace.h"
 #include "sm.h"
 #include "util.h"
-#include <stdio.h>
+#include <asm/byteorder.h>
+#include <opensc/asn1.h>
 #include <opensc/log.h>
-#include <openssl/evp.h>
+#include <opensc/opensc.h>
+#include <opensc/ui.h>
 #include <openssl/asn1.h>
 #include <openssl/asn1t.h>
 #include <openssl/buffer.h>
+#include <openssl/err.h>
+#include <openssl/evp.h>
+#include <openssl/objects.h>
+#include <openssl/pace.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 
 #define ASN1_APP_EXP_OPT(stname, field, type, tag) ASN1_EX_TYPE(ASN1_TFLG_EXPTAG|ASN1_TFLG_APPLICATION|ASN1_TFLG_OPTIONAL, tag, stname, field, type)
@@ -139,61 +149,6 @@ ASN1_ITEM_TEMPLATE_END(PACE_GEN_AUTH_R)
 IMPLEMENT_ASN1_FUNCTIONS(PACE_GEN_AUTH_R)
 
 
-#ifdef NO_PACE
-inline int GetReadersPACECapabilities(sc_card_t *card,
-        const __u8 *in, __u8 **out, size_t *outlen)
-{
-    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, SC_ERROR_NOT_SUPPORTED);
-}
-inline int EstablishPACEChannel(sc_card_t *card, const __u8 *in,
-        __u8 **out, size_t *outlen, struct sm_ctx *sm_ctx)
-{
-    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, SC_ERROR_NOT_SUPPORTED);
-}
-int pace_test(sc_card_t *card,
-        enum s_type pin_id, const char *pin, size_t pinlen,
-        enum s_type new_pin_id, const char *new_pin, size_t new_pinlen)
-{
-    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, SC_ERROR_NOT_SUPPORTED);
-}
-int pace_sm_encrypt(sc_card_t *card, struct *sm_ctx,
-            const u8 *data, size_t datalen, u8 **enc)
-{
-    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, SC_ERROR_NOT_SUPPORTED);
-}
-int pace_sm_decrypt(sc_card_t *card, struct *sm_ctx,
-            const u8 *enc, size_t enclen, u8 **data)
-{
-    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, SC_ERROR_NOT_SUPPORTED);
-}
-int pace_sm_authenticate(sc_card_t *card, const struct sm_ctx *ctx,
-        const u8 *data, size_t datalen, u8 **macdata)
-{
-    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, SC_ERROR_NOT_SUPPORTED);
-}
-int pace_sm_verify_authentication(sc_card_t *card, struct sm_ctx *ctx,
-        const u8 *mac, size_t maclen,
-        const u8 *macdata, size_t macdatalen)
-{
-    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, SC_ERROR_NOT_SUPPORTED);
-}
-int pace_change_p(struct sm_ctx *ctx, sc_card_t *card, enum s_type pin_id,
-        const char *newp, size_t newplen)
-{
-    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, SC_ERROR_NOT_SUPPORTED);
-}
-#else
-
-#include <asm/byteorder.h>
-#include <opensc/asn1.h>
-#include <opensc/opensc.h>
-#include <opensc/ui.h>
-#include <openssl/err.h>
-#include <openssl/objects.h>
-#include <openssl/pace.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
 
 const size_t maxresp = SC_MAX_APDU_BUFFER_SIZE - 2;
 
@@ -1404,5 +1359,3 @@ int pace_change_p(struct sm_ctx *ctx, sc_card_t *card, enum s_type pin_id,
 
     SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, r);
 }
-
-#endif

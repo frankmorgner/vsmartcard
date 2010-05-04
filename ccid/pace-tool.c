@@ -20,6 +20,7 @@
 #include "pace.h"
 #include <stdlib.h>
 #include <string.h>
+#include <openssl/pace.h>
 
 static int verbose    = 0;
 static int doinfo     = 0;
@@ -121,23 +122,19 @@ main (int argc, char **argv)
                 doinfo++;
                 break;
             case OPT_PUK:
-                /* PACE_PIN from openssl/pace.h */
-                pin_id = 4;
+                pin_id = PACE_PUK;
                 pin = optarg;
                 break;
             case OPT_PIN:
-                /* PACE_PIN from openssl/pace.h */
-                pin_id = 3;
+                pin_id = PACE_PIN;
                 pin = optarg;
                 break;
             case OPT_CAN:
-                /* PACE_PIN from openssl/pace.h */
-                pin_id = 2;
+                pin_id = PACE_CAN;
                 pin = optarg;
                 break;
             case OPT_MRZ:
-                /* PACE_MRZ from openssl/pace.h */
-                pin_id = 1;
+                pin_id = PACE_MRZ;
                 pin = optarg;
                 break;
             case OPT_CHANGE_PIN:

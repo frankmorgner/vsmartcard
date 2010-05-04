@@ -20,11 +20,10 @@ INSTALL_PROGRAM    = $(INSTALL)
 
 
 TARGETS		   = ccid
-CCID_OBJ 	   = ccid.o sm.o usbstring.o usb.o util.o
+CCID_OBJ 	   = ccid.o usbstring.o usb.o util.o
 PTOOL_OBJ 	   = sm.o pace-tool.o util.o pace.o pace_lib.o
 
 ifdef PACE
-    CCID_OBJ += pace.o pace_lib.o
     TARGETS  += pace-tool
     a_flags  += $(OPENSSL_CFLAGS)
 else
