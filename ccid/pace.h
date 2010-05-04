@@ -63,18 +63,11 @@ int GetReadersPACECapabilities(sc_card_t *card, const __u8
         *in, __u8 **out, size_t *outlen);
 int EstablishPACEChannel(sc_card_t *card, const __u8 *in,
         __u8 **out, size_t *outlen, struct sm_ctx *ctx);
-int pace_test(sc_card_t *card,
-        enum s_type pin_id, const char *pin, size_t pinlen,
-        enum s_type new_pin_id, const char *new_pin, size_t new_pinlen);
-int pace_change_p(struct sm_ctx *ctx, sc_card_t *card, enum s_type pin_id,
-        const char *newp, size_t newplen);
-#define pace_change_pin(ctx, card, newpin, newpinlen) \
-        pace_change_p(ctx, card, PACE_PIN, newpin, newpinlen)
-#define pace_change_can(ctx, card, newcan, newcanlen) \
-        pace_change_p(ctx, card, PACE_CAN, newcan, newcanlen)
 
 int pace_transmit_apdu(struct sm_ctx *sctx, sc_card_t *card,
         sc_apdu_t *apdu);
+int pace_reset_retry_counter(struct sm_ctx *ctx, sc_card_t *card,
+        enum s_type pin_id, const char *new, size_t new_len);
 
 #ifdef  __cplusplus
 }
