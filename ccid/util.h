@@ -20,10 +20,17 @@
 #define _CCID_UTIL_H
 
 #include <getopt.h>
+#include <opensc/opensc.h>
 
 void print_usage(const char *app_name, const struct option options[],
 	const char *option_help[]);
 void parse_error(const char *app_name, const struct option options[],
         const char *option_help[], const char *optarg, int opt_ind);
+
+int print_avail(int verbose);
+int initialize(int reader_id, const char *cdriver, int verbose,
+        sc_context_t **ctx, sc_reader_t **reader);
+
+int build_apdu(sc_context_t *ctx, const u8 *buf, size_t len, sc_apdu_t *apdu);
 
 #endif

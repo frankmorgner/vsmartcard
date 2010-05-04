@@ -21,7 +21,7 @@ INSTALL_PROGRAM    = $(INSTALL)
 
 TARGETS		   = ccid
 CCID_OBJ 	   = ccid.o sm.o usbstring.o usb.o util.o
-PTOOL_OBJ 	   = ccid.o sm.o pace-tool.o util.o pace.o pace_lib.o
+PTOOL_OBJ 	   = sm.o pace-tool.o util.o pace.o pace_lib.o
 
 ifdef PACE
     CCID_OBJ += pace.o pace_lib.o
@@ -64,4 +64,4 @@ uninstall:
 
 .PHONY: clean
 clean:
-	rm -f $(TARGETS) $(CCID_OBJ) $(PTOOL_OBJ)
+	rm -f $(TARGETS) $(CCID_OBJ) pace-tool $(PTOOL_OBJ)

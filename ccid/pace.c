@@ -18,7 +18,7 @@
  */
 #include "pace.h"
 #include "sm.h"
-#include "ccid.h"
+#include "util.h"
 #include <stdio.h>
 #include <opensc/log.h>
 #include <openssl/evp.h>
@@ -953,7 +953,7 @@ int pace_test(sc_card_t *card,
             sc_error(card->ctx, "Could not format binary string");
         }
 
-        r = build_apdu(buf, apdulen, &apdu);
+        r = build_apdu(card->ctx, buf, apdulen, &apdu);
         if (r < 0) {
             sc_error(card->ctx, "Could not format APDU");
             continue;

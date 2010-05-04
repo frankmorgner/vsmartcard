@@ -27,9 +27,7 @@
 #include <opensc/log.h>
 
 #include "ccid.h"
-#ifndef NO_PACE
-#include "pace.h"
-#endif
+#include "util.h"
 
 static sc_context_t *ctx = NULL;
 static sc_card_t *card_in_slot[SC_MAX_SLOTS];
@@ -117,56 +115,19 @@ detect_card_presence(int slot)
 
 int ccid_initialize(int reader_id, const char *cdriver, int verbose)
 {
-    unsigned int i, reader_count;
-
-    int r = sc_context_create(&ctx, NULL);
-    if (r < 0) {
-        printf("Failed to create initial context: %s", sc_strerror(r));
-        return r;
-    }
-
-    if (cdriver != NULL) {
-        r = sc_set_card_driver(ctx, cdriver);
-        if (r < 0) {
-            sc_error(ctx, "Card driver '%s' not found!\n", cdriver);
-            return r;
-        }
-    }
-
-    ctx->debug = verbose;
+    int i;
 
     for (i = 0; i < sizeof *card_in_slot; i++) {
         card_in_slot[i] = NULL;
     }
 
-    reader_count = sc_ctx_get_reader_count(ctx);
+    i = initialize(reader_id, cdriver, verbose, &ctx, &reader);
+    if (i < 0)
+        return i;
 
-    if (reader_count == 0)
-        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_NO_READERS_FOUND);
-
-    if (reader_id < 0) {
-        /* Automatically try to skip to a reader with a card if reader not specified */
-        for (i = 0; i < reader_count; i++) {
-            reader = sc_ctx_get_reader(ctx, i);
-            if (sc_detect_card_presence(reader, 0) & SC_SLOT_CARD_PRESENT) {
-                reader_id = i;
-                sc_debug(ctx, "Using reader with a card: %s", reader->name);
-                break;
-            }
-        }
-        if (reader_id >= reader_count) {
-            /* no reader found, use the first */
-            reader_id = 0;
-        }
-    }
-
-    if (reader_id >= reader_count)
-        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_NO_READERS_FOUND);
-
-    reader = sc_ctx_get_reader(ctx, reader_id);
     ccid_desc.bMaxSlotIndex = reader->slot_count - 1;
 
-    SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_SUCCESS);
+    return SC_SUCCESS;
 }
 
 void ccid_shutdown()
@@ -179,71 +140,6 @@ void ccid_shutdown()
     }
     if (ctx)
         sc_release_context(ctx);
-}
-
-int build_apdu(const __u8 *buf, size_t len, sc_apdu_t *apdu)
-{
-	const __u8 *p;
-	size_t len0;
-
-        if (!buf || !apdu)
-            SC_FUNC_RETURN(ctx, SC_LOG_TYPE_VERBOSE, SC_ERROR_INVALID_ARGUMENTS);
-
-	len0 = len;
-	if (len < 4) {
-                sc_error(ctx, "APDU too short (must be at least 4 bytes)");
-                SC_FUNC_RETURN(ctx, SC_LOG_TYPE_VERBOSE, SC_ERROR_INVALID_DATA);
-	}
-
-	memset(apdu, 0, sizeof(*apdu));
-	p = buf;
-	apdu->cla = *p++;
-	apdu->ins = *p++;
-	apdu->p1 = *p++;
-	apdu->p2 = *p++;
-	len -= 4;
-	if (len > 1) {
-		apdu->lc = *p++;
-		len--;
-		apdu->data = p;
-		apdu->datalen = apdu->lc;
-		if (len < apdu->lc) {
-                        sc_error(ctx, "APDU too short (need %lu bytes)\n",
-                                (unsigned long) apdu->lc - len);
-                        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_VERBOSE, SC_ERROR_INVALID_DATA);
-		}
-		len -= apdu->lc;
-		p += apdu->lc;
-		if (len) {
-			apdu->le = *p++;
-			if (apdu->le == 0)
-				apdu->le = 256;
-			len--;
-			apdu->cse = SC_APDU_CASE_4_SHORT;
-		} else {
-			apdu->cse = SC_APDU_CASE_3_SHORT;
-		}
-		if (len) {
-			sc_error(ctx, "APDU too long (%lu bytes extra)\n",
-				(unsigned long) len);
-                        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_VERBOSE, SC_ERROR_INVALID_DATA);
-		}
-	} else if (len == 1) {
-		apdu->le = *p++;
-		if (apdu->le == 0)
-			apdu->le = 256;
-		len--;
-		apdu->cse = SC_APDU_CASE_2_SHORT;
-	} else {
-		apdu->cse = SC_APDU_CASE_1;
-	}
-
-        apdu->flags = SC_APDU_FLAGS_NO_GET_RESP|SC_APDU_FLAGS_NO_RETRY_WL;
-
-        sc_debug(ctx, "APDU, %d bytes:\tins=%02x p1=%02x p2=%02x",
-                (unsigned int) len0, apdu->ins, apdu->p1, apdu->p2);
-
-        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_VERBOSE, SC_SUCCESS);
 }
 
 static int get_rapdu(sc_apdu_t *apdu, size_t slot, __u8 **buf, size_t *resplen)
@@ -542,7 +438,7 @@ perform_PC_to_RDR_XfrBlock(const u8 *in,  __u8** out, size_t *outlen)
     if (request->bSlot > sizeof *card_in_slot)
         sc_result = SC_ERROR_INVALID_DATA;
     else {
-        sc_result = build_apdu(abDataIn, request->dwLength, &apdu);
+        sc_result = build_apdu(ctx, abDataIn, request->dwLength, &apdu);
         if (sc_result >= 0)
             sc_result = get_rapdu(&apdu, request->bSlot, &abDataOut, &resplen);
     }
@@ -903,7 +799,7 @@ perform_PC_to_RDR_Secure(const __u8 *in, __u8** out, size_t *outlen)
             goto err;
     }
 
-    sc_result = build_apdu(abPINApdu, apdulen, &apdu);
+    sc_result = build_apdu(ctx, abPINApdu, apdulen, &apdu);
     if (sc_result < 0)
         goto err;
     apdu.sensitive = 1;
@@ -1305,89 +1201,4 @@ int ccid_state_changed(RDR_to_PC_NotifySlotChange_t **slotchange, int timeout)
         return 1;
 
     return 0;
-}
-
-#ifdef NO_PACE
-int ccid_testpace(u8 pin_id, const char *pin, size_t pinlen,
-        u8 new_pin_id, const char *new_pin, size_t new_pinlen)
-{
-    sc_error(ctx, "ccid not compiled with support for PACE.");
-
-    return SC_ERROR_NOT_SUPPORTED;
-}
-#else
-int ccid_testpace(u8 pin_id, const char *pin, size_t pinlen,
-        u8 new_pin_id, const char *new_pin, size_t new_pinlen)
-{
-    int i;
-    for (i = 0; i < sizeof *card_in_slot; i++) {
-        if (sc_detect_card_presence(reader, 0) & SC_SLOT_CARD_PRESENT) {
-            if (!card_in_slot[i] || !sc_card_valid(card_in_slot[i])) {
-                sc_connect_card(reader, i, &card_in_slot[i]);
-            }
-            return pace_test(card_in_slot[i], pin_id, pin, pinlen,
-                    new_pin_id, new_pin, new_pinlen);
-        }
-    }
-
-    sc_error(ctx, "No card found.");
-
-    return SC_ERROR_SLOT_NOT_FOUND;
-}
-#endif
-
-static int ccid_list_readers(sc_context_t *ctx)
-{
-	unsigned int i, rcount = sc_ctx_get_reader_count(ctx);
-	
-	if (rcount == 0) {
-		printf("No smart card readers found.\n");
-		return 0;
-	}
-	printf("Readers known about:\n");
-	printf("Nr.    Driver     Name\n");
-	for (i = 0; i < rcount; i++) {
-		sc_reader_t *screader = sc_ctx_get_reader(ctx, i);
-		printf("%-7d%-11s%s\n", i, screader->driver->short_name,
-		       screader->name);
-	}
-
-	return 0;
-}
-
-static int ccid_list_drivers(sc_context_t *ctx)
-{
-	int i;
-	
-	if (ctx->card_drivers[0] == NULL) {
-		printf("No card drivers installed!\n");
-		return 0;
-	}
-	printf("Configured card drivers:\n");
-	for (i = 0; ctx->card_drivers[i] != NULL; i++) {
-		printf("  %-16s %s\n", ctx->card_drivers[i]->short_name,
-		       ctx->card_drivers[i]->name);
-	}
-
-	return 0;
-}
-
-int ccid_print_avail(int verbose)
-{
-	sc_context_t *ctx = NULL;
-
-	int r;
-	r = sc_context_create(&ctx, NULL);
-	if (r) {
-		fprintf(stderr, "Failed to establish context: %s\n", sc_strerror(r));
-		return 1;
-	}
-	ctx->debug = verbose;
-
-	r = ccid_list_readers(ctx)|ccid_list_drivers(ctx);
-
-	if (ctx)
-		sc_release_context(ctx);
-
-	return r;
 }

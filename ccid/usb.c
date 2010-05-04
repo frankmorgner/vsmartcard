@@ -1771,7 +1771,7 @@ main (int argc, char **argv)
     if (doinfo) {
         fprintf(stderr, "%s 0.9  written by Frank Morgner.\n\n" ,
                 argv[0]);
-        return ccid_print_avail(verbose);
+        return print_avail(verbose);
     }
 
     if (ccid_initialize(usb_reader_num, cdriver, verbose) < 0) {
