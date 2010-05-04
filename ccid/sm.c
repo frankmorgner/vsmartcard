@@ -49,7 +49,10 @@ void _bin_log(sc_context_t *ctx, int type, const char *file, int line,
 {
     char buf[1024];
 
-    sc_hex_dump(ctx, data, len, buf, sizeof buf);
+    if (data)
+        sc_hex_dump(ctx, data, len, buf, sizeof buf);
+    else
+        buf[0] = 0;
     if (!f) {
         sc_do_log(ctx, type, file, line, func,
                 "\n%s (%u byte%s):\n%s"

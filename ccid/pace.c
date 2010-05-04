@@ -401,8 +401,6 @@ static int pace_gen_auth(sc_card_t *card,
     memset(&apdu, 0, sizeof apdu);
     apdu.cla = 0x10;
     apdu.ins = 0x86;
-    apdu.p1 = 0;
-    apdu.p2 = 0;
     apdu.cse = SC_APDU_CASE_4;
     apdu.flags = SC_APDU_FLAGS_NO_GET_RESP|SC_APDU_FLAGS_NO_RETRY_WL;
 
@@ -583,7 +581,7 @@ pace_reset_retry_counter(struct sm_ctx *ctx, sc_card_t *card,
 {
     sc_apdu_t apdu;
 
-    apdu.cla = 0;
+    memset(&apdu, 0, sizeof apdu);
     apdu.ins = 0x2C;
     apdu.p2 = pin_id;
     apdu.data = (u8 *) new;
