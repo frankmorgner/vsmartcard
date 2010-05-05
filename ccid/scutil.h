@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Frank Morgner
+ * Copyright (C) 2010 Frank Morgner
  *
  * This file is part of ccid.
  *
@@ -16,21 +16,15 @@
  * You should have received a copy of the GNU General Public License along with
  * ccid.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _CCID_UTIL_H
-#define _CCID_UTIL_H
+#ifndef _CCID_SCUTIL_H
+#define _CCID_SCUTIL_H
 
-#include <getopt.h>
 #include <opensc/opensc.h>
 
-void print_usage(const char *app_name, const struct option options[],
-	const char *option_help[]);
-void parse_error(const char *app_name, const struct option options[],
-        const char *option_help[], const char *optarg, int opt_ind);
-
-int print_avail(int verbose);
 int initialize(int reader_id, const char *cdriver, int verbose,
         sc_context_t **ctx, sc_reader_t **reader);
 
 int build_apdu(sc_context_t *ctx, const u8 *buf, size_t len, sc_apdu_t *apdu);
 
 #endif
+

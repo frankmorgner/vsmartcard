@@ -16,8 +16,9 @@
  * You should have received a copy of the GNU General Public License along with
  * ccid.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include "binutil.h"
 #include "pace.h"
-#include "util.h"
+#include "scutil.h"
 #include <opensc/log.h>
 #include <opensc/ui.h>
 #include <openssl/pace.h>

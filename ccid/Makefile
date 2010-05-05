@@ -20,8 +20,8 @@ INSTALL_PROGRAM    = $(INSTALL)
 
 
 TARGETS		   = ccid
-CCID_OBJ 	   = ccid.o usbstring.o usb.o util.o
-PTOOL_OBJ 	   = sm.o pace-tool.o util.o pace.o pace_lib.o
+CCID_OBJ 	   = ccid.o usbstring.o usb.o binutil.o scutil.o
+PTOOL_OBJ 	   = sm.o pace-tool.o binutil.o scutil.o pace.o pace_lib.o
 
 ifdef PACE
     TARGETS  += pace-tool

@@ -27,7 +27,7 @@
 #include <opensc/log.h>
 
 #include "ccid.h"
-#include "util.h"
+#include "scutil.h"
 
 static sc_context_t *ctx = NULL;
 static sc_card_t *card_in_slot[SC_MAX_SLOTS];

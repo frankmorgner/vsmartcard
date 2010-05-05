@@ -46,7 +46,7 @@
 
 #include "usbstring.h"
 #include "ccid.h"
-#include "util.h"
+#include "binutil.h"
 
 #define DRIVER_VENDOR_NUM	0x0D46		/* KOBIL Systems */
 #define DRIVER_PRODUCT_NUM	0x3010		/* KOBIL Class 3 Reader */
