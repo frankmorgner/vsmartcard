@@ -37,8 +37,8 @@ AC_ARG_ENABLE(ccid,
               AS_HELP_STRING([--disable-ccid], [Disable USB CCID emulator]),
               [enable_ccid="${enableval}"], [enable_ccid=yes])
 if test "x$enable_ccid" != xno ; then
-    AC_CHECK_HEADERS(linux/usb/gadgetfs.h, [],
-                     [ AC_MSG_ERROR([linux/usb/gadgetfs.h not found]) ])
+    AC_CHECK_HEADERS(linux/usb/gadgetfs.h,,
+                     [ AC_MSG_ERROR([linux/usb/gadgetfs.h not found, maybe you want to disable ccid]) ])
 
     ACX_PTHREAD
 
@@ -48,10 +48,10 @@ if test "x$enable_ccid" != xno ; then
     LIBS="$LDFLAGS $PTHREAD_LIBS"
 
     AC_CHECK_HEADERS(pthread.h, [],
-                     [ AC_MSG_ERROR([pthread.h not found, use ./configure PTHREAD_CFLAGS=...]) ])
-    AC_MSG_CHECKING([for parse_ef_card_access])
+                     [ AC_MSG_ERROR([pthread.h not found, use ./configure PTHREAD_CFLAGS=... or disable ccid]) ])
+    AC_MSG_CHECKING([for pthread_create])
     AC_TRY_LINK_FUNC(pthread_create, [ AC_MSG_RESULT([yes]) ],
-    [ AC_MSG_ERROR([pthread not found, use ./configure PTHREAD_LIBS=...]) ])
+                     [ AC_MSG_ERROR([pthread not found, use ./configure PTHREAD_LIBS=... or disable ccid]) ])
 
     CPPFLAGS="$saved_CPPFLAGS"
     LIBS="$saved_LIBS"
