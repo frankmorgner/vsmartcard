@@ -66,6 +66,7 @@ install: $(TARGETS) installdirs
 	$(INSTALL_PROGRAM) virtualsmartcard $(DESTDIR)$(bindir)
 	$(INSTALL_DATA) vpcd.conf $(DESTDIR)$(readerconfdir)
 	$(INSTALL_DATA) vpicc/ConstantDefinitions.py $(DESTDIR)$(python_sitelib)
+	$(INSTALL_DATA) vpicc/CardGenerator.py $(DESTDIR)$(python_sitelib)
 	$(INSTALL_DATA) vpicc/CryptoUtils.py $(DESTDIR)$(python_sitelib)
 	$(INSTALL_DATA) vpicc/SEutils.py $(DESTDIR)$(python_sitelib)
 	$(INSTALL_DATA) vpicc/SmartcardFilesystem.py $(DESTDIR)$(python_sitelib)
@@ -74,9 +75,6 @@ install: $(TARGETS) installdirs
 	$(INSTALL_DATA) vpicc/TLVutils.py $(DESTDIR)$(python_sitelib)
 	$(INSTALL_DATA) vpicc/utils.py $(DESTDIR)$(python_sitelib)
 	$(INSTALL_DATA) vpicc/VirtualSmartcard.py $(DESTDIR)$(python_sitelib)
-	$(INSTALL_DATA) vpicc/testconfig.sam $(DESTDIR)$(python_sitelib)
-	$(INSTALL_DATA) vpicc/testconfig.mf $(DESTDIR)$(python_sitelib)
-	$(INSTALL_DATA) vpicc/jp2.jpg $(DESTDIR)$(python_sitelib)
 
 .PHONY: installdirs
 installdirs:
