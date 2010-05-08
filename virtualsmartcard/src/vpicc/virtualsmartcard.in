@@ -1,0 +1,4 @@
+#!/bin/sh
+
+cd "PYTHONDIR"
+PYTHONBIN "PYTHONDIR/VirtualSmartcard.py" "$@"
