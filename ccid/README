@@ -9,13 +9,15 @@ as a standard USB CCID reader. If the host system is in USB device mode, ccid
 forwards the local reader via USB to an other device. If in USB host mode,
 ccid virtually plugges in a USB CCID reader to the host system.
 
-ccid has support for Password Authenticated Connection Establishment (PACE)
-using OpenPACE (see http://sourceforge.net/projects/openpace/).  PACE is
-experimental and disabled by default. See file INSTALL how to compile it.
-
 ccid is implemented using GadgetFS. Some fragments of the source code is based
 on the GadgetFS example at http://www.linux-usb.org/gadget/ and on the source
 code of the OpenSC tools.
+
+pace-tool has support for Password Authenticated Connection Establishment
+(PACE) using OpenPACE (see http://sourceforge.net/projects/openpace/).
+pace-tool can be used for PIN management or to encrypt APDUs inside a secure
+messaging channel established with PACE. PACE is experimental and disabled by
+default.
 
 
 INSTALLATION
@@ -37,7 +39,7 @@ http://docs.openmoko.org/trac/ticket/2206). If you also want to switch multiple
 times between gadgetfs and g_ether an other patch is needed (see
 https://docs.openmoko.org/trac/ticket/2240).
 
-If you only use PACE for testing your card, you don't need gadgetfs.
+If you only use pace-tool for testing your card, you don't need gadgetfs.
 
 
 HINTS ON OPENSC
@@ -51,11 +53,11 @@ set for the General Authenticate APDU during PACE), you need to patch libopensc
 USAGE
 -----
 
-When testing PACE with either PIN, CAN, MRZ or PUK, the program will be in
-interactive mode. Here you can enter APDUs which are to be converted according
-to the secure messaging parameter and to be sent to the card. Herefor insert
-the APDU in hex with a colon to separate the bytes or without it. So to read
-the current selected file both of these forms would be valid:
+When testing PACE with either PIN, CAN, MRZ or PUK run pace-tool. Here you can
+enter APDUs which are to be converted according to the secure messaging
+parameter and to be sent to the card. Herefor insert the APDU in hex with a
+colon to separate the bytes or without it. So to read the current selected file
+both of these forms would be valid:
 00:b0:02:00:00
 00B0020000
 
