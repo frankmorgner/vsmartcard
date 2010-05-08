@@ -53,14 +53,6 @@ int add_iso_pad(const u8 *data, size_t datalen, int block_size, u8 **padded);
 int add_padding(const struct sm_ctx *ctx, const u8 *data, size_t datalen,
         u8 **padded);
 
-#define bin_print(file, label, data, len) \
-    _bin_log(NULL, 0, NULL, 0, NULL, label, data, len, file)
-#define bin_log(ctx, label, data, len) \
-    _bin_log(ctx, SC_LOG_TYPE_DEBUG, __FILE__, __LINE__, __FUNCTION__, label, data, len, NULL)
-void _bin_log(sc_context_t *ctx, int type, const char *file, int line,
-        const char *func, const char *label, const u8 *data, size_t len,
-        FILE *f);
-
 #ifdef  __cplusplus
 }
 #endif

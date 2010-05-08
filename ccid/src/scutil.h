@@ -26,5 +26,13 @@ int initialize(int reader_id, const char *cdriver, int verbose,
 
 int build_apdu(sc_context_t *ctx, const u8 *buf, size_t len, sc_apdu_t *apdu);
 
+#define bin_print(file, label, data, len) \
+    _bin_log(NULL, 0, NULL, 0, NULL, label, data, len, file)
+#define bin_log(ctx, label, data, len) \
+    _bin_log(ctx, SC_LOG_TYPE_DEBUG, __FILE__, __LINE__, __FUNCTION__, label, data, len, NULL)
+void _bin_log(sc_context_t *ctx, int type, const char *file, int line,
+        const char *func, const char *label, const u8 *data, size_t len,
+        FILE *f);
+
 #endif
 

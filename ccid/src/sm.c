@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License along with
  * ccid.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include "scutil.h"
 #include "sm.h"
 #include <arpa/inet.h>
 #include <opensc/asn1.h>
@@ -42,28 +43,6 @@ static const struct sc_asn1_entry c_sm_rapdu[] = {
         SC_ASN1_OCTET_STRING, SC_ASN1_CTX|0x0E, SC_ASN1_OPTIONAL, NULL, NULL },
     { NULL, 0, 0, 0, NULL, NULL }
 };
-
-void _bin_log(sc_context_t *ctx, int type, const char *file, int line,
-        const char *func, const char *label, const u8 *data, size_t len,
-        FILE *f)
-{
-    char buf[1024];
-
-    if (data)
-        sc_hex_dump(ctx, data, len, buf, sizeof buf);
-    else
-        buf[0] = 0;
-    if (!f) {
-        sc_do_log(ctx, type, file, line, func,
-                "\n%s (%u byte%s):\n%s"
-                "======================================================================",
-                label, len, len==1?"":"s", buf);
-    } else {
-        fprintf(f, "%s (%u byte%s):\n%s"
-                "======================================================================\n",
-                label, len, len==1?"":"s", buf);
-    }
-}
 
 int
 add_iso_pad(const u8 *data, size_t datalen, int block_size, u8 **padded)

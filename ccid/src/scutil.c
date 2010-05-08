@@ -140,3 +140,25 @@ int build_apdu(sc_context_t *ctx, const u8 *buf, size_t len, sc_apdu_t *apdu)
         SC_FUNC_RETURN(ctx, SC_LOG_TYPE_VERBOSE, SC_SUCCESS);
 }
 
+void _bin_log(sc_context_t *ctx, int type, const char *file, int line,
+        const char *func, const char *label, const u8 *data, size_t len,
+        FILE *f)
+{
+    char buf[1024];
+
+    if (data)
+        sc_hex_dump(ctx, data, len, buf, sizeof buf);
+    else
+        buf[0] = 0;
+    if (!f) {
+        sc_do_log(ctx, type, file, line, func,
+                "\n%s (%u byte%s):\n%s"
+                "======================================================================",
+                label, len, len==1?"":"s", buf);
+    } else {
+        fprintf(f, "%s (%u byte%s):\n%s"
+                "======================================================================\n",
+                label, len, len==1?"":"s", buf);
+    }
+}
+
