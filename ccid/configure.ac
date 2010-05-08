@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.63])
-AC_INIT([ccid], [0.2])
+AC_INIT([ccid], [0.2], [morgner@informatik.hu-berlin.de])
 AC_CONFIG_SRCDIR([src/ccid.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
