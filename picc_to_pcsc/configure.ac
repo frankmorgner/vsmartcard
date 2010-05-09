@@ -14,7 +14,7 @@ AM_PATH_PYTHON
 PKG_PROG_PKG_CONFIG
 
 # Checks for libraries.
-PKG_CHECK_EXISTS([libopensc],
+PKG_CHECK_EXISTS([libpcsclite],
                  [PKG_CHECK_MODULES([PCSC], [libpcsclite])],
                  [AC_MSG_WARN([libpcsclite not found by pkg-config])])
 

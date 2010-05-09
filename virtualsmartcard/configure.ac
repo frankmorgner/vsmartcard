@@ -19,7 +19,14 @@ AM_PATH_PYTHON
 PKG_PROG_PKG_CONFIG
 
 # Checks for libraries.
-PKG_CHECK_MODULES([PCSC], [libpcsclite])
+PKG_CHECK_EXISTS([libpcsclite],
+                 [PKG_CHECK_MODULES([PCSC], [libpcsclite])],
+                 [AC_MSG_WARN([libpcsclite not found by pkg-config])])
+saved_CPPFLAGS="$CPPFLAGS"
+CPPFLAGS="$CPPFLAGS $PCSC_CFLAGS"
+AC_CHECK_HEADERS(ifdhandler.h,,
+        [ AC_MSG_ERROR([ifdhandler.h not found, install libpcsclite or use ./configure PCSC_CFLAGS=...]) ])
+CPPFLAGS="$saved_CPPFLAGS"
 
 # --enable-serialdropdir=DIR
 AC_ARG_ENABLE(serialdropdir,
@@ -27,8 +34,8 @@ AC_ARG_ENABLE(serialdropdir,
 	serial wrapper driver (default to pcscd config or $(prefix)/pcsc/drivers/serial)]),
 	[serialdropdir="${enableval}"], [serialdropdir=false])
 if test "${serialdropdir}" = false ; then
-	serialdropdir=`$PKG_CONFIG libpcsclite --variable=usbdropdir`/serial
-	if test "${serialdropdir}" = "/serial" ; then
+	serialdropdir=${prefix}`$PKG_CONFIG libpcsclite --variable=usbdropdir`/serial
+	if test "${serialdropdir}" = "${prefix}/serial" ; then
 		AC_MSG_ERROR([use --enable-serialdropdir=DIR])
 	fi
 fi
@@ -76,11 +83,12 @@ esac
 
 cat << EOF
 
-libifdnfc has been configured with following options:
+virtualsmartcard has been configured with following options:
 
 Version:              ${PACKAGE_VERSION}
 User binaries:        $(eval eval eval echo "${bindir}")
 Configuration files:  $(eval eval eval echo "${sysconfdir}")
+Python site-packages: $(eval eval eval echo "${pythondir}")
 Driver directory:     ${serialdropdir}
 
 
@@ -93,8 +101,6 @@ Linker flags:         ${LDFLAGS}
 Libraries:            ${LIBS}
 PCSC_CFLAGS:          ${PCSC_CFLAGS}
 PCSC_LIBS:            ${PCSC_LIBS}
-LIBNFC_CFLAGS:        ${LIBNFC_CFLAGS}
-LIBNFC_LIBS:          ${LIBNFC_LIBS}
 BUNDLE_HOST:          ${BUNDLE_HOST}
 DYN_LIB_EXT:          ${DYN_LIB_EXT}
 
