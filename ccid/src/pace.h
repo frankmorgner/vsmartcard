@@ -61,8 +61,8 @@ int pace_sm_verify_authentication(sc_card_t *card, const struct sm_ctx *ctx,
 
 int GetReadersPACECapabilities(sc_card_t *card, const __u8
         *in, __u8 **out, size_t *outlen);
-int EstablishPACEChannel(sc_card_t *card, const __u8 *in,
-        __u8 **out, size_t *outlen, struct sm_ctx *ctx);
+int EstablishPACEChannel(sc_card_t *card, const struct pace_sm_ctx *oldctx,
+        const __u8 *in, __u8 **out, size_t *outlen, struct sm_ctx *sctx)
 
 int pace_transmit_apdu(struct sm_ctx *sctx, sc_card_t *card,
         sc_apdu_t *apdu);

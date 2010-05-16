@@ -71,7 +71,7 @@ static const char *option_help[] = {
     "Run PACE with PIN",
     "Run PACE with PUK",
     "Run PACE with CAN",
-    "Run PACE with MRZ",
+    "Run PACE with MRZ (insert MRZ without newlines)",
     "Install a new PIN",
     "Use (several times) to be more verbose",
     "Print version, available readers and drivers.",
@@ -151,7 +151,7 @@ int pace_test(sc_card_t *card,
     buf[4 + pinlen]= 0;     // length_cert_desc
 
     SC_TEST_RET(card->ctx,
-            EstablishPACEChannel(card, buf, &out, &outlen, &sctx),
+            EstablishPACEChannel(card, NULL, buf, &out, &outlen, &sctx),
             "Could not establish PACE channel.");
 
     printf("Established PACE channel.\n");
@@ -160,6 +160,8 @@ int pace_test(sc_card_t *card,
         SC_TEST_RET(card->ctx,
                 pace_change_p(&sctx, card, new_pin_id, new_pin, new_pinlen),
                 "Could not change PACE secret.");
+        printf("Changed %s.\n", pace_secret_name(new_pin_id));
+        r = SC_SUCCESS;
     } else {
         while (1) {
             printf("Enter unencrypted APDU (empty line to exit)\n");
