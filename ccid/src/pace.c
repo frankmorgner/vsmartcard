@@ -33,7 +33,7 @@
 #include <string.h>
 
 
-#define ASN1_APP_EXP_OPT(stname, field, type, tag) ASN1_EX_TYPE(ASN1_TFLG_EXPTAG|ASN1_TFLG_APPLICATION|ASN1_TFLG_OPTIONAL, tag, stname, field, type)
+#define ASN1_APP_IMP_OPT(stname, field, type, tag) ASN1_EX_TYPE(ASN1_TFLG_IMPTAG|ASN1_TFLG_APPLICATION|ASN1_TFLG_OPTIONAL, tag, stname, field, type)
 
 /*
  * MSE:Set AT
@@ -59,13 +59,13 @@ ASN1_SEQUENCE(PACE_MSE_SET_AT_C) = {
     ASN1_IMP_OPT(PACE_MSE_SET_AT_C, key_reference2, ASN1_INTEGER, 4),
     /* 0x67
      * Auxiliary authenticated data */
-    ASN1_APP_EXP_OPT(PACE_MSE_SET_AT_C, auxiliary_data, ASN1_OCTET_STRING, 7),
+    ASN1_APP_IMP_OPT(PACE_MSE_SET_AT_C, auxiliary_data, ASN1_OCTET_STRING, 7),
     /* 0x91
      * Ephemeral Public Key */
     ASN1_IMP_OPT(PACE_MSE_SET_AT_C, eph_pub_key, ASN1_OCTET_STRING, 0x11),
     /* 0x7F4C
      * Certificate Holder Authorization Template */
-    ASN1_APP_EXP_OPT(PACE_MSE_SET_AT_C, cha_template, ASN1_OCTET_STRING, 0x4c),
+    ASN1_APP_IMP_OPT(PACE_MSE_SET_AT_C, cha_template, ASN1_OCTET_STRING, 0x4c),
 } ASN1_SEQUENCE_END(PACE_MSE_SET_AT_C)
 IMPLEMENT_ASN1_FUNCTIONS(PACE_MSE_SET_AT_C)
 
