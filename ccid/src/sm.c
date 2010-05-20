@@ -257,7 +257,7 @@ static int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
 
     if ((apdu->cla & 0x0C) == 0x0C) {
         r = SC_ERROR_INVALID_ARGUMENTS;
-        sc_error(card->ctx, "Given APDU is already protected with some secure messaging.");
+        sc_error(card->ctx, "Given APDU is already protected with some secure messaging");
         goto err;
     }
 
@@ -561,13 +561,13 @@ int sm_transmit_apdu(const struct sm_ctx *sctx, sc_card_t *card,
     sm_apdu.resplen = sizeof rbuf;
 
     SC_TEST_RET(card->ctx, sm_encrypt(sctx, card, apdu, &sm_apdu),
-            "Could not encrypt APDU.");
+            "Could not encrypt APDU");
     SC_TEST_RET(card->ctx, sc_transmit_apdu(card, &sm_apdu),
-            "Could not transmit SM APDU.");
+            "Could not transmit SM APDU");
     SC_TEST_RET(card->ctx, sm_decrypt(sctx, card, &sm_apdu, apdu),
-            "Could not decrypt APDU.");
+            "Could not decrypt APDU");
     SC_TEST_RET(card->ctx, sc_check_sw(card, apdu->sw1, apdu->sw2),
-            "Card returned error.");
+            "Card returned error");
 
     SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, SC_SUCCESS);
 }

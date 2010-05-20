@@ -20,7 +20,6 @@
 #include "pace.h"
 #include "scutil.h"
 #include <opensc/log.h>
-#include <opensc/ui.h>
 #include <openssl/pace.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -31,9 +30,14 @@ static int verbose    = 0;
 static int doinfo     = 0;
 static u8  pin_id = 0;
 static u8  dochangepin = 0;
+static u8  doresumepin = 0;
+static u8  dotranslate = 1;
 static const char *newpin = NULL;
 static int usb_reader_num = -1;
 static const char *pin = NULL;
+static const char *puk = NULL;
+static const char *can = NULL;
+static const char *mrz = NULL;
 static const char *cdriver = NULL;
 
 static sc_context_t *ctx = NULL;
@@ -46,7 +50,8 @@ static sc_reader_t *reader;
 #define OPT_PUK         'u'
 #define OPT_CAN         'a'
 #define OPT_MRZ         'z'
-#define OPT_CHANGE_PIN  'I'
+#define OPT_CHANGE_PIN  'C'
+#define OPT_RESUME_PIN  'R'
 #define OPT_VERBOSE     'v'
 #define OPT_INFO        'o'
 #define OPT_CARD        'c'
@@ -55,11 +60,12 @@ static const struct option options[] = {
     { "help", no_argument, NULL, OPT_HELP },
     { "reader",	required_argument, NULL, OPT_READER },
     { "card-driver", required_argument, NULL, OPT_CARD },
-    { "pin", optional_argument, NULL, OPT_PIN },
-    { "puk", optional_argument, NULL, OPT_PUK },
-    { "can", optional_argument, NULL, OPT_CAN },
-    { "mrz", optional_argument, NULL, OPT_MRZ },
+    { "pin", required_argument, NULL, OPT_PIN },
+    { "puk", required_argument, NULL, OPT_PUK },
+    { "can", required_argument, NULL, OPT_CAN },
+    { "mrz", required_argument, NULL, OPT_MRZ },
     { "new-pin", optional_argument, NULL, OPT_CHANGE_PIN },
+    { "resume-pin", no_argument, NULL, OPT_RESUME_PIN },
     { "verbose", no_argument, NULL, OPT_VERBOSE },
     { "info", no_argument, NULL, OPT_INFO },
     { NULL, 0, NULL, 0 }
@@ -73,59 +79,16 @@ static const char *option_help[] = {
     "Run PACE with CAN",
     "Run PACE with MRZ (insert MRZ without newlines)",
     "Install a new PIN",
+    "Resume PIN (use CAN to activate last retry of PIN authenticaten)",
     "Use (several times) to be more verbose",
     "Print version, available readers and drivers.",
 };
 
-int pace_change_p(struct sm_ctx *ctx, sc_card_t *card, enum s_type pin_id,
-        const char *newp, size_t newplen)
-{
-    sc_ui_hints_t hints;
-    char *p = NULL;
-    int r;
-
-    if (!newplen || !newp) {
-        memset(&hints, 0, sizeof(hints));
-        hints.dialog_name = "ccid.PACE";
-        hints.card = card;
-        hints.prompt = NULL;
-        hints.obj_label = pace_secret_name(pin_id);
-        hints.usage = SC_UI_USAGE_NEW_PIN;
-        r = sc_ui_get_pin(&hints, &p);
-        if (r < 0) {
-            sc_error(card->ctx, "Could not read new %s (%s).\n",
-                    hints.obj_label, sc_strerror(r));
-            SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, r);
-        }
-        newplen = strlen(p);
-        newp = p;
-    }
-
-    r = pace_reset_retry_counter(ctx, card, pin_id, newp, newplen);
-
-    if (p) {
-        OPENSSL_cleanse(p, newplen);
-        free(p);
-    }
-
-    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, r);
-}
-
-int pace_test(sc_card_t *card,
+int pace_get_channel(struct sm_ctx *oldpacectx, sc_card_t *card,
         enum s_type pin_id, const char *pin, size_t pinlen,
-        enum s_type new_pin_id, const char *new_pin, size_t new_pinlen)
+        __u8 **out, size_t *outlen, struct sm_ctx *sctx)
 {
     u8 buf[0xff + 5];
-    char *read = NULL;
-    __u8 *out = NULL;
-    size_t outlen, readlen = 0, apdulen;
-    ssize_t linelen;
-    struct sm_ctx sctx;
-    sc_apdu_t apdu;
-    int r;
-
-    memset(&sctx, 0, sizeof(sctx));
-    memset(&apdu, 0, sizeof(apdu));
 
     switch (pin_id) {
         case PACE_MRZ:
@@ -150,61 +113,63 @@ int pace_test(sc_card_t *card,
     buf[3 + pinlen] = 0;    // length_cert_desc
     buf[4 + pinlen]= 0;     // length_cert_desc
 
-    SC_TEST_RET(card->ctx,
-            EstablishPACEChannel(card, NULL, buf, &out, &outlen, &sctx),
-            "Could not establish PACE channel.");
+    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR,
+            EstablishPACEChannel(oldpacectx, card, buf, out, outlen, sctx));
+}
 
-    printf("Established PACE channel.\n");
+int pace_translate_apdus(struct sm_ctx *sctx, sc_card_t *card)
+{
+    u8 buf[0xff + 5];
+    char *read = NULL;
+    size_t readlen = 0, apdulen;
+    sc_apdu_t apdu;
+    ssize_t linelen;
+    int r;
 
-    if (new_pin_id) {
-        SC_TEST_RET(card->ctx,
-                pace_change_p(&sctx, card, new_pin_id, new_pin, new_pinlen),
-                "Could not change PACE secret.");
-        printf("Changed %s.\n", pace_secret_name(new_pin_id));
-        r = SC_SUCCESS;
-    } else {
-        while (1) {
-            printf("Enter unencrypted APDU (empty line to exit)\n");
+    memset(&apdu, 0, sizeof(apdu));
 
-            linelen = getline(&read, &readlen, stdin);
-            if (linelen <= 1) {
-                if (linelen < 0) {
-                    r = SC_ERROR_INTERNAL;
-                    sc_error(card->ctx, "Could not read line");
-                } else {
-                    r = SC_SUCCESS;
-                    printf("Thanks for flying with ccid\n");
-                }
-                break;
+    while (1) {
+        printf("Enter unencrypted APDU (empty line to exit)\n");
+
+        linelen = getline(&read, &readlen, stdin);
+        if (linelen <= 1) {
+            if (linelen < 0) {
+                r = SC_ERROR_INTERNAL;
+                sc_error(card->ctx, "Could not read line");
+            } else {
+                r = SC_SUCCESS;
+                printf("Thanks for flying with ccid\n");
             }
-
-            read[linelen - 1] = 0;
-            if (sc_hex_to_bin(read, buf, &apdulen) < 0) {
-                sc_error(card->ctx, "Could not format binary string");
-            }
-
-            r = build_apdu(card->ctx, buf, apdulen, &apdu);
-            if (r < 0) {
-                sc_error(card->ctx, "Could not format APDU");
-                continue;
-            }
-
-            apdu.resp = buf;
-            apdu.resplen = sizeof(buf);
-
-            r = pace_transmit_apdu(&sctx, card, &apdu);
-            if (r < 0) {
-                sc_error(card->ctx, "Could not send APDU: %s", sc_strerror(r));
-                continue;
-            }
-
-            printf("Decrypted APDU sw1=%02x sw2=%02x\n", apdu.sw1, apdu.sw2);
-            bin_print(stdout, "Decrypted APDU response data", apdu.resp, apdu.resplen);
+            break;
         }
 
-        if (read)
-            free(read);
+        read[linelen - 1] = 0;
+        if (sc_hex_to_bin(read, buf, &apdulen) < 0) {
+            sc_error(card->ctx, "Could not format binary string");
+        }
+
+        r = build_apdu(card->ctx, buf, apdulen, &apdu);
+        if (r < 0) {
+            sc_error(card->ctx, "Could not format APDU");
+            continue;
+        }
+
+        apdu.resp = buf;
+        apdu.resplen = sizeof(buf);
+
+        r = pace_transmit_apdu(sctx, card, &apdu);
+        if (r < 0) {
+            sc_error(card->ctx, "Could not send APDU: %s", sc_strerror(r));
+            continue;
+        }
+
+        printf("Decrypted APDU sw1=%02x sw2=%02x\n", apdu.sw1, apdu.sw2);
+        bin_print(stdout, "Decrypted APDU response data", apdu.resp, apdu.resplen);
     }
+
+err:
+    if (read)
+        free(read);
 
     SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, r);
 }
@@ -213,9 +178,15 @@ int
 main (int argc, char **argv)
 {
     int i, oindex = 0;
+    __u8 *channeldata = NULL;
+    size_t channeldatalen;
+    struct sm_ctx sctx, tmpctx;
+
+    memset(&sctx, 0, sizeof(sctx));
+    memset(&tmpctx, 0, sizeof(tmpctx));
 
     while (1) {
-        i = getopt_long(argc, argv, "hr:i::u::a::z::I::voc:", options, &oindex);
+        i = getopt_long(argc, argv, "hr:i:u:a:z:C::voc:", options, &oindex);
         if (i == -1)
             break;
         switch (i) {
@@ -239,24 +210,25 @@ main (int argc, char **argv)
                 doinfo++;
                 break;
             case OPT_PUK:
-                pin_id = PACE_PUK;
-                pin = optarg;
+                puk = optarg;
                 break;
             case OPT_PIN:
-                pin_id = PACE_PIN;
                 pin = optarg;
                 break;
             case OPT_CAN:
-                pin_id = PACE_CAN;
-                pin = optarg;
+                can = optarg;
                 break;
             case OPT_MRZ:
-                pin_id = PACE_MRZ;
-                pin = optarg;
+                mrz = optarg;
                 break;
             case OPT_CHANGE_PIN:
-                dochangepin = 3;
+                dochangepin = 1;
+                dotranslate = 0;
                 newpin = optarg;
+                break;
+            case OPT_RESUME_PIN:
+                doresumepin = 1;
+                dotranslate = 0;
                 break;
             case '?':
                 /* fall through */
@@ -301,9 +273,75 @@ main (int argc, char **argv)
         return 1;
     }
 
-    i = pace_test(card, pin_id, pin, !pin ? 0 : strlen(pin),
-            dochangepin, newpin, !newpin ? 0 : strlen(newpin));
+    if (doresumepin) {
+        i = pace_get_channel(NULL, card,
+                PACE_CAN, can, can ? strlen(can) : 0,
+                &channeldata, &channeldatalen, &tmpctx);
+        if (i < 0)
+            goto err;
+        printf("Established PACE channel with CAN.\n");
 
+        i = pace_reset_retry_counter(&tmpctx, card, PACE_PIN, 0, NULL, 0);
+        if (i < 0)
+            goto err;
+        printf("Resumed PIN.\n");
+
+        i = pace_get_channel(&tmpctx, card,
+                PACE_PIN, pin, pin ? strlen(pin) : 0,
+                &channeldata, &channeldatalen, &sctx);
+        if (i < 0)
+            goto err;
+        printf("Established PACE channel with PIN.\n");
+    }
+
+    if (dochangepin) {
+        i = pace_get_channel(NULL, card,
+                PACE_PIN, pin, pin ? strlen(pin) : 0,
+                &channeldata, &channeldatalen, &sctx);
+        if (i < 0)
+            goto err;
+        printf("Established PACE channel with PIN.\n");
+
+        i = pace_change_pin(&sctx, card, newpin, newpin ? strlen(newpin) : 0);
+        if (i < 0)
+            goto err;
+        printf("Changed PIN.\n");
+    }
+
+    if (dotranslate) {
+        enum s_type id;
+        const char *s;
+        if (pin) {
+            id = PACE_PIN;
+            s = pin;
+        } else if (can) {
+            id = PACE_CAN;
+            s = can;
+        } else if (mrz) {
+            id = PACE_MRZ;
+            s = mrz;
+        } else if (puk) {
+            id = PACE_PUK;
+            s = puk;
+        } else {
+            fprintf(stderr, "Please provide PIN, CAN, MRZ or PUK.");
+            return 1;
+        }
+
+        i = pace_get_channel(NULL, card, id, s, s ? strlen(s) : 0,
+                &channeldata, &channeldatalen, &sctx);
+        if (i < 0)
+            goto err;
+        printf("Established PACE channel with %s.\n", pace_secret_name(id));
+
+        i = pace_translate_apdus(&sctx, card);
+        if (i < 0)
+            goto err;
+    }
+
+err:
+    if (channeldata)
+        free(channeldata);
     sc_disconnect_card(card, 0);
     sc_release_context(ctx);
 

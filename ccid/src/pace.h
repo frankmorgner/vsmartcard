@@ -61,13 +61,16 @@ int pace_sm_verify_authentication(sc_card_t *card, const struct sm_ctx *ctx,
 
 int GetReadersPACECapabilities(sc_card_t *card, const __u8
         *in, __u8 **out, size_t *outlen);
-int EstablishPACEChannel(sc_card_t *card, const struct pace_sm_ctx *oldctx,
-        const __u8 *in, __u8 **out, size_t *outlen, struct sm_ctx *sctx)
+int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
+        const __u8 *in, __u8 **out, size_t *outlen, struct sm_ctx *sctx);
 
-int pace_transmit_apdu(struct sm_ctx *sctx, sc_card_t *card,
+int pace_transmit_apdu(const struct sm_ctx *sctx, sc_card_t *card,
         sc_apdu_t *apdu);
 int pace_reset_retry_counter(struct sm_ctx *ctx, sc_card_t *card,
-        enum s_type pin_id, const char *new, size_t new_len);
+        enum s_type pin_id, int ask_for_secret,
+        const char *new, size_t new_len);
+#define pace_change_pin(ctx, card, newp, newplen) \
+    pace_reset_retry_counter(ctx, card, PACE_PIN, 1, newp, newplen)
 
 #ifdef  __cplusplus
 }

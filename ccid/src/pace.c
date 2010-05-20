@@ -28,6 +28,7 @@
 #include <openssl/asn1t.h>
 #include <openssl/buffer.h>
 #include <openssl/err.h>
+#include <openssl/evp.h>
 #include <openssl/objects.h>
 #include <openssl/pace.h>
 #include <string.h>
@@ -240,7 +241,7 @@ err:
     SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, r);
 }
 
-static int pace_mse_set_at(sc_card_t *card,
+static int pace_mse_set_at(const struct sm_ctx *oldpacectx, sc_card_t *card,
         int protocol, int secret_key, int reference, u8 *sw1, u8 *sw2)
 {
     sc_apdu_t apdu;
@@ -257,7 +258,7 @@ static int pace_mse_set_at(sc_card_t *card,
     apdu.ins = 0x22;
     apdu.p1 = 0xc1;
     apdu.p2 = 0xa4;
-    apdu.cse = SC_APDU_CASE_3;
+    apdu.cse = SC_APDU_CASE_3_SHORT;
     apdu.flags = SC_APDU_FLAGS_NO_GET_RESP|SC_APDU_FLAGS_NO_RETRY_WL;
 
     data = PACE_MSE_SET_AT_C_new();
@@ -294,7 +295,10 @@ static int pace_mse_set_at(sc_card_t *card,
 
     bin_log(card->ctx, "MSE:Set AT command data", apdu.data, apdu.datalen);
 
-    r = sc_transmit_apdu(card, &apdu);
+    if (oldpacectx)
+        r = pace_transmit_apdu(oldpacectx, card, &apdu);
+    else
+        r = sc_transmit_apdu(card, &apdu);
     if (r < 0)
         goto err;
 
@@ -355,7 +359,7 @@ err:
     SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, r);
 }
 
-static int pace_gen_auth(sc_card_t *card,
+static int pace_gen_auth(const struct sm_ctx *oldpacectx, sc_card_t *card,
         int step, const u8 *in, size_t in_len, u8 **out, size_t *out_len)
 {
     sc_apdu_t apdu;
@@ -367,7 +371,7 @@ static int pace_gen_auth(sc_card_t *card,
     memset(&apdu, 0, sizeof apdu);
     apdu.cla = 0x10;
     apdu.ins = 0x86;
-    apdu.cse = SC_APDU_CASE_4;
+    apdu.cse = SC_APDU_CASE_4_SHORT;
     apdu.flags = SC_APDU_FLAGS_NO_GET_RESP|SC_APDU_FLAGS_NO_RETRY_WL;
 
     c_data = PACE_GEN_AUTH_C_new();
@@ -423,7 +427,10 @@ static int pace_gen_auth(sc_card_t *card,
 
     apdu.resplen = maxresp;
     apdu.resp = malloc(apdu.resplen);
-    r = sc_transmit_apdu(card, &apdu);
+    if (oldpacectx)
+        r = pace_transmit_apdu(oldpacectx, card, &apdu);
+    else
+        r = sc_transmit_apdu(card, &apdu);
     if (r < 0)
         goto err;
 
@@ -542,9 +549,30 @@ err:
 
 int
 pace_reset_retry_counter(struct sm_ctx *ctx, sc_card_t *card,
-        enum s_type pin_id, const char *new, size_t new_len)
+        enum s_type pin_id, int ask_for_secret,
+        const char *new, size_t new_len)
 {
     sc_apdu_t apdu;
+    sc_ui_hints_t hints;
+    char *p = NULL;
+    int r;
+
+    if (ask_for_secret && (!new || !new_len)) {
+        memset(&hints, 0, sizeof(hints));
+        hints.dialog_name = "ccid.PACE";
+        hints.card = card;
+        hints.prompt = NULL;
+        hints.obj_label = pace_secret_name(PACE_PIN);
+        hints.usage = SC_UI_USAGE_NEW_PIN;
+        r = sc_ui_get_pin(&hints, &p);
+        if (r < 0) {
+            sc_error(card->ctx, "Could not read new %s (%s).\n",
+                    hints.obj_label, sc_strerror(r));
+            SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, r);
+        }
+        new_len = strlen(p);
+        new = p;
+    }
 
     memset(&apdu, 0, sizeof apdu);
     apdu.ins = 0x2C;
@@ -562,7 +590,14 @@ pace_reset_retry_counter(struct sm_ctx *ctx, sc_card_t *card,
         apdu.cse = SC_APDU_CASE_1;
     }
 
-    return pace_transmit_apdu(ctx, card, &apdu);
+    r = pace_transmit_apdu(ctx, card, &apdu);
+
+    if (p) {
+        OPENSSL_cleanse(p, new_len);
+        free(p);
+    }
+
+    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, r);
 }
 
 static PACE_SEC *
@@ -607,12 +642,12 @@ void debug_ossl(sc_context_t *ctx) {
     }
 }
 
-int EstablishPACEChannel(sc_card_t *card, const struct pace_sm_ctx *oldctx,
+int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
         const __u8 *in, __u8 **out, size_t *outlen, struct sm_ctx *sctx)
 {
     __u8 pin_id;
     size_t length_chat, length_pin, length_cert_desc, length_ef_cardaccess;
-    const __u8 *chat, *pin, *certificate_description, *p;
+    const __u8 *chat, *pin, *certificate_description;
     __u8 *ef_cardaccess = NULL;
     PACEInfo *info = NULL;
     uint16_t word;
@@ -624,6 +659,8 @@ int EstablishPACEChannel(sc_card_t *card, const struct pace_sm_ctx *oldctx,
     PACE_CTX *pctx = NULL;
     int r, second_execution;
 
+    if (!card)
+        return SC_ERROR_INVALID_ARGUMENTS;
     if (!in || !out || !outlen)
         SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_INVALID_ARGUMENTS);
 
@@ -645,18 +682,8 @@ int EstablishPACEChannel(sc_card_t *card, const struct pace_sm_ctx *oldctx,
     certificate_description = in;
 
 
-    if (*out)
-        second_execution = 1;
-    else
+    if (!*out) {
         second_execution = 0;
-
-    enc_nonce = BUF_MEM_new();
-    if (!enc_nonce) {
-        r = SC_ERROR_INTERNAL;
-        debug_ossl(card->ctx);
-        goto err;
-    }
-    if (!second_execution) {
         r = get_ef_card_access(card, &ef_cardaccess, &length_ef_cardaccess);
         if (r < 0) {
             sc_error(card->ctx, "Could not get EF.CardAccess.");
@@ -667,19 +694,23 @@ int EstablishPACEChannel(sc_card_t *card, const struct pace_sm_ctx *oldctx,
             r = SC_ERROR_OUT_OF_MEMORY;
             goto err;
         }
-        word = htons(length_ef_cardaccess);
-        memcpy(*out + 2, &word, 2);
+        word = length_ef_cardaccess;
+        word = htons(word);
+        memcpy(*out + 2, &word, sizeof word);
         memcpy(*out + 4, ef_cardaccess, length_ef_cardaccess);
         /* XXX CAR */
-        (*out)[length_ef_cardaccess + 2] = 0;
+        /*(*out)[length_ef_cardaccess + 2] = 0;*/
         /* XXX CARprev */
-        (*out)[length_ef_cardaccess + 3] = 0;
+        /*(*out)[length_ef_cardaccess + 3] = 0;*/
     } else {
-        p = *out + 2;
-        length_ef_cardaccess = ntohs(*p);
+        second_execution = 1;
+        memcpy(&word, *out + 2, sizeof word);
+        word = ntohs(word);
+        length_ef_cardaccess = word;
         ef_cardaccess = *out + 4;
     }
     bin_log(card->ctx, "EF.CardAccess", ef_cardaccess, length_ef_cardaccess);
+
     if (!parse_ef_card_access(ef_cardaccess, length_ef_cardaccess,
                 &info, &static_dp)) {
         r = SC_ERROR_INTERNAL;
@@ -687,13 +718,20 @@ int EstablishPACEChannel(sc_card_t *card, const struct pace_sm_ctx *oldctx,
         sc_error(card->ctx, "Could not parse EF.CardAccess.");
         goto err;
     }
-    r = pace_mse_set_at(card, info->protocol, pin_id, 1, (*out)+2, (*out)+3);
+
+    r = pace_mse_set_at(oldpacectx, card, info->protocol, pin_id, 1, *out, *out+1);
     if (r < 0) {
         sc_error(card->ctx, "Could not select protocol proberties "
                 "(MSE: Set AT).");
         goto err;
     }
-    r = pace_gen_auth(card, 1, NULL, 0, (u8 **) &enc_nonce->data,
+    enc_nonce = BUF_MEM_new();
+    if (!enc_nonce) {
+        r = SC_ERROR_INTERNAL;
+        debug_ossl(card->ctx);
+        goto err;
+    }
+    r = pace_gen_auth(oldpacectx, card, 1, NULL, 0, (u8 **) &enc_nonce->data,
             &enc_nonce->length);
     if (r < 0) {
         sc_error(card->ctx, "Could not get encrypted nonce from card "
@@ -726,7 +764,7 @@ int EstablishPACEChannel(sc_card_t *card, const struct pace_sm_ctx *oldctx,
         debug_ossl(card->ctx);
         goto err;
     }
-    r = pace_gen_auth(card, 2, (u8 *) mdata->data, mdata->length,
+    r = pace_gen_auth(oldpacectx, card, 2, (u8 *) mdata->data, mdata->length,
             (u8 **) &mdata_opp->data, &mdata_opp->length);
     if (r < 0) {
         sc_error(card->ctx, "Could not exchange mapping data with card "
@@ -744,7 +782,7 @@ int EstablishPACEChannel(sc_card_t *card, const struct pace_sm_ctx *oldctx,
         debug_ossl(card->ctx);
         goto err;
     }
-    r = pace_gen_auth(card, 3, (u8 *) pub->data, pub->length,
+    r = pace_gen_auth(oldpacectx, card, 3, (u8 *) pub->data, pub->length,
             (u8 **) &pub_opp->data, &pub_opp->length);
     if (r < 0) {
         sc_error(card->ctx, "Could not exchange ephemeral public key with card "
@@ -769,7 +807,7 @@ int EstablishPACEChannel(sc_card_t *card, const struct pace_sm_ctx *oldctx,
         debug_ossl(card->ctx);
         goto err;
     }
-    r = pace_gen_auth(card, 4, (u8 *) token->data, token->length,
+    r = pace_gen_auth(oldpacectx, card, 4, (u8 *) token->data, token->length,
             (u8 **) &token_opp->data, &token_opp->length);
     if (r < 0) {
         sc_error(card->ctx, "Could not exchange authentication token with card "
@@ -1078,7 +1116,7 @@ incerr:
     SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, r);
 }
 
-int pace_transmit_apdu(struct sm_ctx *ctx, sc_card_t *card,
+int pace_transmit_apdu(const struct sm_ctx *ctx, sc_card_t *card,
         sc_apdu_t *apdu)
 {
     int r;
