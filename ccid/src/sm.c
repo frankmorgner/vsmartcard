@@ -266,7 +266,7 @@ static int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
     sm_apdu->sensitive = 0;
     sm_apdu->control = apdu->control;
     sm_apdu->flags = apdu->flags;
-    sm_apdu->cla = 0x0C;
+    sm_apdu->cla = apdu->cla|0x0C;
     sm_apdu->ins = apdu->ins;
     sm_apdu->p1 = apdu->p1;
     sm_apdu->p2 = apdu->p2;
