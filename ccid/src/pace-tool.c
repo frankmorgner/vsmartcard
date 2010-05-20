@@ -281,10 +281,10 @@ main (int argc, char **argv)
             goto err;
         printf("Established PACE channel with CAN.\n");
 
-        i = pace_reset_retry_counter(&tmpctx, card, PACE_PIN, 0, NULL, 0);
-        if (i < 0)
-            goto err;
-        printf("Resumed PIN.\n");
+        /*i = pace_reset_retry_counter(&tmpctx, card, PACE_PIN, 0, NULL, 0);*/
+        /*if (i < 0)*/
+            /*goto err;*/
+        /*printf("Resumed PIN.\n");*/
 
         i = pace_get_channel(&tmpctx, card,
                 PACE_PIN, pin, pin ? strlen(pin) : 0,

@@ -314,18 +314,11 @@ static int pace_mse_set_at(const struct sm_ctx *oldpacectx, sc_card_t *card,
     if (apdu.sw1 == 0x63) {
         if ((apdu.sw2 & 0xc0) == 0xc0) {
             tries = apdu.sw2 & 0x0f;
-             sc_error(card->ctx, "Verification failed (remaining tries: %d%s)\n",
-                   tries, tries == 1? ", password must be resumed":
-                   tries == 0? ", password must be unblocked": "");
-             if (tries > 1) {
-                 /* this is only a warning... */
-                 r = SC_SUCCESS;
-             } else {
-                 /* With less than 2 remaining tries an other type of secret
-                  * must be used for the resume or unblock operation. */
-                 r = SC_ERROR_SECURITY_STATUS_NOT_SATISFIED;
-                 goto err;
-             }
+            /* this is only a warning... */
+             sc_error(card->ctx, "Remaining tries: %d%s\n",
+                   tries, tries == 1? ", (password must be resumed)":
+                   tries == 0? ", (password must be unblocked)": "");
+             r = SC_SUCCESS;
         } else {
             sc_error(card->ctx, "Unknown SWs; SW1=%02X, SW2=%02X\n",
                     apdu.sw1, apdu.sw2);

@@ -566,8 +566,6 @@ int sm_transmit_apdu(const struct sm_ctx *sctx, sc_card_t *card,
             "Could not transmit SM APDU");
     SC_TEST_RET(card->ctx, sm_decrypt(sctx, card, &sm_apdu, apdu),
             "Could not decrypt APDU");
-    SC_TEST_RET(card->ctx, sc_check_sw(card, apdu->sw1, apdu->sw2),
-            "Card returned error");
 
     SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, SC_SUCCESS);
 }
