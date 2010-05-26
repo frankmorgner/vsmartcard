@@ -24,11 +24,9 @@
 #include <opensc/log.h>
 #include <opensc/opensc.h>
 #include <opensc/ui.h>
-#include <openssl/asn1.h>
 #include <openssl/asn1t.h>
 #include <openssl/buffer.h>
 #include <openssl/err.h>
-#include <openssl/evp.h>
 #include <openssl/objects.h>
 #include <openssl/pace.h>
 #include <string.h>
@@ -293,7 +291,8 @@ static int pace_mse_set_at(const struct sm_ctx *oldpacectx, sc_card_t *card,
     apdu.data = sc_asn1_find_tag(card->ctx, d, r, 0x30, &apdu.datalen);
     apdu.lc = apdu.datalen;
 
-    bin_log(card->ctx, "MSE:Set AT command data", apdu.data, apdu.datalen);
+    if (card->ctx->debug > SC_LOG_TYPE_DEBUG)
+        bin_log(card->ctx, "MSE:Set AT command data", apdu.data, apdu.datalen);
 
     if (oldpacectx)
         r = pace_transmit_apdu(oldpacectx, card, &apdu);
@@ -314,13 +313,15 @@ static int pace_mse_set_at(const struct sm_ctx *oldpacectx, sc_card_t *card,
     if (apdu.sw1 == 0x63) {
         if ((apdu.sw2 & 0xc0) == 0xc0) {
             tries = apdu.sw2 & 0x0f;
-            /* this is only a warning... */
-             sc_error(card->ctx, "Remaining tries: %d%s\n",
-                   tries, tries == 1? ", (password must be resumed)":
-                   tries == 0? ", (password must be unblocked)": "");
-             r = SC_SUCCESS;
+            if (tries <= 1) {
+                /* this is only a warning... */
+                sc_error(card->ctx, "Remaining tries: %d (%s must be %s)\n",
+                        tries, pace_secret_name(secret_key),
+                        tries ? "resumed" : "unblocked");
+            }
+            r = SC_SUCCESS;
         } else {
-            sc_error(card->ctx, "Unknown SWs; SW1=%02X, SW2=%02X\n",
+            sc_error(card->ctx, "Unknown status bytes: SW1=%02X, SW2=%02X\n",
                     apdu.sw1, apdu.sw2);
             r = SC_ERROR_CARD_CMD_FAILED;
             goto err;
@@ -416,7 +417,8 @@ static int pace_gen_auth(const struct sm_ctx *oldpacectx, sc_card_t *card,
     apdu.datalen = r;
     apdu.lc = r;
 
-    bin_log(card->ctx, "General authenticate command data", apdu.data, apdu.datalen);
+    if (card->ctx->debug > SC_LOG_TYPE_DEBUG)
+        bin_log(card->ctx, "General authenticate command data", apdu.data, apdu.datalen);
 
     apdu.resplen = maxresp;
     apdu.resp = malloc(apdu.resplen);
@@ -431,7 +433,8 @@ static int pace_gen_auth(const struct sm_ctx *oldpacectx, sc_card_t *card,
     if (r < 0)
         goto err;
 
-    bin_log(card->ctx, "General authenticate response data", apdu.resp, apdu.resplen);
+    if (card->ctx->debug > SC_LOG_TYPE_DEBUG)
+        bin_log(card->ctx, "General authenticate response data", apdu.resp, apdu.resplen);
 
     if (!d2i_PACE_GEN_AUTH_R(&r_data,
                 (const unsigned char **) &apdu.resp, apdu.resplen)) {
@@ -610,8 +613,8 @@ get_psec(sc_card_t *card, const char *pin, size_t length_pin, enum s_type pin_id
         hints.usage = SC_UI_USAGE_OTHER;
         sc_result = sc_ui_get_pin(&hints, &p);
         if (sc_result < 0) {
-            sc_error(card->ctx, "Could not read PACE secret (%s).\n",
-                    sc_strerror(sc_result));
+            sc_error(card->ctx, "Could not read %s (%s).\n",
+                    pace_secret_name(pin_id), sc_strerror(sc_result));
             return NULL;
         }
         length_pin = strlen(p);
@@ -643,7 +646,7 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
     const __u8 *chat, *pin, *certificate_description;
     __u8 *ef_cardaccess = NULL;
     PACEInfo *info = NULL;
-    uint16_t word;
+    __le16 word;
     PACEDomainParameterInfo *static_dp = NULL, *eph_dp = NULL;
     BUF_MEM *enc_nonce, *nonce = NULL, *mdata = NULL, *mdata_opp = NULL,
             *k_enc = NULL, *k_mac = NULL, *token_opp = NULL,
@@ -670,8 +673,9 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
     pin = in;
     in += length_pin;
 
-    length_cert_desc = (__le16_to_cpu((__le16) *in));
-    in += sizeof (__le16);
+    memcpy(&word, in, sizeof word);
+    length_cert_desc = __le16_to_cpu(word);
+    in += sizeof word;
     certificate_description = in;
 
 
@@ -687,8 +691,7 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
             r = SC_ERROR_OUT_OF_MEMORY;
             goto err;
         }
-        word = length_ef_cardaccess;
-        word = htons(word);
+        word = __cpu_to_le16(length_ef_cardaccess);
         memcpy(*out + 2, &word, sizeof word);
         memcpy(*out + 4, ef_cardaccess, length_ef_cardaccess);
         /* XXX CAR */
@@ -698,8 +701,7 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
     } else {
         second_execution = 1;
         memcpy(&word, *out + 2, sizeof word);
-        word = ntohs(word);
-        length_ef_cardaccess = word;
+        length_ef_cardaccess = __le16_to_cpu(word);
         ef_cardaccess = *out + 4;
     }
     bin_log(card->ctx, "EF.CardAccess", ef_cardaccess, length_ef_cardaccess);
@@ -731,7 +733,8 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
                 "(General Authenticate step 1 failed).");
         goto err;
     }
-    bin_log(card->ctx, "Encrypted nonce from MRTD", (u8 *)enc_nonce->data, enc_nonce->length);
+    if (card->ctx->debug >= SC_LOG_TYPE_DEBUG)
+        bin_log(card->ctx, "Encrypted nonce from MRTD", (u8 *)enc_nonce->data, enc_nonce->length);
     enc_nonce->max = enc_nonce->length;
 
     sec = get_psec(card, (char *) pin, length_pin, pin_id);
@@ -765,7 +768,8 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
         goto err;
     }
     mdata_opp->max = mdata_opp->length;
-    bin_log(card->ctx, "Mapping data from MRTD", (u8 *) mdata_opp->data, mdata_opp->length);
+    if (card->ctx->debug >= SC_LOG_TYPE_DEBUG)
+        bin_log(card->ctx, "Mapping data from MRTD", (u8 *) mdata_opp->data, mdata_opp->length);
 
     eph_dp = PACE_STEP3A_map_dp(static_dp, pctx, nonce, mdata_opp);
     pub = PACE_STEP3B_generate_ephemeral_key(eph_dp, pctx);
@@ -783,7 +787,8 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
         goto err;
     }
     pub_opp->max = pub_opp->length;
-    bin_log(card->ctx, "Public key from MRTD", (u8 *) pub_opp->data, pub_opp->length);
+    if (card->ctx->debug >= SC_LOG_TYPE_DEBUG)
+        bin_log(card->ctx, "Public key from MRTD", (u8 *) pub_opp->data, pub_opp->length);
 
     key = PACE_STEP3B_compute_ephemeral_key(eph_dp, pctx, pub_opp);
     if (!key ||
@@ -1091,11 +1096,12 @@ int pace_sm_verify_authentication(sc_card_t *card, const struct sm_ctx *ctx,
     if (my_mac->length != maclen ||
             memcmp(my_mac->data, mac, maclen) != 0) {
         r = SC_ERROR_OBJECT_NOT_VALID;
-        sc_debug(card->ctx, "Authentication data not verified");
+        sc_error(card->ctx, "Authentication data not verified");
         goto err;
     }
 
-    sc_debug(card->ctx, "Authentication data verified");
+    if (card->ctx->debug > SC_LOG_TYPE_DEBUG)
+        sc_debug(card->ctx, "Authentication data verified");
 
 err:
     if (my_mac)

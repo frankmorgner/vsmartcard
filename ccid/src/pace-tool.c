@@ -113,8 +113,7 @@ int pace_get_channel(struct sm_ctx *oldpacectx, sc_card_t *card,
     buf[3 + pinlen] = 0;    // length_cert_desc
     buf[4 + pinlen]= 0;     // length_cert_desc
 
-    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR,
-            EstablishPACEChannel(oldpacectx, card, buf, out, outlen, sctx));
+    return EstablishPACEChannel(oldpacectx, card, buf, out, outlen, sctx);
 }
 
 int pace_translate_apdus(struct sm_ctx *sctx, sc_card_t *card)
@@ -146,6 +145,7 @@ int pace_translate_apdus(struct sm_ctx *sctx, sc_card_t *card)
         read[linelen - 1] = 0;
         if (sc_hex_to_bin(read, buf, &apdulen) < 0) {
             sc_error(card->ctx, "Could not format binary string");
+            continue;
         }
 
         r = build_apdu(card->ctx, buf, apdulen, &apdu);
@@ -167,11 +167,10 @@ int pace_translate_apdus(struct sm_ctx *sctx, sc_card_t *card)
         bin_print(stdout, "Decrypted APDU response data", apdu.resp, apdu.resplen);
     }
 
-err:
     if (read)
         free(read);
 
-    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, r);
+    return r;
 }
 
 int
@@ -345,5 +344,5 @@ err:
     sc_disconnect_card(card, 0);
     sc_release_context(ctx);
 
-    return i;
+    return -i;
 }

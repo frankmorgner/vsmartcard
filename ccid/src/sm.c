@@ -195,13 +195,15 @@ static int format_data(sc_card_t *card, const struct sm_ctx *ctx,
         goto err;
     pad_data_len = r;
 
-    bin_log(card->ctx, "Data to encrypt", pad_data, pad_data_len);
+    if (card->ctx->debug > SC_LOG_TYPE_DEBUG)
+        bin_log(card->ctx, "Data to encrypt", pad_data, pad_data_len);
     r = ctx->encrypt(card, ctx, pad_data, pad_data_len, formatted_data);
     if (r < 0) {
         sc_error(card->ctx, "Could not encrypt the data");
         goto err;
     }
-    bin_log(card->ctx, "Cryptogram", *formatted_data, r);
+    if (card->ctx->debug > SC_LOG_TYPE_DEBUG)
+        bin_log(card->ctx, "Cryptogram", *formatted_data, r);
 
     r = prefix_buf(ctx->padding_indicator, *formatted_data, r, formatted_data);
     if (r < 0)
@@ -288,7 +290,8 @@ static int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
                 sc_error(card->ctx, "Could not format Le of SM apdu");
                 goto err;
             }
-            bin_log(card->ctx, "Protected Le (plain)", le, le_len);
+            if (card->ctx->debug > SC_LOG_TYPE_DEBUG)
+                bin_log(card->ctx, "Protected Le (plain)", le, le_len);
             break;
 	case SC_APDU_CASE_2_EXT:
             if (card->slot->active_protocol == SC_PROTO_T0) {
@@ -308,7 +311,8 @@ static int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
                     goto err;
                 }
             }
-            bin_log(card->ctx, "Protected Le (plain)", le, le_len);
+            if (card->ctx->debug > SC_LOG_TYPE_DEBUG)
+                bin_log(card->ctx, "Protected Le (plain)", le, le_len);
             break;
         case SC_APDU_CASE_3_SHORT:
         case SC_APDU_CASE_3_EXT:
@@ -318,8 +322,9 @@ static int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
                 sc_error(card->ctx, "Could not format data of SM apdu");
                 goto err;
             }
-            bin_log(card->ctx, "Padding-content indicator followed by cryptogram (plain)",
-                    fdata, fdata_len);
+            if (card->ctx->debug > SC_LOG_TYPE_DEBUG)
+                bin_log(card->ctx, "Padding-content indicator followed by cryptogram (plain)",
+                        fdata, fdata_len);
             break;
         case SC_APDU_CASE_4_SHORT:
             /* in case of T0 no Le byte is added */
@@ -330,7 +335,8 @@ static int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
                     sc_error(card->ctx, "Could not format Le of SM apdu");
                     goto err;
                 }
-                bin_log(card->ctx, "Protected Le (plain)", le, le_len);
+                if (card->ctx->debug > SC_LOG_TYPE_DEBUG)
+                    bin_log(card->ctx, "Protected Le (plain)", le, le_len);
             }
 
             r = format_data(card, ctx, apdu->data, apdu->datalen,
@@ -339,8 +345,9 @@ static int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
                 sc_error(card->ctx, "Could not format data of SM apdu");
                 goto err;
             }
-            bin_log(card->ctx, "Padding-content indicator followed by cryptogram (plain)",
-                    fdata, fdata_len);
+            if (card->ctx->debug > SC_LOG_TYPE_DEBUG)
+                bin_log(card->ctx, "Padding-content indicator followed by cryptogram (plain)",
+                        fdata, fdata_len);
             break;
         case SC_APDU_CASE_4_EXT:
             if (card->slot->active_protocol == SC_PROTO_T0) {
@@ -356,7 +363,8 @@ static int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
                     sc_error(card->ctx, "Could not format Le of SM apdu");
                     goto err;
                 }
-                bin_log(card->ctx, "Protected Le (plain)", le, le_len);
+                if (card->ctx->debug > SC_LOG_TYPE_DEBUG)
+                    bin_log(card->ctx, "Protected Le (plain)", le, le_len);
             }
 
             r = format_data(card, ctx, apdu->data, apdu->datalen,
@@ -365,8 +373,9 @@ static int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
                 sc_error(card->ctx, "Could not format data of SM apdu");
                 goto err;
             }
-            bin_log(card->ctx, "Padding-content indicator followed by cryptogram (plain)",
-                    fdata, fdata_len);
+            if (card->ctx->debug > SC_LOG_TYPE_DEBUG)
+                bin_log(card->ctx, "Padding-content indicator followed by cryptogram (plain)",
+                        fdata, fdata_len);
             break;
         default:
             sc_error(card->ctx, "Unhandled apdu case");
@@ -394,7 +403,8 @@ static int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
         }
         mac_data_len = r;
     }
-    bin_log(card->ctx, "Data to authenticate", mac_data, mac_data_len);
+    if (card->ctx->debug > SC_LOG_TYPE_DEBUG)
+        bin_log(card->ctx, "Data to authenticate", mac_data, mac_data_len);
 
     r = ctx->authenticate(card, ctx, mac_data, mac_data_len,
             &mac);
@@ -405,7 +415,8 @@ static int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
     mac_len = r;
     sc_format_asn1_entry(sm_capdu + 2, mac, &mac_len,
             SC_ASN1_PRESENT);
-    bin_log(card->ctx, "Cryptographic Checksum (plain)", mac, mac_len);
+    if (card->ctx->debug > SC_LOG_TYPE_DEBUG)
+        bin_log(card->ctx, "Cryptographic Checksum (plain)", mac, mac_len);
 
 
     /* format SM apdu */
@@ -422,7 +433,8 @@ static int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
     sm_apdu->lc = sm_apdu->datalen;
     sm_apdu->le = 0;
     sm_apdu->cse = SC_APDU_CASE_4;
-    bin_log(card->ctx, "ASN.1 encoded APDU data", sm_apdu->data, sm_apdu->datalen);
+    if (card->ctx->debug >= SC_LOG_TYPE_DEBUG)
+        bin_log(card->ctx, "ASN.1 encoded encrypted APDU data", sm_apdu->data, sm_apdu->datalen);
 
 err:
     if (fdata)
@@ -529,10 +541,12 @@ static int sm_decrypt(const struct sm_ctx *ctx, sc_card_t *card,
         goto err;
     }
 
-    sc_debug(card->ctx, "Decrypted APDU sw1=%02x sw2=%02x",
-            apdu->sw1, apdu->sw2);
-    bin_log(card->ctx, "Decrypted APDU response data",
-            apdu->resp, apdu->resplen);
+    if (card->ctx->debug >= SC_LOG_TYPE_DEBUG) {
+        sc_debug(card->ctx, "Decrypted APDU sw1=%02x sw2=%02x",
+                apdu->sw1, apdu->sw2);
+        bin_log(card->ctx, "Decrypted APDU response data",
+                apdu->resp, apdu->resplen);
+    }
 
     /* XXX verify mac */
 
