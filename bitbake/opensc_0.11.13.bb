@@ -2,14 +2,18 @@ DESCRIPTION = "A set of libraries and utilities to work with smart cards"
 HOMEPAGE = "http://www.opensc-project.org/opensc"
 LICENSE = "LGPL"
 
-DEPENDS = "openssl"
-RDEPENDS = "libcrypto"
+DEPENDS = "pcsc-lite openssl"
+RDEPENDS = "libcrypto libpcsclite"
 
 LEAD_SONAME = "libopensc"
 
 SRC_URI = "http://www.opensc-project.org/files/opensc/opensc-${PV}.tar.gz;"
 
 inherit autotools_stage pkgconfig
+
+EXTRA_OECONF = "--enable-pcsc=yes \
+                --with-pcsc-provider=${libdir}/libpcsclite.so.1 \
+               "
 
 SRC_URI += "file://le0.patch"
 
