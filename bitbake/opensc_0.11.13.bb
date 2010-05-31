@@ -15,7 +15,7 @@ EXTRA_OECONF = "--enable-pcsc=yes \
                 --with-pcsc-provider=${libdir}/libpcsclite.so.1 \
                "
 
-SRC_URI += "file://le0.patch"
+SRC_URI += "file://le0.patch;patch=1"
 
 FILES_${PN} += "${libdir}/libopensc.so.*"
 
