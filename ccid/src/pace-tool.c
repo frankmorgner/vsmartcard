@@ -310,7 +310,7 @@ main (int argc, char **argv)
         printf("Changed PIN.\n");
     }
 
-    if (dotranslate) {
+    if (dotranslate || (!doresumepin && !dochangepin)) {
         enum s_type id;
         const char *s;
         if (pin) {
@@ -336,9 +336,11 @@ main (int argc, char **argv)
             goto err;
         printf("Established PACE channel with %s.\n", pace_secret_name(id));
 
-        i = pace_translate_apdus(&sctx, card);
-        if (i < 0)
-            goto err;
+        if (dotranslate) {
+            i = pace_translate_apdus(&sctx, card);
+            if (i < 0)
+                goto err;
+        }
     }
 
 err:
