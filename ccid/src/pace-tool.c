@@ -31,7 +31,7 @@ static int doinfo     = 0;
 static u8  pin_id = 0;
 static u8  dochangepin = 0;
 static u8  doresumepin = 0;
-static u8  dotranslate = 1;
+static u8  dotranslate = 0;
 static const char *newpin = NULL;
 static int usb_reader_num = -1;
 static const char *pin = NULL;
@@ -50,8 +50,9 @@ static sc_reader_t *reader;
 #define OPT_PUK         'u'
 #define OPT_CAN         'a'
 #define OPT_MRZ         'z'
-#define OPT_CHANGE_PIN  'C'
+#define OPT_CHANGE_PIN  'N'
 #define OPT_RESUME_PIN  'R'
+#define OPT_TRANSLATE   't'
 #define OPT_VERBOSE     'v'
 #define OPT_INFO        'o'
 #define OPT_CARD        'c'
@@ -66,6 +67,7 @@ static const struct option options[] = {
     { "mrz", required_argument, NULL, OPT_MRZ },
     { "new-pin", optional_argument, NULL, OPT_CHANGE_PIN },
     { "resume-pin", no_argument, NULL, OPT_RESUME_PIN },
+    { "translate", no_argument, NULL, OPT_TRANSLATE },
     { "verbose", no_argument, NULL, OPT_VERBOSE },
     { "info", no_argument, NULL, OPT_INFO },
     { NULL, 0, NULL, 0 }
@@ -79,7 +81,8 @@ static const char *option_help[] = {
     "Run PACE with CAN",
     "Run PACE with MRZ (insert MRZ without newlines)",
     "Install a new PIN",
-    "Resume PIN (use CAN to activate last retry of PIN authenticaten)",
+    "Resume PIN (uses CAN to activate last retry)",
+    "Send plaintext APDUs through the PACE SM channel",
     "Use (several times) to be more verbose",
     "Print version, available readers and drivers.",
 };
@@ -185,7 +188,7 @@ main (int argc, char **argv)
     memset(&tmpctx, 0, sizeof(tmpctx));
 
     while (1) {
-        i = getopt_long(argc, argv, "hr:i:u:a:z:C::voc:", options, &oindex);
+        i = getopt_long(argc, argv, "hr:i:u:a:z:N::Rtvoc:", options, &oindex);
         if (i == -1)
             break;
         switch (i) {
@@ -222,12 +225,13 @@ main (int argc, char **argv)
                 break;
             case OPT_CHANGE_PIN:
                 dochangepin = 1;
-                dotranslate = 0;
                 newpin = optarg;
                 break;
             case OPT_RESUME_PIN:
                 doresumepin = 1;
-                dotranslate = 0;
+                break;
+            case OPT_TRANSLATE:
+                dotranslate = 1;
                 break;
             case '?':
                 /* fall through */
@@ -255,8 +259,8 @@ main (int argc, char **argv)
 
     i = initialize(usb_reader_num, cdriver, verbose, &ctx, &reader);
     if (i < 0) {
-        perror("Can't initialize reader");
-        return 1;
+        fprintf(stderr, "Can't initialize reader\n");
+        exit(1);
     }
 
     for (i = 0; i < SC_MAX_SLOTS; i++) {
@@ -266,10 +270,9 @@ main (int argc, char **argv)
         }
     }
     if (i == SC_MAX_SLOTS) {
-        perror("No card found");
-        sc_disconnect_card(card, 0);
+        fprintf(stderr, "No card found\n");
         sc_release_context(ctx);
-        return 1;
+        exit(1);
     }
 
     if (doresumepin) {
@@ -324,7 +327,7 @@ main (int argc, char **argv)
             s = puk;
         } else {
             fprintf(stderr, "Please provide PIN, CAN, MRZ or PUK.");
-            return 1;
+            exit(1);
         }
 
         i = pace_get_channel(NULL, card, id, s, s ? strlen(s) : 0,
