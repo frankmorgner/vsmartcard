@@ -285,7 +285,7 @@ main (int argc, char **argv)
         if (i < 0)
             goto err;
         t_end = time(NULL);
-        printf("Established PACE channel with CAN in %.1fs.\n",
+        printf("Established PACE channel with CAN in %.0fs.\n",
                 difftime(t_end, t_start));
 
         /*i = pace_reset_retry_counter(&tmpctx, card, PACE_PIN, 0, NULL, 0);*/
@@ -299,7 +299,7 @@ main (int argc, char **argv)
         if (i < 0)
             goto err;
         t_start = time(NULL);
-        printf("Established PACE channel with PIN in %.1fs.\n",
+        printf("Established PACE channel with PIN in %.0fs.\n",
                 difftime(t_start, t_end));
     }
 
@@ -311,7 +311,7 @@ main (int argc, char **argv)
         if (i < 0)
             goto err;
         t_end = time(NULL);
-        printf("Established PACE channel with PIN in %.1fs.\n",
+        printf("Established PACE channel with PIN in %.0fs.\n",
                 difftime(t_end, t_start));
 
         i = pace_change_pin(&sctx, card, newpin, newpin ? strlen(newpin) : 0);
@@ -346,7 +346,7 @@ main (int argc, char **argv)
         if (i < 0)
             goto err;
         t_end = time(NULL);
-        printf("Established PACE channel with %s in %.1fs.\n",
+        printf("Established PACE channel with %s in %.0fs.\n",
                 pace_secret_name(id), difftime(t_end, t_start));
 
         if (dotranslate) {
