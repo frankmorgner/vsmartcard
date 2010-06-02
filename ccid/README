@@ -55,11 +55,14 @@ USAGE
 
 When testing PACE with either PIN, CAN, MRZ or PUK run pace-tool. Here you can
 enter APDUs which are to be converted according to the secure messaging
-parameter and to be sent to the card. Herefor insert the APDU in hex with a
-colon to separate the bytes or without it. So to read the current selected file
-both of these forms would be valid:
+parameter and to be sent to the card. Herefor insert the APDU in hex (upper or
+lower case) with a colon to separate the bytes or without it. So to read the
+current selected file both of these forms would be valid:
 00:b0:02:00:00
 00B0020000
+To pass a secret to pace-tool, the command line parameters or the environment
+variables PIN/CAN/MRZ/PUK/NEWPIN can be used. If none of these options is used,
+pace-tool will show a password prompt.
 
 
 QUESTIONS

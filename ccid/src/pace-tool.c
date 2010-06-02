@@ -244,6 +244,8 @@ main (int argc, char **argv)
             case OPT_CHANGE_PIN:
                 dochangepin = 1;
                 newpin = optarg;
+                if (!newpin)
+                    pin = getenv("NEWPIN");
                 break;
             case OPT_RESUME_PIN:
                 doresumepin = 1;
@@ -352,7 +354,8 @@ main (int argc, char **argv)
             id = PACE_PUK;
             s = puk;
         } else {
-            fprintf(stderr, "Please provide PIN, CAN, MRZ or PUK.");
+            fprintf(stderr, "Please specify whether to do PACE with "
+                    "PIN, CAN, MRZ or PUK.");
             exit(1);
         }
 
