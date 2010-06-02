@@ -220,18 +220,26 @@ main (int argc, char **argv)
             case OPT_PUK:
                 usepuk = 1;
                 puk = optarg;
+                if (!puk)
+                    pin = getenv("PUK");
                 break;
             case OPT_PIN:
                 usepin = 1;
                 pin = optarg;
+                if (!pin)
+                    pin = getenv("PIN");
                 break;
             case OPT_CAN:
                 usecan = 1;
                 can = optarg;
+                if (!can)
+                    can = getenv("CAN");
                 break;
             case OPT_MRZ:
                 usemrz = 1;
                 mrz = optarg;
+                if (!mrz)
+                    can = getenv("MRZ");
                 break;
             case OPT_CHANGE_PIN:
                 dochangepin = 1;
