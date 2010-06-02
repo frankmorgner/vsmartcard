@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 static int verbose    = 0;
 static int doinfo     = 0;
@@ -183,6 +184,7 @@ main (int argc, char **argv)
     __u8 *channeldata = NULL;
     size_t channeldatalen;
     struct sm_ctx sctx, tmpctx;
+    time_t t_start, t_end;
 
     memset(&sctx, 0, sizeof(sctx));
     memset(&tmpctx, 0, sizeof(tmpctx));
@@ -276,12 +278,15 @@ main (int argc, char **argv)
     }
 
     if (doresumepin) {
+        t_start = time(NULL);
         i = pace_get_channel(NULL, card,
                 PACE_CAN, can, can ? strlen(can) : 0,
                 &channeldata, &channeldatalen, &tmpctx);
         if (i < 0)
             goto err;
-        printf("Established PACE channel with CAN.\n");
+        t_end = time(NULL);
+        printf("Established PACE channel with CAN in %.1fs.\n",
+                difftime(t_end, t_start));
 
         /*i = pace_reset_retry_counter(&tmpctx, card, PACE_PIN, 0, NULL, 0);*/
         /*if (i < 0)*/
@@ -293,16 +298,21 @@ main (int argc, char **argv)
                 &channeldata, &channeldatalen, &sctx);
         if (i < 0)
             goto err;
-        printf("Established PACE channel with PIN.\n");
+        t_start = time(NULL);
+        printf("Established PACE channel with PIN in %.1fs.\n",
+                difftime(t_start, t_end));
     }
 
     if (dochangepin) {
+        t_start = time(NULL);
         i = pace_get_channel(NULL, card,
                 PACE_PIN, pin, pin ? strlen(pin) : 0,
                 &channeldata, &channeldatalen, &sctx);
         if (i < 0)
             goto err;
-        printf("Established PACE channel with PIN.\n");
+        t_end = time(NULL);
+        printf("Established PACE channel with PIN in %.1fs.\n",
+                difftime(t_end, t_start));
 
         i = pace_change_pin(&sctx, card, newpin, newpin ? strlen(newpin) : 0);
         if (i < 0)
@@ -330,11 +340,14 @@ main (int argc, char **argv)
             exit(1);
         }
 
+        t_start = time(NULL);
         i = pace_get_channel(NULL, card, id, s, s ? strlen(s) : 0,
                 &channeldata, &channeldatalen, &sctx);
         if (i < 0)
             goto err;
-        printf("Established PACE channel with %s.\n", pace_secret_name(id));
+        t_end = time(NULL);
+        printf("Established PACE channel with %s in %.1fs.\n",
+                pace_secret_name(id), difftime(t_end, t_start));
 
         if (dotranslate) {
             i = pace_translate_apdus(&sctx, card);
