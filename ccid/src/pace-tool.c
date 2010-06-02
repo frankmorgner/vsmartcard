@@ -36,9 +36,13 @@ static u8  dotranslate = 0;
 static const char *newpin = NULL;
 static int usb_reader_num = -1;
 static const char *pin = NULL;
+static u8 usepin = 0;
 static const char *puk = NULL;
+static u8 usepuk = 0;
 static const char *can = NULL;
+static u8 usecan = 0;
 static const char *mrz = NULL;
+static u8 usemrz = 0;
 static const char *cdriver = NULL;
 
 static sc_context_t *ctx = NULL;
@@ -62,10 +66,10 @@ static const struct option options[] = {
     { "help", no_argument, NULL, OPT_HELP },
     { "reader",	required_argument, NULL, OPT_READER },
     { "card-driver", required_argument, NULL, OPT_CARD },
-    { "pin", required_argument, NULL, OPT_PIN },
-    { "puk", required_argument, NULL, OPT_PUK },
-    { "can", required_argument, NULL, OPT_CAN },
-    { "mrz", required_argument, NULL, OPT_MRZ },
+    { "pin", optional_argument, NULL, OPT_PIN },
+    { "puk", optional_argument, NULL, OPT_PUK },
+    { "can", optional_argument, NULL, OPT_CAN },
+    { "mrz", optional_argument, NULL, OPT_MRZ },
     { "new-pin", optional_argument, NULL, OPT_CHANGE_PIN },
     { "resume-pin", no_argument, NULL, OPT_RESUME_PIN },
     { "translate", no_argument, NULL, OPT_TRANSLATE },
@@ -214,15 +218,19 @@ main (int argc, char **argv)
                 doinfo++;
                 break;
             case OPT_PUK:
+                usepuk = 1;
                 puk = optarg;
                 break;
             case OPT_PIN:
+                usepin = 1;
                 pin = optarg;
                 break;
             case OPT_CAN:
+                usecan = 1;
                 can = optarg;
                 break;
             case OPT_MRZ:
+                usemrz = 1;
                 mrz = optarg;
                 break;
             case OPT_CHANGE_PIN:
@@ -323,16 +331,16 @@ main (int argc, char **argv)
     if (dotranslate || (!doresumepin && !dochangepin)) {
         enum s_type id;
         const char *s;
-        if (pin) {
+        if (usepin) {
             id = PACE_PIN;
             s = pin;
-        } else if (can) {
+        } else if (usecan) {
             id = PACE_CAN;
             s = can;
-        } else if (mrz) {
+        } else if (usemrz) {
             id = PACE_MRZ;
             s = mrz;
-        } else if (puk) {
+        } else if (usepuk) {
             id = PACE_PUK;
             s = puk;
         } else {
