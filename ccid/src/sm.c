@@ -498,6 +498,7 @@ static int sm_decrypt(const struct sm_ctx *ctx, sc_card_t *card,
         if (r < 0)
             goto err;
     } else {
+        sc_error(card->ctx, "Cryptographic Checksum missing");
         r = SC_ERROR_ASN1_OBJECT_NOT_FOUND;
         goto err;
     }
@@ -514,8 +515,10 @@ static int sm_decrypt(const struct sm_ctx *ctx, sc_card_t *card,
         buf_len = r;
 
         r = no_padding(ctx->padding_indicator, data, buf_len);
-        if (r < 0)
+        if (r < 0) {
+            sc_error(card->ctx, "Could not remove padding");
             goto err;
+        }
 
         if (apdu->resplen < r) {
             sc_error(card->ctx, "Response of SM APDU too long");
@@ -537,6 +540,7 @@ static int sm_decrypt(const struct sm_ctx *ctx, sc_card_t *card,
         apdu->sw1 = sw[0];
         apdu->sw2 = sw[1];
     } else {
+        sc_error(card->ctx, "Authenticated status bytes are missing");
         r = SC_ERROR_ASN1_OBJECT_NOT_FOUND;
         goto err;
     }
