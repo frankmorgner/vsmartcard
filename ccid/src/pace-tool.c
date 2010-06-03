@@ -150,6 +150,7 @@ int pace_translate_apdus(struct sm_ctx *sctx, sc_card_t *card)
             break;
         }
 
+        apdulen = sizeof buf;
         read[linelen - 1] = 0;
         if (sc_hex_to_bin(read, buf, &apdulen) < 0) {
             sc_error(card->ctx, "Could not format binary string");
