@@ -648,7 +648,7 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
     PACEInfo *info = NULL;
     __le16 word;
     PACEDomainParameterInfo *static_dp = NULL, *eph_dp = NULL;
-    BUF_MEM *enc_nonce, *nonce = NULL, *mdata = NULL, *mdata_opp = NULL,
+    BUF_MEM *enc_nonce = NULL, *nonce = NULL, *mdata = NULL, *mdata_opp = NULL,
             *k_enc = NULL, *k_mac = NULL, *token_opp = NULL,
             *token = NULL, *pub = NULL, *pub_opp = NULL, *key = NULL;
     PACE_SEC *sec = NULL;
