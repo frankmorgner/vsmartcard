@@ -463,7 +463,7 @@ static int sm_decrypt(const struct sm_ctx *ctx, sc_card_t *card,
     size_t sw_len = sizeof sw, mac_len = sizeof mac, fdata_len = sizeof fdata,
            buf_len, asn1_len;
     const u8 *buf;
-    u8 *data, *mac_data = NULL, *asn1 = NULL;
+    u8 *data = NULL, *mac_data = NULL, *asn1 = NULL;
 
     sc_copy_asn1_entry(c_sm_rapdu, sm_rapdu);
     sc_format_asn1_entry(sm_rapdu + 0, fdata, &fdata_len, 0);
