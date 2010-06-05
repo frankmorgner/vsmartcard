@@ -578,10 +578,21 @@ int sm_transmit_apdu(const struct sm_ctx *sctx, sc_card_t *card,
     sm_apdu.resp = rbuf;
     sm_apdu.resplen = sizeof rbuf;
 
+    if ((apdu->cla & 0x0C) == 0x0C) {
+        sc_debug(card->ctx, "Given APDU is already protected with some secure messaging.");
+        SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, sc_transmit_apdu(card, apdu));
+    }
+
+    if (sctx->pre_transmit)
+        SC_TEST_RET(card->ctx, sctx->pre_transmit(card, sctx, apdu),
+                "Could not complete SM specific pre transmit routine");
     SC_TEST_RET(card->ctx, sm_encrypt(sctx, card, apdu, &sm_apdu),
             "Could not encrypt APDU");
     SC_TEST_RET(card->ctx, sc_transmit_apdu(card, &sm_apdu),
             "Could not transmit SM APDU");
+    if (sctx->post_transmit)
+        SC_TEST_RET(card->ctx, sctx->post_transmit(card, sctx, &sm_apdu),
+                "Could not complete SM specific post transmit routine");
     SC_TEST_RET(card->ctx, sm_decrypt(sctx, card, &sm_apdu, apdu),
             "Could not decrypt APDU");
 

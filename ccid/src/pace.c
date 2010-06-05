@@ -295,7 +295,7 @@ static int pace_mse_set_at(const struct sm_ctx *oldpacectx, sc_card_t *card,
         bin_log(card->ctx, "MSE:Set AT command data", apdu.data, apdu.datalen);
 
     if (oldpacectx)
-        r = pace_transmit_apdu(oldpacectx, card, &apdu);
+        r = sm_transmit_apdu(oldpacectx, card, &apdu);
     else
         r = sc_transmit_apdu(card, &apdu);
     if (r < 0)
@@ -423,7 +423,7 @@ static int pace_gen_auth(const struct sm_ctx *oldpacectx, sc_card_t *card,
     apdu.resplen = maxresp;
     apdu.resp = malloc(apdu.resplen);
     if (oldpacectx)
-        r = pace_transmit_apdu(oldpacectx, card, &apdu);
+        r = sm_transmit_apdu(oldpacectx, card, &apdu);
     else
         r = sc_transmit_apdu(card, &apdu);
     if (r < 0)
@@ -586,7 +586,7 @@ pace_reset_retry_counter(struct sm_ctx *ctx, sc_card_t *card,
         apdu.cse = SC_APDU_CASE_1;
     }
 
-    r = pace_transmit_apdu(ctx, card, &apdu);
+    r = sm_transmit_apdu(ctx, card, &apdu);
 
     if (p) {
         OPENSSL_cleanse(p, new_len);
@@ -788,7 +788,7 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
     }
     pub_opp->max = pub_opp->length;
     if (card->ctx->debug >= SC_LOG_TYPE_DEBUG)
-        bin_log(card->ctx, "Public key from MRTD", (u8 *) pub_opp->data, pub_opp->length);
+        bin_log(card->ctx, "Ephemeral public key from MRTD", (u8 *) pub_opp->data, pub_opp->length);
 
     key = PACE_STEP3B_compute_ephemeral_key(eph_dp, pctx, pub_opp);
     if (!key ||
@@ -834,6 +834,8 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
     sctx->encrypt = pace_sm_encrypt;
     sctx->decrypt = pace_sm_decrypt;
     sctx->verify_authentication = pace_sm_verify_authentication;
+    sctx->pre_transmit = pace_sm_pre_transmit;
+    sctx->post_transmit = pace_sm_post_transmit;
     sctx->padding_indicator = SM_ISO_PADDING;
     sctx->block_length = EVP_CIPHER_block_size(pctx->cipher);
 
@@ -1078,13 +1080,9 @@ int pace_sm_verify_authentication(sc_card_t *card, const struct sm_ctx *ctx,
 
     if (!ctx || !ctx->cipher_ctx) {
         r = SC_ERROR_INVALID_ARGUMENTS;
-        goto incerr;
+        goto err;
     }
     struct pace_sm_ctx *psmctx = ctx->cipher_ctx;
-
-    r = increment_ssc(psmctx);
-    if (r < 0)
-        goto incerr;
 
     my_mac = PACE_authenticate(psmctx->ctx, psmctx->ssc, psmctx->key_mac,
             macdata, macdatalen);
@@ -1103,55 +1101,25 @@ int pace_sm_verify_authentication(sc_card_t *card, const struct sm_ctx *ctx,
     if (card->ctx->debug > SC_LOG_TYPE_DEBUG)
         sc_debug(card->ctx, "Authentication data verified");
 
+    r = SC_SUCCESS;
+
 err:
     if (my_mac)
         BUF_MEM_free(my_mac);
-    if (r >= 0)
-        decrement_ssc(psmctx);
-    else
-        r = decrement_ssc(psmctx);
 
-incerr:
     SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, r);
 }
 
-int pace_transmit_apdu(const struct sm_ctx *ctx, sc_card_t *card,
+int pace_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
         sc_apdu_t *apdu)
 {
-    int r;
+    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG,
+            increment_ssc(ctx->cipher_ctx));
+}
 
-    if ((apdu->cla & 0x0C) == 0x0C) {
-        sc_debug(card->ctx, "Given APDU is already protected with some secure messaging.");
-        SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, sc_transmit_apdu(card, apdu));
-    }
-
-    if (!ctx || !ctx->cipher_ctx) {
-        SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_INVALID_ARGUMENTS);
-    }
-
-    /* SW1 and SW2 are used to determine if really something has been sent and
-     * received. Only if this is the case, the send sequence counter needs to
-     * be incremented. */
-
-    apdu->sw1 = 0;
-    apdu->sw2 = 0;
-
-    SC_TEST_RET(card->ctx, increment_ssc(ctx->cipher_ctx),
-            "Could not increment send sequence counter");
-
-    r = sm_transmit_apdu(ctx, card, apdu);
-
-    if (apdu->sw1 || apdu->sw2) {
-        if (r < 0) {
-            if (increment_ssc(ctx->cipher_ctx) < 0)
-                sc_error(card->ctx,
-                        "Could not increment send sequence counter");
-        } else
-            r = increment_ssc(ctx->cipher_ctx);
-    } else
-        if (decrement_ssc(ctx->cipher_ctx) < 0)
-            sc_error(card->ctx,
-                    "Could not decrement send sequence counter");
-
-    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, r);
+int pace_sm_post_transmit(sc_card_t *card, const struct sm_ctx *ctx,
+        sc_apdu_t *sm_apdu)
+{
+    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG,
+            increment_ssc(ctx->cipher_ctx));
 }

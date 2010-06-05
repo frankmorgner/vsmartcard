@@ -44,6 +44,11 @@ struct sm_ctx {
             const u8 *data, size_t datalen, u8 **enc);
     int (*decrypt)(sc_card_t *card, const struct sm_ctx *ctx,
             const u8 *enc, size_t enclen, u8 **data);
+
+    int (*pre_transmit)(sc_card_t *card, const struct sm_ctx *ctx,
+            sc_apdu_t *apdu);
+    int (*post_transmit)(sc_card_t *card, const struct sm_ctx *ctx,
+            sc_apdu_t *sm_apdu);
 };
 
 int sm_transmit_apdu(const struct sm_ctx *sctx, sc_card_t *card,

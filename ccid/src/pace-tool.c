@@ -166,7 +166,7 @@ int pace_translate_apdus(struct sm_ctx *sctx, sc_card_t *card)
         apdu.resp = buf;
         apdu.resplen = sizeof(buf);
 
-        r = pace_transmit_apdu(sctx, card, &apdu);
+        r = sm_transmit_apdu(sctx, card, &apdu);
         if (r < 0) {
             sc_error(card->ctx, "Could not send APDU: %s", sc_strerror(r));
             continue;
@@ -307,18 +307,13 @@ main (int argc, char **argv)
         printf("Established PACE channel with CAN in %.0fs.\n",
                 difftime(t_end, t_start));
 
-        /*i = pace_reset_retry_counter(&tmpctx, card, PACE_PIN, 0, NULL, 0);*/
-        /*if (i < 0)*/
-            /*goto err;*/
-        /*printf("Resumed PIN.\n");*/
-
         i = pace_get_channel(&tmpctx, card,
                 PACE_PIN, pin, pin ? strlen(pin) : 0,
                 &channeldata, &channeldatalen, &sctx);
         if (i < 0)
             goto err;
         t_start = time(NULL);
-        printf("Established PACE channel with PIN in %.0fs.\n",
+        printf("Established PACE channel with PIN in %.0fs. PIN resumed.\n",
                 difftime(t_start, t_end));
     }
 
