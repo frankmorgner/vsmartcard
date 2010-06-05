@@ -1,0 +1,139 @@
+2010-05-26 22:51  frankmorgner
+
+	* src/vpcd/Makefile.am: bugfix: using libtool for installation
+
+2010-05-09 08:34  frankmorgner
+
+	* configure.ac, src/vpcd/Makefile.am: be less restrictive in
+	  ./configure. better output of configuration details
+
+2010-05-08 21:03  frankmorgner
+
+	* configure.ac, src/vpicc/Makefile.am: added missing files
+
+2010-05-08 20:58  frankmorgner
+
+	* ChangeLog, INSTALL, Makefile, Makefile.am, NEWS, m4, src,
+	  src/Makefile.am, src/vpcd, src/vpcd/Makefile.am,
+	  src/vpcd/reader.conf.in, src/vpicc,
+	  src/vpicc/virtualsmartcard.in, vpcd, vpicc: switched to autotools
+
+2010-05-07 19:13  frankmorgner
+
+	* Makefile: updated file references of install target
+
+2010-02-02 14:29  frankmorgner
+
+	* vpcd/vpcd.c: moved operations for opening sockets into separate
+	  functions
+
+2010-02-01 16:40  oepen
+
+	* vpicc/CardGenerator.py, vpicc/VirtualSmartcard.py, vpicc/jp2.jpg:
+	  - Object orientated refactoring of CardGenerator
+	  - PassportOS class in VirtualSmartcard.py is no longer needed,
+	  because all the functionallity is now in CardGenerator
+	  - Removed hard coded image
+	  - Added version number and type to file format
+
+2010-01-30 18:51  oepen
+
+	* vpicc/CardGenerator.py, vpicc/CryptoUtils.py,
+	  vpicc/SmartcardSAM.py, vpicc/VirtualSmartcard.py,
+	  vpicc/testconfig.mf, vpicc/testconfig.sam: Refactoring and
+	  Bugfixing:
+	  - CryptoUtils:
+	  - removing hard coded keylength from append_padding in
+	  CryptoUtils
+	  - rewrote append_padding, slightly modified strip_padding in
+	  CryptoUtils
+	  - added get_cipher_keylen and get_cipher_blocklen to CryptoUtils
+	  - Updated UnitTest in CryptoUtils. Note: PBKDF2.self_test()
+	  fails!!!
+	  - added new function protect_string to encrypt and authenticate a
+	  string
+	  - Removed hard coded padding pattern
+	  - VirtualICC:
+	  - Added and integrated functions to load and save VirtualICC
+	  objects
+	  - Added exception handling for opening of the socket
+	  - SmartcardSAM:
+	  - Removed all object persistance functionaliy from SmartcardSAM
+	  - Changed the constructors of the *SAM classes
+	  
+	  - Moved all the functionality to create cards (especially the
+	  pre-initialized filesystems for each card type) to the new file
+	  GenerateCards.py
+	  - Added minimal command line based interface to GenerateCards.py
+	  to generate customized cards and store them in a file
+	  - Removed default sam and mf files (testconfig.mf and
+	  testconfig.sam)
+
+2010-01-25 17:18  oepen
+
+	* Makefile: Small Makefile fix: Added default target to
+	  virtualsmartcard/Makefile
+
+2010-01-23 15:59  oepen
+
+	* vpicc/SmartcardSAM.py: PassportSAM: MRZ for key derivation is now
+	  read from MF instead of hard-encoding it in the code
+
+2010-01-23 15:06  oepen
+
+	* vpicc/SmartcardSAM.py, vpicc/VirtualSmartcard.py: Changed
+	  Passport testdata
+
+2010-01-13 21:33  frankmorgner
+
+	* Makefile, vpcd/ifd.c, vpcd/vpcd.c, vpcd/vpcd.h,
+	  vpicc/VirtualSmartcard.py: - added functions for a smartcard
+	  reset
+	  - changed communication protocol via socket, length is coded in
+	  network byteorder
+	  - splitted vpcd.[h|c] into more files, added include-guards
+
+2010-01-10 22:53  frankmorgner
+
+	* vpicc/VirtualSmartcard.py: bugfix
+
+2010-01-08 14:33  frankmorgner
+
+	* vpicc/SmartcardFilesystem.py, vpicc/VirtualSmartcard.py: added
+	  serial number to cryptoflex. opensc can read it.
+
+2010-01-08 00:07  frankmorgner
+
+	* vpicc/SmartcardFilesystem.py: bugfix
+
+2010-01-07 22:57  frankmorgner
+
+	* vpicc/VirtualSmartcard.py: bugfix
+
+2010-01-04 19:48  frankmorgner
+
+	* virtualsmartcard.bb: Separated bitbake recipes.
+	  vscarchitecture.bb simply collects the other recipes now.
+
+2009-11-25 06:45  frankmorgner
+
+	* README: Added information about running virtualsmartcard.
+
+2009-08-22 08:01  frankmorgner
+
+	* AUTHORS, COPYING, INSTALL, README, vpcd/vpcd.c, vpcd/vpcd.h,
+	  vpicc/ConstantDefinitions.py, vpicc/CryptoUtils.py,
+	  vpicc/SEutils.py, vpicc/SWutils.py, vpicc/SmartcardFilesystem.py,
+	  vpicc/SmartcardSAM.py, vpicc/TLVutils.py,
+	  vpicc/VirtualSmartcard.py, vpicc/utils.py: Added project
+	  informations.
+
+2009-08-06 20:25  schertz123456
+
+	* ., Makefile, virtualsmartcard.bb, vpcd, vpcd/vpcd.c, vpcd/vpcd.h,
+	  vpicc, vpicc/ConstantDefinitions.py, vpicc/CryptoUtils.py,
+	  vpicc/SEutils.py, vpicc/SWutils.py, vpicc/SmartcardFilesystem.py,
+	  vpicc/SmartcardSAM.py, vpicc/TLVutils.py,
+	  vpicc/VirtualSmartcard.py, vpicc/jp2.jpg, vpicc/testconfig.mf,
+	  vpicc/testconfig.sam, vpicc/utils.py: Initial commit.
+

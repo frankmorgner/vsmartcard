@@ -4,25 +4,12 @@ LICENSE     = "GPL"
 DEPENDS     = "pcsc-lite"
 RDEPENDS    = "pcsc-lite"
 
-SRC_URI = "svn://svn.informatik.hu-berlin.de/svn/NFC;module=picc_to_pcsc;proto=https;rev=357"
+SRC_URI = "svn://vsmartcard.svn.sourceforge.net/svnroot/vsmartcard;module=picc_to_pcsc;proto=https;rev=131"
 
-S = "${WORKDIR}"
+S = "${WORKDIR}/picc_to_pcsc"
 
-LIBPCSCLITE_CFLAGS = -I${STAGING_INCDIR}/PCSC -lpcsclite
+inherit autotools_stage pkgconfig
 
-INSTALL            = install
-INSTALL_PROGRAM    = ${INSTALL}
-
-FILES_${PN} = "\
+FILES_${PN} += "\
     ${bindir}/* \
 "
-
-do_compile() {
-    ${CC} ${S}/picc_to_pcsc/picc_to_pcsc.c -o ${S}/picc_to_pcsc/picc_to_pcsc \
-        ${LIBPCSCLITE_CFLAGS} ${CFLAGS}
-}
-
-do_install() {
-    ${INSTALL} -d ${D}${bindir} 
-    ${INSTALL_PROGRAM} ${S}/picc_to_pcsc/picc_to_pcsc ${D}${bindir}
-}

@@ -11,3 +11,7 @@ S = "${WORKDIR}/ccid"
 inherit autotools_stage pkgconfig
 
 EXTRA_OECONF = "--enable-pace"
+
+FILES_${PN} += "\
+    ${bindir}/* \
+"

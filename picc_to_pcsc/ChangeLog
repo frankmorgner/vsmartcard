@@ -1,0 +1,25 @@
+2010-05-09 08:34  frankmorgner
+
+	* configure.ac: be less restrictive in ./configure. better output
+	  of configuration details
+
+2010-05-08 19:09  frankmorgner
+
+	* ChangeLog, Makefile.am, NEWS, configure.ac, picc.py,
+	  picc_to_pcsc.c, picc_to_pcsc.h, src, src/Makefile.am,
+	  src/picc.py, src/picc_to_pcsc.c, src/picc_to_pcsc.h: switched to
+	  autotools
+
+2010-01-05 14:17  frankmorgner
+
+	* Makefile: Added target clean
+
+2010-01-05 14:04  frankmorgner
+
+	* Makefile, picc_to_pcsc.c: Fixed Makefile, removed warning.
+
+2010-01-04 19:56  frankmorgner
+
+	* ., AUTHORS, COPYING, Makefile, README, picc.py, picc_to_pcsc.c,
+	  picc_to_pcsc.h: Added picc_to_pcsc.
+
