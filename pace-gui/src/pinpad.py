@@ -2,7 +2,6 @@
 
 import sys, os
 import subprocess
-import time
 try:
     import pygtk
     pygtk.require("2.0")
@@ -14,8 +13,8 @@ try:
 except:
     sys.exit(1)
 
-#GUITARGET is set by the build system
-PATH = GUITARGET
+#glade_dir is set by the build system
+from pinpad_globals import glade_dir
 
 class PinpadGTK:
     """This a simple GTK based GUI to enter a PIN"""
@@ -30,7 +29,7 @@ class PinpadGTK:
         self.pin = ""
 
         #Set the Glade file
-        self.gladefile = PATH+"pinpad.glade"
+        self.gladefile = glade_dir + "/pinpad.glade"
         self.builder = gtk.Builder()
         self.builder.add_from_file(self.gladefile)
 

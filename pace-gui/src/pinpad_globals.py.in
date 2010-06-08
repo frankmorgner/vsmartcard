@@ -1,0 +1,4 @@
+name = "pinpad"
+version = "@VERSION@"
+image_dir = "@prefix@/share/pixmaps"
+glade_dir = "@prefix@/share/" + name

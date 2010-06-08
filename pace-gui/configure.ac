@@ -23,5 +23,6 @@ AC_SUBST(PYGTK_LIBS)
 # Checks for library functions.
 
 AC_CONFIG_FILES([Makefile
-                 src/Makefile])
+                 src/Makefile
+                 src/pinpad_globals.py])
 AC_OUTPUT
