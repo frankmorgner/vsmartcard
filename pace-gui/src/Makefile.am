@@ -1,8 +1,9 @@
 EXTRA_DIST = pinpad.in
 
-pinpaddir = $(pythondir)
+bin_SCRIPTS = pinpad.py
 
-pinpad_PYTHON = pinpad.py
+uidir = $(datadir)/pinpad
+ui_DATA = pinpad.glade
 
 all-local:
 	perl -ne "s|PYTHONDIR|$(pythondir)| ; print" $(srcdir)/pinpad.in > tmp
