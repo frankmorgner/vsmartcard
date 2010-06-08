@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.65])
+AC_PREREQ([2.64])
 AC_INIT([virtualsmartcard], [0.1], [morgner@informatik.hu-berlin.de])
 AC_CONFIG_SRCDIR([src/vpcd/ifd.c])
 AC_CONFIG_HEADERS([config.h])
