@@ -8,7 +8,7 @@ try:
 except:
     pass
 try:
-    import gtk, gobject
+    import gtk, gobject, glib
     import pango
 except:
     sys.exit(1)
@@ -31,7 +31,15 @@ class PinpadGTK:
         #Set the Glade file
         self.gladefile = glade_dir + "/pinpad.glade"
         self.builder = gtk.Builder()
-        self.builder.add_from_file(self.gladefile)
+        try:
+            self.builder.add_from_file(self.gladefile)
+        except glib.GError, e:
+            popup = gtk.MessageDialog(None, gtk.DIALOG_MODAL, 
+                gtk.MESSAGE_WARNING, gtk.BUTTONS_OK,
+                e.message)
+            popup.run()
+            popup.destroy()
+            raise e
 
         #Get the Main Window, and connect the "destroy" event
         #Create our dictionay and connect it
@@ -105,8 +113,16 @@ class PinpadGTK:
         #We have to provide the type of secret to use via a command line parameter
         param = "--" + rdioActive[0].get_label().lower()
 
-        p = subprocess.Popen(["pace-tool", param, "-v"], stdout=subprocess.PIPE,
-                env=env_arg, close_fds=True)
+        try:
+            p = subprocess.Popen(["pace-tool", param, "-v"],
+                    stdout=subprocess.PIPE, env=env_arg, close_fds=True)
+        except OSError, e:
+            popup = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL |
+                    gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_ERROR,
+                    gtk.BUTTONS_OK, "pace-tool wurde nicht gefunden.")
+            popup.run()
+            popup.destroy()
+            return
 
         line = p.stdout.readline()
         self.progressWindow.show()
@@ -123,8 +139,8 @@ class PinpadGTK:
 
         if (ret == 0):
             popup = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL |
-                gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_INFO, gtk.BUTTONS_OK,
-                "PIN wurde korrekt eingegeben")
+                gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_INFO,
+                gtk.BUTTONS_OK, "PIN wurde korrekt eingegeben")
             res = popup.run()
             gtk.main_quit()
         else:
@@ -164,7 +180,7 @@ class Popup(object):
             fraction += 0.1
         else:
            fraction = 0.0
-        self.progbar.set_fraction(fraction) 
+        self.progbar.set_fraction(fraction)
 
 if __name__ == "__main__":
     pinpad = PinpadGTK()
