@@ -15,3 +15,5 @@ ccid_CFLAGS = $(OPENSC_CFLAGS) $(PTHREAD_CFLAGS)
 pace_tool_SOURCES = sm.c pace-tool.c binutil.c scutil.c pace.c pace_lib.c
 pace_tool_LDADD = $(OPENSC_LIBS) $(OPENSSL_LIBS)
 pace_tool_CFLAGS = $(OPENSC_CFLAGS) $(OPENSSL_CFLAGS)
+
+noinst_HEADERS = binutil.h  ccid.h  pace.h  pace_lib.h  scutil.h  sm.h  usbstring.h
