@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.63])
-AC_INIT([ccid], [0.2], [morgner@informatik.hu-berlin.de])
+AC_INIT([ccid-emulator], [0.2], [morgner@informatik.hu-berlin.de])
 AC_CONFIG_SRCDIR([src/ccid.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -108,7 +108,7 @@ AC_CHECK_FUNCS([memmove memset strerror])
 
 cat << EOF
 
-ccid has been configured with following options:
+ccid-emulator has been configured with following options:
 
 Version:              ${PACKAGE_VERSION}
 User binaries:        $(eval eval eval echo "${bindir}")
@@ -129,7 +129,7 @@ OPENSC_LIBS:          ${OPENSC_LIBS}
 OPENSSL_CFLAGS:       ${OPENSSL_CFLAGS}
 OPENSSL_LIBS:         ${OPENSSL_LIBS}
 
-ccid support:         ${enable_ccid}
+emulator support:     ${enable_ccid}
 pace support:         ${enable_pace}
 
 EOF
