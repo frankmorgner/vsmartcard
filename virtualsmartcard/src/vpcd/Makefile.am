@@ -5,6 +5,8 @@ libvpcd_la_SOURCES = ifd.c vpcd.c
 #libvpcd_la_LIBADD = $(PCSC_LIBS)
 libvpcd_la_CFLAGS = $(PCSC_CFLAGS)
 
+noinst_HEADERS = vpcd.h
+
 EXTRA_DIST = reader.conf.in
 
 install: install_libvpcd

@@ -34,9 +34,16 @@ AC_ARG_ENABLE(serialdropdir,
 	serial wrapper driver (default to pcscd config or $(prefix)/pcsc/drivers/serial)]),
 	[serialdropdir="${enableval}"], [serialdropdir=false])
 if test "${serialdropdir}" = false ; then
-	serialdropdir=${prefix}`$PKG_CONFIG libpcsclite --variable=usbdropdir`/serial
-	if test "${serialdropdir}" = "${prefix}/serial" ; then
-		AC_MSG_ERROR([use --enable-serialdropdir=DIR])
+	if test "${prefix}" = NONE ; then
+		serialdropdir=`$PKG_CONFIG libpcsclite --variable=usbdropdir`/serial
+		if test "${serialdropdir}" = "/serial" ; then
+			AC_MSG_ERROR([use --enable-serialdropdir=DIR])
+		fi
+	else
+		serialdropdir=${prefix}`$PKG_CONFIG libpcsclite --variable=usbdropdir`/serial
+		if test "${serialdropdir}" = "${prefix}/serial" ; then
+			AC_MSG_ERROR([use --enable-serialdropdir=DIR])
+		fi
 	fi
 fi
 
