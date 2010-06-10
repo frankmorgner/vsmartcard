@@ -4,7 +4,7 @@ LICENSE     = "GPL"
 DEPENDS     = "ccid-tool"
 RDEPENDS    = "ccid-tool python-pygtk libglade"
 
-SRC_URI = "svn://vsmartcard.svn.sourceforge.net/svnroot/vsmartcard;module=pace-gui;proto=https;rev=137"
+SRC_URI = "svn://vsmartcard.svn.sourceforge.net/svnroot/vsmartcard;module=pace-gui;proto=https;rev=145"
 
 S = "${WORKDIR}/pace-gui"
 

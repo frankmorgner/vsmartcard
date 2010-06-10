@@ -2,9 +2,10 @@
 Version=@VERSION@
 Encoding=UTF-8
 Name=PACE-GUI
-Comment=GUI zur Eingabe einer PIN/CAN/PUK für pace-tool
+Comment=GUI zur Eingabe einer PIN/CAN/PUK fuer pace-tool
 Exec=pinpad.py
 Icon=@prefix@/share/pixmaps/OpenPACElogo.png
 Terminal=false
 Type=Application
+Categories=Utility
 StartupNotify=false
