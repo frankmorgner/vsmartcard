@@ -33,10 +33,23 @@
 
 
 #define ASN1_APP_IMP_OPT(stname, field, type, tag) ASN1_EX_TYPE(ASN1_TFLG_IMPTAG|ASN1_TFLG_APPLICATION|ASN1_TFLG_OPTIONAL, tag, stname, field, type)
+#define ASN1_APP_IMP(stname, field, type, tag) ASN1_EX_TYPE(ASN1_TFLG_IMPTAG|ASN1_TFLG_APPLICATION, tag, stname, field, type)
 
 /*
  * MSE:Set AT
  */
+
+/* XXX should be part of OpenPACE */
+typedef struct pace_chat_st {
+    ASN1_OBJECT *terminal_type;
+    ASN1_OCTET_STRING *relative_authorization;
+} PACE_CHAT;
+ASN1_SEQUENCE(PACE_CHAT) = {
+        ASN1_SIMPLE(PACE_CHAT, terminal_type, ASN1_OBJECT),
+        /* tag: 0x53*/
+        ASN1_APP_IMP(PACE_CHAT, relative_authorization, ASN1_OCTET_STRING, 0x13) /* discretionary data */
+} ASN1_SEQUENCE_END(PACE_CHAT)
+IMPLEMENT_ASN1_FUNCTIONS(PACE_CHAT)
 
 typedef struct pace_mse_set_at_cd_st {
     ASN1_OBJECT *cryptographic_mechanism_reference;
@@ -44,7 +57,7 @@ typedef struct pace_mse_set_at_cd_st {
     ASN1_INTEGER *key_reference2;
     ASN1_OCTET_STRING *auxiliary_data;
     ASN1_OCTET_STRING *eph_pub_key;
-    ASN1_OCTET_STRING *cha_template;
+    PACE_CHAT *cha_template;
 } PACE_MSE_SET_AT_C;
 ASN1_SEQUENCE(PACE_MSE_SET_AT_C) = {
     /* 0x80
@@ -64,7 +77,7 @@ ASN1_SEQUENCE(PACE_MSE_SET_AT_C) = {
     ASN1_IMP_OPT(PACE_MSE_SET_AT_C, eph_pub_key, ASN1_OCTET_STRING, 0x11),
     /* 0x7F4C
      * Certificate Holder Authorization Template */
-    ASN1_APP_IMP_OPT(PACE_MSE_SET_AT_C, cha_template, ASN1_OCTET_STRING, 0x4c),
+    ASN1_APP_IMP_OPT(PACE_MSE_SET_AT_C, cha_template, PACE_CHAT, 0x4c),
 } ASN1_SEQUENCE_END(PACE_MSE_SET_AT_C)
 IMPLEMENT_ASN1_FUNCTIONS(PACE_MSE_SET_AT_C)
 
@@ -108,8 +121,8 @@ typedef struct pace_gen_auth_rapdu_body_st {
     ASN1_OCTET_STRING *mapping_data;
     ASN1_OCTET_STRING *eph_pub_key;
     ASN1_OCTET_STRING *auth_token;
-    ASN1_OCTET_STRING *cert_auth1;
-    ASN1_OCTET_STRING *cert_auth2;
+    ASN1_OCTET_STRING *cur_car;
+    ASN1_OCTET_STRING *prev_car;
 } PACE_GEN_AUTH_R_BODY;
 ASN1_SEQUENCE(PACE_GEN_AUTH_R_BODY) = {
     /* 0x80
@@ -125,11 +138,11 @@ ASN1_SEQUENCE(PACE_GEN_AUTH_R_BODY) = {
      * Authentication Token */
     ASN1_IMP_OPT(PACE_GEN_AUTH_R_BODY, auth_token, ASN1_OCTET_STRING, 6),
     /* 0x87
-     * Certification Authority Reference */
-    ASN1_IMP_OPT(PACE_GEN_AUTH_R_BODY, cert_auth1, ASN1_OCTET_STRING, 7),
+     * Most recent Certification Authority Reference */
+    ASN1_IMP_OPT(PACE_GEN_AUTH_R_BODY, cur_car, ASN1_OCTET_STRING, 7),
     /* 0x88
-     * Certification Authority Reference */
-    ASN1_IMP_OPT(PACE_GEN_AUTH_R_BODY, cert_auth2, ASN1_OCTET_STRING, 8),
+     * Previous Certification Authority Reference */
+    ASN1_IMP_OPT(PACE_GEN_AUTH_R_BODY, prev_car, ASN1_OCTET_STRING, 8),
 } ASN1_SEQUENCE_END(PACE_GEN_AUTH_R_BODY)
 IMPLEMENT_ASN1_FUNCTIONS(PACE_GEN_AUTH_R_BODY)
 
@@ -240,7 +253,8 @@ err:
 }
 
 static int pace_mse_set_at(const struct sm_ctx *oldpacectx, sc_card_t *card,
-        int protocol, int secret_key, int reference, u8 *sw1, u8 *sw2)
+        int protocol, int secret_key, const u8 *chat,
+        size_t length_chat, u8 *sw1, u8 *sw2)
 {
     sc_apdu_t apdu;
     unsigned char *d = NULL;
@@ -259,34 +273,43 @@ static int pace_mse_set_at(const struct sm_ctx *oldpacectx, sc_card_t *card,
     apdu.cse = SC_APDU_CASE_3_SHORT;
     apdu.flags = SC_APDU_FLAGS_NO_GET_RESP|SC_APDU_FLAGS_NO_RETRY_WL;
 
+
     data = PACE_MSE_SET_AT_C_new();
     if (!data) {
         r = SC_ERROR_OUT_OF_MEMORY;
         goto err;
     }
+
     data->cryptographic_mechanism_reference = OBJ_nid2obj(protocol);
     data->key_reference1 = ASN1_INTEGER_new();
-    //data->key_reference2 = ASN1_INTEGER_new();
+
     if (!data->cryptographic_mechanism_reference
-            || !data->key_reference1
-            //|| !data->key_reference2
-            ) {
+            || !data->key_reference1) {
         r = SC_ERROR_OUT_OF_MEMORY;
         goto err;
     }
-    if (!ASN1_INTEGER_set(data->key_reference1, secret_key)
-            //|| !ASN1_INTEGER_set(data->key_reference2, reference)
-            ) {
+
+    if (!ASN1_INTEGER_set(data->key_reference1, secret_key)) {
         r = SC_ERROR_INTERNAL;
         goto err;
     }
+
+    if (length_chat) {
+        if (!d2i_PACE_CHAT(&data->cha_template, (const unsigned char **) &chat,
+                    length_chat)) {
+            r = SC_ERROR_INTERNAL;
+            goto err;
+        }
+    }
+
+
     r = i2d_PACE_MSE_SET_AT_C(data, &d);
     if (r < 0) {
         r = SC_ERROR_INTERNAL;
         goto err;
     }
     /* The tag/length for the sequence (0x30) is omitted in the command apdu. */
-    /* FIXME is there a OpenSSL way to get the value only or even a define for
+    /* XXX is there a OpenSSL way to get the value only or even a define for
      * the tag? */
     apdu.data = sc_asn1_find_tag(card->ctx, d, r, 0x30, &apdu.datalen);
     apdu.lc = apdu.datalen;
@@ -448,7 +471,9 @@ static int pace_gen_auth(const struct sm_ctx *oldpacectx, sc_card_t *card,
             if (!r_data->enc_nonce
                     || r_data->mapping_data
                     || r_data->eph_pub_key
-                    || r_data->auth_token) {
+                    || r_data->auth_token
+                    || r_data->cur_car
+                    || r_data->prev_car) {
                 sc_error(card->ctx, "Response data of general authenticate for "
                         "step %d should (only) contain the "
                         "encrypted nonce.", step);
@@ -462,7 +487,9 @@ static int pace_gen_auth(const struct sm_ctx *oldpacectx, sc_card_t *card,
             if (r_data->enc_nonce
                     || !r_data->mapping_data
                     || r_data->eph_pub_key
-                    || r_data->auth_token) {
+                    || r_data->auth_token
+                    || r_data->cur_car
+                    || r_data->prev_car) {
                 sc_error(card->ctx, "Response data of general authenticate for "
                         "step %d should (only) contain the "
                         "mapping data.", step);
@@ -476,7 +503,9 @@ static int pace_gen_auth(const struct sm_ctx *oldpacectx, sc_card_t *card,
             if (r_data->enc_nonce
                     || r_data->mapping_data
                     || !r_data->eph_pub_key
-                    || r_data->auth_token) {
+                    || r_data->auth_token
+                    || r_data->cur_car
+                    || r_data->prev_car) {
                 sc_error(card->ctx, "Response data of general authenticate for "
                         "step %d should (only) contain the "
                         "ephemeral public key.", step);
@@ -499,6 +528,13 @@ static int pace_gen_auth(const struct sm_ctx *oldpacectx, sc_card_t *card,
             }
             p = r_data->auth_token->data;
             l = r_data->auth_token->length;
+            /* XXX CAR sould be returned as result in some way */
+            if (r_data->cur_car)
+                bin_log(card->ctx, "Most recent Certificate Authority Reference",
+                        r_data->cur_car->data, r_data->cur_car->length);
+            if (r_data->prev_car)
+                bin_log(card->ctx, "Previous Certificate Authority Reference",
+                        r_data->prev_car->data, r_data->prev_car->length);
             break;
         default:
             r = SC_ERROR_INVALID_ARGUMENTS;
@@ -515,7 +551,7 @@ static int pace_gen_auth(const struct sm_ctx *oldpacectx, sc_card_t *card,
 
 err:
     if (c_data) {
-        /* FIXME
+        /* XXX
         if (c_data->mapping_data)
             ASN1_OCTET_STRING_free(c_data->mapping_data);
         if (c_data->eph_pub_key)
@@ -527,7 +563,7 @@ err:
     if (d)
         free(d);
     if (r_data) {
-        /* FIXME
+        /* XXX
         if (r_data->mapping_data)
             ASN1_OCTET_STRING_free(r_data->mapping_data);
         if (r_data->eph_pub_key)
@@ -667,6 +703,10 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
     in++;
     chat = in;
     in += length_chat;
+    /* XXX make this human readable */
+    if (length_chat)
+        bin_log(card->ctx, "Card holder authorization template",
+                chat, length_chat);
 
     length_pin = *in;
     in++;
@@ -677,6 +717,10 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
     length_cert_desc = __le16_to_cpu(word);
     in += sizeof word;
     certificate_description = in;
+    /* XXX make this human readable */
+    if (length_cert_desc)
+        bin_log(card->ctx, "Certificate description",
+                certificate_description, length_cert_desc);
 
 
     if (!*out) {
@@ -694,10 +738,6 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
         word = __cpu_to_le16(length_ef_cardaccess);
         memcpy(*out + 2, &word, sizeof word);
         memcpy(*out + 4, ef_cardaccess, length_ef_cardaccess);
-        /* XXX CAR */
-        /*(*out)[length_ef_cardaccess + 2] = 0;*/
-        /* XXX CARprev */
-        /*(*out)[length_ef_cardaccess + 3] = 0;*/
     } else {
         second_execution = 1;
         memcpy(&word, *out + 2, sizeof word);
@@ -714,7 +754,7 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
         goto err;
     }
 
-    r = pace_mse_set_at(oldpacectx, card, info->protocol, pin_id, 1, *out, *out+1);
+    r = pace_mse_set_at(oldpacectx, card, info->protocol, pin_id, chat, length_chat, *out, *out+1);
     if (r < 0) {
         sc_error(card->ctx, "Could not select protocol proberties "
                 "(MSE: Set AT).");

@@ -19,6 +19,7 @@
 #include "binutil.h"
 #include "pace.h"
 #include "scutil.h"
+#include <asm/byteorder.h>
 #include <opensc/log.h>
 #include <openssl/pace.h>
 #include <stdint.h>
@@ -43,6 +44,10 @@ static const char *can = NULL;
 static u8 usecan = 0;
 static const char *mrz = NULL;
 static u8 usemrz = 0;
+static u8 chat[0xff];
+static size_t chatlen = 0;
+static u8 desc[0xffff];
+static size_t desclen = 0;
 static const char *cdriver = NULL;
 
 static sc_context_t *ctx = NULL;
@@ -55,6 +60,8 @@ static sc_reader_t *reader;
 #define OPT_PUK         'u'
 #define OPT_CAN         'a'
 #define OPT_MRZ         'z'
+#define OPT_CHAT        'C'
+#define OPT_CERTDESC    'D'
 #define OPT_CHANGE_PIN  'N'
 #define OPT_RESUME_PIN  'R'
 #define OPT_TRANSLATE   't'
@@ -70,6 +77,8 @@ static const struct option options[] = {
     { "puk", optional_argument, NULL, OPT_PUK },
     { "can", optional_argument, NULL, OPT_CAN },
     { "mrz", optional_argument, NULL, OPT_MRZ },
+    { "chat", required_argument, NULL, OPT_CHAT },
+    { "cert-desc", required_argument, NULL, OPT_CERTDESC },
     { "new-pin", optional_argument, NULL, OPT_CHANGE_PIN },
     { "resume-pin", no_argument, NULL, OPT_RESUME_PIN },
     { "translate", no_argument, NULL, OPT_TRANSLATE },
@@ -81,10 +90,12 @@ static const char *option_help[] = {
     "Print help and exit",
     "Number of reader to use  (default: auto-detect)",
     "Which card driver to use (default: auto-detect)",
-    "Run PACE with PIN",
+    "Run PACE with (transport) PIN",
     "Run PACE with PUK",
     "Run PACE with CAN",
     "Run PACE with MRZ (insert MRZ without newlines)",
+    "Card holder authorization template to use (hex string)",
+    "Certificate description to use (hex string)",
     "Install a new PIN",
     "Resume PIN (uses CAN to activate last retry)",
     "Send plaintext APDUs through the PACE SM channel",
@@ -94,9 +105,11 @@ static const char *option_help[] = {
 
 int pace_get_channel(struct sm_ctx *oldpacectx, sc_card_t *card,
         enum s_type pin_id, const char *pin, size_t pinlen,
+        const char *chat, size_t chatlen, const char *desc, size_t desclen,
         __u8 **out, size_t *outlen, struct sm_ctx *sctx)
 {
-    u8 buf[0xff + 5];
+    u8 buf[0xff + 0xff + 0xffff + 5];
+    __le16 word;
 
     switch (pin_id) {
         case PACE_MRZ:
@@ -109,17 +122,38 @@ int pace_get_channel(struct sm_ctx *oldpacectx, sc_card_t *card,
             return SC_ERROR_INVALID_ARGUMENTS;
     }
 
-    if (pinlen > sizeof(buf) - 5) {
-        sc_error(card->ctx, "%s too long (maximal %u bytes supported)",
+    if (pinlen > 0xff) {
+        sc_error(card->ctx, "%s "
+                "too long (maximal %u bytes supported)",
                 pace_secret_name(pin_id),
-                sizeof(buf) - 5);
+                0xff);
+        return SC_ERROR_INVALID_ARGUMENTS;
     }
+    if (chatlen > 0xff) {
+        sc_error(card->ctx, "CHAT "
+                "too long (maximal %u bytes supported)",
+                0xff);
+        return SC_ERROR_INVALID_ARGUMENTS;
+    }
+    if (desclen > 0xffff) {
+        sc_error(card->ctx, "Certificate description "
+                "too long (maximal %u bytes supported)",
+                0xffff);
+        return SC_ERROR_INVALID_ARGUMENTS;
+    }
+
     buf[0] = pin_id;
-    buf[1] = 0;             // length_chat
-    buf[2] = pinlen;        // length_pin
-    memcpy(&buf[3], pin, pinlen);
-    buf[3 + pinlen] = 0;    // length_cert_desc
-    buf[4 + pinlen]= 0;     // length_cert_desc
+
+    buf[1] = chatlen;
+    memcpy(&buf[2], chat, chatlen);
+
+    buf[2 + chatlen] = pinlen;
+    memcpy(&buf[3 + chatlen], pin, pinlen);
+
+    word = __cpu_to_le16(desclen);
+    memcpy(&buf[3 + chatlen + pinlen], &word, sizeof word);
+    memcpy(&buf[3 + chatlen + pinlen + sizeof word],
+            desc, desclen);
 
     return EstablishPACEChannel(oldpacectx, card, buf, out, outlen, sctx);
 }
@@ -195,7 +229,7 @@ main (int argc, char **argv)
     memset(&tmpctx, 0, sizeof(tmpctx));
 
     while (1) {
-        i = getopt_long(argc, argv, "hr:i:u:a:z:N::Rtvoc:", options, &oindex);
+        i = getopt_long(argc, argv, "hr:i::u::a::z::C:D:N::Rtvoc:", options, &oindex);
         if (i == -1)
             break;
         switch (i) {
@@ -241,6 +275,20 @@ main (int argc, char **argv)
                 mrz = optarg;
                 if (!mrz)
                     can = getenv("MRZ");
+                break;
+            case OPT_CHAT:
+                chatlen = sizeof chat;
+                if (sc_hex_to_bin(optarg, chat, &chatlen) < 0) {
+                    parse_error(argv[0], options, option_help, optarg, oindex);
+                    exit(2);
+                }
+                break;
+            case OPT_CERTDESC:
+                desclen = sizeof desc;
+                if (sc_hex_to_bin(optarg, desc, &desclen) < 0) {
+                    parse_error(argv[0], options, option_help, optarg, oindex);
+                    exit(2);
+                }
                 break;
             case OPT_CHANGE_PIN:
                 dochangepin = 1;
@@ -300,6 +348,7 @@ main (int argc, char **argv)
         t_start = time(NULL);
         i = pace_get_channel(NULL, card,
                 PACE_CAN, can, can ? strlen(can) : 0,
+                chat, chatlen, desc, desclen,
                 &channeldata, &channeldatalen, &tmpctx);
         if (i < 0)
             goto err;
@@ -309,6 +358,7 @@ main (int argc, char **argv)
 
         i = pace_get_channel(&tmpctx, card,
                 PACE_PIN, pin, pin ? strlen(pin) : 0,
+                chat, chatlen, desc, desclen,
                 &channeldata, &channeldatalen, &sctx);
         if (i < 0)
             goto err;
@@ -321,6 +371,7 @@ main (int argc, char **argv)
         t_start = time(NULL);
         i = pace_get_channel(NULL, card,
                 PACE_PIN, pin, pin ? strlen(pin) : 0,
+                chat, chatlen, desc, desclen,
                 &channeldata, &channeldatalen, &sctx);
         if (i < 0)
             goto err;
@@ -357,6 +408,7 @@ main (int argc, char **argv)
 
         t_start = time(NULL);
         i = pace_get_channel(NULL, card, id, s, s ? strlen(s) : 0,
+                chat, chatlen, desc, desclen,
                 &channeldata, &channeldatalen, &sctx);
         if (i < 0)
             goto err;
