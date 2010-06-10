@@ -19,12 +19,10 @@ from pinpad_globals import glade_dir
 class PinpadGTK:
     """This a simple GTK based GUI to enter a PIN"""
 
-    btn_names = ["btnOne", "btnTwo", "btnThree", "btnFour", "btnFive", "btnSix",
-                 "btnSeven", "btnEight", "btnNine", "btnDel", "btnZero", "btnOk"                ]
-
     def __init__(self):
-        btn_names = ["btnOne", "btnTwo", "btnThree", "btnFour", "btnFive", "btnSix",
-                     "btnSeven", "btnEight", "btnNine", "btnDel", "btnZero", "btnOk"]
+        btn_names = ["btnOne", "btnTwo", "btnThree", "btnFour", "btnFive",
+                     "btnSix", "btnSeven", "btnEight", "btnNine", "btnDel",
+                     "btnZero", "btnOk"]
 
         self.pin = ""
 
