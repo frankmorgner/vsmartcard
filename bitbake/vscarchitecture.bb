@@ -1,5 +1,5 @@
 DESCRIPTION = "Virtual Smartcard with PCSC Driver and CCID to PCSC Gadget"
 LICENSE     = "GPL"
 
-DEPENDS     = "ccid-tool virtualsmartcard picctopcsc"
+DEPENDS     = "ccid-emulator virtualsmartcard picctopcsc"
 
