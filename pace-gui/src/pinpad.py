@@ -33,7 +33,7 @@ class PinpadGTK:
         try:
             self.builder.add_from_file(self.gladefile)
         except glib.GError, e:
-            popup = gtk.MessageDialog(None, gtk.DIALOG_MODAL, 
+            popup = gtk.MessageDialog(None, gtk.DIALOG_MODAL,
                 gtk.MESSAGE_WARNING, gtk.BUTTONS_OK,
                 e.message)
             popup.run()
@@ -120,6 +120,7 @@ class PinpadGTK:
         param = "--pin"
 
         try:
+            self.cardChecker.pause() #Stop polling the card while PACE is running
             p = subprocess.Popen(["pace-tool", param, "-v"],
                     stdout=subprocess.PIPE, env=env_arg, close_fds=True)
         except OSError, e:
@@ -128,6 +129,7 @@ class PinpadGTK:
                     gtk.BUTTONS_OK, "pace-tool wurde nicht gefunden.")
             popup.run()
             popup.destroy()
+            self.cardChecker.resume() #Restart cardChecker
             return
 
         line = p.stdout.readline()
@@ -142,6 +144,7 @@ class PinpadGTK:
 
         ret = p.poll()
         self.progressWindow.hide()
+        self.cardChecker.resume() #Restart cardChecker
 
         if (ret == 0):
             popup = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL |
@@ -196,6 +199,7 @@ class cardChecker(Thread):
     def __init__(self, widget, atr, intervall=1):
         Thread.__init__(self)
         self._finished = Event()
+        self._paused = Event()
         self.widget = widget
         self.targetATR = atr
         self.intervall = intervall
@@ -222,11 +226,18 @@ class cardChecker(Thread):
     def run(self):
         while (True):
             if self._finished.isSet(): return
+            if self._paused.isSet(): continue 
             self.__cardCheck()
             self._finished.wait(self.intervall)
 
     def stop(self):
         self._finished.set()
+
+    def pause(self):
+        self._paused.set()
+
+    def resume(self):
+        self._paused.clear()
 
 if __name__ == "__main__":
     gobject.threads_init()
