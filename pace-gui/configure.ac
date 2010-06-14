@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.64])
-AC_INIT(pinpad, 0.1, oepen@informatik.hu-berlin.de)
+AC_INIT(pinpad, 0.2, oepen@informatik.hu-berlin.de)
 AM_INIT_AUTOMAKE
 AC_CONFIG_MACRO_DIR([m4])
 
