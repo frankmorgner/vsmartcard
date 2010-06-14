@@ -61,8 +61,7 @@ class PinpadGTK:
 
         #Change the font for the text field
         txtOutput = self.builder.get_object("txtOutput")
-        font = pango.FontDescription("Monospace")
-        txtOutput.modify_font(pango.FontDescription("sans 24"))
+        txtOutput.modify_font(pango.FontDescription("Monospace 16"))
 
         #Look for card and set the label accordingly
         lbl_cardStatus = self.builder.get_object("lbl_cardStatus")
@@ -82,9 +81,9 @@ class PinpadGTK:
                 raise ValueError("Button does not have a label")
 
             if (name == "btnOk" or name == "btnDel"):
-                lbl.modify_font(pango.FontDescription("sans 16"))
+                lbl.modify_font(pango.FontDescription("sans 14"))
             else:
-                lbl.modify_font(pango.FontDescription("sans 20"))
+                lbl.modify_font(pango.FontDescription("sans 18"))
 
         #Prepare the Progress Bar window for later use
         self.progressWindow = Popup(self.builder)
