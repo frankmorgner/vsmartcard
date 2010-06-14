@@ -2,6 +2,7 @@
 
 import sys, os
 import subprocess
+from threading import Thread, Event
 try:
     import pygtk
     pygtk.require("2.0")
@@ -14,7 +15,7 @@ except:
     sys.exit(1)
 
 #glade_dir is set by the build system
-from pinpad_globals import glade_dir
+from pinpad_globals import *
 
 class PinpadGTK:
     """This a simple GTK based GUI to enter a PIN"""
@@ -63,6 +64,11 @@ class PinpadGTK:
         font = pango.FontDescription("Monospace")
         txtOutput.modify_font(pango.FontDescription("sans 24"))
 
+        #Look for card and set the label accordingly
+        lbl_cardStatus = self.builder.get_object("lbl_cardStatus")
+        self.cardChecker = cardChecker(lbl_cardStatus, ePA_ATR)
+        gobject.idle_add(self.cardChecker.start)
+
         #Change the font for the buttons
         #For this you have to retrieve the label of each button and change
         #its font
@@ -88,7 +94,12 @@ class PinpadGTK:
         self.window.show()
 
         if (self.window):
-            self.window.connect("destroy", gtk.main_quit)
+            self.window.connect("destroy", self.shutdown)
+
+    def shutdown(self, widget):
+        self.cardChecker.stop()
+        self.cardChecker.join()
+        gtk.main_quit()
 
     def digit_clicked(self, widget):
         c = widget.get_label()
@@ -102,14 +113,11 @@ class PinpadGTK:
 
         #Check which radio button is checked, so we know what kind of secret to
         #use for PACE
-        rdio = self.builder.get_object("rdioCAN")
-        rdioGrp = rdio.get_group()
-        rdioActive = [r for r in rdioGrp if r.get_active()]
         env_arg = os.environ
-        env_arg[rdioActive[0].get_label()] = self.pin
+        env_arg["PIN"] = self.pin #We alway use the eID-PIN
 
         #We have to provide the type of secret to use via a command line parameter
-        param = "--" + rdioActive[0].get_label().lower()
+        param = "--pin"
 
         try:
             p = subprocess.Popen(["pace-tool", param, "-v"],
@@ -144,7 +152,8 @@ class PinpadGTK:
         else:
             lbl = self.builder.get_object("txtOutput")
             popup = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL |
-                gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_WARNING, gtk.BUTTONS_OK,
+                gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_WARNING,
+                gtk.BUTTONS_OK,
                 "PIN wurde falsch eingegeben. Bitte erneut versuchen")
             res = popup.run()
             popup.destroy()
@@ -180,6 +189,46 @@ class Popup(object):
            fraction = 0.0
         self.progbar.set_fraction(fraction)
 
+class cardChecker(Thread):
+    """ This class searches for a card with a given ATR and displays
+        wether or not it was found on the label of a widget """
+
+    def __init__(self, widget, atr, intervall=1):
+        Thread.__init__(self)
+        self._finished = Event()
+        self.widget = widget
+        self.targetATR = atr
+        self.intervall = intervall
+
+    def __cardCheck(self):
+        """
+        Actually this method should make use of pyscard, but I couldn't make
+        it run on the OpenMoko yet. Therefor we call opensc-tool instead, which
+        leads to higher delays """
+
+        try:
+            p = subprocess.Popen(["opensc-tool", "--atr"], stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE, close_fds=True)
+
+            line = p.stdout.readline().rstrip()
+            if line == self.targetATR:
+                gobject.idle_add(self.widget.set_label, STR_CARD_FOUND)
+            else:
+                gobject.idle_add(self.widget.set_label, STR_NO_CARD)
+
+        except OSError, e:
+            pass #FIXME
+
+    def run(self):
+        while (True):
+            if self._finished.isSet(): return
+            self.__cardCheck()
+            self._finished.wait(self.intervall)
+
+    def stop(self):
+        self._finished.set()
+
 if __name__ == "__main__":
+    gobject.threads_init()
     pinpad = PinpadGTK()
     gtk.main()
