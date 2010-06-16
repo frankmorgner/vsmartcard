@@ -1,0 +1,234 @@
+Index: PCSC/src/PCSC/reader.h.in
+===================================================================
+--- PCSC/src/PCSC/reader.h.in	(Revision 4999)
++++ PCSC/src/PCSC/reader.h.in	(Arbeitskopie)
+@@ -121,6 +121,7 @@
+ #define FEATURE_IFD_DISPLAY_PROPERTIES   0x11
+ #define FEATURE_GET_TLV_PROPERTIES       0x12
+ #define FEATURE_CCID_ESC_COMMAND         0x13
++#define FEATURE_EXECUTE_PACE             0x20
+ 
+ /* structures used (but not defined) in PC/SC Part 10:
+  * "IFDs with Secure Pin Entry Capabilities" */
+Index: Drivers/ccid/src/ifdhandler.c
+===================================================================
+--- Drivers/ccid/src/ifdhandler.c	(Revision 4999)
++++ Drivers/ccid/src/ifdhandler.c	(Arbeitskopie)
+@@ -1384,6 +1384,16 @@
+ 			iBytesReturned += sizeof(PCSC_TLV_STRUCTURE);
+ 		}
+ 
++		if (ccid_descriptor -> bPINSupport & CCID_CLASS_PIN_SPECIAL)
++		{
++			pcsc_tlv -> tag = FEATURE_EXECUTE_PACE;
++			pcsc_tlv -> length = 0x04; /* always 0x04 */
++			pcsc_tlv -> value = htonl(IOCTL_FEATURE_EXECUTE_PACE);
++
++			pcsc_tlv++;
++			iBytesReturned += sizeof(PCSC_TLV_STRUCTURE);
++		}
++
+ 		/* We can always forward wLcdLayout */
+ 		pcsc_tlv -> tag = FEATURE_IFD_PIN_PROPERTIES;
+ 		pcsc_tlv -> length = 0x04; /* always 0x04 */
+@@ -1548,6 +1558,16 @@
+ 		}
+ 	}
+ 
++	if (IOCTL_FEATURE_EXECUTE_PACE == dwControlCode)
++	{
++		unsigned int iBytesReturned;
++
++		iBytesReturned = RxLength;
++		return_value = SecurePINSpecialVerify(reader_index, TxBuffer, TxLength,
++			RxBuffer, &iBytesReturned);
++		*pdwBytesReturned = iBytesReturned;
++        }
++
+ 	if (IFD_SUCCESS != return_value)
+ 		*pdwBytesReturned = 0;
+ 
+Index: Drivers/ccid/src/commands.c
+===================================================================
+--- Drivers/ccid/src/commands.c	(Revision 4999)
++++ Drivers/ccid/src/commands.c	(Arbeitskopie)
+@@ -68,7 +68,13 @@
+ 	unsigned int tx_length, unsigned char tx_buffer[], unsigned int *rx_length,
+ 	unsigned char rx_buffer[]);
+ 
++static RESPONSECODE SecurePINSpecial(unsigned int reader_index,
++	const unsigned char TxBuffer[], unsigned int TxLength,
++	unsigned char RxBuffer[], unsigned int *RxLength,
++        unsigned char bPINOperation);
++
+ static void i2dw(int value, unsigned char *buffer);
++static void i2w(int value, unsigned char *buffer);
+ 
+ 
+ /*****************************************************************************
+@@ -712,7 +718,96 @@
+ 	return ret;
+ } /* SecurePINModify */
+ 
++RESPONSECODE SecurePINSpecialVerify(unsigned int reader_index,
++	const unsigned char TxBuffer[], unsigned int TxLength,
++	unsigned char RxBuffer[], unsigned int *RxLength)
++{
++    /* bPINOperation: PIN Special Capabilities */
++    return SecurePINSpecial(reader_index, TxBuffer, TxLength, RxBuffer,
++            RxLength, 0x11);
++}
+ 
++RESPONSECODE SecurePINSpecialCapabilities(unsigned int reader_index,
++	const unsigned char TxBuffer[], unsigned int TxLength,
++	unsigned char RxBuffer[], unsigned int *RxLength)
++{
++    /* bPINOperation: PIN Special Capabilities */
++    return SecurePINSpecial(reader_index, TxBuffer, TxLength, RxBuffer,
++            RxLength, 0x10);
++}
++
++static RESPONSECODE SecurePINSpecial(unsigned int reader_index,
++	const unsigned char TxBuffer[], unsigned int TxLength,
++	unsigned char RxBuffer[], unsigned int *RxLength,
++        unsigned char bPINOperation)
++{
++	unsigned char cmd[11+CMD_BUF_SIZE];
++        int length;
++	_ccid_descriptor *ccid_descriptor = get_ccid_descriptor(reader_index);
++	status_t res;
++
++	cmd[0] = 0x69;	/* Secure */
++	i2dw(TxLength, cmd+1);	/* dwLength */
++	cmd[5] = ccid_descriptor->bCurrentSlotIndex;	/* slot number */
++	cmd[6] = (*ccid_descriptor->pbSeq)++;
++	cmd[7] = 0;		/* bBWI */
++	cmd[8] = 0;		/* wLevelParameter */
++	cmd[9] = 0;
++	cmd[10] = bPINOperation;
++
++	memcpy(cmd + 11, TxBuffer, TxLength);
++
++	res = WritePort(reader_index, 11 + TxLength, cmd);
++	if (res != STATUS_SUCCESS)
++	{
++            if (STATUS_NO_SUCH_DEVICE == res)
++                return IFD_NO_SUCH_DEVICE;
++            return IFD_COMMUNICATION_ERROR;
++	}
++
++	length = sizeof(cmd);
++	res = ReadPort(reader_index, &length, cmd);
++	if (res != STATUS_SUCCESS)
++	{
++		if (STATUS_NO_SUCH_DEVICE == res)
++			return IFD_NO_SUCH_DEVICE;
++		return IFD_COMMUNICATION_ERROR;
++	}
++
++	if (length < STATUS_OFFSET+1)
++	{
++		DEBUG_CRITICAL2("Not enough data received: %d bytes", length);
++		return IFD_COMMUNICATION_ERROR;
++	}
++
++	if (cmd[STATUS_OFFSET] & CCID_COMMAND_FAILED)
++	{
++		ccid_error(cmd[ERROR_OFFSET], __FILE__, __LINE__, __FUNCTION__);    /* bError */
++		return IFD_COMMUNICATION_ERROR;
++	}
++
++	/* we have read less (or more) data than the CCID frame says to contain */
++	if (length-10 != dw2i(cmd, 1))
++	{
++		DEBUG_CRITICAL3("Can't read all data (%d out of %d expected)",
++			length-10, dw2i(cmd, 1));
++		return IFD_COMMUNICATION_ERROR;
++	}
++
++	length = dw2i(cmd, 1);
++	if (length <= *RxLength)
++		*RxLength = length;
++	else
++	{
++		DEBUG_CRITICAL2("overrun by %d bytes", length - *RxLength);
++		length = *RxLength;
++		return IFD_ERROR_INSUFFICIENT_BUFFER;
++	}
++
++	return IFD_SUCCESS;
++}
++
++
+ /*****************************************************************************
+  *
+  *					Escape
+@@ -729,7 +824,7 @@
+ 	int old_read_timeout;
+ 	_ccid_descriptor *ccid_descriptor = get_ccid_descriptor(reader_index);
+ 
+-	old_read_timeout = ccid_descriptor -> readTimeout;
++	old_read_timeout= ccid_descriptor -> readTimeout;
+ 	ccid_descriptor -> readTimeout = 30*1000;	/* 30 seconds */
+ 
+ again:
+@@ -2113,3 +2208,15 @@
+ 	buffer[3] = (value >> 24) & 0xFF;
+ } /* i2dw */
+ 
++
++/*****************************************************************************
++ *
++ *					i2w
++ *
++ ****************************************************************************/
++static void i2w(int value, unsigned char buffer[])
++{
++	buffer[0] = value & 0xFF;
++	buffer[1] = (value >> 8) & 0xFF;
++} /* i2w */
++
+Index: Drivers/ccid/src/commands.h
+===================================================================
+--- Drivers/ccid/src/commands.h	(Revision 4999)
++++ Drivers/ccid/src/commands.h	(Arbeitskopie)
+@@ -37,6 +37,14 @@
+ 	unsigned char TxBuffer[], unsigned int TxLength,
+ 	unsigned char RxBuffer[], unsigned int *RxLength);
+ 
++RESPONSECODE SecurePINSpecialCapabilities(unsigned int reader_index,
++	const unsigned char TxBuffer[], unsigned int TxLength,
++	unsigned char RxBuffer[], unsigned int *RxLength);
++
++RESPONSECODE SecurePINSpecialVerify(unsigned int reader_index,
++	const unsigned char TxBuffer[], unsigned int TxLength,
++	unsigned char RxBuffer[], unsigned int *RxLength);
++
+ RESPONSECODE CmdEscape(unsigned int reader_index,
+ 	const unsigned char TxBuffer[], unsigned int TxLength,
+ 	unsigned char RxBuffer[], unsigned int *RxLength);
+Index: Drivers/ccid/src/ccid.h
+===================================================================
+--- Drivers/ccid/src/ccid.h	(Revision 4999)
++++ Drivers/ccid/src/ccid.h	(Arbeitskopie)
+@@ -144,6 +144,7 @@
+ /* Features from bPINSupport */
+ #define CCID_CLASS_PIN_VERIFY		0x01
+ #define CCID_CLASS_PIN_MODIFY		0x02
++#define CCID_CLASS_PIN_SPECIAL		0x10
+ 
+ /* See CCID specs ch. 4.2.1 */
+ #define CCID_ICC_PRESENT_ACTIVE		0x00	/* 00 0000 00 */
+Index: Drivers/ccid/src/ccid_ifdhandler.h
+===================================================================
+--- Drivers/ccid/src/ccid_ifdhandler.h	(Revision 4999)
++++ Drivers/ccid/src/ccid_ifdhandler.h	(Arbeitskopie)
+@@ -37,6 +37,8 @@
+ 	SCARD_CTL_CODE(FEATURE_IFD_PIN_PROPERTIES + CLASS2_IOCTL_MAGIC)
+ #define IOCTL_FEATURE_GET_TLV_PROPERTIES \
+ 	SCARD_CTL_CODE(FEATURE_GET_TLV_PROPERTIES + CLASS2_IOCTL_MAGIC)
++#define IOCTL_FEATURE_EXECUTE_PACE \
++	SCARD_CTL_CODE(FEATURE_EXECUTE_PACE + CLASS2_IOCTL_MAGIC)
+ 
+ #define DRIVER_OPTION_CCID_EXCHANGE_AUTHORIZED 1
+ #define DRIVER_OPTION_GEMPC_TWIN_KEY_APDU 2

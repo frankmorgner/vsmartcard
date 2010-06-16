@@ -583,6 +583,11 @@ int sm_transmit_apdu(const struct sm_ctx *sctx, sc_card_t *card,
         SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, sc_transmit_apdu(card, apdu));
     }
 
+    if (!sctx || !sctx->active) {
+        sc_debug(card->ctx, "Secure messaging disabled.");
+        SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, sc_transmit_apdu(card, apdu));
+    }
+
     if (sctx->pre_transmit)
         SC_TEST_RET(card->ctx, sctx->pre_transmit(card, sctx, apdu),
                 "Could not complete SM specific pre transmit routine");

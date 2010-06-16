@@ -869,6 +869,9 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
         r = SC_ERROR_OUT_OF_MEMORY;
         goto err;
     }
+    r = reset_ssc(sctx->authentication_ctx);
+    if (r < 0)
+        goto err;
     sctx->cipher_ctx = sctx->authentication_ctx;
     sctx->authenticate = pace_sm_authenticate;
     sctx->encrypt = pace_sm_encrypt;
@@ -878,8 +881,7 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
     sctx->post_transmit = pace_sm_post_transmit;
     sctx->padding_indicator = SM_ISO_PADDING;
     sctx->block_length = EVP_CIPHER_block_size(pctx->cipher);
-
-    r = reset_ssc(sctx->authentication_ctx);
+    sctx->active = 1;
 
 err:
     if (ef_cardaccess && !second_execution)

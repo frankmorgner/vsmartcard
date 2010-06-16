@@ -88,6 +88,7 @@ fi
 AC_SUBST(OPENSSL_CFLAGS)
 AC_SUBST(OPENSSL_LIBS)
 AM_CONDITIONAL(WITH_PACE, test "${enable_pace}" != "no")
+AM_COND_IF(WITH_PACE, [AC_DEFINE(WITH_PACE, 1, [enable PACE support])])
 
 
 # Checks for header files.

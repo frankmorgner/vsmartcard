@@ -29,6 +29,8 @@ extern "C" {
 #define SM_NO_PADDING  0x02
 
 struct sm_ctx {
+    unsigned char active;
+
     u8 padding_indicator;
     size_t block_length;
 

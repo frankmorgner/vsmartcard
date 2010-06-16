@@ -28,6 +28,14 @@
 
 #include "ccid.h"
 #include "scutil.h"
+#include "config.h"
+
+#ifdef WITH_PACE
+#include "pace.h"
+#include "sm.h"
+
+struct sm_ctx sctx;
+#endif
 
 static sc_context_t *ctx = NULL;
 static sc_card_t *card_in_slot[SC_MAX_SLOTS];
@@ -127,6 +135,10 @@ int ccid_initialize(int reader_id, const char *cdriver, int verbose)
 
     ccid_desc.bMaxSlotIndex = reader->slot_count - 1;
 
+#ifdef WITH_PACE
+    memset(&sctx, 0, sizeof(sctx));
+#endif
+
     return SC_SUCCESS;
 }
 
@@ -140,6 +152,11 @@ void ccid_shutdown()
     }
     if (ctx)
         sc_release_context(ctx);
+
+#ifdef WITH_PACE
+    pace_sm_ctx_clear_free(sctx.cipher_ctx);
+    memset(&sctx, 0, sizeof(sctx));
+#endif
 }
 
 static int get_rapdu(sc_apdu_t *apdu, size_t slot, __u8 **buf, size_t *resplen)
@@ -153,13 +170,18 @@ static int get_rapdu(sc_apdu_t *apdu, size_t slot, __u8 **buf, size_t *resplen)
 
     apdu->resplen = apdu->le;
     /* Get two more bytes to later use as return buffer including sw1 and sw2 */
-    apdu->resp = malloc(apdu->resplen + sizeof(__u8) + sizeof(__u8));
+    apdu->resp = realloc(*buf, apdu->resplen + sizeof(__u8) + sizeof(__u8));
     if (!apdu->resp) {
         sc_result = SC_ERROR_OUT_OF_MEMORY;
         goto err;
     }
+    *buf = apdu->resp;
 
+#ifdef WITH_PACE
+    sc_result = sm_transmit_apdu(&sctx, card_in_slot[slot], apdu);
+#else
     sc_result = sc_transmit_apdu(card_in_slot[slot], apdu);
+#endif
     if (sc_result < 0) {
         goto err;
     }
@@ -179,13 +201,9 @@ static int get_rapdu(sc_apdu_t *apdu, size_t slot, __u8 **buf, size_t *resplen)
             (unsigned int) *resplen, !*resplen ? "" : "s",
             apdu->sw1, apdu->sw2);
 
-    SC_FUNC_RETURN(ctx, SC_LOG_TYPE_VERBOSE, SC_SUCCESS);
+    sc_result = SC_SUCCESS;
 
 err:
-    if (apdu->resp) {
-        free(apdu->resp);
-    }
-
     SC_FUNC_RETURN(ctx, SC_LOG_TYPE_VERBOSE, sc_result);
 }
 
@@ -425,7 +443,7 @@ perform_PC_to_RDR_XfrBlock(const u8 *in,  __u8** out, size_t *outlen)
     int sc_result, r;
     size_t resplen = 0;
     sc_apdu_t apdu;
-    __u8 *abDataOut;
+    __u8 *abDataOut = NULL;
     RDR_to_PC_DataBlock_t *result;
 
     if (!in || !out || !outlen)
@@ -739,7 +757,7 @@ perform_PC_to_RDR_Secure(const __u8 *in, __u8** out, size_t *outlen)
     sc_ui_hints_t hints;
     const PC_to_RDR_Secure_t *request = (PC_to_RDR_Secure_t *) in;
     const __u8* abData = in + sizeof *request;
-    u8 *abDataOut;
+    u8 *abDataOut = NULL;
     size_t resplen = 0;
     RDR_to_PC_DataBlock_t *result;
 
@@ -792,6 +810,20 @@ perform_PC_to_RDR_Secure(const __u8 *in, __u8** out, size_t *outlen)
             abPINApdu = (__u8*) modify + sizeof(*modify);
             apdulen = __le32_to_cpu(request->dwLength) - sizeof(*modify) - sizeof(__u8);
             break;
+#ifdef WITH_PACE
+        case 0x10:
+            sc_result =
+                GetReadersPACECapabilities(card_in_slot[request->bSlot],
+                        abData + 1, &abDataOut, &resplen);
+            goto err;
+            break;
+        case 0x11:
+            sc_result = EstablishPACEChannel(&sctx,
+                    card_in_slot[request->bSlot], abData + 1, &abDataOut,
+                    &resplen, &sctx);
+            goto err;
+            break;
+#endif
         case 0x04:
             // Cancel PIN function
         default:
