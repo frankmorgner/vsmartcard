@@ -90,6 +90,34 @@ AC_SUBST(OPENSSL_LIBS)
 AM_CONDITIONAL(WITH_PACE, test "${enable_pace}" != "no")
 AM_COND_IF(WITH_PACE, [AC_DEFINE(WITH_PACE, 1, [enable PACE support])])
 
+# --enable-ccid-test
+AC_ARG_ENABLE(ccid-test,
+              AS_HELP_STRING([--enable-ccid-test], [Enable test of PACE smartcard reader]),
+              [enable_ccid_test="${enableval}"], [enable_ccid_test=no])
+if test "x$enable_ccid_test" != xno ; then
+    PKG_CHECK_EXISTS([libpcsclite > 1.4.102],
+                     [PKG_CHECK_MODULES([PCSC], [libpcsclite > 1.4.102])],
+                     [AC_MSG_WARN([libpcsclite > 1.4.102 not found by pkg-config])])
+
+    saved_CPPFLAGS="$CPPFLAGS"
+    saved_LIBS="$LIBS"
+    CPPFLAGS="$CPPFLAGS $PCSC_CFLAGS"
+    LIBS="$LDFLAGS $PCSC_LIBS"
+
+    AC_CHECK_HEADERS(reader.h, [], [ AC_MSG_ERROR([reader.h not found, install OpenPACE or use ./configure PCSC_CFLAGS=...]) ])
+    AC_CHECK_DECL(FEATURE_EXECUTE_PACE, [],
+                    [AC_MSG_ERROR([libpcsclite > 1.4.102 patched with pcsclite_trunk.patch not found, use ./configure PCSC_LIBS=...]) ],
+                    [#include <reader.h>])
+    AC_MSG_CHECKING([for SCardEstablishContext])
+    AC_TRY_LINK_FUNC(SCardEstablishContext, [ AC_MSG_RESULT([yes]) ],
+        [ AC_MSG_ERROR([libpcsclite > 1.4.102 not found, use ./configure PCSC_LIBS=...]) ])
+
+    CPPFLAGS="$saved_CPPFLAGS"
+    LIBS="$saved_LIBS"
+
+    enable_ccid_test=yes
+fi
+
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h memory.h stdint.h stdlib.h string.h sys/ioctl.h unistd.h])
@@ -129,9 +157,12 @@ OPENSC_CFLAGS:        ${OPENSC_CFLAGS}
 OPENSC_LIBS:          ${OPENSC_LIBS}
 OPENSSL_CFLAGS:       ${OPENSSL_CFLAGS}
 OPENSSL_LIBS:         ${OPENSSL_LIBS}
+PCSC_CFLAGS:          ${PCSC_CFLAGS}
+PCSC_LIBS:            ${PCSC_LIBS}
 
 emulator support:     ${enable_ccid}
-pace support:         ${enable_pace}
+PACE support:         ${enable_pace}
+PACE test for reader  ${enable_ccid_test}
 
 EOF
 
