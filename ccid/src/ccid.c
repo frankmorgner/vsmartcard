@@ -78,7 +78,8 @@ ccid_desc = {
     //.bPINSupport            = 0,
     .bPINSupport            = 0x1|      // PIN Verification supported
                               0x2|      // PIN Modification supported
-                              0x10,     // PIN Special supported
+                              0x10|     // PIN PACE Capabilities supported
+                              0x20,     // PIN PACE Verification supported
     .bMaxCCIDBusySlots      = 0x01,
 };
 
@@ -776,6 +777,7 @@ perform_PC_to_RDR_Secure(const __u8 *in, __u8** out, size_t *outlen)
         goto err;
 
     if (request->wLevelParameter != CCID_WLEVEL_DIRECT) {
+        sc_error(ctx, "Chained security commands not supported.");
         sc_result = SC_ERROR_NOT_SUPPORTED;
         goto err;
     }
@@ -818,7 +820,7 @@ perform_PC_to_RDR_Secure(const __u8 *in, __u8** out, size_t *outlen)
                         abData + 1, &abDataOut, &resplen);
             goto err;
             break;
-        case 0x11:
+        case 0x20:
             sc_result = EstablishPACEChannel(&sctx,
                     card_in_slot[request->bSlot], abData + 1, &abDataOut,
                     &resplen, &sctx);

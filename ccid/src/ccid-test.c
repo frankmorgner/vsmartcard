@@ -43,7 +43,7 @@ main(int argc, char *argv[])
     BYTE pbSendBufferEstablish [] = {
         0x02, /* idxFunction = EstabishPACEChannel */
         0x00, /* lengthInputData */
-        0x04, /* lengthInputData */
+        0x00, /* lengthInputData */
         0x03, /* PACE with PIN */
         0x00, /* length CHAT */
         0x00, /* length certificate description */
@@ -51,6 +51,9 @@ main(int argc, char *argv[])
     };
     BYTE pbRecvBuffer[1024];
     DWORD dwActiveProtocol, dwRecvLength, dwReaders;
+
+    uint16_t lengthInputData = 4;
+    memcpy(pbSendBufferEstablish + 1, &lengthInputData, 2);
 
     if (argc > 1) {
         if (argc > 2 || sscanf(argv[1], "%d", &num) != 1) {
