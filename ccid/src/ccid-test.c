@@ -23,6 +23,9 @@
 #include <winscard.h>
 #include <reader.h>
 
+/* XXX IOCTL_FEATURE_IFD_PIN_PROPERTIES */
+const static DWORD feature_execute_pace = 0x42330020;
+
 int
 main(int argc, char *argv[])
 {
@@ -87,17 +90,21 @@ main(int argc, char *argv[])
         goto err;
 
 
-    rv = SCardControl(hCard, FEATURE_EXECUTE_PACE, pbSendBufferCapabilities,
-            sizeof(pbSendBufferCapabilities), pbRecvBuffer,
-            sizeof(pbRecvBuffer), &dwRecvLength);
+    rv = SCardControl(hCard, feature_execute_pace,
+            pbSendBufferCapabilities, sizeof(pbSendBufferCapabilities),
+            pbRecvBuffer, sizeof(pbRecvBuffer), &dwRecvLength);
     if (rv < 0)
         goto err;
+    printf("GetReadersPACECapabilities successfull, received %d bytes\n",
+            dwRecvLength);
 
-    rv = SCardControl(hCard, FEATURE_EXECUTE_PACE, pbSendBufferEstablish,
-            sizeof(pbSendBufferEstablish), pbRecvBuffer,
-            sizeof(pbRecvBuffer), &dwRecvLength);
+    rv = SCardControl(hCard, feature_execute_pace,
+            pbSendBufferEstablish, sizeof(pbSendBufferEstablish),
+            pbRecvBuffer, sizeof(pbRecvBuffer), &dwRecvLength);
     if (rv < 0)
         goto err;
+    printf("EstablishPACEChannel successfull, received %d bytes\n",
+            dwRecvLength);
 
 
     rv = SCardDisconnect(hCard, SCARD_LEAVE_CARD);

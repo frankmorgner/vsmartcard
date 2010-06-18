@@ -1,6 +1,6 @@
 Index: PCSC/src/PCSC/reader.h.in
 ===================================================================
---- PCSC/src/PCSC/reader.h.in	(Revision 4999)
+--- PCSC/src/PCSC/reader.h.in	(Revision 4993)
 +++ PCSC/src/PCSC/reader.h.in	(Arbeitskopie)
 @@ -121,6 +121,7 @@
  #define FEATURE_IFD_DISPLAY_PROPERTIES   0x11
@@ -12,13 +12,13 @@ Index: PCSC/src/PCSC/reader.h.in
   * "IFDs with Secure Pin Entry Capabilities" */
 Index: Drivers/ccid/src/ifdhandler.c
 ===================================================================
---- Drivers/ccid/src/ifdhandler.c	(Revision 4999)
+--- Drivers/ccid/src/ifdhandler.c	(Revision 4993)
 +++ Drivers/ccid/src/ifdhandler.c	(Arbeitskopie)
 @@ -1384,6 +1384,16 @@
  			iBytesReturned += sizeof(PCSC_TLV_STRUCTURE);
  		}
  
-+		if (ccid_descriptor -> bPINSupport & CCID_CLASS_PIN_SPECIAL)
++		if (ccid_descriptor -> bPINSupport & CCID_CLASS_PIN_SPECIAL_CAPABILITIES)
 +		{
 +			pcsc_tlv -> tag = FEATURE_EXECUTE_PACE;
 +			pcsc_tlv -> length = 0x04; /* always 0x04 */
@@ -31,18 +31,36 @@ Index: Drivers/ccid/src/ifdhandler.c
  		/* We can always forward wLcdLayout */
  		pcsc_tlv -> tag = FEATURE_IFD_PIN_PROPERTIES;
  		pcsc_tlv -> length = 0x04; /* always 0x04 */
-@@ -1548,6 +1558,16 @@
+@@ -1548,6 +1558,34 @@
  		}
  	}
  
 +	if (IOCTL_FEATURE_EXECUTE_PACE == dwControlCode)
 +	{
-+		unsigned int iBytesReturned;
++            if (TxLength < 3 || !TxBuffer) {
++                DEBUG_INFO("PACE Command refused by driver");
++                return_value = IFD_COMMUNICATION_ERROR;
++            } else {
++                unsigned int iBytesReturned;
++                uint16_t lengthInputData;
 +
-+		iBytesReturned = RxLength;
-+		return_value = SecurePINSpecialVerify(reader_index, TxBuffer, TxLength,
-+			RxBuffer, &iBytesReturned);
-+		*pdwBytesReturned = iBytesReturned;
++                iBytesReturned = RxLength;
++                lengthInputData = (uint16_t *) TxBuffer + 1;
++                if (*TxBuffer == 1) {
++                    return_value = SecurePINSpecialCapabilities(reader_index,
++                            TxBuffer + 3, lengthInputData,
++                            RxBuffer, &iBytesReturned);
++                    *pdwBytesReturned = iBytesReturned;
++                } else if (*TxBuffer == 2) {
++                    return_value = SecurePINSpecialVerify(reader_index,
++                            TxBuffer + 3, lengthInputData,
++                            RxBuffer, &iBytesReturned);
++                    *pdwBytesReturned = iBytesReturned;
++                } else {
++                    DEBUG_INFO("PACE Command refused by driver");
++                    return_value = IFD_COMMUNICATION_ERROR;
++                }
++            }
 +        }
 +
  	if (IFD_SUCCESS != return_value)
@@ -50,7 +68,7 @@ Index: Drivers/ccid/src/ifdhandler.c
  
 Index: Drivers/ccid/src/commands.c
 ===================================================================
---- Drivers/ccid/src/commands.c	(Revision 4999)
+--- Drivers/ccid/src/commands.c	(Revision 4993)
 +++ Drivers/ccid/src/commands.c	(Arbeitskopie)
 @@ -68,7 +68,13 @@
  	unsigned int tx_length, unsigned char tx_buffer[], unsigned int *rx_length,
@@ -190,7 +208,7 @@ Index: Drivers/ccid/src/commands.c
 +
 Index: Drivers/ccid/src/commands.h
 ===================================================================
---- Drivers/ccid/src/commands.h	(Revision 4999)
+--- Drivers/ccid/src/commands.h	(Revision 4993)
 +++ Drivers/ccid/src/commands.h	(Arbeitskopie)
 @@ -37,6 +37,14 @@
  	unsigned char TxBuffer[], unsigned int TxLength,
@@ -209,19 +227,24 @@ Index: Drivers/ccid/src/commands.h
  	unsigned char RxBuffer[], unsigned int *RxLength);
 Index: Drivers/ccid/src/ccid.h
 ===================================================================
---- Drivers/ccid/src/ccid.h	(Revision 4999)
+--- Drivers/ccid/src/ccid.h	(Revision 4993)
 +++ Drivers/ccid/src/ccid.h	(Arbeitskopie)
-@@ -144,6 +144,7 @@
+@@ -142,8 +142,10 @@
+ #define CCID_CLASS_EXCHANGE_MASK	0x00070000
+ 
  /* Features from bPINSupport */
- #define CCID_CLASS_PIN_VERIFY		0x01
- #define CCID_CLASS_PIN_MODIFY		0x02
-+#define CCID_CLASS_PIN_SPECIAL		0x10
+-#define CCID_CLASS_PIN_VERIFY		0x01
+-#define CCID_CLASS_PIN_MODIFY		0x02
++#define CCID_CLASS_PIN_VERIFY			0x01
++#define CCID_CLASS_PIN_MODIFY			0x02
++#define CCID_CLASS_PIN_SPECIAL_CAPABILITIES	0x10
++#define CCID_CLASS_PIN_SPECIAL_EXECUTE		0x11
  
  /* See CCID specs ch. 4.2.1 */
  #define CCID_ICC_PRESENT_ACTIVE		0x00	/* 00 0000 00 */
 Index: Drivers/ccid/src/ccid_ifdhandler.h
 ===================================================================
---- Drivers/ccid/src/ccid_ifdhandler.h	(Revision 4999)
+--- Drivers/ccid/src/ccid_ifdhandler.h	(Revision 4993)
 +++ Drivers/ccid/src/ccid_ifdhandler.h	(Arbeitskopie)
 @@ -37,6 +37,8 @@
  	SCARD_CTL_CODE(FEATURE_IFD_PIN_PROPERTIES + CLASS2_IOCTL_MAGIC)

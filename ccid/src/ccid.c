@@ -77,7 +77,8 @@ ccid_desc = {
                               0x00FF),  // Number of characters per line
     //.bPINSupport            = 0,
     .bPINSupport            = 0x1|      // PIN Verification supported
-                              0x2,      // PIN Modification supported
+                              0x2|      // PIN Modification supported
+                              0x10,     // PIN Special supported
     .bMaxCCIDBusySlots      = 0x01,
 };
 
@@ -1075,8 +1076,9 @@ perform_unknown(const __u8 *in, __u8 **out, size_t *outlen)
             result->bMessageType = 0x84;
             break;
         default:
-            sc_debug(ctx, "Unknown message type in request. "
-                    "Using bMessageType=0x%2x for output.", 0);
+            sc_debug(ctx, "Unknown message type in request (0x%02x). "
+                    "Using bMessageType=0x%02x for output.",
+                    request->bMessageType, 0);
             result->bMessageType = 0;
     }
     result->dwLength     = __constant_cpu_to_le32(0);
