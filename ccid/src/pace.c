@@ -161,13 +161,17 @@ IMPLEMENT_ASN1_FUNCTIONS(PACE_GEN_AUTH_R)
 const size_t maxresp = SC_MAX_APDU_BUFFER_SIZE - 2;
 
 int GetReadersPACECapabilities(sc_card_t *card,
-        const __u8 *in, __u8 **out, size_t *outlen) {
+        const __u8 *in, size_t inlen, __u8 **out, size_t *outlen) {
     if (!out || !outlen)
         SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_INVALID_ARGUMENTS);
 
     __u8 *result = realloc(*out, 2);
-    if (!result)
-        SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_OUT_OF_MEMORY);
+    if (!result) {
+        if (card)
+            SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_OUT_OF_MEMORY);
+        else
+            return SC_ERROR_OUT_OF_MEMORY;
+    }
     *out = result;
     *outlen = 2;
 
@@ -177,7 +181,10 @@ int GetReadersPACECapabilities(sc_card_t *card,
     /* BitMap */
     *result = PACE_BITMAP_PACE|PACE_BITMAP_EID;
 
-    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_SUCCESS);
+    if (card)
+        SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_SUCCESS);
+    else
+        return SC_SUCCESS;
 }
 
 /** select and read EF.CardAccess */
@@ -675,7 +682,7 @@ void debug_ossl(sc_context_t *ctx) {
 }
 
 int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
-        const __u8 *in, __u8 **out, size_t *outlen, struct sm_ctx *sctx)
+        const __u8 *in, size_t inlen, __u8 **out, size_t *outlen, struct sm_ctx *sctx)
 {
     __u8 pin_id;
     size_t length_chat, length_pin, length_cert_desc, length_ef_cardaccess;
@@ -692,15 +699,27 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
     int r, second_execution;
 
     if (!card)
-        return SC_ERROR_INVALID_ARGUMENTS;
+        return SC_ERROR_CARD_NOT_PRESENT;
     if (!in || !out || !outlen)
         SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_INVALID_ARGUMENTS);
 
+    if (inlen < 1) {
+        sc_error(card->ctx, "Buffer too small, could not get PinID");
+        SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_INVALID_DATA);
+    }
     pin_id = *in;
     in++;
 
+    if (inlen < 1+1) {
+        sc_error(card->ctx, "Buffer too small, could not get lengthCHAT");
+        SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_INVALID_DATA);
+    }
     length_chat = *in;
     in++;
+    if (inlen < 1+1+length_chat) {
+        sc_error(card->ctx, "Buffer too small, could not get CHAT");
+        SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_INVALID_DATA);
+    }
     chat = in;
     in += length_chat;
     /* XXX make this human readable */
@@ -708,14 +727,30 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
         bin_log(card->ctx, "Card holder authorization template",
                 chat, length_chat);
 
+    if (inlen < 1+1+length_chat+1) {
+        sc_error(card->ctx, "Buffer too small, could not get lengthPIN");
+        SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_INVALID_DATA);
+    }
     length_pin = *in;
     in++;
+    if (inlen < 1+1+length_chat+1+length_pin) {
+        sc_error(card->ctx, "Buffer too small, could not get PIN");
+        SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_INVALID_DATA);
+    }
     pin = in;
     in += length_pin;
 
+    if (inlen < 1+1+length_chat+1+length_pin+sizeof(word)) {
+        sc_error(card->ctx, "Buffer too small, could not get lengthCertificateDescription %d %d",1+1+length_chat+1+length_pin+sizeof(word), inlen);
+        SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_INVALID_DATA);
+    }
     memcpy(&word, in, sizeof word);
     length_cert_desc = __le16_to_cpu(word);
     in += sizeof word;
+    if (inlen < 1+1+length_chat+1+length_pin+sizeof(word)+length_cert_desc) {
+        sc_error(card->ctx, "Buffer too small, could not get CertificateDescription");
+        SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_INVALID_DATA);
+    }
     certificate_description = in;
     /* XXX make this human readable */
     if (length_cert_desc)

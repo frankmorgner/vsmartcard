@@ -268,7 +268,7 @@ struct hid_class_descriptor {
 int ccid_initialize(int reader_id, const char *cdriver, int verbose);
 void ccid_shutdown();
 
-int ccid_parse_bulkin(const __u8* inbuf, __u8** outbuf);
+int ccid_parse_bulkin(const __u8* inbuf, size_t inlen, __u8** outbuf);
 int ccid_parse_control(struct usb_ctrlrequest *setup, __u8 **outbuf);
 int ccid_state_changed(RDR_to_PC_NotifySlotChange_t **slotchange, int timeout);
 

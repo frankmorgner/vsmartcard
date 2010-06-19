@@ -46,13 +46,14 @@ main(int argc, char *argv[])
         0x00, /* lengthInputData */
         0x03, /* PACE with PIN */
         0x00, /* length CHAT */
+        0x00, /* length PIN */
         0x00, /* length certificate description */
         0x00, /* length certificate description */
     };
     BYTE pbRecvBuffer[1024];
     DWORD dwActiveProtocol, dwRecvLength, dwReaders;
 
-    uint16_t lengthInputData = 4;
+    uint16_t lengthInputData = 5;
     memcpy(pbSendBufferEstablish + 1, &lengthInputData, 2);
 
     if (argc > 1) {

@@ -155,7 +155,8 @@ int pace_get_channel(struct sm_ctx *oldpacectx, sc_card_t *card,
     memcpy(&buf[3 + chatlen + pinlen + sizeof word],
             desc, desclen);
 
-    return EstablishPACEChannel(oldpacectx, card, buf, out, outlen, sctx);
+    return EstablishPACEChannel(oldpacectx, card, buf,
+            1+pinlen+1+chatlen+2+desclen, out, outlen, sctx);
 }
 
 int pace_translate_apdus(struct sm_ctx *sctx, sc_card_t *card)

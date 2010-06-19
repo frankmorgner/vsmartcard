@@ -1056,7 +1056,7 @@ static void *ccid (void *param)
             fprintf(stderr, "got %d, done.\n", result);
         if (!result) break;
 
-        result = ccid_parse_bulkin(inbuf, &outbuf);
+        result = ccid_parse_bulkin(inbuf, result, &outbuf);
         if (result < 0) break;
 
         if (verbose > 1)

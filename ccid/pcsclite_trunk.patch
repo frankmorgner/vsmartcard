@@ -135,10 +135,10 @@ Index: Drivers/ccid/src/commands.c
 +    lengthCertificateDescription = *((uint16_t *)
 +            (TxBuffer + 1 + lengthCHAT + lengthPIN));
 +
-+    if (TxLength != 4+lengthCHAT+lengthPIN+lengthCertificateDescription) {
++    if (TxLength != 5+lengthCHAT+lengthPIN+lengthCertificateDescription) {
 +        DEBUG_CRITICAL3("Buffer too small or too big to contain only "
 +                "CHAT, PIN and certificate description (expected %u, got %u)",
-+                4+lengthCHAT+lengthPIN+lengthCertificateDescription, TxLength);
++                5+lengthCHAT+lengthPIN+lengthCertificateDescription, TxLength);
 +        return_value = IFD_COMMUNICATION_ERROR;
 +        goto err;
 +    }
@@ -147,7 +147,7 @@ Index: Drivers/ccid/src/commands.c
 +
 +    /* bPINOperation: PIN PACE Capabilities */
 +    return_value = SecurePINPACE(reader_index, TxBuffer, TxLength, RxBuffer,
-+            RxLength, CCID_CLASS_PIN_PACE_CAPABILITIES);
++            RxLength, CCID_CLASS_PIN_PACE_EXECUTE);
 +
 +err:
 +    ccid_descriptor -> readTimeout = old_read_timeout;
@@ -160,7 +160,7 @@ Index: Drivers/ccid/src/commands.c
 +{
 +    /* bPINOperation: PIN PACE Capabilities */
 +    return SecurePINPACE(reader_index, TxBuffer, TxLength, RxBuffer,
-+            RxLength, CCID_CLASS_PIN_PACE_EXECUTE);
++            RxLength, CCID_CLASS_PIN_PACE_CAPABILITIES);
 +}
 +
 +static RESPONSECODE SecurePINPACE(unsigned int reader_index,

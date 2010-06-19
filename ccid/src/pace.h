@@ -64,9 +64,9 @@ int pace_sm_post_transmit(sc_card_t *card, const struct sm_ctx *ctx,
         sc_apdu_t *sm_apdu);
 
 int GetReadersPACECapabilities(sc_card_t *card, const unsigned char *in,
-        unsigned char **out, size_t *outlen);
+        size_t inlen, unsigned char **out, size_t *outlen);
 int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
-        const unsigned char *in, unsigned char **out, size_t *outlen, struct sm_ctx *sctx);
+        const unsigned char *in, size_t inlen, unsigned char **out, size_t *outlen, struct sm_ctx *sctx);
 
 int pace_reset_retry_counter(struct sm_ctx *ctx, sc_card_t *card,
         enum s_type pin_id, int ask_for_secret,

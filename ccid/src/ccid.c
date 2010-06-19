@@ -83,10 +83,12 @@ ccid_desc = {
     .bMaxCCIDBusySlots      = 0x01,
 };
 
-static void
-debug_sc_result(int sc_result)
-{
-    sc_debug(ctx, sc_strerror(sc_result));
+#define debug_sc_result(sc_result) \
+{ \
+    if (sc_result < 0) \
+        sc_error(ctx, sc_strerror(sc_result)); \
+    else \
+        sc_debug(ctx, sc_strerror(sc_result)); \
 }
 
 static int
@@ -329,12 +331,15 @@ get_RDR_to_PC_DataBlock(__u8 bSlot, __u8 bSeq, int sc_result, RDR_to_PC_DataBloc
 }
 
 static int
-perform_PC_to_RDR_GetSlotStatus(const __u8 *in, __u8 **out, size_t *outlen)
+perform_PC_to_RDR_GetSlotStatus(const __u8 *in, size_t inlen, __u8 **out, size_t *outlen)
 {
     const PC_to_RDR_GetSlotStatus_t *request = (PC_to_RDR_GetSlotStatus_t *) in;
 
     if (!out || !outlen || !in)
         SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_INVALID_ARGUMENTS);
+
+    if (inlen < sizeof *request)
+        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_INVALID_DATA);
 
     *outlen = sizeof(RDR_to_PC_SlotStatus_t);
 
@@ -350,7 +355,7 @@ perform_PC_to_RDR_GetSlotStatus(const __u8 *in, __u8 **out, size_t *outlen)
 }
 
 static int
-perform_PC_to_RDR_IccPowerOn(const __u8 *in, __u8 **out, size_t *outlen)
+perform_PC_to_RDR_IccPowerOn(const __u8 *in, size_t inlen, __u8 **out, size_t *outlen)
 {
     const PC_to_RDR_IccPowerOn_t *request = (PC_to_RDR_IccPowerOn_t *) in;
     int sc_result;
@@ -358,6 +363,9 @@ perform_PC_to_RDR_IccPowerOn(const __u8 *in, __u8 **out, size_t *outlen)
 
     if (!out || !outlen || !in)
         SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_INVALID_ARGUMENTS);
+
+    if (inlen < sizeof *request)
+        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_INVALID_DATA);
 
     if (    request->bMessageType != 0x62 ||
             request->dwLength     != __constant_cpu_to_le32(0) ||
@@ -408,13 +416,16 @@ perform_PC_to_RDR_IccPowerOn(const __u8 *in, __u8 **out, size_t *outlen)
 }
 
 static int
-perform_PC_to_RDR_IccPowerOff(const __u8 *in, __u8 **out, size_t *outlen)
+perform_PC_to_RDR_IccPowerOff(const __u8 *in, size_t inlen, __u8 **out, size_t *outlen)
 {
     const PC_to_RDR_IccPowerOff_t *request = (PC_to_RDR_IccPowerOff_t *) in;
     int sc_result;
 
     if (!in || !out || !outlen)
         SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_INVALID_ARGUMENTS);
+
+    if (inlen < sizeof *request)
+        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_INVALID_DATA);
 
     if (    request->bMessageType != 0x63 ||
             request->dwLength     != __constant_cpu_to_le32(0) ||
@@ -438,7 +449,7 @@ perform_PC_to_RDR_IccPowerOff(const __u8 *in, __u8 **out, size_t *outlen)
 }
 
 static int
-perform_PC_to_RDR_XfrBlock(const u8 *in,  __u8** out, size_t *outlen)
+perform_PC_to_RDR_XfrBlock(const u8 *in, size_t inlen, __u8** out, size_t *outlen)
 {
     const PC_to_RDR_XfrBlock_t *request = (PC_to_RDR_XfrBlock_t *) in;
     const __u8 *abDataIn = in + sizeof *request;
@@ -450,6 +461,9 @@ perform_PC_to_RDR_XfrBlock(const u8 *in,  __u8** out, size_t *outlen)
 
     if (!in || !out || !outlen)
         SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_INVALID_ARGUMENTS);
+
+    if (inlen < sizeof *request)
+        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_INVALID_DATA);
 
     if (    request->bMessageType != 0x6F ||
             request->bBWI  != 0)
@@ -497,7 +511,7 @@ perform_PC_to_RDR_XfrBlock(const u8 *in,  __u8** out, size_t *outlen)
 }
 
 static int
-perform_PC_to_RDR_GetParamters(const __u8 *in, __u8** out, size_t *outlen)
+perform_PC_to_RDR_GetParamters(const __u8 *in, size_t inlen, __u8** out, size_t *outlen)
 {
     const PC_to_RDR_GetParameters_t *request = (PC_to_RDR_GetParameters_t *) in;
     RDR_to_PC_Parameters_t *result;
@@ -507,6 +521,9 @@ perform_PC_to_RDR_GetParamters(const __u8 *in, __u8** out, size_t *outlen)
 
     if (!in || !out || !outlen)
         SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_INVALID_ARGUMENTS);
+
+    if (inlen < sizeof *request)
+        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_INVALID_DATA);
 
     if (    request->bMessageType != 0x6C ||
             request->dwLength != __constant_cpu_to_le32(0))
@@ -751,7 +768,7 @@ write_pin(sc_apdu_t *apdu, struct sc_pin_cmd_pin *pin, uint8_t blocksize,
 }
 
 static int
-perform_PC_to_RDR_Secure(const __u8 *in, __u8** out, size_t *outlen)
+perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outlen)
 {
     int sc_result, r;
     struct sc_pin_cmd_pin curr_pin, new_pin;
@@ -759,12 +776,16 @@ perform_PC_to_RDR_Secure(const __u8 *in, __u8** out, size_t *outlen)
     sc_ui_hints_t hints;
     const PC_to_RDR_Secure_t *request = (PC_to_RDR_Secure_t *) in;
     const __u8* abData = in + sizeof *request;
+    size_t abDatalen = inlen - sizeof *request;
     u8 *abDataOut = NULL;
     size_t resplen = 0;
     RDR_to_PC_DataBlock_t *result;
 
     if (!in || !out || !outlen)
         SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_INVALID_ARGUMENTS);
+
+    if (inlen < sizeof *request + 1)
+        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_INVALID_DATA);
 
     if (request->bMessageType != 0x69)
         sc_debug(ctx,  "warning: malformed PC_to_RDR_Secure");
@@ -793,6 +814,12 @@ perform_PC_to_RDR_Secure(const __u8 *in, __u8** out, size_t *outlen)
             // PIN Verification
             verify = (abPINDataStucture_Verification_t *)
                 (abData + sizeof(__u8));
+
+            if (abDatalen < sizeof *verify) {
+                sc_result = SC_ERROR_INVALID_DATA;
+                goto err;
+            }
+
             wPINMaxExtraDigit = verify->wPINMaxExtraDigit;
             bmPINLengthFormat = verify->bmPINLengthFormat;
             bmPINBlockString = verify->bmPINBlockString;
@@ -805,6 +832,13 @@ perform_PC_to_RDR_Secure(const __u8 *in, __u8** out, size_t *outlen)
             // PIN Modification
             modify = (abPINDataStucture_Modification_t *)
                 (abData + sizeof(__u8));
+
+            if (abDatalen < sizeof *modify) {
+                sc_error(ctx, "Not enough data for abPINDataStucture_Modification_t");
+                sc_result = SC_ERROR_INVALID_DATA;
+                goto err;
+            }
+
             wPINMaxExtraDigit = modify->wPINMaxExtraDigit;
             bmPINLengthFormat = modify->bmPINLengthFormat;
             bmPINBlockString = modify->bmPINBlockString;
@@ -815,21 +849,37 @@ perform_PC_to_RDR_Secure(const __u8 *in, __u8** out, size_t *outlen)
             break;
 #ifdef WITH_PACE
         case 0x10:
+
+            if (abDatalen < 1) {
+                sc_error(ctx, "Not enough data for input of GetReadersPACECapabilities");
+                sc_result = SC_ERROR_INVALID_DATA;
+                goto err;
+            }
+
             sc_result =
                 GetReadersPACECapabilities(card_in_slot[request->bSlot],
-                        abData + 1, &abDataOut, &resplen);
+                        abData + 1, abDatalen-1, &abDataOut, &resplen);
             goto err;
             break;
         case 0x20:
+
+            if (abDatalen < 1) {
+                sc_error(ctx, "Not enough data for input of EstablishPACEChannel");
+                sc_result = SC_ERROR_INVALID_DATA;
+                goto err;
+            }
+
             sc_result = EstablishPACEChannel(&sctx,
-                    card_in_slot[request->bSlot], abData + 1, &abDataOut,
-                    &resplen, &sctx);
+                    card_in_slot[request->bSlot], abData + 1, abDatalen-1,
+                    &abDataOut, &resplen, &sctx);
             goto err;
             break;
 #endif
         case 0x04:
             // Cancel PIN function
         default:
+            sc_error(ctx, "PIN operation not supported (bPINOperation=%02x).",
+                    *abData);
             sc_result = SC_ERROR_NOT_SUPPORTED;
             goto err;
     }
@@ -1039,13 +1089,16 @@ get_RDR_to_PC_NotifySlotChange(RDR_to_PC_NotifySlotChange_t **out)
 }
 
 static int
-perform_unknown(const __u8 *in, __u8 **out, size_t *outlen)
+perform_unknown(const __u8 *in, size_t inlen, __u8 **out, size_t *outlen)
 {
     const PC_to_RDR_GetSlotStatus_t *request = (PC_to_RDR_GetSlotStatus_t *) in;
     RDR_to_PC_SlotStatus_t *result;
 
     if (!in || !out || !outlen)
         SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_INVALID_ARGUMENTS);
+
+    if (inlen < sizeof *request)
+        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_INVALID_DATA);
 
     result = realloc(*out, sizeof *result);
     if (!result)
@@ -1096,7 +1149,7 @@ perform_unknown(const __u8 *in, __u8 **out, size_t *outlen)
     SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_SUCCESS);
 }
 
-int ccid_parse_bulkin(const __u8* inbuf, __u8** outbuf)
+int ccid_parse_bulkin(const __u8* inbuf, size_t inlen, __u8** outbuf)
 {
     int sc_result;
     size_t outlen;
@@ -1107,38 +1160,38 @@ int ccid_parse_bulkin(const __u8* inbuf, __u8** outbuf)
     switch (*inbuf) {
         case 0x62: 
                 sc_debug(ctx,  "PC_to_RDR_IccPowerOn");
-                sc_result = perform_PC_to_RDR_IccPowerOn(inbuf, outbuf, &outlen);
+                sc_result = perform_PC_to_RDR_IccPowerOn(inbuf, inlen, outbuf, &outlen);
                 break;
 
         case 0x63:
                 sc_debug(ctx,  "PC_to_RDR_IccPowerOff");
-                sc_result = perform_PC_to_RDR_IccPowerOff(inbuf, outbuf, &outlen);
+                sc_result = perform_PC_to_RDR_IccPowerOff(inbuf, inlen, outbuf, &outlen);
                 break;
 
         case 0x65:
                 sc_debug(ctx,  "PC_to_RDR_GetSlotStatus");
-                sc_result = perform_PC_to_RDR_GetSlotStatus(inbuf, outbuf, &outlen);
+                sc_result = perform_PC_to_RDR_GetSlotStatus(inbuf, inlen, outbuf, &outlen);
                 break;
 
         case 0x6F:
                 sc_debug(ctx,  "PC_to_RDR_XfrBlock");
-                sc_result = perform_PC_to_RDR_XfrBlock(inbuf, outbuf, &outlen);
+                sc_result = perform_PC_to_RDR_XfrBlock(inbuf, inlen, outbuf, &outlen);
                 break;
 
         case 0x6C:
                 sc_debug(ctx,  "PC_to_RDR_GetParameters");
-                sc_result = perform_PC_to_RDR_GetParamters(inbuf, outbuf, &outlen);
+                sc_result = perform_PC_to_RDR_GetParamters(inbuf, inlen, outbuf, &outlen);
                 break;
 
         case 0x69:
                 sc_debug(ctx,  "PC_to_RDR_Secure");
-                sc_result = perform_PC_to_RDR_Secure(inbuf, outbuf, &outlen);
+                sc_result = perform_PC_to_RDR_Secure(inbuf, inlen, outbuf, &outlen);
                 break;
 
         default:
-                sc_debug(ctx, "Unknown ccid bulk-in message. "
-                        "Starting default handler.");
-                sc_result = perform_unknown(inbuf, outbuf, &outlen);
+                sc_error(ctx, "Unknown ccid bulk-in message. "
+                        "Starting default handler...");
+                sc_result = perform_unknown(inbuf, inlen, outbuf, &outlen);
     }
 
     if (sc_result < 0) {
