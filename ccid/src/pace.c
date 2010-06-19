@@ -297,6 +297,7 @@ static int pace_mse_set_at(const struct sm_ctx *oldpacectx, sc_card_t *card,
     }
 
     if (!ASN1_INTEGER_set(data->key_reference1, secret_key)) {
+        sc_error(card->ctx, "Error setting key reference 1 of MSE:Set AT data");
         r = SC_ERROR_INTERNAL;
         goto err;
     }
@@ -304,6 +305,7 @@ static int pace_mse_set_at(const struct sm_ctx *oldpacectx, sc_card_t *card,
     if (length_chat) {
         if (!d2i_PACE_CHAT(&data->cha_template, (const unsigned char **) &chat,
                     length_chat)) {
+            sc_error(card->ctx, "Error decoding card holder authorization template (CHAT)");
             r = SC_ERROR_INTERNAL;
             goto err;
         }
@@ -312,6 +314,7 @@ static int pace_mse_set_at(const struct sm_ctx *oldpacectx, sc_card_t *card,
 
     r = i2d_PACE_MSE_SET_AT_C(data, &d);
     if (r < 0) {
+        sc_error(card->ctx, "Error encoding MSE:Set AT APDU data");
         r = SC_ERROR_INTERNAL;
         goto err;
     }
@@ -741,7 +744,7 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
     in += length_pin;
 
     if (inlen < 1+1+length_chat+1+length_pin+sizeof(word)) {
-        sc_error(card->ctx, "Buffer too small, could not get lengthCertificateDescription %d %d",1+1+length_chat+1+length_pin+sizeof(word), inlen);
+        sc_error(card->ctx, "Buffer too small, could not get lengthCertificateDescription");
         SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_INVALID_DATA);
     }
     memcpy(&word, in, sizeof word);
