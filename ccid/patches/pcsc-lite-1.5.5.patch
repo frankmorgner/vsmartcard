@@ -1,0 +1,12 @@
+Index: src/PCSC/reader.h.in
+===================================================================
+--- src/PCSC/reader.h.in	(Revision 4345)
++++ src/PCSC/reader.h.in	(Arbeitskopie)
+@@ -118,6 +118,7 @@
+ #define FEATURE_WRITE_DISPLAY            0x0F
+ #define FEATURE_GET_KEY                  0x10
+ #define FEATURE_IFD_DISPLAY_PROPERTIES   0x11
++#define FEATURE_EXECUTE_PACE             0x20
+ 
+ /* structures used (but not defined) in PC/SC Part 10 revision 2.02.05:
+  * "IFDs with Secure Pin Entry Capabilities" */
