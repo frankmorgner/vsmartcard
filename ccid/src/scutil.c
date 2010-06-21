@@ -48,7 +48,7 @@ int initialize(int reader_id, const char *cdriver, int verbose,
     reader_count = sc_ctx_get_reader_count(*ctx);
 
     if (reader_count == 0)
-        SC_FUNC_RETURN((*ctx), SC_LOG_TYPE_ERROR, SC_ERROR_NO_READERS_FOUND);
+        return SC_ERROR_NO_READERS_FOUND;
 
     if (reader_id < 0) {
         /* Automatically try to skip to a reader with a card if reader not specified */
@@ -67,11 +67,11 @@ int initialize(int reader_id, const char *cdriver, int verbose,
     }
 
     if (reader_id >= reader_count)
-        SC_FUNC_RETURN((*ctx), SC_LOG_TYPE_ERROR, SC_ERROR_NO_READERS_FOUND);
+        return SC_ERROR_NO_READERS_FOUND;
 
     *reader = sc_ctx_get_reader(*ctx, reader_id);
 
-    SC_FUNC_RETURN((*ctx), SC_LOG_TYPE_ERROR, SC_SUCCESS);
+    return SC_SUCCESS;
 }
 
 
@@ -81,12 +81,12 @@ int build_apdu(sc_context_t *ctx, const u8 *buf, size_t len, sc_apdu_t *apdu)
 	size_t len0;
 
         if (!buf || !apdu)
-            SC_FUNC_RETURN(ctx, SC_LOG_TYPE_VERBOSE, SC_ERROR_INVALID_ARGUMENTS);
+            return SC_ERROR_INVALID_ARGUMENTS;
 
 	len0 = len;
 	if (len < 4) {
                 sc_error(ctx, "APDU too short (must be at least 4 bytes)");
-                SC_FUNC_RETURN(ctx, SC_LOG_TYPE_VERBOSE, SC_ERROR_INVALID_DATA);
+                return SC_ERROR_INVALID_DATA;
 	}
 
 	memset(apdu, 0, sizeof(*apdu));
@@ -104,7 +104,7 @@ int build_apdu(sc_context_t *ctx, const u8 *buf, size_t len, sc_apdu_t *apdu)
 		if (len < apdu->lc) {
                         sc_error(ctx, "APDU too short (need %lu bytes)\n",
                                 (unsigned long) apdu->lc - len);
-                        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_VERBOSE, SC_ERROR_INVALID_DATA);
+                        return SC_ERROR_INVALID_DATA;
 		}
 		len -= apdu->lc;
 		p += apdu->lc;
@@ -120,7 +120,7 @@ int build_apdu(sc_context_t *ctx, const u8 *buf, size_t len, sc_apdu_t *apdu)
 		if (len) {
 			sc_error(ctx, "APDU too long (%lu bytes extra)\n",
 				(unsigned long) len);
-                        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_VERBOSE, SC_ERROR_INVALID_DATA);
+                        return SC_ERROR_INVALID_DATA;
 		}
 	} else if (len == 1) {
 		apdu->le = *p++;
@@ -137,7 +137,7 @@ int build_apdu(sc_context_t *ctx, const u8 *buf, size_t len, sc_apdu_t *apdu)
         sc_debug(ctx, "APDU, %d bytes:\tins=%02x p1=%02x p2=%02x",
                 (unsigned int) len0, apdu->ins, apdu->p1, apdu->p2);
 
-        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_VERBOSE, SC_SUCCESS);
+        return SC_SUCCESS;
 }
 
 void _bin_log(sc_context_t *ctx, int type, const char *file, int line,

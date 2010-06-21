@@ -191,8 +191,11 @@ static int format_data(sc_card_t *card, const struct sm_ctx *ctx,
     }
 
     r = add_padding(ctx, data, datalen, &pad_data);
-    if (r < 0)
+    if (r < 0) {
+        sc_error(card->ctx, "Could not add padding to data: %s",
+                sc_strerror(r));
         goto err;
+    }
     pad_data_len = r;
 
     if (card->ctx->debug > SC_LOG_TYPE_DEBUG)
@@ -206,8 +209,11 @@ static int format_data(sc_card_t *card, const struct sm_ctx *ctx,
         bin_log(card->ctx, "Cryptogram", *formatted_data, r);
 
     r = prefix_buf(ctx->padding_indicator, *formatted_data, r, formatted_data);
-    if (r < 0)
+    if (r < 0) {
+        sc_error(card->ctx, "Could not prepend padding indicator to formatted "
+                "data: %s", sc_strerror(r));
         goto err;
+    }
 
     *formatted_data_len = r;
     sc_format_asn1_entry(formatted_encrypted_data_entry,
@@ -221,7 +227,7 @@ err:
         free(pad_data);
     }
 
-    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, r);
+    return r;
 }
 
 static int format_head(const struct sm_ctx *ctx, const sc_apdu_t *apdu,
@@ -450,7 +456,7 @@ err:
     if (sm_data)
         free(sm_data);
 
-    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, r);
+    return r;
 }
 
 static int sm_decrypt(const struct sm_ctx *ctx, sc_card_t *card,
@@ -564,7 +570,7 @@ err:
         free(mac_data);
     }
 
-    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, r);
+    return r;
 }
 
 int sm_transmit_apdu(const struct sm_ctx *sctx, sc_card_t *card,
@@ -580,12 +586,12 @@ int sm_transmit_apdu(const struct sm_ctx *sctx, sc_card_t *card,
 
     if ((apdu->cla & 0x0C) == 0x0C) {
         sc_debug(card->ctx, "Given APDU is already protected with some secure messaging.");
-        SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, sc_transmit_apdu(card, apdu));
+        return sc_transmit_apdu(card, apdu);
     }
 
     if (!sctx || !sctx->active) {
         sc_debug(card->ctx, "Secure messaging disabled.");
-        SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, sc_transmit_apdu(card, apdu));
+        return sc_transmit_apdu(card, apdu);
     }
 
     if (sctx->pre_transmit)
@@ -601,5 +607,5 @@ int sm_transmit_apdu(const struct sm_ctx *sctx, sc_card_t *card,
     SC_TEST_RET(card->ctx, sm_decrypt(sctx, card, &sm_apdu, apdu),
             "Could not decrypt APDU");
 
-    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_ERROR, SC_SUCCESS);
+    return SC_SUCCESS;
 }

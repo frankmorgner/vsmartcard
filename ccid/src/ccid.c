@@ -97,7 +97,7 @@ detect_card_presence(int slot)
     int sc_result;
 
     if (slot >= sizeof *card_in_slot)
-        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_VERBOSE, SC_ERROR_INVALID_ARGUMENTS);
+        return SC_ERROR_INVALID_ARGUMENTS;
 
     if (card_in_slot[slot] && sc_card_valid(card_in_slot[slot])) {
         sc_result = SC_SLOT_CARD_PRESENT;
@@ -121,7 +121,7 @@ detect_card_presence(int slot)
         sc_debug(ctx, "Unused card in slot %d", slot);
     }
 
-    SC_FUNC_RETURN(ctx, SC_LOG_TYPE_VERBOSE, sc_result);
+    return sc_result;
 }
 
 
@@ -190,7 +190,8 @@ static int get_rapdu(sc_apdu_t *apdu, size_t slot, __u8 **buf, size_t *resplen)
         goto err;
     }
 
-    if (apdu->sw1 > 0xff || apdu->sw2 > 0xff) {
+    if (apdu->sw1 > 0xff || apdu->sw2 > 0xff || apdu->sw1 < 0 || apdu->sw2 < 0) {
+        sc_error(ctx, "Received invalid status bytes SW1=%d SW2=%d", apdu->sw1, apdu->sw2);
         sc_result = SC_ERROR_INVALID_DATA;
         goto err;
     }
@@ -208,7 +209,7 @@ static int get_rapdu(sc_apdu_t *apdu, size_t slot, __u8 **buf, size_t *resplen)
     sc_result = SC_SUCCESS;
 
 err:
-    SC_FUNC_RETURN(ctx, SC_LOG_TYPE_VERBOSE, sc_result);
+    return sc_result;
 }
 
 static __u8 get_bError(int sc_result)
@@ -290,11 +291,11 @@ static int
 get_RDR_to_PC_SlotStatus(__u8 bSlot, __u8 bSeq, int sc_result, RDR_to_PC_SlotStatus_t **out)
 {
     if (!out)
-        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_INVALID_ARGUMENTS);
+        return SC_ERROR_INVALID_ARGUMENTS;
 
     RDR_to_PC_SlotStatus_t *result = realloc(*out, sizeof *result);
     if (!result)
-        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_OUT_OF_MEMORY);
+        return SC_ERROR_OUT_OF_MEMORY;
     *out = result;
 
     result->bMessageType = 0x81;
@@ -305,18 +306,18 @@ get_RDR_to_PC_SlotStatus(__u8 bSlot, __u8 bSeq, int sc_result, RDR_to_PC_SlotSta
     result->bError       = get_bError(sc_result);
     result->bClockStatus = 0;
 
-    SC_FUNC_RETURN(ctx, SC_LOG_TYPE_DEBUG, SC_SUCCESS);
+    return SC_SUCCESS;
 }
 
 static int
 get_RDR_to_PC_DataBlock(__u8 bSlot, __u8 bSeq, int sc_result, RDR_to_PC_DataBlock_t **out)
 {
     if (!out)
-        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_INVALID_ARGUMENTS);
+        return SC_ERROR_INVALID_ARGUMENTS;
 
     RDR_to_PC_DataBlock_t *result = realloc(*out, sizeof *result);
     if (!result)
-        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_OUT_OF_MEMORY);
+        return SC_ERROR_OUT_OF_MEMORY;
     *out = result;
 
     result->bMessageType    = 0x80;
@@ -327,7 +328,7 @@ get_RDR_to_PC_DataBlock(__u8 bSlot, __u8 bSeq, int sc_result, RDR_to_PC_DataBloc
     result->bError          = get_bError(sc_result);
     result->bChainParameter = 0;
 
-    SC_FUNC_RETURN(ctx, SC_LOG_TYPE_DEBUG, SC_SUCCESS);
+    return SC_SUCCESS;
 }
 
 static int
@@ -336,7 +337,7 @@ perform_PC_to_RDR_GetSlotStatus(const __u8 *in, size_t inlen, __u8 **out, size_t
     const PC_to_RDR_GetSlotStatus_t *request = (PC_to_RDR_GetSlotStatus_t *) in;
 
     if (!out || !outlen || !in)
-        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_INVALID_ARGUMENTS);
+        return SC_ERROR_INVALID_ARGUMENTS;
 
     if (inlen < sizeof *request)
         SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_INVALID_DATA);
@@ -349,9 +350,8 @@ perform_PC_to_RDR_GetSlotStatus(const __u8 *in, size_t inlen, __u8 **out, size_t
             request->abRFU2       != 0)
         sc_debug(ctx, "warning: malformed PC_to_RDR_GetSlotStatus");
 
-    SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR,
-            get_RDR_to_PC_SlotStatus(request->bSlot, request->bSeq, SC_SUCCESS,
-                (RDR_to_PC_SlotStatus_t **) out));
+    return get_RDR_to_PC_SlotStatus(request->bSlot, request->bSeq, SC_SUCCESS,
+                (RDR_to_PC_SlotStatus_t **) out);
 }
 
 static int
@@ -362,7 +362,7 @@ perform_PC_to_RDR_IccPowerOn(const __u8 *in, size_t inlen, __u8 **out, size_t *o
     RDR_to_PC_SlotStatus_t *result;
 
     if (!out || !outlen || !in)
-        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_INVALID_ARGUMENTS);
+        return SC_ERROR_INVALID_ARGUMENTS;
 
     if (inlen < sizeof *request)
         SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_INVALID_DATA);
@@ -412,7 +412,7 @@ perform_PC_to_RDR_IccPowerOn(const __u8 *in, size_t inlen, __u8 **out, size_t *o
         *outlen = sizeof *result;
     }
 
-    SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_SUCCESS);
+    return SC_SUCCESS;
 }
 
 static int
@@ -422,7 +422,7 @@ perform_PC_to_RDR_IccPowerOff(const __u8 *in, size_t inlen, __u8 **out, size_t *
     int sc_result;
 
     if (!in || !out || !outlen)
-        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_INVALID_ARGUMENTS);
+        return SC_ERROR_INVALID_ARGUMENTS;
 
     if (inlen < sizeof *request)
         SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_INVALID_DATA);
@@ -445,7 +445,7 @@ perform_PC_to_RDR_IccPowerOff(const __u8 *in, size_t inlen, __u8 **out, size_t *
 
     *outlen = sizeof(RDR_to_PC_SlotStatus_t);
 
-    SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_SUCCESS);
+    return SC_SUCCESS;
 }
 
 static int
@@ -460,7 +460,7 @@ perform_PC_to_RDR_XfrBlock(const u8 *in, size_t inlen, __u8** out, size_t *outle
     RDR_to_PC_DataBlock_t *result;
 
     if (!in || !out || !outlen)
-        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_INVALID_ARGUMENTS);
+        return SC_ERROR_INVALID_ARGUMENTS;
 
     if (inlen < sizeof *request)
         SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_INVALID_DATA);
@@ -483,7 +483,7 @@ perform_PC_to_RDR_XfrBlock(const u8 *in, size_t inlen, __u8** out, size_t *outle
     if (r < 0) {
         if (sc_result >= 0)
             free(abDataOut);
-        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, r);
+        return r;
     }
 
     if (sc_result >= 0) {
@@ -507,7 +507,7 @@ perform_PC_to_RDR_XfrBlock(const u8 *in, size_t inlen, __u8** out, size_t *outle
     result->bError = get_bError(sc_result);
     result->bStatus = get_bStatus(sc_result, request->bSlot);
 
-    SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_SUCCESS);
+    return SC_SUCCESS;
 }
 
 static int
@@ -520,7 +520,7 @@ perform_PC_to_RDR_GetParamters(const __u8 *in, size_t inlen, __u8** out, size_t 
     int sc_result;
 
     if (!in || !out || !outlen)
-        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_INVALID_ARGUMENTS);
+        return SC_ERROR_INVALID_ARGUMENTS;
 
     if (inlen < sizeof *request)
         SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_INVALID_DATA);
@@ -534,7 +534,7 @@ perform_PC_to_RDR_GetParamters(const __u8 *in, size_t inlen, __u8** out, size_t 
             case SC_PROTO_T0:
                 result = realloc(*out, sizeof *result + sizeof *t0);
                 if (!result)
-                    SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_OUT_OF_MEMORY);
+                    return SC_ERROR_OUT_OF_MEMORY;
                 *out = (__u8 *) result;
 
                 result->bProtocolNum = 0;
@@ -557,7 +557,7 @@ perform_PC_to_RDR_GetParamters(const __u8 *in, size_t inlen, __u8** out, size_t 
             case SC_PROTO_T1:
                 result = realloc(*out, sizeof *result + sizeof *t1);
                 if (!result)
-                    SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_OUT_OF_MEMORY);
+                    return SC_ERROR_OUT_OF_MEMORY;
                 *out = (__u8 *) result;
 
                 result->bProtocolNum = 1;
@@ -591,7 +591,7 @@ perform_PC_to_RDR_GetParamters(const __u8 *in, size_t inlen, __u8** out, size_t 
 invaliddata:
         result = realloc(*out, sizeof *result);
         if (!result)
-            SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_OUT_OF_MEMORY);
+            return SC_ERROR_OUT_OF_MEMORY;
         *out = (__u8 *) result;
 
         sc_result = SC_ERROR_INVALID_DATA;
@@ -606,7 +606,7 @@ invaliddata:
     if (sc_result < 0)
         debug_sc_result(sc_result);
 
-    SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_SUCCESS);
+    return SC_SUCCESS;
 }
 
 static int
@@ -647,7 +647,9 @@ write_pin_length(sc_apdu_t *apdu, const struct sc_pin_cmd_pin *pin,
 
     if (length_size) {
         if (length_size != 8) {
-            /* only write pin length if it fits into a full byte */
+            sc_error(ctx, "Writing PIN length only if it fits into "
+                    "a full byte (length of PIN size was %u bits)",
+                    length_size);
             *sc_result = SC_ERROR_NOT_SUPPORTED;
             return 0;
         }
@@ -723,6 +725,7 @@ encode_pin(u8 *buf, size_t buf_len, struct sc_pin_cmd_pin *pin,
         else if (encoding == CCID_PIN_ENCODING_ASCII)
             pin->encoding = SC_PIN_ENCODING_ASCII;
         else {
+            sc_error(ctx, "PIN encoding not supported (0x%02x)", encoding);
             *sc_result = SC_ERROR_NOT_SUPPORTED;
             return 0;
         }
@@ -752,7 +755,9 @@ write_pin(sc_apdu_t *apdu, struct sc_pin_cmd_pin *pin, uint8_t blocksize,
     if (justify_right) {
         if (encoding == CCID_PIN_ENCODING_BCD) {
             if (pin->len % 2) {
-                /* only do right aligned BCD which fits into full bytes */
+                sc_error(ctx, "Right aligning BCD encoded PIN only if it fits "
+                        "into a full byte (length of encoded PIN was %u bits)",
+                        (pin->len)*4);
                 *sc_result = SC_ERROR_NOT_SUPPORTED;
                 return 0;
             } else
@@ -782,7 +787,7 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
     RDR_to_PC_DataBlock_t *result;
 
     if (!in || !out || !outlen)
-        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_INVALID_ARGUMENTS);
+        return SC_ERROR_INVALID_ARGUMENTS;
 
     if (inlen < sizeof *request + 1)
         SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_INVALID_DATA);
@@ -794,11 +799,14 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
     memset(&curr_pin, 0, sizeof(curr_pin));
     memset(&new_pin, 0, sizeof(new_pin));
 
-    if (request->bSlot > sizeof *card_in_slot)
+    if (request->bSlot > sizeof *card_in_slot) {
+        sc_error(ctx, "Received request to invalid slot (bSlot=0x%02x)", request->bSlot);
         goto err;
+    }
 
     if (request->wLevelParameter != CCID_WLEVEL_DIRECT) {
-        sc_error(ctx, "Chained security commands not supported.");
+        sc_error(ctx, "Received request with unsupported wLevelParameter (0x%04x)",
+                __le16_to_cpu(request->wLevelParameter));
         sc_result = SC_ERROR_NOT_SUPPORTED;
         goto err;
     }
@@ -878,7 +886,7 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
         case 0x04:
             // Cancel PIN function
         default:
-            sc_error(ctx, "PIN operation not supported (bPINOperation=%02x).",
+            sc_error(ctx, "Received request with unsupported PIN operation (bPINOperation=0x%02x)",
                     *abData);
             sc_result = SC_ERROR_NOT_SUPPORTED;
             goto err;
@@ -959,12 +967,14 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
     if ((curr_pin.max_length && curr_pin.len > curr_pin.max_length)
             || curr_pin.len < curr_pin.min_length) {
         sc_result = SC_ERROR_PIN_CODE_INCORRECT;
+        sc_error(ctx, "PIN request required a longer or shorter PIN");
         goto err;
     }
     if (modify) {
         new_pin.len = strlen((char *) new_pin.data);
         if ((new_pin.max_length && new_pin.len > new_pin.max_length)
                 || new_pin.len < new_pin.min_length) {
+            sc_error(ctx, "PIN request required a longer or shorter PIN");
             sc_result = SC_ERROR_PIN_CODE_INCORRECT;
             goto err;
         }
@@ -1013,7 +1023,7 @@ err:
     if (r < 0) {
         if (sc_result >= 0)
             free(abDataOut);
-        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, r);
+        return r;
     }
 
     if (sc_result >= 0) {
@@ -1037,7 +1047,7 @@ err:
     result->bError = get_bError(sc_result);
     result->bStatus = get_bStatus(sc_result, request->bSlot);
 
-    SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, r);
+    return r;
 }
 
 static int
@@ -1059,11 +1069,11 @@ get_RDR_to_PC_NotifySlotChange(RDR_to_PC_NotifySlotChange_t **out)
     };
 
     if (!out)
-        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_INVALID_ARGUMENTS);
+        return SC_ERROR_INVALID_ARGUMENTS;
 
     RDR_to_PC_NotifySlotChange_t *result = realloc(*out, sizeof *result);
     if (!result)
-        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_OUT_OF_MEMORY);
+        return SC_ERROR_OUT_OF_MEMORY;
     *out = result;
 
     result->bMessageType = 0x50;
@@ -1085,7 +1095,7 @@ get_RDR_to_PC_NotifySlotChange(RDR_to_PC_NotifySlotChange_t **out)
         }
     }
 
-    SC_FUNC_RETURN(ctx, SC_LOG_TYPE_DEBUG, SC_SUCCESS);
+    return SC_SUCCESS;
 }
 
 static int
@@ -1095,14 +1105,14 @@ perform_unknown(const __u8 *in, size_t inlen, __u8 **out, size_t *outlen)
     RDR_to_PC_SlotStatus_t *result;
 
     if (!in || !out || !outlen)
-        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_INVALID_ARGUMENTS);
+        return SC_ERROR_INVALID_ARGUMENTS;
 
     if (inlen < sizeof *request)
         SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_INVALID_DATA);
 
     result = realloc(*out, sizeof *result);
     if (!result)
-        SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_ERROR_OUT_OF_MEMORY);
+        return SC_ERROR_OUT_OF_MEMORY;
     *out = (__u8 *) result;
 
     switch (request->bMessageType) {
@@ -1146,7 +1156,7 @@ perform_unknown(const __u8 *in, size_t inlen, __u8 **out, size_t *outlen)
 
     *outlen = sizeof *result;
 
-    SC_FUNC_RETURN(ctx, SC_LOG_TYPE_ERROR, SC_SUCCESS);
+    return SC_SUCCESS;
 }
 
 int ccid_parse_bulkin(const __u8* inbuf, size_t inlen, __u8** outbuf)
