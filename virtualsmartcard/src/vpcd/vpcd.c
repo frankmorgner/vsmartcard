@@ -90,7 +90,7 @@ int opensock(unsigned short port)
 }
 
 int waitforclient(int server, long int secs, long int usecs) {
-    int sock;
+    int sock = 0;
 
     fd_set rfds;
     FD_ZERO(&rfds);
@@ -189,7 +189,8 @@ int vicc_transmit(int apdu_len, const char *apdu, char **rapdu) {
 }
 
 int vicc_present(void) {
-    if (client_sock > 0) return 1;
+    if (client_sock > 0)
+        return 1;
     else {
         /* Wait up to one microsecond. */
         client_sock = waitforclient(server_sock, 0, 1);

@@ -387,7 +387,7 @@ class VirtualICC(object): # {{{
         try:
             self.sock = self.connectToPort(host, port)
             self.sock.settimeout(None)
-        except socket.error as e:
+        except socket.error, e:
             print "Failed to open socket: " + str(e) + ". Is pcscd running? Is vpcd installed?"
             sys.exit()
                        
