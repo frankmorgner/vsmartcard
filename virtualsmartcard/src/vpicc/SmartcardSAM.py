@@ -1,18 +1,18 @@
 #
 # Copyright (C) 2009 Dominik Oepen
-# 
+#
 # This file is part of virtualsmartcard.
-# 
+#
 # virtualsmartcard is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
 # Software Foundation, either version 3 of the License, or (at your option) any
 # later version.
-# 
+#
 # virtualsmartcard is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 # FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 # more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along with
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 #
@@ -26,12 +26,12 @@ from Crypto.Cipher import DES3
 from ConstantDefinitions import *
 from SEutils import ControlReferenceTemplate as CRT
 
-def get_referenced_cipher(p1):  
+def get_referenced_cipher(p1):
     """
     P1 defines the algorithm and mode to use. We dispatch it and return a
     string that is understood by CryptoUtils.py functions
     """
-          
+
     ciphertable = {
         0x00: "DES3-ECB",
         0x01: "DES3-ECB",
@@ -41,18 +41,18 @@ def get_referenced_cipher(p1):
         0x05: "AES-ECB",
         0x06: "AES-CBC",
         0x07: "RSA",
-        0x08: "DSA"        
-    }    
-    
+        0x08: "DSA"
+    }
+
     if (ciphertable.has_key(p1)):
         return ciphertable[p1]
-    else: 
+    else:
         raise SwError(SW["ERR_INCORRECTP1P2"])
 
 class CardContainer:
     """
     This class is used to store the data needed by the SAM
-    It includes the PIN, the master key of the SAM and a 
+    It includes the PIN, the master key of the SAM and a
     hashmap containing all the keys used by the file encryption
     system. The keys in the hashmap are indexed via the path
     to the corresponding container.
@@ -985,7 +985,7 @@ class Secure_Messaging(object):
             raise SwError(SW["ERR_SECMESSNOTSUPPORTED"])
 
         return SW["NORMAL"], hash
-    
+
     def verify_cryptographic_checksum(self,p1,p2,data):
         """
         Verify the cryptographic checksum contained in the data field. Data field must contain
@@ -993,13 +993,13 @@ class Secure_Messaging(object):
         """
         plain = ""
         cct = ""
-        
+
         algo = self.current_SE.cct.algo
         key = self.current_SE.cct.key
         iv = self.current_SE.cct.iv
         if algo == None or key == None:
             raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
-        
+
         structure = TLVutils.unpack(config)
         for tag, length, value in structure:
             if tag == 0x80:
@@ -1014,19 +1014,19 @@ class Secure_Messaging(object):
                 return SW["NORMAL"], ""
             else:
                 raise SwError["ERR_SECMESSOBJECTSINCORRECT"]
-    
+
     def verify_digital_signature(self,p1,p2,data):
         """
         Verify the digital signature contained in the data field. Data must contain
-        a data to sign (tag 0x9A, 0xAC or 0xBC) and a digital signature (0x9E) 
+        a data to sign (tag 0x9A, 0xAC or 0xBC) and a digital signature (0x9E)
         """
         key = self.current_SE.dst.key
         to_sign = ""
         signature = ""
-        
+
         if key == None:
             raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
-        
+
         structure = TLVutils.unpack(config)
         for tag, length, value in structure:
             if tag == 0x9E:
@@ -1037,24 +1037,22 @@ class Secure_Messaging(object):
                 pass
             elif tag == 0xBC:
                 pass
-        
+
         if to_sign == "" or signature == "":
             raise SwError(SW["ERR_SECMESSOBJECTSMISSING"])
-        
-        try:
-            my_signature = key.sign(value)
-        except error, e: #FIXME: Foobar
-            pass 
+
+        my_signature = key.sign(value)
         if my_signature == signature:
             return SW["NORMAL"], ""
         else:
             raise SwError(["ERR_SECMESSOBJECTSINCORRECT"])
-    
+
     def verify_certificate(self,p1,p2,data):
         if p1 != 0x00 or p2 not in (0x92,0xAE,0xBE):
             raise SwError(SW["ERR_INCORRECTP1P2"])
-        pass
-    
+        else:
+            raise NotImplementedError
+
     def encipher(self,p1,p2,data):
         """
         Encipher data using key, algorithm, IV and Padding specified
@@ -1069,7 +1067,7 @@ class Secure_Messaging(object):
             padded = CryptoUtils.append_padding(algo, data)
             crypted = CryptoUtils.cipher(True, algo, key, padded, self.current_SE.ct.iv)
             return SW["NORMAL"], crypted
-    
+
     def decipher(self,p1,p2,data):
         """
         Decipher data using key, algorithm, IV and Padding specified
@@ -1082,8 +1080,8 @@ class Secure_Messaging(object):
             return SW["ERR_CONDITIONNOTSATISFIED"], ""
         else:
             plain = CryptoUtils.cipher(False,algo,key,data,self.current_SE.ct.iv)
-            return SW["NORMAL"], plain 
-    
+            return SW["NORMAL"], plain
+
     def generate_public_key_pair(self,p1,p2,data):
         """
         Generate a new public-private key pair.
@@ -1091,19 +1089,19 @@ class Secure_Messaging(object):
         from Crypto.PublicKey import RSA, DSA
         from Crypto.Util.randpool import RandomPool
         rnd = RandomPool()
-        
+
         cipher = self.CAPDU_SE.ct.algo #FIXME: Current SE?
-        
+
         c_class = locals().get(cipher, None)
         if c_class is None: 
             raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
-    
+
         if p1 & 0x01 == 0x00: #Generate key
             PublicKey = c_class.generate(self.CAPDU_SE.dst.keylength,rnd.get_bytes)
             self.CAPDU_SE.dst.key = PublicKey
         else:
             pass #Read key
-        
+
         #Encode keys
         if cipher == "RSA":
             #Public key
@@ -1123,38 +1121,38 @@ class Secure_Messaging(object):
             #Private key
             x = str(PublicKey.__getstate__()['x'])
         #Add more algorithms here
-            
+
         if p1 & 0x02 == 0x02:
             return SW["NORMAL"], result
         else:
             #FIXME: Where to put the keys?
             return SW["NORMAL"], ""
-   
-    #}}}    
+
+    #}}}
 class CryptoflexSM(Secure_Messaging):
     def __init__(self,mf):
         Secure_Messaging.__init__(self,mf) #Does Cryptoflex need its own SE?
-              
+
     def generate_public_key_pair(self,p1,p2,data):
         """
         In the Cryptoflex card this command only supports RSA keys.
-        
+
         @param data: Contains the public exponent used for key generation
         @param p1: The keynumber. Can be used later to refer to the generated key
-        @param p2: Used to specifiy the keylength. The mapping is: 0x40 => 256 Bit, 0x60 => 512 Bit, 0x80 => 1024 
+        @param p2: Used to specifiy the keylength. The mapping is: 0x40 => 256 Bit, 0x60 => 512 Bit, 0x80 => 1024
         """
         from Crypto.PublicKey import RSA
         from Crypto.Util.randpool import RandomPool
 
         keynumber = p1 #TODO: Check if key exists
-        
+
         keylength_dict = {0x40: 256, 0x60: 512, 0x80: 1024}
-        
+
         if not keylength_dict.has_key(p2):
             raise SwError(SW["ERR_INCORRECTP1P2"])
         else:
             keylength = keylength_dict[p2]
-              
+
         rnd = RandomPool()
         PublicKey = RSA.generate(keylength,rnd.get_bytes)
         self.CAPDU_SE.dst.key = PublicKey
@@ -1162,7 +1160,7 @@ class CryptoflexSM(Secure_Messaging):
         e_in = struct.unpack("<i",data)
         if e_in[0] != 65537:
             print "Warning: Exponents different from 65537 are ignored! The Exponent given is %i" % e_in[0]
-            
+
         #Encode Public key
         n = PublicKey.__getstate__()['n']
         n_str = inttostring(n)
@@ -1173,8 +1171,8 @@ class CryptoflexSM(Secure_Messaging):
         padd = 187 * '\x30' #We don't have chinese remainder theorem components, so we need to inject padding
         pk_n = TLVutils.bertlv_pack(((0x81,len(n_str),n_str),(0x01,len(padd),padd),(0x82,len(e_str),e_str)))
         #Private key
-        d = PublicKey.__getstate__()['d']         
-            
+        d = PublicKey.__getstate__()['d']
+
         #Write result to FID 10 12 EF-PUB-KEY
         df = self.mf.currentDF()
         file = df.select("fid", 0x1012)
@@ -1205,28 +1203,28 @@ class ePass_SM(Secure_Messaging):
         
         #checksum = CryptoUtils.calculate_MAC(self.CAPDU_SE.cct.key,data,self.CAPDU_SE.cct.iv)
         self.ssc += 1
-        checksum = CryptoUtils.crypto_checksum(self.CAPDU_SE.cct.algo, 
-                                               self.CAPDU_SE.cct.key, 
-                                               data, 
+        checksum = CryptoUtils.crypto_checksum(self.CAPDU_SE.cct.algo,
+                                               self.CAPDU_SE.cct.key,
+                                               data,
                                                self.CAPDU_SE.cct.iv,
                                                self.ssc)
 
         return SW["NORMAL"], checksum
-        
+
 if __name__ == "__main__":
     """
     Unit test:
     """
-    
+
     password = "DUMMYKEYDUMMYKEY"
     #generate_SAM_config("1234567890", "1234", "keykeykeykeykeyk", path, password)
-       
+
     MyCard = SAM("1234", "1234567890")
     try:
         print MyCard.verify(0x00, 0x00, "5678")
     except SwError, e:
         print e.message
-    
+
     print "Counter = " + str(MyCard.counter)
     print MyCard.verify(0x00,  0x00, "1234")
     print "Counter = " + str(MyCard.counter)
@@ -1235,7 +1233,7 @@ if __name__ == "__main__":
     padded = CryptoUtils.append_padding("DES3-ECB", challenge)
     sw, result = MyCard.internal_authenticate(0x00, 0x00, padded)
     print "Internal Authenticate status code: %x" % sw
-    
+
     try:
         sw, res = MyCard.external_authenticate(0x00, 0x00, result)
     except SwError, e:
