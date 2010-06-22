@@ -78,7 +78,7 @@ static const struct option options[] = {
     { "serial", required_argument, NULL, OPT_SERIAL },
     { "product", required_argument, NULL, OPT_PRODUCT },
     { "vendor", required_argument, NULL, OPT_VENDOR },
-    { "interrupt", no_argument, &doint, OPT_INTERRUPT },
+    { "interrupt", no_argument, NULL, OPT_INTERRUPT },
     { "verbose", no_argument, NULL, OPT_VERBOSE },
     { "info", no_argument, NULL, OPT_INFO },
     { NULL, 0, NULL, 0 }
@@ -846,6 +846,7 @@ static pthread_t	ep0;
 
 static pthread_t	ccid_thread;
 static pthread_t	hidthread;
+static pthread_t	interrupt_thread;
 static int		source_fd = -1;
 static int		sink_fd = -1;
 static int		status_fd = -1;
@@ -938,65 +939,51 @@ ep_config (char *name, const char *label,
 #define hidstatus_open(name) \
 	ep_config(name,__FUNCTION__, &fs_hid_status_desc, &hs_hid_status_desc)
 
+static void *interrupt (void *param)
+{
+    status_fd = status_open (((char **) param)[0]);
+    if (source_fd < 0) {
+        /* an error concerning status endpoint is not fatal for in/out bulk*/
+        /* transfer */
+        if (verbose > 1)
+            perror("status_fd");
+        pthread_exit(0);
+    }
+    pthread_cleanup_push (close_fd, &status_fd);
+
+    int result;
+    RDR_to_PC_NotifySlotChange_t *slotchange;
+    do {
+        /* original LinuxThreads cancelation didn't work right */
+        /* so test for it explicitly. */
+        pthread_testcancel ();
+
+        if (ccid_state_changed(&slotchange, -1)) {
+            /* don't bother host, when nothing changed */
+            if (verbose > 1)
+                fprintf(stderr, "interrupt loop: writing RDR_to_PC_NotifySlotChange... ");
+            result = write(status_fd, slotchange, sizeof *slotchange);
+            if (verbose > 1)
+                fprintf(stderr, "done.\n");
+        }
+    } while (result >= 0);
+
+    if (errno != ESHUTDOWN || result < 0) {
+        perror ("interrupt loop aborted");
+        pthread_cancel(ep0);
+    }
+
+    pthread_cleanup_pop (1);
+
+    return 0;
+}
+
 /* ccid thread, forwards ccid requests to pcsc and returns results  */
 static void *ccid (void *param)
 {
-    pthread_t interrupt_thread;
-
-    void *interrupt (void *param)
-    {
-        status_fd = status_open (((char **) param)[0]);
-        if (source_fd < 0) {
-             /* an error concerning status endpoint is not fatal for in/out bulk*/
-             /* transfer */
-            if (verbose > 1)
-                perror("status_fd");
-            pthread_exit(0);
-        }
-        pthread_cleanup_push (close_fd, &status_fd);
-
-        int result;
-        RDR_to_PC_NotifySlotChange_t *slotchange;
-        do {
-            /* original LinuxThreads cancelation didn't work right */
-            /* so test for it explicitly. */
-            pthread_testcancel ();
-
-            if (ccid_state_changed(&slotchange, -1)) {
-                /* don't bother host, when nothing changed */
-                if (verbose > 1)
-                    fprintf(stderr, "interrupt loop: writing RDR_to_PC_NotifySlotChange... ");
-                result = write(status_fd, slotchange, sizeof *slotchange);
-                if (verbose > 1)
-                    fprintf(stderr, "done.\n");
-            }
-        } while (result >= 0);
-
-        if (errno != ESHUTDOWN || result < 0) {
-            perror ("interrupt loop aborted");
-            pthread_cancel(ccid_thread);
-            pthread_cancel(ep0);
-        }
-
-        pthread_cleanup_pop (1);
-
-        return 0;
-    }
-
-    void close_interrupt ()
-    {
-        if (doint) {
-            pthread_cancel(interrupt_thread);
-            if (pthread_join (interrupt_thread, 0) != 0)
-                perror ("can't join interrupt thread");
-            fprintf (stderr, "cancled interrupt loop\n");
-        }
-    }
-
     char	**names      = (char **) param;
     char	*source_name = names[0];
     char	*sink_name   = names[1];
-    char	*status_name = names[2];
     int		result;
 
     source_fd = source_open (source_name);
@@ -1013,22 +1000,9 @@ static void *ccid (void *param)
             perror("sink_fd");
         goto error;
     }
-    pthread_cleanup_push (close_fd,   &sink_fd);
+    pthread_cleanup_push (close_fd, &sink_fd);
 
     pthread_cleanup_push (ccid_shutdown, NULL);
-
-    if (doint) {
-        static char * interruptnames[1];
-        interruptnames[0] = status_name;
-        if (pthread_create (&interrupt_thread, NULL, interrupt, (void *)
-                    interruptnames) != 0) {
-            perror ("can't create interrupt thread");
-            goto error;
-        }
-    } else if (verbose) {
-        fprintf (stderr, "interrupt pipe disabled\n");
-    }
-    pthread_cleanup_push (close_interrupt, NULL);
 
     __u8 *outbuf = NULL;
     pthread_cleanup_push (free, outbuf);
@@ -1049,18 +1023,18 @@ static void *ccid (void *param)
         pthread_testcancel ();
 
         if (verbose > 1)
-            fprintf(stderr, "reading %lu bytes... ", (long unsigned) bufsize);
+            fprintf(stderr, "bulk loop: reading %lu bytes... ", (long unsigned) bufsize);
         result = read(sink_fd, inbuf, bufsize);
         if (result < 0) break;
         if (verbose > 1)
-            fprintf(stderr, "got %d, done.\n", result);
+            fprintf(stderr, "bulk loop: got %d, done.\n", result);
         if (!result) break;
 
         result = ccid_parse_bulkin(inbuf, result, &outbuf);
         if (result < 0) break;
 
         if (verbose > 1)
-            fprintf(stderr, "writing %d bytes... ", result);
+            fprintf(stderr, "bulk loop: writing %d bytes... ", result);
         result = write(source_fd, outbuf, result);
         if (verbose > 1)
             fprintf(stderr, "done.\n");
@@ -1076,7 +1050,6 @@ static void *ccid (void *param)
     pthread_cleanup_pop (1);
     pthread_cleanup_pop (1);
     pthread_cleanup_pop (1);
-    pthread_cleanup_pop (1);
 
     fflush (stdout);
     fflush (stderr);
@@ -1086,7 +1059,6 @@ static void *ccid (void *param)
 error:
     pthread_cancel(ep0);
     pthread_exit(0);
-
 }
 
 static void *hid (void *param)
@@ -1185,7 +1157,6 @@ static void start_io (void)
         static char *names[2];
         names[0] = EP_IN_NAME;
         names[1] = EP_OUT_NAME;
-        names[2] = EP_STATUS_NAME;
         if (pthread_create (&ccid_thread, NULL, ccid, (void *) names) != 0) {
 		perror ("can't create ccid thread");
 		goto cleanup;
@@ -1202,6 +1173,17 @@ static void start_io (void)
         } else {
             if (verbose)
                 fprintf (stderr, "HID disabled.\n");
+        }
+        if (doint) {
+            static char * interruptnames[1];
+            interruptnames[0] = EP_STATUS_NAME;
+            if (pthread_create (&interrupt_thread, NULL, interrupt, (void *)
+                        interruptnames) != 0) {
+                perror ("can't create interrupt thread");
+                goto cleanup;
+            }
+        } else if (verbose) {
+            fprintf (stderr, "interrupt pipe disabled\n");
         }
 
 	/* give the other threads a chance to run before we report
@@ -1228,12 +1210,19 @@ static void stop_io ()
         ccid_thread = ep0;
         fprintf (stderr, "cancled ccid\n");
     }
-    if (!pthread_equal (ccid_thread, ep0)) {
+    if (!pthread_equal (hidthread, ep0)) {
         pthread_cancel (hidthread);
         if (pthread_join (hidthread, 0) != 0)
             perror ("can't join hid thread");
         hidthread = ep0;
         fprintf (stderr, "cancled hid\n");
+    }
+    if (!pthread_equal (interrupt_thread, ep0)) {
+        pthread_cancel (interrupt_thread);
+        if (pthread_join (interrupt_thread, 0) != 0)
+            perror ("can't join interrupt thread");
+        interrupt_thread = ep0;
+        fprintf (stderr, "cancled interrupt\n");
     }
 }
 
@@ -1507,7 +1496,7 @@ special:
                     if (result < 0 || result > 256)
                         goto stall;
                     if (verbose > 1)
-                        fprintf(stderr, "writing %d bytes... ", result);
+                        fprintf(stderr, "control loop: writing %d bytes... ", result);
                     result = write (fd, outbuf, result);
                     if (verbose > 1)
                         fprintf(stderr, "done.\n");
@@ -1573,9 +1562,9 @@ static void *ep0_thread (void *param)
 	time_t			now, last;
 	struct pollfd		ep0_poll;
 
-	ccid_thread = ep0 = pthread_self ();
-	pthread_cleanup_push (close_fd, param);
+	interrupt_thread = ccid_thread = hidthread = ep0 = pthread_self ();
 	pthread_cleanup_push (stop_io, NULL);
+	pthread_cleanup_push (close_fd, param);
 
 	/* REVISIT signal handling ... normally one pthread should
 	 * be doing sigwait() to handle all async signals.
@@ -1749,6 +1738,9 @@ main (int argc, char **argv)
                 break;
             case OPT_INFO:
                 doinfo++;
+                break;
+            case OPT_INTERRUPT:
+                doint++;
                 break;
             case '?':
                 /* fall through */

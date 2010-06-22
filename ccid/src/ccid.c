@@ -146,7 +146,7 @@ int ccid_initialize(int reader_id, const char *cdriver, int verbose)
     return SC_SUCCESS;
 }
 
-void ccid_shutdown(void)
+void ccid_shutdown()
 {
     int i;
     for (i = 0; i < sizeof *card_in_slot; i++) {
@@ -1050,11 +1050,14 @@ err:
     return r;
 }
 
+/* XXX calling sc_wait_for_event blocks all other threads, thats why it
+ * can't be used here... */
 static int
 get_RDR_to_PC_NotifySlotChange(RDR_to_PC_NotifySlotChange_t **out)
 {
     int i;
     int sc_result;
+    uint8_t oldmask;
     uint8_t changed [] = {
             CCID_SLOT1_CHANGED,
             CCID_SLOT2_CHANGED,
@@ -1078,19 +1081,46 @@ get_RDR_to_PC_NotifySlotChange(RDR_to_PC_NotifySlotChange_t **out)
 
     result->bMessageType = 0x50;
     result->bmSlotICCState = CCID_SLOTS_UNCHANGED;
+    oldmask = CCID_SLOTS_UNCHANGED;
 
     for (i = 0; i < reader->slot_count; i++) {
         sc_result = detect_card_presence(i);
         if (sc_result < 0) {
-            debug_sc_result(sc_result);
             sc_error(ctx, "Could not detect card presence, skipping slot %d.",
                     i);
+            debug_sc_result(sc_result);
+            continue;
+        }
+
+        if (sc_result & SC_SLOT_CARD_PRESENT)
+            oldmask |= present[i];
+        if (sc_result & SC_SLOT_CARD_CHANGED) {
+            sc_debug(ctx, "Card status changed in slot %d.", i);
+            result->bmSlotICCState |= changed[i];
+        }
+
+    }
+
+    sleep(10);
+
+    for (i = 0; i < reader->slot_count; i++) {
+        sc_result = detect_card_presence(i);
+        if (sc_result < 0) {
+            sc_error(ctx, "Could not detect card presence, skipping slot %d.",
+                    i);
+            debug_sc_result(sc_result);
             continue;
         }
 
         if (sc_result & SC_SLOT_CARD_PRESENT)
             result->bmSlotICCState |= present[i];
         if (sc_result & SC_SLOT_CARD_CHANGED) {
+            sc_debug(ctx, "Card status changed in slot %d.", i);
+            result->bmSlotICCState |= changed[i];
+        }
+
+        if ((oldmask & present[i]) != (result->bmSlotICCState & present[i])) {
+            sc_debug(ctx, "Card status changed in slot %d.", i);
             result->bmSlotICCState |= changed[i];
         }
     }
