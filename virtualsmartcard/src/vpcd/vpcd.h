@@ -45,15 +45,15 @@ int sendToVICC(uint16_t size, const char* buffer);
  */
 int recvFromVICC(char** buffer);
 
-int vicc_eject();
-int vicc_init();
-int vicc_exit();
+int vicc_eject(void);
+int vicc_init(void);
+int vicc_exit(void);
 int vicc_transmit(int apdu_len, const char *apdu, char **rapdu);
 int vicc_getatr(char** atr);
-int vicc_present();
-int vicc_poweron();
-int vicc_poweroff();
-int vicc_reset();
+int vicc_present(void);
+int vicc_poweron(void);
+int vicc_poweroff(void);
+int vicc_reset(void);
 
 #ifdef  __cplusplus
 }

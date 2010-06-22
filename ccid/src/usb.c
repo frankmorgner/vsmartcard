@@ -1142,7 +1142,7 @@ error:
     pthread_exit(0);
 }
 
-static void start_io ()
+static void start_io (void)
 {
     //int tmp;
 	sigset_t	allsig, oldsig;

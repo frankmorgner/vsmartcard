@@ -20,7 +20,7 @@ IO_Create_Channel(DWORD channelid)
 }
 
 RESPONSECODE
-IO_Close_Channel()
+IO_Close_Channel(void)
 {
     Log1(PCSC_LOG_DEBUG, "");
     RESPONSECODE r = IFD_Eject_ICC();
@@ -107,14 +107,14 @@ IFD_Power_ICC(DWORD a)
 }
 
 RESPONSECODE
-IFD_Swallow_ICC()
+IFD_Swallow_ICC(void)
 {
     Log1(PCSC_LOG_DEBUG, "");
     return IFD_NOT_SUPPORTED;
 }
 
 RESPONSECODE
-IFD_Eject_ICC()
+IFD_Eject_ICC(void)
 {
     if (vicc_eject() < 0) {
         return IFD_COMMUNICATION_ERROR;
@@ -123,7 +123,7 @@ IFD_Eject_ICC()
 }
 
 RESPONSECODE
-IFD_Confiscate_ICC()
+IFD_Confiscate_ICC(void)
 {
     Log1(PCSC_LOG_DEBUG, "");
     return IFD_NOT_SUPPORTED;
@@ -151,7 +151,7 @@ IFD_Transmit_to_ICC(SCARD_IO_HEADER SendPci, PUCHAR TxBuffer, DWORD TxLength,
 }
 
 RESPONSECODE
-IFD_Is_ICC_Present()
+IFD_Is_ICC_Present(void)
 {
     switch (vicc_present()) {
         case 0:  return IFD_ICC_NOT_PRESENT;
@@ -164,7 +164,7 @@ IFD_Is_ICC_Present()
 }
 
 RESPONSECODE
-IFD_Is_ICC_Absent()
+IFD_Is_ICC_Absent(void)
 {
     return IFD_Is_ICC_Present();
 }

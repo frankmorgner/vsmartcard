@@ -17,8 +17,8 @@ void checkSig(int signo);
 unsigned int read_from_device(unsigned char *inputBuffer);
 int transmit_to_pcsc(unsigned char *inputBuffer, unsigned int inputLength, unsigned char *outputBuffer, unsigned int *outputLength);
 void write_to_device(unsigned char *buffer, unsigned int msglength);
-void setup();
-void cleanup();
+void setup(void);
+void cleanup(void);
 void printHex(char *title, unsigned char *msg, unsigned int length); 
 
 #endif

@@ -155,7 +155,7 @@ int recvFromVICC(char** buffer) {
     return size;
 }
 
-int vicc_eject() {
+int vicc_eject(void) {
     if (client_sock > 0) {
         client_sock = close(client_sock);
         if (client_sock < 0) {
@@ -165,7 +165,7 @@ int vicc_eject() {
     return 0;
 }
 
-int vicc_init() {
+int vicc_init(void) {
     server_sock = opensock(VPCDPORT);
     if (server_sock < 0)
         return -1;
@@ -173,7 +173,7 @@ int vicc_init() {
     return 0;
 }
 
-int vicc_exit() {
+int vicc_exit(void) {
     if (server_sock > 0) {
         server_sock = close(server_sock);
         if (server_sock < 0) return -1;
@@ -188,7 +188,7 @@ int vicc_transmit(int apdu_len, const char *apdu, char **rapdu) {
     return recvFromVICC(rapdu);
 }
 
-int vicc_present() {
+int vicc_present(void) {
     if (client_sock > 0) return 1;
     else {
         /* Wait up to one microsecond. */
@@ -205,17 +205,17 @@ int vicc_getatr(char** atr) {
     return vicc_transmit(VPCD_CTRL_LEN, &i, atr);
 }
 
-int vicc_poweron() {
+int vicc_poweron(void) {
     char i = VPCD_CTRL_ON;
     return sendToVICC(VPCD_CTRL_LEN, &i);
 }
 
-int vicc_poweroff() {
+int vicc_poweroff(void) {
     char i = VPCD_CTRL_OFF;
     return sendToVICC(VPCD_CTRL_LEN, &i);
 }
 
-int vicc_reset() {
+int vicc_reset(void) {
     char i = VPCD_CTRL_RESET;
     return sendToVICC(VPCD_CTRL_LEN, &i);
 }

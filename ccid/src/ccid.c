@@ -146,7 +146,7 @@ int ccid_initialize(int reader_id, const char *cdriver, int verbose)
     return SC_SUCCESS;
 }
 
-void ccid_shutdown()
+void ccid_shutdown(void)
 {
     int i;
     for (i = 0; i < sizeof *card_in_slot; i++) {

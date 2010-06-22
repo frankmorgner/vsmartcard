@@ -87,7 +87,7 @@ char* perform_initialization(int num)
 }
 
 
-void setup() {
+void setup(void) {
 	/*setup environment, open device, set global filehandle*/
 	DWORD dwActiveProtocol;
    	LONG pcsc_result;
@@ -130,7 +130,7 @@ void printHex(char *title, unsigned char *msg, unsigned int length) {
 	printf("\n");
 }
 
-void cleanup() {
+void cleanup(void) {
 	int releaseContext;	
 	/*Power down card*/
 	SCardDisconnect(hcard, SCARD_UNPOWER_CARD);

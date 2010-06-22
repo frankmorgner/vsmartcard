@@ -266,7 +266,7 @@ struct hid_class_descriptor {
 } __attribute__ ((packed));
 
 int ccid_initialize(int reader_id, const char *cdriver, int verbose);
-void ccid_shutdown();
+void ccid_shutdown(void);
 
 int ccid_parse_bulkin(const __u8* inbuf, size_t inlen, __u8** outbuf);
 int ccid_parse_control(struct usb_ctrlrequest *setup, __u8 **outbuf);
