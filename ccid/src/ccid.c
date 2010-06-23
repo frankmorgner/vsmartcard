@@ -61,6 +61,7 @@ ccid_desc = {
     .dwMechanical           = __constant_cpu_to_le32(0),
     .dwFeatures             = __constant_cpu_to_le32(
                               0x2|      // Automatic parameter configuration based on ATR data
+                              0x4|      // Automatic activation of ICC on inserting
                               0x8|      // Automatic ICC voltage selection
                               0x10|     // Automatic ICC clock frequency change
                               0x20|     // Automatic baud rate change
@@ -99,11 +100,7 @@ detect_card_presence(int slot)
     if (slot >= sizeof *card_in_slot)
         return SC_ERROR_INVALID_ARGUMENTS;
 
-    if (card_in_slot[slot] && sc_card_valid(card_in_slot[slot])) {
-        sc_result = SC_SLOT_CARD_PRESENT;
-    } else {
-        sc_result = sc_detect_card_presence(reader, slot);
-    }
+    sc_result = sc_detect_card_presence(reader, slot);
 
     if (sc_result == 0
             && card_in_slot[slot]
@@ -249,8 +246,8 @@ static __u8 get_bStatus(int sc_result, __u8 bSlot)
     if (flags >= 0) {
         if (sc_result < 0) {
             if (flags & SC_SLOT_CARD_PRESENT) {
-                if (flags & SC_SLOT_CARD_CHANGED || (
-                            card_in_slot[bSlot]
+                if (flags & SC_SLOT_CARD_CHANGED
+                        || (card_in_slot[bSlot]
                             && !sc_card_valid(card_in_slot[bSlot]))) {
                     /*sc_debug(ctx, "error inactive");*/
                     result = CCID_BSTATUS_ERROR_INACTIVE;
@@ -270,7 +267,7 @@ static __u8 get_bStatus(int sc_result, __u8 bSlot)
                     /*sc_debug(ctx, "ok inactive");*/
                     result = CCID_BSTATUS_OK_INACTIVE;
                 } else {
-                    sc_debug(ctx, "ok active");
+                    /*sc_debug(ctx, "ok active");*/
                     result = CCID_BSTATUS_OK_ACTIVE;
                 }
             } else {

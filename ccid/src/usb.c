@@ -583,8 +583,9 @@ static int autoconfig ()
 	}
         if (!doint) {
             source_sink_intf.bNumEndpoints = 2;
+            // Automatic activation of ICC on inserting not supported
             // USB Wake up signaling not supported
-            ccid_desc.dwFeatures &= ~__constant_cpu_to_le32(0x100000);
+            ccid_desc.dwFeatures &= ~__constant_cpu_to_le32(0x4|0x100000);
         }
 	return 0;
 }
@@ -1533,9 +1534,23 @@ stall:
 
 static void signothing (int sig, siginfo_t *info, void *ptr)
 {
-	/* NOP */
-	if (verbose > 1)
-		fprintf (stderr, "%s %d\n", __FUNCTION__, sig);
+    unsigned int seconds = 10;
+    switch (sig) {
+        case SIGINT:
+            if (verbose > 1)
+                fprintf (stderr, "\nInitializing shutdown, "
+                        "waiting %d seconds for threads to terminate\n",
+                        seconds);
+            sleep(5);
+        case SIGQUIT:
+            fprintf (stderr, "Doing immediate shutdown.\n");
+            exit(1);
+            break;
+        default:
+            if (verbose > 1)
+                fprintf (stderr, "Received unhandled signal %u\n",
+                        sig);
+    }
 }
 
 static const char *speed (enum usb_device_speed s)
