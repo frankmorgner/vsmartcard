@@ -7,9 +7,6 @@
 
 #include "vpcd.h"
 
-/*
- * List of Defined Functions Available to IFD_Handler 1.0
- */
 RESPONSECODE
 IFDHCreateChannel (DWORD Lun, DWORD Channel)
 {
@@ -30,7 +27,7 @@ RESPONSECODE
 IFDHCloseChannel (DWORD Lun)
 {
     Log1(PCSC_LOG_DEBUG, "");
-    RESPONSECODE r = IFD_Eject_ICC();
+    RESPONSECODE r = vicc_eject();
     if (vicc_exit() < 0) return IFD_COMMUNICATION_ERROR;
 
     return r;
@@ -120,29 +117,6 @@ IFDHPowerICC (DWORD Lun, DWORD Action, PUCHAR Atr, PDWORD AtrLength)
     }
 
     return IFDHGetCapabilities (Lun, TAG_IFD_ATR, AtrLength, Atr);
-}
-
-RESPONSECODE
-IFD_Swallow_ICC(void)
-{
-    Log1(PCSC_LOG_DEBUG, "");
-    return IFD_NOT_SUPPORTED;
-}
-
-RESPONSECODE
-IFD_Eject_ICC(void)
-{
-    if (vicc_eject() < 0) {
-        return IFD_COMMUNICATION_ERROR;
-    }
-    return IFD_SUCCESS;
-}
-
-RESPONSECODE
-IFD_Confiscate_ICC(void)
-{
-    Log1(PCSC_LOG_DEBUG, "");
-    return IFD_NOT_SUPPORTED;
 }
 
 RESPONSECODE
