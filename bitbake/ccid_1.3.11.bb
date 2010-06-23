@@ -6,8 +6,9 @@ PR = "r0"
 DEPENDS = "virtual/libusb0 pcsc-lite"
 RDEPENDS = "pcsc-lite"
 
-SRC_URI = "http://alioth.debian.org/download.php/3300/ccid-${PV}.tar.bz2 \
-           file://ccid-1.3.13.patch;apply=yes"
+SRC_URI = "http://alioth.debian.org/download.php/3080/ccid-${PV}.tar.bz2 \
+           file://ccid-1.3.11.patch;apply=yes \
+          "
 
 inherit autotools
 
@@ -21,5 +22,5 @@ do_install_append () {
 FILES_${PN} += "${libdir}/pcsc/"
 FILES_${PN}-dbg += "${libdir}/pcsc/drivers/*/*/*/.debug"
 
-SRC_URI[md5sum] = "275360cb253299b763e1122adf847265"
-SRC_URI[sha256sum] = "f797b08874c1f9b2b4afe4ada8ef3400ce4da6bf965a24a6cf7f29d82cbf8c53"
+SRC_URI[md5sum] = "727dc7eb4d560f81fe70a766a96de970"
+SRC_URI[sha256sum] = "f7bf5a82b02aff7d709a45dcc6109105508625caf92e34da4140b7c84d498906"

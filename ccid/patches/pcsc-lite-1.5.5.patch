@@ -1,7 +1,7 @@
-Index: src/PCSC/reader.h.in
+Index: pcsc-lite-1.5.5/src/PCSC/reader.h.in
 ===================================================================
---- src/PCSC/reader.h.in	(Revision 4345)
-+++ src/PCSC/reader.h.in	(Arbeitskopie)
+--- pcsc-lite-1.5.5/src/PCSC/reader.h.in	(Revision 4345)
++++ pcsc-lite-1.5.5/src/PCSC/reader.h.in	(Arbeitskopie)
 @@ -118,6 +118,7 @@
  #define FEATURE_WRITE_DISPLAY            0x0F
  #define FEATURE_GET_KEY                  0x10

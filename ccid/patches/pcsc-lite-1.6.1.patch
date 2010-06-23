@@ -1,7 +1,7 @@
-Index: src/PCSC/reader.h.in
+Index: pcsc-lite-1.6.1/src/PCSC/reader.h.in
 ===================================================================
---- src/PCSC/reader.h.in	(Revision 4978)
-+++ src/PCSC/reader.h.in	(Arbeitskopie)
+--- pcsc-lite-1.6.1/src/PCSC/reader.h.in	(Revision 4978)
++++ pcsc-lite-1.6.1/src/PCSC/reader.h.in	(Arbeitskopie)
 @@ -121,6 +121,7 @@
  #define FEATURE_IFD_DISPLAY_PROPERTIES   0x11
  #define FEATURE_GET_TLV_PROPERTIES       0x12

@@ -1,7 +1,7 @@
-Index: src/ifdhandler.c
+Index: ccid-1.3.11/src/ifdhandler.c
 ===================================================================
---- src/ifdhandler.c	(Revision 4347)
-+++ src/ifdhandler.c	(Arbeitskopie)
+--- ccid-1.3.11/src/ifdhandler.c	(Revision 4347)
++++ ccid-1.3.11/src/ifdhandler.c	(Arbeitskopie)
 @@ -1266,6 +1266,16 @@
  			iBytesReturned += sizeof(PCSC_TLV_STRUCTURE);
  		}
@@ -63,10 +63,10 @@ Index: src/ifdhandler.c
  	if (IFD_SUCCESS != return_value)
  		*pdwBytesReturned = 0;
  
-Index: src/commands.c
+Index: ccid-1.3.11/src/commands.c
 ===================================================================
---- src/commands.c	(Revision 4347)
-+++ src/commands.c	(Arbeitskopie)
+--- ccid-1.3.11/src/commands.c	(Revision 4347)
++++ ccid-1.3.11/src/commands.c	(Arbeitskopie)
 @@ -68,7 +68,13 @@
  	unsigned int tx_length, unsigned char tx_buffer[], unsigned int *rx_length,
  	unsigned char rx_buffer[]);
@@ -242,10 +242,10 @@ Index: src/commands.c
 +	buffer[1] = (value >> 8) & 0xFF;
 +} /* i2w */
 +
-Index: src/commands.h
+Index: ccid-1.3.11/src/commands.h
 ===================================================================
---- src/commands.h	(Revision 4347)
-+++ src/commands.h	(Arbeitskopie)
+--- ccid-1.3.11/src/commands.h	(Revision 4347)
++++ ccid-1.3.11/src/commands.h	(Arbeitskopie)
 @@ -37,6 +37,14 @@
  	unsigned char TxBuffer[], unsigned int TxLength,
  	unsigned char RxBuffer[], unsigned int *RxLength);
@@ -263,8 +263,8 @@ Index: src/commands.h
  	unsigned char RxBuffer[], unsigned int *RxLength);
 Index: src/ccid.h
 ===================================================================
---- src/ccid.h	(Revision 4347)
-+++ src/ccid.h	(Arbeitskopie)
+--- ccid-1.3.11/src/ccid.h	(Revision 4347)
++++ ccid-1.3.11/src/ccid.h	(Arbeitskopie)
 @@ -137,8 +137,10 @@
  #define CCID_CLASS_EXCHANGE_MASK	0x00070000
  
@@ -278,10 +278,10 @@ Index: src/ccid.h
  
  /* See CCID specs ch. 4.2.1 */
  #define CCID_ICC_PRESENT_ACTIVE		0x00	/* 00 0000 00 */
-Index: src/ccid_ifdhandler.h
+Index: ccid-1.3.11/src/ccid_ifdhandler.h
 ===================================================================
---- src/ccid_ifdhandler.h	(Revision 4347)
-+++ src/ccid_ifdhandler.h	(Arbeitskopie)
+--- ccid-1.3.11/src/ccid_ifdhandler.h	(Revision 4347)
++++ ccid-1.3.11/src/ccid_ifdhandler.h	(Arbeitskopie)
 @@ -38,6 +38,8 @@
  #define IOCTL_FEATURE_IFD_PIN_PROPERTIES \
  	SCARD_CTL_CODE(FEATURE_IFD_PIN_PROPERTIES + CLASS2_IOCTL_MAGIC)

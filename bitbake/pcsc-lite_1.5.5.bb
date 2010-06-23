@@ -5,9 +5,10 @@ LICENSE = "BSD"
 DEPENDS = "hal"
 RDEPENDS_${PN} = "hal"
 
-SRC_URI = "https://alioth.debian.org/frs/download.php/3298/pcsc-lite-${PV}.tar.bz2 \
+SRC_URI = "https://alioth.debian.org/frs/download.php/3082/pcsc-lite-${PV}.tar.bz2 \
            file://pcscd.init \
-           file://pcsc-lite-1.6.1.patch;apply=yes"
+           file://pcsc-lite-1.5.5.patch;apply=yes \
+          "
 
 inherit autotools_stage update-rc.d
 
@@ -30,5 +31,5 @@ PACKAGES =+ "libpcsclite"
 
 FILES_libpcsclite = "${libdir}/libpcsclite.so.*"
 
-SRC_URI[md5sum] = "ed023be61feebfafce12e86075912695"
-SRC_URI[sha256sum] = "7094e8aefbf62f46fbcc2da11865a9730675cdceb0b3663f03a65ce65eedc91c"
+SRC_URI[md5sum] = "6707e967fc8bb398a5d1b1089d4dff63"
+SRC_URI[sha256sum] = "051de6f3c1deff9a9c6f72995f6b9d271a23fc8aea74737f1902cabf1a71ed26"
