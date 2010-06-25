@@ -23,7 +23,7 @@
 #include <opensc/asn1.h>
 #include <opensc/log.h>
 #include <opensc/opensc.h>
-#include <opensc/ui.h>
+#include <openssl/evp.h>
 #include <openssl/asn1t.h>
 #include <openssl/buffer.h>
 #include <openssl/err.h>
@@ -591,22 +591,21 @@ pace_reset_retry_counter(struct sm_ctx *ctx, sc_card_t *card,
         const char *new, size_t new_len)
 {
     sc_apdu_t apdu;
-    sc_ui_hints_t hints;
     char *p = NULL;
     int r;
 
     if (ask_for_secret && (!new || !new_len)) {
-        memset(&hints, 0, sizeof(hints));
-        hints.dialog_name = "ccid.PACE";
-        hints.card = card;
-        hints.prompt = NULL;
-        hints.obj_label = pace_secret_name(PACE_PIN);
-        hints.usage = SC_UI_USAGE_NEW_PIN;
-        r = sc_ui_get_pin(&hints, &p);
-        if (r < 0) {
-            sc_error(card->ctx, "Could not read new %s (%s).\n",
-                    hints.obj_label, sc_strerror(r));
-            return r;
+        p = malloc(MAX_PIN_LEN+1);
+        if (!p) {
+            sc_error(card->ctx, "Not enough memory for new PIN.\n");
+            return SC_ERROR_OUT_OF_MEMORY;
+        }
+        if (0 > EVP_read_pw_string_min(p,
+                    MIN_PIN_LEN, MAX_PIN_LEN+1,
+                    "Please enter your new PIN for modification", 0)) {
+            sc_error(card->ctx, "Could not read new PIN.\n");
+            free(p);
+            return SC_ERROR_INTERNAL;
         }
         new_len = strlen(p);
         new = p;
@@ -641,22 +640,27 @@ pace_reset_retry_counter(struct sm_ctx *ctx, sc_card_t *card,
 static PACE_SEC *
 get_psec(sc_card_t *card, const char *pin, size_t length_pin, enum s_type pin_id)
 {
-    sc_ui_hints_t hints;
     char *p = NULL;
     PACE_SEC *r;
     int sc_result;
+    char buf[32]; /* XXX max size of mrz */
 
     if (!length_pin || !pin) {
-        memset(&hints, 0, sizeof(hints));
-        hints.dialog_name = "ccid.PACE";
-        hints.card = card;
-        hints.prompt = NULL;
-        hints.obj_label = pace_secret_name(pin_id);
-        hints.usage = SC_UI_USAGE_OTHER;
-        sc_result = sc_ui_get_pin(&hints, &p);
-        if (sc_result < 0) {
+        if (0 > snprintf(buf, sizeof buf, "Please enter your %s",
+                    pace_secret_name(pin_id))) {
+            sc_error(card->ctx, "Could not create password prompt.\n");
+            return NULL;
+        }
+        p = malloc(MAX_MRZ_LEN);
+        if (!p) {
+            sc_error(card->ctx, "Not enough memory for %s.\n",
+                    pace_secret_name(pin_id));
+            return NULL;
+        }
+        if (0 > EVP_read_pw_string_min(p, 0, MAX_MRZ_LEN,
+                    "Please enter your new PIN for modification", 0)) {
             sc_error(card->ctx, "Could not read %s (%s).\n",
-                    pace_secret_name(pin_id), sc_strerror(sc_result));
+                    pace_secret_name(pin_id));
             return NULL;
         }
         length_pin = strlen(p);

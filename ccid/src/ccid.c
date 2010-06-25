@@ -23,7 +23,7 @@
 #include <stdio.h>
 #include <asm/byteorder.h>
 #include <opensc/opensc.h>
-#include <opensc/ui.h>
+#include <openssl/evp.h>
 #include <opensc/log.h>
 
 #include "ccid.h"
@@ -775,7 +775,6 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
     int sc_result, r;
     struct sc_pin_cmd_pin curr_pin, new_pin;
     sc_apdu_t apdu;
-    sc_ui_hints_t hints;
     const PC_to_RDR_Secure_t *request = (PC_to_RDR_Secure_t *) in;
     const __u8* abData = in + sizeof *request;
     size_t abDatalen = inlen - sizeof *request;
@@ -792,7 +791,6 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
     if (request->bMessageType != 0x69)
         sc_debug(ctx,  "warning: malformed PC_to_RDR_Secure");
 
-    memset(&hints, 0, sizeof(hints));
     memset(&curr_pin, 0, sizeof(curr_pin));
     memset(&new_pin, 0, sizeof(new_pin));
 
@@ -923,58 +921,42 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
             modify ? "bytes" : "system units");
 
     /* get the PIN */
-    hints.dialog_name = "ccid.PC_to_RDR_Secure";
-    hints.card = card_in_slot[request->bSlot];
-    if (bNumberMessage == CCID_PIN_MSG_DEFAULT
-            || bNumberMessage == CCID_PIN_MSG_REF
-            || bNumberMessage == CCID_PIN_NO_MSG) {
-        /* don't interprete bMsgIndex*, just use defaults */
-        if (verify)
-            hints.usage = SC_UI_USAGE_OTHER;
-        else
-            hints.usage = SC_UI_USAGE_CHANGE_PIN;
-    } else if (bNumberMessage == CCID_PIN_MSG1)
-        hints.usage = SC_UI_USAGE_OTHER;
-    else if (bNumberMessage == CCID_PIN_MSG2)
-        hints.usage = SC_UI_USAGE_NEW_PIN;
-    else {
-        sc_result = SC_ERROR_INVALID_ARGUMENTS;
-        goto err;
-    }
     if (verify) {
-        hints.prompt = "PIN Verification";
-        sc_result = sc_ui_get_pin(&hints, (char **) &curr_pin.data);
-    } else {
-        hints.prompt = "PIN Modification";
-        if (modify->bConfirmPIN & CCID_PIN_CONFIRM_NEW)
-            hints.flags |= SC_UI_PIN_RETYPE;
-        if (modify->bConfirmPIN & CCID_PIN_INSERT_OLD) {
-            sc_result = sc_ui_get_pin_pair(&hints, (char **) &curr_pin.data,
-                    (char **) &new_pin.data);
-        } else {
-            /* if only the new pin is requested, it is stored in curr_pin */
-            sc_result = sc_ui_get_pin(&hints, (char **) &curr_pin.data);
-        }
-    }
-    if (sc_result < 0)
-        goto err;
-
-    /* set and check length of PIN */
-    curr_pin.len = strlen((char *) curr_pin.data);
-    if ((curr_pin.max_length && curr_pin.len > curr_pin.max_length)
-            || curr_pin.len < curr_pin.min_length) {
-        sc_result = SC_ERROR_PIN_CODE_INCORRECT;
-        sc_error(ctx, "PIN request required a longer or shorter PIN");
-        goto err;
-    }
-    if (modify) {
-        new_pin.len = strlen((char *) new_pin.data);
-        if ((new_pin.max_length && new_pin.len > new_pin.max_length)
-                || new_pin.len < new_pin.min_length) {
-            sc_error(ctx, "PIN request required a longer or shorter PIN");
-            sc_result = SC_ERROR_PIN_CODE_INCORRECT;
+        if (0 > EVP_read_pw_string_min((char *) curr_pin.data,
+                    curr_pin.min_length, curr_pin.max_length,
+                    "Please enter your PIN for verification",
+                0)) {
+            sc_result = SC_ERROR_INTERNAL;
+            sc_error(ctx, "Could not read PIN.\n");
             goto err;
         }
+    } else {
+        if (modify->bConfirmPIN & CCID_PIN_INSERT_OLD) {
+            /* if only the new pin is requested, it is stored in curr_pin */
+            if (0 > EVP_read_pw_string_min((char *) curr_pin.data,
+                        curr_pin.min_length, curr_pin.max_length,
+                        "Please enter your current PIN for modification",
+                        0)) {
+                sc_result = SC_ERROR_INTERNAL;
+                sc_error(ctx, "Could not read current PIN.\n");
+                goto err;
+            }
+        }
+
+        if (0 > EVP_read_pw_string_min((char *) new_pin.data,
+                    new_pin.min_length, new_pin.max_length,
+                    "Please enter your new PIN for modification",
+                    modify->bConfirmPIN & CCID_PIN_CONFIRM_NEW)) {
+            sc_result = SC_ERROR_INTERNAL;
+            sc_error(ctx, "Could not read new PIN.\n");
+            goto err;
+        }
+    }
+
+    /* set length of PIN */
+    curr_pin.len = strlen((char *) curr_pin.data);
+    if (modify) {
+        new_pin.len = strlen((char *) new_pin.data);
     }
 
     /* Note: pin.offset and pin.length_offset are relative to the first

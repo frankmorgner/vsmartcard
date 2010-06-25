@@ -42,6 +42,9 @@ extern "C" {
 #define FID_EF_CARDACCESS 0x011C
 
 #define MAX_EF_CARDACCESS 2048
+#define MAX_PIN_LEN       6
+#define MIN_PIN_LEN       6
+#define MAX_MRZ_LEN       128
 
 int increment_ssc(struct pace_sm_ctx *psmctx);
 int decrement_ssc(struct pace_sm_ctx *psmctx);
