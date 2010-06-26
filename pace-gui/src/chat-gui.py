@@ -13,7 +13,7 @@ except:
 try:
     import pace
 except:
-    print "Could not import pace module, please install pyPACE" >> stderr
+    print >> sys.stderr, "Could not import pace module, please install pyPACE"
     sys.exit(1)
 
 CVC = "\x7F\x21\x82\x01\x41\x7F\x4E\x81\xFA\x5F\x29\x01\x00\x42\x0D\x5A\x5A\x44\x56\x43\x41\x41\x54\x41\x30\x30\x30\x33\x7F\x49\x4F\x06\x0A\x04\x00\x7F\x00\x07\x02\x02\x02\x02\x03\x86\x41\x04\x19\xD1\x75\x45\xD3\xFE\x0B\x34\x3E\x7E\xE2\xAE\x4E\x2B\xC9\x2D\x51\x35\x1C\xC1\x17\xA4\x7F\xA9\x51\x9A\xDB\x1E\x40\x5E\xE6\xB8\x12\x12\x80\xBC\xC2\xFF\xF0\x35\x7A\x19\x7D\xE7\x39\xA7\xFD\x2E\xF0\x22\x10\xEF\x34\x3C\xDB\xE7\x9E\xF9\x4B\x8E\x28\x59\x1B\xB9\x5F\x20\x0B\x5A\x5A\x44\x4B\x42\x32\x30\x30\x30\x30\x52\x7F\x4C\x12\x06\x09\x04\x00\x7F\x00\x07\x03\x01\x02\x02\x53\x05\x00\x03\x01\xDF\x04\x5F\x25\x06\x01\x00\x00\x02\x01\x07\x5F\x24\x06\x01\x00\x00\x03\x03\x01\x65\x5E\x73\x2D\x06\x09\x04\x00\x7F\x00\x07\x03\x01\x03\x01\x80\x20\x75\xE0\xC4\xAC\x36\xC2\x5A\x33\xAC\x0E\x9A\x75\xEB\x79\x2A\x72\xF3\x31\xA5\x1E\x28\x63\x4E\xCC\x2E\xD6\x2E\x54\xF3\xC6\x93\xDA\x73\x2D\x06\x09\x04\x00\x7F\x00\x07\x03\x01\x03\x02\x80\x20\x18\x12\x65\x74\x49\xFC\xF1\xD3\xDA\xD8\x3D\x13\x14\x29\x17\x5C\x61\x8B\x21\xBA\xF0\xAF\x44\xAC\xE3\x8C\xB2\xC1\x2C\xEB\x2A\x56\x5F\x37\x40\x54\x0F\x85\x09\x12\xAB\xD3\x51\xF8\xF5\x56\x9B\x53\x4A\x5C\x8F\x64\x54\x5B\x51\xA7\x34\x70\xBE\x5A\xD2\x89\xC1\x9A\x5E\x13\x52\x53\xD3\xBB\x15\x52\x26\x21\x7B\x41\xE7\xF0\x68\xB3\x52\x3F\x3A\x63\x92\x22\xAF\x2B\x62\x8C\x39\x7D\x4F\xD4\x02\x1E\xDE\x00\xDC"
@@ -92,8 +92,8 @@ class CertificateDescriptionWindow(gtk.Window):
         self.vb = gtk.VBox(False, 5)
 
         #Instruction label at the top of the window
-        lblInstruction = gtk.Label(u"Informationen über den Dienst")
-        lblInstruction.modify_font(pango.FontDescription("sans 18"))
+        lblInstruction = gtk.Label("Dienstanbieter")
+        lblInstruction.modify_font(pango.FontDescription("sans 14"))
         lblInstruction.set_alignment(0.5, 0.0)
         self.vb.pack_start(lblInstruction, False, False, 10)
 
@@ -102,7 +102,7 @@ class CertificateDescriptionWindow(gtk.Window):
             lbl = gtk.Label(s)
             lbl.set_alignment(0.0, 0.0)
             lbl.set_line_wrap(True)
-            lbl.modify_font(pango.FontDescription("sans 14"))
+            lbl.modify_font(pango.FontDescription("bold"))
             self.vb.pack_start(lbl, False, False, 2)
 
         #Add two buttons at the bottom of the window
@@ -151,8 +151,8 @@ class MainWindow(gtk.Window):
         self.vb = gtk.VBox(False, 5)
 
         #Instruction label at the top of the window
-        lblInstruction = gtk.Label("Zugriffsrechte des Dienstes")
-        lblInstruction.modify_font(pango.FontDescription("sans 18"))
+        lblInstruction = gtk.Label("Zugriffsrechte")
+        lblInstruction.modify_font(pango.FontDescription("bold sans 14"))
         lblInstruction.set_alignment(0.5, 0.0)
         self.vb.pack_start(lblInstruction, True, True, 10)
 
@@ -202,7 +202,7 @@ class customCheckButton(object):
         self.lbl = gtk.Label(label)
         self.lbl.set_alignment(0.0, 0.5)
         self.lbl.set_padding(20, 0)
-        self.lbl.modify_font(pango.FontDescription("sans 16"))
+        self.lbl.modify_font(pango.FontDescription("bold"))
 
         #...and a checkbox on the right side of the label
         self.idx = index
