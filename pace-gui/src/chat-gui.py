@@ -69,69 +69,103 @@ def countBits(bitstring):
                 numbits += 1
     return numbits
 
-class CertificateDescriptionWindow(gtk.Window):
+class MokoWindow(gtk.Window):
+    """
+    Base class for all our dialogues. It's a simple gtk.Window, with a title at
+    the top and to buttons at the bottom. In the middle there is a vBox where
+    we can put custom stuff for each dialoge.
+    All the dialoges are stored as a double-linked list, so the navigation from
+    one window to another is easy
+    """
+
+    def __init__(self, title, predecessor, successor):
+        super(MokoWindow, self).__init__()
+
+        self.title_str = title
+        self.predecessor = predecessor
+        self.successor = successor
+
+        assert(isinstance(self.title_str, basestring))
+
+        self.connect("destroy", gtk.main_quit)
+        self.set_default_size(480, 640) #Display resolution of the OpenMoko
+
+        #Main VBox, which consists of the title, the body, and the buttons
+        #The size of the elements is inhomogenous and the spacing between elements is 5 pixel
+        self.__vb = gtk.VBox(False, 5)
+        self.add(self.__vb)
+
+        #Title label at the top of the window
+        lblTitle = gtk.Label(self.title_str)
+        lblTitle.modify_font(pango.FontDescription("sans 14"))
+        lblTitle.set_alignment(0.5, 0.0)
+        self.__vb.pack_start(lblTitle, False, False)
+
+        #Body VBox for custom widgets
+        self.body = gtk.VBox(False)
+        #Add a scrollbar in case we must display lots of information
+        #Only use a vertical spacebar, not a horizontal one
+        scrolled_window = gtk.ScrolledWindow()
+        scrolled_window.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
+        scrolled_window.set_shadow_type(gtk.SHADOW_ETCHED_OUT)
+        self.__vb.pack_start(scrolled_window)
+        scrolled_window.add_with_viewport(self.body)
+
+        #Add two buttons at the bottom of the window
+        hbox = gtk.HBox(True, 5)
+        btnBack = gtk.Button(stock="gtk-go-back")
+        btnBack.set_size_request(150, 75)
+        btnBack.connect("clicked", self.btnBack_clicked, None)
+        hbox.pack_start(btnBack, True, True)
+        btnForward = gtk.Button(stock="gtk-go-forward")
+        btnForward.set_size_request(150, 75)
+        btnForward.connect("clicked", self.btnForward_clicked, None)
+        hbox.pack_start(btnForward, True, True)
+        self.__vb.pack_start(hbox, False, False)
+
+    def btnBack_clicked(self, widget, data=None):
+        if self.predecessor == None:
+            gtk.main_quit()
+        else:
+            self.hide()
+            self.predecessor.show()
+#        raise NotImplementedError("Please implement this method in a subclass")
+
+    def btnForward_clicked(self, widget, data=None):
+        if self.successor == None:
+            pass
+        else:
+            self.hide()
+            self.successor.show_all()
+#        raise NotImplementedError("Please implement this method in a subclass")
+
+class CertificateDescriptionWindow(MokoWindow):
 
     def __init__(self, description):
-        super(CertificateDescriptionWindow, self).__init__()
+        super(CertificateDescriptionWindow, self).__init__("Dienstanbieter", None, None)
 
         self.description = description
         self.terms_str = pace.get_termsOfUsage(self.description)
-        self.terms_array = self.terms_str.split("\n")
+        self.terms_array = self.terms_str.split("\r\n")
+        print self.terms_array
 
         self.successor = MainWindow(binchat, self) #FIXME: Get rid of global var
 
-        self.connect("destroy", gtk.main_quit)
-        self.set_default_size(480, 640)
-
-        #Add a scrollbar if we must display lots of information
-        self.scrolled_window = gtk.ScrolledWindow()
-        self.scrolled_window.set_policy(gtk.POLICY_AUTOMATIC,
-                gtk.POLICY_AUTOMATIC)
-        self.add(self.scrolled_window)
-
-        self.vb = gtk.VBox(False, 2)
-
-        #Instruction label at the top of the window
-        lblInstruction = gtk.Label("Dienstanbieter")
-        lblInstruction.modify_font(pango.FontDescription("sans 14"))
-        lblInstruction.set_alignment(0.5, 0.0)
-        self.vb.pack_start(lblInstruction, False, False, 5)
-
         for s in self.terms_array:
-            s = s.replace(", ", "\n")
+            s = s.replace(", ", "\n").strip()
             lbl = gtk.Label(s)
             lbl.set_alignment(0.0, 0.0)
             lbl.set_line_wrap(True)
             lbl.modify_font(pango.FontDescription("bold"))
             lbl.set_width_chars(60)
-            self.vb.pack_start(lbl, True, True, 2)
+            self.body.pack_start(lbl, False, False, 5)
 
-        #Add two buttons at the bottom of the window
-        hbox = gtk.HBox(True)
-        btnCancel = gtk.Button(stock="gtk-go-back")
-        btnCancel.set_size_request(200, 100)
-        btnCancel.connect("clicked", self.cancel_clicked, None)
-        hbox.pack_start(btnCancel, False, False)
-        btnOK = gtk.Button(stock="gtk-go-forward")
-        btnOK.set_size_request(200, 100)
-        btnOK.connect("clicked", self.okay_clicked, None)
-        hbox.pack_start(btnOK, False, False)
-        self.vb.pack_start(hbox, False, False)
-
-        self.scrolled_window.add_with_viewport(self.vb)
         self.show_all()
 
-    def cancel_clicked(self, widget, data=None):
-        pass
-
-    def okay_clicked(self, widget, data=None):
-        self.hide()
-        self.successor.show_all()
-
-class MainWindow(gtk.Window):
+class MainWindow(MokoWindow):
 
     def __init__(self, chat, predecessor):
-        super(MainWindow, self).__init__()
+        super(MainWindow, self).__init__("Zugriffsrechte", None, None)
 
         self.chat = chat
         self.predecessor = predecessor
@@ -141,23 +175,7 @@ class MainWindow(gtk.Window):
             self.rel_auth.append(ord(c))
         self.rel_auth_len = len(self.rel_auth)
 
-        self.connect("destroy", gtk.main_quit)
-        self.set_default_size(480, 640)
         self.access_rights = []
-
-        #Add a scrollbar if we must display lots of access rights
-        self.scrolled_window = gtk.ScrolledWindow()
-        self.scrolled_window.set_policy(gtk.POLICY_AUTOMATIC,
-                gtk.POLICY_AUTOMATIC)
-        self.add(self.scrolled_window)
-
-        self.vb = gtk.VBox(False, 5)
-
-        #Instruction label at the top of the window
-        lblInstruction = gtk.Label("Zugriffsrechte")
-        lblInstruction.modify_font(pango.FontDescription("bold sans 14"))
-        lblInstruction.set_alignment(0.5, 0.0)
-        self.vb.pack_start(lblInstruction, True, True, 10)
 
         #Extract the access rights from the CHAT and display them in the window
         j = 0
@@ -165,26 +183,12 @@ class MainWindow(gtk.Window):
             if (i % 8 == 0):
                 j += 1
             if self.rel_auth[self.rel_auth_len - j] & (1 << (i % 8)):
-                    chk = customCheckButton(at_chat_strings[i], i, self.vb)
+                    chk = customCheckButton(at_chat_strings[i], i, self.body)
                     self.access_rights.append(chk)
 
-        #Add two buttons at the bottom of the window
-        hbox = gtk.HBox(True, 5)
-        btnCancel = gtk.Button(stock="gtk-go-back")
-        btnCancel.connect("clicked", self.cancel_clicked, None)
-        btnCancel.set_size_request(200, 100)
-        hbox.pack_start(btnCancel, False, False)
-        btnOK = gtk.Button(stock="gtk-go-forward")
-        btnOK.set_size_request(200, 100)
-        btnOK.connect("clicked", self.okay_clicked, None)
-        hbox.pack_start(btnOK, False, False)
-        self.vb.pack_start(hbox)
-
-        #Display everything
-        self.scrolled_window.add_with_viewport(self.vb)
 #        self.show_all()
 
-    def okay_clicked(self, widget, data=None):
+    def btnForward_clicked(self, widget, data=None):
         """ Check wether any access right have been deselected and modify the
             CHAT accordingly """
 
@@ -192,10 +196,6 @@ class MainWindow(gtk.Window):
             if not right.is_active():
                 idx = right.idx
                 self.chat_array[len(self.chat) - 1 - idx / 8] ^= (1 << (idx % 8))
-
-    def cancel_clicked(self, widget, data=None):
-        self.hide()
-        self.predecessor.show_all()
 
 class customCheckButton(object):
     """This class provides a custom version of gtk.CheckButton.
@@ -235,7 +235,7 @@ if __name__ == "__main__":
 
     desc = pace.d2i_CVC_CERTIFICATE_DESCRIPTION(DESCRIPTION)
     desc_txt = pace.get_termsOfUsage(desc)
-    print desc_txt
+#    print desc_txt
 
 #    w = MainWindow(binchat)
     w = CertificateDescriptionWindow(desc)
