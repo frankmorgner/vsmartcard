@@ -21,44 +21,44 @@ CVC = "\x7F\x21\x82\x01\x41\x7F\x4E\x81\xFA\x5F\x29\x01\x00\x42\x0D\x5A\x5A\x44\
 DESCRIPTION = "\x30\x82\x01\x90\x06\x0A\x04\x00\x7F\x00\x07\x03\x01\x03\x01\x01\xA1\x16\x0C\x14\x42\x75\x6E\x64\x65\x73\x64\x72\x75\x63\x6B\x65\x72\x65\x69\x20\x47\x6D\x62\x48\xA2\x24\x13\x22\x68\x74\x74\x70\x3A\x2F\x2F\x77\x77\x77\x2E\x62\x75\x6E\x64\x65\x73\x64\x72\x75\x63\x6B\x65\x72\x65\x69\x2E\x64\x65\x2F\x64\x76\x63\x61\xA3\x18\x0C\x16\x44\x65\x75\x74\x73\x63\x68\x65\x20\x4B\x72\x65\x64\x69\x74\x62\x61\x6E\x6B\x20\x41\x47\xA4\x13\x13\x11\x68\x74\x74\x70\x3A\x2F\x2F\x77\x77\x77\x2E\x64\x6B\x62\x2E\x64\x65\xA5\x82\x01\x13\x0C\x82\x01\x0F\x54\x61\x75\x62\x65\x6E\x73\x74\x72\x2E\x20\x37\x2D\x39\x0D\x0A\x31\x30\x31\x31\x37\x20\x42\x65\x72\x6C\x69\x6E\x0D\x0A\x69\x6E\x66\x6F\x40\x64\x6B\x62\x2E\x64\x65\x0D\x0A\x45\x72\xC3\xB6\x66\x66\x6E\x75\x6E\x67\x20\x65\x69\x6E\x65\x73\x20\x4B\x6F\x6E\x74\x6F\x73\x0D\x0A\x42\x65\x72\x6C\x69\x6E\x65\x72\x20\x42\x65\x61\x75\x66\x74\x72\x61\x67\x74\x65\x72\x20\x66\xC3\xBC\x72\x20\x44\x61\x74\x65\x6E\x73\x63\x68\x75\x74\x7A\x20\x75\x6E\x64\x20\x49\x6E\x66\x6F\x72\x6D\x61\x74\x69\x6F\x6E\x73\x66\x72\x65\x69\x68\x65\x69\x74\x2C\x20\x41\x6E\x20\x64\x65\x72\x20\x55\x72\x61\x6E\x69\x61\x20\x34\x2D\x31\x30\x2C\x20\x31\x30\x37\x38\x37\x20\x42\x65\x72\x6C\x69\x6E\x2C\x20\x30\x33\x30\x2F\x31\x33\x20\x38\x38\x39\x2D\x30\x2C\x20\x6D\x61\x69\x6C\x62\x6F\x78\x40\x64\x61\x74\x65\x6E\x73\x63\x68\x75\x74\x7A\x2D\x62\x65\x72\x6C\x69\x6E\x2E\x64\x65\x2C\x20\x68\x74\x74\x70\x3A\x2F\x2F\x77\x77\x77\x2E\x64\x61\x74\x65\x6E\x73\x63\x68\x75\x74\x7A\x2D\x62\x65\x72\x6C\x69\x6E\x2E\x64\x65\x0D\x0A\x45\x72\xC3\xB6\x66\x66\x6E\x75\x6E\x67\x20\x65\x69\x6E\x65\x73\x20\x4B\x6F\x6E\x74\x6F\x73\x0D\x0A"
 
 at_chat_strings = [
-        "Age Verification",
+        "Altersverifikation", #"Age Verification",
         "Community ID Verification",
-        "Restrictied Identification",
-        "Privileged Terminal",
-        "CAN allowed",
+        "Pseudonymfunktion", #"Restrictied Identification",
+        "Priviligiertes Terminal", #"Privileged Terminal",
+        "Verwendung der CAN", #"CAN allowed",
         "PIN Managment",
-        "Install Certificate",
-        "Install Qualified Certificate",
-        "Read DG 1",
-        "Read DG 2",
-        "Read DG 3",
-        "Read DG 4",
-        "Read DG 5",
-        "Read DG 6",
-        "Read DG 7",
-        "Read DG 8",
-        "Read DG 9",
-        "Read DG 10",
-        "Read DG 11",
-        "Read DG 12",
-        "Read DG 13",
-        "Read DG 14",
-        "Read DG 15",
-        "Read DG 16",
-        "Read DG 17",
-        "Read DG 18",
-        "Read DG 19",
-        "Read DG 20",
-        "Read DG 21",
-        "RFU",
-        "RFU",
-        "RFU",
-        "RFU",
-        "Write DG 21",
-        "Write DG 20",
-        "Write DG 19",
-        "Write DG 18",
-        "Write DG 17"
+        "Zertifikat einspielen", #"Install Certificate",
+        "Qualifiziertes Zertifikat einspielen", #"Install Qualified Certificate",
+        "Dokumenttyp lesen", #"Read DG 1",
+        "Staat lesen", #"Read DG 2",
+        "Ablaufdatum lesen", #"Read DG 3",
+        "Vorname lesen", #"Read DG 4",
+        "Nachname lesen", #"Read DG 5",
+        u"Künstlername lesen", #"Read DG 6",
+        "Doktorgrad lesen", #"Read DG 7",
+        "Geburtsdatum lesen", #"Read DG 8",
+        "Geburtsort lesen", #"Read DG 9",
+        u"Ungültig", #"Read DG 10",
+        u"Ungültig", #"Read DG 11",
+        u"Ungültig", #"Read DG 12",
+        u"Ungültig", #"Read DG 13",
+        u"Ungültig", #"Read DG 14",
+        u"Ungültig", #"Read DG 15",
+        u"Ungültig", #"Read DG 16",
+        "Adresse lesen", #"Read DG 17",
+        u"Gemeindeschlüssel lesen", #"Read DG 18",
+        u"Ungültig", #"Read DG 19",
+        u"Ungültig", #"Read DG 20",
+        u"Ungültig", #"Read DG 21",
+        u"Ungültig", #"RFU",
+        u"Ungültig", #"RFU",
+        u"Ungültig", #"RFU",
+        u"Ungültig", #"RFU",
+        u"Ungültig", #"Write DG 21",
+        u"Ungültig", #"Write DG 20",
+        u"Ungültig", #"Write DG 19",
+        u"Gemeindeschlüssel schreiben", #"Write DG 18",
+        u"Adresse schreiben", #"Write DG 17"
 ]
 
 def countBits(bitstring):
@@ -89,13 +89,13 @@ class CertificateDescriptionWindow(gtk.Window):
                 gtk.POLICY_AUTOMATIC)
         self.add(self.scrolled_window)
 
-        self.vb = gtk.VBox(False, 5)
+        self.vb = gtk.VBox(False, 2)
 
         #Instruction label at the top of the window
         lblInstruction = gtk.Label("Dienstanbieter")
         lblInstruction.modify_font(pango.FontDescription("sans 14"))
         lblInstruction.set_alignment(0.5, 0.0)
-        self.vb.pack_start(lblInstruction, False, False, 10)
+        self.vb.pack_start(lblInstruction, False, False, 5)
 
         for s in self.terms_array:
             s = s.replace(", ", "\n")
@@ -103,17 +103,20 @@ class CertificateDescriptionWindow(gtk.Window):
             lbl.set_alignment(0.0, 0.0)
             lbl.set_line_wrap(True)
             lbl.modify_font(pango.FontDescription("bold"))
-            self.vb.pack_start(lbl, False, False, 2)
+            lbl.set_width_chars(60)
+            self.vb.pack_start(lbl, True, True, 2)
 
         #Add two buttons at the bottom of the window
         hbox = gtk.HBox(True)
         btnCancel = gtk.Button(stock="gtk-go-back")
+        btnCancel.set_size_request(200, 100)
         btnCancel.connect("clicked", self.cancel_clicked, None)
-        hbox.pack_start(btnCancel)
+        hbox.pack_start(btnCancel, False, False)
         btnOK = gtk.Button(stock="gtk-go-forward")
+        btnOK.set_size_request(200, 100)
         btnOK.connect("clicked", self.okay_clicked, None)
-        hbox.pack_start(btnOK)
-        self.vb.pack_start(hbox)
+        hbox.pack_start(btnOK, False, False)
+        self.vb.pack_start(hbox, False, False)
 
         self.scrolled_window.add_with_viewport(self.vb)
         self.show_all()
@@ -166,13 +169,15 @@ class MainWindow(gtk.Window):
                     self.access_rights.append(chk)
 
         #Add two buttons at the bottom of the window
-        hbox = gtk.HBox(True)
+        hbox = gtk.HBox(True, 5)
         btnCancel = gtk.Button(stock="gtk-go-back")
         btnCancel.connect("clicked", self.cancel_clicked, None)
-        hbox.pack_start(btnCancel)
+        btnCancel.set_size_request(200, 100)
+        hbox.pack_start(btnCancel, False, False)
         btnOK = gtk.Button(stock="gtk-go-forward")
+        btnOK.set_size_request(200, 100)
         btnOK.connect("clicked", self.okay_clicked, None)
-        hbox.pack_start(btnOK)
+        hbox.pack_start(btnOK, False, False)
         self.vb.pack_start(hbox)
 
         #Display everything
