@@ -20,7 +20,7 @@ from pinpad_globals import *
 
 at_chat_strings = [
         "Altersverifikation", #"Age Verification",
-        "Community ID Verification",
+        "Gemeindeschlüssel Verifikation", #Community ID Verification
         "Pseudonymfunktion", #"Restrictied Identification",
         "Priviligiertes Terminal", #"Privileged Terminal",
         "Verwendung der CAN", #"CAN allowed",
@@ -59,14 +59,6 @@ at_chat_strings = [
         u"Adresse schreiben", #"Write DG 17"
 ]
 
-def countBits(bitstring):
-    numbits = 0
-    for c in bitstring:
-        for i in range(8):
-            if ord(c) & 1 << i:
-                numbits += 1
-    return numbits
-
 class MokoWindow(gtk.Window):
     """
     Base class for all our dialogues. It's a simple gtk.Window, with a title at
@@ -76,18 +68,17 @@ class MokoWindow(gtk.Window):
     one window to another is easy
     """
 
-    def __init__(self, title, predecessor, successor):
+    def __init__(self, title, predecessor):
         super(MokoWindow, self).__init__()
 
         self.title_str = title
         self.predecessor = predecessor
-        self.successor = successor
 
         assert(isinstance(self.title_str, basestring))
 
         self.connect("destroy", gtk.main_quit)
         self.set_default_size(480, 640) #Display resolution of the OpenMoko
-        self.set_resizable(False)
+        #self.set_resizable(False)
 
         #Main VBox, which consists of the title, the body, and the buttons
         #The size of the elements is inhomogenous and the spacing between elements is 5 pixel
@@ -140,45 +131,49 @@ class MokoWindow(gtk.Window):
 
 class CertificateDescriptionWindow(MokoWindow):
 
-    def __init__(self, description):
-        super(CertificateDescriptionWindow, self).__init__("Dienstanbieter", None, None)
+    def __init__(self, binDescription, binCert):
+        super(CertificateDescriptionWindow, self).__init__("Dienstanbieter", None)
 
-        self.description = description
-        self.terms_str = pace.get_termsOfUsage(self.description)
+        #binDesciption contains the Certificate Description as a octet string
+        #We extract the terms of usage and display them
+        desc = pace.d2i_CVC_CERTIFICATE_DESCRIPTION(binDescription)
+        self.terms_str = pace.get_termsOfUsage(desc)
         self.terms_array = self.terms_str.split("\r\n")
-        print self.terms_array
 
-        self.successor = MainWindow(binchat, self) #FIXME: Get rid of global var
+        self.successor = CVCWindow(binCert, self)
 
         for s in self.terms_array:
             s = s.replace(", ", "\n").strip()
             lbl = gtk.Label(s)
             lbl.set_alignment(0.0, 0.0)
             lbl.set_width_chars(60)
-#            lbl.set_line_wrap(True)
+#            lbl.set_line_wrap(True) #FIXME: Doesn't work on the Moko
             lbl.modify_font(pango.FontDescription("bold"))
             self.body.pack_start(gtk.HSeparator())
             self.body.pack_start(lbl, False, False, 2)
 
         self.show_all()
 
-class MainWindow(MokoWindow):
+class CVCWindow(MokoWindow):
 
-    def __init__(self, chat, predecessor):
-        super(MainWindow, self).__init__("Zugriffsrechte", None, None)
+    def __init__(self, binCert, predecessor):
+        super(CVCWindow, self).__init__("Zugriffsrechte", None)
 
-        self.chat = chat
         self.predecessor = predecessor
-        self.successor = PinpadWindow(self)
+#        self.successor = PinpadWindow(self)
 
+        #Convert the binary certificate to the internal representation and
+        #extract the relative authorization from the chat
+        cvc = pace.d2i_CV_CERT(binCert)
+        chat = pace.cvc_get_chat(cvc)
+        self.chat = pace.get_binary_chat(chat)
         self.rel_auth = []
         for c in self.chat:
             self.rel_auth.append(ord(c))
         self.rel_auth_len = len(self.rel_auth)
 
-        self.access_rights = []
-
         #Extract the access rights from the CHAT and display them in the window
+        self.access_rights = []
         j = 0
         for i in range((self.rel_auth_len - 1) * 8 - 2):
             if (i % 8 == 0):
@@ -198,7 +193,7 @@ class MainWindow(MokoWindow):
                 idx = right.idx
                 self.chat_array[len(self.chat) - 1 - idx / 8] ^= (1 << (idx % 8))
 
-        #super(MainWindow, self).btnForward_clicked(widget, data)
+        #super(CVCWindow, self).btnForward_clicked(widget, data)
         self.hide()
         PinpadGTK()
 
@@ -229,39 +224,7 @@ class customCheckButton(object):
 
     def is_active(self):
         return self.chk.get_active()
-"""
-class PinpadWindow(MokoWindow):
 
-    def __init__(self, predecessor):
-        super(PinpadWindow, self).__init__("Bitte PIN eingeben", predecessor, None)
-
-        self.body.pack_start(gtk.HSeparator())
-        #This textfield is used to display the number of digits entered
-        txtDisplay = gtk.Entry(10)
-        txtDisplay.set_visibility(False)
-        txtDisplay.set_alignment(0.5)
-        txtDisplay.set_editable(False)
-        self.body.pack_start(txtDisplay, True, True, 5)
-        self.body.pack_start(gtk.HSeparator())
-
-        #Status label that indicates whether or not the card is in the field of
-        #the reader
-        #The label is updated by a thread that polls the reader for the ATR/ATS
-        lblCardStatus = gtk.Label("Ausweis nicht gefunden")
-        self.body.pack_start(lblCardStatus)
-
-        #This table is used to arrange the buttons that make up our pinpad
-        grid = gtk.Table(4, 3, True)
-        self.body.pack_start(grid)
-        for i in range(12):
-            if i == 9: #Del
-                pass
-            elif i == 11:  #Enter
-                pass
-            else:
-                btn = gtk.Button(str(i))
-                #grid.pack_start(btn, False, False)
-"""
 class PinpadGTK:
     """This a simple GTK based GUI to enter a PIN"""
 
@@ -485,17 +448,5 @@ class cardChecker(Thread):
         self._paused.clear()
 
 if __name__ == "__main__":
-    cvc = pace.d2i_CV_CERT(TEST_CVC)
-    chat = pace.cvc_get_chat(cvc)
-#    pace.cv_chat_dump(chat)
-    binchat = pace.get_binary_chat(chat)
-#    print "%r" % binchat
-#    print "%d Bits set in CHAT" % countBits(binchat)
-
-    desc = pace.d2i_CVC_CERTIFICATE_DESCRIPTION(TEST_DESCRIPTION)
-    desc_txt = pace.get_termsOfUsage(desc)
-#    print desc_txt
-
-#    w = MainWindow(binchat)
-    w = CertificateDescriptionWindow(desc)
+    CertificateDescriptionWindow(TEST_DESCRIPTION, TEST_CVC)
     gtk.main()
