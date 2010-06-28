@@ -1,22 +1,267 @@
 #!/usr/bin/env python
+# coding: utf-8
 
-import sys, os
-import subprocess
+import sys, os, subprocess
 from threading import Thread, Event
 try:
     import pygtk
     pygtk.require("2.0")
-except:
-    pass
-try:
-    import gtk, gobject, glib
-    import pango
+    import gtk, gobject, glib, pango
 except:
     sys.exit(1)
 
-#glade_dir is set by the build system
+try:
+    import pace
+except:
+    print >> sys.stderr, "Could not import pace module, please install pyPACE"
+    sys.exit(1)
+
 from pinpad_globals import *
 
+at_chat_strings = [
+        "Altersverifikation", #"Age Verification",
+        "Community ID Verification",
+        "Pseudonymfunktion", #"Restrictied Identification",
+        "Priviligiertes Terminal", #"Privileged Terminal",
+        "Verwendung der CAN", #"CAN allowed",
+        "PIN Managment",
+        "Zertifikat einspielen", #"Install Certificate",
+        "Qualifiziertes Zertifikat einspielen", #"Install Qualified Certificate",
+        "Dokumenttyp lesen", #"Read DG 1",
+        "Staat lesen", #"Read DG 2",
+        "Ablaufdatum lesen", #"Read DG 3",
+        "Vorname lesen", #"Read DG 4",
+        "Nachname lesen", #"Read DG 5",
+        u"Künstlername lesen", #"Read DG 6",
+        "Doktorgrad lesen", #"Read DG 7",
+        "Geburtsdatum lesen", #"Read DG 8",
+        "Geburtsort lesen", #"Read DG 9",
+        u"Ungültig", #"Read DG 10",
+        u"Ungültig", #"Read DG 11",
+        u"Ungültig", #"Read DG 12",
+        u"Ungültig", #"Read DG 13",
+        u"Ungültig", #"Read DG 14",
+        u"Ungültig", #"Read DG 15",
+        u"Ungültig", #"Read DG 16",
+        "Adresse lesen", #"Read DG 17",
+        u"Gemeindeschlüssel lesen", #"Read DG 18",
+        u"Ungültig", #"Read DG 19",
+        u"Ungültig", #"Read DG 20",
+        u"Ungültig", #"Read DG 21",
+        u"Ungültig", #"RFU",
+        u"Ungültig", #"RFU",
+        u"Ungültig", #"RFU",
+        u"Ungültig", #"RFU",
+        u"Ungültig", #"Write DG 21",
+        u"Ungültig", #"Write DG 20",
+        u"Ungültig", #"Write DG 19",
+        u"Gemeindeschlüssel schreiben", #"Write DG 18",
+        u"Adresse schreiben", #"Write DG 17"
+]
+
+def countBits(bitstring):
+    numbits = 0
+    for c in bitstring:
+        for i in range(8):
+            if ord(c) & 1 << i:
+                numbits += 1
+    return numbits
+
+class MokoWindow(gtk.Window):
+    """
+    Base class for all our dialogues. It's a simple gtk.Window, with a title at
+    the top and to buttons at the bottom. In the middle there is a vBox where
+    we can put custom stuff for each dialoge.
+    All the dialoges are stored as a double-linked list, so the navigation from
+    one window to another is easy
+    """
+
+    def __init__(self, title, predecessor, successor):
+        super(MokoWindow, self).__init__()
+
+        self.title_str = title
+        self.predecessor = predecessor
+        self.successor = successor
+
+        assert(isinstance(self.title_str, basestring))
+
+        self.connect("destroy", gtk.main_quit)
+        self.set_default_size(480, 640) #Display resolution of the OpenMoko
+        self.set_resizable(False)
+
+        #Main VBox, which consists of the title, the body, and the buttons
+        #The size of the elements is inhomogenous and the spacing between elements is 5 pixel
+        self.__vb = gtk.VBox(False, 5)
+        self.add(self.__vb)
+
+        #Title label at the top of the window
+        lblTitle = gtk.Label(self.title_str)
+        lblTitle.modify_font(pango.FontDescription("sans 14"))
+        lblTitle.set_alignment(0.5, 0.0)
+        self.__vb.pack_start(lblTitle, False, False)
+
+        #Body VBox for custom widgets
+        self.body = gtk.VBox(False)
+        #Add a scrollbar in case we must display lots of information
+        #Only use a vertical spacebar, not a horizontal one
+        scrolled_window = gtk.ScrolledWindow()
+        scrolled_window.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
+        scrolled_window.set_shadow_type(gtk.SHADOW_ETCHED_OUT)
+        self.__vb.pack_start(scrolled_window)
+        scrolled_window.add_with_viewport(self.body)
+
+        #Add two buttons at the bottom of the window
+        hbox = gtk.HBox(True, 5)
+        btnBack = gtk.Button(stock="gtk-go-back")
+        btnBack.set_size_request(150, 75)
+        btnBack.connect("clicked", self.btnBack_clicked, None)
+        hbox.pack_start(btnBack, True, True)
+        btnForward = gtk.Button(stock="gtk-go-forward")
+        btnForward.set_size_request(150, 75)
+        btnForward.connect("clicked", self.btnForward_clicked, None)
+        hbox.pack_start(btnForward, True, True)
+        self.__vb.pack_start(hbox, False, False)
+
+    def btnBack_clicked(self, widget, data=None):
+        if self.predecessor == None:
+            gtk.main_quit()
+        else:
+            self.hide()
+            self.predecessor.show()
+#        raise NotImplementedError("Please implement this method in a subclass")
+
+    def btnForward_clicked(self, widget, data=None):
+        if self.successor == None:
+            pass
+        else:
+            self.hide()
+            self.successor.show_all()
+#        raise NotImplementedError("Please implement this method in a subclass")
+
+class CertificateDescriptionWindow(MokoWindow):
+
+    def __init__(self, description):
+        super(CertificateDescriptionWindow, self).__init__("Dienstanbieter", None, None)
+
+        self.description = description
+        self.terms_str = pace.get_termsOfUsage(self.description)
+        self.terms_array = self.terms_str.split("\r\n")
+        print self.terms_array
+
+        self.successor = MainWindow(binchat, self) #FIXME: Get rid of global var
+
+        for s in self.terms_array:
+            s = s.replace(", ", "\n").strip()
+            lbl = gtk.Label(s)
+            lbl.set_alignment(0.0, 0.0)
+            lbl.set_width_chars(60)
+#            lbl.set_line_wrap(True)
+            lbl.modify_font(pango.FontDescription("bold"))
+            self.body.pack_start(gtk.HSeparator())
+            self.body.pack_start(lbl, False, False, 2)
+
+        self.show_all()
+
+class MainWindow(MokoWindow):
+
+    def __init__(self, chat, predecessor):
+        super(MainWindow, self).__init__("Zugriffsrechte", None, None)
+
+        self.chat = chat
+        self.predecessor = predecessor
+        self.successor = PinpadWindow(self)
+
+        self.rel_auth = []
+        for c in self.chat:
+            self.rel_auth.append(ord(c))
+        self.rel_auth_len = len(self.rel_auth)
+
+        self.access_rights = []
+
+        #Extract the access rights from the CHAT and display them in the window
+        j = 0
+        for i in range((self.rel_auth_len - 1) * 8 - 2):
+            if (i % 8 == 0):
+                j += 1
+            if self.rel_auth[self.rel_auth_len - j] & (1 << (i % 8)):
+                    chk = customCheckButton(at_chat_strings[i], i, self.body)
+                    self.access_rights.append(chk)
+
+#        self.show_all()
+
+    def btnForward_clicked(self, widget, data=None):
+        """ Check wether any access right have been deselected and modify the
+            CHAT accordingly """
+
+        for right in self.access_rights:
+            if not right.is_active():
+                idx = right.idx
+                self.chat_array[len(self.chat) - 1 - idx / 8] ^= (1 << (idx % 8))
+
+        #super(MainWindow, self).btnForward_clicked(widget, data)
+        self.hide()
+        PinpadGTK()
+
+class customCheckButton(object):
+    """This class provides a custom version of gtk.CheckButton.
+       The main difference isthat the checkbox can be placed at the right
+       side of the label and that we can store an index with the button"""
+
+    def __init__(self, label, index, vbox):
+        #Setup a label with the name of the access right
+        self.lbl = gtk.Label(label)
+        self.lbl.set_alignment(0.0, 0.5)
+        self.lbl.set_padding(20, 0)
+        self.lbl.modify_font(pango.FontDescription("bold"))
+
+        #...and a checkbox on the right side of the label
+        self.idx = index
+        self.chk = gtk.CheckButton("")
+        self.chk.set_active(True)
+        self.chk.set_alignment(1.0, 0.5)
+
+        #Insert the label and the checkbox in the vbox and add a seperator
+        hbox = gtk.HBox()
+        hbox.pack_start(self.lbl, True, True)
+        hbox.pack_start(self.chk, False, False)
+        vbox.pack_start(gtk.HSeparator())
+        vbox.pack_start(hbox)
+
+    def is_active(self):
+        return self.chk.get_active()
+"""
+class PinpadWindow(MokoWindow):
+
+    def __init__(self, predecessor):
+        super(PinpadWindow, self).__init__("Bitte PIN eingeben", predecessor, None)
+
+        self.body.pack_start(gtk.HSeparator())
+        #This textfield is used to display the number of digits entered
+        txtDisplay = gtk.Entry(10)
+        txtDisplay.set_visibility(False)
+        txtDisplay.set_alignment(0.5)
+        txtDisplay.set_editable(False)
+        self.body.pack_start(txtDisplay, True, True, 5)
+        self.body.pack_start(gtk.HSeparator())
+
+        #Status label that indicates whether or not the card is in the field of
+        #the reader
+        #The label is updated by a thread that polls the reader for the ATR/ATS
+        lblCardStatus = gtk.Label("Ausweis nicht gefunden")
+        self.body.pack_start(lblCardStatus)
+
+        #This table is used to arrange the buttons that make up our pinpad
+        grid = gtk.Table(4, 3, True)
+        self.body.pack_start(grid)
+        for i in range(12):
+            if i == 9: #Del
+                pass
+            elif i == 11:  #Enter
+                pass
+            else:
+                btn = gtk.Button(str(i))
+                #grid.pack_start(btn, False, False)
+"""
 class PinpadGTK:
     """This a simple GTK based GUI to enter a PIN"""
 
@@ -33,9 +278,10 @@ class PinpadGTK:
         try:
             self.builder.add_from_file(self.gladefile)
         except glib.GError, e:
+            #If we encounter an exception at startup, we display a popup with
+            #the error message
             popup = gtk.MessageDialog(None, gtk.DIALOG_MODAL,
-                gtk.MESSAGE_WARNING, gtk.BUTTONS_OK,
-                e.message)
+                gtk.MESSAGE_WARNING, gtk.BUTTONS_OK, e.message)
             popup.run()
             popup.destroy()
             raise e
@@ -239,6 +485,17 @@ class cardChecker(Thread):
         self._paused.clear()
 
 if __name__ == "__main__":
-    gobject.threads_init()
-    pinpad = PinpadGTK()
+    cvc = pace.d2i_CV_CERT(TEST_CVC)
+    chat = pace.cvc_get_chat(cvc)
+#    pace.cv_chat_dump(chat)
+    binchat = pace.get_binary_chat(chat)
+#    print "%r" % binchat
+#    print "%d Bits set in CHAT" % countBits(binchat)
+
+    desc = pace.d2i_CVC_CERTIFICATE_DESCRIPTION(TEST_DESCRIPTION)
+    desc_txt = pace.get_termsOfUsage(desc)
+#    print desc_txt
+
+#    w = MainWindow(binchat)
+    w = CertificateDescriptionWindow(desc)
     gtk.main()
