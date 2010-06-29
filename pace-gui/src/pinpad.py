@@ -135,24 +135,102 @@ class CertificateDescriptionWindow(MokoWindow):
         super(CertificateDescriptionWindow, self).__init__("Dienstanbieter", None)
 
         #binDesciption contains the Certificate Description as a octet string
-        #We extract the terms of usage and display them
         desc = pace.d2i_CVC_CERTIFICATE_DESCRIPTION(binDescription)
-        self.terms_str = pace.get_termsOfUsage(desc)
-        self.terms_array = self.terms_str.split("\r\n")
 
         self.successor = CVCWindow(binCert, self)
 
-        for s in self.terms_array:
-            s = s.replace(", ", "\n").strip()
-            lbl = gtk.Label(s)
-            lbl.set_alignment(0.0, 0.0)
-            lbl.set_width_chars(60)
-#            lbl.set_line_wrap(True) #FIXME: Doesn't work on the Moko
-            lbl.modify_font(pango.FontDescription("bold"))
-            self.body.pack_start(gtk.HSeparator())
-            self.body.pack_start(lbl, False, False, 2)
+        #Display the validity period:
+        cvc = pace.d2i_CV_CERT(binCert) #FIXME
+        effective_date = self.formatDate(pace.get_effective_date(cvc))
+        expiration_date = self.formatDate(pace.get_expiration_date(cvc))
+        #validity_str = u"Gültig ab:\t" + effective_date + "\n"
+        #validity_str += u"Gültig bis:\t" + expiration_date
+        #lbl = gtk.Label(validity_str)
+        #self.body.pack_start(lbl)
+        self.addRow(u"Gültig ab:", effective_date)
+        self.addRow(u"Gültig bis:", expiration_date)
+
+        #Display issuer Name and possibly URL and subject name and possibly URL
+        issuerName = pace.get_issuer_name(desc)
+        issuerURL = pace.get_issuer_url(desc)
+        #lbl = gtk.Label(u"Zertifikatsaussteller:\t" + issuerName)
+        #self.body.pack_start(lbl)
+        self.addRow("Zertifikatsaussteller:", issuerName)
+        if issuerURL != None:
+            self.addRow("", issuerURL, True)
+        subjectName = pace.get_subject_name(desc)
+        subjectURL = pace.get_subject_url(desc)
+        #lbl = gtk.Label(u"Zertifikatsinhaber:\t" + subjectName)
+        #self.body.pack_start(lbl)
+        self.addRow("Zertifikatsinhaber:", subjectName)
+        if subjectURL != None:
+            self.addRow("", subjectURL, True)
+        self.set_focus(None)
+
+        #Extract, format and display the terms of usage
+        terms = pace.get_termsOfUsage(desc)
+        formated_terms = self.formatTOU(terms)
+        self.addRow("Beschreibung:", "")
+        lbl = gtk.Label(formated_terms)
+        lbl.set_width_chars(60)
+        lbl.set_alignment(0.2, 0.0)
+        #lbl.set_wrap_mode(gtk.WRAP_WORD)
+        lbl.set_line_wrap(True) #FIXME: Doesn't work on the Moko
+        self.body.pack_start(lbl)
 
         self.show_all()
+
+    def formatDate(self, date):
+        """Take a date string in the form that is included in CV Certificates
+           (YYMMDD) and return it in a better readable format (DD.MM.YYYY)"""
+
+        assert(isinstance(date, basestring))
+        assert(len(date) == 6)
+
+        yy = date[:2]
+        mm = date[2:4]
+        dd = date[4:]
+
+        #Implicit assumption: 2000 <= year < 3000
+        return dd + "." + mm + "." + "20" + yy
+
+    def formatTOU(self, terms):
+
+#        for s in self.terms_array:
+#            s = s.replace(", ", "\n").strip()
+#            lbl = gtk.Label(s)
+#            lbl.set_alignment(0.0, 0.0)
+#            lbl.set_width_chars(60)
+#            lbl.set_line_wrap(True) #FIXME: Doesn't work on the Moko
+#            lbl.modify_font(pango.FontDescription("bold"))
+#            self.body.pack_start(gtk.HSeparator())
+#            self.body.pack_start(lbl, False, False, 2)
+
+        return terms.replace(", ", "\r\n")
+
+    def addRow(self, title, text, url=False):
+        hbox = gtk.HBox()
+        lblTitle = gtk.Label(title)
+        lblTitle.set_width_chars(20)
+        lblTitle.set_alignment(0.0, 0.5)
+        lblTitle.modify_font(pango.FontDescription("bold"))
+        hbox.pack_start(lblTitle)
+        if url:
+            lblText = gtk.LinkButton(text, text)
+            if isinstance(lblText.child, gtk.Label):
+                lbl = lblText.child
+            else:
+                raise ValueError("Button does not have a label")
+            lbl.set_width_chars(40)
+
+        else:
+            lblText = gtk.Label(text)
+            lblText.set_width_chars(40)
+
+        lblText.set_alignment(0.0, 0.5)
+
+        hbox.pack_start(lblText)
+        self.body.pack_start(hbox)
 
 class CVCWindow(MokoWindow):
 
