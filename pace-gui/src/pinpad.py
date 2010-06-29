@@ -103,14 +103,25 @@ class MokoWindow(gtk.Window):
 
         #Add two buttons at the bottom of the window
         hbox = gtk.HBox(True, 5)
-        btnBack = gtk.Button(stock="gtk-go-back")
+        btnBack = gtk.Button(u"Zurück")
         btnBack.set_size_request(150, 75)
         btnBack.connect("clicked", self.btnBack_clicked, None)
+        if isinstance(btnBack.child, gtk.Label):
+            lbl = btnBack.child
+        else:
+            raise ValueError("Button does not have a label")
+        lbl.modify_font(pango.FontDescription("sans 12"))
         hbox.pack_start(btnBack, True, True)
-        btnForward = gtk.Button(stock="gtk-go-forward")
+        
+        btnForward = gtk.Button("Weiter")
         btnForward.set_size_request(150, 75)
         btnForward.connect("clicked", self.btnForward_clicked, None)
+        if isinstance(btnForward.child, gtk.Label):
+            lbl = btnForward.child
+        else:
+            raise ValueError("Button does not have a label")
         hbox.pack_start(btnForward, True, True)
+        lbl.modify_font(pango.FontDescription("sans 12"))
         self.__vb.pack_start(hbox, False, False)
 
     def btnBack_clicked(self, widget, data=None):
@@ -143,25 +154,17 @@ class CertificateDescriptionWindow(MokoWindow):
         cvc = pace.d2i_CV_CERT(binCert) #FIXME
         effective_date = self.formatDate(pace.get_effective_date(cvc))
         expiration_date = self.formatDate(pace.get_expiration_date(cvc))
-        #validity_str = u"Gültig ab:\t" + effective_date + "\n"
-        #validity_str += u"Gültig bis:\t" + expiration_date
-        #lbl = gtk.Label(validity_str)
-        #self.body.pack_start(lbl)
         self.addRow(u"Gültig ab:", effective_date)
         self.addRow(u"Gültig bis:", expiration_date)
 
         #Display issuer Name and possibly URL and subject name and possibly URL
         issuerName = pace.get_issuer_name(desc)
         issuerURL = pace.get_issuer_url(desc)
-        #lbl = gtk.Label(u"Zertifikatsaussteller:\t" + issuerName)
-        #self.body.pack_start(lbl)
         self.addRow("Zertifikatsaussteller:", issuerName)
         if issuerURL != None:
             self.addRow("", issuerURL, True)
         subjectName = pace.get_subject_name(desc)
         subjectURL = pace.get_subject_url(desc)
-        #lbl = gtk.Label(u"Zertifikatsinhaber:\t" + subjectName)
-        #self.body.pack_start(lbl)
         self.addRow("Zertifikatsinhaber:", subjectName)
         if subjectURL != None:
             self.addRow("", subjectURL, True)
@@ -170,13 +173,7 @@ class CertificateDescriptionWindow(MokoWindow):
         #Extract, format and display the terms of usage
         terms = pace.get_termsOfUsage(desc)
         formated_terms = self.formatTOU(terms)
-        self.addRow("Beschreibung:", "")
-        lbl = gtk.Label(formated_terms)
-        lbl.set_width_chars(60)
-        lbl.set_alignment(0.2, 0.0)
-        #lbl.set_wrap_mode(gtk.WRAP_WORD)
-        lbl.set_line_wrap(True) #FIXME: Doesn't work on the Moko
-        self.body.pack_start(lbl)
+        self.addRow("Beschreibung:", formated_terms)
 
         self.show_all()
 
@@ -189,7 +186,7 @@ class CertificateDescriptionWindow(MokoWindow):
 
         yy = date[:2]
         mm = date[2:4]
-        dd = date[4:]
+        dd = date[4:6] #Cut off trailing \0
 
         #Implicit assumption: 2000 <= year < 3000
         return dd + "." + mm + "." + "20" + yy
@@ -209,12 +206,16 @@ class CertificateDescriptionWindow(MokoWindow):
         return terms.replace(", ", "\r\n")
 
     def addRow(self, title, text, url=False):
+        if not url: #URL has no title
+            lblTitle = gtk.Label(title)
+            lblTitle.set_width_chars(20)
+            lblTitle.set_alignment(0.0, 0.5)
+            lblTitle.modify_font(pango.FontDescription("bold"))
+            self.body.pack_start(lblTitle)
         hbox = gtk.HBox()
-        lblTitle = gtk.Label(title)
-        lblTitle.set_width_chars(20)
-        lblTitle.set_alignment(0.0, 0.5)
-        lblTitle.modify_font(pango.FontDescription("bold"))
-        hbox.pack_start(lblTitle)
+        lbl = gtk.Label("") #Empty label for spacing
+        lbl.set_width_chars(3)
+        hbox.pack_start(lbl)
         if url:
             lblText = gtk.LinkButton(text, text)
             if isinstance(lblText.child, gtk.Label):
@@ -227,8 +228,7 @@ class CertificateDescriptionWindow(MokoWindow):
             lblText = gtk.Label(text)
             lblText.set_width_chars(40)
 
-        lblText.set_alignment(0.0, 0.5)
-
+        lblText.set_alignment(0.0, 0.0)
         hbox.pack_start(lblText)
         self.body.pack_start(hbox)
 
