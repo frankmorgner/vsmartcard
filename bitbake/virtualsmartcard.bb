@@ -4,7 +4,7 @@ LICENSE     = "GPL"
 DEPENDS     = "pcsc-lite"
 RDEPENDS    = "pcsc-lite python-pycrypto python-crypt python-textutils python-imaging python-pickle"
 
-SRC_URI = "svn://vsmartcard.svn.sourceforge.net/svnroot/vsmartcard;module=virtualsmartcard;proto=https;rev=164"
+SRC_URI = "svn://vsmartcard.svn.sourceforge.net/svnroot/vsmartcard;module=virtualsmartcard;proto=https;rev=180"
 
 S = "${WORKDIR}/virtualsmartcard"
 

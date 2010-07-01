@@ -4,7 +4,7 @@ LICENSE     = "GPL"
 DEPENDS     = "pcsc-lite"
 RDEPENDS    = "pcsc-lite"
 
-SRC_URI = "svn://vsmartcard.svn.sourceforge.net/svnroot/vsmartcard;module=picc_to_pcsc;proto=https;rev=131"
+SRC_URI = "svn://vsmartcard.svn.sourceforge.net/svnroot/vsmartcard;module=picc_to_pcsc;proto=https;rev=180"
 
 S = "${WORKDIR}/picc_to_pcsc"
 

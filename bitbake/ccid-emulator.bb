@@ -4,7 +4,7 @@ LICENSE     = "GPL"
 DEPENDS     = "pcsc-lite linux-libc-headers openssl opensc"
 RDEPENDS    = "pcsc-lite kernel-module-gadgetfs libcrypto opensc"
 
-SRC_URI = "svn://vsmartcard.svn.sourceforge.net/svnroot/vsmartcard;module=ccid;proto=https"
+SRC_URI = "svn://vsmartcard.svn.sourceforge.net/svnroot/vsmartcard;module=ccid;proto=https;rev=180"
 
 S = "${WORKDIR}/ccid"
 
