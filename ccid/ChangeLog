@@ -1,3 +1,37 @@
+2010-06-17 20:54  frankmorgner
+
+	* configure.ac, src/Makefile.am, src/ccid-test.c: added ccid-test
+	  to evaluate the PACE features of ccid-emulator (untested)
+
+2010-06-16 21:06  frankmorgner
+
+	* configure.ac, pcsclite_trunk.patch, src/Makefile.am, src/ccid.c,
+	  src/pace.c, src/sm.c, src/sm.h: added PACE features to
+	  ccid-emulator (untested)
+
+2010-06-10 11:14  frankmorgner
+
+	* src/pace-tool.c, src/pace.c: - implemented passing a CHAT to the
+	  card.
+	  - note that the type PACE_CHAT should be integrated into OpenPACE
+	  - added parameters for passing CHAT and certificate description
+	  to pace-tool
+
+2010-06-09 15:45  frankmorgner
+
+	* configure.ac, src/Makefile.am: renamed ccid to ccid-emulator to
+	  avoid conflicts with libccid
+
+2010-06-09 15:28  frankmorgner
+
+	* Makefile.am, src/Makefile.am: added missing files for
+	  distribution packages
+
+2010-06-05 22:10  frankmorgner
+
+	* ChangeLog: updated checksums, install files for recipes. updated
+	  log files for 0.6.1
+
 2010-06-05 14:34  frankmorgner
 
 	* src/pace-tool.c, src/pace.c, src/pace.h, src/sm.c, src/sm.h: -
