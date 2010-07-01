@@ -1,3 +1,120 @@
+2010-07-01 10:11  frankmorgner
+
+	* ChangeLog, configure.ac: releasing 0.3
+
+2010-07-01 10:09  frankmorgner
+
+	* src/pace-tool.c, src/pace.h: - fixed unblock pin, it is now
+	  successfully tested
+
+2010-06-25 21:31  frankmorgner
+
+	* src/ccid.c, src/pace.c, src/pace.h: - Replaced references to
+	  sc_get_pin* with its OpenSSL counter parts (untested)
+	  - UI functionality and maybe more is no longer shipped in
+	  opensc>=0.12. This
+	  and the fact that linking against libopensc in general is
+	  discouraged might
+	  be a reason to abandon opensc in future releases.
+
+2010-06-23 15:04  oepen
+
+	* patches/ccid-1.3.11.patch, patches/ccid-1.3.13.patch,
+	  patches/pcsc-lite-1.5.5.patch, patches/pcsc-lite-1.6.1.patch:
+	  -Fixed patches so bitbake can apply them
+	  -Added patches to bitbake recipes
+
+2010-06-23 12:20  frankmorgner
+
+	* src/ccid.c, src/usb.c: - better (or at least some) signal
+	  handling
+	  - always checking the existance of a card, when requested
+
+2010-06-22 21:29  frankmorgner
+
+	* src/ccid.c, src/ccid.h, src/usb.c: - restructured handling of
+	  interrupt thread to kill the thread along with all
+	  the others
+	  - fixed error on input parameter parsing when interrupt is
+	  activated
+	  - completed interrupt signaling for new/removed cards
+
+2010-06-22 09:45  frankmorgner
+
+	* src/ccid.c, src/ccid.h, src/usb.c: forcing empty parameter list
+	  with function(void) instead of unspecified parameter list with
+	  function()
+
+2010-06-21 16:17  frankmorgner
+
+	* src/ccid.c, src/pace.c, src/scutil.c, src/sm.c: - made debugging
+	  of openssl errors human readable
+	  - removed debugging of return values, added human readable
+	  messages instead
+
+2010-06-20 20:15  frankmorgner
+
+	* patches/ccid-1.3.13.patch, patches/pcsc-lite-1.6.1.patch: added
+	  patches for newer versions of ccid and pcsc-lite
+
+2010-06-20 19:52  frankmorgner
+
+	* patches, patches/ccid-1.3.11.patch,
+	  patches/pcsc-lite-1.5.5.patch,
+	  patches/pcsclite_trunk_r4993.patch, pcsclite_trunk.patch: added
+	  patches for distribution packages of ccid and pcsc-lite
+
+2010-06-19 18:27  frankmorgner
+
+	* src/pace-tool.c, src/pace.c: - pace-tool: fixed length of input
+	  buffer for EstablishPACEChannel
+	  - added debug messages to pace.c
+
+2010-06-19 16:19  frankmorgner
+
+	* Makefile.am, pcsclite_trunk.patch, src/ccid-test.c, src/ccid.c,
+	  src/ccid.h, src/pace-tool.c, src/pace.c, src/pace.h, src/usb.c: -
+	  added patch to distribution package
+	  - changed debug_sc_result to be a define. this now gets the line
+	  of code correct
+	  - added checking for input length to functions that parse the
+	  bulkin buffer
+	  - fixed segfault for GetReadersPACECapabilities when no card is
+	  inserted
+	  - added length checking of input for EstablishPACEChannel
+	  - ccid-test: fixed pbSendBufferEstablish
+	  - pcsclite_trunk.patch:
+	  - fixed parsing of lengthCertificateDescription
+	  - fixed wrong bPINOperation for pace capabilities and execute
+	  pace
+
+2010-06-18 21:20  frankmorgner
+
+	* pcsclite_trunk.patch, src/ccid-test.c, src/ccid.c: - renamed
+	  Special PIN Verification/Capabilities to PACE
+	  Verification/Capabilities
+	  - fixed PIN PACE support in ccid descriptor
+	  - using uint16_t instead of WORD in PACE structures
+	  - fixed lengthInputData to host byteorder
+	  - fixed parsing input buffer of SCardControl with
+	  FEATURE_EXECUTE_PACE
+	  - parsing input buffer for PACE verification and adjusting the
+	  byteorder
+	  - added 30s timeout to for PACE verification
+	  - triggering PACE via PC/SC now works although quite unstable
+
+2010-06-18 16:27  frankmorgner
+
+	* pcsclite_trunk.patch, src/ccid-test.c, src/ccid.c: -
+	  ccid-emulator: propagating PACE capabilities to ccid descriptor
+	  of
+	  - ccid-test: IOCTL_FEATURE_IFD_PIN_PROPERTIES is currently
+	  hardcoded and should
+	  be replaced by the value from GET_FEATURE_REQUEST
+	  - pcsclite_trunk.patch: fixed propagation of data from
+	  SCardControl to
+	  SecurePINSpecialVerify and SecurePINSpecialCapabilities
+
 2010-06-17 20:54  frankmorgner
 
 	* configure.ac, src/Makefile.am, src/ccid-test.c: added ccid-test
