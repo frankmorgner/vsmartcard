@@ -1,3 +1,42 @@
+2010-06-23 07:10  frankmorgner
+
+	* src/vpcd/ifd.c: removed the last references of references to
+	  ifdhandler functions v1.0
+
+2010-06-22 18:16  oepen
+
+	* src/vpicc/SmartcardSAM.py: -Fixed two unhandled exceptions
+	  -Removed some trailing whitespaces
+
+2010-06-22 14:06  frankmorgner
+
+	* src/vpcd/ifd.c, src/vpcd/vpcd.c, src/vpicc/VirtualSmartcard.py: -
+	  changed vpcd driver to use ifdhandler api v 3.0, since
+	  support for v 1.0 has been dropped as of pcsc-lite 1.6
+	  - fixed initialization error of vpcd due to uninitialized value
+	  - changed virtual smartcard to use todays python syntax
+
+2010-06-22 09:45  frankmorgner
+
+	* src/vpcd/ifd.c, src/vpcd/vpcd.c, src/vpcd/vpcd.h: forcing empty
+	  parameter list with function(void) instead of unspecified
+	  parameter list with function()
+
+2010-06-09 15:36  frankmorgner
+
+	* configure.ac, src/vpcd/Makefile.am: added missing files for
+	  distribution packages. fixed installation when no serialdropdir
+	  is given.
+
+2010-06-08 08:59  oepen
+
+	* configure.ac:
+
+2010-06-05 22:10  frankmorgner
+
+	* ChangeLog: updated checksums, install files for recipes. updated
+	  log files for 0.6.1
+
 2010-05-26 22:51  frankmorgner
 
 	* src/vpcd/Makefile.am: bugfix: using libtool for installation
