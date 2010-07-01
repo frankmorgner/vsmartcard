@@ -1,4 +1,4 @@
-bin_SCRIPTS = pinpad.py
+bin_SCRIPTS = pace-gui.py
 
 pinpaddir = $(prefix)/bin
 

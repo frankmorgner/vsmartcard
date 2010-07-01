@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.64])
-AC_INIT(pinpad, 0.2, oepen@informatik.hu-berlin.de)
+AC_INIT(pace-gui, 0.2, oepen@informatik.hu-berlin.de)
 AM_INIT_AUTOMAKE
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -24,7 +24,7 @@ AC_SUBST(PYGTK_LIBS)
 
 AC_CONFIG_FILES([Makefile
                  src/Makefile
-                 src/pinpad_globals.py
+                 src/pace-gui-globals.py
                  src/pace-gui.desktop
                  images/Makefile])
 AC_OUTPUT
