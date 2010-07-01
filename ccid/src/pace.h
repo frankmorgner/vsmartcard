@@ -74,6 +74,8 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
 int pace_reset_retry_counter(struct sm_ctx *ctx, sc_card_t *card,
         enum s_type pin_id, int ask_for_secret,
         const char *new, size_t new_len);
+#define pace_unblock_pin(ctx, card) \
+    pace_reset_retry_counter(ctx, card, PACE_PIN, 0, NULL, 0)
 #define pace_change_pin(ctx, card, newp, newplen) \
     pace_reset_retry_counter(ctx, card, PACE_PIN, 1, newp, newplen)
 

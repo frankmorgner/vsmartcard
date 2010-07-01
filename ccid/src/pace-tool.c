@@ -33,6 +33,7 @@ static int doinfo     = 0;
 static u8  pin_id = 0;
 static u8  dochangepin = 0;
 static u8  doresumepin = 0;
+static u8  dounblock = 0;
 static u8  dotranslate = 0;
 static const char *newpin = NULL;
 static int usb_reader_num = -1;
@@ -64,6 +65,7 @@ static sc_reader_t *reader;
 #define OPT_CERTDESC    'D'
 #define OPT_CHANGE_PIN  'N'
 #define OPT_RESUME_PIN  'R'
+#define OPT_UNBLOCK_PIN 'U'
 #define OPT_TRANSLATE   't'
 #define OPT_VERBOSE     'v'
 #define OPT_INFO        'o'
@@ -81,6 +83,7 @@ static const struct option options[] = {
     { "cert-desc", required_argument, NULL, OPT_CERTDESC },
     { "new-pin", optional_argument, NULL, OPT_CHANGE_PIN },
     { "resume-pin", no_argument, NULL, OPT_RESUME_PIN },
+    { "unblock-pin", no_argument, NULL, OPT_UNBLOCK_PIN },
     { "translate", no_argument, NULL, OPT_TRANSLATE },
     { "verbose", no_argument, NULL, OPT_VERBOSE },
     { "info", no_argument, NULL, OPT_INFO },
@@ -98,6 +101,7 @@ static const char *option_help[] = {
     "Certificate description to use (hex string)",
     "Install a new PIN",
     "Resume PIN (uses CAN to activate last retry)",
+    "Unblock PIN (uses PUK to activate three more retries)",
     "Send plaintext APDUs through the PACE SM channel",
     "Use (several times) to be more verbose",
     "Print version, available readers and drivers.",
@@ -230,7 +234,7 @@ main (int argc, char **argv)
     memset(&tmpctx, 0, sizeof(tmpctx));
 
     while (1) {
-        i = getopt_long(argc, argv, "hr:i::u::a::z::C:D:N::Rtvoc:", options, &oindex);
+        i = getopt_long(argc, argv, "hr:i::u::a::z::C:D:N::RUtvoc:", options, &oindex);
         if (i == -1)
             break;
         switch (i) {
@@ -300,6 +304,9 @@ main (int argc, char **argv)
             case OPT_RESUME_PIN:
                 doresumepin = 1;
                 break;
+            case OPT_UNBLOCK_PIN:
+                dounblock = 1;
+                break;
             case OPT_TRANSLATE:
                 dotranslate = 1;
                 break;
@@ -368,6 +375,24 @@ main (int argc, char **argv)
                 difftime(t_start, t_end));
     }
 
+    if (dounblock) {
+        t_start = time(NULL);
+        i = pace_get_channel(NULL, card,
+                PACE_PUK, puk, puk ? strlen(puk) : 0,
+                chat, chatlen, desc, desclen,
+                &channeldata, &channeldatalen, &sctx);
+        if (i < 0)
+            goto err;
+        t_end = time(NULL);
+        printf("Established PACE channel with PUK in %.0fs.\n",
+                difftime(t_end, t_start));
+
+        i = pace_unblock_pin(&sctx, card);
+        if (i < 0)
+            goto err;
+        printf("Unblocked PIN.\n");
+    }
+
     if (dochangepin) {
         t_start = time(NULL);
         i = pace_get_channel(NULL, card,
@@ -386,7 +411,7 @@ main (int argc, char **argv)
         printf("Changed PIN.\n");
     }
 
-    if (dotranslate || (!doresumepin && !dochangepin)) {
+    if (dotranslate || (!doresumepin && !dochangepin && !dounblock)) {
         enum s_type id;
         const char *s;
         if (usepin) {
