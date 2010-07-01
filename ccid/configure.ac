@@ -168,5 +168,6 @@ EOF
 
 AC_CONFIG_FILES([Makefile
                  m4/Makefile
+                 patches/Makefile
                  src/Makefile])
 AC_OUTPUT
