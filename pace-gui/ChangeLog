@@ -1,0 +1,112 @@
+2010-06-29 20:29  oepen
+
+	* src/pinpad.py: Adjusted layout:
+	  -No more stock buttons (not supported on OM?)
+	  -Bigger fonts for buttons
+	  -Better alignment of elements
+	  -More space for elements in CertificateDescription Dialogue
+
+2010-06-29 14:23  oepen
+
+	* src/pinpad.py: Changed the layout of the CertificateDescription
+	  window and added additional information
+
+2010-06-28 21:09  oepen
+
+	* src/pinpad.py: Code cleanup
+
+2010-06-28 14:34  oepen
+
+	* src/chat-gui.py, src/pinpad.py, src/pinpad_globals.py.in: Merged
+	  pinpad and chat-gui. Integration is not finished yet
+
+2010-06-27 13:11  oepen
+
+	* src/chat-gui.py: -Refactoring: Added a base class with common
+	  functionality, from which all other Dialogues are derived
+	  -The scrolled window is now only added to the "body" element of
+	  the window
+	  -Made the buttons a bit smaller
+
+2010-06-27 09:38  oepen
+
+	* src/chat-gui.py: -Made the buttons on the bottom of the screen
+	  bigger and added a litte spacing between them. This way they are
+	  easier to hit with your finger.
+	  -Translated the access rights to german and adjusted some of them
+	  according to TR-03127
+
+2010-06-26 19:56  oepen
+
+	* src/chat-gui.py: -Fixed print to stderr
+	  -Adjusted fonts for the OpenMoko
+
+2010-06-26 19:45  oepen
+
+	* src/chat-gui.py: Added chat-gui.py which includes dialog windows
+	  for displaying the CHAT and the Certificate Description
+
+2010-06-14 08:06  oepen
+
+	* src/pinpad.glade, src/pinpad.py: Adjusted layout for the OpenMoko
+
+2010-06-14 07:47  oepen
+
+	* src/pinpad.py: Stop polling for ATR, when pace-tool is running
+
+2010-06-14 06:23  oepen
+
+	* configure.ac: Bumped version number
+
+2010-06-14 06:21  oepen
+
+	* src/pinpad.glade, src/pinpad.py, src/pinpad_globals.py.in: New
+	  version of pace-gui indicates wether or not a suitable card was
+	  found.
+	  This works by polling the card every second via opensc-tool --atr
+	  The radio buttons have been removed to have enough space for the
+	  new label
+
+2010-06-10 09:44  oepen
+
+	* src/pace-gui.desktop.in: -Fixed pace-gui.desktop.in so it works
+	  on the OpenMoko as well
+	  -Bumped svn revision in pace-gui.bb
+
+2010-06-10 08:54  oepen
+
+	* src/pace-gui.desktop.in, src/pinpad.py: Added missing file to
+	  version control
+
+2010-06-08 12:58  oepen
+
+	* src/pinpad.py: Better error handling
+
+2010-06-08 11:31  oepen
+
+	* Makefile.am, configure.ac, images, images/Makefile.am,
+	  images/OpenPACElogo.png, src/Makefile.am: Added installation of
+	  logo and desktop entry
+
+2010-06-08 08:08  oepen
+
+	* configure, configure.ac, src/Makefile.am, src/pinpad.py,
+	  src/pinpad_globals.py.in: First working version of autotools
+	  scripts
+
+2010-06-08 07:26  oepen
+
+	* AUTHORS, COPYING, ChangeLog, INSTALL, Makefile.am, NEWS, README,
+	  configure.ac, src/Makefile.am, src/pinpad.in: Working on
+	  autotools scripts
+
+2010-06-07 15:03  oepen
+
+	* configure, configure.ac: Bugfixing autotools scripts
+
+2010-06-07 14:50  oepen
+
+	* ., Makefile.am, configure, configure.ac, src, src/Makefile.am,
+	  src/pinpad.glade, src/pinpad.in, src/pinpad.py: Initial release
+	  of pace-gui, a small GUI for pace-tool
+
