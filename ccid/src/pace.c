@@ -700,7 +700,7 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
             *token = NULL, *pub = NULL, *pub_opp = NULL, *key = NULL;
     PACE_SEC *sec = NULL;
     PACE_CTX *pctx = NULL;
-    int r, second_execution;
+    int r;
 
     if (!card)
         return SC_ERROR_CARD_NOT_PRESENT;
@@ -762,14 +762,15 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
                 certificate_description, length_cert_desc);
 
 
-    if (!*out) {
-        second_execution = 0;
+    if (!oldpacectx) {
+        /* PACE is executed the first time */
         r = get_ef_card_access(card, &ef_cardaccess, &length_ef_cardaccess);
         if (r < 0) {
             sc_error(card->ctx, "Could not get EF.CardAccess.");
             goto err;
         }
-        *out = malloc(6 + length_ef_cardaccess);
+        /* get enough memory for status bytes and EF.CardAccess */
+        *out = realloc(4 + length_ef_cardaccess);
         if (!*out) {
             r = SC_ERROR_OUT_OF_MEMORY;
             goto err;
@@ -778,11 +779,13 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
         memcpy(*out + 2, &word, sizeof word);
         memcpy(*out + 4, ef_cardaccess, length_ef_cardaccess);
     } else {
-        second_execution = 1;
+        /* PACE is executed the second time. EF.CardAccess should already be
+         * present */
         memcpy(&word, *out + 2, sizeof word);
         length_ef_cardaccess = __le16_to_cpu(word);
         ef_cardaccess = *out + 4;
     }
+    *outlen = 4+length_ef_cardaccess;
     bin_log(card->ctx, "EF.CardAccess", ef_cardaccess, length_ef_cardaccess);
 
     if (!parse_ef_card_access(ef_cardaccess, length_ef_cardaccess,
@@ -929,7 +932,7 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
     sctx->active = 1;
 
 err:
-    if (ef_cardaccess && !second_execution)
+    if (ef_cardaccess && !oldpacectx)
         free(ef_cardaccess);
     if (info)
         PACEInfo_free(info);
