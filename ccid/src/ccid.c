@@ -924,7 +924,7 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
     if (verify) {
         if (0 > EVP_read_pw_string_min((char *) curr_pin.data,
                     curr_pin.min_length, curr_pin.max_length,
-                    "Please enter your PIN for verification",
+                    "Please enter your PIN for verification: ",
                 0)) {
             sc_result = SC_ERROR_INTERNAL;
             sc_error(ctx, "Could not read PIN.\n");
@@ -935,7 +935,7 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
             /* if only the new pin is requested, it is stored in curr_pin */
             if (0 > EVP_read_pw_string_min((char *) curr_pin.data,
                         curr_pin.min_length, curr_pin.max_length,
-                        "Please enter your current PIN for modification",
+                        "Please enter your current PIN for modification: ",
                         0)) {
                 sc_result = SC_ERROR_INTERNAL;
                 sc_error(ctx, "Could not read current PIN.\n");
@@ -945,7 +945,7 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
 
         if (0 > EVP_read_pw_string_min((char *) new_pin.data,
                     new_pin.min_length, new_pin.max_length,
-                    "Please enter your new PIN for modification",
+                    "Please enter your new PIN for modification: ",
                     modify->bConfirmPIN & CCID_PIN_CONFIRM_NEW)) {
             sc_result = SC_ERROR_INTERNAL;
             sc_error(ctx, "Could not read new PIN.\n");

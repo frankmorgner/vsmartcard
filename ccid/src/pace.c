@@ -602,7 +602,7 @@ pace_reset_retry_counter(struct sm_ctx *ctx, sc_card_t *card,
         }
         if (0 > EVP_read_pw_string_min(p,
                     MIN_PIN_LEN, MAX_PIN_LEN+1,
-                    "Please enter your new PIN for modification", 0)) {
+                    "Please enter your new PIN: ", 0)) {
             sc_error(card->ctx, "Could not read new PIN.\n");
             free(p);
             return SC_ERROR_INTERNAL;
@@ -643,10 +643,10 @@ get_psec(sc_card_t *card, const char *pin, size_t length_pin, enum s_type pin_id
     char *p = NULL;
     PACE_SEC *r;
     int sc_result;
-    char buf[32]; /* XXX max size of mrz */
+    char buf[MAX_MRZ_LEN > 32 ? MAX_MRZ_LEN : 32];
 
     if (!length_pin || !pin) {
-        if (0 > snprintf(buf, sizeof buf, "Please enter your %s",
+        if (0 > snprintf(buf, sizeof buf, "Please enter your %s: ",
                     pace_secret_name(pin_id))) {
             sc_error(card->ctx, "Could not create password prompt.\n");
             return NULL;
@@ -657,9 +657,8 @@ get_psec(sc_card_t *card, const char *pin, size_t length_pin, enum s_type pin_id
                     pace_secret_name(pin_id));
             return NULL;
         }
-        if (0 > EVP_read_pw_string_min(p, 0, MAX_MRZ_LEN,
-                    "Please enter your new PIN for modification", 0)) {
-            sc_error(card->ctx, "Could not read %s (%s).\n",
+        if (0 > EVP_read_pw_string_min(p, 0, MAX_MRZ_LEN, buf, 0)) {
+            sc_error(card->ctx, "Could not read %s.\n",
                     pace_secret_name(pin_id));
             return NULL;
         }
