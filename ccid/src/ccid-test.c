@@ -26,6 +26,21 @@
 /* XXX IOCTL_FEATURE_IFD_PIN_PROPERTIES */
 const static DWORD feature_execute_pace = 0x42330020;
 
+static void
+printb(unsigned char *buf, size_t len)
+{
+    size_t i = 0;
+    while (i < len) {
+        printf("%02X", buf[i]);
+        i++;
+        if (i%20)
+            printf(" ");
+        else if (i != len)
+            printf("\n");
+    }
+    printf("\n");
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -101,6 +116,7 @@ main(int argc, char *argv[])
         goto err;
     printf("GetReadersPACECapabilities successfull, received %d bytes\n",
             dwRecvLength);
+    printb(pbRecvBuffer, dwRecvLength);
 
     rv = SCardControl(hCard, feature_execute_pace,
             pbSendBufferEstablish, sizeof(pbSendBufferEstablish),
@@ -109,6 +125,7 @@ main(int argc, char *argv[])
         goto err;
     printf("EstablishPACEChannel successfull, received %d bytes\n",
             dwRecvLength);
+    printb(pbRecvBuffer, dwRecvLength);
 
 
     rv = SCardDisconnect(hCard, SCARD_LEAVE_CARD);
