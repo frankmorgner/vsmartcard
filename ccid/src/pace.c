@@ -382,8 +382,8 @@ err:
     return r;
 }
 
-static int pace_gen_auth(const struct sm_ctx *oldpacectx, sc_card_t *card,
-        int step, const u8 *in, size_t in_len, u8 **out, size_t *out_len)
+static int pace_gen_auth_1_encrypted_nonce(const struct sm_ctx *oldpacectx,
+        sc_card_t *card, u8 **enc_nonce, size_t *enc_nonce_len)
 {
     sc_apdu_t apdu;
     PACE_GEN_AUTH_C *c_data = NULL;
@@ -402,41 +402,6 @@ static int pace_gen_auth(const struct sm_ctx *oldpacectx, sc_card_t *card,
         r = SC_ERROR_OUT_OF_MEMORY;
         goto err;
     }
-    switch (step) {
-        case 1:
-            break;
-        case 2:
-            c_data->mapping_data = ASN1_OCTET_STRING_new();
-            if (!c_data->mapping_data
-                    || !M_ASN1_OCTET_STRING_set(
-                        c_data->mapping_data, in, in_len)) {
-                r = SC_ERROR_INTERNAL;
-                goto err;
-            }
-            break;
-        case 3:
-            c_data->eph_pub_key = ASN1_OCTET_STRING_new();
-            if (!c_data->eph_pub_key
-                    || !M_ASN1_OCTET_STRING_set(
-                        c_data->eph_pub_key, in, in_len)) {
-                r = SC_ERROR_INTERNAL;
-                goto err;
-            }
-            break;
-        case 4:
-            apdu.cla = 0;
-            c_data->auth_token = ASN1_OCTET_STRING_new();
-            if (!c_data->auth_token
-                    || !M_ASN1_OCTET_STRING_set(
-                        c_data->auth_token, in, in_len)) {
-                r = SC_ERROR_INTERNAL;
-                goto err;
-            }
-            break;
-        default:
-            r = SC_ERROR_INVALID_ARGUMENTS;
-            goto err;
-    }
     r = i2d_PACE_GEN_AUTH_C(c_data, &d);
     if (r < 0) {
         r = SC_ERROR_INTERNAL;
@@ -447,7 +412,7 @@ static int pace_gen_auth(const struct sm_ctx *oldpacectx, sc_card_t *card,
     apdu.lc = r;
 
     if (card->ctx->debug > SC_LOG_TYPE_DEBUG)
-        bin_log(card->ctx, "General authenticate command data", apdu.data, apdu.datalen);
+        bin_log(card->ctx, "General authenticate (Encrypted Nonce) command data", apdu.data, apdu.datalen);
 
     apdu.resplen = maxresp;
     apdu.resp = malloc(apdu.resplen);
@@ -463,7 +428,7 @@ static int pace_gen_auth(const struct sm_ctx *oldpacectx, sc_card_t *card,
         goto err;
 
     if (card->ctx->debug > SC_LOG_TYPE_DEBUG)
-        bin_log(card->ctx, "General authenticate response data", apdu.resp, apdu.resplen);
+        bin_log(card->ctx, "General authenticate (Encrypted Nonce) response data", apdu.resp, apdu.resplen);
 
     if (!d2i_PACE_GEN_AUTH_R(&r_data,
                 (const unsigned char **) &apdu.resp, apdu.resplen)) {
@@ -472,88 +437,395 @@ static int pace_gen_auth(const struct sm_ctx *oldpacectx, sc_card_t *card,
         goto err;
     }
 
-    switch (step) {
-        case 1:
-            if (!r_data->enc_nonce
-                    || r_data->mapping_data
-                    || r_data->eph_pub_key
-                    || r_data->auth_token
-                    || r_data->cur_car
-                    || r_data->prev_car) {
-                sc_error(card->ctx, "Response data of general authenticate for "
-                        "step %d should (only) contain the "
-                        "encrypted nonce.", step);
-                r = SC_ERROR_UNKNOWN_DATA_RECEIVED;
-                goto err;
-            }
-            p = r_data->enc_nonce->data;
-            l = r_data->enc_nonce->length;
-            break;
-        case 2:
-            if (r_data->enc_nonce
-                    || !r_data->mapping_data
-                    || r_data->eph_pub_key
-                    || r_data->auth_token
-                    || r_data->cur_car
-                    || r_data->prev_car) {
-                sc_error(card->ctx, "Response data of general authenticate for "
-                        "step %d should (only) contain the "
-                        "mapping data.", step);
-                r = SC_ERROR_UNKNOWN_DATA_RECEIVED;
-                goto err;
-            }
-            p = r_data->mapping_data->data;
-            l = r_data->mapping_data->length;
-            break;
-        case 3:
-            if (r_data->enc_nonce
-                    || r_data->mapping_data
-                    || !r_data->eph_pub_key
-                    || r_data->auth_token
-                    || r_data->cur_car
-                    || r_data->prev_car) {
-                sc_error(card->ctx, "Response data of general authenticate for "
-                        "step %d should (only) contain the "
-                        "ephemeral public key.", step);
-                r = SC_ERROR_UNKNOWN_DATA_RECEIVED;
-                goto err;
-            }
-            p = r_data->eph_pub_key->data;
-            l = r_data->eph_pub_key->length;
-            break;
-        case 4:
-            if (r_data->enc_nonce
-                    || r_data->mapping_data
-                    || r_data->eph_pub_key
-                    || !r_data->auth_token) {
-                sc_error(card->ctx, "Response data of general authenticate for "
-                        "step %d should (only) contain the "
-                        "authentication token.", step);
-                r = SC_ERROR_UNKNOWN_DATA_RECEIVED;
-                goto err;
-            }
-            p = r_data->auth_token->data;
-            l = r_data->auth_token->length;
-            /* XXX CAR sould be returned as result in some way */
-            if (r_data->cur_car)
-                bin_log(card->ctx, "Most recent Certificate Authority Reference",
-                        r_data->cur_car->data, r_data->cur_car->length);
-            if (r_data->prev_car)
-                bin_log(card->ctx, "Previous Certificate Authority Reference",
-                        r_data->prev_car->data, r_data->prev_car->length);
-            break;
-        default:
-            r = SC_ERROR_INVALID_ARGUMENTS;
-            goto err;
+    if (!r_data->enc_nonce
+            || r_data->mapping_data
+            || r_data->eph_pub_key
+            || r_data->auth_token
+            || r_data->cur_car
+            || r_data->prev_car) {
+        sc_error(card->ctx, "Response data of general authenticate for "
+                "step 1 should (only) contain the encrypted nonce.");
+        r = SC_ERROR_UNKNOWN_DATA_RECEIVED;
+        goto err;
     }
+    p = r_data->enc_nonce->data;
+    l = r_data->enc_nonce->length;
 
-    *out = malloc(l);
-    if (!*out) {
+    *enc_nonce = malloc(l);
+    if (!*enc_nonce) {
         r = SC_ERROR_OUT_OF_MEMORY;
         goto err;
     }
-    memcpy(*out, p, l);
-    *out_len = l;
+    memcpy(*enc_nonce, p, l);
+    *enc_nonce_len = l;
+
+err:
+    if (c_data) {
+        /* XXX
+        if (c_data->mapping_data)
+            ASN1_OCTET_STRING_free(c_data->mapping_data);
+        if (c_data->eph_pub_key)
+            ASN1_OCTET_STRING_free(c_data->eph_pub_key);
+        if (c_data->auth_token)
+            ASN1_OCTET_STRING_free(c_data->auth_token);*/
+        PACE_GEN_AUTH_C_free(c_data);
+    }
+    if (d)
+        free(d);
+    if (r_data) {
+        /* XXX
+        if (r_data->mapping_data)
+            ASN1_OCTET_STRING_free(r_data->mapping_data);
+        if (r_data->eph_pub_key)
+            ASN1_OCTET_STRING_free(r_data->eph_pub_key);
+        if (r_data->auth_token)
+            ASN1_OCTET_STRING_free(r_data->auth_token);*/
+        PACE_GEN_AUTH_R_free(r_data);
+    }
+    /* XXX */
+    /*if (apdu.resp)*/
+        /*free(apdu.resp);*/
+
+    return r;
+}
+static int pace_gen_auth_2_map_nonce(const struct sm_ctx *oldpacectx,
+        sc_card_t *card, const u8 *in, size_t in_len, u8 **map_data_out,
+        size_t *map_data_out_len)
+{
+    sc_apdu_t apdu;
+    PACE_GEN_AUTH_C *c_data = NULL;
+    PACE_GEN_AUTH_R *r_data = NULL;
+    unsigned char *d = NULL, *p;
+    int r, l;
+
+    memset(&apdu, 0, sizeof apdu);
+    apdu.cla = 0x10;
+    apdu.ins = 0x86;
+    apdu.cse = SC_APDU_CASE_4_SHORT;
+    apdu.flags = SC_APDU_FLAGS_NO_GET_RESP|SC_APDU_FLAGS_NO_RETRY_WL;
+
+    c_data = PACE_GEN_AUTH_C_new();
+    if (!c_data) {
+        r = SC_ERROR_OUT_OF_MEMORY;
+        goto err;
+    }
+    c_data->mapping_data = ASN1_OCTET_STRING_new();
+    if (!c_data->mapping_data
+            || !M_ASN1_OCTET_STRING_set(
+                c_data->mapping_data, in, in_len)) {
+        r = SC_ERROR_INTERNAL;
+        goto err;
+    }
+    r = i2d_PACE_GEN_AUTH_C(c_data, &d);
+    if (r < 0) {
+        r = SC_ERROR_INTERNAL;
+        goto err;
+    }
+    apdu.data = (const u8 *) d;
+    apdu.datalen = r;
+    apdu.lc = r;
+
+    if (card->ctx->debug > SC_LOG_TYPE_DEBUG)
+        bin_log(card->ctx, "General authenticate (Map Nonce) command data", apdu.data, apdu.datalen);
+
+    apdu.resplen = maxresp;
+    apdu.resp = malloc(apdu.resplen);
+    if (oldpacectx)
+        r = sm_transmit_apdu(oldpacectx, card, &apdu);
+    else
+        r = sc_transmit_apdu(card, &apdu);
+    if (r < 0)
+        goto err;
+
+    r = sc_check_sw(card, apdu.sw1, apdu.sw2);
+    if (r < 0)
+        goto err;
+
+    if (card->ctx->debug > SC_LOG_TYPE_DEBUG)
+        bin_log(card->ctx, "General authenticate (Map Nonce) response data", apdu.resp, apdu.resplen);
+
+    if (!d2i_PACE_GEN_AUTH_R(&r_data,
+                (const unsigned char **) &apdu.resp, apdu.resplen)) {
+        sc_error(card->ctx, "Could not parse general authenticate response data.");
+        r = SC_ERROR_INTERNAL;
+        goto err;
+    }
+
+    if (r_data->enc_nonce
+            || !r_data->mapping_data
+            || r_data->eph_pub_key
+            || r_data->auth_token
+            || r_data->cur_car
+            || r_data->prev_car) {
+        sc_error(card->ctx, "Response data of general authenticate for "
+                "step 2 should (only) contain the mapping data.");
+        r = SC_ERROR_UNKNOWN_DATA_RECEIVED;
+        goto err;
+    }
+    p = r_data->mapping_data->data;
+    l = r_data->mapping_data->length;
+
+    *map_data_out = malloc(l);
+    if (!*map_data_out) {
+        r = SC_ERROR_OUT_OF_MEMORY;
+        goto err;
+    }
+    memcpy(*map_data_out, p, l);
+    *map_data_out_len = l;
+
+err:
+    if (c_data) {
+        /* XXX
+        if (c_data->mapping_data)
+            ASN1_OCTET_STRING_free(c_data->mapping_data);
+        if (c_data->eph_pub_key)
+            ASN1_OCTET_STRING_free(c_data->eph_pub_key);
+        if (c_data->auth_token)
+            ASN1_OCTET_STRING_free(c_data->auth_token);*/
+        PACE_GEN_AUTH_C_free(c_data);
+    }
+    if (d)
+        free(d);
+    if (r_data) {
+        /* XXX
+        if (r_data->mapping_data)
+            ASN1_OCTET_STRING_free(r_data->mapping_data);
+        if (r_data->eph_pub_key)
+            ASN1_OCTET_STRING_free(r_data->eph_pub_key);
+        if (r_data->auth_token)
+            ASN1_OCTET_STRING_free(r_data->auth_token);*/
+        PACE_GEN_AUTH_R_free(r_data);
+    }
+    /* XXX */
+    /*if (apdu.resp)*/
+        /*free(apdu.resp);*/
+
+    return r;
+}
+static int pace_gen_auth_3_perform_key_agreement(
+        const struct sm_ctx *oldpacectx, sc_card_t *card,
+        const u8 *in, size_t in_len, u8 **eph_pub_key_out, size_t *eph_pub_key_out_len)
+{
+    sc_apdu_t apdu;
+    PACE_GEN_AUTH_C *c_data = NULL;
+    PACE_GEN_AUTH_R *r_data = NULL;
+    unsigned char *d = NULL, *p;
+    int r, l;
+
+    memset(&apdu, 0, sizeof apdu);
+    apdu.cla = 0x10;
+    apdu.ins = 0x86;
+    apdu.cse = SC_APDU_CASE_4_SHORT;
+    apdu.flags = SC_APDU_FLAGS_NO_GET_RESP|SC_APDU_FLAGS_NO_RETRY_WL;
+
+    c_data = PACE_GEN_AUTH_C_new();
+    if (!c_data) {
+        r = SC_ERROR_OUT_OF_MEMORY;
+        goto err;
+    }
+    c_data->eph_pub_key = ASN1_OCTET_STRING_new();
+    if (!c_data->eph_pub_key
+            || !M_ASN1_OCTET_STRING_set(
+                c_data->eph_pub_key, in, in_len)) {
+        r = SC_ERROR_INTERNAL;
+        goto err;
+    }
+    r = i2d_PACE_GEN_AUTH_C(c_data, &d);
+    if (r < 0) {
+        r = SC_ERROR_INTERNAL;
+        goto err;
+    }
+    apdu.data = (const u8 *) d;
+    apdu.datalen = r;
+    apdu.lc = r;
+
+    if (card->ctx->debug > SC_LOG_TYPE_DEBUG)
+        bin_log(card->ctx, "General authenticate (Perform Key Agreement) command data", apdu.data, apdu.datalen);
+
+    apdu.resplen = maxresp;
+    apdu.resp = malloc(apdu.resplen);
+    if (oldpacectx)
+        r = sm_transmit_apdu(oldpacectx, card, &apdu);
+    else
+        r = sc_transmit_apdu(card, &apdu);
+    if (r < 0)
+        goto err;
+
+    r = sc_check_sw(card, apdu.sw1, apdu.sw2);
+    if (r < 0)
+        goto err;
+
+    if (card->ctx->debug > SC_LOG_TYPE_DEBUG)
+        bin_log(card->ctx, "General authenticate (Perform Key Agreement) response data", apdu.resp, apdu.resplen);
+
+    if (!d2i_PACE_GEN_AUTH_R(&r_data,
+                (const unsigned char **) &apdu.resp, apdu.resplen)) {
+        sc_error(card->ctx, "Could not parse general authenticate response data.");
+        r = SC_ERROR_INTERNAL;
+        goto err;
+    }
+
+    if (r_data->enc_nonce
+            || r_data->mapping_data
+            || !r_data->eph_pub_key
+            || r_data->auth_token
+            || r_data->cur_car
+            || r_data->prev_car) {
+        sc_error(card->ctx, "Response data of general authenticate for "
+                "step 3 should (only) contain the ephemeral public key.");
+        r = SC_ERROR_UNKNOWN_DATA_RECEIVED;
+        goto err;
+    }
+    p = r_data->eph_pub_key->data;
+    l = r_data->eph_pub_key->length;
+
+    *eph_pub_key_out = malloc(l);
+    if (!*eph_pub_key_out) {
+        r = SC_ERROR_OUT_OF_MEMORY;
+        goto err;
+    }
+    memcpy(*eph_pub_key_out, p, l);
+    *eph_pub_key_out_len = l;
+
+err:
+    if (c_data) {
+        /* XXX
+        if (c_data->mapping_data)
+            ASN1_OCTET_STRING_free(c_data->mapping_data);
+        if (c_data->eph_pub_key)
+            ASN1_OCTET_STRING_free(c_data->eph_pub_key);
+        if (c_data->auth_token)
+            ASN1_OCTET_STRING_free(c_data->auth_token);*/
+        PACE_GEN_AUTH_C_free(c_data);
+    }
+    if (d)
+        free(d);
+    if (r_data) {
+        /* XXX
+        if (r_data->mapping_data)
+            ASN1_OCTET_STRING_free(r_data->mapping_data);
+        if (r_data->eph_pub_key)
+            ASN1_OCTET_STRING_free(r_data->eph_pub_key);
+        if (r_data->auth_token)
+            ASN1_OCTET_STRING_free(r_data->auth_token);*/
+        PACE_GEN_AUTH_R_free(r_data);
+    }
+    /* XXX */
+    /*if (apdu.resp)*/
+        /*free(apdu.resp);*/
+
+    return r;
+}
+static int pace_gen_auth_4_mutual_authentication(
+        const struct sm_ctx *oldpacectx, sc_card_t *card,
+        const u8 *in, size_t in_len, u8 **auth_token_out,
+        size_t *auth_token_out_len, u8 **recent_car, size_t *recent_car_len,
+        u8 **prev_car, size_t *prev_car_len)
+{
+    sc_apdu_t apdu;
+    PACE_GEN_AUTH_C *c_data = NULL;
+    PACE_GEN_AUTH_R *r_data = NULL;
+    unsigned char *d = NULL, *p;
+    int r, l;
+
+    memset(&apdu, 0, sizeof apdu);
+    apdu.cla = 0x10;
+    apdu.ins = 0x86;
+    apdu.cse = SC_APDU_CASE_4_SHORT;
+    apdu.flags = SC_APDU_FLAGS_NO_GET_RESP|SC_APDU_FLAGS_NO_RETRY_WL;
+
+    c_data = PACE_GEN_AUTH_C_new();
+    if (!c_data) {
+        r = SC_ERROR_OUT_OF_MEMORY;
+        goto err;
+    }
+    apdu.cla = 0;
+    c_data->auth_token = ASN1_OCTET_STRING_new();
+    if (!c_data->auth_token
+            || !M_ASN1_OCTET_STRING_set(
+                c_data->auth_token, in, in_len)) {
+        r = SC_ERROR_INTERNAL;
+        goto err;
+    }
+    r = i2d_PACE_GEN_AUTH_C(c_data, &d);
+    if (r < 0) {
+        r = SC_ERROR_INTERNAL;
+        goto err;
+    }
+    apdu.data = (const u8 *) d;
+    apdu.datalen = r;
+    apdu.lc = r;
+
+    if (card->ctx->debug > SC_LOG_TYPE_DEBUG)
+        bin_log(card->ctx, "General authenticate (Perform Key Agreement) command data", apdu.data, apdu.datalen);
+
+    apdu.resplen = maxresp;
+    apdu.resp = malloc(apdu.resplen);
+    if (oldpacectx)
+        r = sm_transmit_apdu(oldpacectx, card, &apdu);
+    else
+        r = sc_transmit_apdu(card, &apdu);
+    if (r < 0)
+        goto err;
+
+    r = sc_check_sw(card, apdu.sw1, apdu.sw2);
+    if (r < 0)
+        goto err;
+
+    if (card->ctx->debug > SC_LOG_TYPE_DEBUG)
+        bin_log(card->ctx, "General authenticate (Perform Key Agreement) response data", apdu.resp, apdu.resplen);
+
+    if (!d2i_PACE_GEN_AUTH_R(&r_data,
+                (const unsigned char **) &apdu.resp, apdu.resplen)) {
+        sc_error(card->ctx, "Could not parse general authenticate response data.");
+        r = SC_ERROR_INTERNAL;
+        goto err;
+    }
+
+    if (r_data->enc_nonce
+            || r_data->mapping_data
+            || r_data->eph_pub_key
+            || !r_data->auth_token) {
+        sc_error(card->ctx, "Response data of general authenticate for "
+                "step 4 should (only) contain the authentication token.");
+        r = SC_ERROR_UNKNOWN_DATA_RECEIVED;
+        goto err;
+    }
+    p = r_data->auth_token->data;
+    l = r_data->auth_token->length;
+    /* XXX CAR sould be returned as result in some way */
+    if (r_data->cur_car) {
+        bin_log(card->ctx, "Most recent Certificate Authority Reference",
+                r_data->cur_car->data, r_data->cur_car->length);
+        *recent_car = malloc(r_data->cur_car->length);
+        if (!*recent_car) {
+            r = SC_ERROR_OUT_OF_MEMORY;
+            goto err;
+        }
+        memcpy(*recent_car, r_data->cur_car->data, r_data->cur_car->length);
+        *recent_car_len = r_data->cur_car->length;
+    } else
+        *recent_car_len = 0;
+    if (r_data->prev_car) {
+        bin_log(card->ctx, "Previous Certificate Authority Reference",
+                r_data->prev_car->data, r_data->prev_car->length);
+        *prev_car = malloc(r_data->prev_car->length);
+        if (!*prev_car) {
+            r = SC_ERROR_OUT_OF_MEMORY;
+            goto err;
+        }
+        memcpy(*prev_car, r_data->prev_car->data, r_data->prev_car->length);
+        *prev_car_len = r_data->prev_car->length;
+    } else
+        *prev_car_len = 0;
+
+    *auth_token_out = malloc(l);
+    if (!*auth_token_out) {
+        r = SC_ERROR_OUT_OF_MEMORY;
+        goto err;
+    }
+    memcpy(*auth_token_out, p, l);
+    *auth_token_out_len = l;
 
 err:
     if (c_data) {
@@ -689,9 +961,9 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
         const __u8 *in, size_t inlen, __u8 **out, size_t *outlen, struct sm_ctx *sctx)
 {
     __u8 pin_id;
-    size_t length_chat, length_pin, length_cert_desc, length_ef_cardaccess;
+    size_t length_chat, length_pin, length_cert_desc, length_ef_cardaccess, recent_car_len, prev_car_len;
     const __u8 *chat, *pin, *certificate_description;
-    __u8 *ef_cardaccess = NULL;
+    __u8 *ef_cardaccess = NULL, *p = NULL, *recent_car = NULL, *prev_car = NULL;
     PACEInfo *info = NULL;
     __le16 word;
     PACEDomainParameterInfo *static_dp = NULL, *eph_dp = NULL;
@@ -770,20 +1042,21 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
             goto err;
         }
         /* get enough memory for status bytes and EF.CardAccess */
-        *out = realloc(4 + length_ef_cardaccess);
-        if (!*out) {
+        p = realloc(*out, 6 + length_ef_cardaccess);
+        if (!p) {
             r = SC_ERROR_OUT_OF_MEMORY;
             goto err;
         }
+        *out = p;
         word = __cpu_to_le16(length_ef_cardaccess);
-        memcpy(*out + 2, &word, sizeof word);
-        memcpy(*out + 4, ef_cardaccess, length_ef_cardaccess);
+        memcpy((*out) + 2, &word, sizeof word);
+        memcpy((*out) + 4, ef_cardaccess, length_ef_cardaccess);
     } else {
         /* PACE is executed the second time. EF.CardAccess should already be
          * present */
-        memcpy(&word, *out + 2, sizeof word);
+        memcpy(&word, (*out) + 2, sizeof word);
         length_ef_cardaccess = __le16_to_cpu(word);
-        ef_cardaccess = *out + 4;
+        ef_cardaccess = (*out) + 4;
     }
     *outlen = 4+length_ef_cardaccess;
     bin_log(card->ctx, "EF.CardAccess", ef_cardaccess, length_ef_cardaccess);
@@ -796,7 +1069,7 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
         goto err;
     }
 
-    r = pace_mse_set_at(oldpacectx, card, info->protocol, pin_id, chat, length_chat, *out, *out+1);
+    r = pace_mse_set_at(oldpacectx, card, info->protocol, pin_id, chat, length_chat, *out, (*out)+1);
     if (r < 0) {
         sc_error(card->ctx, "Could not select protocol proberties "
                 "(MSE: Set AT).");
@@ -807,7 +1080,7 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
         r = SC_ERROR_INTERNAL;
         goto err;
     }
-    r = pace_gen_auth(oldpacectx, card, 1, NULL, 0, (u8 **) &enc_nonce->data,
+    r = pace_gen_auth_1_encrypted_nonce(oldpacectx, card, (u8 **) &enc_nonce->data,
             &enc_nonce->length);
     if (r < 0) {
         sc_error(card->ctx, "Could not get encrypted nonce from card "
@@ -842,7 +1115,7 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
         r = SC_ERROR_INTERNAL;
         goto err;
     }
-    r = pace_gen_auth(oldpacectx, card, 2, (u8 *) mdata->data, mdata->length,
+    r = pace_gen_auth_2_map_nonce(oldpacectx, card, (u8 *) mdata->data, mdata->length,
             (u8 **) &mdata_opp->data, &mdata_opp->length);
     if (r < 0) {
         sc_error(card->ctx, "Could not exchange mapping data with card "
@@ -863,7 +1136,7 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
         r = SC_ERROR_INTERNAL;
         goto err;
     }
-    r = pace_gen_auth(oldpacectx, card, 3, (u8 *) pub->data, pub->length,
+    r = pace_gen_auth_3_perform_key_agreement(oldpacectx, card, (u8 *) pub->data, pub->length,
             (u8 **) &pub_opp->data, &pub_opp->length);
     if (r < 0) {
         sc_error(card->ctx, "Could not exchange ephemeral public key with card "
@@ -892,8 +1165,25 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
         r = SC_ERROR_INTERNAL;
         goto err;
     }
-    r = pace_gen_auth(oldpacectx, card, 4, (u8 *) token->data, token->length,
-            (u8 **) &token_opp->data, &token_opp->length);
+    r = pace_gen_auth_4_mutual_authentication(oldpacectx, card, (u8 *) token->data, token->length,
+            (u8 **) &token_opp->data, &token_opp->length, &recent_car, &recent_car_len,
+            &prev_car, &prev_car_len);
+
+    /* get enough memory for CARs */
+    p = realloc(*out, (*outlen) + 1 + recent_car_len + 1 + prev_car_len);
+    if (!p) {
+        r = SC_ERROR_OUT_OF_MEMORY;
+        goto err;
+    }
+    *out = p;
+    (*out)[*outlen] = recent_car_len;
+    memcpy((*out) + (*outlen) + 1,
+            recent_car, recent_car_len);
+    (*out)[(*outlen) + 1 + recent_car_len] = prev_car_len;
+    memcpy((*out) + (*outlen) + 1 + recent_car_len + 1,
+            prev_car, prev_car_len);
+    *outlen += 1 + recent_car_len + 1 + prev_car_len;
+
     if (r < 0) {
         sc_error(card->ctx, "Could not exchange authentication token with card "
                 "(General Authenticate step 4 failed).");

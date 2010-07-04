@@ -965,7 +965,7 @@ static void *interrupt (void *param)
                 fprintf(stderr, "interrupt loop: writing RDR_to_PC_NotifySlotChange... ");
             result = write(status_fd, slotchange, sizeof *slotchange);
             if (verbose > 1)
-                fprintf(stderr, "done.\n");
+                fprintf(stderr, "done (%d written).\n", result);
         }
     } while (result >= 0);
 
@@ -1038,7 +1038,7 @@ static void *ccid (void *param)
             fprintf(stderr, "bulk loop: writing %d bytes... ", result);
         result = write(source_fd, outbuf, result);
         if (verbose > 1)
-            fprintf(stderr, "done.\n");
+            fprintf(stderr, "done (%d written).\n", result);
     } while (result >= 0);
 
     if (errno != ESHUTDOWN || result < 0) {
@@ -1500,7 +1500,7 @@ special:
                         fprintf(stderr, "control loop: writing %d bytes... ", result);
                     result = write (fd, outbuf, result);
                     if (verbose > 1)
-                        fprintf(stderr, "done.\n");
+                        fprintf(stderr, "done (%d written).\n");
                     if (result < 0)
                         goto stall;
                 } return;

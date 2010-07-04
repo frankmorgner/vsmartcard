@@ -872,7 +872,7 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
                 goto err;
             }
 
-            sc_result = EstablishPACEChannel(&sctx,
+            sc_result = EstablishPACEChannel(NULL,
                     card_in_slot[request->bSlot], abData + 1, abDatalen-1,
                     &abDataOut, &resplen, &sctx);
             goto err;
