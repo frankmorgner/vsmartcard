@@ -2,8 +2,8 @@ bin_SCRIPTS = pace-gui.py
 
 pinpaddir = $(prefix)/bin
 
-pinpad_PYTHON = 		\
-	pinpad_globals.py
+pacegui_PYTHON = 		\
+	pace_gui_globals.py
 
 uidir = $(datadir)/pinpad
 ui_DATA = pinpad.glade
