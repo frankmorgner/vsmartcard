@@ -230,6 +230,7 @@ Index: Drivers/ccid/src/commands.c
 +		length = *RxLength;
 +		return IFD_ERROR_INSUFFICIENT_BUFFER;
 +	}
++	memcpy(RxBuffer, &cmd[10], length);
 +
 +	return IFD_SUCCESS;
 +}
