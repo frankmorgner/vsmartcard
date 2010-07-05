@@ -24,7 +24,7 @@ AC_SUBST(PYGTK_LIBS)
 
 AC_CONFIG_FILES([Makefile
                  src/Makefile
-                 src/pace-gui-globals.py
+                 src/pace_gui_globals.py
                  src/pace-gui.desktop
                  images/Makefile])
 AC_OUTPUT
