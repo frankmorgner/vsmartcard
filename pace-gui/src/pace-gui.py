@@ -16,7 +16,7 @@ except:
     print >> sys.stderr, "Could not import pace module, please install pyPACE"
     sys.exit(1)
 
-from pinpad_globals import *
+from pace_gui_globals import *
 
 at_chat_strings = [
         "Altersverifikation", #"Age Verification",
@@ -154,8 +154,10 @@ class CertificateDescriptionWindow(MokoWindow):
         cvc = pace.d2i_CV_CERT(binCert) #FIXME
         effective_date = self.formatDate(pace.get_effective_date(cvc))
         expiration_date = self.formatDate(pace.get_expiration_date(cvc))
-        self.addRow(u"Gültig ab:", effective_date)
-        self.addRow(u"Gültig bis:", expiration_date)
+        validity_period = effective_date + " - " + expiration_date
+        #self.addRow(u"Gültig ab:", effective_date)
+        #self.addRow(u"Gültig bis:", expiration_date)
+        self.addRow(u"Gültigkeitszeitraum:", validity_period)
 
         #Display issuer Name and possibly URL and subject name and possibly URL
         issuerName = pace.get_issuer_name(desc)

@@ -5,6 +5,7 @@
   <object class="GtkWindow" id="MainWindow">
     <property name="visible">True</property>
     <property name="title" translatable="yes">Pinpad</property>
+    <property name="resizable">False</property>
     <property name="window_position">center</property>
     <property name="default_width">480</property>
     <property name="default_height">640</property>
@@ -14,7 +15,6 @@
     <child>
       <object class="GtkVBox" id="vbox1">
         <property name="visible">True</property>
-        <property name="orientation">vertical</property>
         <child>
           <object class="GtkLabel" id="lblInstruction">
             <property name="visible">True</property>
@@ -64,8 +64,9 @@
         <child>
           <object class="GtkLabel" id="lbl_cardStatus">
             <property name="visible">True</property>
-            <property name="label" translatable="yes">&lt;span fgcolor="red" font_weight="bold" font="11"&gt;Keine Karte gefunden&lt;/span&gt;</property>
+            <property name="label" translatable="yes">&lt;span fgcolor="red" font="12"&gt;Kein Ausweis&lt;/span&gt;</property>
             <property name="use_markup">True</property>
+            <property name="justify">center</property>
           </object>
           <packing>
             <property name="position">4</property>
@@ -243,6 +244,8 @@
             </child>
           </object>
           <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
             <property name="position">5</property>
           </packing>
         </child>
@@ -265,7 +268,6 @@
     <child>
       <object class="GtkVBox" id="vbox2">
         <property name="visible">True</property>
-        <property name="orientation">vertical</property>
         <child>
           <object class="GtkLabel" id="lblCaption">
             <property name="visible">True</property>

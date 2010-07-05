@@ -3,7 +3,7 @@ version = "@VERSION@"
 image_dir = "@prefix@/share/pixmaps"
 glade_dir = "@prefix@/share/" + name
 
-STR_NO_CARD = "<span fgcolor=\"red\" font_weight=\"bold\" font=\"11\">Keine Karte gefunden</span>"
+STR_NO_CARD = "<span fgcolor=\"red\" font_weight=\"bold\" font=\"11\">Keine Karte\ngefunden</span>"
 STR_CARD_FOUND = "<span fgcolor=\"green\" font_weight=\"bold\" font=\"11\">Karte gefunden</span>"
 ePA_ATR = "3b:84:80:01:00:00:90:00:95"
 
