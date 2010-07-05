@@ -1,6 +1,6 @@
 bin_SCRIPTS = pace-gui.py
 
-pinpaddir = $(prefix)/bin
+paceguidir = $(prefix)/bin
 
 pacegui_PYTHON = 		\
 	pace_gui_globals.py
