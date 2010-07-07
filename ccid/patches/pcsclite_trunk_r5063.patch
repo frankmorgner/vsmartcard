@@ -43,7 +43,7 @@ Index: Drivers/ccid/src/ifdhandler.c
 +                return_value = IFD_COMMUNICATION_ERROR;
 +            } else {
 +                uint16_t lengthInputData;
-+                lengthInputData = *((uint16_t *) (TxBuffer + 1));
++                memcpy(&lengthInputData, &TxBuffer[1], 2);
 +
 +                if (TxLength != 3+lengthInputData) {
 +                    DEBUG_CRITICAL3("Buffer too small or too big to contain only "
@@ -79,7 +79,7 @@ Index: Drivers/ccid/src/commands.c
 ===================================================================
 --- Drivers/ccid/src/commands.c	(Revision 5063)
 +++ Drivers/ccid/src/commands.c	(Arbeitskopie)
-@@ -68,7 +68,13 @@
+@@ -68,7 +68,19 @@
  	unsigned int tx_length, unsigned char tx_buffer[], unsigned int *rx_length,
  	unsigned char rx_buffer[]);
  
@@ -88,64 +88,204 @@ Index: Drivers/ccid/src/commands.c
 +	unsigned char RxBuffer[], unsigned int *RxLength,
 +        unsigned char bPINOperation);
 +
++static RESPONSECODE transform_EstablishPACEChannel_InputData(
++	unsigned char input[], unsigned int input_length);
++
++static RESPONSECODE transform_EstablishPACEChannel_OutputData(
++	unsigned char output[], unsigned int output_length);
++
  static void i2dw(int value, unsigned char *buffer);
 +static void i2w(uint16_t value, unsigned char *buffer);
  
  
  /*****************************************************************************
-@@ -712,7 +718,217 @@
+@@ -712,7 +724,299 @@
  	return ret;
  } /* SecurePINModify */
  
++static RESPONSECODE transform_EstablishPACEChannel_InputData(
++	unsigned char input[], unsigned int input_length)
++{
++    uint8_t lengthCHAT, lengthPIN;
++    uint16_t lengthCertificateDescription;
++    size_t parsed = 0;
+ 
++    /* transform length fields of input data to little endian */
++
++    if (input_length < parsed+1) {
++        DEBUG_CRITICAL("Malformed Establish PACE Channel input data.");
++        return IFD_COMMUNICATION_ERROR;
++    }
++    switch (input[parsed]) {
++        case 0x01:
++            DEBUG_COMM("Initiating PACE with MRZ");
++        case 0x02:
++            DEBUG_COMM("Initiating PACE with CAN");
++        case 0x03:
++            DEBUG_COMM("Initiating PACE with PIN");
++        case 0x04:
++            DEBUG_COMM("Initiating PACE with PUK");
++        default:
++            DEBUG_COMM("Initiating PACE with unknown PACE secret type");
++    }
++    parsed += 1;
++
++    if (input_length < parsed+1) {
++        DEBUG_CRITICAL("Malformed Establish PACE Channel input data.");
++        return IFD_COMMUNICATION_ERROR;
++    }
++    lengthCHAT = input[parsed];
++    parsed += 1;
++
++    if (input_length < parsed+lengthCHAT) {
++        DEBUG_CRITICAL("Malformed Establish PACE Channel input data.");
++        return IFD_COMMUNICATION_ERROR;
++    }
++    if (lengthCHAT)
++        DEBUG_INFO_XXD("CHAT:\n", &input[parsed], lengthCHAT);
++    parsed += lengthCHAT;
++
++    if (input_length < parsed+1) {
++        DEBUG_CRITICAL("Malformed Establish PACE Channel input data.");
++        return IFD_COMMUNICATION_ERROR;
++    }
++    lengthPIN = input[parsed];
++    parsed += 1;
++
++    if (input_length < parsed+lengthPIN) {
++        DEBUG_CRITICAL("Malformed Establish PACE Channel input data.");
++        return IFD_COMMUNICATION_ERROR;
++    }
++#if 0
++    /* dont print secrets... */
++    if (lengthPIN)
++        DEBUG_INFO_XXD("PIN:\n", &input[parsed], lengthPIN);
++#endif
++    parsed += lengthPIN;
++
++    if (input_length < parsed+2) {
++        DEBUG_CRITICAL("Malformed Establish PACE Channel input data.");
++        return IFD_COMMUNICATION_ERROR;
++    }
++    memcpy(&lengthCertificateDescription, &input[parsed], 2);
++    i2w(lengthCertificateDescription, &input[parsed]);
++    parsed += 2;
++
++    if (input_length < parsed+lengthCertificateDescription) {
++        DEBUG_CRITICAL("Malformed Establish PACE Channel input data.");
++        return IFD_COMMUNICATION_ERROR;
++    }
++    if (lengthCertificateDescription)
++        DEBUG_INFO_XXD("Certificate description:\n", &input[parsed], lengthCertificateDescription);
++    parsed += lengthCHAT;
++
++    if (parsed != input_length) {
++        DEBUG_CRITICAL2("Overrun by %d bytes", input_length - parsed);
++        return IFD_COMMUNICATION_ERROR;
++    }
++
++    return IFD_SUCCESS;
++}
++
++static RESPONSECODE transform_EstablishPACEChannel_OutputData(
++	unsigned char output[], unsigned int output_length)
++{
++    uint8_t lengthCAR, lengthCARprev;
++    uint16_t lengthEF_CardAccess, length_IDicc;
++    size_t parsed = 0;
++
++    if (parsed+2 > output_length) {
++        DEBUG_CRITICAL("Malformed Establish PACE Channel output data.");
++        return IFD_COMMUNICATION_ERROR;
++    }
++    DEBUG_COMM3("MSE:Set AT Statusbytes: %02X %02X",
++            output[parsed+0], output[parsed+1]);
++    parsed += 2;
++
++    if (parsed+2 > output_length) {
++        DEBUG_CRITICAL("Malformed Establish PACE Channel output data.");
++        return IFD_COMMUNICATION_ERROR;
++    }
++    lengthEF_CardAccess = w2i(output, parsed);
++    parsed += 2;
++
++    if (parsed+lengthEF_CardAccess > output_length) {
++        DEBUG_CRITICAL("Malformed Establish PACE Channel output data.");
++        return IFD_COMMUNICATION_ERROR;
++    }
++    if (lengthEF_CardAccess)
++        DEBUG_INFO_XXD("EF.CardAccess:\n", &output[parsed], lengthEF_CardAccess);
++    parsed += lengthEF_CardAccess;
++
++    if (parsed+1 > output_length) {
++        DEBUG_CRITICAL("Malformed Establish PACE Channel output data.");
++        return IFD_COMMUNICATION_ERROR;
++    }
++    lengthCAR = output[parsed];
++    parsed += 1;
++
++    if (parsed+lengthCAR > output_length) {
++        DEBUG_CRITICAL("Malformed Establish PACE Channel output data.");
++        return IFD_COMMUNICATION_ERROR;
++    }
++    if (lengthCAR)
++        DEBUG_INFO_XXD("Recent Certificate Authority:\n",
++                &output[parsed], lengthCAR);
++    parsed += lengthCAR;
++
++    if (parsed+1 > output_length) {
++        DEBUG_CRITICAL("Malformed Establish PACE Channel output data.");
++        return IFD_COMMUNICATION_ERROR;
++    }
++    lengthCARprev = output[parsed];
++    parsed += 1;
++
++    if (parsed+lengthCARprev > output_length) {
++        DEBUG_CRITICAL("Malformed Establish PACE Channel output data.");
++        return IFD_COMMUNICATION_ERROR;
++    }
++    if (lengthCARprev)
++        DEBUG_INFO_XXD("Previous Certificate Authority:\n",
++                &output[parsed], lengthCARprev);
++    parsed += lengthCARprev;
++
++    if (parsed+2 > output_length) {
++        DEBUG_CRITICAL("Malformed Establish PACE Channel output data.");
++        return IFD_COMMUNICATION_ERROR;
++    }
++    length_IDicc = w2i(output, parsed);
++    parsed += 2;
++
++    if (parsed+length_IDicc > output_length) {
++        DEBUG_CRITICAL("Malformed Establish PACE Channel output data.");
++        return IFD_COMMUNICATION_ERROR;
++    }
++    if (length_IDicc)
++        DEBUG_INFO_XXD("IDicc:\n", &output[parsed], length_IDicc);
++    parsed += length_IDicc;
++
++    if (parsed != output_length) {
++        DEBUG_CRITICAL2("Overrun by %d bytes", output_length - parsed);
++        return IFD_COMMUNICATION_ERROR;
++    }
++
++    return IFD_SUCCESS;
++}
++
 +RESPONSECODE SecurePINPACEVerify(unsigned int reader_index,
 +	unsigned char TxBuffer[], unsigned int TxLength,
 +	unsigned char RxBuffer[], unsigned int *RxLength)
 +{
 +    RESPONSECODE return_value;
-+    unsigned char lengthCHAT, lengthPIN;
-+    uint16_t lengthCertificateDescription, lengthEF_CardAccess, length_IDicc;
-+    uint8_t lengthCAR, lengthCARprev;
 +    int old_read_timeout;
-+    size_t parsed;
 +    _ccid_descriptor *ccid_descriptor = get_ccid_descriptor(reader_index);
- 
++
 +    old_read_timeout= ccid_descriptor -> readTimeout;
 +    ccid_descriptor -> readTimeout = 30*1000;	/* 30 seconds */
 +
-+    if (TxLength < 2) {
-+        DEBUG_CRITICAL("Buffer too small, could not determine length of "
-+                "CHAT");
-+        return_value = IFD_COMMUNICATION_ERROR;
++    return_value = transform_EstablishPACEChannel_InputData(TxBuffer, TxLength);
++    if (IFD_SUCCESS != return_value)
 +        goto err;
-+    }
-+    lengthCHAT = *(TxBuffer + 1);
-+
-+    if (TxLength < 2+lengthCHAT) {
-+        DEBUG_CRITICAL("Buffer too small, could not determine length of "
-+                "PIN");
-+        return_value = IFD_COMMUNICATION_ERROR;
-+        goto err;
-+    }
-+    lengthPIN = *(TxBuffer + 1 + lengthCHAT);
-+
-+    if (TxLength < 3+lengthCHAT+lengthPIN) {
-+        DEBUG_CRITICAL("Buffer too small, could not determine length of "
-+                "certificate description");
-+        return_value = IFD_COMMUNICATION_ERROR;
-+        goto err;
-+    }
-+    lengthCertificateDescription = *((uint16_t *)
-+            (TxBuffer + 1 + lengthCHAT + lengthPIN));
-+
-+    if (TxLength != 5+lengthCHAT+lengthPIN+lengthCertificateDescription) {
-+        DEBUG_CRITICAL3("Buffer too small or too big to contain only "
-+                "CHAT, PIN and certificate description (expected %u, got %u)",
-+                5+lengthCHAT+lengthPIN+lengthCertificateDescription, TxLength);
-+        return_value = IFD_COMMUNICATION_ERROR;
-+        goto err;
-+    }
-+
-+    i2w(lengthCertificateDescription, TxBuffer + 1 + lengthCHAT + lengthPIN);
 +
 +    /* bPINOperation: PIN PACE Capabilities */
 +    return_value = SecurePINPACE(reader_index, TxBuffer, TxLength, RxBuffer,
@@ -153,71 +293,15 @@ Index: Drivers/ccid/src/commands.c
 +    if (IFD_SUCCESS != return_value)
 +        goto err;
 +
-+
-+    if (6+2 > *RxLength)
-+        goto err;
-+    DEBUG_INFO3("MSE:Set AT Statusbytes: %02X %02X",
-+            RxBuffer[6+0], RxBuffer[6+1]);
-+    parsed = 6+2;
-+
-+
-+    if (parsed+2 > *RxLength)
-+        goto err;
-+    lengthEF_CardAccess = w2i(RxBuffer, parsed);
-+    if (parsed+2+lengthEF_CardAccess > *RxLength) {
-+        DEBUG_CRITICAL("Malformed Establish PACE Channel output data.");
++    if (*RxLength < 6) {
++        DEBUG_CRITICAL("Malformed Establish PACE output buffer.");
 +        return_value = IFD_COMMUNICATION_ERROR;
 +        goto err;
 +    }
-+    if (lengthEF_CardAccess)
-+        DEBUG_INFO_XXD("EF.CardAccess:\n", &RxBuffer[parsed+2], lengthEF_CardAccess);
-+    parsed += 2 + lengthEF_CardAccess;
 +
-+    if (parsed+1 > *RxLength)
++    return_value = transform_EstablishPACEChannel_OutputData(RxBuffer+6, (*RxLength)-6);
++    if (IFD_SUCCESS != return_value)
 +        goto err;
-+    lengthCAR = RxBuffer[parsed+1];
-+    if (parsed+1+lengthCAR > *RxLength) {
-+        DEBUG_CRITICAL("Malformed Establish PACE Channel output data.");
-+        return_value = IFD_COMMUNICATION_ERROR;
-+        goto err;
-+    }
-+    if (lengthCAR)
-+        DEBUG_INFO_XXD("Recent Certificate Authority:\n",
-+                &RxBuffer[parsed+1],
-+                lengthCAR);
-+    parsed += 1 + lengthCAR;
-+
-+    if (parsed+1 > *RxLength)
-+        goto err;
-+    lengthCARprev = RxBuffer[parsed+1];
-+    if (parsed+1+lengthCARprev > *RxLength) {
-+        DEBUG_CRITICAL("Malformed Establish PACE Channel output data.");
-+        return_value = IFD_COMMUNICATION_ERROR;
-+        goto err;
-+    }
-+    if (lengthCARprev)
-+        DEBUG_INFO_XXD("Previous Certificate Authority:\n",
-+                &RxBuffer[parsed+1],
-+                lengthCARprev);
-+    parsed += 1 + lengthCARprev;
-+
-+    if (parsed+2 > *RxLength)
-+        goto err;
-+    length_IDicc = w2i(RxBuffer, parsed);
-+    if (parsed+2+length_IDicc > *RxLength) {
-+        DEBUG_CRITICAL("Malformed Establish PACE Channel output data.");
-+        return_value = IFD_COMMUNICATION_ERROR;
-+        goto err;
-+    }
-+    if (length_IDicc)
-+        DEBUG_INFO_XXD("IDicc:\n", &RxBuffer[parsed+2], length_IDicc);
-+    parsed += 2 + length_IDicc;
-+
-+    if (parsed != *RxLength) {
-+        DEBUG_CRITICAL2("Overrun by %d bytes", *RxLength - parsed);
-+        return_value = IFD_COMMUNICATION_ERROR;
-+        goto err;
-+    }
 +
 +err:
 +    ccid_descriptor -> readTimeout = old_read_timeout;
@@ -257,8 +341,10 @@ Index: Drivers/ccid/src/commands.c
 +	res = WritePort(reader_index, 11 + TxLength, cmd);
 +	if (res != STATUS_SUCCESS)
 +	{
++    DEBUG_CRITICAL("");
 +            if (STATUS_NO_SUCH_DEVICE == res)
 +                return IFD_NO_SUCH_DEVICE;
++    DEBUG_CRITICAL("");
 +            return IFD_COMMUNICATION_ERROR;
 +	}
 +
@@ -266,8 +352,10 @@ Index: Drivers/ccid/src/commands.c
 +	res = ReadPort(reader_index, &length, cmd);
 +	if (res != STATUS_SUCCESS)
 +	{
++    DEBUG_CRITICAL("");
 +		if (STATUS_NO_SUCH_DEVICE == res)
 +			return IFD_NO_SUCH_DEVICE;
++    DEBUG_CRITICAL("");
 +		return IFD_COMMUNICATION_ERROR;
 +	}
 +
@@ -299,9 +387,9 @@ Index: Drivers/ccid/src/commands.c
 +		DEBUG_CRITICAL2("overrun by %d bytes", length + 6 - *RxLength);
 +		return IFD_ERROR_INSUFFICIENT_BUFFER;
 +	}
-+        uint32_t s = 0x00000000;
-+        memcpy(RxBuffer,   &s,       4);   /* "Kein Fehler" */
-+        memcpy(RxBuffer+4, &length,  2);   /* lengthOutputData */
++        uint32_t s = 0x00000000;            /* "Kein Fehler" */
++        memcpy(RxBuffer,   &s,       4);
++        memcpy(RxBuffer+4, &length,  2);    /* lengthOutputData */
 +	memcpy(RxBuffer+6, &cmd[10], length);
 +
 +	return IFD_SUCCESS;
@@ -311,7 +399,7 @@ Index: Drivers/ccid/src/commands.c
  /*****************************************************************************
   *
   *					Escape
-@@ -2113,3 +2329,15 @@
+@@ -2113,3 +2417,15 @@
  	buffer[3] = (value >> 24) & 0xFF;
  } /* i2dw */
  

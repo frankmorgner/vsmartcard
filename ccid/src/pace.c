@@ -1199,6 +1199,16 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
         goto err;
     }
 
+    /* get enough memory for IDicc */
+    p = realloc(*out, (*outlen) + 2);
+    if (!p) {
+        r = SC_ERROR_OUT_OF_MEMORY;
+        goto err;
+    }
+    *out = p;
+    memset((*out) + (*outlen), 0, 2);
+    *outlen += 2;
+
     /* XXX parse CHAT to check role of terminal */
 
     sctx->authentication_ctx = pace_sm_ctx_create(k_mac,
