@@ -6,7 +6,7 @@ Index: ccid-1.3.13/src/ifdhandler.c
  			iBytesReturned += sizeof(PCSC_TLV_STRUCTURE);
  		}
  
-+		if (ccid_descriptor -> bPINSupport & CCID_CLASS_PIN_PACE_CAPABILITIES)
++		if (get_ccid_descriptor(reader_index) -> bPINSupport & CCID_CLASS_PIN_PACE_CAPABILITIES)
 +		{
 +			pcsc_tlv -> tag = FEATURE_EXECUTE_PACE;
 +			pcsc_tlv -> length = 0x04; /* always 0x04 */
@@ -81,7 +81,7 @@ Index: ccid-1.3.13/src/commands.c
  
  
  /*****************************************************************************
-@@ -712,7 +718,144 @@
+@@ -712,7 +718,217 @@
  	return ret;
  } /* SecurePINModify */
  
@@ -91,8 +91,10 @@ Index: ccid-1.3.13/src/commands.c
 +{
 +    RESPONSECODE return_value;
 +    unsigned char lengthCHAT, lengthPIN;
-+    uint16_t lengthCertificateDescription;
++    uint16_t lengthCertificateDescription, lengthEF_CardAccess, length_IDicc;
++    uint8_t lengthCAR, lengthCARprev;
 +    int old_read_timeout;
++    size_t parsed;
 +    _ccid_descriptor *ccid_descriptor = get_ccid_descriptor(reader_index);
  
 +    old_read_timeout= ccid_descriptor -> readTimeout;
@@ -136,6 +138,74 @@ Index: ccid-1.3.13/src/commands.c
 +    /* bPINOperation: PIN PACE Capabilities */
 +    return_value = SecurePINPACE(reader_index, TxBuffer, TxLength, RxBuffer,
 +            RxLength, CCID_CLASS_PIN_PACE_EXECUTE);
++    if (IFD_SUCCESS != return_value)
++        goto err;
++
++
++    if (6+2 > *RxLength)
++        goto err;
++    DEBUG_INFO3("MSE:Set AT Statusbytes: %02X %02X",
++            RxBuffer[6+0], RxBuffer[6+1]);
++    parsed = 6+2;
++
++
++    if (parsed+2 > *RxLength)
++        goto err;
++    lengthEF_CardAccess = w2i(RxBuffer, parsed);
++    if (parsed+2+lengthEF_CardAccess > *RxLength) {
++        DEBUG_CRITICAL("Malformed Establish PACE Channel output data.");
++        return_value = IFD_COMMUNICATION_ERROR;
++        goto err;
++    }
++    if (lengthEF_CardAccess)
++        DEBUG_INFO_XXD("EF.CardAccess:\n", &RxBuffer[parsed+2], lengthEF_CardAccess);
++    parsed += 2 + lengthEF_CardAccess;
++
++    if (parsed+1 > *RxLength)
++        goto err;
++    lengthCAR = RxBuffer[parsed+1];
++    if (parsed+1+lengthCAR > *RxLength) {
++        DEBUG_CRITICAL("Malformed Establish PACE Channel output data.");
++        return_value = IFD_COMMUNICATION_ERROR;
++        goto err;
++    }
++    if (lengthCAR)
++        DEBUG_INFO_XXD("Recent Certificate Authority:\n",
++                &RxBuffer[parsed+1],
++                lengthCAR);
++    parsed += 1 + lengthCAR;
++
++    if (parsed+1 > *RxLength)
++        goto err;
++    lengthCARprev = RxBuffer[parsed+1];
++    if (parsed+1+lengthCARprev > *RxLength) {
++        DEBUG_CRITICAL("Malformed Establish PACE Channel output data.");
++        return_value = IFD_COMMUNICATION_ERROR;
++        goto err;
++    }
++    if (lengthCARprev)
++        DEBUG_INFO_XXD("Previous Certificate Authority:\n",
++                &RxBuffer[parsed+1],
++                lengthCARprev);
++    parsed += 1 + lengthCARprev;
++
++    if (parsed+2 > *RxLength)
++        goto err;
++    length_IDicc = w2i(RxBuffer, parsed);
++    if (parsed+2+length_IDicc > *RxLength) {
++        DEBUG_CRITICAL("Malformed Establish PACE Channel output data.");
++        return_value = IFD_COMMUNICATION_ERROR;
++        goto err;
++    }
++    if (length_IDicc)
++        DEBUG_INFO_XXD("IDicc:\n", &RxBuffer[parsed+2], length_IDicc);
++    parsed += 2 + length_IDicc;
++
++    if (parsed != *RxLength) {
++        DEBUG_CRITICAL2("Overrun by %d bytes", *RxLength - parsed);
++        return_value = IFD_COMMUNICATION_ERROR;
++        goto err;
++    }
 +
 +err:
 +    ccid_descriptor -> readTimeout = old_read_timeout;
@@ -210,15 +280,17 @@ Index: ccid-1.3.13/src/commands.c
 +	}
 +
 +	length = dw2i(cmd, 1);
-+	if (length <= *RxLength)
-+		*RxLength = length;
++	if (length + 6 <= *RxLength)
++		*RxLength = length + 6;
 +	else
 +	{
-+		DEBUG_CRITICAL2("overrun by %d bytes", length - *RxLength);
-+		length = *RxLength;
++		DEBUG_CRITICAL2("overrun by %d bytes", length + 6 - *RxLength);
 +		return IFD_ERROR_INSUFFICIENT_BUFFER;
 +	}
-+	memcpy(RxBuffer, &cmd[10], length);
++        uint32_t s = 0x00000000;
++        memcpy(RxBuffer,   &s,       4);   /* "Kein Fehler" */
++        memcpy(RxBuffer+4, &length,  2);   /* lengthOutputData */
++	memcpy(RxBuffer+6, &cmd[10], length);
 +
 +	return IFD_SUCCESS;
 +}
@@ -227,7 +299,7 @@ Index: ccid-1.3.13/src/commands.c
  /*****************************************************************************
   *
   *					Escape
-@@ -2113,3 +2256,15 @@
+@@ -2113,3 +2329,15 @@
  	buffer[3] = (value >> 24) & 0xFF;
  } /* i2dw */
  
@@ -279,6 +351,15 @@ Index: ccid-1.3.13/src/ccid.h
  
  /* See CCID specs ch. 4.2.1 */
  #define CCID_ICC_PRESENT_ACTIVE		0x00	/* 00 0000 00 */
+@@ -227,6 +229,8 @@
+ 
+ /* convert a 4 byte integer in USB format into an int */
+ #define dw2i(a, x) (unsigned int)((((((a[x+3] << 8) + a[x+2]) << 8) + a[x+1]) << 8) + a[x])
++/* convert a 2 byte integer in USB format into an int */
++#define w2i(a, x) (unsigned int)(((a[x+1]) << 8) + a[x])
+ 
+ /* all the data rates specified by ISO 7816-3 Fi/Di tables */
+ #define ISO_DATA_RATES 10753, 14337, 15625, 17204, \
 Index: ccid-1.3.13/src/ccid_ifdhandler.h
 ===================================================================
 --- ccid-1.3.13/src/ccid_ifdhandler.h	(Revision 4979)
