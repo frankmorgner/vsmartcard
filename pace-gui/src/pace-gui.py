@@ -271,11 +271,21 @@ class CVCWindow(MokoWindow):
         for right in self.access_rights:
             if not right.is_active():
                 idx = right.idx
-                self.chat_array[len(self.chat) - 1 - idx / 8] ^= (1 << (idx % 8))
+                self.rel_auth[len(self.chat) - 1 - idx / 8] ^= (1 << (idx % 8))
 
         #super(CVCWindow, self).btnForward_clicked(widget, data)
         self.hide()
-        PinpadGTK()
+        newCHAT = self.__formatHexString(self.rel_auth)
+        PinpadGTK("pin", newCHAT)
+
+    def __formatHexString(self, int_list):
+        hex_str = ""
+        for i in int_list:
+            c = hex(i)[2:]
+            if len(c) == 1: c = "0" + c
+            hex_str += c + ":"
+
+        return hex_str[:-1]
 
 class customCheckButton(object):
     """This class provides a custom version of gtk.CheckButton.
@@ -308,12 +318,24 @@ class customCheckButton(object):
 class PinpadGTK:
     """This a simple GTK based GUI to enter a PIN"""
 
-    def __init__(self):
+    def __init__(self, secret="pin", chat=None, cert=None):
         btn_names = ["btnOne", "btnTwo", "btnThree", "btnFour", "btnFive",
                      "btnSix", "btnSeven", "btnEight", "btnNine", "btnDel",
                      "btnZero", "btnOk"]
 
         self.pin = ""
+        self.secret = secret
+        if self.secret == "pin" or self.secret == "can":
+            self.secret_len = 6
+        elif self.secret == "transport":
+            self.secret_len = 5
+        elif self.secret == "puk":
+            self.secret_len = 10
+        else:
+            raise ValueError("Unknwon secret type: %s" % self.secret)
+            gtk.main_quit()
+        self.chat = chat
+        self.cert = cert
 
         #Set the Glade file
         self.gladefile = glade_dir + "/pinpad.glade"
@@ -343,14 +365,16 @@ class PinpadGTK:
                 "on_btnZero_clicked" : self.digit_clicked,
                 "on_btnOk_clicked" : self.btnOk_clicked,
                 "on_btnDel_clicked" : self.btnDel_clicked,
-                "on_MainWindow_destroy_event" : gtk.main_quit,
-                "on_MainWindow_destroy" : gtk.main_quit }
+                "on_MainWindow_destroy_event" : self.shutdown,
+                "on_MainWindow_destroy" : self.shutdown }
 
         self.builder.connect_signals(dic)
 
-        #Change the font for the text field
-        txtOutput = self.builder.get_object("txtOutput")
-        txtOutput.modify_font(pango.FontDescription("Monospace 16"))
+        #Change the font for the text field and set it up up properly for the
+        #type of secret we are using
+        self.output = self.builder.get_object("txtOutput")
+        self.output.modify_font(pango.FontDescription("Monospace 16"))
+        self.output.set_text(self.secret_len * "_")
 
         #Look for card and set the label accordingly
         lbl_cardStatus = self.builder.get_object("lbl_cardStatus")
@@ -390,27 +414,43 @@ class PinpadGTK:
         gtk.main_quit()
 
     def digit_clicked(self, widget):
+        """We indicate the ammount of digits with underscores
+           For every digit that is enterd we replace one underscore with a star
+           We only accept secret_len digits and ignore every additional digit"""
         c = widget.get_label()
-        lbl = self.builder.get_object("txtOutput")
-        txt = lbl.get_text()
-        if len(txt) < 6:
-            lbl.set_text(txt + '*')
+        txt = self.output.get_text()
+        if len(self.pin) < self.secret_len:
+            self.output.set_text(txt.replace("_", "*", 1))
             self.pin += widget.get_label()
 
     def btnOk_clicked(self, widget):
 
-        #Check which radio button is checked, so we know what kind of secret to
-        #use for PACE
-        env_arg = os.environ
-        env_arg["PIN"] = self.pin #We alway use the eID-PIN
+        env_args = os.environ
+        cmd = ["pace-tool"] #Contains the command and all the parameters for our subproccess
 
-        #We have to provide the type of secret to use via a command line parameter
-        param = "--pin"
+        #We have to select the type of secret to use via a command line parameter
+        #and provide the actual secret via an environment variable
+        if self.secret == "pin" or self.secret == "transport":
+            cmd.append("--pin")
+            env_args["PIN"] = self.pin
+        elif self.secret == "can":
+            cmd.append("--can")
+            env_args["CAN"] = self.pin
+        elif self.secret == "puk":
+            cmd.append("--puk")
+            env_args["PUK"] = self.pin
+        else:
+            raise ValueError("Unknown secret type: %s" % self.secret)
 
+        #If we have a CHAT, we pass it to pace-tool
+        if (self.chat):
+            cmd.append("--chat=" + self.chat)
+
+        #Try to call pace-tool. This is a blocking call. A progress bar is being
+        #shown while the subprocess is running
         try:
             self.cardChecker.pause() #Stop polling the card while PACE is running
-            p = subprocess.Popen(["pace-tool", param, "-v"],
-                    stdout=subprocess.PIPE, env=env_arg, close_fds=True)
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, env=env_args, close_fds=True)
         except OSError, e:
             popup = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL |
                     gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_ERROR,
@@ -420,6 +460,7 @@ class PinpadGTK:
             self.cardChecker.resume() #Restart cardChecker
             return
 
+        #Animate the progress bar
         line = p.stdout.readline()
         self.progressWindow.show()
         while gtk.events_pending():
@@ -430,9 +471,10 @@ class PinpadGTK:
                 gtk.main_iteration()
             line = p.stdout.readline()
 
+        #Get the return value of the pace-tool process
         ret = p.poll()
         self.progressWindow.hide()
-        self.cardChecker.resume() #Restart cardChecker
+        self.cardChecker.resume()
 
         if (ret == 0):
             popup = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL |
@@ -442,23 +484,22 @@ class PinpadGTK:
             popup.destroy()
             self.shutdown() #FIXME
         else:
-            lbl = self.builder.get_object("txtOutput")
             popup = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL |
                 gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_WARNING,
                 gtk.BUTTONS_OK,
                 "PIN wurde falsch eingegeben. Bitte erneut versuchen")
             res = popup.run()
             popup.destroy()
-            lbl.set_text("")
+            self.output.set_text(self.secret_len * "_")
             self.pin = ""
 
     def btnDel_clicked(self, widget):
+        """Remove one digit from the pin and replace the last * in the output
+           field with an underscore"""
         self.pin = self.pin[:-1]
-        lbl = self.builder.get_object("txtOutput")
-        txt = lbl.get_text()
-        if len(txt) < 6:
-            lbl.set_text(len(self.pin) * '*')
-
+        txt = self.output.get_text()
+        idx = txt.rfind("*")
+        self.output.set_text(txt[:idx] + "_" + txt[idx + 1:])
 
 class Popup(object):
 
@@ -515,7 +556,7 @@ class cardChecker(Thread):
     def run(self):
         while (True):
             if self._finished.isSet(): return
-            if self._paused.isSet(): continue 
+            if self._paused.isSet(): continue
             self.__cardCheck()
             self._finished.wait(self.intervall)
 
@@ -529,5 +570,6 @@ class cardChecker(Thread):
         self._paused.clear()
 
 if __name__ == "__main__":
+    gobject.threads_init()
     CertificateDescriptionWindow(TEST_DESCRIPTION, TEST_CVC)
     gtk.main()

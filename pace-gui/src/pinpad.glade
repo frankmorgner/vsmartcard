@@ -39,9 +39,9 @@
           <object class="GtkEntry" id="txtOutput">
             <property name="visible">True</property>
             <property name="editable">False</property>
+            <property name="max_length">10</property>
             <property name="invisible_char">&#x25CF;</property>
             <property name="width_chars">0</property>
-            <property name="xalign">0.5</property>
             <property name="truncate_multiline">True</property>
             <property name="shadow_type">out</property>
             <property name="invisible_char_set">True</property>
