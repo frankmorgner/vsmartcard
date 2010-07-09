@@ -112,7 +112,7 @@ class MokoWindow(gtk.Window):
             raise ValueError("Button does not have a label")
         lbl.modify_font(pango.FontDescription("sans 12"))
         hbox.pack_start(btnBack, True, True)
-        
+
         btnForward = gtk.Button("Weiter")
         btnForward.set_size_request(150, 75)
         btnForward.connect("clicked", self.btnForward_clicked, None)
@@ -439,7 +439,8 @@ class PinpadGTK:
                 gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_INFO,
                 gtk.BUTTONS_OK, "PIN wurde korrekt eingegeben")
             res = popup.run()
-            gtk.main_quit()
+            popup.destroy()
+            self.shutdown() #FIXME
         else:
             lbl = self.builder.get_object("txtOutput")
             popup = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL |
