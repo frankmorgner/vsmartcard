@@ -1,4 +1,4 @@
-name = "pinpad"
+name = "pace-gui"
 version = "@VERSION@"
 image_dir = "@prefix@/share/pixmaps"
 glade_dir = "@prefix@/share/" + name

@@ -1,7 +1,7 @@
-pixmapsdir = $(datadir)/pixmaps
+pixmapsdir = $(datadir)/pace-gui/
 pixmaps_DATA = \
-		OpenPACElogo.png \
-		apply.png
+	OpenPACElogo.png \
+	apply.png
 
-EXTRA_DIST =  			\
+EXTRA_DIST = \
 	$(pixmaps_DATA)

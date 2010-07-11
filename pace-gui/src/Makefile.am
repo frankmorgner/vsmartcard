@@ -5,7 +5,7 @@ paceguidir = $(prefix)/bin
 pacegui_PYTHON = 		\
 	pace_gui_globals.py
 
-uidir = $(datadir)/pinpad
+uidir = $(datadir)/pace-gui
 ui_DATA = pinpad.glade
 
 appdir = $(datadir)/applications/
