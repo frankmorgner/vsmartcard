@@ -9,7 +9,7 @@
     <property name="window_position">center</property>
     <property name="default_width">480</property>
     <property name="default_height">640</property>
-    <property name="icon_name">security-medium</property>
+    <property name="icon">OpenPACElogo.png</property>
     <signal name="destroy" handler="on_MainWindow_destroy"/>
     <signal name="destroy_event" handler="on_MainWindow_destroy_event"/>
     <child>
@@ -64,10 +64,13 @@
         <child>
           <object class="GtkHBox" id="hbox1">
             <property name="visible">True</property>
+            <property name="spacing">5</property>
             <child>
               <object class="GtkLabel" id="lbl_cardStatus">
                 <property name="visible">True</property>
-                <property name="label" translatable="yes">&lt;span fgcolor="red" font="12"&gt;Kein Ausweis&lt;/span&gt;</property>
+                <property name="xalign">0.89999997615814209</property>
+                <property name="ypad">5</property>
+                <property name="label" translatable="yes">&lt;span fgcolor="red" font="12"&gt;Ausweis&lt;/span&gt;</property>
                 <property name="use_markup">True</property>
               </object>
               <packing>
@@ -77,6 +80,8 @@
             <child>
               <object class="GtkImage" id="img_cardStatus">
                 <property name="visible">True</property>
+                <property name="xalign">0.10000000149011612</property>
+                <property name="ypad">5</property>
                 <property name="pixbuf">apply.png</property>
               </object>
               <packing>
@@ -260,8 +265,6 @@
             </child>
           </object>
           <packing>
-            <property name="expand">False</property>
-            <property name="fill">False</property>
             <property name="position">5</property>
           </packing>
         </child>
