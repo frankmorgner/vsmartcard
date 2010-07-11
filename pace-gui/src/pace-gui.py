@@ -378,7 +378,11 @@ class PinpadGTK:
 
         #Look for card and set the label accordingly
         lbl_cardStatus = self.builder.get_object("lbl_cardStatus")
-        self.cardChecker = cardChecker(lbl_cardStatus, ePA_ATR)
+        #Fetch the status image
+        img_cardStatus = self.builder.get_object("img_cardStatus")
+        img_cardStatus.set_from_file(image_dir + "/error.png")
+
+        self.cardChecker = cardChecker(lbl_cardStatus, img_cardStatus, ePA_ATR)
         gobject.idle_add(self.cardChecker.start)
 
         #Change the font for the buttons
@@ -526,11 +530,12 @@ class cardChecker(Thread):
     """ This class searches for a card with a given ATR and displays
         wether or not it was found on the label of a widget """
 
-    def __init__(self, widget, atr, intervall=1):
+    def __init__(self, lbl, img, atr, intervall=1):
         Thread.__init__(self)
         self._finished = Event()
         self._paused = Event()
-        self.widget = widget
+        self.lbl = lbl
+        self.img = img
         self.targetATR = atr
         self.intervall = intervall
 
@@ -546,9 +551,11 @@ class cardChecker(Thread):
 
             line = p.stdout.readline().rstrip()
             if line == self.targetATR:
-                gobject.idle_add(self.widget.set_label, STR_CARD_FOUND)
+                gobject.idle_add(self.lbl.set_label, STR_CARD_FOUND)
+                gobject.idle_add(self.img.set_from_file, FILE_CARD_FOUND)
             else:
-                gobject.idle_add(self.widget.set_label, STR_NO_CARD)
+                gobject.idle_add(self.lbl.set_label, STR_NO_CARD)
+                gobject.idle_add(self.img.set_from_file, FILE_NO_CARD)
 
         except OSError, e:
             pass #FIXME
