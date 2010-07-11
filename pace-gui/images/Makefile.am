@@ -1,6 +1,7 @@
 pixmapsdir = $(datadir)/pixmaps
 pixmaps_DATA = \
-		OpenPACElogo.png
+		OpenPACElogo.png \
+		apply.png
 
 EXTRA_DIST =  			\
 	$(pixmaps_DATA)

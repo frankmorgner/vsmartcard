@@ -62,11 +62,27 @@
           </packing>
         </child>
         <child>
-          <object class="GtkLabel" id="lbl_cardStatus">
+          <object class="GtkHBox" id="hbox1">
             <property name="visible">True</property>
-            <property name="label" translatable="yes">&lt;span fgcolor="red" font="12"&gt;Kein Ausweis&lt;/span&gt;</property>
-            <property name="use_markup">True</property>
-            <property name="justify">center</property>
+            <child>
+              <object class="GtkLabel" id="lbl_cardStatus">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">&lt;span fgcolor="red" font="12"&gt;Kein Ausweis&lt;/span&gt;</property>
+                <property name="use_markup">True</property>
+              </object>
+              <packing>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkImage" id="img_cardStatus">
+                <property name="visible">True</property>
+                <property name="pixbuf">apply.png</property>
+              </object>
+              <packing>
+                <property name="position">1</property>
+              </packing>
+            </child>
           </object>
           <packing>
             <property name="position">4</property>
