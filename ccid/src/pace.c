@@ -958,14 +958,12 @@ void ssl_error(sc_context_t *ctx) {
 }
 
 int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
-        const __u8 *in, size_t inlen, __u8 **out, size_t *outlen, struct sm_ctx *sctx)
+        struct establish_pace_channel_input pace_input,
+        __u8 **out, size_t *outlen, struct sm_ctx *sctx)
 {
-    __u8 pin_id;
-    size_t length_chat, length_pin, length_cert_desc, length_ef_cardaccess, recent_car_len, prev_car_len;
-    const __u8 *chat, *pin, *certificate_description;
+    size_t length_ef_cardaccess, recent_car_len, prev_car_len;
     __u8 *ef_cardaccess = NULL, *p = NULL, *recent_car = NULL, *prev_car = NULL;
     PACEInfo *info = NULL;
-    __le16 word;
     PACEDomainParameterInfo *static_dp = NULL, *eph_dp = NULL;
     BUF_MEM *enc_nonce = NULL, *nonce = NULL, *mdata = NULL, *mdata_opp = NULL,
             *k_enc = NULL, *k_mac = NULL, *token_opp = NULL,
@@ -973,66 +971,12 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
     PACE_SEC *sec = NULL;
     PACE_CTX *pctx = NULL;
     int r;
+    __le16 word;
 
     if (!card)
         return SC_ERROR_CARD_NOT_PRESENT;
-    if (!in || !out || !outlen)
+    if (!out || !outlen)
         return SC_ERROR_INVALID_ARGUMENTS;
-
-    if (inlen < 1) {
-        sc_error(card->ctx, "Buffer too small, could not get PinID");
-        SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_INVALID_DATA);
-    }
-    pin_id = *in;
-    in++;
-
-    if (inlen < 1+1) {
-        sc_error(card->ctx, "Buffer too small, could not get lengthCHAT");
-        SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_INVALID_DATA);
-    }
-    length_chat = *in;
-    in++;
-    if (inlen < 1+1+length_chat) {
-        sc_error(card->ctx, "Buffer too small, could not get CHAT");
-        SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_INVALID_DATA);
-    }
-    chat = in;
-    in += length_chat;
-    /* XXX make this human readable */
-    if (length_chat)
-        bin_log(card->ctx, "Card holder authorization template",
-                chat, length_chat);
-
-    if (inlen < 1+1+length_chat+1) {
-        sc_error(card->ctx, "Buffer too small, could not get lengthPIN");
-        SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_INVALID_DATA);
-    }
-    length_pin = *in;
-    in++;
-    if (inlen < 1+1+length_chat+1+length_pin) {
-        sc_error(card->ctx, "Buffer too small, could not get PIN");
-        SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_INVALID_DATA);
-    }
-    pin = in;
-    in += length_pin;
-
-    if (inlen < 1+1+length_chat+1+length_pin+sizeof(word)) {
-        sc_error(card->ctx, "Buffer too small, could not get lengthCertificateDescription");
-        SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_INVALID_DATA);
-    }
-    memcpy(&word, in, sizeof word);
-    length_cert_desc = __le16_to_cpu(word);
-    in += sizeof word;
-    if (inlen < 1+1+length_chat+1+length_pin+sizeof(word)+length_cert_desc) {
-        sc_error(card->ctx, "Buffer too small, could not get CertificateDescription");
-        SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG, SC_ERROR_INVALID_DATA);
-    }
-    certificate_description = in;
-    /* XXX make this human readable */
-    if (length_cert_desc)
-        bin_log(card->ctx, "Certificate description",
-                certificate_description, length_cert_desc);
-
 
     if (!oldpacectx) {
         /* PACE is executed the first time */
@@ -1069,7 +1013,8 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
         goto err;
     }
 
-    r = pace_mse_set_at(oldpacectx, card, info->protocol, pin_id, chat, length_chat, *out, (*out)+1);
+    r = pace_mse_set_at(oldpacectx, card, info->protocol, pace_input.pin_id,
+            pace_input.chat, pace_input.chat_length, *out, (*out)+1);
     if (r < 0) {
         sc_error(card->ctx, "Could not select protocol proberties "
                 "(MSE: Set AT).");
@@ -1091,7 +1036,8 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
         bin_log(card->ctx, "Encrypted nonce from MRTD", (u8 *)enc_nonce->data, enc_nonce->length);
     enc_nonce->max = enc_nonce->length;
 
-    sec = get_psec(card, (char *) pin, length_pin, pin_id);
+    sec = get_psec(card, (char *) pace_input.pin, pace_input.pin_length,
+            pace_input.pin_id);
     if (!sec) {
         sc_error(card->ctx, "Could not encode PACE secret.");
         ssl_error(card->ctx);

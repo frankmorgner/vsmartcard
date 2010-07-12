@@ -1,7 +1,7 @@
-Index: src/ifdhandler.c
+Index: ccid-1.3.13/src/ifdhandler.c
 ===================================================================
---- src/ifdhandler.c	(Revision 4979)
-+++ src/ifdhandler.c	(Arbeitskopie)
+--- ccid-1.3.13/src/ifdhandler.c	(Revision 4979)
++++ ccid-1.3.13/src/ifdhandler.c	(Arbeitskopie)
 @@ -1384,6 +1384,16 @@
  			iBytesReturned += sizeof(PCSC_TLV_STRUCTURE);
  		}
@@ -63,10 +63,10 @@ Index: src/ifdhandler.c
  	if (IFD_SUCCESS != return_value)
  		*pdwBytesReturned = 0;
  
-Index: src/commands.c
+Index: ccid-1.3.13/src/commands.c
 ===================================================================
---- src/commands.c	(Revision 4979)
-+++ src/commands.c	(Arbeitskopie)
+--- ccid-1.3.13/src/commands.c	(Revision 4979)
++++ ccid-1.3.13/src/commands.c	(Arbeitskopie)
 @@ -68,7 +68,19 @@
  	unsigned int tx_length, unsigned char tx_buffer[], unsigned int *rx_length,
  	unsigned char rx_buffer[]);
@@ -106,15 +106,15 @@ Index: src/commands.c
 +    }
 +    switch (input[parsed]) {
 +        case 0x01:
-+            DEBUG_COMM("Initiating PACE with MRZ");
++            DEBUG_INFO("Initiating PACE with MRZ");
 +        case 0x02:
-+            DEBUG_COMM("Initiating PACE with CAN");
++            DEBUG_INFO("Initiating PACE with CAN");
 +        case 0x03:
-+            DEBUG_COMM("Initiating PACE with PIN");
++            DEBUG_INFO("Initiating PACE with PIN");
 +        case 0x04:
-+            DEBUG_COMM("Initiating PACE with PUK");
++            DEBUG_INFO("Initiating PACE with PUK");
 +        default:
-+            DEBUG_COMM("Initiating PACE with unknown PACE secret type");
++            DEBUG_INFO("Initiating PACE with unknown PACE secret type");
 +    }
 +    parsed += 1;
 +
@@ -186,7 +186,7 @@ Index: src/commands.c
 +        DEBUG_CRITICAL("Malformed Establish PACE Channel output data.");
 +        return IFD_COMMUNICATION_ERROR;
 +    }
-+    DEBUG_COMM3("MSE:Set AT Statusbytes: %02X %02X",
++    DEBUG_INFO3("MSE:Set AT Statusbytes: %02X %02X",
 +            output[parsed+0], output[parsed+1]);
 +    parsed += 2;
 +
@@ -403,10 +403,10 @@ Index: src/commands.c
 +	buffer[1] = (value >> 8) & 0xFF;
 +} /* i2w */
 +
-Index: src/commands.h
+Index: ccid-1.3.13/src/commands.h
 ===================================================================
---- src/commands.h	(Revision 4979)
-+++ src/commands.h	(Arbeitskopie)
+--- ccid-1.3.13/src/commands.h	(Revision 4979)
++++ ccid-1.3.13/src/commands.h	(Arbeitskopie)
 @@ -37,6 +37,14 @@
  	unsigned char TxBuffer[], unsigned int TxLength,
  	unsigned char RxBuffer[], unsigned int *RxLength);
@@ -422,10 +422,10 @@ Index: src/commands.h
  RESPONSECODE CmdEscape(unsigned int reader_index,
  	const unsigned char TxBuffer[], unsigned int TxLength,
  	unsigned char RxBuffer[], unsigned int *RxLength);
-Index: src/ccid.h
+Index: ccid-1.3.13/src/ccid.h
 ===================================================================
---- src/ccid.h	(Revision 4979)
-+++ src/ccid.h	(Arbeitskopie)
+--- ccid-1.3.13/src/ccid.h	(Revision 4979)
++++ ccid-1.3.13/src/ccid.h	(Arbeitskopie)
 @@ -142,8 +142,10 @@
  #define CCID_CLASS_EXCHANGE_MASK	0x00070000
  
@@ -448,10 +448,10 @@ Index: src/ccid.h
  
  /* all the data rates specified by ISO 7816-3 Fi/Di tables */
  #define ISO_DATA_RATES 10753, 14337, 15625, 17204, \
-Index: src/ccid_ifdhandler.h
+Index: ccid-1.3.13/src/ccid_ifdhandler.h
 ===================================================================
---- src/ccid_ifdhandler.h	(Revision 4979)
-+++ src/ccid_ifdhandler.h	(Arbeitskopie)
+--- ccid-1.3.13/src/ccid_ifdhandler.h	(Revision 4979)
++++ ccid-1.3.13/src/ccid_ifdhandler.h	(Arbeitskopie)
 @@ -37,6 +37,8 @@
  	SCARD_CTL_CODE(FEATURE_IFD_PIN_PROPERTIES + CLASS2_IOCTL_MAGIC)
  #define IOCTL_FEATURE_GET_TLV_PROPERTIES \

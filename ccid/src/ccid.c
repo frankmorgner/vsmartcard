@@ -779,7 +779,10 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
     const __u8* abData = in + sizeof *request;
     size_t abDatalen = inlen - sizeof *request;
     u8 *abDataOut = NULL;
-    size_t resplen = 0;
+    size_t resplen = 0, parsed;
+    __le16 word;
+    struct establish_pace_channel_input pace_input;
+    struct establish_pace_channel_output pace_output;
     RDR_to_PC_DataBlock_t *result;
 
     if (!in || !out || !outlen)
@@ -793,6 +796,8 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
 
     memset(&curr_pin, 0, sizeof(curr_pin));
     memset(&new_pin, 0, sizeof(new_pin));
+    memset(&pace_input, 0, sizeof(pace_input));
+    memset(&pace_output, 0, sizeof(pace_output));
 
     if (request->bSlot > sizeof *card_in_slot) {
         sc_error(ctx, "Received request to invalid slot (bSlot=0x%02x)", request->bSlot);
@@ -865,15 +870,69 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
             goto err;
             break;
         case 0x20:
+            parsed = 1;
 
-            if (abDatalen < 1) {
-                sc_error(ctx, "Not enough data for input of EstablishPACEChannel");
-                sc_result = SC_ERROR_INVALID_DATA;
+            if (abDatalen < parsed+1) {
+                sc_error(ctx, "Buffer too small, could not get PinID");
                 goto err;
             }
+            pace_input.pin_id = abData[parsed];
+            parsed++;
+
+            if (abDatalen < parsed+1) {
+                sc_error(ctx, "Buffer too small, could not get lengthCHAT");
+                goto err;
+            }
+            pace_input.chat_length = abData[parsed];
+            parsed++;
+
+            if (abDatalen < parsed+pace_input.chat_length) {
+                sc_error(ctx, "Buffer too small, could not get CHAT");
+                goto err;
+            }
+            pace_input.chat = &abData[parsed];
+            parsed += pace_input.chat_length;
+            /* XXX make this human readable */
+            if (pace_input.chat_length)
+                bin_log(ctx, "Card holder authorization template",
+                        pace_input.chat, pace_input.chat_length);
+
+            if (abDatalen < parsed+1) {
+                sc_error(ctx, "Buffer too small, could not get lengthPIN");
+                goto err;
+            }
+            pace_input.pin_length = abData[parsed];
+            parsed++;
+
+            if (abDatalen < parsed+pace_input.pin_length) {
+                sc_error(ctx, "Buffer too small, could not get PIN");
+                goto err;
+            }
+            pace_input.pin = &abData[parsed];
+            parsed += pace_input.pin_length;
+
+            if (abDatalen < parsed+sizeof(word)) {
+                sc_error(ctx, "Buffer too small, could not get lengthCertificateDescription");
+                goto err;
+            }
+            memcpy(&word, &abData[parsed], sizeof word);
+            pace_input.certificate_description_length = __le16_to_cpu(word);
+            parsed += sizeof word;
+
+            if (abDatalen < parsed+pace_input.certificate_description_length) {
+                sc_error(ctx, "Buffer too small, could not get CertificateDescription");
+                goto err;
+            }
+            pace_input.certificate_description = &abData[parsed];
+            parsed+= pace_input.certificate_description_length;
+            /* XXX make this human readable */
+            if (pace_input.certificate_description_length)
+                bin_log(ctx, "Certificate description",
+                        pace_input.certificate_description,
+                        pace_input.certificate_description_length);
 
             sc_result = EstablishPACEChannel(NULL,
-                    card_in_slot[request->bSlot], abData + 1, abDatalen-1,
+                    card_in_slot[request->bSlot], pace_input,
                     &abDataOut, &resplen, &sctx);
             goto err;
             break;

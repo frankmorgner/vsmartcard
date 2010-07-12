@@ -30,7 +30,6 @@
 
 static int verbose    = 0;
 static int doinfo     = 0;
-static u8  pin_id = 0;
 static u8  dochangepin = 0;
 static u8  doresumepin = 0;
 static u8  dounblock = 0;
@@ -46,9 +45,7 @@ static u8 usecan = 0;
 static const char *mrz = NULL;
 static u8 usemrz = 0;
 static u8 chat[0xff];
-static size_t chatlen = 0;
 static u8 desc[0xffff];
-static size_t desclen = 0;
 static const char *cdriver = NULL;
 
 static sc_context_t *ctx = NULL;
@@ -106,62 +103,6 @@ static const char *option_help[] = {
     "Use (several times) to be more verbose",
     "Print version, available readers and drivers.",
 };
-
-int pace_get_channel(struct sm_ctx *oldpacectx, sc_card_t *card,
-        enum s_type pin_id, const char *pin, size_t pinlen,
-        const char *chat, size_t chatlen, const char *desc, size_t desclen,
-        __u8 **out, size_t *outlen, struct sm_ctx *sctx)
-{
-    u8 buf[0xff + 0xff + 0xffff + 5];
-    __le16 word;
-
-    switch (pin_id) {
-        case PACE_MRZ:
-        case PACE_CAN:
-        case PACE_PIN:
-        case PACE_PUK:
-            break;
-        default:
-            sc_error(card->ctx, "Type of secret not supported");
-            return SC_ERROR_INVALID_ARGUMENTS;
-    }
-
-    if (pinlen > 0xff) {
-        sc_error(card->ctx, "%s "
-                "too long (maximal %u bytes supported)",
-                pace_secret_name(pin_id),
-                0xff);
-        return SC_ERROR_INVALID_ARGUMENTS;
-    }
-    if (chatlen > 0xff) {
-        sc_error(card->ctx, "CHAT "
-                "too long (maximal %u bytes supported)",
-                0xff);
-        return SC_ERROR_INVALID_ARGUMENTS;
-    }
-    if (desclen > 0xffff) {
-        sc_error(card->ctx, "Certificate description "
-                "too long (maximal %u bytes supported)",
-                0xffff);
-        return SC_ERROR_INVALID_ARGUMENTS;
-    }
-
-    buf[0] = pin_id;
-
-    buf[1] = chatlen;
-    memcpy(&buf[2], chat, chatlen);
-
-    buf[2 + chatlen] = pinlen;
-    memcpy(&buf[3 + chatlen], pin, pinlen);
-
-    word = __cpu_to_le16(desclen);
-    memcpy(&buf[3 + chatlen + pinlen], &word, sizeof word);
-    memcpy(&buf[3 + chatlen + pinlen + sizeof word],
-            desc, desclen);
-
-    return EstablishPACEChannel(oldpacectx, card, buf,
-            1+1+chatlen+1+pinlen+sizeof(word)+desclen, out, outlen, sctx);
-}
 
 int pace_translate_apdus(struct sm_ctx *sctx, sc_card_t *card)
 {
@@ -228,10 +169,14 @@ main (int argc, char **argv)
     __u8 *channeldata = NULL;
     size_t channeldatalen;
     struct sm_ctx sctx, tmpctx;
+    struct establish_pace_channel_input pace_input;
     time_t t_start, t_end;
+    u8 *out = NULL;
+    size_t outlen;
 
     memset(&sctx, 0, sizeof(sctx));
     memset(&tmpctx, 0, sizeof(tmpctx));
+    memset(&pace_input, 0, sizeof(pace_input));
 
     while (1) {
         i = getopt_long(argc, argv, "hr:i::u::a::z::C:D:N::RUtvoc:", options, &oindex);
@@ -282,15 +227,19 @@ main (int argc, char **argv)
                     can = getenv("MRZ");
                 break;
             case OPT_CHAT:
-                chatlen = sizeof chat;
-                if (sc_hex_to_bin(optarg, chat, &chatlen) < 0) {
+                pace_input.chat = chat;
+                pace_input.chat_length = sizeof chat;
+                if (sc_hex_to_bin(optarg, (u8 *) pace_input.chat,
+                            &pace_input.chat_length) < 0) {
                     parse_error(argv[0], options, option_help, optarg, oindex);
                     exit(2);
                 }
                 break;
             case OPT_CERTDESC:
-                desclen = sizeof desc;
-                if (sc_hex_to_bin(optarg, desc, &desclen) < 0) {
+                pace_input.certificate_description = desc;
+                pace_input.certificate_description_length = sizeof desc;
+                if (sc_hex_to_bin(optarg, (u8 *) pace_input.certificate_description,
+                            &pace_input.certificate_description_length) < 0) {
                     parse_error(argv[0], options, option_help, optarg, oindex);
                     exit(2);
                 }
@@ -353,37 +302,56 @@ main (int argc, char **argv)
     }
 
     if (doresumepin) {
+        pace_input.pin_id = PACE_CAN;
+        if (can) {
+            pace_input.pin = can;
+            pace_input.pin_length = strlen(can);
+        } else {
+            pace_input.pin = NULL;
+            pace_input.pin_length = 0;
+        }
         t_start = time(NULL);
-        i = pace_get_channel(NULL, card,
-                PACE_CAN, can, can ? strlen(can) : 0,
-                chat, chatlen, desc, desclen,
-                &channeldata, &channeldatalen, &tmpctx);
+        i = EstablishPACEChannel(NULL, card, pace_input, &out, &outlen,
+            &tmpctx);
+        t_end = time(NULL);
         if (i < 0)
             goto err;
-        t_end = time(NULL);
         printf("Established PACE channel with CAN in %.0fs.\n",
                 difftime(t_end, t_start));
 
-        i = pace_get_channel(&tmpctx, card,
-                PACE_PIN, pin, pin ? strlen(pin) : 0,
-                chat, chatlen, desc, desclen,
-                &channeldata, &channeldatalen, &sctx);
+        pace_input.pin_id = PACE_PIN;
+        if (pin) {
+            pace_input.pin = pin;
+            pace_input.pin_length = strlen(pin);
+        } else {
+            pace_input.pin = NULL;
+            pace_input.pin_length = 0;
+        }
+        t_start = time(NULL);
+        i = EstablishPACEChannel(&tmpctx, card, pace_input, &out, &outlen,
+            &sctx);
+        t_end = time(NULL);
         if (i < 0)
             goto err;
-        t_start = time(NULL);
         printf("Established PACE channel with PIN in %.0fs. PIN resumed.\n",
-                difftime(t_start, t_end));
+                difftime(t_end, t_start));
     }
 
     if (dounblock) {
+        pace_input.pin_id = PACE_PUK;
+        if (puk) {
+            pace_input.pin = puk;
+            pace_input.pin_length = strlen(puk);
+        } else {
+            pace_input.pin = NULL;
+            pace_input.pin_length = 0;
+        }
         t_start = time(NULL);
-        i = pace_get_channel(NULL, card,
-                PACE_PUK, puk, puk ? strlen(puk) : 0,
-                chat, chatlen, desc, desclen,
-                &channeldata, &channeldatalen, &sctx);
+        i = EstablishPACEChannel(NULL, card, pace_input, &out, &outlen,
+            &sctx);
+        t_end = time(NULL);
         if (i < 0)
             goto err;
-        t_end = time(NULL);
         printf("Established PACE channel with PUK in %.0fs.\n",
                 difftime(t_end, t_start));
 
@@ -394,14 +362,20 @@ main (int argc, char **argv)
     }
 
     if (dochangepin) {
+        pace_input.pin_id = PACE_PIN;
+        if (pin) {
+            pace_input.pin = pin;
+            pace_input.pin_length = strlen(pin);
+        } else {
+            pace_input.pin = NULL;
+            pace_input.pin_length = 0;
+        }
         t_start = time(NULL);
-        i = pace_get_channel(NULL, card,
-                PACE_PIN, pin, pin ? strlen(pin) : 0,
-                chat, chatlen, desc, desclen,
-                &channeldata, &channeldatalen, &sctx);
+        i = EstablishPACEChannel(NULL, card, pace_input, &out, &outlen,
+            &sctx);
+        t_end = time(NULL);
         if (i < 0)
             goto err;
-        t_end = time(NULL);
         printf("Established PACE channel with PIN in %.0fs.\n",
                 difftime(t_end, t_start));
 
@@ -412,20 +386,32 @@ main (int argc, char **argv)
     }
 
     if (dotranslate || (!doresumepin && !dochangepin && !dounblock)) {
-        enum s_type id;
-        const char *s;
+        pace_input.pin = NULL;
+        pace_input.pin_length = 0;
         if (usepin) {
-            id = PACE_PIN;
-            s = pin;
+            pace_input.pin_id = PACE_PIN;
+            if (pin) {
+                pace_input.pin = pin;
+                pace_input.pin_length = strlen(pin);
+            }
         } else if (usecan) {
-            id = PACE_CAN;
-            s = can;
+            pace_input.pin_id = PACE_CAN;
+            if (can) {
+                pace_input.pin = can;
+                pace_input.pin_length = strlen(can);
+            }
         } else if (usemrz) {
-            id = PACE_MRZ;
-            s = mrz;
+            pace_input.pin_id = PACE_MRZ;
+            if (mrz) {
+                pace_input.pin = mrz;
+                pace_input.pin_length = strlen(mrz);
+            }
         } else if (usepuk) {
-            id = PACE_PUK;
-            s = puk;
+            pace_input.pin_id = PACE_PUK;
+            if (puk) {
+                pace_input.pin = puk;
+                pace_input.pin_length = strlen(puk);
+            }
         } else {
             fprintf(stderr, "Please specify whether to do PACE with "
                     "PIN, CAN, MRZ or PUK.");
@@ -433,14 +419,13 @@ main (int argc, char **argv)
         }
 
         t_start = time(NULL);
-        i = pace_get_channel(NULL, card, id, s, s ? strlen(s) : 0,
-                chat, chatlen, desc, desclen,
-                &channeldata, &channeldatalen, &sctx);
+        i = EstablishPACEChannel(NULL, card, pace_input, &out, &outlen,
+            &sctx);
+        t_end = time(NULL);
         if (i < 0)
             goto err;
-        t_end = time(NULL);
         printf("Established PACE channel with %s in %.0fs.\n",
-                pace_secret_name(id), difftime(t_end, t_start));
+                pace_secret_name(pace_input.pin_id), difftime(t_end, t_start));
 
         if (dotranslate) {
             i = pace_translate_apdus(&sctx, card);

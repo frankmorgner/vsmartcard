@@ -66,10 +66,42 @@ int pace_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
 int pace_sm_post_transmit(sc_card_t *card, const struct sm_ctx *ctx,
         sc_apdu_t *sm_apdu);
 
+
+struct establish_pace_channel_input {
+    unsigned char pin_id;
+
+    size_t chat_length;
+    const unsigned char *chat;
+
+    size_t pin_length;
+    const unsigned char *pin;
+
+    size_t certificate_description_length;
+    const unsigned char *certificate_description;
+};
+
+struct establish_pace_channel_output {
+    unsigned char mse_set_at_sw1;
+    unsigned char mse_set_at_sw2;
+
+    size_t ef_cardaccess_length;
+    unsigned char *ef_cardaccess;
+
+    size_t recent_car_length;
+    unsigned char *recent_car;
+
+    size_t previous_car_length;
+    unsigned char *previous_car;
+
+    size_t id_icc_length;
+    unsigned char *id_icc;
+};
+
 int GetReadersPACECapabilities(sc_card_t *card, const unsigned char *in,
         size_t inlen, unsigned char **out, size_t *outlen);
 int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
-        const unsigned char *in, size_t inlen, unsigned char **out, size_t *outlen, struct sm_ctx *sctx);
+        struct establish_pace_channel_input pace_input,
+        unsigned char **out, size_t *outlen, struct sm_ctx *sctx);
 
 int pace_reset_retry_counter(struct sm_ctx *ctx, sc_card_t *card,
         enum s_type pin_id, int ask_for_secret,
