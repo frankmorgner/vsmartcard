@@ -19,7 +19,6 @@
 #include "pace.h"
 #include "sm.h"
 #include "scutil.h"
-#include <asm/byteorder.h>
 #include <opensc/asn1.h>
 #include <opensc/log.h>
 #include <opensc/opensc.h>
@@ -160,29 +159,20 @@ IMPLEMENT_ASN1_FUNCTIONS(PACE_GEN_AUTH_R)
 
 const size_t maxresp = SC_MAX_APDU_BUFFER_SIZE - 2;
 
-int GetReadersPACECapabilities(sc_card_t *card,
-        const __u8 *in, size_t inlen, __u8 **out, size_t *outlen) {
-    if (!out || !outlen)
+int GetReadersPACECapabilities(u8 *bitmap)
+{
+    if (!bitmap)
         return SC_ERROR_INVALID_ARGUMENTS;
 
-    __u8 *result = realloc(*out, 2);
-    if (!result)
-        return SC_ERROR_OUT_OF_MEMORY;
-    *out = result;
-    *outlen = 2;
-
-    /* lengthBitMap */
-    *result = 1;
-    result++;
     /* BitMap */
-    *result = PACE_BITMAP_PACE|PACE_BITMAP_EID;
+    *bitmap = PACE_BITMAP_PACE|PACE_BITMAP_EID;
 
     return SC_SUCCESS;
 }
 
 /** select and read EF.CardAccess */
 static int get_ef_card_access(sc_card_t *card,
-        __u8 **ef_cardaccess, size_t *length_ef_cardaccess)
+        u8 **ef_cardaccess, size_t *length_ef_cardaccess)
 {
     int r;
     /* we read less bytes than possible. this is a workaround for acr 122,
@@ -190,7 +180,7 @@ static int get_ef_card_access(sc_card_t *card,
     size_t read = maxresp - 8;
     sc_path_t path;
     sc_file_t *file = NULL;
-    __u8 *p;
+    u8 *p;
 
     memset(&path, 0, sizeof path);
     r = sc_append_file_id(&path, FID_EF_CARDACCESS);
@@ -959,10 +949,10 @@ void ssl_error(sc_context_t *ctx) {
 
 int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
         struct establish_pace_channel_input pace_input,
-        __u8 **out, size_t *outlen, struct sm_ctx *sctx)
+        struct establish_pace_channel_output *pace_output,
+        struct sm_ctx *sctx)
 {
-    size_t length_ef_cardaccess, recent_car_len, prev_car_len;
-    __u8 *ef_cardaccess = NULL, *p = NULL, *recent_car = NULL, *prev_car = NULL;
+    u8 *p = NULL;
     PACEInfo *info = NULL;
     PACEDomainParameterInfo *static_dp = NULL, *eph_dp = NULL;
     BUF_MEM *enc_nonce = NULL, *nonce = NULL, *mdata = NULL, *mdata_opp = NULL,
@@ -971,42 +961,25 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
     PACE_SEC *sec = NULL;
     PACE_CTX *pctx = NULL;
     int r;
-    __le16 word;
 
     if (!card)
         return SC_ERROR_CARD_NOT_PRESENT;
-    if (!out || !outlen)
+    if (!pace_output || !sctx)
         return SC_ERROR_INVALID_ARGUMENTS;
 
-    if (!oldpacectx) {
-        /* PACE is executed the first time */
-        r = get_ef_card_access(card, &ef_cardaccess, &length_ef_cardaccess);
+    if (!pace_output->ef_cardaccess_length || !pace_output->ef_cardaccess) {
+        r = get_ef_card_access(card, &pace_output->ef_cardaccess,
+                &pace_output->ef_cardaccess_length);
         if (r < 0) {
             sc_error(card->ctx, "Could not get EF.CardAccess.");
             goto err;
         }
-        /* get enough memory for status bytes and EF.CardAccess */
-        p = realloc(*out, 6 + length_ef_cardaccess);
-        if (!p) {
-            r = SC_ERROR_OUT_OF_MEMORY;
-            goto err;
-        }
-        *out = p;
-        word = __cpu_to_le16(length_ef_cardaccess);
-        memcpy((*out) + 2, &word, sizeof word);
-        memcpy((*out) + 4, ef_cardaccess, length_ef_cardaccess);
-    } else {
-        /* PACE is executed the second time. EF.CardAccess should already be
-         * present */
-        memcpy(&word, (*out) + 2, sizeof word);
-        length_ef_cardaccess = __le16_to_cpu(word);
-        ef_cardaccess = (*out) + 4;
     }
-    *outlen = 4+length_ef_cardaccess;
-    bin_log(card->ctx, "EF.CardAccess", ef_cardaccess, length_ef_cardaccess);
+    bin_log(card->ctx, "EF.CardAccess", pace_output->ef_cardaccess,
+            pace_output->ef_cardaccess_length);
 
-    if (!parse_ef_card_access(ef_cardaccess, length_ef_cardaccess,
-                &info, &static_dp)) {
+    if (!parse_ef_card_access(pace_output->ef_cardaccess,
+                pace_output->ef_cardaccess_length, &info, &static_dp)) {
         sc_error(card->ctx, "Could not parse EF.CardAccess.");
         ssl_error(card->ctx);
         r = SC_ERROR_INTERNAL;
@@ -1014,7 +987,8 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
     }
 
     r = pace_mse_set_at(oldpacectx, card, info->protocol, pace_input.pin_id,
-            pace_input.chat, pace_input.chat_length, *out, (*out)+1);
+            pace_input.chat, pace_input.chat_length,
+            &pace_output->mse_set_at_sw1, &pace_output->mse_set_at_sw2);
     if (r < 0) {
         sc_error(card->ctx, "Could not select protocol proberties "
                 "(MSE: Set AT).");
@@ -1112,23 +1086,9 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
         goto err;
     }
     r = pace_gen_auth_4_mutual_authentication(oldpacectx, card, (u8 *) token->data, token->length,
-            (u8 **) &token_opp->data, &token_opp->length, &recent_car, &recent_car_len,
-            &prev_car, &prev_car_len);
-
-    /* get enough memory for CARs */
-    p = realloc(*out, (*outlen) + 1 + recent_car_len + 1 + prev_car_len);
-    if (!p) {
-        r = SC_ERROR_OUT_OF_MEMORY;
-        goto err;
-    }
-    *out = p;
-    (*out)[*outlen] = recent_car_len;
-    memcpy((*out) + (*outlen) + 1,
-            recent_car, recent_car_len);
-    (*out)[(*outlen) + 1 + recent_car_len] = prev_car_len;
-    memcpy((*out) + (*outlen) + 1 + recent_car_len + 1,
-            prev_car, prev_car_len);
-    *outlen += 1 + recent_car_len + 1 + prev_car_len;
+            (u8 **) &token_opp->data, &token_opp->length,
+            &pace_output->recent_car, &pace_output->recent_car_length,
+            &pace_output->previous_car, &pace_output->previous_car_length);
 
     if (r < 0) {
         sc_error(card->ctx, "Could not exchange authentication token with card "
@@ -1145,15 +1105,7 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
         goto err;
     }
 
-    /* get enough memory for IDicc */
-    p = realloc(*out, (*outlen) + 2);
-    if (!p) {
-        r = SC_ERROR_OUT_OF_MEMORY;
-        goto err;
-    }
-    *out = p;
-    memset((*out) + (*outlen), 0, 2);
-    *outlen += 2;
+    /* XXX IDicc */
 
     /* XXX parse CHAT to check role of terminal */
 
@@ -1178,8 +1130,6 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
     sctx->active = 1;
 
 err:
-    if (ef_cardaccess && !oldpacectx)
-        free(ef_cardaccess);
     if (info)
         PACEInfo_free(info);
     if (static_dp)

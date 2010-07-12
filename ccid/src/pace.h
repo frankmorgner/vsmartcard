@@ -21,7 +21,6 @@
 
 #include "pace_lib.h"
 #include "sm.h"
-#include <linux/usb/ch9.h>
 #include <opensc/opensc.h>
 #include <openssl/bn.h>
 #include <openssl/pace.h>
@@ -97,11 +96,12 @@ struct establish_pace_channel_output {
     unsigned char *id_icc;
 };
 
-int GetReadersPACECapabilities(sc_card_t *card, const unsigned char *in,
-        size_t inlen, unsigned char **out, size_t *outlen);
+int GetReadersPACECapabilities(u8 *bitmap);
+
 int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
         struct establish_pace_channel_input pace_input,
-        unsigned char **out, size_t *outlen, struct sm_ctx *sctx);
+        struct establish_pace_channel_output *pace_output,
+        struct sm_ctx *sctx);
 
 int pace_reset_retry_counter(struct sm_ctx *ctx, sc_card_t *card,
         enum s_type pin_id, int ask_for_secret,

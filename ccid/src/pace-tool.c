@@ -166,17 +166,17 @@ int
 main (int argc, char **argv)
 {
     int i, oindex = 0;
-    __u8 *channeldata = NULL;
     size_t channeldatalen;
     struct sm_ctx sctx, tmpctx;
     struct establish_pace_channel_input pace_input;
+    struct establish_pace_channel_output pace_output;
     time_t t_start, t_end;
-    u8 *out = NULL;
     size_t outlen;
 
     memset(&sctx, 0, sizeof(sctx));
     memset(&tmpctx, 0, sizeof(tmpctx));
     memset(&pace_input, 0, sizeof(pace_input));
+    memset(&pace_output, 0, sizeof(pace_output));
 
     while (1) {
         i = getopt_long(argc, argv, "hr:i::u::a::z::C:D:N::RUtvoc:", options, &oindex);
@@ -311,7 +311,7 @@ main (int argc, char **argv)
             pace_input.pin_length = 0;
         }
         t_start = time(NULL);
-        i = EstablishPACEChannel(NULL, card, pace_input, &out, &outlen,
+        i = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
             &tmpctx);
         t_end = time(NULL);
         if (i < 0)
@@ -328,7 +328,7 @@ main (int argc, char **argv)
             pace_input.pin_length = 0;
         }
         t_start = time(NULL);
-        i = EstablishPACEChannel(&tmpctx, card, pace_input, &out, &outlen,
+        i = EstablishPACEChannel(&tmpctx, card, pace_input, &pace_output,
             &sctx);
         t_end = time(NULL);
         if (i < 0)
@@ -347,7 +347,7 @@ main (int argc, char **argv)
             pace_input.pin_length = 0;
         }
         t_start = time(NULL);
-        i = EstablishPACEChannel(NULL, card, pace_input, &out, &outlen,
+        i = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
             &sctx);
         t_end = time(NULL);
         if (i < 0)
@@ -371,7 +371,7 @@ main (int argc, char **argv)
             pace_input.pin_length = 0;
         }
         t_start = time(NULL);
-        i = EstablishPACEChannel(NULL, card, pace_input, &out, &outlen,
+        i = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
             &sctx);
         t_end = time(NULL);
         if (i < 0)
@@ -419,7 +419,7 @@ main (int argc, char **argv)
         }
 
         t_start = time(NULL);
-        i = EstablishPACEChannel(NULL, card, pace_input, &out, &outlen,
+        i = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
             &sctx);
         t_end = time(NULL);
         if (i < 0)
@@ -435,8 +435,6 @@ main (int argc, char **argv)
     }
 
 err:
-    if (channeldata)
-        free(channeldata);
     sc_disconnect_card(card, 0);
     sc_release_context(ctx);
 
