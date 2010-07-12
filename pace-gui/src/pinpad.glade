@@ -82,7 +82,7 @@
                 <property name="visible">True</property>
                 <property name="xalign">0.10000000149011612</property>
                 <property name="ypad">5</property>
-                <property name="pixbuf">apply.png</property>
+                <property name="pixbuf">error.png</property>
               </object>
               <packing>
                 <property name="position">1</property>

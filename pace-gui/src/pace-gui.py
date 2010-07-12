@@ -448,7 +448,10 @@ class PinpadGTK:
 
         #If we have a CHAT, we pass it to pace-tool
         if (self.chat):
-            cmd.append("--chat=" + self.chat)
+#            cmd.append("--chat=" + self.chat)
+            print "--chat=" + self.chat
+
+        cmd.append("-v")
 
         #Try to call pace-tool. This is a blocking call. A progress bar is being
         #shown while the subprocess is running
@@ -465,19 +468,35 @@ class PinpadGTK:
             return
 
         #Animate the progress bar
+#        line = p.stdout.readline()
+#        self.progressWindow.show()
+#        while gtk.events_pending():
+#            gtk.main_iteration()
+#        while line:
+#            self.progressWindow.inc_fraction()
+#            while gtk.events_pending():
+#               gtk.main_iteration()
+#           line = p.stdout.readline()
+
+        foo = gtk.Window(gtk.WINDOW_POPUP)
+        animation = gtk.gdk.PixbufAnimation(image_dir + "/wait.gif")
+        img = gtk.Image()
+        img.set_from_animation(animation)
+        foo.add(img)
+        foo.show_all()
+
         line = p.stdout.readline()
-        self.progressWindow.show()
-        while gtk.events_pending():
-            gtk.main_iteration()
+#        self.progressWindow.show()
         while line:
-            self.progressWindow.inc_fraction()
-            while gtk.events_pending():
-                gtk.main_iteration()
+#            self.progressWindow.inc_fraction()
+            while gtk.events_pending(): #Keep GUI responsive
+               gtk.main_iteration()
             line = p.stdout.readline()
 
         #Get the return value of the pace-tool process
         ret = p.poll()
-        self.progressWindow.hide()
+        foo.destroy()
+#      self.progressWindow.hide()
         self.cardChecker.resume()
 
         if (ret == 0):
@@ -486,7 +505,7 @@ class PinpadGTK:
                 gtk.BUTTONS_OK, "PIN wurde korrekt eingegeben")
             res = popup.run()
             popup.destroy()
-            self.shutdown() #FIXME
+            self.shutdown(None) #FIXME
         else:
             popup = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL |
                 gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_WARNING,
