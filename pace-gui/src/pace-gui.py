@@ -128,17 +128,15 @@ class MokoWindow(gtk.Window):
         if self.predecessor == None:
             gtk.main_quit()
         else:
+            self.predecessor.show_all()
             self.hide()
-            self.predecessor.show()
-#        raise NotImplementedError("Please implement this method in a subclass")
 
     def btnForward_clicked(self, widget, data=None):
         if self.successor == None:
             pass
         else:
-            self.hide()
             self.successor.show_all()
-#        raise NotImplementedError("Please implement this method in a subclass")
+            self.hide()
 
 class CertificateDescriptionWindow(MokoWindow):
 
@@ -274,9 +272,9 @@ class CVCWindow(MokoWindow):
                 self.rel_auth[len(self.chat) - 1 - idx / 8] ^= (1 << (idx % 8))
 
         #super(CVCWindow, self).btnForward_clicked(widget, data)
-        self.hide()
         newCHAT = self.__formatHexString(self.rel_auth)
         PinpadGTK("pin", newCHAT)
+        self.hide()
 
     def __formatHexString(self, int_list):
         hex_str = ""
@@ -485,22 +483,19 @@ class PinpadGTK:
         waiting.add(img)
         waiting.set_position(gtk.WIN_POS_CENTER_ALWAYS)
         waiting.set_modal(True)
-        waiting.set_transient_for(self)
+        waiting.set_transient_for(self.window)
         waiting.set_decorated(False)
         waiting.show_all()
 
         line = p.stdout.readline()
-#        self.progressWindow.show()
         while line:
-#            self.progressWindow.inc_fraction()
             while gtk.events_pending(): #Keep GUI responsive
                gtk.main_iteration()
             line = p.stdout.readline()
 
         #Get the return value of the pace-tool process
         ret = p.poll()
-        foo.destroy()
-#      self.progressWindow.hide()
+        waiting.destroy()
         self.cardChecker.resume()
 
         if (ret == 0):
