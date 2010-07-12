@@ -99,7 +99,7 @@ Index: Drivers/ccid/src/commands.c
  
  
  /*****************************************************************************
-@@ -712,7 +724,304 @@
+@@ -712,7 +724,306 @@
  	return ret;
  } /* SecurePINModify */
  
@@ -184,8 +184,8 @@ Index: Drivers/ccid/src/commands.c
 +        DEBUG_INFO_XXD("Certificate description:\n", &input[parsed], lengthCertificateDescription);
 +    parsed += lengthCertificateDescription;
 +
-+    if (parsed != input_length) {
-+        DEBUG_CRITICAL2("Overrun by %d bytes", input_length - parsed);
++    if (parsed < input_length) {
++        DEBUG_CRITICAL2("Overrun by %u bytes", input_length - parsed);
 +        return IFD_COMMUNICATION_ERROR;
 +    }
 +
@@ -203,7 +203,7 @@ Index: Drivers/ccid/src/commands.c
 +        DEBUG_CRITICAL("Malformed Establish PACE Channel output data.");
 +        return IFD_COMMUNICATION_ERROR;
 +    }
-+    DEBUG_COMM3("MSE:Set AT Statusbytes: %02X %02X",
++    DEBUG_INFO3("MSE:Set AT Statusbytes: %02X %02X",
 +            output[parsed+0], output[parsed+1]);
 +    parsed += 2;
 +
@@ -212,6 +212,7 @@ Index: Drivers/ccid/src/commands.c
 +        return IFD_COMMUNICATION_ERROR;
 +    }
 +    lengthEF_CardAccess = w2i(output, parsed);
++    memcpy(&output[parsed], &lengthEF_CardAccess, 2);
 +    parsed += 2;
 +
 +    if (parsed+lengthEF_CardAccess > output_length) {
@@ -259,6 +260,7 @@ Index: Drivers/ccid/src/commands.c
 +        return IFD_COMMUNICATION_ERROR;
 +    }
 +    length_IDicc = w2i(output, parsed);
++    memcpy(&output[parsed], &length_IDicc, 2);
 +    parsed += 2;
 +
 +    if (parsed+length_IDicc > output_length) {
@@ -269,8 +271,8 @@ Index: Drivers/ccid/src/commands.c
 +        DEBUG_INFO_XXD("IDicc:\n", &output[parsed], length_IDicc);
 +    parsed += length_IDicc;
 +
-+    if (parsed != output_length) {
-+        DEBUG_CRITICAL2("Overrun by %d bytes", output_length - parsed);
++    if (parsed < output_length) {
++        DEBUG_CRITICAL2("Overrun by %u bytes", output_length - parsed);
 +        return IFD_COMMUNICATION_ERROR;
 +    }
 +
@@ -404,7 +406,7 @@ Index: Drivers/ccid/src/commands.c
  /*****************************************************************************
   *
   *					Escape
-@@ -2113,3 +2422,15 @@
+@@ -2113,3 +2424,15 @@
  	buffer[3] = (value >> 24) & 0xFF;
  } /* i2dw */
  
