@@ -419,11 +419,25 @@ class PinpadGTK:
         """We indicate the ammount of digits with underscores
            For every digit that is enterd we replace one underscore with a star
            We only accept secret_len digits and ignore every additional digit"""
-        c = widget.get_label()
+        digit = widget.get_label()
+        assert digit.isdigit()
         txt = self.output.get_text()
         if len(self.pin) < self.secret_len:
-            self.output.set_text(txt.replace("_", "*", 1))
-            self.pin += widget.get_label()
+#            self.output.set_text(txt.replace("_", digit, 1))
+            idx = txt.find('_')
+            output = txt[:idx] + digit + txt[idx+1:]
+            self.output.set_text(output)
+            gobject.timeout_add(750, self.hide_digits, idx)
+            self.pin += digit
+
+    def hide_digits(self, idx):
+        """Change character number idx of self.output text to a '*' """
+        output = ""
+        txt = self.output.get_text()
+        if txt[idx].isdigit():
+            output = txt[:idx] + '*' + txt[idx+1:]
+        self.output.set_text(output)
+        return False
 
     def btnOk_clicked(self, widget):
 
@@ -519,9 +533,9 @@ class PinpadGTK:
         """Remove one digit from the pin and replace the last * in the output
            field with an underscore"""
         self.pin = self.pin[:-1]
-        txt = self.output.get_text()
-        idx = txt.rfind("*")
-        self.output.set_text(txt[:idx] + "_" + txt[idx + 1:])
+        num_digits = len(self.pin)
+        output = num_digits * '*' + (self.secret_len - num_digits) * "_" 
+        self.output.set_text(output)
 
 class Popup(object):
 
