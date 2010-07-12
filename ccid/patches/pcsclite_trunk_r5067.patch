@@ -1,6 +1,6 @@
 Index: PCSC/src/PCSC/reader.h.in
 ===================================================================
---- PCSC/src/PCSC/reader.h.in	(Revision 5063)
+--- PCSC/src/PCSC/reader.h.in	(Revision 5067)
 +++ PCSC/src/PCSC/reader.h.in	(Arbeitskopie)
 @@ -121,6 +121,7 @@
  #define FEATURE_IFD_DISPLAY_PROPERTIES   0x11
@@ -12,7 +12,7 @@ Index: PCSC/src/PCSC/reader.h.in
   * "IFDs with Secure Pin Entry Capabilities" */
 Index: Drivers/ccid/src/ifdhandler.c
 ===================================================================
---- Drivers/ccid/src/ifdhandler.c	(Revision 5063)
+--- Drivers/ccid/src/ifdhandler.c	(Revision 5067)
 +++ Drivers/ccid/src/ifdhandler.c	(Arbeitskopie)
 @@ -1417,6 +1417,16 @@
  			iBytesReturned += sizeof(PCSC_TLV_STRUCTURE);
@@ -77,7 +77,7 @@ Index: Drivers/ccid/src/ifdhandler.c
  
 Index: Drivers/ccid/src/commands.c
 ===================================================================
---- Drivers/ccid/src/commands.c	(Revision 5063)
+--- Drivers/ccid/src/commands.c	(Revision 5067)
 +++ Drivers/ccid/src/commands.c	(Arbeitskopie)
 @@ -68,7 +68,19 @@
  	unsigned int tx_length, unsigned char tx_buffer[], unsigned int *rx_length,
@@ -99,7 +99,7 @@ Index: Drivers/ccid/src/commands.c
  
  
  /*****************************************************************************
-@@ -712,7 +724,299 @@
+@@ -712,7 +724,304 @@
  	return ret;
  } /* SecurePINModify */
  
@@ -119,14 +119,19 @@ Index: Drivers/ccid/src/commands.c
 +    switch (input[parsed]) {
 +        case 0x01:
 +            DEBUG_COMM("Initiating PACE with MRZ");
++            break;
 +        case 0x02:
 +            DEBUG_COMM("Initiating PACE with CAN");
++            break;
 +        case 0x03:
 +            DEBUG_COMM("Initiating PACE with PIN");
++            break;
 +        case 0x04:
 +            DEBUG_COMM("Initiating PACE with PUK");
++            break;
 +        default:
 +            DEBUG_COMM("Initiating PACE with unknown PACE secret type");
++            break;
 +    }
 +    parsed += 1;
 +
@@ -177,7 +182,7 @@ Index: Drivers/ccid/src/commands.c
 +    }
 +    if (lengthCertificateDescription)
 +        DEBUG_INFO_XXD("Certificate description:\n", &input[parsed], lengthCertificateDescription);
-+    parsed += lengthCHAT;
++    parsed += lengthCertificateDescription;
 +
 +    if (parsed != input_length) {
 +        DEBUG_CRITICAL2("Overrun by %d bytes", input_length - parsed);
@@ -399,7 +404,7 @@ Index: Drivers/ccid/src/commands.c
  /*****************************************************************************
   *
   *					Escape
-@@ -2113,3 +2417,15 @@
+@@ -2113,3 +2422,15 @@
  	buffer[3] = (value >> 24) & 0xFF;
  } /* i2dw */
  
@@ -417,7 +422,7 @@ Index: Drivers/ccid/src/commands.c
 +
 Index: Drivers/ccid/src/commands.h
 ===================================================================
---- Drivers/ccid/src/commands.h	(Revision 5063)
+--- Drivers/ccid/src/commands.h	(Revision 5067)
 +++ Drivers/ccid/src/commands.h	(Arbeitskopie)
 @@ -37,6 +37,14 @@
  	unsigned char TxBuffer[], unsigned int TxLength,
@@ -436,7 +441,7 @@ Index: Drivers/ccid/src/commands.h
  	unsigned char RxBuffer[], unsigned int *RxLength);
 Index: Drivers/ccid/src/ccid.h
 ===================================================================
---- Drivers/ccid/src/ccid.h	(Revision 5063)
+--- Drivers/ccid/src/ccid.h	(Revision 5067)
 +++ Drivers/ccid/src/ccid.h	(Arbeitskopie)
 @@ -142,8 +142,10 @@
  #define CCID_CLASS_EXCHANGE_MASK	0x00070000
@@ -462,7 +467,7 @@ Index: Drivers/ccid/src/ccid.h
  #define ISO_DATA_RATES 10753, 14337, 15625, 17204, \
 Index: Drivers/ccid/src/ccid_ifdhandler.h
 ===================================================================
---- Drivers/ccid/src/ccid_ifdhandler.h	(Revision 5063)
+--- Drivers/ccid/src/ccid_ifdhandler.h	(Revision 5067)
 +++ Drivers/ccid/src/ccid_ifdhandler.h	(Arbeitskopie)
 @@ -37,6 +37,8 @@
  	SCARD_CTL_CODE(FEATURE_IFD_PIN_PROPERTIES + CLASS2_IOCTL_MAGIC)

@@ -87,7 +87,7 @@ Index: ccid-1.3.11/src/commands.c
  
  
  /*****************************************************************************
-@@ -691,7 +703,299 @@
+@@ -691,7 +703,304 @@
  	return ret;
  } /* SecurePINModify */
  
@@ -106,15 +106,20 @@ Index: ccid-1.3.11/src/commands.c
 +    }
 +    switch (input[parsed]) {
 +        case 0x01:
-+            DEBUG_INFO("Initiating PACE with MRZ");
++            DEBUG_COMM("Initiating PACE with MRZ");
++            break;
 +        case 0x02:
-+            DEBUG_INFO("Initiating PACE with CAN");
++            DEBUG_COMM("Initiating PACE with CAN");
++            break;
 +        case 0x03:
-+            DEBUG_INFO("Initiating PACE with PIN");
++            DEBUG_COMM("Initiating PACE with PIN");
++            break;
 +        case 0x04:
-+            DEBUG_INFO("Initiating PACE with PUK");
++            DEBUG_COMM("Initiating PACE with PUK");
++            break;
 +        default:
-+            DEBUG_INFO("Initiating PACE with unknown PACE secret type");
++            DEBUG_COMM("Initiating PACE with unknown PACE secret type");
++            break;
 +    }
 +    parsed += 1;
 +
@@ -165,7 +170,7 @@ Index: ccid-1.3.11/src/commands.c
 +    }
 +    if (lengthCertificateDescription)
 +        DEBUG_INFO_XXD("Certificate description:\n", &input[parsed], lengthCertificateDescription);
-+    parsed += lengthCHAT;
++    parsed += lengthCertificateDescription;
 +
 +    if (parsed != input_length) {
 +        DEBUG_CRITICAL2("Overrun by %d bytes", input_length - parsed);
@@ -186,7 +191,7 @@ Index: ccid-1.3.11/src/commands.c
 +        DEBUG_CRITICAL("Malformed Establish PACE Channel output data.");
 +        return IFD_COMMUNICATION_ERROR;
 +    }
-+    DEBUG_INFO3("MSE:Set AT Statusbytes: %02X %02X",
++    DEBUG_COMM3("MSE:Set AT Statusbytes: %02X %02X",
 +            output[parsed+0], output[parsed+1]);
 +    parsed += 2;
 +
@@ -387,7 +392,7 @@ Index: ccid-1.3.11/src/commands.c
  /*****************************************************************************
   *
   *					Escape
-@@ -2081,3 +2385,15 @@
+@@ -2081,3 +2390,15 @@
  	buffer[3] = (value >> 24) & 0xFF;
  } /* i2dw */
  
