@@ -38,6 +38,7 @@
         <child>
           <object class="GtkEntry" id="txtOutput">
             <property name="visible">True</property>
+            <property name="sensitive">False</property>
             <property name="editable">False</property>
             <property name="max_length">10</property>
             <property name="invisible_char">&#x25CF;</property>
@@ -45,6 +46,7 @@
             <property name="truncate_multiline">True</property>
             <property name="shadow_type">out</property>
             <property name="invisible_char_set">True</property>
+            <property name="caps_lock_warning">False</property>
           </object>
           <packing>
             <property name="expand">False</property>
