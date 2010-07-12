@@ -976,6 +976,9 @@ static void *interrupt (void *param)
 
     pthread_cleanup_pop (1);
 
+    fflush (stdout);
+    fflush (stderr);
+
     return 0;
 }
 
@@ -1534,15 +1537,17 @@ stall:
 
 static void signothing (int sig, siginfo_t *info, void *ptr)
 {
-    unsigned int seconds = 10;
+    unsigned int seconds = 4;
     switch (sig) {
+        case SIGQUIT:
+            seconds /= 2;
         case SIGINT:
             if (verbose > 1)
                 fprintf (stderr, "\nInitializing shutdown, "
                         "waiting %d seconds for threads to terminate\n",
                         seconds);
-            sleep(5);
-        case SIGQUIT:
+            pthread_cancel(ep0);
+            sleep(seconds);
             fprintf (stderr, "Doing immediate shutdown.\n");
             exit(1);
             break;
