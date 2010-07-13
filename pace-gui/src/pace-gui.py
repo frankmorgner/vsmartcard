@@ -400,9 +400,6 @@ class PinpadGTK:
             else:
                 lbl.modify_font(pango.FontDescription("sans 18"))
 
-        #Prepare the Progress Bar window for later use
-        self.progressWindow = Popup(self.builder)
-
         #Display Main Window
         self.window = self.builder.get_object("MainWindow")
         self.window.show()
@@ -465,7 +462,7 @@ class PinpadGTK:
 
         cmd.append("-v")
 
-        #Try to call pace-tool. This is a blocking call. A progress bar is being
+        #Try to call pace-tool. This is a blocking call. An animation is being
         #shown while the subprocess is running
         try:
             self.cardChecker.pause() #Stop polling the card while PACE is running
@@ -479,17 +476,7 @@ class PinpadGTK:
             self.cardChecker.resume() #Restart cardChecker
             return
 
-        #Animate the progress bar
-#        line = p.stdout.readline()
-#        self.progressWindow.show()
-#        while gtk.events_pending():
-#            gtk.main_iteration()
-#        while line:
-#            self.progressWindow.inc_fraction()
-#            while gtk.events_pending():
-#               gtk.main_iteration()
-#           line = p.stdout.readline()
-
+        #Show the animation to indicate that the program is not dead
         waiting = gtk.Window(gtk.WINDOW_POPUP)
         animation = gtk.gdk.PixbufAnimation(image_dir + "/wait.gif")
         img = gtk.Image()
@@ -501,9 +488,10 @@ class PinpadGTK:
         waiting.set_decorated(False)
         waiting.show_all()
 
+        #Try to keep the GUI responsive by taking care of the event queue
         line = p.stdout.readline()
         while line:
-            while gtk.events_pending(): #Keep GUI responsive
+            while gtk.events_pending():
                gtk.main_iteration()
             line = p.stdout.readline()
 
@@ -536,27 +524,6 @@ class PinpadGTK:
         num_digits = len(self.pin)
         output = num_digits * '*' + (self.secret_len - num_digits) * "_" 
         self.output.set_text(output)
-
-class Popup(object):
-
-    def __init__(self, builder):
-        self.builder = builder
-        self.window = self.builder.get_object("progWindow")
-        self.progbar = self.builder.get_object("progBar")
-
-    def show(self):
-        self.window.show()
-
-    def hide(self):
-        self.window.hide()
-
-    def inc_fraction(self):
-        fraction = self.progbar.get_fraction()
-        if fraction < 1.0:
-            fraction += 0.1
-        else:
-           fraction = 0.0
-        self.progbar.set_fraction(fraction)
 
 class cardChecker(Thread):
     """ This class searches for a card with a given ATR and displays

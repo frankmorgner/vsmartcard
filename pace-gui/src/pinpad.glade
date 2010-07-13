@@ -273,42 +273,4 @@
       </object>
     </child>
   </object>
-  <object class="GtkWindow" id="progWindow">
-    <property name="type">popup</property>
-    <property name="resizable">False</property>
-    <property name="modal">True</property>
-    <property name="window_position">center-on-parent</property>
-    <property name="default_width">240</property>
-    <property name="default_height">120</property>
-    <property name="destroy_with_parent">True</property>
-    <property name="type_hint">popup-menu</property>
-    <property name="skip_taskbar_hint">True</property>
-    <property name="deletable">False</property>
-    <property name="transient_for">MainWindow</property>
-    <property name="opacity">0.90000000022351745</property>
-    <child>
-      <object class="GtkVBox" id="vbox2">
-        <property name="visible">True</property>
-        <child>
-          <object class="GtkLabel" id="lblCaption">
-            <property name="visible">True</property>
-            <property name="label" translatable="yes">&lt;span font_weight="bold" font="11"&gt;PACE Progress&lt;/span&gt;</property>
-            <property name="use_markup">True</property>
-          </object>
-          <packing>
-            <property name="position">0</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkProgressBar" id="progBar">
-            <property name="visible">True</property>
-            <property name="activity_mode">True</property>
-          </object>
-          <packing>
-            <property name="position">1</property>
-          </packing>
-        </child>
-      </object>
-    </child>
-  </object>
 </interface>
