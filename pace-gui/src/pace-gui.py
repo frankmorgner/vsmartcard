@@ -18,47 +18,6 @@ except:
 
 from pace_gui_globals import *
 
-at_chat_strings = [
-        "Altersverifikation", #"Age Verification",
-        "Gemeindeschlüssel Verifikation", #Community ID Verification
-        "Pseudonymfunktion", #"Restrictied Identification",
-        "Priviligiertes Terminal", #"Privileged Terminal",
-        "Verwendung der CAN", #"CAN allowed",
-        "PIN Managment",
-        "Zertifikat einspielen", #"Install Certificate",
-        "Qualifiziertes Zertifikat einspielen", #"Install Qualified Certificate",
-        "Dokumenttyp lesen", #"Read DG 1",
-        "Staat lesen", #"Read DG 2",
-        "Ablaufdatum lesen", #"Read DG 3",
-        "Vorname lesen", #"Read DG 4",
-        "Nachname lesen", #"Read DG 5",
-        u"Künstlername lesen", #"Read DG 6",
-        "Doktorgrad lesen", #"Read DG 7",
-        "Geburtsdatum lesen", #"Read DG 8",
-        "Geburtsort lesen", #"Read DG 9",
-        u"Ungültig", #"Read DG 10",
-        u"Ungültig", #"Read DG 11",
-        u"Ungültig", #"Read DG 12",
-        u"Ungültig", #"Read DG 13",
-        u"Ungültig", #"Read DG 14",
-        u"Ungültig", #"Read DG 15",
-        u"Ungültig", #"Read DG 16",
-        "Adresse lesen", #"Read DG 17",
-        u"Gemeindeschlüssel lesen", #"Read DG 18",
-        u"Ungültig", #"Read DG 19",
-        u"Ungültig", #"Read DG 20",
-        u"Ungültig", #"Read DG 21",
-        u"Ungültig", #"RFU",
-        u"Ungültig", #"RFU",
-        u"Ungültig", #"RFU",
-        u"Ungültig", #"RFU",
-        u"Ungültig", #"Write DG 21",
-        u"Ungültig", #"Write DG 20",
-        u"Ungültig", #"Write DG 19",
-        u"Gemeindeschlüssel schreiben", #"Write DG 18",
-        u"Adresse schreiben", #"Write DG 17"
-]
-
 class MokoWindow(gtk.Window):
     """
     Base class for all our dialogues. It's a simple gtk.Window, with a title at
@@ -81,7 +40,6 @@ class MokoWindow(gtk.Window):
         #self.set_resizable(False)
 
         #Main VBox, which consists of the title, the body, and the buttons
-        #The size of the elements is inhomogenous and the spacing between elements is 5 pixel
         self.__vb = gtk.VBox(False, 5)
         self.add(self.__vb)
 
@@ -125,14 +83,17 @@ class MokoWindow(gtk.Window):
         self.__vb.pack_start(hbox, False, False)
 
     def btnBack_clicked(self, widget, data=None):
-        if self.predecessor == None:
+        """Go back to the previous window. If there is no previous window,
+           do nothing"""
+        if self.predecessor is None:
             gtk.main_quit()
         else:
             self.predecessor.show_all()
             self.hide()
 
     def btnForward_clicked(self, widget, data=None):
-        if self.successor == None:
+        """Go to the next window. If there is no next window, do nothing"""
+        if self.successor is None:
             pass
         else:
             self.successor.show_all()
@@ -149,7 +110,7 @@ class CertificateDescriptionWindow(MokoWindow):
         self.successor = CVCWindow(binCert, self)
 
         #Display the validity period:
-        cvc = pace.d2i_CV_CERT(binCert) #FIXME
+        cvc = pace.d2i_CV_CERT(binCert)
         effective_date = self.formatDate(pace.get_effective_date(cvc))
         expiration_date = self.formatDate(pace.get_expiration_date(cvc))
         validity_period = effective_date + " - " + expiration_date
@@ -161,12 +122,12 @@ class CertificateDescriptionWindow(MokoWindow):
         issuerName = pace.get_issuer_name(desc)
         issuerURL = pace.get_issuer_url(desc)
         self.addRow("Zertifikatsaussteller:", issuerName)
-        if issuerURL != None:
+        if issuerURL is not None:
             self.addRow("", issuerURL, True)
         subjectName = pace.get_subject_name(desc)
         subjectURL = pace.get_subject_url(desc)
         self.addRow("Zertifikatsinhaber:", subjectName)
-        if subjectURL != None:
+        if subjectURL is not None:
             self.addRow("", subjectURL, True)
         self.set_focus(None)
 
@@ -184,12 +145,12 @@ class CertificateDescriptionWindow(MokoWindow):
         assert(isinstance(date, basestring))
         assert(len(date) == 6)
 
-        yy = date[:2]
-        mm = date[2:4]
-        dd = date[4:6] #Cut off trailing \0
+        year = date[:2]
+        month = date[2:4]
+        day = date[4:6] #Cut off trailing \0
 
         #Implicit assumption: 2000 <= year < 3000
-        return dd + "." + mm + "." + "20" + yy
+        return day + "." + month + "." + "20" + year
 
     def formatTOU(self, terms):
 
@@ -198,7 +159,7 @@ class CertificateDescriptionWindow(MokoWindow):
 #            lbl = gtk.Label(s)
 #            lbl.set_alignment(0.0, 0.0)
 #            lbl.set_width_chars(60)
-#            lbl.set_line_wrap(True) #FIXME: Doesn't work on the Moko
+#            lbl.set_line_wrap(True) #XXX: Doesn't work on the Moko
 #            lbl.modify_font(pango.FontDescription("bold"))
 #            self.body.pack_start(gtk.HSeparator())
 #            self.body.pack_start(lbl, False, False, 2)
@@ -257,8 +218,8 @@ class CVCWindow(MokoWindow):
             if (i % 8 == 0):
                 j += 1
             if self.rel_auth[self.rel_auth_len - j] & (1 << (i % 8)):
-                    chk = customCheckButton(at_chat_strings[i], i, self.body)
-                    self.access_rights.append(chk)
+                chk = customCheckButton(AT_CHAT_STRINGS[i], i, self.body)
+                self.access_rights.append(chk)
 
 #        self.show_all()
 
@@ -314,7 +275,7 @@ class customCheckButton(object):
         return self.chk.get_active()
 
 class PinpadGTK:
-    """This a simple GTK based GUI to enter a PIN"""
+    """This a simple GTK based GUI to enter a PIN/PUK/CAN"""
 
     def __init__(self, secret="pin", chat=None, cert=None):
         btn_names = ["btnOne", "btnTwo", "btnThree", "btnFour", "btnFive",
@@ -386,8 +347,8 @@ class PinpadGTK:
         #Change the font for the buttons
         #For this you have to retrieve the label of each button and change
         #its font
-        for name in btn_names:
-            btn = self.builder.get_object(name)
+        for btn_name in btn_names:
+            btn = self.builder.get_object(btn_name)
             if btn.get_use_stock():
                 lbl = btn.child.get_children()[1]
             elif isinstance(btn.child, gtk.Label):
@@ -395,7 +356,7 @@ class PinpadGTK:
             else:
                 raise ValueError("Button does not have a label")
 
-            if (name == "btnOk" or name == "btnDel"):
+            if (btn_name == "btnOk" or btn_name == "btnDel"):
                 lbl.modify_font(pango.FontDescription("sans 14"))
             else:
                 lbl.modify_font(pango.FontDescription("sans 18"))
@@ -408,6 +369,7 @@ class PinpadGTK:
             self.window.connect("destroy", self.shutdown)
 
     def shutdown(self, widget):
+        """Stop the cardChecker thread before exiting the application"""
         self.cardChecker.stop()
         self.cardChecker.join()
         gtk.main_quit()
@@ -437,12 +399,16 @@ class PinpadGTK:
         return False
 
     def btnOk_clicked(self, widget):
+        """Pass the entered secret to pace-tool. If pace-tool is run
+           sucessfully exit, otherwise restart the PIN entry"""
 
         env_args = os.environ
-        cmd = ["pace-tool"] #Contains the command and all the parameters for our subproccess
 
-        #We have to select the type of secret to use via a command line parameter
-        #and provide the actual secret via an environment variable
+        #cmd contains the command and all the parameters for our subproccess
+        cmd = ["pace-tool"]
+
+        #We have to select the type of secret to use via a command line
+        #parameter and provide the actual secret via an environment variable
         if self.secret == "pin" or self.secret == "transport":
             cmd.append("--pin")
             env_args["PIN"] = self.pin
@@ -465,8 +431,10 @@ class PinpadGTK:
         #Try to call pace-tool. This is a blocking call. An animation is being
         #shown while the subprocess is running
         try:
-            self.cardChecker.pause() #Stop polling the card while PACE is running
-            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, env=env_args, close_fds=True)
+            #Stop polling the card while PACE is running
+            self.cardChecker.pause()
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, env=env_args,
+                    close_fds=True)
         except OSError, e:
             popup = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL |
                     gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_ERROR,
@@ -492,7 +460,7 @@ class PinpadGTK:
         line = p.stdout.readline()
         while line:
             while gtk.events_pending():
-               gtk.main_iteration()
+                gtk.main_iteration()
             line = p.stdout.readline()
 
         #Get the return value of the pace-tool process
@@ -504,15 +472,17 @@ class PinpadGTK:
             popup = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL |
                 gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_INFO,
                 gtk.BUTTONS_OK, "PIN wurde korrekt eingegeben")
-            res = popup.run()
+            popup.run()
             popup.destroy()
-            self.shutdown(None) #FIXME
+            #XXX: Actually we should return to the application that started
+            #the PIN entry
+            self.shutdown(None)
         else:
             popup = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL |
                 gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_WARNING,
                 gtk.BUTTONS_OK,
                 "PIN wurde falsch eingegeben. Bitte erneut versuchen")
-            res = popup.run()
+            popup.run()
             popup.destroy()
             self.output.set_text(self.secret_len * "_")
             self.pin = ""
@@ -527,7 +497,7 @@ class PinpadGTK:
 
 class cardChecker(Thread):
     """ This class searches for a card with a given ATR and displays
-        wether or not it was found on the label of a widget """
+        wether or not using a label and an image """
 
     def __init__(self, lbl, img, atr, intervall=1):
         Thread.__init__(self)
@@ -544,25 +514,24 @@ class cardChecker(Thread):
         it run on the OpenMoko yet. Therefor we call opensc-tool instead, which
         leads to higher delays """
 
-        try:
-            p = subprocess.Popen(["opensc-tool", "--atr"], stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE, close_fds=True)
+        proc = subprocess.Popen(["opensc-tool", "--atr"],
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True)
 
-            line = p.stdout.readline().rstrip()
-            if line == self.targetATR:
-                gobject.idle_add(self.lbl.set_label, STR_CARD_FOUND)
-                gobject.idle_add(self.img.set_from_file, FILE_CARD_FOUND)
-            else:
-                gobject.idle_add(self.lbl.set_label, STR_NO_CARD)
-                gobject.idle_add(self.img.set_from_file, FILE_NO_CARD)
-
-        except OSError, e:
-            pass #FIXME
+        line = proc.stdout.readline().rstrip()
+        if line == self.targetATR:
+            gobject.idle_add(self.lbl.set_label, STR_CARD_FOUND)
+            gobject.idle_add(self.img.set_from_file, FILE_CARD_FOUND)
+        else:
+            gobject.idle_add(self.lbl.set_label, STR_NO_CARD)
+            gobject.idle_add(self.img.set_from_file, FILE_NO_CARD)
 
     def run(self):
+        """Main loop: Poll the card if the thread is not paused or finished"""
         while (True):
-            if self._finished.isSet(): return
-            if self._paused.isSet(): continue
+            if self._finished.isSet():
+                return
+            if self._paused.isSet():
+                continue
             self.__cardCheck()
             self._finished.wait(self.intervall)
 
