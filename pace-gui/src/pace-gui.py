@@ -199,7 +199,7 @@ class CVCWindow(MokoWindow):
         super(CVCWindow, self).__init__("Zugriffsrechte", None)
 
         self.predecessor = predecessor
-#        self.successor = PinpadWindow(self)
+        self.successor = PinpadGTK("pin", None)
 
         #Convert the binary certificate to the internal representation and
         #extract the relative authorization from the chat
@@ -221,8 +221,6 @@ class CVCWindow(MokoWindow):
                 chk = customCheckButton(AT_CHAT_STRINGS[i], i, self.body)
                 self.access_rights.append(chk)
 
-#        self.show_all()
-
     def btnForward_clicked(self, widget, data=None):
         """ Check wether any access right have been deselected and modify the
             CHAT accordingly """
@@ -234,7 +232,8 @@ class CVCWindow(MokoWindow):
 
         #super(CVCWindow, self).btnForward_clicked(widget, data)
         newCHAT = self.__formatHexString(self.rel_auth)
-        PinpadGTK("pin", newCHAT)
+        self.successor.set_chat(newCHAT)
+        self.successor.show()
         self.hide()
 
     def __formatHexString(self, int_list):
@@ -363,10 +362,13 @@ class PinpadGTK:
 
         #Display Main Window
         self.window = self.builder.get_object("MainWindow")
-        self.window.show()
+        self.window.connect("destroy", self.shutdown)
 
-        if (self.window):
-            self.window.connect("destroy", self.shutdown)
+    def show(self):
+        self.window.show_all()
+
+    def set_chat(self, chat):
+        self.chat = chat
 
     def shutdown(self, widget):
         """Stop the cardChecker thread before exiting the application"""
