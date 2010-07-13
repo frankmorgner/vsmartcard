@@ -363,6 +363,7 @@ class PinpadGTK:
         #Display Main Window
         self.window = self.builder.get_object("MainWindow")
         self.window.connect("destroy", self.shutdown)
+        self.window.hide()
 
     def show(self):
         self.window.show_all()
