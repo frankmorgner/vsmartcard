@@ -19,8 +19,8 @@
 #ifndef _CCID_PACE_H
 #define _CCID_PACE_H
 
-#include "pace_lib.h"
-#include "sm.h"
+#include <pace/pace_lib.h>
+#include <pace/sm.h>
 #include <opensc/opensc.h>
 #include <openssl/bn.h>
 #include <openssl/pace.h>

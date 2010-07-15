@@ -27,14 +27,17 @@
 #include <opensc/log.h>
 
 #include "ccid.h"
-#include "sm.h"
-#include "scutil.h"
 #include "config.h"
 
 #ifdef WITH_PACE
-#include "pace.h"
+#include <pace/pace.h>
+#include <pace/sm.h>
+#include <pace/scutil.h>
 
-struct sm_ctx sctx;
+static struct sm_ctx sctx;
+
+#else
+#include "pace/scutil.h"
 #endif
 
 static sc_context_t *ctx = NULL;
@@ -178,7 +181,11 @@ static int get_rapdu(sc_apdu_t *apdu, size_t slot, __u8 **buf, size_t *resplen)
     }
     *buf = apdu->resp;
 
+#ifdef WITH_PACE
     sc_result = sm_transmit_apdu(&sctx, card_in_slot[slot], apdu);
+#else
+    sc_result = sc_transmit_apdu(&sctx, card_in_slot[slot], apdu);
+#endif
     if (sc_result < 0) {
         goto err;
     }
@@ -1069,7 +1076,7 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
     uint8_t encoding = bmFormatString & 2;
     uint8_t blocksize = bmPINBlockString & 0xf;
 
-    sc_debug(ctx,   "PIN %s block (%d bytes) proberties:\n"
+    sc_debug(ctx, "PIN %s block (%d bytes) proberties:\n"
             "\tminimum %d, maximum %d PIN digits\n"
             "\t%s PIN encoding, %s justification\n"
             "\tsystem units are %s\n"

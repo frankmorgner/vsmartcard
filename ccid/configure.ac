@@ -12,6 +12,7 @@ AM_INIT_AUTOMAKE
 AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_LN_S
+AC_PROG_LIBTOOL
 AM_PROG_CC_C_O
 PKG_PROG_PKG_CONFIG
 
@@ -62,33 +63,40 @@ AC_SUBST(PTHREAD_CFLAGS)
 AC_SUBST(PTHREAD_LIBS)
 AM_CONDITIONAL(WITH_CCID, test "${enable_ccid}" != "no")
 
+
+PKG_CHECK_EXISTS([libssl],
+                 [PKG_CHECK_MODULES([OPENSSL], [libssl])],
+                 [AC_MSG_WARN([libssl not found by pkg-config])])
+
+saved_CPPFLAGS="$CPPFLAGS"
+saved_LIBS="$LIBS"
+CPPFLAGS="$CPPFLAGS $OPENSSL_CFLAGS"
+LIBS="$LDFLAGS $OPENSSL_LIBS"
+
+AC_CHECK_HEADERS(openssl/evp.h, [], [ AC_MSG_ERROR([openssl/evp.h not found, install OpenSSL or use ./configure OPENSSL_CFLAGS=...]) ])
+AC_MSG_CHECKING([for EVP_read_pw_string_min])
+AC_TRY_LINK_FUNC(EVP_read_pw_string_min, [ AC_MSG_RESULT([yes]) ], [ AC_MSG_ERROR([OpenSSL not found, use ./configure OPENSSL_LIBS=...]) ])
+
 # --enable-pace
 AC_ARG_ENABLE(pace,
               AS_HELP_STRING([--enable-pace], [Enable Password Authenticated Connection Establishment (PACE)]),
               [enable_pace="${enableval}"], [enable_pace=no])
 if test "x$enable_pace" != xno ; then
-    PKG_CHECK_EXISTS([libssl],
-                     [PKG_CHECK_MODULES([OPENSSL], [libssl])],
-                     [AC_MSG_WARN([libssl not found by pkg-config])])
-
-    saved_CPPFLAGS="$CPPFLAGS"
-    saved_LIBS="$LIBS"
-    CPPFLAGS="$CPPFLAGS $OPENSSL_CFLAGS"
-    LIBS="$LDFLAGS $OPENSSL_LIBS"
-
     AC_CHECK_HEADERS(openssl/pace.h, [], [ AC_MSG_ERROR([openssl/pace.h not found, install OpenPACE or use ./configure OPENSSL_CFLAGS=...]) ])
     AC_MSG_CHECKING([for parse_ef_card_access])
     AC_TRY_LINK_FUNC(parse_ef_card_access, [ AC_MSG_RESULT([yes]) ], [ AC_MSG_ERROR([OpenPACE not found, use ./configure OPENSSL_LIBS=...]) ])
 
-    CPPFLAGS="$saved_CPPFLAGS"
-    LIBS="$saved_LIBS"
-
     enable_pace=yes
 fi
+
+CPPFLAGS="$saved_CPPFLAGS"
+LIBS="$saved_LIBS"
 AC_SUBST(OPENSSL_CFLAGS)
 AC_SUBST(OPENSSL_LIBS)
+
 AM_CONDITIONAL(WITH_PACE, test "${enable_pace}" != "no")
 AM_COND_IF(WITH_PACE, [AC_DEFINE(WITH_PACE, 1, [enable PACE support])])
+
 
 # --enable-ccid-test
 AC_ARG_ENABLE(ccid-test,
@@ -166,8 +174,11 @@ PACE test for reader  ${enable_ccid_test}
 
 EOF
 
-AC_CONFIG_FILES([Makefile
+AC_CONFIG_FILES([
+                 Makefile
                  m4/Makefile
                  patches/Makefile
-                 src/Makefile])
+                 src/Makefile
+                 libpace.pc
+                 ])
 AC_OUTPUT
