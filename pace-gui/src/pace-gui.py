@@ -258,6 +258,10 @@ class customCheckButton(object):
         self.lbl.set_padding(20, 0)
         self.lbl.modify_font(pango.FontDescription("bold"))
 
+        #an image at the left side of the label
+        self.img = gtk.Image()
+        self.img.set_from_file(image_dir + "/info.png")
+
         #...and a checkbox on the right side of the label
         self.idx = index
         self.chk = gtk.CheckButton("")
@@ -266,6 +270,7 @@ class customCheckButton(object):
 
         #Insert the label and the checkbox in the vbox and add a seperator
         hbox = gtk.HBox()
+        hbox.pack_start(self.img, False, False)
         hbox.pack_start(self.lbl, True, True)
         hbox.pack_start(self.chk, False, False)
         vbox.pack_start(gtk.HSeparator())
