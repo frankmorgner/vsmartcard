@@ -36,7 +36,8 @@ class MokoWindow(gtk.Window):
         assert(isinstance(self.title_str, basestring))
 
         self.connect("destroy", gtk.main_quit)
-        self.set_default_size(480, 640) #Display resolution of the OpenMoko
+        #Display resolution of OpenMoko minus height of the SHR toolbar 
+        self.set_size_request(480, 640)
         #self.set_resizable(False)
 
         #Main VBox, which consists of the title, the body, and the buttons

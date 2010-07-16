@@ -5,10 +5,9 @@
   <object class="GtkWindow" id="MainWindow">
     <property name="visible">True</property>
     <property name="title" translatable="yes">Pinpad</property>
-    <property name="resizable">False</property>
     <property name="window_position">center</property>
     <property name="default_width">480</property>
-    <property name="default_height">640</property>
+    <property name="default_height">586</property>
     <property name="icon">OpenPACElogo.png</property>
     <signal name="destroy" handler="on_MainWindow_destroy"/>
     <signal name="destroy_event" handler="on_MainWindow_destroy_event"/>
