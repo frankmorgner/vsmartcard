@@ -7,16 +7,17 @@ try:
     import pygtk
     pygtk.require("2.0")
     import gtk, gobject, glib, pango
-except:
+except ImportError:
     sys.exit(1)
 
 try:
     import pace
-except:
+except ImportError:
     print >> sys.stderr, "Could not import pace module, please install pyPACE"
     sys.exit(1)
 
-from pace_gui_globals import *
+from pace_gui_globals import AT_CHAT_STRINGS, STR_CARD_FOUND, STR_NO_CARD, IMAGES #FIXME:Fuckup
+import pace_gui_globals as gui_globals
 
 class MokoWindow(gtk.Window):
     """
@@ -36,7 +37,7 @@ class MokoWindow(gtk.Window):
         assert(isinstance(self.title_str, basestring))
 
         self.connect("destroy", gtk.main_quit)
-        #Display resolution of OpenMoko minus height of the SHR toolbar 
+        #Display resolution of OpenMoko minus height of the SHR toolbar
         self.set_size_request(480, 640)
         #self.set_resizable(False)
 
@@ -101,6 +102,9 @@ class MokoWindow(gtk.Window):
             self.hide()
 
 class CertificateDescriptionWindow(MokoWindow):
+    """This window is used to display information about the service provider,
+       extracted from the terminal certificate and the appendant certificate
+       description"""
 
     def __init__(self, binDescription, binCert):
         super(CertificateDescriptionWindow, self).__init__("Dienstanbieter", None)
@@ -208,8 +212,8 @@ class CVCWindow(MokoWindow):
         chat = pace.cvc_get_chat(cvc)
         self.chat = pace.get_binary_chat(chat)
         self.rel_auth = []
-        for c in self.chat:
-            self.rel_auth.append(ord(c))
+        for char in self.chat:
+            self.rel_auth.append(ord(char))
         self.rel_auth_len = len(self.rel_auth)
 
         #Extract the access rights from the CHAT and display them in the window
@@ -219,7 +223,7 @@ class CVCWindow(MokoWindow):
             if (i % 8 == 0):
                 j += 1
             if self.rel_auth[self.rel_auth_len - j] & (1 << (i % 8)):
-                chk = customCheckButton(AT_CHAT_STRINGS[i], i, self.body)
+                chk = customCheckButton(i, self.body)
                 self.access_rights.append(chk)
 
     def btnForward_clicked(self, widget, data=None):
@@ -238,11 +242,13 @@ class CVCWindow(MokoWindow):
         self.hide()
 
     def __formatHexString(self, int_list):
+        """Take a list of integers and convert it to a hex string, where the
+           individual bytes are seperated by a colon (e.g. "0f:00:00")"""
         hex_str = ""
         for i in int_list:
-            c = hex(i)[2:]
-            if len(c) == 1: c = "0" + c
-            hex_str += c + ":"
+            byte = hex(i)[2:]
+            if len(byte) == 1: byte = "0" + byte
+            hex_str += byte + ":"
 
         return hex_str[:-1]
 
@@ -251,26 +257,41 @@ class customCheckButton(object):
        The main difference isthat the checkbox can be placed at the right
        side of the label and that we can store an index with the button"""
 
-    def __init__(self, label, index, vbox):
+    def __init__(self, index, vbox):
+        self.idx = index
+        #Fetch name and (possibly empty) helptext
+        strings = AT_CHAT_STRINGS[index]
+        self.label = strings[0]
+        self.helptext = strings[1]
+
         #Setup a label with the name of the access right
-        self.lbl = gtk.Label(label)
+        self.lbl = gtk.Label(self.label)
         self.lbl.set_alignment(0.0, 0.5)
         self.lbl.set_padding(20, 0)
         self.lbl.modify_font(pango.FontDescription("bold"))
 
-        #an image at the left side of the label
-        self.img = gtk.Image()
-        self.img.set_from_file(image_dir + "/info.png")
+        #If we have a helptext, put an image at the left side of the label
+        self.info_box = None
+        if self.helptext is not None:
+            self.info_box = gtk.EventBox()
+            img = gtk.Image()
+            img.set_from_file(IMAGES["info"])
+            self.info_box.add(img)
+            self.info_box.connect("button_release_event", self._show_info)
 
         #...and a checkbox on the right side of the label
-        self.idx = index
         self.chk = gtk.CheckButton("")
         self.chk.set_active(True)
         self.chk.set_alignment(1.0, 0.5)
 
         #Insert the label and the checkbox in the vbox and add a seperator
         hbox = gtk.HBox()
-        hbox.pack_start(self.img, False, False)
+        if self.info_box is not None:
+            hbox.pack_start(self.info_box, False, False)
+        else: #pack empty label for spacing
+            spacer = gtk.Label("")
+            spacer.set_size_request(32, 32)
+            hbox.pack_start(spacer, False, False)
         hbox.pack_start(self.lbl, True, True)
         hbox.pack_start(self.chk, False, False)
         vbox.pack_start(gtk.HSeparator())
@@ -278,6 +299,11 @@ class customCheckButton(object):
 
     def is_active(self):
         return self.chk.get_active()
+
+    def _show_info(self, widget=None, data=None):
+        """Show a messagebox containing info about the access right in
+           question"""
+        print self.helptext
 
 class PinpadGTK:
     """This a simple GTK based GUI to enter a PIN/PUK/CAN"""
@@ -297,23 +323,23 @@ class PinpadGTK:
             self.secret_len = 10
         else:
             raise ValueError("Unknwon secret type: %s" % self.secret)
-            gtk.main_quit()
+            #gtk.main_quit()
         self.chat = chat
         self.cert = cert
 
         #Set the Glade file
-        self.gladefile = glade_dir + "/pinpad.glade"
+        self.gladefile = gui_globals.GLADE_FILE
         self.builder = gtk.Builder()
         try:
             self.builder.add_from_file(self.gladefile)
-        except glib.GError, e:
+        except glib.GError, err:
             #If we encounter an exception at startup, we display a popup with
             #the error message
             popup = gtk.MessageDialog(None, gtk.DIALOG_MODAL,
-                gtk.MESSAGE_WARNING, gtk.BUTTONS_OK, e.message)
+                gtk.MESSAGE_WARNING, gtk.BUTTONS_OK, err.message)
             popup.run()
             popup.destroy()
-            raise e
+            raise err
 
         #Get the Main Window, and connect the "destroy" event
         #Create our dictionay and connect it
@@ -344,10 +370,11 @@ class PinpadGTK:
         lbl_cardStatus = self.builder.get_object("lbl_cardStatus")
         #Fetch the status image
         img_cardStatus = self.builder.get_object("img_cardStatus")
-        img_cardStatus.set_from_file(image_dir + "/error.png")
+        img_cardStatus.set_from_file(IMAGES["error"])
 
-        self.cardChecker = cardChecker(lbl_cardStatus, img_cardStatus, ePA_ATR)
-        gobject.idle_add(self.cardChecker.start)
+        #We only start the thread for polling the card when the window
+        #is shown
+        self.cardChecker = None
 
         #Change the font for the buttons
         #For this you have to retrieve the label of each button and change
@@ -372,6 +399,11 @@ class PinpadGTK:
         self.window.hide()
 
     def show(self):
+        """Start the polling thread, then show the window"""
+        if self.cardChecker is None:
+            self.cardChecker = cardChecker(lbl_cardStatus, img_cardStatus,
+                    gui_globals.ePA_ATR)
+            gobject.idle_add(self.cardChecker.start)
         self.window.show_all()
 
     def set_chat(self, chat):
@@ -379,8 +411,9 @@ class PinpadGTK:
 
     def shutdown(self, widget):
         """Stop the cardChecker thread before exiting the application"""
-        self.cardChecker.stop()
-        self.cardChecker.join()
+        if self.cardChecker is not None:
+            self.cardChecker.stop()
+            self.cardChecker.join()
         gtk.main_quit()
 
     def digit_clicked(self, widget):
@@ -442,9 +475,9 @@ class PinpadGTK:
         try:
             #Stop polling the card while PACE is running
             self.cardChecker.pause()
-            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, env=env_args,
+            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, env=env_args,
                     close_fds=True)
-        except OSError, e:
+        except OSError:
             popup = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL |
                     gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_ERROR,
                     gtk.BUTTONS_OK, "pace-tool wurde nicht gefunden.")
@@ -455,7 +488,7 @@ class PinpadGTK:
 
         #Show the animation to indicate that the program is not dead
         waiting = gtk.Window(gtk.WINDOW_POPUP)
-        animation = gtk.gdk.PixbufAnimation(image_dir + "/wait.gif")
+        animation = gtk.gdk.PixbufAnimation(IMAGES["wait"])
         img = gtk.Image()
         img.set_from_animation(animation)
         waiting.add(img)
@@ -466,14 +499,14 @@ class PinpadGTK:
         waiting.show_all()
 
         #Try to keep the GUI responsive by taking care of the event queue
-        line = p.stdout.readline()
+        line = proc.stdout.readline()
         while line:
             while gtk.events_pending():
                 gtk.main_iteration()
-            line = p.stdout.readline()
+            line = proc.stdout.readline()
 
         #Get the return value of the pace-tool process
-        ret = p.poll()
+        ret = proc.poll()
         waiting.destroy()
         self.cardChecker.resume()
 
@@ -514,10 +547,10 @@ class cardChecker(Thread):
         self._paused = Event()
         self.lbl = lbl
         self.img = img
-        self.targetATR = atr
+        self.target_atr = atr
         self.intervall = intervall
 
-    def __cardCheck(self):
+    def _check_card(self):
         """
         Actually this method should make use of pyscard, but I couldn't make
         it run on the OpenMoko yet. Therefor we call opensc-tool instead, which
@@ -527,12 +560,12 @@ class cardChecker(Thread):
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True)
 
         line = proc.stdout.readline().rstrip()
-        if line == self.targetATR:
+        if line == self.target_atr:
             gobject.idle_add(self.lbl.set_label, STR_CARD_FOUND)
-            gobject.idle_add(self.img.set_from_file, FILE_CARD_FOUND)
+            gobject.idle_add(self.img.set_from_file, IMAGES["apply"])
         else:
             gobject.idle_add(self.lbl.set_label, STR_NO_CARD)
-            gobject.idle_add(self.img.set_from_file, FILE_NO_CARD)
+            gobject.idle_add(self.img.set_from_file, IMAGES["error"])
 
     def run(self):
         """Main loop: Poll the card if the thread is not paused or finished"""
@@ -541,7 +574,7 @@ class cardChecker(Thread):
                 return
             if self._paused.isSet():
                 continue
-            self.__cardCheck()
+            self._check_card()
             self._finished.wait(self.intervall)
 
     def stop(self):
@@ -555,5 +588,6 @@ class cardChecker(Thread):
 
 if __name__ == "__main__":
     gobject.threads_init()
-    CertificateDescriptionWindow(TEST_DESCRIPTION, TEST_CVC)
+    CertificateDescriptionWindow(gui_globals.TEST_DESCRIPTION,
+            gui_globals.TEST_CVC)
     gtk.main()

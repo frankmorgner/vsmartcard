@@ -5,6 +5,8 @@ version = "@VERSION@"
 image_dir = "@prefix@/share/" + name
 glade_dir = "@prefix@/share/" + name
 
+GLADE_FILE = glade_dir + "/pinpad.glade"
+
 STR_NO_CARD = "<span fgcolor=\"red\" font=\"12\">Ausweis</span>"
 STR_CARD_FOUND = "<span fgcolor=\"green\" font=\"12\">Ausweis</span>"
 
@@ -13,46 +15,76 @@ FILE_CARD_FOUND = image_dir + "/apply.png"
 
 ePA_ATR = "3b:84:80:01:00:00:90:00:95"
 
-AT_CHAT_STRINGS = [
-        "Altersverifikation", #Age Verification
-        u"Gemeindeschlüssel Verifikation", #Community ID Verification
-        "Pseudonymfunktion", #Restrictied Identification
-        "Priviligiertes Terminal", #Privileged Terminal
-        "Verwendung der CAN", #CAN allowed
-        "PIN Managment",
-        "Zertifikat einspielen", #Install Certificate
-        "Qualifiziertes Zertifikat einspielen", #Install Qualified Certificate
-        "Dokumenttyp lesen", #Read DG 1
-        "Staat lesen", #Read DG 2
-        "Ablaufdatum lesen", #Read DG 3
-        "Vorname lesen", #Read DG 4
-        "Nachname lesen", #Read DG 5
-        u"Künstlername lesen", #Read DG 6
-        "Doktorgrad lesen", #Read DG 7
-        "Geburtsdatum lesen", #Read DG 8
-        "Geburtsort lesen", #Read DG 9
-        u"Ungültig", #Read DG 10
-        u"Ungültig", #Read DG 11
-        u"Ungültig", #Read DG 12
-        u"Ungültig", #Read DG 13
-        u"Ungültig", #Read DG 14
-        u"Ungültig", #Read DG 15
-        u"Ungültig", #Read DG 16
-        "Adresse lesen", #Read DG 17
-        u"Gemeindeschlüssel lesen", #Read DG 18
-        u"Ungültig", #Read DG 19
-        u"Ungültig", #Read DG 20
-        u"Ungültig", #Read DG 21
-        u"Ungültig", #RFU
-        u"Ungültig", #RFU
-        u"Ungültig", #RFU
-        u"Ungültig", #RFU
-        u"Ungültig", #Write DG 21
-        u"Ungültig", #Write DG 20
-        u"Ungültig", #Write DG 19
-        u"Gemeindeschlüssel schreiben", #Write DG 18
-        u"Adresse schreiben", #Write DG 17"
-]
+#The following strings are used as help texts for eID access rights
+DOC_AGE_VERIFICATION  = "foo"
+DOC_COMMUNITY_ID_VERIFICATION = "foo"
+DOC_RESTRICTED_ID = "foo"
+DOC_PRIVILEGED_TERMINAL = "foo"
+DOC_CAN_ALLOWED = "foo"
+DOC_PIN_MANAGMENT = "foo"
+DOC_INSTALL_CERTIFICATE = "foo"
+DOC_INSTALL_QC = "foo"
+DOC_DOCUMENT_TYPE = "foo"
+DOC_STATE = "foo"
+DOC_EXPIRY_DATE = "foo"
+
+IMAGES = {
+    "apply": image_dir + "/apply.png",
+    "error": image_dir + "/error.png",
+    "info" : image_dir + "/info.png",
+    "wait" : image_dir + "/wait.gif"
+}
+
+#Authentication Terminal CHAT
+AT_CHAT_STRINGS = {
+        #Age Verification
+        0:  ("Altersverifikation",  DOC_AGE_VERIFICATION),
+        #Community ID Verification
+        1:  (u"Gemeindeschlüssel Verifikation", DOC_COMMUNITY_ID_VERIFICATION),
+        #Restrictied Identification
+        2:  ("Pseudonymfunktion", DOC_RESTRICTED_ID),
+        #Privileged Terminal
+        3:  ("Priviligiertes Terminal", DOC_PRIVILEGED_TERMINAL),
+        #CAN allowed
+        4:  ("Verwendung der CAN", DOC_CAN_ALLOWED),
+        5:  ("PIN Managment", DOC_PIN_MANAGMENT),
+        #Install Certificate
+        6:  ("Zertifikat einspielen", DOC_INSTALL_CERTIFICATE),
+        #Install Qualified Certificate
+        7:  ("Qualifiziertes Zertifikat einspielen", DOC_INSTALL_QC),
+        #Read DG 1
+        8:  ("Dokumenttyp", DOC_DOCUMENT_TYPE),
+        #Read DG 2
+        9:  ("Ausstellender Staat", DOC_STATE),
+        10: ("Ablaufdatum", DOC_EXPIRY_DATE), #Read DG 3
+        11: ("Vorname", None), #Read DG 4
+        12: ("Nachname", None), #Read DG 5
+        13: (u"Künstlername", None), #Read DG 6
+        14: ("Doktorgrad", None), #Read DG 7
+        15: ("Geburtsdatum", None), #Read DG 8
+        16: ("Geburtsort", None), #Read DG 9
+        17: (u"Ungültig", None), #Read DG 10
+        18: (u"Ungültig", None), #Read DG 11
+        19: (u"Ungültig", None),#Read DG 12
+        20: (u"Ungültig", None),#Read DG 13
+        21: (u"Ungültig", None),#Read DG 14
+        22: (u"Ungültig", None),#Read DG 15
+        23: (u"Ungültig", None),#Read DG 16
+        24: ("Adresse", None), #Read DG 17
+        25: (u"Gemeindeschlüssel lesen", None),#Read DG 18
+        26: (u"Ungültig", None),#Read DG 19
+        27: (u"Ungültig", None),#Read DG 20
+        28: (u"Ungültig", None),#Read DG 21
+        29: (u"Ungültig", None),#RFU
+        30: (u"Ungültig", None),#RFU
+        31: (u"Ungültig", None),#RFU
+        32: (u"Ungültig", None),#RFU
+        33: (u"Ungültig", None),#Write DG 21
+        34: (u"Ungültig", None),#Write DG 20
+        35: (u"Ungültig", None),#Write DG 19
+        36: (u"Gemeindeschlüssel schreiben", None),#Write DG 18
+        37: (u"Adresse schreiben", None)#Write DG 17"
+}
 
 TEST_CVC = "\x7F\x21\x82\x01\x41\x7F\x4E\x81\xFA\x5F\x29\x01\x00\x42\x0D\x5A\x5A\x44\x56\x43\x41\x41\x54\x41\x30\x30\x30\x33\x7F\x49\x4F\x06\x0A\x04\x00\x7F\x00\x07\x02\x02\x02\x02\x03\x86\x41\x04\x19\xD1\x75\x45\xD3\xFE\x0B\x34\x3E\x7E\xE2\xAE\x4E\x2B\xC9\x2D\x51\x35\x1C\xC1\x17\xA4\x7F\xA9\x51\x9A\xDB\x1E\x40\x5E\xE6\xB8\x12\x12\x80\xBC\xC2\xFF\xF0\x35\x7A\x19\x7D\xE7\x39\xA7\xFD\x2E\xF0\x22\x10\xEF\x34\x3C\xDB\xE7\x9E\xF9\x4B\x8E\x28\x59\x1B\xB9\x5F\x20\x0B\x5A\x5A\x44\x4B\x42\x32\x30\x30\x30\x30\x52\x7F\x4C\x12\x06\x09\x04\x00\x7F\x00\x07\x03\x01\x02\x02\x53\x05\x00\x03\x01\xDF\x04\x5F\x25\x06\x01\x00\x00\x02\x01\x07\x5F\x24\x06\x01\x00\x00\x03\x03\x01\x65\x5E\x73\x2D\x06\x09\x04\x00\x7F\x00\x07\x03\x01\x03\x01\x80\x20\x75\xE0\xC4\xAC\x36\xC2\x5A\x33\xAC\x0E\x9A\x75\xEB\x79\x2A\x72\xF3\x31\xA5\x1E\x28\x63\x4E\xCC\x2E\xD6\x2E\x54\xF3\xC6\x93\xDA\x73\x2D\x06\x09\x04\x00\x7F\x00\x07\x03\x01\x03\x02\x80\x20\x18\x12\x65\x74\x49\xFC\xF1\xD3\xDA\xD8\x3D\x13\x14\x29\x17\x5C\x61\x8B\x21\xBA\xF0\xAF\x44\xAC\xE3\x8C\xB2\xC1\x2C\xEB\x2A\x56\x5F\x37\x40\x54\x0F\x85\x09\x12\xAB\xD3\x51\xF8\xF5\x56\x9B\x53\x4A\x5C\x8F\x64\x54\x5B\x51\xA7\x34\x70\xBE\x5A\xD2\x89\xC1\x9A\x5E\x13\x52\x53\xD3\xBB\x15\x52\x26\x21\x7B\x41\xE7\xF0\x68\xB3\x52\x3F\x3A\x63\x92\x22\xAF\x2B\x62\x8C\x39\x7D\x4F\xD4\x02\x1E\xDE\x00\xDC"
 
