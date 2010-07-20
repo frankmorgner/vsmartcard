@@ -16,17 +16,17 @@ FILE_CARD_FOUND = image_dir + "/apply.png"
 ePA_ATR = "3b:84:80:01:00:00:90:00:95"
 
 #The following strings are used as help texts for eID access rights
-DOC_AGE_VERIFICATION  = "foo"
-DOC_COMMUNITY_ID_VERIFICATION = "foo"
-DOC_RESTRICTED_ID = "foo"
-DOC_PRIVILEGED_TERMINAL = "foo"
-DOC_CAN_ALLOWED = "foo"
-DOC_PIN_MANAGMENT = "foo"
-DOC_INSTALL_CERTIFICATE = "foo"
-DOC_INSTALL_QC = "foo"
-DOC_DOCUMENT_TYPE = "foo"
-DOC_STATE = "foo"
-DOC_EXPIRY_DATE = "foo"
+DOC_AGE_VERIFICATION  = u"Die Altersverifikation erlaubt die Überprüfung, ob ein Nutzer alt genug ist um einen Dienst zu nutzen, ohne sein Geburtsdatum zu übertragen"
+DOC_COMMUNITY_ID_VERIFICATION = u"Die Wohnort Verifikation erlaubt die Überprüfung, ob ein Nutzer in einem bestimmten Gebiet wohnt, ohne seine tatsächliche Adresse zu übertragen"
+DOC_RESTRICTED_ID = u"Die Pseudonymfunktion macht einen Nutzer für den Dienstanbieter wiedererkennbar, ohne weitere Daten von ihm zu erfassen"
+DOC_PRIVILEGED_TERMINAL = u"Ein privilegiertes Terminal darf auf den Kartenindividuellen Schlüssel des Ausweis zugreifen"
+DOC_CAN_ALLOWED = u"Das Terminal darf die Funktionen des Ausweises mit der CAN nutzen"
+DOC_PIN_MANAGMENT = u"Das Terminal darf die eID-Funktion (de-)aktivieren und eine neue eID-PIN setzen"
+DOC_INSTALL_CERTIFICATE = u"Der Dienstanbieter darf ein Zertifikat im Ausweis installieren"
+DOC_INSTALL_QC = u"Der Dienstanbieter darf ein qualifiziertes Zertifikat im Ausweis installieren"
+DOC_DOCUMENT_TYPE = u"Der Dienstanbieter darf den Dokumenttyp (z.B. Personalausweis oder Aufenthaltstitel) auslesen"
+DOC_STATE = u"Der Dienstanbieter darf die Staatzugehörigkeit des Ausweisinhabers lesen"
+DOC_EXPIRY_DATE = u"Der Dienstanbieter darf das Ablaufdatum des Ausweises auslesen"
 
 IMAGES = {
     "apply": image_dir + "/apply.png",

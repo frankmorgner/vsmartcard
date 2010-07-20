@@ -38,7 +38,7 @@ class MokoWindow(gtk.Window):
 
         self.connect("destroy", gtk.main_quit)
         #Display resolution of OpenMoko minus height of the SHR toolbar
-        self.set_size_request(480, 640)
+        self.set_size_request(480, 586)
         #self.set_resizable(False)
 
         #Main VBox, which consists of the title, the body, and the buttons
@@ -111,7 +111,9 @@ class MsgBox(gtk.Dialog):
 
         super(MsgBox, self).__init__(title="Foo", parent=parent, flags=flags)
 
-        self.set_size_request(240, 120)
+        #Dialog will be resized to screen width no matter what. Therefore we
+        #use the whole width from the beginning to avoid being resized
+        self.set_size_request(480, 160)
 
         hbox_top = gtk.HBox()
         lbl = gtk.Label(msg)
@@ -124,12 +126,12 @@ class MsgBox(gtk.Dialog):
         hbox_top.pack_start(img, False, False)
         hbox_top.pack_start(lbl, True, True)
         self.vbox.pack_start(hbox_top)
-        self.vbox.pack_start(gtk.HSeparator())
+        #self.vbox.pack_start(gtk.HSeparator())
         hbox_bottom = gtk.HBox()
         spacer = gtk.Label("")
-        spacer.set_size_request(170, 20)
+        spacer.set_size_request(380, 25)
         hbox_bottom.pack_start(spacer, False, False)
-        hbox_bottom.pack_start(btn)
+        hbox_bottom.pack_start(btn, True, True)
         self.vbox.pack_start(hbox_bottom)
         #hbox.pack_start(vbox)
         #self.add(hbox)
