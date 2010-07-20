@@ -101,6 +101,48 @@ class MokoWindow(gtk.Window):
             self.successor.show_all()
             self.hide()
 
+class MsgBox(gtk.Dialog):
+    """The gtk.MessageDialog looks like crap on the Moko, so we write our own"""
+
+    def __init__(self, parent, msg, img_type, flags):
+        #img is a string which is used as a key for the IMAGES dictionary
+        if img_type is not None:
+            assert IMAGES.has_key(img_type)
+
+        super(MsgBox, self).__init__(title="Foo", parent=parent, flags=flags)
+
+        self.set_size_request(240, 120)
+
+        hbox_top = gtk.HBox()
+        lbl = gtk.Label(msg)
+        lbl.set_width_chars(20)
+        lbl.set_line_wrap(True)
+        btn = gtk.Button("Ok")
+        btn.connect("clicked", self.__destroy)
+        img = gtk.Image()
+        img.set_from_file(IMAGES[img_type])
+        hbox_top.pack_start(img, False, False)
+        hbox_top.pack_start(lbl, True, True)
+        self.vbox.pack_start(hbox_top)
+        self.vbox.pack_start(gtk.HSeparator())
+        hbox_bottom = gtk.HBox()
+        spacer = gtk.Label("")
+        spacer.set_size_request(170, 20)
+        hbox_bottom.pack_start(spacer, False, False)
+        hbox_bottom.pack_start(btn)
+        self.vbox.pack_start(hbox_bottom)
+        #hbox.pack_start(vbox)
+        #self.add(hbox)
+
+        self.set_decorated(False)
+        self.set_modal(True)
+
+        self.show_all()
+
+    def __destroy(self, widget=None, data=None):
+        self.destroy()
+
+
 class CertificateDescriptionWindow(MokoWindow):
     """This window is used to display information about the service provider,
        extracted from the terminal certificate and the appendant certificate
@@ -335,8 +377,7 @@ class PinpadGTK:
         except glib.GError, err:
             #If we encounter an exception at startup, we display a popup with
             #the error message
-            popup = gtk.MessageDialog(None, gtk.DIALOG_MODAL,
-                gtk.MESSAGE_WARNING, gtk.BUTTONS_OK, err.message)
+            popup = MsgBox(None, err.message, "error", None)
             popup.run()
             popup.destroy()
             raise err
@@ -367,10 +408,10 @@ class PinpadGTK:
         self.output.set_text(self.secret_len * "_")
 
         #Look for card and set the label accordingly
-        lbl_cardStatus = self.builder.get_object("lbl_cardStatus")
+        self.lbl_cardStatus = self.builder.get_object("lbl_cardStatus")
         #Fetch the status image
-        img_cardStatus = self.builder.get_object("img_cardStatus")
-        img_cardStatus.set_from_file(IMAGES["error"])
+        self.img_cardStatus = self.builder.get_object("img_cardStatus")
+        self.img_cardStatus.set_from_file(IMAGES["error"])
 
         #We only start the thread for polling the card when the window
         #is shown
@@ -401,7 +442,7 @@ class PinpadGTK:
     def show(self):
         """Start the polling thread, then show the window"""
         if self.cardChecker is None:
-            self.cardChecker = cardChecker(lbl_cardStatus, img_cardStatus,
+            self.cardChecker = cardChecker(self.lbl_cardStatus, self.img_cardStatus,
                     gui_globals.ePA_ATR)
             gobject.idle_add(self.cardChecker.start)
         self.window.show_all()
@@ -478,9 +519,8 @@ class PinpadGTK:
             proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, env=env_args,
                     close_fds=True)
         except OSError:
-            popup = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL |
-                    gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_ERROR,
-                    gtk.BUTTONS_OK, "pace-tool wurde nicht gefunden.")
+            popup = MsgBox(self.window, "pace-tool wurde nicht gefunden",
+                           "error", gtk.DIALOG_DESTROY_WITH_PARENT)
             popup.run()
             popup.destroy()
             self.cardChecker.resume() #Restart cardChecker
@@ -511,19 +551,16 @@ class PinpadGTK:
         self.cardChecker.resume()
 
         if (ret == 0):
-            popup = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL |
-                gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_INFO,
-                gtk.BUTTONS_OK, "PIN wurde korrekt eingegeben")
+            popup = MsgBox(self.window, "Pin wurde korrekt eingegeben", "apply",
+                           gtk.DIALOG_DESTROY_WITH_PARENT)
             popup.run()
             popup.destroy()
             #XXX: Actually we should return to the application that started
             #the PIN entry
             self.shutdown(None)
-        else:
-            popup = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL |
-                gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_WARNING,
-                gtk.BUTTONS_OK,
-                "PIN wurde falsch eingegeben. Bitte erneut versuchen")
+        else:          
+            popup = MsgBox(self.window, "PIN wurde falsch eingegeben", "error",
+                            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT) 
             popup.run()
             popup.destroy()
             self.output.set_text(self.secret_len * "_")
