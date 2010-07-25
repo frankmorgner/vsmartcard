@@ -84,6 +84,9 @@ class MokoWindow(gtk.Window):
         lbl.modify_font(pango.FontDescription("sans 12"))
         self.__vb.pack_start(hbox, False, False)
 
+        #Place window in the center of the screen
+        self.set_position(gtk.WIN_POS_CENTER_ALWAYS)
+
     def btnBack_clicked(self, widget, data=None):
         """Go back to the previous window. If there is no previous window,
            do nothing"""
@@ -109,7 +112,7 @@ class MsgBox(gtk.Dialog):
         if img_type is not None:
             assert IMAGES.has_key(img_type)
 
-        super(MsgBox, self).__init__(title="Foo", parent=parent, flags=flags)
+        super(MsgBox, self).__init__(title="", parent=parent, flags=flags)
 
         #Dialog will be resized to screen width no matter what. Therefore we
         #use the whole width from the beginning to avoid being resized
@@ -136,7 +139,7 @@ class MsgBox(gtk.Dialog):
         #hbox.pack_start(vbox)
         #self.add(hbox)
 
-        self.set_decorated(False)
+        #self.set_decorated(False)
         self.set_modal(True)
 
         self.show_all()
@@ -307,6 +310,7 @@ class customCheckButton(object):
         strings = AT_CHAT_STRINGS[index]
         self.label = strings[0]
         self.helptext = strings[1]
+        self.parent = vbox.get_parent_window()
 
         #Setup a label with the name of the access right
         self.lbl = gtk.Label(self.label)
@@ -347,7 +351,9 @@ class customCheckButton(object):
     def _show_info(self, widget=None, data=None):
         """Show a messagebox containing info about the access right in
            question"""
-        print self.helptext
+        help = MsgBox(self.parent, self.helptext, "info",
+                gtk.DIALOG_DESTROY_WITH_PARENT)
+        #print self.helptext
 
 class PinpadGTK:
     """This a simple GTK based GUI to enter a PIN/PUK/CAN"""
