@@ -261,6 +261,7 @@ class CVCWindow(MokoWindow):
         #extract the relative authorization from the chat
         cvc = pace.d2i_CV_CERT(binCert)
         chat = pace.cvc_get_chat(cvc)
+        self.chat_oid = pace.get_chat_oid(chat)
         self.chat = pace.get_binary_chat(chat)
         self.rel_auth = []
         for char in self.chat:
@@ -287,8 +288,13 @@ class CVCWindow(MokoWindow):
                 self.rel_auth[len(self.chat) - 1 - idx / 8] ^= (1 << (idx % 8))
 
         #super(CVCWindow, self).btnForward_clicked(widget, data)
-        newCHAT = self.__formatHexString(self.rel_auth)
-        self.successor.set_chat(newCHAT)
+        new_chat_list = []
+        for byte in self.chat_oid:
+            new_chat_list.append(ord(byte))
+        new_chat_list.append(len(self.rel_auth))
+        new_chat_list.extend(self.rel_auth)
+        new_chat = self.__formatHexString(new_chat_list)
+        self.successor.set_chat(new_chat)
         self.successor.show()
         self.hide()
 
