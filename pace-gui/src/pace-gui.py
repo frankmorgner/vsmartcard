@@ -46,10 +46,10 @@ class MokoWindow(gtk.Window):
         self.add(self.__vb)
 
         #Title label at the top of the window
-        lblTitle = gtk.Label(self.title_str)
-        lblTitle.modify_font(pango.FontDescription("sans 14"))
-        lblTitle.set_alignment(0.5, 0.0)
-        self.__vb.pack_start(lblTitle, False, False)
+        lbl_title = gtk.Label(self.title_str)
+        lbl_title.modify_font(pango.FontDescription("sans 14"))
+        lbl_title.set_alignment(0.5, 0.0)
+        self.__vb.pack_start(lbl_title, False, False)
 
         #Body VBox for custom widgets
         self.body = gtk.VBox(False)
@@ -63,7 +63,10 @@ class MokoWindow(gtk.Window):
 
         #Add two buttons at the bottom of the window
         hbox = gtk.HBox(True, 5)
-        btnBack = gtk.Button(u"Zurück")
+        if self.predecessor is None:
+            btnBack = gtk.Button("Abbrechen")
+        else:
+            btnBack = gtk.Button(u"Zurück")
         btnBack.set_size_request(150, 75)
         btnBack.connect("clicked", self.btnBack_clicked, None)
         if isinstance(btnBack.child, gtk.Label):
@@ -171,16 +174,16 @@ class CertificateDescriptionWindow(MokoWindow):
         self.addRow(u"Gültigkeitszeitraum:", validity_period)
 
         #Display issuer Name and possibly URL and subject name and possibly URL
-        issuerName = pace.get_issuer_name(desc)
-        issuerURL = pace.get_issuer_url(desc)
-        self.addRow("Zertifikatsaussteller:", issuerName)
-        if issuerURL is not None:
-            self.addRow("", issuerURL, True)
-        subjectName = pace.get_subject_name(desc)
-        subjectURL = pace.get_subject_url(desc)
-        self.addRow("Zertifikatsinhaber:", subjectName)
-        if subjectURL is not None:
-            self.addRow("", subjectURL, True)
+        issuer_name = pace.get_issuer_name(desc)
+        issuer_url = pace.get_issuer_url(desc)
+        self.addRow("Zertifikatsaussteller:", issuer_name)
+        if issuer_url is not None:
+            self.addRow("", issuer_url, True)
+        subject_name = pace.get_subject_name(desc)
+        subject_url = pace.get_subject_url(desc)
+        self.addRow("Zertifikatsinhaber:", subject_name)
+        if subject_url is not None:
+            self.addRow("", subject_url, True)
         self.set_focus(None)
 
         #Extract, format and display the terms of usage
@@ -220,11 +223,11 @@ class CertificateDescriptionWindow(MokoWindow):
 
     def addRow(self, title, text, url=False):
         if not url: #URL has no title
-            lblTitle = gtk.Label(title)
-            lblTitle.set_width_chars(20)
-            lblTitle.set_alignment(0.0, 0.5)
-            lblTitle.modify_font(pango.FontDescription("bold"))
-            self.body.pack_start(lblTitle)
+            lbl_title = gtk.Label(title)
+            lbl_title.set_width_chars(20)
+            lbl_title.set_alignment(0.0, 0.5)
+            lbl_title.modify_font(pango.FontDescription("bold"))
+            self.body.pack_start(lbl_title)
         hbox = gtk.HBox()
         lbl = gtk.Label("") #Empty label for spacing
         lbl.set_width_chars(3)
@@ -246,11 +249,12 @@ class CertificateDescriptionWindow(MokoWindow):
         self.body.pack_start(hbox)
 
 class CVCWindow(MokoWindow):
+    """This window is used to display and modify the access encoded in the CHAT
+       of a CV Certificate"""
 
     def __init__(self, binCert, predecessor):
-        super(CVCWindow, self).__init__("Zugriffsrechte", None)
+        super(CVCWindow, self).__init__("Zugriffsrechte", predecessor)
 
-        self.predecessor = predecessor
         self.successor = PinpadGTK("pin", None)
 
         #Convert the binary certificate to the internal representation and
@@ -353,7 +357,6 @@ class customCheckButton(object):
            question"""
         help = MsgBox(self.parent, self.helptext, "info",
                 gtk.DIALOG_DESTROY_WITH_PARENT)
-        #print self.helptext
 
 class PinpadGTK:
     """This a simple GTK based GUI to enter a PIN/PUK/CAN"""
