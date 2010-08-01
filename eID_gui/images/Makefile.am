@@ -1,4 +1,4 @@
-pixmapsdir = $(datadir)/pace-gui/
+pixmapsdir = $(datadir)/eid_gui/images/
 pixmaps_DATA = \
 	OpenPACElogo.png \
 	apply.png \
