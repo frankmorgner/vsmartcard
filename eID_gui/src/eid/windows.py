@@ -419,6 +419,19 @@ class PinpadGTK:
             self.cardChecker.join()
         gtk.main_quit()
 
+    def btnDel_clicked(self, widget):
+        """Remove one digit from the pin and replace the last * in the output
+           field with an underscore"""
+        #Disable the "Okay" button
+        btn_okay = self.builder.get_object("btnOk")
+        btn_okay.set_sensitive(False)
+        #Delete the last digit
+        self.pin = self.pin[:-1]
+        num_digits = len(self.pin)
+        #Update display
+        output = num_digits * '*' + (self.secret_len - num_digits) * "_"
+        self.output.set_text(output)
+
     def digit_clicked(self, widget):
         """We indicate the ammount of digits with underscores
            For every digit that is enterd we replace one underscore with a star
@@ -431,10 +444,14 @@ class PinpadGTK:
             idx = txt.find('_')
             output = txt[:idx] + digit + txt[idx+1:]
             self.output.set_text(output)
-            gobject.timeout_add(750, self.hide_digits, idx)
+            gobject.timeout_add(750, self.__hide_digit, idx)
             self.pin += digit
+            #If we have enough digits we enable the "Okay" button
+            if len(self.pin) == self.secret_len:
+                btn_okay = self.builder.get_object("btnOk")
+                btn_okay.set_sensitive(True)
 
-    def hide_digits(self, idx):
+    def __hide_digit(self, idx):
         """Change character number idx of self.output text to a '*' """
         output = ""
         txt = self.output.get_text()
@@ -519,19 +536,10 @@ class PinpadGTK:
             #XXX: Actually we should return to the application that started
             #the PIN entry
             self.shutdown(None)
-        else:          
+        else:
             popup = MsgBox(self.window, "PIN wurde falsch eingegeben", "error",
                             gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT) 
             popup.run()
             popup.destroy()
             self.output.set_text(self.secret_len * "_")
             self.pin = ""
-
-    def btnDel_clicked(self, widget):
-        """Remove one digit from the pin and replace the last * in the output
-           field with an underscore"""
-        self.pin = self.pin[:-1]
-        num_digits = len(self.pin)
-        output = num_digits * '*' + (self.secret_len - num_digits) * "_" 
-        self.output.set_text(output)
-
