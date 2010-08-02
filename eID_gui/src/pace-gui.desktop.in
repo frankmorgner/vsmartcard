@@ -1,10 +1,10 @@
 [Desktop Entry]
 Version=@VERSION@
 Encoding=UTF-8
-Name=PACE-GUI
+Name=eID
 Comment=GUI zur Eingabe einer PIN/CAN/PUK fuer pace-tool
 Exec=eid_gui.py
-Icon=@prefix@/share/pace-gui/OpenPACElogo.png
+Icon=@prefix@/share/pace-gui/images/OpenPACElogo.png
 Terminal=false
 Type=Application
 Categories=Utility
