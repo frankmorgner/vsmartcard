@@ -623,7 +623,7 @@ class PINChanger(PinpadGTK):
             elif self.states[self.state] == "first_new_pin":
                 lbl_title.set_text("Neue PIN eingeben")
             elif self.states[self.state] == "second_new_pin":
-                lbl_title.set_text("Neue PIN wiederholen")
+                lbl_title.set_text("PIN wiederholen")
             lbl_title.modify_font(pango.FontDescription("bold 11"))
 
             btn_ok.set_sensitive(False)
@@ -632,7 +632,6 @@ class PINChanger(PinpadGTK):
             """Run PACE with the old pin to see if it is correct"""
             #cmd contains the command and all the parameters for our subproccess
             cmd = ["pace-tool", "--pin=" + self.pin]
-            print cmd
 
             #Try to call pace-tool. This is a blocking call. An animation is being
             #shown while the subprocess is running
@@ -687,7 +686,6 @@ class PINChanger(PinpadGTK):
             #cmd contains the command and all the parameters for our subproccess
             cmd = ["pace-tool", "--pin=" + self.__old_pin,
                         "--new-pin=" + self.__new_pin1]
-            print cmd
 
             #Try to call pace-tool. This is a blocking call. An animation is being
             #shown while the subprocess is running
