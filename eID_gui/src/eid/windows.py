@@ -555,6 +555,7 @@ class PINChanger(PinpadGTK):
             self.state = 0
             self.__old_pin = ""
             self.__new_pin1 = ""
+            self.__update_gui()
 
         def btnOk_clicked(self, widget, data=None):
             """PIN was entered . Check it and according to this check proceed
