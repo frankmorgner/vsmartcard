@@ -110,12 +110,13 @@ class MokoWindow(gtk.Window):
 class MsgBox(gtk.Dialog):
     """The gtk.MessageDialog looks like crap on the Moko, so we write our own"""
 
-    def __init__(self, parent, msg, img_type, flags):
+    def __init__(self, parent, msg, img_type):
         #img is a string which is used as a key for the IMAGES dictionary
         if img_type is not None:
             assert IMAGES.has_key(img_type)
 
-        super(MsgBox, self).__init__(title="", parent=parent, flags=flags)
+        super(MsgBox, self).__init__(title="", parent=parent,
+                    flags= gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT)
 
         #Dialog will be resized to screen width no matter what. Therefore we
         #use the whole width from the beginning to avoid being resized
@@ -309,7 +310,7 @@ class CVCWindow(MokoWindow):
 
         return hex_str[:-1]
 
-class PinpadGTK:
+class PinpadGTK(object):
     """This a simple GTK based GUI to enter a PIN/PUK/CAN"""
 
     def __init__(self, secret="pin", chat=None, cert=None):
@@ -339,7 +340,7 @@ class PinpadGTK:
         except glib.GError, err:
             #If we encounter an exception at startup, we display a popup with
             #the error message
-            popup = MsgBox(None, err.message, "error", None)
+            popup = MsgBox(None, err.message, "error")
             popup.run()
             popup.destroy()
             raise err
@@ -498,7 +499,7 @@ class PinpadGTK:
                     close_fds=True)
         except OSError:
             popup = MsgBox(self.window, "pace-tool wurde nicht gefunden",
-                           "error", gtk.DIALOG_DESTROY_WITH_PARENT)
+                           "error")
             popup.run()
             popup.destroy()
             self.cardChecker.resume() #Restart cardChecker
@@ -529,17 +530,109 @@ class PinpadGTK:
         self.cardChecker.resume()
 
         if (ret == 0):
-            popup = MsgBox(self.window, "Pin wurde korrekt eingegeben", "apply",
-                           gtk.DIALOG_DESTROY_WITH_PARENT)
+            popup = MsgBox(self.window, "Pin wurde korrekt eingegeben", "apply")
             popup.run()
             popup.destroy()
             #XXX: Actually we should return to the application that started
             #the PIN entry
             self.shutdown(None)
         else:
-            popup = MsgBox(self.window, "PIN wurde falsch eingegeben", "error",
-                            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT) 
+            popup = MsgBox(self.window, "PIN wurde falsch eingegeben", "error")
             popup.run()
             popup.destroy()
             self.output.set_text(self.secret_len * "_")
             self.pin = ""
+
+class PINChanger(PinpadGTK):
+        """Window that allows the user to change the PIN of his or her card
+           This is basically a simple state machine similiar to this chain:
+           start->old_pin->new_pin1->new_pin2->end"""
+
+        def __init__(self):
+            super(PINChanger, self).__init__(secret="pin")
+
+            self.states = ("old_pin", "first_new_pin", "second_new_pin")
+            self.state = 0
+            self.__old_pin = ""
+            self.__new_pin1 = ""
+
+        def btnOk_clicked(self, widget, data=None):
+            """PIN was entered . Check it and according to this check proceed
+               to the next state"""
+
+            if self.__check_entry(self.pin):
+                self.__next_state()
+            else:
+                self.__previous_state()
+            self.__update_gui()
+
+        def __check_entry(self, pin):
+            """Process the PIN entered
+               @return: boolean"""
+
+            if self.states[self.state] == "old_pin":
+                #Try to perform PACE with the card to see if the PIN is correct
+                #TODO: Run pace-tool
+                self.__old_pin = ""
+                return True
+            elif self.states[self.state] == "first_new_pin":
+                self.__new_pin1 = pin
+                return True
+            elif self.states[self.state] == "second_new_pin":
+                if pin == self.__new_pin1:
+                    self.__change_pin()
+                    return True
+                else:
+                    self.__new_pin1 = ""
+                    return False
+
+        def __previous_state(self):
+            """Go to the previous state"""
+
+            if self.states[self.state] == "old_pin":
+                #Keep on trying
+                pass
+            elif self.states[self.state] == "first_new_pin":
+                #Can't happen because we always return True in self.__check_entry
+                pass
+            elif self.states[self.state] == "second_new_pin":
+                self.state = 1 #Enter first PIN again
+
+        def __next_state(self):
+            """Go to the next state"""
+            if self.state <= 1:
+                self.state += 1
+            else:
+                self.__success()
+
+            #Clear input for next state
+            self.pin = ""
+
+        def __update_gui(self):
+            """Update  the GUI elements according to the current state"""
+
+            lbl_title = self.builder.get_object("lblInstruction")
+            txt_out = self.builder.get_object("txtOutput")
+            btn_ok = self.builder.get_object("btnOk")
+
+            txt_out.set_text('_' * self.secret_len)
+
+            if self.states[self.state] == "old_pin":
+                lbl_title.set_text("Alte PIN eingeben")
+            elif self.states[self.state] == "first_new_pin":
+                lbl_title.set_text("Neue PIN eingeben")
+            elif self.states[self.state] == "second_new_pin":
+                lbl_title.set_text("Neue PIN wiederholen")
+            lbl_title.modify_font(pango.FontDescription("bold 11"))
+
+            btn_ok.set_sensitive(False)
+
+        def __change_pin(self):
+            #TODO: Run pace-tool
+            pass
+
+        def __success(self):
+            suc = MsgBox(self.window, u"PIN wurde erfolgreich geändert", "info")
+            suc.run()
+            suc.destroy()
+            gtk.main_quit() #Actually we should return to the caller of the window
