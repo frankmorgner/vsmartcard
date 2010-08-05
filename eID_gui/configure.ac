@@ -25,6 +25,7 @@ AC_SUBST(PYGTK_LIBS)
 AC_CONFIG_FILES([Makefile
                  src/Makefile
                  src/pace-gui.desktop
+                 src/change-pin.desktop
                  src/eid/Makefile
                  src/eid/eid_gui_globals.py
                  images/Makefile])

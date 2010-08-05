@@ -1,5 +1,6 @@
 SUBDIRS = eid
-bin_SCRIPTS = eid_gui.py
+bin_SCRIPTS = eid_gui.py \
+	change_pin.py
 
 paceguidir = $(prefix)/bin
 
