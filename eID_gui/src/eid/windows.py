@@ -16,7 +16,7 @@ except ImportError:
 
 from eid_gui_globals import IMAGES, GLADE_FILE, EPA_ATR
 from widgets import customCheckButton
-from logic import cardChecker
+from logic import cardChecker, break_text
 
 class MokoWindow(gtk.Window):
     """
@@ -123,9 +123,9 @@ class MsgBox(gtk.Dialog):
         self.set_size_request(480, 160)
 
         hbox_top = gtk.HBox()
-        lbl = gtk.Label(msg)
-        lbl.set_width_chars(20)
-        lbl.set_line_wrap(True)
+        lbl = gtk.Label(break_text(msg, 35))
+        #lbl.set_width_chars(20)
+        #lbl.set_line_wrap(True)
         btn = gtk.Button("Ok")
         btn.connect("clicked", self.__destroy)
         img = gtk.Image()

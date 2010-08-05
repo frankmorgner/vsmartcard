@@ -4,6 +4,29 @@ import subprocess
 from threading import Thread, Event
 from eid_gui_globals import STR_CARD_FOUND, STR_NO_CARD, IMAGES
 
+def break_text(text, line_len):
+    """Inject newlines into a string, so that no line is longer than
+       line_len characters"""
+    pos = line_len
+    chr_lst = list(text)
+    lst_len = len(text)
+
+    while(pos < lst_len):
+        #Search for a whitespace
+        while(chr_lst[pos] != ' '):
+            pos -= 1
+            #If we don't find a whitespace, we inject a newline into the text
+            if(chr_lst[pos] == '\n' or pos == 0):
+                pos += line_len
+                chr_lst.insert(pos, '\n')
+                line_len += 1
+                break
+        chr_lst[pos] = '\n'
+
+        pos += line_len
+
+    return "".join(chr_lst)
+
 class cardChecker(Thread):
     """ This class searches for a card with a given ATR and displays
         wether or not using a label and an image """
