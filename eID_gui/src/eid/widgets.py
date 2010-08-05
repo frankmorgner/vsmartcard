@@ -7,6 +7,7 @@ except ImportError:
     sys.exit(1)
 
 from eid_gui_globals import AT_CHAT_STRINGS, IMAGES
+from windows import MsgBox
 
 class customCheckButton(object):
     """This class provides a custom version of gtk.CheckButton.
@@ -60,6 +61,5 @@ class customCheckButton(object):
     def _show_info(self, widget=None, data=None):
         """Show a messagebox containing info about the access right in
            question"""
-        help = MsgBox(self.parent, self.helptext, "info",
-                gtk.DIALOG_DESTROY_WITH_PARENT)
+        help = MsgBox(self.parent, self.helptext, "info")
 
