@@ -485,8 +485,8 @@ class PinpadGTK(object):
             raise ValueError("Unknown secret type: %s" % self.secret)
 
         #If we have a CHAT, we pass it to pace-tool
-        if (self.chat):
-            cmd.append("--chat=" + self.chat)
+        #if (self.chat):
+        #    cmd.append("--chat=" + self.chat)
 
         cmd.append("-v")
 
@@ -572,16 +572,17 @@ class PINChanger(PinpadGTK):
 
             if self.states[self.state] == "old_pin":
                 #Try to perform PACE with the card to see if the PIN is correct
-                #TODO: Run pace-tool
-                self.__old_pin = ""
-                return True
+                if self.__check_old_pin():
+                    self.__old_pin = pin
+                    return True
+                else:                    
+                    return False
             elif self.states[self.state] == "first_new_pin":
                 self.__new_pin1 = pin
                 return True
             elif self.states[self.state] == "second_new_pin":
                 if pin == self.__new_pin1:
-                    self.__change_pin()
-                    return True
+                    return self.__change_pin()
                 else:
                     self.__new_pin1 = ""
                     return False
@@ -627,12 +628,116 @@ class PINChanger(PinpadGTK):
 
             btn_ok.set_sensitive(False)
 
+        def __check_old_pin(self):
+            """Run PACE with the old pin to see if it is correct"""
+            #cmd contains the command and all the parameters for our subproccess
+            cmd = ["pace-tool", "--pin=" + self.pin]
+            print cmd
+
+            #Try to call pace-tool. This is a blocking call. An animation is being
+            #shown while the subprocess is running
+            try:
+            #Stop polling the card while PACE is running
+               self.cardChecker.pause()
+               proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, close_fds=True)
+            except OSError:
+                popup = MsgBox(self.window, "pace-tool wurde nicht gefunden",
+                               "error")
+                popup.run()
+                popup.destroy()
+                self.cardChecker.resume() #Restart cardChecker
+                return False
+
+            #Show the animation to indicate that the program is not dead
+            waiting = gtk.Window(gtk.WINDOW_POPUP)
+            animation = gtk.gdk.PixbufAnimation(IMAGES["wait"])
+            img = gtk.Image()
+            img.set_from_animation(animation)
+            waiting.add(img)
+            waiting.set_position(gtk.WIN_POS_CENTER_ALWAYS)
+            waiting.set_modal(True)
+            waiting.set_transient_for(self.window)
+            waiting.set_decorated(False)
+            waiting.show_all()
+
+            #Try to keep the GUI responsive by taking care of the event queue
+            line = proc.stdout.readline()
+            while line:
+                while gtk.events_pending():
+                    gtk.main_iteration()
+                line = proc.stdout.readline()
+
+            #Get the return value of the pace-tool process
+            ret = proc.poll()
+            waiting.destroy()
+            self.cardChecker.resume()
+
+            if (ret == 0):
+                return True
+            else:
+                popup = MsgBox(self.window, "PIN wurde falsch eingegeben", "error")
+                popup.run()
+                popup.destroy()
+                return False
+
+
         def __change_pin(self):
-            #TODO: Run pace-tool
-            pass
+            """Change the pin using pace-tool"""
+
+            #cmd contains the command and all the parameters for our subproccess
+            cmd = ["pace-tool", "--pin=" + self.__old_pin,
+                        "--new-pin=" + self.__new_pin1]
+            print cmd
+
+            #Try to call pace-tool. This is a blocking call. An animation is being
+            #shown while the subprocess is running
+            try:
+            #Stop polling the card while PACE is running
+               self.cardChecker.pause()
+               proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, close_fds=True)
+            except OSError:
+                popup = MsgBox(self.window, "pace-tool wurde nicht gefunden",
+                               "error")
+                popup.run()
+                popup.destroy()
+                self.cardChecker.resume() #Restart cardChecker
+                return
+
+            #Show the animation to indicate that the program is not dead
+            waiting = gtk.Window(gtk.WINDOW_POPUP)
+            animation = gtk.gdk.PixbufAnimation(IMAGES["wait"])
+            img = gtk.Image()
+            img.set_from_animation(animation)
+            waiting.add(img)
+            waiting.set_position(gtk.WIN_POS_CENTER_ALWAYS)
+            waiting.set_modal(True)
+            waiting.set_transient_for(self.window)
+            waiting.set_decorated(False)
+            waiting.show_all()
+
+            #Try to keep the GUI responsive by taking care of the event queue
+            line = proc.stdout.readline()
+            while line:
+                while gtk.events_pending():
+                    gtk.main_iteration()
+                line = proc.stdout.readline()
+
+            #Get the return value of the pace-tool process
+            ret = proc.poll()
+            waiting.destroy()
+            self.cardChecker.resume()
+
+            if (ret == 0):
+                return True
+            else:
+                popup = MsgBox(self.window, "Ein Fehler ist aufgetreten", "error")
+                popup.run()
+                popup.destroy()
+                return False
 
         def __success(self):
-            suc = MsgBox(self.window, u"PIN wurde erfolgreich geändert", "info")
+            suc = MsgBox(self.window, u"PIN wurde erfolgreich geändert", "apply")
             suc.run()
             suc.destroy()
+            self.cardChecker.stop()
             gtk.main_quit() #Actually we should return to the caller of the window

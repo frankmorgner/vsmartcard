@@ -8,7 +8,8 @@ uidir = $(datadir)/eid_gui
 ui_DATA = pinpad.glade
 
 appdir = $(datadir)/applications/
-app_DATA = pace-gui.desktop
+app_DATA = pace-gui.desktop \
+	change-pin.desktop
 
 EXTRA_DIST =  			\
 	$(bin_SCRIPTS) \

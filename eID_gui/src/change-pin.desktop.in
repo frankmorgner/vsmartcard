@@ -1,7 +1,7 @@
 [Desktop Entry]
 Version=@VERSION@
 Encoding=UTF-8
-Name=eID
+Name=PIN ändern
 Comment=GUI zum Ändern der eID-PIN
 Exec=eid_gui.py
 Icon=@prefix@/share/eid_gui/images/OpenPACElogo.png
