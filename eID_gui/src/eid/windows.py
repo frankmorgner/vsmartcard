@@ -63,7 +63,7 @@ class MokoWindow(gtk.Window):
         #Add two buttons at the bottom of the window
         hbox = gtk.HBox(True, 5)
         if self.predecessor is None:
-            btnBack = gtk.Button("Abbrechen")
+            btnBack = gtk.Button("Abbruch")
         else:
             btnBack = gtk.Button(u"Zurück")
         btnBack.set_size_request(150, 75)
