@@ -35,13 +35,21 @@
 #include <pace/scutil.h>
 
 static struct sm_ctx sctx;
+#ifdef BUERGERCLIENT_WORKAROUND
+static char *ef_cardaccess = NULL;
+static size_t ef_cardaccess_length = 0;
+#endif
 
 #else
 #include "pace/scutil.h"
 #endif
 
 static sc_context_t *ctx = NULL;
+#ifdef BUERGERCLIENT_WORKAROUND
+static sc_card_t *card_in_slot[1];
+#else
 static sc_card_t *card_in_slot[SC_MAX_SLOTS];
+#endif
 static sc_reader_t *reader;
 
 struct ccid_class_descriptor
@@ -141,6 +149,11 @@ int ccid_initialize(int reader_id, const char *cdriver, int verbose)
 
 #ifdef WITH_PACE
     memset(&sctx, 0, sizeof(sctx));
+#ifdef BUERGERCLIENT_WORKAROUND
+    free(ef_cardaccess);
+    ef_cardaccess = NULL;
+    ef_cardaccess_length = 0;
+#endif
 #endif
 
     return SC_SUCCESS;
@@ -160,6 +173,11 @@ void ccid_shutdown()
 #ifdef WITH_PACE
     pace_sm_ctx_clear_free(sctx.cipher_ctx);
     memset(&sctx, 0, sizeof(sctx));
+#ifdef BUERGERCLIENT_WORKAROUND
+    free(ef_cardaccess);
+    ef_cardaccess = NULL;
+    ef_cardaccess_length = 0;
+#endif
 #endif
 }
 
@@ -405,6 +423,12 @@ perform_PC_to_RDR_IccPowerOn(const __u8 *in, size_t inlen, __u8 **out, size_t *o
     }
 
     if (sc_result >= 0) {
+#ifdef BUERGERCLIENT_WORKAROUND
+        if (get_ef_card_access(card_in_slot[request->bSlot],
+                    (u8 **) &ef_cardaccess, &ef_cardaccess_length) < 0) {
+            sc_error(ctx, "Could not get EF.CardAccess.");
+        }
+#endif
         return get_RDR_to_PC_SlotStatus(request->bSlot, request->bSeq,
                 sc_result, out, outlen, card_in_slot[request->bSlot]->atr,
                 card_in_slot[request->bSlot]->atr_len);
@@ -826,6 +850,10 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
 
     /*if (sc_reset(card) < 0)*/
         /*sc_error(ctx, "Could not reset card, will continue anyway");*/
+#ifdef BUERGERCLIENT_WORKAROUND
+    pace_output.ef_cardaccess_length = ef_cardaccess_length;
+    pace_output.ef_cardaccess = ef_cardaccess;
+#endif
 
     sc_result = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
             &sctx);

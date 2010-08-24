@@ -51,20 +51,6 @@ int reset_ssc(struct pace_sm_ctx *psmctx);
 
 const char *pace_secret_name(enum s_type pin_id);
 
-int pace_sm_encrypt(sc_card_t *card, const struct sm_ctx *ctx,
-        const u8 *data, size_t datalen, u8 **enc);
-int pace_sm_decrypt(sc_card_t *card, const struct sm_ctx *ctx,
-        const u8 *enc, size_t enclen, u8 **data);
-int pace_sm_authenticate(sc_card_t *card, const struct sm_ctx *ctx,
-        const u8 *data, size_t datalen, u8 **outdata);
-int pace_sm_verify_authentication(sc_card_t *card, const struct sm_ctx *ctx,
-        const u8 *mac, size_t maclen,
-        const u8 *macdata, size_t macdatalen);
-int pace_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
-        sc_apdu_t *apdu);
-int pace_sm_post_transmit(sc_card_t *card, const struct sm_ctx *ctx,
-        sc_apdu_t *sm_apdu);
-
 
 struct establish_pace_channel_input {
     unsigned char pin_id;
@@ -95,6 +81,11 @@ struct establish_pace_channel_output {
     size_t id_icc_length;
     unsigned char *id_icc;
 };
+
+#ifdef BUERGERCLIENT_WORKAROUND
+int get_ef_card_access(sc_card_t *card,
+        u8 **ef_cardaccess, size_t *length_ef_cardaccess);
+#endif
 
 int GetReadersPACECapabilities(u8 *bitmap);
 

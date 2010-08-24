@@ -159,6 +159,21 @@ IMPLEMENT_ASN1_FUNCTIONS(PACE_GEN_AUTH_R)
 
 const size_t maxresp = SC_MAX_APDU_BUFFER_SIZE - 2;
 
+static int pace_sm_encrypt(sc_card_t *card, const struct sm_ctx *ctx,
+        const u8 *data, size_t datalen, u8 **enc);
+static int pace_sm_decrypt(sc_card_t *card, const struct sm_ctx *ctx,
+        const u8 *enc, size_t enclen, u8 **data);
+static int pace_sm_authenticate(sc_card_t *card, const struct sm_ctx *ctx,
+        const u8 *data, size_t datalen, u8 **outdata);
+static int pace_sm_verify_authentication(sc_card_t *card, const struct sm_ctx *ctx,
+        const u8 *mac, size_t maclen,
+        const u8 *macdata, size_t macdatalen);
+static int pace_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
+        sc_apdu_t *apdu);
+static int pace_sm_post_transmit(sc_card_t *card, const struct sm_ctx *ctx,
+        sc_apdu_t *sm_apdu);
+
+
 int GetReadersPACECapabilities(u8 *bitmap)
 {
     if (!bitmap)
@@ -171,7 +186,7 @@ int GetReadersPACECapabilities(u8 *bitmap)
 }
 
 /** select and read EF.CardAccess */
-static int get_ef_card_access(sc_card_t *card,
+int get_ef_card_access(sc_card_t *card,
         u8 **ef_cardaccess, size_t *length_ef_cardaccess)
 {
     int r;

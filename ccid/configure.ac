@@ -96,6 +96,7 @@ AC_SUBST(OPENSSL_LIBS)
 
 AM_CONDITIONAL(WITH_PACE, test "${enable_pace}" != "no")
 AM_COND_IF(WITH_PACE, [AC_DEFINE(WITH_PACE, 1, [enable PACE support])])
+AM_COND_IF(WITH_PACE, [AC_DEFINE(BUERGERCLIENT_WORKAROUND, 1, [Always get EF.CardAccess, when connecting to a smart card. This is a workaround for the recent Buergerclient])])
 
 
 # --enable-ccid-test
