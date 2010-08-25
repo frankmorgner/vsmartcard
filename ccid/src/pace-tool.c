@@ -30,6 +30,7 @@
 
 static int verbose    = 0;
 static int doinfo     = 0;
+static u8  dobreak = 0;
 static u8  dochangepin = 0;
 static u8  doresumepin = 0;
 static u8  dounblock = 0;
@@ -58,6 +59,7 @@ static sc_reader_t *reader;
 #define OPT_PUK         'u'
 #define OPT_CAN         'a'
 #define OPT_MRZ         'z'
+#define OPT_BREAK       'b'
 #define OPT_CHAT        'C'
 #define OPT_CERTDESC    'D'
 #define OPT_CHANGE_PIN  'N'
@@ -76,6 +78,7 @@ static const struct option options[] = {
     { "puk", optional_argument, NULL, OPT_PUK },
     { "can", optional_argument, NULL, OPT_CAN },
     { "mrz", optional_argument, NULL, OPT_MRZ },
+    { "break", no_argument, NULL, OPT_BREAK },
     { "chat", required_argument, NULL, OPT_CHAT },
     { "cert-desc", required_argument, NULL, OPT_CERTDESC },
     { "new-pin", optional_argument, NULL, OPT_CHANGE_PIN },
@@ -94,6 +97,7 @@ static const char *option_help[] = {
     "Run PACE with PUK",
     "Run PACE with CAN",
     "Run PACE with MRZ (insert MRZ without newlines)",
+    "Brute force the secret (only for PIN, CAN, PUK)",
     "Card holder authorization template to use (hex string)",
     "Certificate description to use (hex string)",
     "Install a new PIN",
@@ -179,7 +183,7 @@ main (int argc, char **argv)
     memset(&pace_output, 0, sizeof(pace_output));
 
     while (1) {
-        i = getopt_long(argc, argv, "hr:i::u::a::z::C:D:N::RUtvoc:", options, &oindex);
+        i = getopt_long(argc, argv, "hr:i::u::a::z::bC:D:N::RUtvoc:", options, &oindex);
         if (i == -1)
             break;
         switch (i) {
@@ -225,6 +229,9 @@ main (int argc, char **argv)
                 mrz = optarg;
                 if (!mrz)
                     can = getenv("MRZ");
+                break;
+            case OPT_BREAK:
+                dobreak = 1;
                 break;
             case OPT_CHAT:
                 pace_input.chat = chat;
@@ -299,6 +306,66 @@ main (int argc, char **argv)
         fprintf(stderr, "No card found\n");
         sc_release_context(ctx);
         exit(1);
+    }
+
+    if (dobreak) {
+        char can_ch[7];
+        unsigned int can_nb = 0;
+
+        if (usepin) {
+            pace_input.pin_id = PACE_PIN;
+            if (pin) {
+                if (sscanf(pin, "%u", &can_nb) != 1) {
+                    fprintf(stderr, "PIN is not an unsigned integer.");
+                    exit(2);
+                }
+            }
+        } else if (usecan) {
+            pace_input.pin_id = PACE_CAN;
+            if (can) {
+                if (sscanf(can, "%u", &can_nb) != 1) {
+                    fprintf(stderr, "CAN is not an unsigned integer.");
+                    exit(2);
+                }
+            }
+        } else if (usepuk) {
+            pace_input.pin_id = PACE_PUK;
+            if (puk) {
+                if (sscanf(puk, "%u", &can_nb) != 1) {
+                    fprintf(stderr, "PUK is not an unsigned integer.");
+                    exit(2);
+                }
+            }
+        } else {
+            fprintf(stderr, "Please specify whether to do PACE with "
+                    "PIN, CAN or PUK.");
+            exit(1);
+        }
+
+        sprintf(can_ch, "%06u", can_nb);
+        pace_input.pin = can_ch;
+        pace_input.pin_length = strlen(can_ch);
+
+        t_start = time(NULL);
+        while (0 > EstablishPACEChannel(NULL, card, pace_input, &pace_output,
+                    &sctx)) {
+            printf("Failed trying %s=%s\n",
+                    pace_secret_name(pace_input.pin_id), pace_input.pin);
+            can_nb++;
+            sprintf(can_ch, "%06u", can_nb);
+            if (can_nb > 999999)
+                break;
+        }
+        t_end = time(NULL);
+        if (can_nb > 999999) {
+            printf("Tried breaking %s for %.0fs without success.\n",
+                    pace_secret_name(pace_input.pin_id), difftime(t_end, t_start));
+            goto err;
+        } else {
+            printf("Tried breaking %s for %.0fs with success.\n",
+                    pace_secret_name(pace_input.pin_id), difftime(t_end, t_start));
+            printf("%s=%s\n", pace_secret_name(pace_input.pin_id), pace_input.pin);
+        }
     }
 
     if (doresumepin) {
@@ -385,7 +452,7 @@ main (int argc, char **argv)
         printf("Changed PIN.\n");
     }
 
-    if (dotranslate || (!doresumepin && !dochangepin && !dounblock)) {
+    if (dotranslate || (!doresumepin && !dochangepin && !dounblock && !dobreak)) {
         pace_input.pin = NULL;
         pace_input.pin_length = 0;
         if (usepin) {
