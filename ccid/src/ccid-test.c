@@ -23,6 +23,17 @@
 #include <string.h>
 #include <winscard.h>
 
+#ifdef HAVE_READER_H
+#include <reader.h>
+#else
+typedef struct
+{
+    uint8_t tag;
+    uint8_t length;
+    uint32_t value; 
+} PCSC_TLV_STRUCTURE;
+#endif
+
 #ifndef FEATURE_EXECUTE_PACE
 #define FEATURE_EXECUTE_PACE 0x20
 #endif
@@ -31,15 +42,8 @@
 #define CM_IOCTL_GET_FEATURE_REQUEST SCARD_CTL_CODE(3400)
 #endif
 
-typedef struct
-{
-    uint8_t tag;
-    uint8_t length;
-    uint32_t value; 
-} PCSC_TLV_STRUCTURE;
 
-
-    static void
+static void
 printb(unsigned char *buf, size_t len)
 {
     size_t i = 0;
@@ -54,7 +58,7 @@ printb(unsigned char *buf, size_t len)
     printf("\n");
 }
 
-    int
+int
 main(int argc, char *argv[])
 {
     LONG rv;
