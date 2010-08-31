@@ -16,12 +16,20 @@
  * You should have received a copy of the GNU General Public License along with
  * ifdnfc.  If not, see <http://www.gnu.org/licenses/>.
  */
-//#include <pcsclite.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <string.h>
+#include <stdint.h>
 #include <winscard.h>
+#include <arpa/inet.h>
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#ifdef HAVE_PCSCLITE_H
+#include <pcsclite.h>
+#endif
 
 #ifdef HAVE_READER_H
 #include <reader.h>
@@ -34,6 +42,7 @@ typedef struct
 } PCSC_TLV_STRUCTURE;
 #endif
 
+
 #ifndef FEATURE_EXECUTE_PACE
 #define FEATURE_EXECUTE_PACE 0x20
 #endif
@@ -44,9 +53,10 @@ typedef struct
 
 
 static void
-printb(unsigned char *buf, size_t len)
+printb(const char *label, unsigned char *buf, size_t len)
 {
     size_t i = 0;
+    printf(label);
     while (i < len) {
         printf("%02X", buf[i]);
         i++;
@@ -56,6 +66,91 @@ printb(unsigned char *buf, size_t len)
             printf("\n");
     }
     printf("\n");
+}
+
+static LONG parse_EstablishPACEChannel_OutputData(
+	unsigned char output[], unsigned int output_length)
+{
+    uint8_t lengthCAR, lengthCARprev;
+    uint16_t lengthEF_CardAccess, length_IDicc;
+    size_t parsed = 0;
+
+    if (parsed+2 > output_length) {
+        fprintf(stderr, "Malformed Establish PACE Channel output data.\n");
+        return SCARD_F_INTERNAL_ERROR;
+    }
+    printf("MSE:Set AT Statusbytes: %02X %02X\n",
+            output[parsed+0], output[parsed+1]);
+    parsed += 2;
+
+    if (parsed+2 > output_length) {
+        fprintf(stderr, "Malformed Establish PACE Channel output data.\n");
+        return SCARD_F_INTERNAL_ERROR;
+    }
+    memcpy(&lengthEF_CardAccess, output+parsed, 2);
+    parsed += 2;
+
+    if (parsed+lengthEF_CardAccess > output_length) {
+        fprintf(stderr, "Malformed Establish PACE Channel output data.\n");
+        return SCARD_F_INTERNAL_ERROR;
+    }
+    if (lengthEF_CardAccess)
+        printb("EF.CardAccess:\n", &output[parsed], lengthEF_CardAccess);
+    parsed += lengthEF_CardAccess;
+
+    if (parsed+1 > output_length) {
+        fprintf(stderr, "Malformed Establish PACE Channel output data.\n");
+        return SCARD_F_INTERNAL_ERROR;
+    }
+    lengthCAR = output[parsed];
+    parsed += 1;
+
+    if (parsed+lengthCAR > output_length) {
+        fprintf(stderr, "Malformed Establish PACE Channel output data.\n");
+        return SCARD_F_INTERNAL_ERROR;
+    }
+    if (lengthCAR)
+        printb("Recent Certificate Authority:\n",
+                &output[parsed], lengthCAR);
+    parsed += lengthCAR;
+
+    if (parsed+1 > output_length) {
+        fprintf(stderr, "Malformed Establish PACE Channel output data.\n");
+        return SCARD_F_INTERNAL_ERROR;
+    }
+    lengthCARprev = output[parsed];
+    parsed += 1;
+
+    if (parsed+lengthCARprev > output_length) {
+        fprintf(stderr, "Malformed Establish PACE Channel output data.\n");
+        return SCARD_F_INTERNAL_ERROR;
+    }
+    if (lengthCARprev)
+        printb("Previous Certificate Authority:\n",
+                &output[parsed], lengthCARprev);
+    parsed += lengthCARprev;
+
+    if (parsed+2 > output_length) {
+        fprintf(stderr, "Malformed Establish PACE Channel output data.\n");
+        return SCARD_F_INTERNAL_ERROR;
+    }
+    memcpy(&length_IDicc , output+parsed, 2);
+    parsed += 2;
+
+    if (parsed+length_IDicc > output_length) {
+        fprintf(stderr, "Malformed Establish PACE Channel output data.\n");
+        return SCARD_F_INTERNAL_ERROR;
+    }
+    if (length_IDicc)
+        printb("IDicc:\n", &output[parsed], length_IDicc);
+    parsed += length_IDicc;
+
+    if (parsed != output_length) {
+        fprintf(stderr, "Overrun by %d bytes", output_length - parsed);
+        return SCARD_F_INTERNAL_ERROR;
+    }
+
+    return SCARD_S_SUCCESS;
 }
 
 int
@@ -121,8 +216,7 @@ main(int argc, char *argv[])
         goto err;
     }
 
-    for (reader = mszReaders, i = 0;
-            dwReaders > 0;
+    for (reader = mszReaders, i = 0; dwReaders > 0;
             l = strlen(reader) + 1, dwReaders -= l, reader += l, i++) {
 
         if (i == num)
@@ -143,11 +237,12 @@ main(int argc, char *argv[])
     }
     printf("Connected to %s\n", reader);
 
+
     /* does the reader support PACE? */
     rv = SCardControl(hCard, CM_IOCTL_GET_FEATURE_REQUEST, NULL, 0,
             pbRecvBuffer, sizeof(pbRecvBuffer), &dwRecvLength);
     if (rv != SCARD_S_SUCCESS) {
-        fprintf(stderr, "Could not request the reader's features\n");
+        fprintf(stderr, "Could not get the reader's features\n");
         goto err;
     }
 
@@ -165,6 +260,9 @@ main(int argc, char *argv[])
         printf("Reader does not support PACE\n");
         goto err;
     }
+    /* convert to host byte order to use for SCardControl */
+    pace_ioctl = ntohl(pace_ioctl);
+
 
     rv = SCardControl(hCard, pace_ioctl,
             pbSendBufferCapabilities, sizeof(pbSendBufferCapabilities),
@@ -173,9 +271,8 @@ main(int argc, char *argv[])
         fprintf(stderr, "Could not get reader's PACE capabilities\n");
         goto err;
     }
-    printf("GetReadersPACECapabilities successfull, received %d bytes\n",
-            dwRecvLength);
-    printb(pbRecvBuffer, dwRecvLength);
+    printb("ReadersPACECapabilities ", pbRecvBuffer, dwRecvLength);
+
 
     dwRecvLength = 0;
     rv = SCardControl(hCard, pace_ioctl,
@@ -187,7 +284,10 @@ main(int argc, char *argv[])
     }
     printf("EstablishPACEChannel successfull, received %d bytes\n",
             dwRecvLength);
-    printb(pbRecvBuffer, dwRecvLength);
+
+    rv = parse_EstablishPACEChannel_OutputData(pbRecvBuffer, dwRecvLength);
+    if (rv != SCARD_S_SUCCESS)
+        goto err;
 
 
     rv = SCardDisconnect(hCard, SCARD_LEAVE_CARD);
@@ -202,7 +302,9 @@ main(int argc, char *argv[])
     exit(0);
 
 err:
-    /*puts(pcsc_stringify_error(rv));*/
+#ifdef HAVE_PCSCLITE_H
+    puts(pcsc_stringify_error(rv));
+#endif
     if (mszReaders)
         SCardFreeMemory(hContext, mszReaders);
 

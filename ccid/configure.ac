@@ -115,7 +115,9 @@ if test "x$enable_ccid_test" != xno ; then
     CPPFLAGS="$CPPFLAGS $PCSC_CFLAGS"
     LIBS="$LDFLAGS $PCSC_LIBS"
 
-    AC_CHECK_HEADERS(reader.h, [], [ AC_MSG_ERROR([reader.h not found, install OpenPACE or use ./configure PCSC_CFLAGS=...]) ])
+    AC_CHECK_HEADERS(winscard.h, [], [ AC_MSG_ERROR([winscard.h not found, install PC/SC Lite or similar or use ./configure PCSC_CFLAGS=...]) ])
+    AC_CHECK_HEADERS(reader.h, [AC_DEFINE(HAVE_READER_H, 1, [use reader.h from PC/SC Lite])], [])
+    AC_CHECK_HEADERS(pcsclite.h, [AC_DEFINE(HAVE_PCSCLITE_H, 1, [use pcsclite.h from PC/SC Lite])], [])
     AC_CHECK_DECL(FEATURE_EXECUTE_PACE, [],
                     [AC_MSG_ERROR([libpcsclite > 1.4.102 patched with pcsclite_trunk.patch not found, use ./configure PCSC_LIBS=...]) ],
                     [#include <reader.h>])
