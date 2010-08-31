@@ -21,6 +21,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <winscard.h>
+#include <time.h>
 
 #ifdef HAVE_ARPA_INIT_H
 #include <arpa/inet.h>
@@ -70,8 +71,34 @@ static LONG parse_EstablishPACEChannel_OutputData(
         unsigned char output[], unsigned int output_length)
 {
     uint8_t lengthCAR, lengthCARprev;
-    uint16_t lengthEF_CardAccess, length_IDicc;
+    uint16_t lengthOutputData, lengthEF_CardAccess, length_IDicc;
+    uint32_t result;
     size_t parsed = 0;
+
+    if (parsed+4 > output_length) {
+        fprintf(stderr, "Malformed Establish PACE Channel output data.\n");
+        return SCARD_F_INTERNAL_ERROR;
+    }
+    memcpy(&result, output+parsed, 4);
+    parsed += 4;
+    switch (result) {
+        case 0x00000000:
+            break;
+        default:
+            fprintf(stderr, "Reader reported some error.\n");
+            return SCARD_F_COMM_ERROR;
+    }
+
+    if (parsed+2 > output_length) {
+        fprintf(stderr, "Malformed Establish PACE Channel output data.\n");
+        return SCARD_F_INTERNAL_ERROR;
+    }
+    memcpy(&lengthOutputData, output+parsed, 2);
+    parsed += 2;
+    if (lengthOutputData != output_length-parsed) {
+        fprintf(stderr, "Malformed Establish PACE Channel output data.\n");
+        return SCARD_F_INTERNAL_ERROR;
+    }
 
     if (parsed+2 > output_length) {
         fprintf(stderr, "Malformed Establish PACE Channel output data.\n");
@@ -185,6 +212,7 @@ main(int argc, char *argv[])
     };
     BYTE pbRecvBuffer[1024];
     DWORD dwActiveProtocol, dwRecvLength, dwReaders, i;
+    time_t t_start, t_end;
 
     uint16_t lengthInputData = sizeof(pbSendBufferEstablish) - 3;
     memcpy(pbSendBufferEstablish + 1, &lengthInputData, 2);
@@ -269,9 +297,11 @@ main(int argc, char *argv[])
 
 
     dwRecvLength = 0;
+    t_start = time(NULL);
     rv = SCardControl(hCard, pace_ioctl,
             pbSendBufferEstablish, sizeof(pbSendBufferEstablish),
             pbRecvBuffer, sizeof(pbRecvBuffer), &dwRecvLength);
+    t_end = time(NULL);
     if (rv != SCARD_S_SUCCESS) {
         fprintf(stderr, "Could not establish PACE channel\n");
         goto err;
@@ -283,6 +313,9 @@ main(int argc, char *argv[])
     rv = parse_EstablishPACEChannel_OutputData(pbRecvBuffer, dwRecvLength);
     if (rv != SCARD_S_SUCCESS)
         goto err;
+
+    printf("Established PACE channel returned in %.0fs.\n",
+            difftime(t_end, t_start));
 
 
     rv = SCardDisconnect(hCard, SCARD_LEAVE_CARD);
