@@ -21,7 +21,10 @@
 #include <string.h>
 #include <stdint.h>
 #include <winscard.h>
+
+#ifdef HAVE_ARPA_INIT_H
 #include <arpa/inet.h>
+#endif
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -33,13 +36,6 @@
 
 #ifdef HAVE_READER_H
 #include <reader.h>
-#else
-typedef struct
-{
-    uint8_t tag;
-    uint8_t length;
-    uint32_t value; 
-} PCSC_TLV_STRUCTURE;
 #endif
 
 
@@ -50,6 +46,8 @@ typedef struct
 #ifndef CM_IOCTL_GET_FEATURE_REQUEST
 #define CM_IOCTL_GET_FEATURE_REQUEST SCARD_CTL_CODE(3400)
 #endif
+
+#define PCSC_TLV_ELEMENT_SIZE 6
 
 
 static void
@@ -69,7 +67,7 @@ printb(const char *label, unsigned char *buf, size_t len)
 }
 
 static LONG parse_EstablishPACEChannel_OutputData(
-	unsigned char output[], unsigned int output_length)
+        unsigned char output[], unsigned int output_length)
 {
     uint8_t lengthCAR, lengthCARprev;
     uint16_t lengthEF_CardAccess, length_IDicc;
@@ -187,7 +185,6 @@ main(int argc, char *argv[])
     };
     BYTE pbRecvBuffer[1024];
     DWORD dwActiveProtocol, dwRecvLength, dwReaders, i;
-    PCSC_TLV_STRUCTURE *pcsc_tlv;
 
     uint16_t lengthInputData = sizeof(pbSendBufferEstablish) - 3;
     memcpy(pbSendBufferEstablish + 1, &lengthInputData, 2);
@@ -245,14 +242,11 @@ main(int argc, char *argv[])
         fprintf(stderr, "Could not get the reader's features\n");
         goto err;
     }
+    printb("reader's features\n", pbRecvBuffer, dwRecvLength);
 
-    /* get the number of elements instead of the complete size */
-    dwRecvLength /= sizeof(PCSC_TLV_STRUCTURE);
-
-    pcsc_tlv = (PCSC_TLV_STRUCTURE *)pbRecvBuffer;
-    for (i = 0; i < dwRecvLength; i++) {
-        if (pcsc_tlv[i].tag == FEATURE_EXECUTE_PACE) {
-            pace_ioctl = pcsc_tlv[i].value;
+    for (i = 0; i <= dwRecvLength-PCSC_TLV_ELEMENT_SIZE; i += PCSC_TLV_ELEMENT_SIZE) {
+        if (pbRecvBuffer[i] == FEATURE_EXECUTE_PACE) {
+            memcpy(&pace_ioctl, pbRecvBuffer+i+2, 4);
             break;
         }
     }
@@ -284,6 +278,7 @@ main(int argc, char *argv[])
     }
     printf("EstablishPACEChannel successfull, received %d bytes\n",
             dwRecvLength);
+    printb("EstablishPACEChannel\n", pbRecvBuffer, dwRecvLength);
 
     rv = parse_EstablishPACEChannel_OutputData(pbRecvBuffer, dwRecvLength);
     if (rv != SCARD_S_SUCCESS)
