@@ -101,11 +101,11 @@ AM_COND_IF(WITH_PACE, [AC_DEFINE(WITH_PACE, 1, [enable PACE support])])
 AM_COND_IF(WITH_PACE, [AC_DEFINE(BUERGERCLIENT_WORKAROUND, 1, [Always get EF.CardAccess, when connecting to a smart card. This is a workaround for the recent Buergerclient])])
 
 
-# --enable-ccid-test
-AC_ARG_ENABLE(ccid-test,
-              AS_HELP_STRING([--enable-ccid-test], [Enable test of PACE smartcard reader]),
-              [enable_ccid_test="${enableval}"], [enable_ccid_test=no])
-if test "x$enable_ccid_test" != xno ; then
+# --disable-cats
+AC_ARG_ENABLE(cats,
+              AS_HELP_STRING([--enable-cats], [Disable tool for CAT-S and CAT-C (pinpad readers with PACE support)]),
+              [enable_cats="${enableval}"], [enable_cats=yes])
+if test "x$enable_cats" != xno ; then
     PKG_CHECK_EXISTS([libpcsclite > 1.4.102],
                      [PKG_CHECK_MODULES([PCSC], [libpcsclite > 1.4.102])],
                      [AC_MSG_WARN([libpcsclite > 1.4.102 not found by pkg-config])])
@@ -128,8 +128,9 @@ if test "x$enable_ccid_test" != xno ; then
     CPPFLAGS="$saved_CPPFLAGS"
     LIBS="$saved_LIBS"
 
-    enable_ccid_test=yes
+    enable_cats=yes
 fi
+AM_CONDITIONAL(WITH_CATS, test "${enable_ccid}" != "no")
 
 
 # Checks for header files.
@@ -154,6 +155,7 @@ ccid-emulator has been configured with following options:
 
 Version:              ${PACKAGE_VERSION}
 User binaries:        $(eval eval eval echo "${bindir}")
+Libraries:            $(eval eval eval echo "${libdir}")
 Configuration files:  $(eval eval eval echo "${sysconfdir}")
 
 
@@ -173,9 +175,9 @@ OPENSSL_LIBS:         ${OPENSSL_LIBS}
 PCSC_CFLAGS:          ${PCSC_CFLAGS}
 PCSC_LIBS:            ${PCSC_LIBS}
 
-emulator support:     ${enable_ccid}
+CCID emulator:        ${enable_ccid}
 PACE support:         ${enable_pace}
-PACE test for reader  ${enable_ccid_test}
+CAT-S/CAT-C Tool:     ${enable_cats}
 
 EOF
 
