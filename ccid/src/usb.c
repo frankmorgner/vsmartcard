@@ -1502,10 +1502,10 @@ special:
                     if (verbose > 1)
                         fprintf(stderr, "control loop: writing %d bytes... ", result);
                     result = write (fd, outbuf, result);
-                    if (verbose > 1)
-                        fprintf(stderr, "done (%d written).\n");
                     if (result < 0)
                         goto stall;
+                    if (verbose > 1)
+                        fprintf(stderr, "done (%d written).\n", result);
                 } return;
             default:
 		goto stall;

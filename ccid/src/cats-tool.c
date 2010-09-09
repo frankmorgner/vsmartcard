@@ -55,7 +55,7 @@ static void
 printb(const char *label, unsigned char *buf, size_t len)
 {
     size_t i = 0;
-    printf(label);
+    printf("%s", label);
     while (i < len) {
         printf("%02X", buf[i]);
         i++;
@@ -304,7 +304,7 @@ main(int argc, char *argv[])
         goto err;
     }
     printf("EstablishPACEChannel successfull, received %d bytes\n",
-            recvlen);
+            (int)recvlen);
     printb("EstablishPACEChannel\n", recvbuf, recvlen);
 
     r = parse_EstablishPACEChannel_OutputData(recvbuf, recvlen);
