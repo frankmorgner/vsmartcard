@@ -972,7 +972,8 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
     PACEDomainParameterInfo *static_dp = NULL, *eph_dp = NULL;
     BUF_MEM *enc_nonce = NULL, *nonce = NULL, *mdata = NULL, *mdata_opp = NULL,
             *k_enc = NULL, *k_mac = NULL, *token_opp = NULL,
-            *token = NULL, *pub = NULL, *pub_opp = NULL, *key = NULL;
+            *token = NULL, *pub = NULL, *pub_opp = NULL, *key = NULL,
+            *comp_pub = NULL, *comp_pub_opp = NULL;
     PACE_SEC *sec = NULL;
     PACE_CTX *pctx = NULL;
     int r;
@@ -1120,7 +1121,35 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
         goto err;
     }
 
-    /* XXX IDicc */
+    /* Identifier for ICC and PCD */
+    comp_pub = PACE_Comp(eph_dp, pctx, pub);
+    comp_pub_opp = PACE_Comp(eph_dp, pctx, pub_opp);
+    if (!comp_pub || !comp_pub_opp) {
+        sc_error(card->ctx, "Could not compress public keys for identification.");
+        ssl_error(card->ctx);
+        r = SC_ERROR_INTERNAL;
+        goto err;
+    }
+    p = realloc(pace_output->id_icc, comp_pub_opp->length);
+    if (!p) {
+        sc_error(card->ctx, "Not enough memory for ID ICC.\n");
+        return SC_ERROR_OUT_OF_MEMORY;
+    }
+    pace_output->id_icc = p;
+    pace_output->id_icc_length = comp_pub_opp->length;
+    memcpy(pace_output->id_icc, comp_pub_opp->data, comp_pub_opp->length);
+    bin_log(card->ctx, "ID ICC", pace_output->id_icc,
+            pace_output->id_icc_length);
+    p = realloc(pace_output->id_pcd, comp_pub->length);
+    if (!p) {
+        sc_error(card->ctx, "Not enough memory for ID PCD.\n");
+        return SC_ERROR_OUT_OF_MEMORY;
+    }
+    pace_output->id_pcd = p;
+    pace_output->id_pcd_length = comp_pub->length;
+    memcpy(pace_output->id_pcd, comp_pub->data, comp_pub->length);
+    bin_log(card->ctx, "ID PCD", pace_output->id_pcd,
+            pace_output->id_pcd_length);
 
     /* XXX parse CHAT to check role of terminal */
 
@@ -1169,6 +1198,10 @@ err:
         BUF_MEM_free(pub);
     if (pub_opp)
         BUF_MEM_free(pub_opp);
+    if (comp_pub_opp)
+        BUF_MEM_free(comp_pub_opp);
+    if (comp_pub)
+        BUF_MEM_free(comp_pub);
     if (key) {
         OPENSSL_cleanse(key->data, key->length);
         BUF_MEM_free(key);
