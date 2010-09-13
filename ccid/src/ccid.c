@@ -321,6 +321,7 @@ get_RDR_to_PC_SlotStatus(__u8 bSlot, __u8 bSeq, int sc_result, __u8 **outbuf, si
     if (!status)
         return SC_ERROR_OUT_OF_MEMORY;
     *outbuf = (__u8 *) status;
+    *outlen = sizeof(*status) + abProtocolDataStructureLen;
 
     status->bMessageType = 0x81;
     status->dwLength     = __constant_cpu_to_le32(abProtocolDataStructureLen);
@@ -331,8 +332,6 @@ get_RDR_to_PC_SlotStatus(__u8 bSlot, __u8 bSeq, int sc_result, __u8 **outbuf, si
     status->bClockStatus = 0;
 
     memcpy((*outbuf) + sizeof(*status), abProtocolDataStructure, abProtocolDataStructureLen);
-
-    *outlen = sizeof(*status) + abProtocolDataStructureLen;
 
     return SC_SUCCESS;
 }
@@ -349,10 +348,11 @@ get_RDR_to_PC_DataBlock(__u8 bSlot, __u8 bSeq, int sc_result, __u8 **outbuf,
         return SC_ERROR_INVALID_DATA;
     }
 
-    RDR_to_PC_DataBlock_t *data = realloc(*outbuf, sizeof *data);
+    RDR_to_PC_DataBlock_t *data = realloc(*outbuf, sizeof(*data) + abDataLen);
     if (!data)
         return SC_ERROR_OUT_OF_MEMORY;
     *outbuf = (__u8 *) data;
+    *outlen = sizeof(*data) + abDataLen;
 
     data->bMessageType    = 0x80;
     data->dwLength        = __constant_cpu_to_le32(abDataLen);
@@ -363,8 +363,6 @@ get_RDR_to_PC_DataBlock(__u8 bSlot, __u8 bSeq, int sc_result, __u8 **outbuf,
     data->bChainParameter = 0;
 
     memcpy((*outbuf) + sizeof(*data), abData, abDataLen);
-
-    *outlen = sizeof(*data) + abDataLen;
 
     return SC_SUCCESS;
 }
@@ -865,7 +863,7 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
             2+pace_output.ef_cardaccess_length +    /* EF.CardAccess */
             1+pace_output.recent_car_length +       /* Most recent CAR */
             1+pace_output.previous_car_length +     /* Previous CAR */
-            2+pace_output.id_icc_length);           /* XXX */
+            2+pace_output.id_icc_length);           /* identifier of the MRTD chip */
     if (!p)
         return SC_ERROR_OUT_OF_MEMORY;
     *abDataOut = p;
