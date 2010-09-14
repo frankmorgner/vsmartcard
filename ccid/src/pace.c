@@ -1280,7 +1280,8 @@ reset_ssc(struct pace_sm_ctx *psmctx)
     return SC_SUCCESS;
 }
 
-int pace_sm_encrypt(sc_card_t *card, const struct sm_ctx *ctx,
+static int
+pace_sm_encrypt(sc_card_t *card, const struct sm_ctx *ctx,
         const u8 *data, size_t datalen, u8 **enc)
 {
     BUF_MEM *encbuf = NULL, *databuf = NULL;
@@ -1322,7 +1323,8 @@ err:
     return r;
 }
 
-int pace_sm_decrypt(sc_card_t *card, const struct sm_ctx *ctx,
+static int
+pace_sm_decrypt(sc_card_t *card, const struct sm_ctx *ctx,
         const u8 *enc, size_t enclen, u8 **data)
 {
     BUF_MEM *encbuf = NULL, *databuf = NULL;
@@ -1364,7 +1366,8 @@ err:
     return r;
 }
 
-int pace_sm_authenticate(sc_card_t *card, const struct sm_ctx *ctx,
+static int
+pace_sm_authenticate(sc_card_t *card, const struct sm_ctx *ctx,
         const u8 *data, size_t datalen, u8 **macdata)
 {
     BUF_MEM *macbuf = NULL;
@@ -1405,7 +1408,8 @@ err:
     return r;
 }
 
-int pace_sm_verify_authentication(sc_card_t *card, const struct sm_ctx *ctx,
+static int
+pace_sm_verify_authentication(sc_card_t *card, const struct sm_ctx *ctx,
         const u8 *mac, size_t maclen,
         const u8 *macdata, size_t macdatalen)
 {
@@ -1448,14 +1452,15 @@ err:
     return r;
 }
 
-int pace_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
+static int
+pace_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
         sc_apdu_t *apdu)
 {
     SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG,
             increment_ssc(ctx->cipher_ctx));
 }
 
-int pace_sm_post_transmit(sc_card_t *card, const struct sm_ctx *ctx,
+static int pace_sm_post_transmit(sc_card_t *card, const struct sm_ctx *ctx,
         sc_apdu_t *sm_apdu)
 {
     SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG,

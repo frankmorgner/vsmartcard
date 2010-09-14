@@ -44,7 +44,7 @@ static const struct sc_asn1_entry c_sm_rapdu[] = {
     { NULL, 0, 0, 0, NULL, NULL }
 };
 
-int
+static int
 add_iso_pad(const u8 *data, size_t datalen, int block_size, u8 **padded)
 {
     u8 *p;
@@ -72,7 +72,7 @@ add_iso_pad(const u8 *data, size_t datalen, int block_size, u8 **padded)
     return p_len;
 }
 
-int
+static int
 add_padding(const struct sm_ctx *ctx, const u8 *data, size_t datalen,
         u8 **padded)
 {
@@ -95,7 +95,8 @@ add_padding(const struct sm_ctx *ctx, const u8 *data, size_t datalen,
     }
 }
 
-int no_padding(u8 padding_indicator, const u8 *data, size_t datalen)
+static int
+no_padding(u8 padding_indicator, const u8 *data, size_t datalen)
 {
     if (!datalen || !data)
         return SC_ERROR_INVALID_ARGUMENTS;

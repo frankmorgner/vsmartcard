@@ -56,10 +56,6 @@ struct sm_ctx {
 int sm_transmit_apdu(const struct sm_ctx *sctx, sc_card_t *card,
         sc_apdu_t *apdu);
 
-int add_iso_pad(const u8 *data, size_t datalen, int block_size, u8 **padded);
-int add_padding(const struct sm_ctx *ctx, const u8 *data, size_t datalen,
-        u8 **padded);
-
 #ifdef  __cplusplus
 }
 #endif

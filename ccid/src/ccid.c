@@ -776,8 +776,10 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
     __le16 word;
     __u8 *p;
 
-    if (!abDataOut || !abDataOutLen)
-        return SC_ERROR_INVALID_ARGUMENTS;
+    if (!abDataOut || !abDataOutLen) {
+        sc_result = SC_ERROR_INVALID_ARGUMENTS;
+        goto err;
+    }
 
     memset(&pace_input, 0, sizeof(pace_input));
     memset(&pace_output, 0, sizeof(pace_output));
@@ -785,7 +787,8 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
 
     if (abDatalen < parsed+1) {
         sc_error(ctx, "Buffer too small, could not get PinID");
-        return SC_ERROR_INVALID_ARGUMENTS;
+        sc_result = SC_ERROR_INVALID_ARGUMENTS;
+        goto err;
     }
     pace_input.pin_id = abData[parsed];
     parsed++;
@@ -793,14 +796,16 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
 
     if (abDatalen < parsed+1) {
         sc_error(ctx, "Buffer too small, could not get lengthCHAT");
-        return SC_ERROR_INVALID_ARGUMENTS;
+        sc_result = SC_ERROR_INVALID_ARGUMENTS;
+        goto err;
     }
     pace_input.chat_length = abData[parsed];
     parsed++;
 
     if (abDatalen < parsed+pace_input.chat_length) {
         sc_error(ctx, "Buffer too small, could not get CHAT");
-        return SC_ERROR_INVALID_ARGUMENTS;
+        sc_result = SC_ERROR_INVALID_ARGUMENTS;
+        goto err;
     }
     pace_input.chat = &abData[parsed];
     parsed += pace_input.chat_length;
@@ -812,14 +817,16 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
 
     if (abDatalen < parsed+1) {
         sc_error(ctx, "Buffer too small, could not get lengthPIN");
-        return SC_ERROR_INVALID_ARGUMENTS;
+        sc_result = SC_ERROR_INVALID_ARGUMENTS;
+        goto err;
     }
     pace_input.pin_length = abData[parsed];
     parsed++;
 
     if (abDatalen < parsed+pace_input.pin_length) {
         sc_error(ctx, "Buffer too small, could not get PIN");
-        return SC_ERROR_INVALID_ARGUMENTS;
+        sc_result = SC_ERROR_INVALID_ARGUMENTS;
+        goto err;
     }
     pace_input.pin = &abData[parsed];
     parsed += pace_input.pin_length;
@@ -827,7 +834,8 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
 
     if (abDatalen < parsed+sizeof(word)) {
         sc_error(ctx, "Buffer too small, could not get lengthCertificateDescription");
-        return SC_ERROR_INVALID_ARGUMENTS;
+        sc_result = SC_ERROR_INVALID_ARGUMENTS;
+        goto err;
     }
     memcpy(&word, &abData[parsed], sizeof word);
     pace_input.certificate_description_length = __le16_to_cpu(word);
@@ -835,7 +843,8 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
 
     if (abDatalen < parsed+pace_input.certificate_description_length) {
         sc_error(ctx, "Buffer too small, could not get CertificateDescription");
-        return SC_ERROR_INVALID_ARGUMENTS;
+        sc_result = SC_ERROR_INVALID_ARGUMENTS;
+        goto err;
     }
     pace_input.certificate_description = &abData[parsed];
     parsed += pace_input.certificate_description_length;
@@ -856,7 +865,7 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
     sc_result = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
             &sctx);
     if (sc_result < 0)
-        return sc_result;
+        goto err;
 
 
     p = realloc(*abDataOut, 2 +                     /* Statusbytes */
@@ -864,8 +873,10 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
             1+pace_output.recent_car_length +       /* Most recent CAR */
             1+pace_output.previous_car_length +     /* Previous CAR */
             2+pace_output.id_icc_length);           /* identifier of the MRTD chip */
-    if (!p)
-        return SC_ERROR_OUT_OF_MEMORY;
+    if (!p) {
+        sc_result = SC_ERROR_OUT_OF_MEMORY;
+        goto err;
+    }
     *abDataOut = p;
 
 
@@ -879,7 +890,8 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
     if (pace_output.ef_cardaccess_length > 0xffff) {
         sc_error(ctx, "EF.CardAcces %u bytes too long",
                 pace_output.ef_cardaccess_length-0xffff);
-        return SC_ERROR_INVALID_DATA;
+        sc_result = SC_ERROR_INVALID_DATA;
+        goto err;
     }
     word = __cpu_to_le16(pace_output.ef_cardaccess_length);
     memcpy(p, &word, sizeof word);
@@ -893,7 +905,8 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
     if (pace_output.recent_car_length > 0xff) {
         sc_error(ctx, "Most recent CAR %u bytes too long",
                 pace_output.recent_car_length-0xff);
-        return SC_ERROR_INVALID_DATA;
+        sc_result = SC_ERROR_INVALID_DATA;
+        goto err;
     }
     *p = pace_output.recent_car_length;
     p += 1;
@@ -906,7 +919,8 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
     if (pace_output.previous_car_length > 0xff) {
         sc_error(ctx, "Most previous CAR %u bytes too long",
                 pace_output.previous_car_length-0xff);
-        return SC_ERROR_INVALID_DATA;
+        sc_result = SC_ERROR_INVALID_DATA;
+        goto err;
     }
     *p = pace_output.previous_car_length;
     p += 1;
@@ -919,7 +933,8 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
     if (pace_output.id_icc_length > 0xffff) {
         sc_error(ctx, "ID ICC %u bytes too long",
                 pace_output.id_icc_length-0xffff);
-        return SC_ERROR_INVALID_DATA;
+        sc_result = SC_ERROR_INVALID_DATA;
+        goto err;
     }
     word = __cpu_to_le16(pace_output.id_icc_length);
     memcpy(p, &word, sizeof word);
@@ -936,7 +951,19 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
             1+pace_output.previous_car_length +
             2+pace_output.id_icc_length;
 
-    return SC_SUCCESS;
+    sc_result = SC_SUCCESS;
+
+err:
+    if (pace_output.recent_car)
+        free(pace_output.recent_car);
+    if (pace_output.previous_car)
+        free(pace_output.previous_car);
+    if (pace_output.id_icc)
+        free(pace_output.id_icc);
+    if (pace_output.id_pcd)
+        free(pace_output.id_pcd);
+
+    return sc_result;
 }
 
 static int

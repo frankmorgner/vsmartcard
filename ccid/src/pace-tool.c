@@ -502,6 +502,19 @@ main (int argc, char **argv)
     }
 
 err:
+    pace_sm_ctx_clear_free(sctx.cipher_ctx);
+    pace_sm_ctx_clear_free(tmpctx.cipher_ctx);
+    if (pace_output.ef_cardaccess)
+        free(pace_output.ef_cardaccess);
+    if (pace_output.recent_car)
+        free(pace_output.recent_car);
+    if (pace_output.previous_car)
+        free(pace_output.previous_car);
+    if (pace_output.id_icc)
+        free(pace_output.id_icc);
+    if (pace_output.id_pcd)
+        free(pace_output.id_pcd);
+
     sc_disconnect_card(card, 0);
     sc_release_context(ctx);
 
