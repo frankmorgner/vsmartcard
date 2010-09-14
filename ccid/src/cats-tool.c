@@ -195,11 +195,11 @@ main(int argc, char *argv[])
 
 
     if (argc > 1) {
-        if (argc > 2 && sscanf(argv[1], "%u", &readernum) != 1) {
+        if (sscanf(argv[1], "%u", &readernum) != 1) {
             fprintf(stderr, "Could not get number of reader\n");
             exit(2);
         }
-        if (argc == 2) {
+        if (argc > 2) {
             pin = argv[2];
             pinlen = strlen(pin);
             if (pinlen < 5 || pinlen > 6) {
@@ -235,7 +235,7 @@ main(int argc, char *argv[])
             break;
     }
     if (readerslen <= 0) {
-        fprintf(stderr, "Could not find reader number %d\n", readernum);
+        fprintf(stderr, "Could not find reader number %u\n", readernum);
         r = SCARD_E_UNKNOWN_READER;
         goto err;
     }
@@ -275,7 +275,7 @@ main(int argc, char *argv[])
     sendbuf[1] = 0x00;              /* lengthInputData */
     sendbuf[2] = 0x00;              /* lengthInputData */
     r = SCardControl(hCard, ctl,
-            sendbuf, 2,
+            sendbuf, 3,
             recvbuf, sizeof(recvbuf), &recvlen);
     if (r != SCARD_S_SUCCESS) {
         fprintf(stderr, "Could not get reader's PACE capabilities\n");
@@ -285,8 +285,8 @@ main(int argc, char *argv[])
 
 
     sendbuf[0] = 0x02;              /* idxFunction = EstabishPACEChannel */
-    sendbuf[1] = (8+pinlen)>>8;     /* lengthInputData */
-    sendbuf[2] = (8+pinlen)&0xff;   /* lengthInputData */
+    sendbuf[1] = (5+pinlen)&0xff;   /* lengthInputData */
+    sendbuf[2] = (5+pinlen)>>8;     /* lengthInputData */
     sendbuf[3] = 0x03;              /* PACE with PIN */
     sendbuf[4] = 0x00,              /* length CHAT */
     sendbuf[5] = 0x00,              /* length PIN */
@@ -328,7 +328,8 @@ main(int argc, char *argv[])
 
 err:
 #ifdef HAVE_PCSCLITE_H
-    puts(pcsc_stringify_error(r));
+    if (r != SCARD_S_SUCCESS)
+        puts(pcsc_stringify_error(r));
 #endif
     if (readers)
         SCardFreeMemory(hContext, readers);
