@@ -116,10 +116,12 @@ detect_card_presence(int slot)
     if (sc_result == 0
             && card_in_slot[slot]
             && sc_card_valid(card_in_slot[slot])) {
+        sc_reset(card_in_slot[slot]);
         sc_disconnect_card(card_in_slot[slot], 0);
         sc_debug(ctx, "Card removed from slot %d", slot);
     }
     if (sc_result & SC_SLOT_CARD_CHANGED) {
+        sc_reset(card_in_slot[slot]);
         sc_disconnect_card(card_in_slot[slot], 0);
         sc_debug(ctx, "Card exchanged in slot %d", slot);
     }
@@ -164,6 +166,7 @@ void ccid_shutdown()
     int i;
     for (i = 0; i < sizeof *card_in_slot; i++) {
         if (card_in_slot[i] && sc_card_valid(card_in_slot[i])) {
+            sc_reset(card_in_slot[i]);
             sc_disconnect_card(card_in_slot[i], 0);
         }
     }
@@ -412,6 +415,7 @@ perform_PC_to_RDR_IccPowerOn(const __u8 *in, size_t inlen, __u8 **out, size_t *o
     if (request->bSlot < sizeof *card_in_slot) {
         if (card_in_slot[request->bSlot]
                 && sc_card_valid(card_in_slot[request->bSlot])) {
+            sc_reset(card_in_slot[request->bSlot]);
             sc_disconnect_card(card_in_slot[request->bSlot], 0);
         }
         sc_result = sc_connect_card(reader, request->bSlot,
@@ -457,8 +461,10 @@ perform_PC_to_RDR_IccPowerOff(const __u8 *in, size_t inlen, __u8 **out, size_t *
 
     if (request->bSlot > sizeof *card_in_slot)
         sc_result = SC_ERROR_INVALID_DATA;
-    else
+    else {
+        sc_reset(card_in_slot[request->bSlot]);
         sc_result = sc_disconnect_card(card_in_slot[request->bSlot], 0);
+    }
 
     return get_RDR_to_PC_SlotStatus(request->bSlot, request->bSeq, sc_result,
                 out, outlen, NULL, 0);
@@ -855,8 +861,6 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
                 pace_input.certificate_description_length);
 
 
-    /*if (sc_reset(card) < 0)*/
-        /*sc_error(ctx, "Could not reset card, will continue anyway");*/
 #ifdef BUERGERCLIENT_WORKAROUND
     pace_output.ef_cardaccess_length = ef_cardaccess_length;
     pace_output.ef_cardaccess = ef_cardaccess;

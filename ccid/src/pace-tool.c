@@ -515,6 +515,7 @@ err:
     if (pace_output.id_pcd)
         free(pace_output.id_pcd);
 
+    sc_reset(card);
     sc_disconnect_card(card, 0);
     sc_release_context(ctx);
 
