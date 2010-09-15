@@ -71,23 +71,22 @@ ccid_desc = {
     .dwSynchProtocols       = __constant_cpu_to_le32(0),
     .dwMechanical           = __constant_cpu_to_le32(0),
     .dwFeatures             = __constant_cpu_to_le32(
-                              0x2|      // Automatic parameter configuration based on ATR data
-                              0x4|      // Automatic activation of ICC on inserting
-                              0x8|      // Automatic ICC voltage selection
-                              0x10|     // Automatic ICC clock frequency change
-                              0x20|     // Automatic baud rate change
-                              0x40|     // Automatic parameters negotiation
-                              0x80|     // Automatic PPS   
-                              0x20000|  // Short APDU level exchange
-                              0x100000),// USB Wake up signaling supported
+                              0x00000002|  // Automatic parameter configuration based on ATR data
+                              0x00000004|  // Automatic activation of ICC on inserting
+                              0x00000008|  // Automatic ICC voltage selection
+                              0x00000010|  // Automatic ICC clock frequency change
+                              0x00000020|  // Automatic baud rate change
+                              0x00000040|  // Automatic parameters negotiation
+                              0x00000080|  // Automatic PPS   
+                              0x00020000|  // Short APDU level exchange
+                              /*0x00040000|  // Extended APDU level exchange*/
+                              0x00100000), // USB Wake up signaling supported
     .dwMaxCCIDMessageLength = __constant_cpu_to_le32(261+10),
     .bClassGetResponse      = 0xFF,
     .bclassEnvelope         = 0xFF,
     .wLcdLayout             = __constant_cpu_to_le16(
-                              //0),
                               0xFF00|   // Number of lines for the LCD display
                               0x00FF),  // Number of characters per line
-    //.bPINSupport            = 0,
     .bPINSupport            = 0x1|      // PIN Verification supported
                               0x2|      // PIN Modification supported
                               0x10|     // PIN PACE Capabilities supported
@@ -116,12 +115,10 @@ detect_card_presence(int slot)
     if (sc_result == 0
             && card_in_slot[slot]
             && sc_card_valid(card_in_slot[slot])) {
-        sc_reset(card_in_slot[slot]);
         sc_disconnect_card(card_in_slot[slot], 0);
         sc_debug(ctx, "Card removed from slot %d", slot);
     }
     if (sc_result & SC_SLOT_CARD_CHANGED) {
-        sc_reset(card_in_slot[slot]);
         sc_disconnect_card(card_in_slot[slot], 0);
         sc_debug(ctx, "Card exchanged in slot %d", slot);
     }
@@ -166,7 +163,6 @@ void ccid_shutdown()
     int i;
     for (i = 0; i < sizeof *card_in_slot; i++) {
         if (card_in_slot[i] && sc_card_valid(card_in_slot[i])) {
-            sc_reset(card_in_slot[i]);
             sc_disconnect_card(card_in_slot[i], 0);
         }
     }

@@ -989,6 +989,8 @@ static void *ccid (void *param)
     char	*source_name = names[0];
     char	*sink_name   = names[1];
     int		result;
+    size_t      bufsize = sizeof(PC_to_RDR_XfrBlock_t) + 0xffff;
+    __u8        inbuf[bufsize];
 
     source_fd = source_open (source_name);
     if (source_fd < 0) {
@@ -1010,14 +1012,6 @@ static void *ccid (void *param)
 
     __u8 *outbuf = NULL;
     pthread_cleanup_push (free, outbuf);
-    size_t bufsize = 512;
-    __u8 *inbuf = malloc(bufsize);
-    pthread_cleanup_push (free, inbuf);
-    if (inbuf == NULL) {
-        if (verbose > 1)
-            perror("malloc");
-        goto error;
-    }
 
     do {
 
@@ -1049,7 +1043,6 @@ static void *ccid (void *param)
         pthread_cancel(ep0);
     }
 
-    pthread_cleanup_pop (1);
     pthread_cleanup_pop (1);
     pthread_cleanup_pop (1);
     pthread_cleanup_pop (1);
