@@ -103,36 +103,45 @@ int build_apdu(sc_context_t *ctx, const u8 *buf, size_t len, sc_apdu_t *apdu)
 		if (*p == 0 && len > 2) {
 			/* ...must be an extended length APDU */
 			p++;
-			apdu->lc = (*p++)<<8;
-			apdu->lc += *p++;
-			len -= 3;
-			if (len < apdu->lc) {
-				sc_error(ctx, "APDU too short (need %lu bytes)\n",
-						(unsigned long) apdu->lc - len);
-				return SC_ERROR_INVALID_DATA;
-			}
-			len -= apdu->lc;
-			p += apdu->lc;
-			if (len) {
-				if (*p++ != 0) {
-					sc_error(ctx, "Extended APDU needs Lc, that begins with 0x00)\n",
-							(unsigned long) apdu->lc - len);
-					return SC_ERROR_INVALID_DATA;
-				}
+			if (len == 3) {
 				apdu->le = (*p++)<<8;
 				apdu->le += *p++;
 				if (apdu->le == 0)
 					apdu->le = 0xffff;
 				len -= 3;
-				apdu->cse = SC_APDU_CASE_4_EXT;
+				apdu->cse = SC_APDU_CASE_2_SHORT;
 			} else {
-				apdu->cse = SC_APDU_CASE_3_EXT;
-			}
-			if (len) {
-				sc_error(ctx, "APDU too long (%lu bytes extra)\n",
-						(unsigned long) len);
-				return SC_ERROR_INVALID_DATA;
-			}
+				apdu->lc = (*p++)<<8;
+				apdu->lc += *p++;
+				len -= 3;
+				if (len < apdu->lc) {
+					sc_error(ctx, "APDU too short (need %lu bytes)\n",
+							(unsigned long) apdu->lc - len);
+					return SC_ERROR_INVALID_DATA;
+				}
+				len -= apdu->lc;
+				p += apdu->lc;
+				if (len) {
+					if (*p++ != 0) {
+						sc_error(ctx, "Extended APDU needs Lc, that begins with 0x00)\n",
+								(unsigned long) apdu->lc - len);
+						return SC_ERROR_INVALID_DATA;
+					}
+					apdu->le = (*p++)<<8;
+					apdu->le += *p++;
+					if (apdu->le == 0)
+						apdu->le = 0xffff;
+					len -= 3;
+					apdu->cse = SC_APDU_CASE_4_EXT;
+				} else {
+					apdu->cse = SC_APDU_CASE_3_EXT;
+				}
+				if (len) {
+					sc_error(ctx, "APDU too long (%lu bytes extra)\n",
+							(unsigned long) len);
+					return SC_ERROR_INVALID_DATA;
+				}
+       	             }
 		} else {
 			apdu->lc = *p++;
 			len--;
@@ -172,7 +181,9 @@ int build_apdu(sc_context_t *ctx, const u8 *buf, size_t len, sc_apdu_t *apdu)
 
 	apdu->flags = SC_APDU_FLAGS_NO_GET_RESP|SC_APDU_FLAGS_NO_RETRY_WL;
 
-	sc_debug(ctx, "APDU, %d bytes:\tins=%02x p1=%02x p2=%02x",
+	sc_debug(ctx, "Case %d %s APDU, %u bytes:\tins=%02x p1=%02x p2=%02x",
+			apdu->cse & SC_APDU_SHORT_MASK,
+			(apdu->cse & SC_APDU_EXT) != 0 ? "extended" : "short",
 			(unsigned int) len0, apdu->ins, apdu->p1, apdu->p2);
 
 	return SC_SUCCESS;
