@@ -154,11 +154,13 @@ config = {
 
 static struct usb_interface_descriptor
 source_sink_intf = {
-    .bLength         = sizeof source_sink_intf,
-    .bDescriptorType = USB_DT_INTERFACE,
+    .bLength            = sizeof source_sink_intf,
+    .bDescriptorType    = USB_DT_INTERFACE,
 
-    .bInterfaceClass = USB_CLASS_CSCID,
-    .iInterface      = STRINGID_INTERFACE,
+    .bInterfaceClass    = USB_CLASS_CSCID,
+    .bInterfaceSubClass = 0,
+    .bInterfaceProtocol = 0,
+    .iInterface         = STRINGID_INTERFACE,
 };
 static struct hid_class_descriptor
 hid_desc = {
@@ -989,7 +991,7 @@ static void *ccid (void *param)
     char	*source_name = names[0];
     char	*sink_name   = names[1];
     int		result;
-    size_t      bufsize = sizeof(PC_to_RDR_XfrBlock_t) + 0xffff;
+    size_t      bufsize = sizeof(PC_to_RDR_XfrBlock_t) + CCID_EXT_APDU_MAX;
     __u8        inbuf[bufsize];
 
     source_fd = source_open (source_name);

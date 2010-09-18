@@ -58,16 +58,17 @@ ccid_desc = {
     .bDescriptorType        = 0x21,
     .bcdCCID                = __constant_cpu_to_le16(0x0110),
     .bMaxSlotIndex          = SC_MAX_SLOTS,
-    .bVoltageSupport        = 0x01,
-    .dwProtocols            = __constant_cpu_to_le32(0x01|     // T=0
-                              0x02),     // T=1
+    .bVoltageSupport        = 0x01,  // 5.0V
+    .dwProtocols            = __constant_cpu_to_le32(
+                              0x01|  // T=0
+                              0x02), // T=1
     .dwDefaultClock         = __constant_cpu_to_le32(0xDFC),
     .dwMaximumClock         = __constant_cpu_to_le32(0xDFC),
     .bNumClockSupport       = 1,
     .dwDataRate             = __constant_cpu_to_le32(0x2580),
     .dwMaxDataRate          = __constant_cpu_to_le32(0x2580),
     .bNumDataRatesSupported = 1,
-    .dwMaxIFSD              = __constant_cpu_to_le32(0xFF),     // FIXME
+    .dwMaxIFSD              = __constant_cpu_to_le32(0xFF), // IFSD is handled by the real reader driver
     .dwSynchProtocols       = __constant_cpu_to_le32(0),
     .dwMechanical           = __constant_cpu_to_le32(0),
     .dwFeatures             = __constant_cpu_to_le32(
@@ -78,10 +79,10 @@ ccid_desc = {
                               0x00000020|  // Automatic baud rate change
                               0x00000040|  // Automatic parameters negotiation
                               0x00000080|  // Automatic PPS   
-                              0x00020000|  // Short APDU level exchange
-                              /*0x00040000|  // Extended APDU level exchange*/
+                              0x00000400|  // Automatic IFSD exchange as first exchange
+                              0x00040000|  // Short and Extended APDU level exchange with CCID
                               0x00100000), // USB Wake up signaling supported
-    .dwMaxCCIDMessageLength = __constant_cpu_to_le32(261+10),
+    .dwMaxCCIDMessageLength = __constant_cpu_to_le32(CCID_EXT_APDU_MAX),
     .bClassGetResponse      = 0xFF,
     .bclassEnvelope         = 0xFF,
     .wLcdLayout             = __constant_cpu_to_le16(
@@ -310,9 +311,9 @@ get_RDR_to_PC_SlotStatus(__u8 bSlot, __u8 bSeq, int sc_result, __u8 **outbuf, si
 {
     if (!outbuf)
         return SC_ERROR_INVALID_ARGUMENTS;
-    if (abProtocolDataStructureLen > 0xffffffff) {
+    if (abProtocolDataStructureLen > 0xffff) {
         sc_error(ctx, "abProtocolDataStructure %u bytes too long",
-                abProtocolDataStructureLen-0xffffffff);
+                abProtocolDataStructureLen-0xffff);
         return SC_ERROR_INVALID_DATA;
     }
 
@@ -341,9 +342,9 @@ get_RDR_to_PC_DataBlock(__u8 bSlot, __u8 bSeq, int sc_result, __u8 **outbuf,
 {
     if (!outbuf)
         return SC_ERROR_INVALID_ARGUMENTS;
-    if (abDataLen > 0xffffffff) {
+    if (abDataLen > 0xffff) {
         sc_error(ctx, "abProtocolDataStructure %u bytes too long",
-                abDataLen-0xffffffff);
+                abDataLen-0xffff);
         return SC_ERROR_INVALID_DATA;
     }
 
@@ -411,22 +412,26 @@ perform_PC_to_RDR_IccPowerOn(const __u8 *in, size_t inlen, __u8 **out, size_t *o
     if (request->bSlot < sizeof *card_in_slot) {
         if (card_in_slot[request->bSlot]
                 && sc_card_valid(card_in_slot[request->bSlot])) {
-            sc_reset(card_in_slot[request->bSlot]);
-            sc_disconnect_card(card_in_slot[request->bSlot], 0);
+            sc_debug(ctx, "Card is already powered on.");
+            /*sc_reset(card_in_slot[request->bSlot]);*/
+            /*sc_disconnect_card(card_in_slot[request->bSlot], 0);*/
+        } else {
+            sc_result = sc_connect_card(reader, request->bSlot,
+                    &card_in_slot[request->bSlot]);
+#ifdef BUERGERCLIENT_WORKAROUND
+            if (sc_result >= 0) {
+                if (get_ef_card_access(card_in_slot[request->bSlot],
+                            (u8 **) &ef_cardaccess, &ef_cardaccess_length) < 0) {
+                    sc_error(ctx, "Could not get EF.CardAccess.");
+                }
+            }
+#endif
         }
-        sc_result = sc_connect_card(reader, request->bSlot,
-                &card_in_slot[request->bSlot]);
     } else {
         sc_result = SC_ERROR_INVALID_DATA;
     }
 
     if (sc_result >= 0) {
-#ifdef BUERGERCLIENT_WORKAROUND
-        if (get_ef_card_access(card_in_slot[request->bSlot],
-                    (u8 **) &ef_cardaccess, &ef_cardaccess_length) < 0) {
-            sc_error(ctx, "Could not get EF.CardAccess.");
-        }
-#endif
         return get_RDR_to_PC_SlotStatus(request->bSlot, request->bSeq,
                 sc_result, out, outlen, card_in_slot[request->bSlot]->atr,
                 card_in_slot[request->bSlot]->atr_len);

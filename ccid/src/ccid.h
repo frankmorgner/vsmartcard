@@ -86,6 +86,9 @@ extern "C" {
 #define CCID_SLOT4_CARD_PRESENT 0x40
 #define CCID_SLOT4_CHANGED      0x80
 
+#define CCID_EXT_APDU_MAX       (4 + 3 + 0xffff + 3)
+#define CCID_SHORT_APDU_MAX     (4 + 1 + 0xff + 1)
+
 struct ccid_class_descriptor {
     __u8   bLength;
     __u8   bDescriptorType;
