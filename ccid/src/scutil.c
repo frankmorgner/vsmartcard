@@ -77,116 +77,119 @@ int initialize(int reader_id, const char *cdriver, int verbose,
 
 int build_apdu(sc_context_t *ctx, const u8 *buf, size_t len, sc_apdu_t *apdu)
 {
-	const u8 *p;
-	size_t len0;
+    const u8 *p;
+    size_t len0;
 
-	if (!buf || !apdu)
-		return SC_ERROR_INVALID_ARGUMENTS;
+    if (!buf || !apdu)
+        return SC_ERROR_INVALID_ARGUMENTS;
 
-	len0 = len;
-	if (len < 4) {
-		sc_error(ctx, "APDU too short (must be at least 4 bytes)");
-		return SC_ERROR_INVALID_DATA;
-	}
+    len0 = len;
+    if (len < 4) {
+        sc_error(ctx, "APDU too short (must be at least 4 bytes)");
+        return SC_ERROR_INVALID_DATA;
+    }
 
-	memset(apdu, 0, sizeof(*apdu));
-	p = buf;
-	apdu->cla = *p++;
-	apdu->ins = *p++;
-	apdu->p1 = *p++;
-	apdu->p2 = *p++;
-	len -= 4;
-	if (len > 1) {
-		/* case 2 with le=0 and case 4 with lc=0 are the only short APDUs,
-		 * where the next byte is 0. Their length (without header) is 1 and
-		 * 2 respectively */
-		if (*p == 0 && len > 2) {
-			/* ...must be an extended length APDU */
-			p++;
-			if (len == 3) {
-				apdu->le = (*p++)<<8;
-				apdu->le += *p++;
-				if (apdu->le == 0)
-					apdu->le = 0xffff;
-				len -= 3;
-				apdu->cse = SC_APDU_CASE_2_SHORT;
-			} else {
-				apdu->lc = (*p++)<<8;
-				apdu->lc += *p++;
-				len -= 3;
-				if (len < apdu->lc) {
-					sc_error(ctx, "APDU too short (need %lu bytes)\n",
-							(unsigned long) apdu->lc - len);
-					return SC_ERROR_INVALID_DATA;
-				}
-				len -= apdu->lc;
-				p += apdu->lc;
-				if (len) {
-					if (*p++ != 0) {
-						sc_error(ctx, "Extended APDU needs Lc, that begins with 0x00)\n",
-								(unsigned long) apdu->lc - len);
-						return SC_ERROR_INVALID_DATA;
-					}
-					apdu->le = (*p++)<<8;
-					apdu->le += *p++;
-					if (apdu->le == 0)
-						apdu->le = 0xffff;
-					len -= 3;
-					apdu->cse = SC_APDU_CASE_4_EXT;
-				} else {
-					apdu->cse = SC_APDU_CASE_3_EXT;
-				}
-				if (len) {
-					sc_error(ctx, "APDU too long (%lu bytes extra)\n",
-							(unsigned long) len);
-					return SC_ERROR_INVALID_DATA;
-				}
-       	             }
-		} else {
-			apdu->lc = *p++;
-			len--;
-			apdu->data = p;
-			apdu->datalen = apdu->lc;
-			if (len < apdu->lc) {
-				sc_error(ctx, "APDU too short (need %lu bytes)\n",
-						(unsigned long) apdu->lc - len);
-				return SC_ERROR_INVALID_DATA;
-			}
-			len -= apdu->lc;
-			p += apdu->lc;
-			if (len) {
-				apdu->le = *p++;
-				if (apdu->le == 0)
-					apdu->le = 0xff;
-				len--;
-				apdu->cse = SC_APDU_CASE_4_SHORT;
-			} else {
-				apdu->cse = SC_APDU_CASE_3_SHORT;
-			}
-			if (len) {
-				sc_error(ctx, "APDU too long (%lu bytes extra)\n",
-						(unsigned long) len);
-				return SC_ERROR_INVALID_DATA;
-			}
-		}
-	} else if (len == 1) {
-		apdu->le = *p++;
-		if (apdu->le == 0)
-			apdu->le = 256;
-		len--;
-		apdu->cse = SC_APDU_CASE_2_SHORT;
-	} else {
-		apdu->cse = SC_APDU_CASE_1;
-	}
+    memset(apdu, 0, sizeof(*apdu));
+    p = buf;
+    apdu->cla = *p++;
+    apdu->ins = *p++;
+    apdu->p1 = *p++;
+    apdu->p2 = *p++;
+    len -= 4;
+    if (!len) {
+        apdu->cse = SC_APDU_CASE_1;
+    } else {
+        if (*p == 0 && len >= 3) {
+            /* ...must be an extended APDU */
+            p++;
+            if (len == 3) {
+                apdu->le = (*p++)<<8;
+                apdu->le += *p++;
+                if (apdu->le == 0)
+                    apdu->le = 0xffff+1;
+                len -= 3;
+                apdu->cse = SC_APDU_CASE_2_EXT;
+            } else {
+                /* len > 3 */
+                apdu->lc = (*p++)<<8;
+                apdu->lc += *p++;
+                len -= 3;
+                if (len < apdu->lc) {
+                    sc_error(ctx, "APDU too short (need %lu more bytes)\n",
+                            (unsigned long) apdu->lc - len);
+                    return SC_ERROR_INVALID_DATA;
+                }
+                apdu->data = p;
+                apdu->datalen = apdu->lc;
+                len -= apdu->lc;
+                p += apdu->lc;
+                if (!len) {
+                    apdu->cse = SC_APDU_CASE_3_EXT;
+                } else {
+                    if (len < 3) {
+                        sc_error(ctx, "APDU too short (need %lu more bytes)\n",
+                                (unsigned long) apdu->lc - len);
+                        return SC_ERROR_INVALID_DATA;
+                    }
+                    if (*p++ != 0) {
+                        sc_error(ctx, "Extended APDU needs Le, that begins with 0x00)\n");
+                        return SC_ERROR_INVALID_DATA;
+                    }
+                    apdu->le = (*p++)<<8;
+                    apdu->le += *p++;
+                    if (apdu->le == 0)
+                        apdu->le = 0xffff+1;
+                    len -= 3;
+                    apdu->cse = SC_APDU_CASE_4_EXT;
+                }
+            }
+        } else {
+            /* ...must be a short APDU */
+            if (len == 1) {
+                apdu->le = *p++;
+                if (apdu->le == 0)
+                    apdu->le = 0xff+1;
+                len--;
+                apdu->cse = SC_APDU_CASE_2_SHORT;
+            } else {
+                apdu->lc = *p++;
+                len--;
+                if (len < apdu->lc) {
+                    sc_error(ctx, "APDU too short (need %lu more bytes)\n",
+                            (unsigned long) apdu->lc - len);
+                    return SC_ERROR_INVALID_DATA;
+                }
+                apdu->data = p;
+                apdu->datalen = apdu->lc;
+                len -= apdu->lc;
+                p += apdu->lc;
+                if (!len) {
+                    apdu->cse = SC_APDU_CASE_3_SHORT;
+                } else {
+                    apdu->le = *p++;
+                    if (apdu->le == 0)
+                        apdu->le = 0xff+1;
+                    len--;
+                    apdu->cse = SC_APDU_CASE_4_SHORT;
 
-	apdu->flags = SC_APDU_FLAGS_NO_GET_RESP|SC_APDU_FLAGS_NO_RETRY_WL;
+                }
+            }
+        }
+        if (len) {
+            sc_error(ctx, "APDU too long (%lu bytes extra)\n",
+                    (unsigned long) len);
+            return SC_ERROR_INVALID_DATA;
+        }
+    }
 
-	sc_debug(ctx, "Case %d %s APDU, %u bytes:\tins=%02x p1=%02x p2=%02x",
-			apdu->cse & SC_APDU_SHORT_MASK,
-			(apdu->cse & SC_APDU_EXT) != 0 ? "extended" : "short",
-			(unsigned int) len0, apdu->ins, apdu->p1, apdu->p2);
+    apdu->flags = SC_APDU_FLAGS_NO_GET_RESP|SC_APDU_FLAGS_NO_RETRY_WL;
 
-	return SC_SUCCESS;
+    sc_debug(ctx, "Case %d %s APDU, %lu bytes:\tins=%02x p1=%02x p2=%02x",
+            apdu->cse & SC_APDU_SHORT_MASK,
+            (apdu->cse & SC_APDU_EXT) != 0 ? "extended" : "short",
+            (unsigned long) len0, apdu->ins, apdu->p1, apdu->p2);
+
+    return SC_SUCCESS;
 }
 
 void _bin_log(sc_context_t *ctx, int type, const char *file, int line,
