@@ -502,8 +502,7 @@ perform_PC_to_RDR_XfrBlock(const u8 *in, size_t inlen, __u8** out, size_t *outle
     sc_result = get_RDR_to_PC_DataBlock(request->bSlot, request->bSeq, sc_result,
             out, outlen, abDataOut, abDataOutLen);
 
-    if (abDataOut)
-        free(abDataOut);
+    free(abDataOut);
 
     return sc_result;
 }
@@ -783,14 +782,14 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
     __le16 word;
     __u8 *p;
 
+    memset(&pace_input, 0, sizeof(pace_input));
+    memset(&pace_output, 0, sizeof(pace_output));
+
+
     if (!abDataOut || !abDataOutLen) {
         sc_result = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
     }
-
-    memset(&pace_input, 0, sizeof(pace_input));
-    memset(&pace_output, 0, sizeof(pace_output));
-
 
     if (abDatalen < parsed+1) {
         sc_error(ctx, "Buffer too small, could not get PinID");
@@ -959,14 +958,16 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
     sc_result = SC_SUCCESS;
 
 err:
-    if (pace_output.recent_car)
-        free(pace_output.recent_car);
-    if (pace_output.previous_car)
-        free(pace_output.previous_car);
-    if (pace_output.id_icc)
-        free(pace_output.id_icc);
-    if (pace_output.id_pcd)
-        free(pace_output.id_pcd);
+#ifdef BUERGERCLIENT_WORKAROUND
+    ef_cardaccess = pace_output.ef_cardaccess;
+    ef_cardaccess_length = pace_output.ef_cardaccess_length;
+#else
+    free(pace_output.ef_cardaccess;
+#endif
+    free(pace_output.recent_car);
+    free(pace_output.previous_car);
+    free(pace_output.id_icc);
+    free(pace_output.id_pcd);
 
     return sc_result;
 }
@@ -1029,6 +1030,10 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
     size_t abDataOutLen = 0;
     RDR_to_PC_DataBlock_t *result;
 
+    memset(&curr_pin, 0, sizeof(curr_pin));
+    memset(&new_pin, 0, sizeof(new_pin));
+
+
     if (!in || !out || !outlen)
         return SC_ERROR_INVALID_ARGUMENTS;
 
@@ -1037,9 +1042,6 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
 
     if (request->bMessageType != 0x69)
         sc_debug(ctx,  "warning: malformed PC_to_RDR_Secure");
-
-    memset(&curr_pin, 0, sizeof(curr_pin));
-    memset(&new_pin, 0, sizeof(new_pin));
 
     if (request->bSlot > sizeof *card_in_slot) {
         sc_error(ctx, "Received request to invalid slot (bSlot=0x%02x)", request->bSlot);
@@ -1218,7 +1220,9 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
 
     sc_result = get_rapdu(&apdu, request->bSlot, &abDataOut, &abDataOutLen);
 
-    sc_mem_clear(abPINApdu, apdulen);
+    /* clear PINs that have been transmitted */
+    sc_mem_clear((u8 *) apdu.data, apdu.datalen);
+
 err:
     if (curr_pin.data) {
         sc_mem_clear((u8 *) curr_pin.data, curr_pin.len);
@@ -1232,8 +1236,7 @@ err:
     sc_result = get_RDR_to_PC_DataBlock(request->bSlot, request->bSeq, sc_result, out,
             outlen, abDataOut, abDataOutLen);
 
-    if (abDataOut)
-        free(abDataOut);
+    free(abDataOut);
 
     return sc_result;
 }
