@@ -249,7 +249,56 @@ main(int argc, char *argv[])
     printf("Connected to %s\n", reader);
 
 
+#define SIMULATE_BUERGERCLIENT 1
+#ifdef SIMULATE_BUERGERCLIENT
+    r = SCardReconnect(hCard, SCARD_SHARE_EXCLUSIVE, SCARD_PROTOCOL_T0,
+            SCARD_LEAVE_CARD, &ctl);
+    if (r != SCARD_S_SUCCESS) {
+        fprintf(stderr, "Could not reconnect to %s\n", reader);
+        goto err;
+    }
+    BYTE bufs[] = {
+            0xFF, 0x9A, 0x01, 0x01,
+            0xFF, 0x9A, 0x01, 0x03,
+            0xFF, 0x9A, 0x01, 0x06,
+            0xFF, 0x9A, 0x01, 0x07,
+            0x00, 0xA4, 0x02, 0x0C, 0x02, 0x4B, 0x31,
+            0x00, 0xA4, 0x04, 0x0C, 0x09, 0xE8, 0x07, 0x04, 0x00, 0x7F, 0x00, 0x07, 0x03, 0x02,
+            0x00, 0xA4, 0x00, 0x0C, 0x02, 0x3F, 0x00,
+            0x00, 0x22, 0xC1, 0xA4, 0x0F, 0x80, 0x0A, 0x04, 0x00, 0x7F, 0x00, 0x07, 0x02, 0x02, 0x04, 0x02, 0x02, 0x83, 0x01, 0x03,
+            0x00, 0xA4, 0x00, 0x0C, 0x02, 0x3F, 0x00,
+            0x00, 0xA4, 0x02, 0x0C, 0x02, 0x01, 0x1C,
+            0x00, 0xB0, 0x00, 0x00, 0x80,
+            0x00, 0xB0, 0x00, 0x80, 0x80,
+            0x00, 0xB0, 0x01, 0x00, 0x80,
+            0x00, 0xB0, 0x01, 0x80, 0x80,
+            0x00, 0xB0, 0x02, 0x00, 0x80,
+            0x00, 0xA4, 0x00, 0x0C, 0x02, 0x3F, 0x00,
+            0x00, 0x22, 0xC1, 0xA4, 0x0F, 0x80, 0x0A, 0x04, 0x00, 0x7F, 0x00, 0x07, 0x02, 0x02, 0x04, 0x02, 0x02, 0x83, 0x01, 0x03,
+    };
+    LPBYTE buf = bufs;
+    DWORD lens[] = {4, 4, 4, 4, 7, 14, 7, 20, 7, 7, 5, 5, 5, 5, 5, 7, 20};
+    SCARD_IO_REQUEST pioRecvPci;
+    for (l = 0; l < sizeof(lens)/sizeof(DWORD); l++) {
+        recvlen = sizeof(recvbuf);
+        r = SCardTransmit(hCard, SCARD_PCI_T0, buf, lens[l], &pioRecvPci,
+                recvbuf, &recvlen);
+        if (r != SCARD_S_SUCCESS) {
+            fprintf(stderr, "Simulation of Buergerclient failed\n");
+            goto err;
+        }
+        buf += lens[l];
+    }
+    r = SCardReconnect(hCard, SCARD_SHARE_DIRECT, 0, SCARD_LEAVE_CARD, &ctl);
+    if (r != SCARD_S_SUCCESS) {
+        fprintf(stderr, "Could not reconnect to %s\n", reader);
+        goto err;
+    }
+#endif
+
+
     /* does the reader support PACE? */
+    recvlen = sizeof(recvbuf);
     r = SCardControl(hCard, CM_IOCTL_GET_FEATURE_REQUEST, NULL, 0,
             recvbuf, sizeof(recvbuf), &recvlen);
     if (r != SCARD_S_SUCCESS) {
@@ -271,6 +320,7 @@ main(int argc, char *argv[])
     /* convert to host byte order to use for SCardControl */
     ctl = ntohl(ctl);
 
+    recvlen = sizeof(recvbuf);
     sendbuf[0] = 0x01;              /* idxFunction = GetReadersPACECapabilities */
     sendbuf[1] = 0x00;              /* lengthInputData */
     sendbuf[2] = 0x00;              /* lengthInputData */
@@ -284,6 +334,7 @@ main(int argc, char *argv[])
     printb("ReadersPACECapabilities ", recvbuf, recvlen);
 
 
+    recvlen = sizeof(recvbuf);
     sendbuf[0] = 0x02;              /* idxFunction = EstabishPACEChannel */
     sendbuf[1] = (5+pinlen)&0xff;   /* lengthInputData */
     sendbuf[2] = (5+pinlen)>>8;     /* lengthInputData */
@@ -305,7 +356,6 @@ main(int argc, char *argv[])
     }
     printf("EstablishPACEChannel successfull, received %d bytes\n",
             (int)recvlen);
-    printb("EstablishPACEChannel\n", recvbuf, recvlen);
 
     r = parse_EstablishPACEChannel_OutputData(recvbuf, recvlen);
     if (r != SCARD_S_SUCCESS)
