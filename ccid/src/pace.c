@@ -28,6 +28,7 @@
 #include <openssl/err.h>
 #include <openssl/objects.h>
 #include <openssl/pace.h>
+#include <openssl/cv_cert.h>
 #include <string.h>
 
 
@@ -38,25 +39,13 @@
  * MSE:Set AT
  */
 
-/* XXX should be part of OpenPACE */
-typedef struct pace_chat_st {
-    ASN1_OBJECT *terminal_type;
-    ASN1_OCTET_STRING *relative_authorization;
-} PACE_CHAT;
-ASN1_SEQUENCE(PACE_CHAT) = {
-        ASN1_SIMPLE(PACE_CHAT, terminal_type, ASN1_OBJECT),
-        /* tag: 0x53*/
-        ASN1_APP_IMP(PACE_CHAT, relative_authorization, ASN1_OCTET_STRING, 0x13) /* discretionary data */
-} ASN1_SEQUENCE_END(PACE_CHAT)
-IMPLEMENT_ASN1_FUNCTIONS(PACE_CHAT)
-
 typedef struct pace_mse_set_at_cd_st {
     ASN1_OBJECT *cryptographic_mechanism_reference;
     ASN1_INTEGER *key_reference1;
     ASN1_INTEGER *key_reference2;
     ASN1_OCTET_STRING *auxiliary_data;
     ASN1_OCTET_STRING *eph_pub_key;
-    PACE_CHAT *cha_template;
+    CVC_CHAT *cha_template;
 } PACE_MSE_SET_AT_C;
 ASN1_SEQUENCE(PACE_MSE_SET_AT_C) = {
     /* 0x80
@@ -74,9 +63,8 @@ ASN1_SEQUENCE(PACE_MSE_SET_AT_C) = {
     /* 0x91
      * Ephemeral Public Key */
     ASN1_IMP_OPT(PACE_MSE_SET_AT_C, eph_pub_key, ASN1_OCTET_STRING, 0x11),
-    /* 0x7F4C
-     * Certificate Holder Authorization Template */
-    ASN1_APP_IMP_OPT(PACE_MSE_SET_AT_C, cha_template, PACE_CHAT, 0x4c),
+    /* Certificate Holder Authorization Template */
+    ASN1_OPT(PACE_MSE_SET_AT_C, cha_template, CVC_CHAT),
 } ASN1_SEQUENCE_END(PACE_MSE_SET_AT_C)
 IMPLEMENT_ASN1_FUNCTIONS(PACE_MSE_SET_AT_C)
 
@@ -303,7 +291,7 @@ static int pace_mse_set_at(const struct sm_ctx *oldpacectx, sc_card_t *card,
     }
 
     if (length_chat) {
-        if (!d2i_PACE_CHAT(&data->cha_template, (const unsigned char **) &chat,
+        if (!d2i_CVC_CHAT(&data->cha_template, (const unsigned char **) &chat,
                     length_chat)) {
             sc_error(card->ctx, "Could not parse card holder authorization template (CHAT).");
             r = SC_ERROR_INTERNAL;
