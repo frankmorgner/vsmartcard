@@ -497,6 +497,8 @@ perform_PC_to_RDR_XfrBlock(const u8 *in, size_t inlen, __u8** out, size_t *outle
         sc_result = build_apdu(ctx, abDataIn, request->dwLength, &apdu);
         if (sc_result >= 0)
             sc_result = get_rapdu(&apdu, request->bSlot, &abDataOut, &abDataOutLen);
+        else
+            bin_log(ctx, "Invalid APDU", abDataIn, request->dwLength);
     }
 
     sc_result = get_RDR_to_PC_DataBlock(request->bSlot, request->bSeq, sc_result,
@@ -1122,8 +1124,10 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
     }
 
     sc_result = build_apdu(ctx, abPINApdu, apdulen, &apdu);
-    if (sc_result < 0)
+    if (sc_result < 0) {
+        bin_log(ctx, "Invalid APDU", abDataIn, request->dwLength);
         goto err;
+    }
     apdu.sensitive = 1;
 
     new_pin.min_length = curr_pin.min_length = wPINMaxExtraDigit >> 8;

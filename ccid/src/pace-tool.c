@@ -143,7 +143,7 @@ int pace_translate_apdus(struct sm_ctx *sctx, sc_card_t *card)
 
         r = build_apdu(card->ctx, buf, apdulen, &apdu);
         if (r < 0) {
-            sc_error(card->ctx, "Could not format APDU");
+            bin_log(ctx, "Invalid APDU", abDataIn, request->dwLength);
             continue;
         }
 
