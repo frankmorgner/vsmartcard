@@ -494,11 +494,14 @@ perform_PC_to_RDR_XfrBlock(const u8 *in, size_t inlen, __u8** out, size_t *outle
     if (request->bSlot > sizeof *card_in_slot)
         sc_result = SC_ERROR_INVALID_DATA;
     else {
-        sc_result = build_apdu(ctx, abDataIn, request->dwLength, &apdu);
+        sc_result = build_apdu(ctx, abDataIn, __le32_to_cpu(request->dwLength),
+                &apdu);
         if (sc_result >= 0)
-            sc_result = get_rapdu(&apdu, request->bSlot, &abDataOut, &abDataOutLen);
+            sc_result = get_rapdu(&apdu, request->bSlot, &abDataOut,
+                    &abDataOutLen);
         else
-            bin_log(ctx, "Invalid APDU", abDataIn, request->dwLength);
+            bin_log(ctx, "Invalid APDU", abDataIn,
+                    __le32_to_cpu(request->dwLength));
     }
 
     sc_result = get_RDR_to_PC_DataBlock(request->bSlot, request->bSeq, sc_result,

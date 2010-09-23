@@ -184,10 +184,10 @@ int build_apdu(sc_context_t *ctx, const u8 *buf, size_t len, sc_apdu_t *apdu)
 
     apdu->flags = SC_APDU_FLAGS_NO_GET_RESP|SC_APDU_FLAGS_NO_RETRY_WL;
 
-    sc_debug(ctx, "Case %d %s APDU, %lu bytes:\tins=%02x p1=%02x p2=%02x",
+    sc_debug(ctx, "Case %d %s APDU, %lu bytes:\tins=%02x p1=%02x p2=%02x lc=%04x le=%04x",
             apdu->cse & SC_APDU_SHORT_MASK,
             (apdu->cse & SC_APDU_EXT) != 0 ? "extended" : "short",
-            (unsigned long) len0, apdu->ins, apdu->p1, apdu->p2);
+            (unsigned long) len0, apdu->ins, apdu->p1, apdu->p2, apdu->lc, apdu->le);
 
     return SC_SUCCESS;
 }
@@ -196,7 +196,8 @@ void _bin_log(sc_context_t *ctx, int type, const char *file, int line,
         const char *func, const char *label, const u8 *data, size_t len,
         FILE *f)
 {
-    char buf[1024];
+    /* this is the maximum supported by sc_do_log_va */
+    char buf[1800];
 
     if (data)
         sc_hex_dump(ctx, data, len, buf, sizeof buf);
