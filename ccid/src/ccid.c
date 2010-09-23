@@ -1125,7 +1125,7 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
 
     sc_result = build_apdu(ctx, abPINApdu, apdulen, &apdu);
     if (sc_result < 0) {
-        bin_log(ctx, "Invalid APDU", abDataIn, request->dwLength);
+        bin_log(ctx, "Invalid APDU", abPINApdu, apdulen);
         goto err;
     }
     apdu.sensitive = 1;

@@ -110,7 +110,7 @@ static const char *option_help[] = {
 
 int pace_translate_apdus(struct sm_ctx *sctx, sc_card_t *card)
 {
-    u8 buf[0xff + 5];
+    u8 buf[4 + 3 + 0xffff + 3];
     char *read = NULL;
     size_t readlen = 0, apdulen;
     sc_apdu_t apdu;
@@ -143,7 +143,7 @@ int pace_translate_apdus(struct sm_ctx *sctx, sc_card_t *card)
 
         r = build_apdu(card->ctx, buf, apdulen, &apdu);
         if (r < 0) {
-            bin_log(ctx, "Invalid APDU", abDataIn, request->dwLength);
+            bin_log(ctx, "Invalid APDU", buf, apdulen);
             continue;
         }
 
@@ -316,7 +316,7 @@ main (int argc, char **argv)
             pace_input.pin_id = PACE_PIN;
             if (pin) {
                 if (sscanf(pin, "%u", &can_nb) != 1) {
-                    fprintf(stderr, "PIN is not an unsigned integer.");
+                    fprintf(stderr, "PIN is not an unsigned integer.\n");
                     exit(2);
                 }
             }
@@ -324,7 +324,7 @@ main (int argc, char **argv)
             pace_input.pin_id = PACE_CAN;
             if (can) {
                 if (sscanf(can, "%u", &can_nb) != 1) {
-                    fprintf(stderr, "CAN is not an unsigned integer.");
+                    fprintf(stderr, "CAN is not an unsigned integer.\n");
                     exit(2);
                 }
             }
@@ -332,13 +332,13 @@ main (int argc, char **argv)
             pace_input.pin_id = PACE_PUK;
             if (puk) {
                 if (sscanf(puk, "%u", &can_nb) != 1) {
-                    fprintf(stderr, "PUK is not an unsigned integer.");
+                    fprintf(stderr, "PUK is not an unsigned integer.\n");
                     exit(2);
                 }
             }
         } else {
             fprintf(stderr, "Please specify whether to do PACE with "
-                    "PIN, CAN or PUK.");
+                    "PIN, CAN or PUK.\n");
             exit(1);
         }
 
@@ -481,7 +481,7 @@ main (int argc, char **argv)
             }
         } else {
             fprintf(stderr, "Please specify whether to do PACE with "
-                    "PIN, CAN, MRZ or PUK.");
+                    "PIN, CAN, MRZ or PUK.\n");
             exit(1);
         }
 

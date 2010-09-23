@@ -578,7 +578,7 @@ int sm_transmit_apdu(const struct sm_ctx *sctx, sc_card_t *card,
         sc_apdu_t *apdu)
 {
     sc_apdu_t sm_apdu;
-    u8 rbuf[SC_MAX_APDU_BUFFER_SIZE - 2], sbuf[SC_MAX_APDU_BUFFER_SIZE - 4];
+    u8 rbuf[0xffff], sbuf[0xffff];
 
     sm_apdu.data = sbuf;
     sm_apdu.datalen = sizeof sbuf;
