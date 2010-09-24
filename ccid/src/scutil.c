@@ -126,20 +126,16 @@ int build_apdu(sc_context_t *ctx, const u8 *buf, size_t len, sc_apdu_t *apdu)
                 if (!len) {
                     apdu->cse = SC_APDU_CASE_3_EXT;
                 } else {
-                    if (len < 3) {
-                        sc_error(ctx, "APDU too short (need %lu more bytes)\n",
-                                (unsigned long) apdu->lc - len);
-                        return SC_ERROR_INVALID_DATA;
-                    }
-                    if (*p++ != 0) {
-                        sc_error(ctx, "Extended APDU needs Le, that begins with 0x00)\n");
+                    /* at this point the apdu has a Lc, so Le is on 2 bytes */
+                    if (len < 2) {
+                        sc_error(ctx, "APDU too short (need 2 more bytes)\n");
                         return SC_ERROR_INVALID_DATA;
                     }
                     apdu->le = (*p++)<<8;
                     apdu->le += *p++;
                     if (apdu->le == 0)
                         apdu->le = 0xffff+1;
-                    len -= 3;
+                    len -= 2;
                     apdu->cse = SC_APDU_CASE_4_EXT;
                 }
             }
