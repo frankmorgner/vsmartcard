@@ -108,12 +108,17 @@ no_padding(u8 padding_indicator, const u8 *data, size_t datalen)
             len = datalen;
             break;
         case SM_ISO_PADDING:
-            for (len = datalen;
-                    len && (data[len-1] == 0);
-                    len--) { };
+            len = datalen;
 
-            if (data[len-1] != 0x80)
+            while (len) {
+                len--;
+                if (data[len])
+                    break;
+            }
+
+            if (data[len] != 0x80)
                 return SC_ERROR_INVALID_DATA;
+
             break;
         default:
             return SC_ERROR_NOT_SUPPORTED;
