@@ -1,12 +1,12 @@
-Index: ccid-1.3.11/src/ifdhandler.c
+Index: ccid-1.3.13/src/ifdhandler.c
 ===================================================================
---- ccid-1.3.11/src/ifdhandler.c	(Revision 4979)
-+++ ccid-1.3.11/src/ifdhandler.c	(Arbeitskopie)
+--- ccid-1.3.13/src/ifdhandler.c	(Revision 4979)
++++ ccid-1.3.13/src/ifdhandler.c	(Arbeitskopie)
 @@ -1384,6 +1384,16 @@
  			iBytesReturned += sizeof(PCSC_TLV_STRUCTURE);
  		}
  
-+		if (get_ccid_descriptor(reader_index) -> bPINSupport & CCID_CLASS_PIN_PACE_CAPABILITIES)
++		if (ccid_descriptor -> bPINSupport & CCID_CLASS_PIN_PACE_CAPABILITIES)
 +		{
 +			pcsc_tlv -> tag = FEATURE_EXECUTE_PACE;
 +			pcsc_tlv -> length = 0x04; /* always 0x04 */
@@ -63,10 +63,10 @@ Index: ccid-1.3.11/src/ifdhandler.c
  	if (IFD_SUCCESS != return_value)
  		*pdwBytesReturned = 0;
  
-Index: ccid-1.3.11/src/commands.c
+Index: ccid-1.3.13/src/commands.c
 ===================================================================
---- ccid-1.3.11/src/commands.c	(Revision 4979)
-+++ ccid-1.3.11/src/commands.c	(Arbeitskopie)
+--- ccid-1.3.13/src/commands.c	(Revision 4979)
++++ ccid-1.3.13/src/commands.c	(Arbeitskopie)
 @@ -68,7 +68,19 @@
  	unsigned int tx_length, unsigned char tx_buffer[], unsigned int *rx_length,
  	unsigned char rx_buffer[]);
@@ -410,10 +410,10 @@ Index: ccid-1.3.11/src/commands.c
 +	buffer[1] = (value >> 8) & 0xFF;
 +} /* i2w */
 +
-Index: ccid-1.3.11/src/commands.h
+Index: ccid-1.3.13/src/commands.h
 ===================================================================
---- ccid-1.3.11/src/commands.h	(Revision 4979)
-+++ ccid-1.3.11/src/commands.h	(Arbeitskopie)
+--- ccid-1.3.13/src/commands.h	(Revision 4979)
++++ ccid-1.3.13/src/commands.h	(Arbeitskopie)
 @@ -37,6 +37,14 @@
  	unsigned char TxBuffer[], unsigned int TxLength,
  	unsigned char RxBuffer[], unsigned int *RxLength);
@@ -429,10 +429,10 @@ Index: ccid-1.3.11/src/commands.h
  RESPONSECODE CmdEscape(unsigned int reader_index,
  	const unsigned char TxBuffer[], unsigned int TxLength,
  	unsigned char RxBuffer[], unsigned int *RxLength);
-Index: ccid-1.3.11/src/ccid.h
+Index: ccid-1.3.13/src/ccid.h
 ===================================================================
---- ccid-1.3.11/src/ccid.h	(Revision 4979)
-+++ ccid-1.3.11/src/ccid.h	(Arbeitskopie)
+--- ccid-1.3.13/src/ccid.h	(Revision 4979)
++++ ccid-1.3.13/src/ccid.h	(Arbeitskopie)
 @@ -142,8 +142,10 @@
  #define CCID_CLASS_EXCHANGE_MASK	0x00070000
  
@@ -455,10 +455,10 @@ Index: ccid-1.3.11/src/ccid.h
  
  /* all the data rates specified by ISO 7816-3 Fi/Di tables */
  #define ISO_DATA_RATES 10753, 14337, 15625, 17204, \
-Index: ccid-1.3.11/src/ccid_ifdhandler.h
+Index: ccid-1.3.13/src/ccid_ifdhandler.h
 ===================================================================
---- ccid-1.3.11/src/ccid_ifdhandler.h	(Revision 4979)
-+++ ccid-1.3.11/src/ccid_ifdhandler.h	(Arbeitskopie)
+--- ccid-1.3.13/src/ccid_ifdhandler.h	(Revision 4979)
++++ ccid-1.3.13/src/ccid_ifdhandler.h	(Arbeitskopie)
 @@ -37,6 +37,8 @@
  	SCARD_CTL_CODE(FEATURE_IFD_PIN_PROPERTIES + CLASS2_IOCTL_MAGIC)
  #define IOCTL_FEATURE_GET_TLV_PROPERTIES \

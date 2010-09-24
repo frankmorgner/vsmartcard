@@ -1,7 +1,7 @@
-Index: PCSC/src/PCSC/reader.h.in
+Index: PCSC/src/PCSC/reader.h
 ===================================================================
---- PCSC/src/PCSC/reader.h.in	(Revision 5067)
-+++ PCSC/src/PCSC/reader.h.in	(Arbeitskopie)
+--- PCSC/src/PCSC/reader.h	(Revision 5270)
++++ PCSC/src/PCSC/reader.h	(Arbeitskopie)
 @@ -121,6 +121,7 @@
  #define FEATURE_IFD_DISPLAY_PROPERTIES   0x11
  #define FEATURE_GET_TLV_PROPERTIES       0x12
@@ -12,13 +12,13 @@ Index: PCSC/src/PCSC/reader.h.in
   * "IFDs with Secure Pin Entry Capabilities" */
 Index: Drivers/ccid/src/ifdhandler.c
 ===================================================================
---- Drivers/ccid/src/ifdhandler.c	(Revision 5067)
+--- Drivers/ccid/src/ifdhandler.c	(Revision 5270)
 +++ Drivers/ccid/src/ifdhandler.c	(Arbeitskopie)
-@@ -1417,6 +1417,16 @@
+@@ -1397,6 +1397,16 @@
  			iBytesReturned += sizeof(PCSC_TLV_STRUCTURE);
  		}
  
-+		if (get_ccid_descriptor(reader_index) -> bPINSupport & CCID_CLASS_PIN_PACE_CAPABILITIES)
++		if (ccid_descriptor -> bPINSupport & CCID_CLASS_PIN_PACE_CAPABILITIES)
 +		{
 +			pcsc_tlv -> tag = FEATURE_EXECUTE_PACE;
 +			pcsc_tlv -> length = 0x04; /* always 0x04 */
@@ -31,7 +31,7 @@ Index: Drivers/ccid/src/ifdhandler.c
  		/* We can always forward wLcdLayout */
  		pcsc_tlv -> tag = FEATURE_IFD_PIN_PROPERTIES;
  		pcsc_tlv -> length = 0x04; /* always 0x04 */
-@@ -1581,6 +1591,43 @@
+@@ -1561,6 +1571,43 @@
  		}
  	}
  
@@ -77,9 +77,9 @@ Index: Drivers/ccid/src/ifdhandler.c
  
 Index: Drivers/ccid/src/commands.c
 ===================================================================
---- Drivers/ccid/src/commands.c	(Revision 5067)
+--- Drivers/ccid/src/commands.c	(Revision 5270)
 +++ Drivers/ccid/src/commands.c	(Arbeitskopie)
-@@ -68,7 +68,19 @@
+@@ -73,7 +73,19 @@
  	unsigned int tx_length, unsigned char tx_buffer[], unsigned int *rx_length,
  	unsigned char rx_buffer[]);
  
@@ -96,10 +96,10 @@ Index: Drivers/ccid/src/commands.c
 +
  static void i2dw(int value, unsigned char *buffer);
 +static void i2w(uint16_t value, unsigned char *buffer);
+ static unsigned int bei2i(unsigned char *buffer);
  
  
- /*****************************************************************************
-@@ -712,7 +724,306 @@
+@@ -751,7 +763,302 @@
  	return ret;
  } /* SecurePINModify */
  
@@ -348,10 +348,8 @@ Index: Drivers/ccid/src/commands.c
 +	res = WritePort(reader_index, 11 + TxLength, cmd);
 +	if (res != STATUS_SUCCESS)
 +	{
-+    DEBUG_CRITICAL("");
 +            if (STATUS_NO_SUCH_DEVICE == res)
 +                return IFD_NO_SUCH_DEVICE;
-+    DEBUG_CRITICAL("");
 +            return IFD_COMMUNICATION_ERROR;
 +	}
 +
@@ -359,10 +357,8 @@ Index: Drivers/ccid/src/commands.c
 +	res = ReadPort(reader_index, &length, cmd);
 +	if (res != STATUS_SUCCESS)
 +	{
-+    DEBUG_CRITICAL("");
 +		if (STATUS_NO_SUCH_DEVICE == res)
 +			return IFD_NO_SUCH_DEVICE;
-+    DEBUG_CRITICAL("");
 +		return IFD_COMMUNICATION_ERROR;
 +	}
 +
@@ -406,12 +402,12 @@ Index: Drivers/ccid/src/commands.c
  /*****************************************************************************
   *
   *					Escape
-@@ -2113,3 +2424,15 @@
+@@ -2152,7 +2459,20 @@
  	buffer[3] = (value >> 24) & 0xFF;
  } /* i2dw */
  
 +
-+/*****************************************************************************
+ /*****************************************************************************
 + *
 + *					i2w
 + *
@@ -422,9 +418,14 @@ Index: Drivers/ccid/src/commands.c
 +	buffer[1] = (value >> 8) & 0xFF;
 +} /* i2w */
 +
++
++/*****************************************************************************
+ *
+ *                  bei2i (big endian integer to host order interger)
+ *
 Index: Drivers/ccid/src/commands.h
 ===================================================================
---- Drivers/ccid/src/commands.h	(Revision 5067)
+--- Drivers/ccid/src/commands.h	(Revision 5270)
 +++ Drivers/ccid/src/commands.h	(Arbeitskopie)
 @@ -37,6 +37,14 @@
  	unsigned char TxBuffer[], unsigned int TxLength,
@@ -441,9 +442,22 @@ Index: Drivers/ccid/src/commands.h
  RESPONSECODE CmdEscape(unsigned int reader_index,
  	const unsigned char TxBuffer[], unsigned int TxLength,
  	unsigned char RxBuffer[], unsigned int *RxLength);
+Index: Drivers/ccid/src/ccid_ifdhandler.h
+===================================================================
+--- Drivers/ccid/src/ccid_ifdhandler.h	(Revision 5270)
++++ Drivers/ccid/src/ccid_ifdhandler.h	(Arbeitskopie)
+@@ -37,6 +37,8 @@
+ 	SCARD_CTL_CODE(FEATURE_IFD_PIN_PROPERTIES + CLASS2_IOCTL_MAGIC)
+ #define IOCTL_FEATURE_GET_TLV_PROPERTIES \
+ 	SCARD_CTL_CODE(FEATURE_GET_TLV_PROPERTIES + CLASS2_IOCTL_MAGIC)
++#define IOCTL_FEATURE_EXECUTE_PACE \
++	SCARD_CTL_CODE(FEATURE_EXECUTE_PACE + CLASS2_IOCTL_MAGIC)
+ 
+ #define DRIVER_OPTION_CCID_EXCHANGE_AUTHORIZED 1
+ #define DRIVER_OPTION_GEMPC_TWIN_KEY_APDU 2
 Index: Drivers/ccid/src/ccid.h
 ===================================================================
---- Drivers/ccid/src/ccid.h	(Revision 5067)
+--- Drivers/ccid/src/ccid.h	(Revision 5270)
 +++ Drivers/ccid/src/ccid.h	(Arbeitskopie)
 @@ -142,8 +142,10 @@
  #define CCID_CLASS_EXCHANGE_MASK	0x00070000
@@ -467,16 +481,3 @@ Index: Drivers/ccid/src/ccid.h
  
  /* all the data rates specified by ISO 7816-3 Fi/Di tables */
  #define ISO_DATA_RATES 10753, 14337, 15625, 17204, \
-Index: Drivers/ccid/src/ccid_ifdhandler.h
-===================================================================
---- Drivers/ccid/src/ccid_ifdhandler.h	(Revision 5067)
-+++ Drivers/ccid/src/ccid_ifdhandler.h	(Arbeitskopie)
-@@ -37,6 +37,8 @@
- 	SCARD_CTL_CODE(FEATURE_IFD_PIN_PROPERTIES + CLASS2_IOCTL_MAGIC)
- #define IOCTL_FEATURE_GET_TLV_PROPERTIES \
- 	SCARD_CTL_CODE(FEATURE_GET_TLV_PROPERTIES + CLASS2_IOCTL_MAGIC)
-+#define IOCTL_FEATURE_EXECUTE_PACE \
-+	SCARD_CTL_CODE(FEATURE_EXECUTE_PACE + CLASS2_IOCTL_MAGIC)
- 
- #define DRIVER_OPTION_CCID_EXCHANGE_AUTHORIZED 1
- #define DRIVER_OPTION_GEMPC_TWIN_KEY_APDU 2
