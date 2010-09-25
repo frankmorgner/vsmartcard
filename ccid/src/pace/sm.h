@@ -53,7 +53,7 @@ struct sm_ctx {
             sc_apdu_t *sm_apdu);
 };
 
-int sm_transmit_apdu(const struct sm_ctx *sctx, sc_card_t *card,
+int sm_transmit_apdu(struct sm_ctx *sctx, sc_card_t *card,
         sc_apdu_t *apdu);
 
 #ifdef  __cplusplus

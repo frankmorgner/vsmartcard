@@ -579,7 +579,7 @@ err:
     return r;
 }
 
-int sm_transmit_apdu(const struct sm_ctx *sctx, sc_card_t *card,
+int sm_transmit_apdu(struct sm_ctx *sctx, sc_card_t *card,
         sc_apdu_t *apdu)
 {
     sc_apdu_t sm_apdu;
@@ -590,13 +590,14 @@ int sm_transmit_apdu(const struct sm_ctx *sctx, sc_card_t *card,
     sm_apdu.resp = rbuf;
     sm_apdu.resplen = sizeof rbuf;
 
-    if ((apdu->cla & 0x0C) == 0x0C) {
-        sc_debug(card->ctx, "Given APDU is already protected with some secure messaging.");
+    if (!sctx || !sctx->active) {
+        sc_debug(card->ctx, "Secure messaging disabled.");
         return sc_transmit_apdu(card, apdu);
     }
 
-    if (!sctx || !sctx->active) {
-        sc_debug(card->ctx, "Secure messaging disabled.");
+    if ((apdu->cla & 0x0C) == 0x0C) {
+        sc_debug(card->ctx, "Given APDU is already protected with some secure messaging. Deactivating own SM context.");
+        sctx->active = 0;
         return sc_transmit_apdu(card, apdu);
     }
 
