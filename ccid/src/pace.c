@@ -247,7 +247,7 @@ err:
     return r;
 }
 
-static int pace_mse_set_at(const struct sm_ctx *oldpacectx, sc_card_t *card,
+static int pace_mse_set_at(struct sm_ctx *oldpacectx, sc_card_t *card,
         int protocol, int secret_key, const u8 *chat,
         size_t length_chat, u8 *sw1, u8 *sw2)
 {
@@ -375,7 +375,7 @@ err:
     return r;
 }
 
-static int pace_gen_auth_1_encrypted_nonce(const struct sm_ctx *oldpacectx,
+static int pace_gen_auth_1_encrypted_nonce(struct sm_ctx *oldpacectx,
         sc_card_t *card, u8 **enc_nonce, size_t *enc_nonce_len)
 {
     sc_apdu_t apdu;
@@ -481,7 +481,7 @@ err:
 
     return r;
 }
-static int pace_gen_auth_2_map_nonce(const struct sm_ctx *oldpacectx,
+static int pace_gen_auth_2_map_nonce(struct sm_ctx *oldpacectx,
         sc_card_t *card, const u8 *in, size_t in_len, u8 **map_data_out,
         size_t *map_data_out_len)
 {
@@ -596,7 +596,7 @@ err:
     return r;
 }
 static int pace_gen_auth_3_perform_key_agreement(
-        const struct sm_ctx *oldpacectx, sc_card_t *card,
+        struct sm_ctx *oldpacectx, sc_card_t *card,
         const u8 *in, size_t in_len, u8 **eph_pub_key_out, size_t *eph_pub_key_out_len)
 {
     sc_apdu_t apdu;
@@ -710,7 +710,7 @@ err:
     return r;
 }
 static int pace_gen_auth_4_mutual_authentication(
-        const struct sm_ctx *oldpacectx, sc_card_t *card,
+        struct sm_ctx *oldpacectx, sc_card_t *card,
         const u8 *in, size_t in_len, u8 **auth_token_out,
         size_t *auth_token_out_len, u8 **recent_car, size_t *recent_car_len,
         u8 **prev_car, size_t *prev_car_len)
@@ -950,7 +950,7 @@ void ssl_error(sc_context_t *ctx) {
     ERR_free_strings();
 }
 
-int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
+int EstablishPACEChannel(struct sm_ctx *oldpacectx, sc_card_t *card,
         struct establish_pace_channel_input pace_input,
         struct establish_pace_channel_output *pace_output,
         struct sm_ctx *sctx)
@@ -961,10 +961,10 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
     BUF_MEM *enc_nonce = NULL, *nonce = NULL, *mdata = NULL, *mdata_opp = NULL,
             *k_enc = NULL, *k_mac = NULL, *token_opp = NULL,
             *token = NULL, *pub = NULL, *pub_opp = NULL, *key = NULL,
-            *comp_pub = NULL, *comp_pub_opp = NULL;
+            *comp_pub = NULL, *comp_pub_opp = NULL, *hash_cert_desc = NULL;
     PACE_SEC *sec = NULL;
     PACE_CTX *pctx = NULL;
-    CVC_CERTIFICATE_DESCRIPTION *cert_desc = NULL;
+    BIO *bio_stdout = NULL;
     int r;
 
     if (!card)
@@ -977,9 +977,53 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
     if (pace_input.certificate_description_length &&
             pace_input.certificate_description) {
 
-        cert_desc = d2i_CVC_CERTIFICATE_DESCRIPTION(NULL, &cert_desc_in, len);
+        bio_stdout = BIO_new_fp(stdout, BIO_NOCLOSE);
 
-        /* XXX get hash of certificate description */
+        switch(certificate_description_print(bio_stdout,
+                    pace_input.certificate_description,
+                    pace_input.certificate_description_length, "")) {
+            case -1:
+                sc_error(card->ctx, "Could not print certificate description.");
+                ssl_error(card->ctx);
+                r = SC_ERROR_INTERNAL;
+                goto err;
+            case 0:
+                break;
+            case 1:
+                sc_error(card->ctx, "Certificate description in "
+                        "HTML format can not (yet) be handled.");
+                r = SC_ERROR_NOT_SUPPORTED;
+                goto err;
+            case 2:
+                sc_error(card->ctx, "Certificate description in "
+                        "PDF format can not (yet) be handled.");
+                r = SC_ERROR_NOT_SUPPORTED;
+                goto err;
+            default:
+                sc_error(card->ctx, "Certificate description in "
+                        "unknown format can not (yet) be handled.");
+                r = SC_ERROR_NOT_SUPPORTED;
+                goto err;
+        }
+
+        hash_cert_desc = PACE_hash_certificate_description(
+                pace_input.certificate_description,
+                pace_input.certificate_description_length);
+        if (!hash_cert_desc) {
+            sc_error(card->ctx, "Could not hash certificate description.");
+            ssl_error(card->ctx);
+            r = SC_ERROR_INTERNAL;
+            goto err;
+        }
+
+        p = realloc(pace_output->hash_cert_desc, hash_cert_desc->length);
+        if (!p) {
+            sc_error(card->ctx, "Not enough memory for hash of certificate description.\n");
+            r = SC_ERROR_OUT_OF_MEMORY;
+            goto err;
+        }
+        pace_output->hash_cert_desc = p;
+        pace_output->hash_cert_desc_len = hash_cert_desc->length;
     }
 
     /* XXX parse CHAT to check role of terminal */
@@ -1205,12 +1249,16 @@ err:
         BUF_MEM_free(comp_pub_opp);
     if (comp_pub)
         BUF_MEM_free(comp_pub);
+    if (hash_cert_desc)
+        BUF_MEM_free(hash_cert_desc);
     if (key) {
         OPENSSL_cleanse(key->data, key->length);
         BUF_MEM_free(key);
     }
     if (sec)
         PACE_SEC_clean_free(sec);
+    if (bio_stdout)
+        BIO_free_all(bio_stdout);
 
     if (r < 0) {
         if (k_enc) {

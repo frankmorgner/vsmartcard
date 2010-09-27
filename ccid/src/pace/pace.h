@@ -95,7 +95,7 @@ int get_ef_card_access(sc_card_t *card,
 
 int GetReadersPACECapabilities(u8 *bitmap);
 
-int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
+int EstablishPACEChannel(struct sm_ctx *oldpacectx, sc_card_t *card,
         struct establish_pace_channel_input pace_input,
         struct establish_pace_channel_output *pace_output,
         struct sm_ctx *sctx);
