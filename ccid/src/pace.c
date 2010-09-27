@@ -964,12 +964,25 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
             *comp_pub = NULL, *comp_pub_opp = NULL;
     PACE_SEC *sec = NULL;
     PACE_CTX *pctx = NULL;
+    CVC_CERTIFICATE_DESCRIPTION *cert_desc = NULL;
     int r;
 
     if (!card)
         return SC_ERROR_CARD_NOT_PRESENT;
     if (!pace_output || !sctx)
         return SC_ERROR_INVALID_ARGUMENTS;
+
+    /* show description in advance to give the user more time to read it...
+     * This behaviour differs from TR-03119 v1.1 p. 44. */
+    if (pace_input.certificate_description_length &&
+            pace_input.certificate_description) {
+
+        cert_desc = d2i_CVC_CERTIFICATE_DESCRIPTION(NULL, &cert_desc_in, len);
+
+        /* XXX get hash of certificate description */
+    }
+
+    /* XXX parse CHAT to check role of terminal */
 
     if (!pace_output->ef_cardaccess_length || !pace_output->ef_cardaccess) {
         r = get_ef_card_access(card, &pace_output->ef_cardaccess,
@@ -1138,8 +1151,6 @@ int EstablishPACEChannel(const struct sm_ctx *oldpacectx, sc_card_t *card,
     memcpy(pace_output->id_pcd, comp_pub->data, comp_pub->length);
     bin_log(card->ctx, "ID PCD", pace_output->id_pcd,
             pace_output->id_pcd_length);
-
-    /* XXX parse CHAT to check role of terminal */
 
     sctx->authentication_ctx = pace_sm_ctx_create(k_mac,
             k_enc, pctx);

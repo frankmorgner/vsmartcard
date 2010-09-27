@@ -8,9 +8,9 @@ ccid_emulator_SOURCES = ccid.c usbstring.c usb.c binutil.c
 ccid_emulator_LDADD = $(OPENSC_LIBS) $(OPENSSL_LIBS) $(PTHREAD_LIBS)
 ccid_emulator_CFLAGS = $(OPENSC_CFLAGS) $(OPENSSL_CFLAGS) $(PTHREAD_CFLAGS)
 
-cats_tool_SOURCES = cats-tool.c
-cats_tool_LDADD = $(PCSC_LIBS)
-cats_tool_CFLAGS = $(PCSC_CFLAGS)
+cats_test_SOURCES = cats-test.c
+cats_test_LDADD = $(PCSC_LIBS)
+cats_test_CFLAGS = $(PCSC_CFLAGS)
 
 pace_tool_SOURCES = pace-tool.c binutil.c
 pace_tool_LDADD = $(OPENSC_LIBS) $(OPENSSL_LIBS) libpace.la
@@ -29,7 +29,7 @@ endif
 
 
 if WITH_CATS
-bin_PROGRAMS += cats-tool
+bin_PROGRAMS += cats-test
 endif
 
 

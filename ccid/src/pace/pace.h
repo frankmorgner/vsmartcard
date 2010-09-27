@@ -83,6 +83,9 @@ struct establish_pace_channel_output {
 
     size_t id_pcd_length;
     unsigned char *id_pcd;
+
+    size_t hash_cert_desc_len;
+    unsigned char *hash_cert_desc;
 };
 
 #ifdef BUERGERCLIENT_WORKAROUND
