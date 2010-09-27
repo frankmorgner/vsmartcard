@@ -22,13 +22,14 @@
 #include <opensc/asn1.h>
 #include <opensc/log.h>
 #include <opensc/opensc.h>
-#include <openssl/evp.h>
 #include <openssl/asn1t.h>
+#include <openssl/bio.h>
 #include <openssl/buffer.h>
+#include <openssl/cv_cert.h>
 #include <openssl/err.h>
+#include <openssl/evp.h>
 #include <openssl/objects.h>
 #include <openssl/pace.h>
-#include <openssl/cv_cert.h>
 #include <string.h>
 
 
@@ -45,7 +46,7 @@ typedef struct pace_mse_set_at_cd_st {
     ASN1_INTEGER *key_reference2;
     ASN1_OCTET_STRING *auxiliary_data;
     ASN1_OCTET_STRING *eph_pub_key;
-    CVC_CHAT *cha_template;
+    CVC_CHAT *chat;
 } PACE_MSE_SET_AT_C;
 ASN1_SEQUENCE(PACE_MSE_SET_AT_C) = {
     /* 0x80
@@ -64,7 +65,7 @@ ASN1_SEQUENCE(PACE_MSE_SET_AT_C) = {
      * Ephemeral Public Key */
     ASN1_IMP_OPT(PACE_MSE_SET_AT_C, eph_pub_key, ASN1_OCTET_STRING, 0x11),
     /* Certificate Holder Authorization Template */
-    ASN1_OPT(PACE_MSE_SET_AT_C, cha_template, CVC_CHAT),
+    ASN1_OPT(PACE_MSE_SET_AT_C, chat, CVC_CHAT),
 } ASN1_SEQUENCE_END(PACE_MSE_SET_AT_C)
 IMPLEMENT_ASN1_FUNCTIONS(PACE_MSE_SET_AT_C)
 
@@ -248,8 +249,7 @@ err:
 }
 
 static int pace_mse_set_at(struct sm_ctx *oldpacectx, sc_card_t *card,
-        int protocol, int secret_key, const u8 *chat,
-        size_t length_chat, u8 *sw1, u8 *sw2)
+        int protocol, int secret_key, const CVC_CHAT *chat, u8 *sw1, u8 *sw2)
 {
     sc_apdu_t apdu;
     unsigned char *d = NULL;
@@ -290,14 +290,7 @@ static int pace_mse_set_at(struct sm_ctx *oldpacectx, sc_card_t *card,
         goto err;
     }
 
-    if (length_chat) {
-        if (!d2i_CVC_CHAT(&data->cha_template, (const unsigned char **) &chat,
-                    length_chat)) {
-            sc_error(card->ctx, "Could not parse card holder authorization template (CHAT).");
-            r = SC_ERROR_INTERNAL;
-            goto err;
-        }
-    }
+    data->chat = (CVC_CHAT *) chat;
 
 
     r = i2d_PACE_MSE_SET_AT_C(data, &d);
@@ -360,13 +353,8 @@ err:
     if (apdu.resp)
         free(apdu.resp);
     if (data) {
-        // XXX
-        //if (data->cryptographic_mechanism_reference)
-            //ASN1_OBJECT_free(data->cryptographic_mechanism_reference);
-        //if (data->key_reference1)
-            //ASN1_INTEGER_free(data->key_reference1);
-        //if (data->key_reference2)
-            //ASN1_INTEGER_free(data->key_reference2);
+        /* do not free the functions parameter chat */
+        data->chat = NULL;
         PACE_MSE_SET_AT_C_free(data);
     }
     if (d)
@@ -964,6 +952,7 @@ int EstablishPACEChannel(struct sm_ctx *oldpacectx, sc_card_t *card,
             *comp_pub = NULL, *comp_pub_opp = NULL, *hash_cert_desc = NULL;
     PACE_SEC *sec = NULL;
     PACE_CTX *pctx = NULL;
+    CVC_CHAT *chat = NULL;
     BIO *bio_stdout = NULL;
     int r;
 
@@ -977,7 +966,14 @@ int EstablishPACEChannel(struct sm_ctx *oldpacectx, sc_card_t *card,
     if (pace_input.certificate_description_length &&
             pace_input.certificate_description) {
 
-        bio_stdout = BIO_new_fp(stdout, BIO_NOCLOSE);
+        if (!bio_stdout)
+            bio_stdout = BIO_new_fp(stdout, BIO_NOCLOSE);
+        if (!bio_stdout) {
+            sc_error(card->ctx, "Could not create output buffer.");
+            ssl_error(card->ctx);
+            r = SC_ERROR_INTERNAL;
+            goto err;
+        }
 
         switch(certificate_description_print(bio_stdout,
                     pace_input.certificate_description,
@@ -1026,7 +1022,34 @@ int EstablishPACEChannel(struct sm_ctx *oldpacectx, sc_card_t *card,
         pace_output->hash_cert_desc_len = hash_cert_desc->length;
     }
 
-    /* XXX parse CHAT to check role of terminal */
+    /* show chat in advance to give the user more time to read it...
+     * This behaviour differs from TR-03119 v1.1 p. 44. */
+    if (pace_input.chat_length && pace_input.chat) {
+
+        if (!bio_stdout)
+            bio_stdout = BIO_new_fp(stdout, BIO_NOCLOSE);
+        if (!bio_stdout) {
+            sc_error(card->ctx, "Could not create output buffer.");
+            ssl_error(card->ctx);
+            r = SC_ERROR_INTERNAL;
+            goto err;
+        }
+
+        chat = d2i_CVC_CHAT(NULL, (const unsigned char **) &pace_input.chat,
+                pace_input.chat_length);
+        if (!chat) {
+            sc_error(card->ctx, "Could not parse card holder authorization template (CHAT).");
+            r = SC_ERROR_INTERNAL;
+            goto err;
+        }
+
+        if (!cv_chat_print(bio_stdout, chat, "")) {
+            sc_error(card->ctx, "Could not print card holder authorization template (CHAT).");
+            ssl_error(card->ctx);
+            r = SC_ERROR_INTERNAL;
+            goto err;
+        }
+    }
 
     if (!pace_output->ef_cardaccess_length || !pace_output->ef_cardaccess) {
         r = get_ef_card_access(card, &pace_output->ef_cardaccess,
@@ -1048,11 +1071,10 @@ int EstablishPACEChannel(struct sm_ctx *oldpacectx, sc_card_t *card,
     }
 
     r = pace_mse_set_at(oldpacectx, card, info->protocol, pace_input.pin_id,
-            pace_input.chat, pace_input.chat_length,
-            &pace_output->mse_set_at_sw1, &pace_output->mse_set_at_sw2);
+            chat, &pace_output->mse_set_at_sw1, &pace_output->mse_set_at_sw2);
     if (r < 0) {
         sc_error(card->ctx, "Could not select protocol proberties "
-                "(MSE: Set AT).");
+                "(MSE: Set AT failed).");
         goto err;
     }
     enc_nonce = BUF_MEM_new();
