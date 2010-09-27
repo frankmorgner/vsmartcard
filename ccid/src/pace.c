@@ -975,9 +975,10 @@ int EstablishPACEChannel(struct sm_ctx *oldpacectx, sc_card_t *card,
             goto err;
         }
 
+        printf("Certificate Description\n");
         switch(certificate_description_print(bio_stdout,
                     pace_input.certificate_description,
-                    pace_input.certificate_description_length, "")) {
+                    pace_input.certificate_description_length, "\t")) {
             case -1:
                 sc_error(card->ctx, "Could not print certificate description.");
                 ssl_error(card->ctx);
@@ -1035,15 +1036,15 @@ int EstablishPACEChannel(struct sm_ctx *oldpacectx, sc_card_t *card,
             goto err;
         }
 
-        chat = d2i_CVC_CHAT(NULL, (const unsigned char **) &pace_input.chat,
-                pace_input.chat_length);
-        if (!chat) {
+        if (!d2i_CVC_CHAT(&chat, (const unsigned char **) &pace_input.chat,
+                    pace_input.chat_length)) {
             sc_error(card->ctx, "Could not parse card holder authorization template (CHAT).");
             r = SC_ERROR_INTERNAL;
             goto err;
         }
 
-        if (!cv_chat_print(bio_stdout, chat, "")) {
+        printf("Card holder authorization template (CHAT)\n");
+        if (!cv_chat_print(bio_stdout, chat, "\t")) {
             sc_error(card->ctx, "Could not print card holder authorization template (CHAT).");
             ssl_error(card->ctx);
             r = SC_ERROR_INTERNAL;
