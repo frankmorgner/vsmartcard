@@ -33,6 +33,25 @@ extern "C" {
 #define PACE_BITMAP_EID   0x20
 #define PACE_BITMAP_ESIGN 0x10
 
+#define PACE_SUCCESS                            0x00000000
+#define PACE_ERROR_LENGTH_INCONSISTENT          0xD0000001
+#define PACE_ERROR_UNEXPECTED_DATA              0xD0000002
+#define PACE_ERROR_UNEXPECTED_DATA_COMBINATION  0xD0000003
+#define PACE_ERROR_CARD_NOT_SUPPORTED           0xE0000001
+#define PACE_ERROR_ALGORITH_NOT_SUPPORTED       0xE0000002
+#define PACE_ERROR_PINID_NOT_SUPPORTED          0xE0000003
+#define PACE_ERROR_SELECT_EF_CARDACCESS         0xF0000000
+#define PACE_ERROR_READ_BINARY                  0xF0010000
+#define PACE_ERROR_MSE_SET_AT                   0xF0020000
+#define PACE_ERROR_GENERAL_AUTHENTICATE_1       0xF0030000
+#define PACE_ERROR_GENERAL_AUTHENTICATE_2       0xF0040000
+#define PACE_ERROR_GENERAL_AUTHENTICATE_3       0xF0050000
+#define PACE_ERROR_GENERAL_AUTHENTICATE_4       0xF0060000
+#define PACE_ERROR_COMMUNICATION                0xF0100001
+#define PACE_ERROR_NO_CARD                      0xF0100002
+#define PACE_ERROR_ABORTED                      0xF0200001
+#define PACE_ERROR_TIMEOUT                      0xF0200002
+
 //#define PACE_MRZ 0x01
 //#define PACE_CAN 0x02
 //#define PACE_PIN 0x03
@@ -66,6 +85,8 @@ struct establish_pace_channel_input {
 };
 
 struct establish_pace_channel_output {
+    unsigned int result;
+
     unsigned char mse_set_at_sw1;
     unsigned char mse_set_at_sw2;
 

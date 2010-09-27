@@ -785,6 +785,7 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
     size_t parsed = 0;
     int sc_result;
     __le16 word;
+    __le32 dword;
     __u8 *p;
 
     memset(&pace_input, 0, sizeof(pace_input));
@@ -877,7 +878,10 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
         goto err;
 
 
-    p = realloc(*abDataOut, 2 +                     /* Statusbytes */
+    p = realloc(*abDataOut,
+            4 +                                     /* Result */
+            2 +                                     /* length Output data */
+            2 +                                     /* Statusbytes */
             2+pace_output.ef_cardaccess_length +    /* EF.CardAccess */
             1+pace_output.recent_car_length +       /* Most recent CAR */
             1+pace_output.previous_car_length +     /* Previous CAR */
@@ -887,6 +891,21 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
         goto err;
     }
     *abDataOut = p;
+
+
+    dword = __cpu_to_le32(pace_output.result);
+    memcpy(p, &dword, sizeof dword);
+    p += sizeof dword;
+
+
+    word = __cpu_to_le16(
+            2 +
+            2+pace_output.ef_cardaccess_length +
+            1+pace_output.recent_car_length +
+            1+pace_output.previous_car_length +
+            2+pace_output.id_icc_length);
+    memcpy(p, &word, sizeof word);
+    p += sizeof word;
 
 
     *p = pace_output.mse_set_at_sw1;
