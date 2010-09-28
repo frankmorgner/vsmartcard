@@ -821,7 +821,6 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
     }
     pace_input.chat = &abData[parsed];
     parsed += pace_input.chat_length;
-    /* XXX make this human readable */
     if (pace_input.chat_length)
         bin_log(ctx, "Card holder authorization template",
                 pace_input.chat, pace_input.chat_length);
@@ -860,7 +859,6 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
     }
     pace_input.certificate_description = &abData[parsed];
     parsed += pace_input.certificate_description_length;
-    /* XXX make this human readable */
     if (pace_input.certificate_description_length)
         bin_log(ctx, "Certificate description",
                 pace_input.certificate_description,
@@ -945,7 +943,7 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
 
 
     if (pace_output.previous_car_length > 0xff) {
-        sc_error(ctx, "Most previous CAR %u bytes too long",
+        sc_error(ctx, "Previous CAR %u bytes too long",
                 pace_output.previous_car_length-0xff);
         sc_result = SC_ERROR_INVALID_DATA;
         goto err;
@@ -973,11 +971,14 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
     p += pace_output.id_icc_length;
 
 
-    *abDataOutLen = 2 +
-            2+pace_output.ef_cardaccess_length +
-            1+pace_output.recent_car_length +
-            1+pace_output.previous_car_length +
-            2+pace_output.id_icc_length;
+    *abDataOutLen =
+            4 +                                     /* Result */
+            2 +                                     /* length Output data */
+            2 +                                     /* Statusbytes */
+            2+pace_output.ef_cardaccess_length +    /* EF.CardAccess */
+            1+pace_output.recent_car_length +       /* Most recent CAR */
+            1+pace_output.previous_car_length +     /* Previous CAR */
+            2+pace_output.id_icc_length ;           /* identifier of the MRTD chip */
 
     sc_result = SC_SUCCESS;
 
@@ -986,7 +987,7 @@ err:
     ef_cardaccess = pace_output.ef_cardaccess;
     ef_cardaccess_length = pace_output.ef_cardaccess_length;
 #else
-    free(pace_output.ef_cardaccess;
+    free(pace_output.ef_cardaccess);
 #endif
     free(pace_output.recent_car);
     free(pace_output.previous_car);
