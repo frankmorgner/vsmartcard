@@ -25,13 +25,19 @@
 extern "C" {
 #endif
 
+/** Padding indicator: use ISO/IEC 9797-1 padding method 2 */
 #define SM_ISO_PADDING 0x01
+/** Padding indicator: use no padding */
 #define SM_NO_PADDING  0x02
 
+/** Secure messaging context */
 struct sm_ctx {
+    /** 1 if secure messaging is activated, 0 otherwise */
     unsigned char active;
 
+    /** Padding-content indicator byte (ISO 7816-4 Table 30) */
     u8 padding_indicator;
+    /** Pad to this block length */
     size_t block_length;
 
     void *authentication_ctx;

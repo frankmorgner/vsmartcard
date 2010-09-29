@@ -1407,7 +1407,7 @@ perform_unknown(const __u8 *in, size_t inlen, __u8 **out, size_t *outlen)
     return SC_SUCCESS;
 }
 
-int ccid_parse_bulkin(const __u8* inbuf, size_t inlen, __u8** outbuf)
+int ccid_parse_bulkout(const __u8* inbuf, size_t inlen, __u8** outbuf)
 {
     int sc_result;
     size_t outlen;

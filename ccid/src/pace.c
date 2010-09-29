@@ -162,6 +162,10 @@ static int pace_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
 static int pace_sm_post_transmit(sc_card_t *card, const struct sm_ctx *ctx,
         sc_apdu_t *sm_apdu);
 
+static int increment_ssc(struct pace_sm_ctx *psmctx);
+static int decrement_ssc(struct pace_sm_ctx *psmctx);
+static int reset_ssc(struct pace_sm_ctx *psmctx);
+
 
 int GetReadersPACECapabilities(u8 *bitmap)
 {

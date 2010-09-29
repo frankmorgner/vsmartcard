@@ -64,10 +64,6 @@ extern "C" {
 #define MIN_PIN_LEN       6
 #define MAX_MRZ_LEN       128
 
-int increment_ssc(struct pace_sm_ctx *psmctx);
-int decrement_ssc(struct pace_sm_ctx *psmctx);
-int reset_ssc(struct pace_sm_ctx *psmctx);
-
 const char *pace_secret_name(enum s_type pin_id);
 
 

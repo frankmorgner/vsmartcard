@@ -268,11 +268,58 @@ struct hid_class_descriptor {
     __u8   bNumDescriptors;
 } __attribute__ ((packed));
 
+/**
+ * @brief Initializes reader for relaying
+ * 
+ * @param[in] reader_id Index to the reader to be used (optional). Set to -1 to use a reader with a inserted card.
+ * @param[in] cdriver   Card driver to be used (optional)
+ * @param[in] verbose   Verbosity level passed to \c sc_context_t
+ * 
+ * @return              \c SC_SUCCESS or error code if an error occurred
+ */
 int ccid_initialize(int reader_id, const char *cdriver, int verbose);
+
+/** 
+ * @brief Disconnects from card, reader and releases allocated memory
+ */
 void ccid_shutdown();
 
-int ccid_parse_bulkin(const __u8* inbuf, size_t inlen, __u8** outbuf);
+
+/**
+ * @brief Parses input from PC and generates the appropriate RDR response
+ *
+ * Parses command pipe bulk-OUT messages and generates resoponse pipe bulk-IN
+ * messages according to CCID Rev 1.1 section 6.1, 6.2
+ * 
+ * @param[in]     inbuf  input buffer (command pipe bulk-OUT message)
+ * @param[in]     inlen  length of \a inbuf
+ * @param[in,out] outbuf where to save the output buffer (resoponse pipe bulk-IN message), memory is reused via realloc()
+ * 
+ * @return length of \a outbuf or -1 if an error occurred
+ */
+int ccid_parse_bulkout(const __u8* inbuf, size_t inlen, __u8** outbuf);
+
+/** 
+ * @brief Parses input from control pipe and generates the appropriate response
+ *
+ * Parses CCID class-specific requests according to CCID Rev 1.1 section 5.3
+ * 
+ * @param[in]     setup  input from control pipe
+ * @param[in,out] outbuf where to save the output buffer, memory is reused via realloc()
+ * 
+ * @return length of \a outbuf or -1 if an error occurred
+ */
 int ccid_parse_control(struct usb_ctrlrequest *setup, __u8 **outbuf);
+
+/** 
+ * @brief Generates event messages
+ * 
+ * @param[in,out] slotchange where to save the output
+ * @param[in]     timeout    currently not used
+ * @note ccid_state_changed() must be called periodically. Because the OpenSC implementation of sc_wait_for_event() blocks all other operations with the reader, it can't be used for slot state detection.
+ * 
+ * @return 1 if a card is present and/or the state is changed or 0
+ */
 int ccid_state_changed(RDR_to_PC_NotifySlotChange_t **slotchange, int timeout);
 
 #ifdef  __cplusplus

@@ -72,16 +72,16 @@ static const char *cdriver = NULL;
 
 static const struct option options[] = {
     /*{ "hid", no_argument, &dohid, 1 },*/
-    { "help", no_argument, NULL, OPT_HELP },
-    { "reader",	required_argument, NULL, OPT_READER },
+    { "help",        no_argument,       NULL, OPT_HELP },
+    { "reader",      required_argument, NULL, OPT_READER },
     { "card-driver", required_argument, NULL, OPT_CARD },
-    { "serial", required_argument, NULL, OPT_SERIAL },
-    { "product", required_argument, NULL, OPT_PRODUCT },
-    { "vendor", required_argument, NULL, OPT_VENDOR },
-    { "interrupt", no_argument, NULL, OPT_INTERRUPT },
-    { "verbose", no_argument, NULL, OPT_VERBOSE },
-    { "info", no_argument, NULL, OPT_INFO },
-    { NULL, 0, NULL, 0 }
+    { "serial",      required_argument, NULL, OPT_SERIAL },
+    { "product",     required_argument, NULL, OPT_PRODUCT },
+    { "vendor",      required_argument, NULL, OPT_VENDOR },
+    { "interrupt",   no_argument,       NULL, OPT_INTERRUPT },
+    { "verbose",     no_argument,       NULL, OPT_VERBOSE },
+    { "info",        no_argument,       NULL, OPT_INFO },
+    { NULL,          0,                 NULL, 0 }
 };
 static const char *option_help[] = {
     /*"Emulate HID device",*/
@@ -286,17 +286,17 @@ static const struct usb_endpoint_descriptor *hs_eps [] = {
 static char serial [57];
 
 static struct usb_string stringtab [] = {
-	{ STRINGID_MFGR,	"morgner@informatik.hu-berlin.de", },
-	{ STRINGID_PRODUCT,	"CCID to PCSC Gadget", },
-	{ STRINGID_SERIAL,	serial, },
-	{ STRINGID_CONFIG,	"The Configuration", },
-	{ STRINGID_INTERFACE,	"CCID to PCSC", },
-        { STRINGID_HID_INTERFACE,	"Human Device Interface Gadget", },
+	{ STRINGID_MFGR,          "morgner@informatik.hu-berlin.de", },
+	{ STRINGID_PRODUCT,       "CCID Emulator",                   },
+	{ STRINGID_SERIAL,        serial,                            },
+	{ STRINGID_CONFIG,        "",                                },
+	{ STRINGID_INTERFACE,     "",                                },
+	{ STRINGID_HID_INTERFACE, "Human Device Interface Gadget",   },
 };
 
 static struct usb_gadget_strings strings = {
-	.language =	0x0409,		/* "en-us" */
-	.strings =	stringtab,
+	.language = 0x0409,		/* "en-us" */
+	.strings  = stringtab,
 };
 
 /*-------------------------------------------------------------------------*/
@@ -1030,7 +1030,7 @@ static void *ccid (void *param)
             fprintf(stderr, "bulk loop: got %d, done.\n", result);
         if (!result) break;
 
-        result = ccid_parse_bulkin(inbuf, result, &outbuf);
+        result = ccid_parse_bulkout(inbuf, result, &outbuf);
         if (result < 0) break;
 
         if (verbose > 1)
