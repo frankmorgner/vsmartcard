@@ -1044,7 +1044,7 @@ int EstablishPACEChannel(struct sm_ctx *oldpacectx, sc_card_t *card,
         }
 
         printf("Card holder authorization template (CHAT)\n");
-        if (!cv_chat_print(bio_stdout, chat, "\t")) {
+        if (!cvc_chat_print(bio_stdout, chat, "\t")) {
             sc_error(card->ctx, "Could not print card holder authorization template (CHAT).");
             ssl_error(card->ctx);
             r = SC_ERROR_INTERNAL;
