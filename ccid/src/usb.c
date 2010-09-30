@@ -44,6 +44,7 @@
 #include <libaio.h>
 #endif
 
+#include "config.h"
 #include "usbstring.h"
 #include "ccid.h"
 #include "binutil.h"
@@ -285,12 +286,18 @@ static const struct usb_endpoint_descriptor *hs_eps [] = {
 /* 56 is the maximum for the KOBIL Class 3 Reader */
 static char serial [57];
 
+static const char interrupt_on_string[]  = "Insertion and removal events enabled";
+static const char interrupt_off_string[] = "Insertion and removal events disabled";
 static struct usb_string stringtab [] = {
-	{ STRINGID_MFGR,          "morgner@informatik.hu-berlin.de", },
+	{ STRINGID_MFGR,          "Virtual Smart Card Architecture", },
 	{ STRINGID_PRODUCT,       "CCID Emulator",                   },
 	{ STRINGID_SERIAL,        serial,                            },
-	{ STRINGID_CONFIG,        "",                                },
-	{ STRINGID_INTERFACE,     "",                                },
+#ifdef WITH_PACE
+	{ STRINGID_CONFIG,        "PACE support enabled",            },
+#else
+	{ STRINGID_CONFIG,        "PACE support disabled",           },
+#endif
+	{ STRINGID_INTERFACE,     interrupt_on_string,               },
 	{ STRINGID_HID_INTERFACE, "Human Device Interface Gadget",   },
 };
 
@@ -585,6 +592,13 @@ static int autoconfig ()
 	}
         if (!doint) {
             source_sink_intf.bNumEndpoints = 2;
+            int i;
+            for (i=0; i<sizeof(stringtab)/sizeof(struct usb_string); i++) {
+                if (stringtab[i].id == STRINGID_INTERFACE) {
+                    stringtab[i].s = interrupt_off_string;
+                    break;
+                }
+            }
             // Automatic activation of ICC on inserting not supported
             // USB Wake up signaling not supported
             ccid_desc.dwFeatures &= ~__constant_cpu_to_le32(0x4|0x100000);
@@ -885,7 +899,8 @@ static void close_fd (void *fd_ptr)
 	if (close (fd) < 0)
 		perror ("close fd");
         else
-		fprintf (stderr, "closed fd\n");
+		if (debug)
+			fprintf (stderr, "closed fd\n");
 }
 
 
