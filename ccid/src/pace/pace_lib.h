@@ -16,6 +16,9 @@
  * You should have received a copy of the GNU General Public License along with
  * ccid.  If not, see <http://www.gnu.org/licenses/>.
  */
+/**
+ * @file
+ */
 #ifndef _CCID_PACE_LIB_H
 #define _CCID_PACE_LIB_H
 
@@ -25,17 +28,47 @@
 extern "C" {
 #endif
 
+/** PACE secure messaging context */
 struct pace_sm_ctx {
+    /** Send sequence counter */
     BIGNUM *ssc;
+    /** Key for message authentication code */
     const BUF_MEM *key_mac;
+    /** Key for encryption and decryption */
     const BUF_MEM *key_enc;
+    /** PACE context */
     PACE_CTX *ctx;
 };
 
 
+/** 
+ * @brief Creates a PACE SM object
+ * 
+ * @param[in] key_mac Key for message authentication code
+ * @param[in] key_enc Key for encryption and decryption
+ * @param[in] ctx     PACE context
+ * 
+ * @return Initialized PACE SM object or NULL, if an error occurred
+ */
 struct pace_sm_ctx * pace_sm_ctx_create(const BUF_MEM *key_mac,
         const BUF_MEM *key_enc, PACE_CTX *ctx);
+
+/** 
+ * @brief Frees a PACE SM object
+ *
+ * Frees memory allocated for \a ctx and its send sequence counter
+ * 
+ * @param[in] ctx object to be freed
+ */
 void pace_sm_ctx_free(struct pace_sm_ctx *ctx);
+
+/** 
+ * @brief Frees a PACE SM object and all its components
+ *
+ * Frees memory allocated for \a ctx and its send sequence counter, keys and PACE context
+ * 
+ * @param[in] ctx object to be freed
+ */
 void pace_sm_ctx_clear_free(struct pace_sm_ctx *ctx);
 
 #ifdef  __cplusplus

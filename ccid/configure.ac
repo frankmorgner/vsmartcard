@@ -133,6 +133,17 @@ fi
 AM_CONDITIONAL(WITH_CATS, test "${enable_ccid}" != "no")
 
 
+DX_HTML_FEATURE(ON)
+DX_CHM_FEATURE(OFF)
+DX_CHI_FEATURE(OFF)
+DX_MAN_FEATURE(ON)
+DX_RTF_FEATURE(OFF)
+DX_XML_FEATURE(OFF)
+DX_PDF_FEATURE(OFF)
+DX_PS_FEATURE(OFF)
+DX_INIT_DOXYGEN(ccid-emulator, Doxyfile, doc)
+
+
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h memory.h stdint.h stdlib.h string.h sys/ioctl.h unistd.h])
 

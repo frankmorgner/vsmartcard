@@ -16,6 +16,9 @@
  * You should have received a copy of the GNU General Public License along with
  * ccid.  If not, see <http://www.gnu.org/licenses/>.
  */
+/**
+ * @file
+ */
 #ifndef _CCID_PACE_H
 #define _CCID_PACE_H
 
@@ -67,19 +70,32 @@ extern "C" {
 const char *pace_secret_name(enum s_type pin_id);
 
 
+/** 
+ * Input data for EstablishPACEChannel()
+ */
 struct establish_pace_channel_input {
+    /** Type of secret. You may use <tt>enum s_type</tt> from \c <openssl/pace.h> */
     unsigned char pin_id;
 
+    /** Length of card holder authorization template */
     size_t chat_length;
+    /** Card holder authorization template */
     const unsigned char *chat;
 
+    /** Length of secret */
     size_t pin_length;
+    /** Secret */
     const unsigned char *pin;
 
+    /** Length of certificate description */
     size_t certificate_description_length;
+    /** Certificate description */
     const unsigned char *certificate_description;
 };
 
+/** 
+ * Output data for EstablishPACEChannel()
+ */
 struct establish_pace_channel_output {
     unsigned int result;
 

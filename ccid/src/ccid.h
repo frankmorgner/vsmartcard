@@ -16,6 +16,9 @@
  * You should have received a copy of the GNU General Public License along with
  * ccid.  If not, see <http://www.gnu.org/licenses/>.
  */
+/**
+ * @file
+ */
 #ifndef _CCID_H
 #define _CCID_H
 
@@ -32,36 +35,36 @@ extern "C" {
 #define CCID_CONTROL_GET_CLOCK_FREQUENCIES  0x02
 #define CCID_CONTROL_GET_DATA_RATES 0x03
 
-#define CCID_BERROR_CMD_ABORTED 0xff /* Host aborted the current activity */
-#define CCID_BERROR_ICC_MUTE 0xfe /* CCID timed out while talking to the ICC */
-#define CCID_BERROR_XFR_PARITY_ERROR 0xfd /* Parity error while talking to the ICC */
-#define CCID_BERROR_XFR_OVERRUN 0xfc /* Overrun error while talking to the ICC */
-#define CCID_BERROR_HW_ERROR 0xfb /* An all inclusive hardware error occurred */
+#define CCID_BERROR_CMD_ABORTED 0xff /** Host aborted the current activity */
+#define CCID_BERROR_ICC_MUTE 0xfe /** CCID timed out while talking to the ICC */
+#define CCID_BERROR_XFR_PARITY_ERROR 0xfd /** Parity error while talking to the ICC */
+#define CCID_BERROR_XFR_OVERRUN 0xfc /** Overrun error while talking to the ICC */
+#define CCID_BERROR_HW_ERROR 0xfb /** An all inclusive hardware error occurred */
 #define CCID_BERROR_BAD_ATR_TS 0xf
 #define CCID_BERROR_BAD_ATR_TCK 0xf
 #define CCID_BERROR_ICC_PROTOCOL_NOT_SUPPORTED 0xf6
 #define CCID_BERROR_ICC_CLASS_NOT_SUPPORTED 0xf5
 #define CCID_BERROR_PROCEDURE_BYTE_CONFLICT 0xf4
 #define CCID_BERROR_DEACTIVATED_PROTOCOL 0xf3
-#define CCID_BERROR_BUSY_WITH_AUTO_SEQUENCE 0xf2 /* Automatic Sequence Ongoing */
+#define CCID_BERROR_BUSY_WITH_AUTO_SEQUENCE 0xf2 /** Automatic Sequence Ongoing */
 #define CCID_BERROR_PIN_TIMEOUT 0xf0
 #define CCID_BERROR_PIN_CANCELLED 0xef
-#define CCID_BERROR_CMD_SLOT_BUSY 0xe0 /* A second command was sent to a slot which was already processing a command. */
+#define CCID_BERROR_CMD_SLOT_BUSY 0xe0 /** A second command was sent to a slot which was already processing a command. */
 #define CCID_BERROR_CMD_NOT_SUPPORTED 0x00
 #define CCID_BERROR_OK 0x00
 
-#define CCID_BSTATUS_OK_ACTIVE 0x00 /* No error. An ICC is present and active */
-#define CCID_BSTATUS_OK_INACTIVE 0x01 /* No error. ICC is present and inactive */
-#define CCID_BSTATUS_OK_NOICC 0x02 /* No error. No ICC is present */
-#define CCID_BSTATUS_ERROR_ACTIVE 0x40 /* Failed. An ICC is present and active */
-#define CCID_BSTATUS_ERROR_INACTIVE 0x41 /* Failed. ICC is present and inactive */
-#define CCID_BSTATUS_ERROR_NOICC 0x42 /* Failed. No ICC is present */
+#define CCID_BSTATUS_OK_ACTIVE 0x00 /** No error. An ICC is present and active */
+#define CCID_BSTATUS_OK_INACTIVE 0x01 /** No error. ICC is present and inactive */
+#define CCID_BSTATUS_OK_NOICC 0x02 /** No error. No ICC is present */
+#define CCID_BSTATUS_ERROR_ACTIVE 0x40 /** Failed. An ICC is present and active */
+#define CCID_BSTATUS_ERROR_INACTIVE 0x41 /** Failed. ICC is present and inactive */
+#define CCID_BSTATUS_ERROR_NOICC 0x42 /** Failed. No ICC is present */
 
-#define CCID_WLEVEL_DIRECT __constant_cpu_to_le16(0) /* APDU begins and ends with this command */
-#define CCID_WLEVEL_CHAIN_NEXT_XFRBLOCK __constant_cpu_to_le16(1) /* APDU begins with this command, and continue in the next PC_to_RDR_XfrBlock */
-#define CCID_WLEVEL_CHAIN_END __constant_cpu_to_le16(2) /* abData field continues a command APDU and ends the APDU command */
-#define CCID_WLEVEL_CHAIN_CONTINUE __constant_cpu_to_le16(3) /* abData field continues a command APDU and another block is to follow */
-#define CCID_WLEVEL_RESPONSE_IN_DATABLOCK __constant_cpu_to_le16(0x10) /* empty abData field, continuation of response APDU is expected in the next RDR_to_PC_DataBlock */
+#define CCID_WLEVEL_DIRECT __constant_cpu_to_le16(0) /** APDU begins and ends with this command */
+#define CCID_WLEVEL_CHAIN_NEXT_XFRBLOCK __constant_cpu_to_le16(1) /** APDU begins with this command, and continue in the next PC_to_RDR_XfrBlock */
+#define CCID_WLEVEL_CHAIN_END __constant_cpu_to_le16(2) /** abData field continues a command APDU and ends the APDU command */
+#define CCID_WLEVEL_CHAIN_CONTINUE __constant_cpu_to_le16(3) /** abData field continues a command APDU and another block is to follow */
+#define CCID_WLEVEL_RESPONSE_IN_DATABLOCK __constant_cpu_to_le16(0x10) /** empty abData field, continuation of response APDU is expected in the next RDR_to_PC_DataBlock */
 
 #define CCID_PIN_ENCODING_BIN   0x00
 #define CCID_PIN_ENCODING_BCD   0x01
@@ -275,7 +278,7 @@ struct hid_class_descriptor {
  * @param[in] cdriver   Card driver to be used (optional)
  * @param[in] verbose   Verbosity level passed to \c sc_context_t
  * 
- * @return              \c SC_SUCCESS or error code if an error occurred
+ * @return \c SC_SUCCESS or error code if an error occurred
  */
 int ccid_initialize(int reader_id, const char *cdriver, int verbose);
 
@@ -293,7 +296,7 @@ void ccid_shutdown();
  * 
  * @param[in]     inbuf  input buffer (command pipe bulk-OUT message)
  * @param[in]     inlen  length of \a inbuf
- * @param[in,out] outbuf where to save the output buffer (resoponse pipe bulk-IN message), memory is reused via realloc()
+ * @param[in,out] outbuf where to save the output buffer (resoponse pipe bulk-IN message), memory is reused via \c realloc()
  * 
  * @return length of \a outbuf or -1 if an error occurred
  */
@@ -305,7 +308,7 @@ int ccid_parse_bulkout(const __u8* inbuf, size_t inlen, __u8** outbuf);
  * Parses CCID class-specific requests according to CCID Rev 1.1 section 5.3
  * 
  * @param[in]     setup  input from control pipe
- * @param[in,out] outbuf where to save the output buffer, memory is reused via realloc()
+ * @param[in,out] outbuf where to save the output buffer, memory is reused via \c realloc()
  * 
  * @return length of \a outbuf or -1 if an error occurred
  */
@@ -316,7 +319,7 @@ int ccid_parse_control(struct usb_ctrlrequest *setup, __u8 **outbuf);
  * 
  * @param[in,out] slotchange where to save the output
  * @param[in]     timeout    currently not used
- * @note ccid_state_changed() must be called periodically. Because the OpenSC implementation of sc_wait_for_event() blocks all other operations with the reader, it can't be used for slot state detection.
+ * @note ccid_state_changed() must be called periodically. Because the OpenSC implementation of \c sc_wait_for_event() blocks all other operations with the reader, it can't be used for slot state detection.
  * 
  * @return 1 if a card is present and/or the state is changed or 0
  */

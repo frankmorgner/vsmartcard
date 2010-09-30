@@ -564,8 +564,6 @@ static int sm_decrypt(const struct sm_ctx *ctx, sc_card_t *card,
                 apdu->resp, apdu->resplen);
     }
 
-    /* XXX verify mac */
-
     r = SC_SUCCESS;
 
 err:
