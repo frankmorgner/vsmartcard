@@ -274,8 +274,8 @@ struct hid_class_descriptor {
 /**
  * @brief Initializes reader for relaying
  * 
- * @param[in] reader_id Index to the reader to be used (optional). Set to -1 to use a reader with a inserted card.
- * @param[in] cdriver   Card driver to be used (optional)
+ * @param[in] reader_id (optional) Index to the reader to be used. Set to -1 to use a reader with a inserted card.
+ * @param[in] cdriver   (optional) Card driver to be used
  * @param[in] verbose   Verbosity level passed to \c sc_context_t
  * 
  * @return \c SC_SUCCESS or error code if an error occurred

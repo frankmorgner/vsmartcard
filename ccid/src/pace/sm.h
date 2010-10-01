@@ -83,7 +83,7 @@ struct sm_ctx {
  * \li decrypt SM protected \a apdu calling \a sctx->decrypt
  * \li copy decrypted/authenticated data and status bytes to \a apdu
  * 
- * @param[in]     sctx
+ * @param[in]     sctx (optional)
  * @param[in]     card
  * @param[in,out] apdu
  * 
