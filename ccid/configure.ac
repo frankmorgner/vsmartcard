@@ -133,15 +133,31 @@ fi
 AM_CONDITIONAL(WITH_CATS, test "${enable_ccid}" != "no")
 
 
-DX_HTML_FEATURE(ON)
-DX_CHM_FEATURE(OFF)
-DX_CHI_FEATURE(OFF)
-DX_MAN_FEATURE(ON)
-DX_RTF_FEATURE(OFF)
-DX_XML_FEATURE(OFF)
-DX_PDF_FEATURE(OFF)
-DX_PS_FEATURE(OFF)
-DX_INIT_DOXYGEN(ccid-emulator, Doxyfile, doc)
+#DX_HTML_FEATURE(ON)
+#DX_CHM_FEATURE(OFF)
+#DX_CHI_FEATURE(OFF)
+#DX_MAN_FEATURE(ON)
+#DX_RTF_FEATURE(OFF)
+#DX_XML_FEATURE(OFF)
+#DX_PDF_FEATURE(OFF)
+#DX_PS_FEATURE(OFF)
+#DX_INIT_DOXYGEN(ccid-emulator, Doxyfile, doc)
+
+# Documentation (default: no)
+AC_ARG_ENABLE([doc],AS_HELP_STRING([--enable-doc],[Enable documentation generation.]),[enable_doc=$enableval],[enable_doc="no"])
+
+AC_MSG_CHECKING(for documentation request)
+AC_MSG_RESULT($enable_doc)
+
+if test x"$enable_doc" = "xyes"
+then
+  AC_PATH_PROG([DOXYGEN], [doxygen])
+  if test x$DOXYGEN = x
+  then
+    AC_MSG_ERROR([doxygen is mandatory.])
+  fi
+fi
+AM_CONDITIONAL(DOC_ENABLED, [test x"$enable_doc" = xyes])
 
 
 # Checks for header files.
@@ -198,5 +214,6 @@ AC_CONFIG_FILES([
                  patches/Makefile
                  src/Makefile
                  libpace.pc
+                 Doxyfile
                  ])
 AC_OUTPUT

@@ -1,11 +1,17 @@
 ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = src m4 patches
 
-include doxygen.am
-
 MOSTLYCLEANFILES = $(DX_CLEANFILES)
 
-EXTRA_DIST = $(DX_CONFIG)
+if DOC_ENABLED
+clean-local:
+	rm -rf doc
+
+doc : Doxyfile
+	@DOXYGEN@ $(builddir)/Doxyfile
+
+.PHONY: doc
+endif
 
 if WITH_PACE
 pkgconfigdir = $(libdir)/pkgconfig
