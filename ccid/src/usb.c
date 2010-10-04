@@ -58,6 +58,8 @@ static int debug      = 0;
 static int dohid      = 0;
 static int doint      = 0;
 static int doinfo     = 0;
+static const char *doserial = NULL;
+static const char *doiintf = NULL;
 static int usb_reader_num = -1;
 static const char *cdriver = NULL;
 
@@ -65,6 +67,7 @@ static const char *cdriver = NULL;
 #define OPT_INTERRUPT   'n'
 #define OPT_READER      'r'
 #define OPT_SERIAL      's'
+#define OPT_IINTERFACE  'i'
 #define OPT_PRODUCT     'p'
 #define OPT_VENDOR      'e'
 #define OPT_VERBOSE     'v'
@@ -77,6 +80,7 @@ static const struct option options[] = {
     { "reader",      required_argument, NULL, OPT_READER },
     { "card-driver", required_argument, NULL, OPT_CARD },
     { "serial",      required_argument, NULL, OPT_SERIAL },
+    { "interface",   required_argument, NULL, OPT_IINTERFACE },
     { "product",     required_argument, NULL, OPT_PRODUCT },
     { "vendor",      required_argument, NULL, OPT_VENDOR },
     { "interrupt",   no_argument,       NULL, OPT_INTERRUPT },
@@ -87,11 +91,12 @@ static const struct option options[] = {
 static const char *option_help[] = {
     /*"Emulate HID device",*/
     "Print help and exit",
-    "Number of reader to use  (default: auto-detect)",
-    "Which card driver to use (default: auto-detect)",
-    "USB serial number        (default: random)",
-    "USB product ID           (default: 0x3010)",
-    "USB vendor ID            (default: 0x0D46)",
+    "Number of reader    (default: auto-detect)",
+    "Card driver to use  (default: auto-detect)",
+    "USB serial number   (default: random)",
+    "USB iInterface      (default: notification status)",
+    "USB product ID      (default: 0x3010)",
+    "USB vendor ID       (default: 0x0D46)",
     "Add interrupt pipe for CCID",
     "Use (several times) to be more verbose",
     "Print version, available readers and drivers.",
@@ -286,8 +291,8 @@ static const struct usb_endpoint_descriptor *hs_eps [] = {
 /* 56 is the maximum for the KOBIL Class 3 Reader */
 static char serial [57];
 
-static const char interrupt_on_string[]  = "REINER SCT cyberJack pinpad/e-com USB";
-static const char interrupt_off_string[] = "REINER SCT cyberJack pinpad/e-com USB";
+static const char interrupt_on_string[]  = "Insertion and removal events enabled";
+static const char interrupt_off_string[] = "Insertion and removal events disabled";
 static struct usb_string stringtab [] = {
 	{ STRINGID_MFGR,          "Virtual Smart Card Architecture", },
 	{ STRINGID_PRODUCT,       "CCID Emulator",                   },
@@ -593,10 +598,12 @@ static int autoconfig ()
         if (!doint) {
             source_sink_intf.bNumEndpoints = 2;
             int i;
-            for (i=0; i<sizeof(stringtab)/sizeof(struct usb_string); i++) {
-                if (stringtab[i].id == STRINGID_INTERFACE) {
-                    stringtab[i].s = interrupt_off_string;
-                    break;
+            if (!doiintf) {
+                for (i=0; i<sizeof(stringtab)/sizeof(struct usb_string); i++) {
+                    if (stringtab[i].id == STRINGID_INTERFACE) {
+                        stringtab[i].s = interrupt_off_string;
+                        break;
+                    }
                 }
             }
             // Automatic activation of ICC on inserting not supported
@@ -1719,16 +1726,8 @@ main (int argc, char **argv)
     int fd, c, i;
     int oindex = 0;
 
-    /* random initial serial number */
-    srand ((int) time (0));
-    for (i = 0; i < sizeof serial - 1; ) {
-        c = rand () % 127;
-        if ((('a' <= c && c <= 'z') || ('0' <= c && c <= '9')))
-            serial [i++] = c;
-    }
-
     while (1) {
-        c = getopt_long(argc, argv, "hnr:s:i::u::a::z::I::A::p:e:voc:", options, &oindex);
+        c = getopt_long(argc, argv, "hnr:s:i:p:e:voc:", options, &oindex);
         if (c == -1)
             break;
         switch (c) {
@@ -1743,10 +1742,10 @@ main (int argc, char **argv)
                 }
                 break;
             case OPT_SERIAL:
-                if (sscanf(optarg, "%56s", serial) != 1) {
-                    parse_error(argv[0], options, option_help, optarg, oindex);
-                    exit(2);
-                }
+                doserial = optarg;
+                break;
+            case OPT_IINTERFACE:
+                doiintf = optarg;
                 break;
             case OPT_PRODUCT:
                 if (sscanf(optarg, "%x", &productid) != 1) {
@@ -1807,6 +1806,32 @@ main (int argc, char **argv)
     if (chdir ("/dev/gadget") < 0) {
         perror ("can't chdir /dev/gadget");
         return 1;
+    }
+
+    if (doserial) {
+        for (i=0; i<sizeof(stringtab)/sizeof(struct usb_string); i++) {
+            if (stringtab[i].id == STRINGID_SERIAL) {
+                stringtab[i].s = doserial;
+                break;
+            }
+        }
+    } else {
+        /* random initial serial number */
+        srand ((int) time (0));
+        for (i = 0; i < sizeof serial - 1; ) {
+            c = rand () % 127;
+            if ((('a' <= c && c <= 'z') || ('0' <= c && c <= '9')))
+                serial [i++] = c;
+        }
+    }
+
+    if (doiintf) {
+        for (i=0; i<sizeof(stringtab)/sizeof(struct usb_string); i++) {
+            if (stringtab[i].id == STRINGID_INTERFACE) {
+                stringtab[i].s = doiintf;
+                break;
+            }
+        }
     }
 
     fd = init_device ();
