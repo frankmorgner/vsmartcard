@@ -1736,7 +1736,9 @@ main (int argc, char **argv)
                 exit(0);
                 break;
             case OPT_READER:
-                if (sscanf(optarg, "%d", &usb_reader_num) != 1) {
+                errno = 0;
+                usb_reader_num = strtol(optarg, NULL, 10);
+                if (errno) {
                     parse_error(argv[0], options, option_help, optarg, oindex);
                     exit(2);
                 }
@@ -1748,13 +1750,17 @@ main (int argc, char **argv)
                 doiintf = optarg;
                 break;
             case OPT_PRODUCT:
-                if (sscanf(optarg, "%x", &productid) != 1) {
+                errno = 0;
+                productid = strtol(optarg, NULL, 16);
+                if (errno) {
                     parse_error(argv[0], options, option_help, optarg, oindex);
                     exit(2);
                 }
                 break;
             case OPT_VENDOR:
-                if (sscanf(optarg, "%x", &vendorid) != 1) {
+                errno = 0;
+                vendorid = strtol(optarg, NULL, 16);
+                if (errno) {
                     parse_error(argv[0], options, option_help, optarg, oindex);
                     exit(2);
                 }
