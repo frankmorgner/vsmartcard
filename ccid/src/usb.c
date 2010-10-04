@@ -286,8 +286,8 @@ static const struct usb_endpoint_descriptor *hs_eps [] = {
 /* 56 is the maximum for the KOBIL Class 3 Reader */
 static char serial [57];
 
-static const char interrupt_on_string[]  = "REINER SCT cyberJack pinpad/e-com USB"
-static const char interrupt_off_string[] = "REINER SCT cyberJack pinpad/e-com USB"
+static const char interrupt_on_string[]  = "REINER SCT cyberJack pinpad/e-com USB";
+static const char interrupt_off_string[] = "REINER SCT cyberJack pinpad/e-com USB";
 static struct usb_string stringtab [] = {
 	{ STRINGID_MFGR,          "Virtual Smart Card Architecture", },
 	{ STRINGID_PRODUCT,       "CCID Emulator",                   },

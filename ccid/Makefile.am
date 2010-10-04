@@ -3,6 +3,8 @@ SUBDIRS = src m4 patches
 
 MOSTLYCLEANFILES = $(DX_CLEANFILES)
 
+EXTRA_DIST = README.dox
+
 if DOC_ENABLED
 clean-local:
 	rm -rf doc
