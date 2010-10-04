@@ -1,0 +1,10 @@
+PROJECT_NAME           = @PACKAGE_NAME@
+PROJECT_NUMBER         = @PACKAGE_VERSION@
+OUTPUT_DIRECTORY       = @builddir@/doc
+STRIP_FROM_PATH        = @top_srcdir@/src
+INPUT                  = @top_srcdir@/src @top_srcdir@/README.dox
+FILE_PATTERNS          = *.c *.h
+RECURSIVE              = YES
+EXAMPLE_PATH           = @top_srcdir@/src
+GENERATE_HTML          = YES
+GENERATE_TAGFILE       = @builddir@/doc/$(PROJECT).tag
