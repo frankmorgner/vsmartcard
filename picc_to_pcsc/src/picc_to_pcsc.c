@@ -28,7 +28,7 @@ static sighandler_t register_sig(int signo, sighandler_t sighandler) {
 char* perform_initialization(int num)
 {
     char *readers, *str;
-    DWORD size;
+    DWORD size=0;
     LONG r;
 
     r = SCardEstablishContext(SCARD_SCOPE_SYSTEM, NULL, NULL, &hcontext);
@@ -92,7 +92,7 @@ void setup(void) {
 	DWORD dwActiveProtocol;
    	LONG pcsc_result;
 
-	perform_initialization(0); /*Right num for PICC?*/
+	perform_initialization(2); /*Right num for PICC?*/
 	printf("Initialised reader: %s\n",reader_name);
 	pcsc_result = SCardConnect(hcontext, reader_name,
             SCARD_SHARE_EXCLUSIVE, (SCARD_PROTOCOL_T0|SCARD_PROTOCOL_T1),
@@ -146,7 +146,7 @@ void cleanup(void) {
 }
 
 unsigned int read_from_device(unsigned char *inputBuffer) {
-	char *line;
+	char *line = NULL;
 	size_t linelen=0;
 	if(getline(&line, &linelen, fd) != -1) {
 		printf("%s\n",line);
@@ -183,7 +183,7 @@ int transmit_to_pcsc(unsigned char *inputBuffer, unsigned int inputLength, unsig
 	printHex("APDU", inputBuffer, inputLength); 
 	unsigned int dwRecvLength = MAX_BUFFER_SIZE;
 	int result;
-	result = SCardTransmit(hcard, SCARD_PCI_T0, inputBuffer,
+	result = SCardTransmit(hcard, SCARD_PCI_T1, inputBuffer,
             inputLength, NULL, outputBuffer, (DWORD*) &dwRecvLength);
 
 	/*Check response code */
