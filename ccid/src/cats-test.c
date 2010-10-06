@@ -39,6 +39,8 @@
 #include <reader.h>
 #endif
 
+#include "pcscutil.h"
+
 
 #ifndef FEATURE_EXECUTE_PACE
 #define FEATURE_EXECUTE_PACE 0x20
@@ -185,9 +187,8 @@ main(int argc, char *argv[])
     SCARDCONTEXT hContext;
     SCARDHANDLE hCard;
     LPSTR readers = NULL;
-    char *reader;
     BYTE sendbuf[16], recvbuf[1024];
-    DWORD ctl, recvlen, readerslen;
+    DWORD ctl, recvlen;
     time_t t_start, t_end;
     size_t l, pinlen = 0;
     char *pin = NULL;
@@ -214,39 +215,10 @@ main(int argc, char *argv[])
     }
 
 
-    r = SCardEstablishContext(SCARD_SCOPE_SYSTEM, NULL, NULL, &hContext);
-    if (r != SCARD_S_SUCCESS) {
-        fprintf(stderr, "Could not connect to PC/SC Service\n");
+    r = pcsc_connect(readernum, SCARD_SHARE_DIRECT, 0, &hContext, &readers,
+            &hCard);
+    if (r != SCARD_S_SUCCESS)
         goto err;
-    }
-
-
-    readerslen = SCARD_AUTOALLOCATE;
-    r = SCardListReaders(hContext, NULL, (LPSTR) &readers, &readerslen);
-    if (r != SCARD_S_SUCCESS) {
-        fprintf(stderr, "Could not get readers\n");
-        goto err;
-    }
-
-    for (reader = readers, i = 0; readerslen > 0;
-            l = strlen(reader) + 1, readerslen -= l, reader += l, i++) {
-
-        if (i == readernum)
-            break;
-    }
-    if (readerslen <= 0) {
-        fprintf(stderr, "Could not find reader number %u\n", readernum);
-        r = SCARD_E_UNKNOWN_READER;
-        goto err;
-    }
-
-
-    r = SCardConnect(hContext, reader, SCARD_SHARE_DIRECT, 0, &hCard, &ctl); 
-    if (r != SCARD_S_SUCCESS) {
-        fprintf(stderr, "Could not connect to %s\n", reader);
-        goto err;
-    }
-    printf("Connected to %s\n", reader);
 
 
 #define SIMULATE_BUERGERCLIENT 1
@@ -254,7 +226,7 @@ main(int argc, char *argv[])
     r = SCardReconnect(hCard, SCARD_SHARE_EXCLUSIVE, SCARD_PROTOCOL_T0,
             SCARD_LEAVE_CARD, &ctl);
     if (r != SCARD_S_SUCCESS) {
-        fprintf(stderr, "Could not reconnect to %s\n", reader);
+        fprintf(stderr, "Could not reconnect\n");
         goto err;
     }
     BYTE bufs0[] = {
@@ -291,7 +263,7 @@ main(int argc, char *argv[])
     }
     r = SCardReconnect(hCard, SCARD_SHARE_DIRECT, 0, SCARD_LEAVE_CARD, &ctl);
     if (r != SCARD_S_SUCCESS) {
-        fprintf(stderr, "Could not reconnect to %s\n", reader);
+        fprintf(stderr, "Could not reconnect\n");
         goto err;
     }
 #endif
@@ -369,7 +341,7 @@ main(int argc, char *argv[])
     r = SCardReconnect(hCard, SCARD_SHARE_EXCLUSIVE, SCARD_PROTOCOL_T0,
             SCARD_LEAVE_CARD, &ctl);
     if (r != SCARD_S_SUCCESS) {
-        fprintf(stderr, "Could not reconnect to %s\n", reader);
+        fprintf(stderr, "Could not reconnect\n");
         goto err;
     }
     BYTE bufs1[] = {
@@ -418,7 +390,7 @@ main(int argc, char *argv[])
     }
     r = SCardReconnect(hCard, SCARD_SHARE_DIRECT, 0, SCARD_LEAVE_CARD, &ctl);
     if (r != SCARD_S_SUCCESS) {
-        fprintf(stderr, "Could not reconnect to %s\n", reader);
+        fprintf(stderr, "Could not reconnect\n");
         goto err;
     }
 #endif

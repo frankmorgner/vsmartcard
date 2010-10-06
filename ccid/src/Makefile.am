@@ -8,7 +8,7 @@ ccid_emulator_SOURCES = ccid.c usbstring.c usb.c binutil.c
 ccid_emulator_LDADD = $(OPENSC_LIBS) $(OPENSSL_LIBS) $(PTHREAD_LIBS)
 ccid_emulator_CFLAGS = $(OPENSC_CFLAGS) $(OPENSSL_CFLAGS) $(PTHREAD_CFLAGS)
 
-cats_test_SOURCES = cats-test.c
+cats_test_SOURCES = cats-test.c pcscutil.c
 cats_test_LDADD = $(PCSC_LIBS)
 cats_test_CFLAGS = $(PCSC_CFLAGS)
 
@@ -20,6 +20,7 @@ bin_PROGRAMS =
 
 noinst_HEADERS = \
 		 binutil.h \
+		 pcscutil.h \
 		 ccid.h \
 		 usbstring.h
 
