@@ -22,8 +22,9 @@
 #include "pcscutil.h"
 
 LONG
-pcsc_connect(unsigned int readernum, DWORD dwShareMode, DWORD dwPreferredProtocol,
-        SCARDCONTEXT *hContext, LPSTR *readers, LPSCARDHANDLE phCard)
+pcsc_connect(unsigned int readernum, DWORD dwShareMode, DWORD dwPreferredProtocols,
+        SCARDCONTEXT *hContext, LPSTR *readers, LPSCARDHANDLE phCard,
+        LPDWORD pdwActiveProtocol)
 {
     LONG r;
     DWORD ctl, readerslen;
@@ -57,8 +58,8 @@ pcsc_connect(unsigned int readernum, DWORD dwShareMode, DWORD dwPreferredProtoco
     }
 
 
-    r = SCardConnect(hContext, reader, dwShareMode, dwPreferredProtocol,
-            phCard, &ctl); 
+    r = SCardConnect(hContext, reader, dwShareMode, dwPreferredProtocols,
+            phCard, pdwActiveProtocol); 
     if (r != SCARD_S_SUCCESS) {
         fprintf(stderr, "Could not connect to %s\n", reader);
         goto err;
@@ -67,4 +68,57 @@ pcsc_connect(unsigned int readernum, DWORD dwShareMode, DWORD dwPreferredProtoco
 
 err:
     return r;
+}
+
+void
+pcsc_disconnect(SCARDCONTEXT hContext, SCARDHANDLE hCard, LPSTR readers)
+{
+    SCardDisconnect(hCard, SCARD_LEAVE_CARD);
+    SCardFreeMemory(hContext, readers);
+    SCardReleaseContext(hContext);
+}
+
+LONG
+pcsc_transmit(DWORD dwActiveProtocol, SCARDHANDLE hCard,
+        LPCBYTE pbSendBuffer, DWORD cbSendLength,
+        LPBYTE pbRecvBuffer, LPDWORD pcbRecvLength)
+{
+    LONG r;
+    SCARD_IO_REQUEST ioRecvPci;
+
+    switch (dwActiveProtocol) {
+        case SCARD_PROTOCOL_T0:
+            r = SCardTransmit(hCard, SCARD_PCI_T0, pbSendBuffer, cbSendLength,
+                    &ioRecvPci, pbRecvBuffer, pcbRecvLength);
+            break;
+
+        case SCARD_PROTOCOL_T1:
+            r = SCardTransmit(hCard, SCARD_PCI_T1, pbSendBuffer, cbSendLength,
+                    &ioRecvPci, pbRecvBuffer, pcbRecvLength);
+            break;
+
+        default:
+            fprintf(stderr, "Could not transmit with unknown protocol %u\n",
+                    (unsigned int) dwActiveProtocol);
+            r = SCARD_E_PROTO_MISMATCH;
+            break;
+    }
+
+    return r;
+}
+
+void
+printb(const char *label, unsigned char *buf, size_t len)
+{
+    size_t i = 0;
+    printf("%s", label);
+    while (i < len) {
+        printf("%02X", buf[i]);
+        i++;
+        if (i%20)
+            printf(" ");
+        else if (i != len)
+            printf("\n");
+    }
+    printf("\n");
 }

@@ -23,8 +23,12 @@
 #include "config.h"
 #endif
 
+#include <stdio.h>
 #ifdef HAVE_PCSCLITE_H
 #include <pcsclite.h>
+#define stringify_error(r) { if (r != SCARD_S_SUCCESS) fputs(pcsc_stringify_error(r), stderr); }
+#else
+#define stringify_error(r) { if (r != SCARD_S_SUCCESS) fprintf(stderr, "PC/SC error code %u\n", (unsigned int) r); }
 #endif
 
 #ifdef HAVE_READER_H
@@ -38,7 +42,19 @@ extern "C" {
 
 LONG
 pcsc_connect(unsigned int readernum, DWORD dwShareMode, DWORD dwPreferredProtocol,
-        SCARDCONTEXT *hContext, LPSTR *readers, LPSCARDHANDLE phCard);
+        SCARDCONTEXT *hContext, LPSTR *readers, LPSCARDHANDLE phCard,
+        LPDWORD pdwActiveProtocol);
+
+void
+pcsc_disconnect(SCARDCONTEXT hContext, SCARDHANDLE hCard, LPSTR readers);
+
+LONG
+pcsc_transmit(DWORD dwActiveProtocol, SCARDHANDLE hCard,
+        LPCBYTE pbSendBuffer, DWORD cbSendLength,
+        LPBYTE pbRecvBuffer, LPDWORD pcbRecvLength);
+
+void
+printb(const char *label, unsigned char *buf, size_t len);
 
 #ifdef  __cplusplus
 }

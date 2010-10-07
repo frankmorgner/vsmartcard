@@ -53,22 +53,6 @@
 #define PCSC_TLV_ELEMENT_SIZE 6
 
 
-static void
-printb(const char *label, unsigned char *buf, size_t len)
-{
-    size_t i = 0;
-    printf("%s", label);
-    while (i < len) {
-        printf("%02X", buf[i]);
-        i++;
-        if (i%20)
-            printf(" ");
-        else if (i != len)
-            printf("\n");
-    }
-    printf("\n");
-}
-
 static LONG parse_EstablishPACEChannel_OutputData(
         unsigned char output[], unsigned int output_length)
 {
@@ -188,7 +172,7 @@ main(int argc, char *argv[])
     SCARDHANDLE hCard;
     LPSTR readers = NULL;
     BYTE sendbuf[16], recvbuf[1024];
-    DWORD ctl, recvlen;
+    DWORD ctl, recvlen, protocol;
     time_t t_start, t_end;
     size_t l, pinlen = 0;
     char *pin = NULL;
@@ -216,15 +200,15 @@ main(int argc, char *argv[])
 
 
     r = pcsc_connect(readernum, SCARD_SHARE_DIRECT, 0, &hContext, &readers,
-            &hCard);
+            &hCard, &protocol);
     if (r != SCARD_S_SUCCESS)
         goto err;
 
 
 #define SIMULATE_BUERGERCLIENT 1
 #ifdef SIMULATE_BUERGERCLIENT
-    r = SCardReconnect(hCard, SCARD_SHARE_EXCLUSIVE, SCARD_PROTOCOL_T0,
-            SCARD_LEAVE_CARD, &ctl);
+    r = SCardReconnect(hCard, SCARD_SHARE_EXCLUSIVE, SCARD_PROTOCOL_ANY,
+            SCARD_LEAVE_CARD, &protocol);
     if (r != SCARD_S_SUCCESS) {
         fprintf(stderr, "Could not reconnect\n");
         goto err;
@@ -250,18 +234,16 @@ main(int argc, char *argv[])
     };
     LPBYTE buf0 = bufs0;
     DWORD lens0[] = {4, 4, 4, 4, 7, 14, 7, 20, 7, 7, 5, 5, 5, 5, 5, 7, 20};
-    SCARD_IO_REQUEST pioRecvPci;
     for (l = 0; l < sizeof(lens0)/sizeof(DWORD); l++) {
         recvlen = sizeof(recvbuf);
-        r = SCardTransmit(hCard, SCARD_PCI_T0, buf0, lens0[l], &pioRecvPci,
-                recvbuf, &recvlen);
+        r = pcsc_transmit(protocol, hCard, buf0, lens0[l], recvbuf, &recvlen);
         if (r != SCARD_S_SUCCESS) {
             fprintf(stderr, "Simulation of Buergerclient failed\n");
             goto err;
         }
         buf0 += lens0[l];
     }
-    r = SCardReconnect(hCard, SCARD_SHARE_DIRECT, 0, SCARD_LEAVE_CARD, &ctl);
+    r = SCardReconnect(hCard, SCARD_SHARE_DIRECT, 0, SCARD_LEAVE_CARD, &protocol);
     if (r != SCARD_S_SUCCESS) {
         fprintf(stderr, "Could not reconnect\n");
         goto err;
@@ -338,8 +320,8 @@ main(int argc, char *argv[])
 
 #define SIMULATE_TA_CA 1
 #ifdef SIMULATE_TA_CA
-    r = SCardReconnect(hCard, SCARD_SHARE_EXCLUSIVE, SCARD_PROTOCOL_T0,
-            SCARD_LEAVE_CARD, &ctl);
+    r = SCardReconnect(hCard, SCARD_SHARE_EXCLUSIVE, SCARD_PROTOCOL_ANY,
+            SCARD_LEAVE_CARD, &protocol);
     if (r != SCARD_S_SUCCESS) {
         fprintf(stderr, "Could not reconnect\n");
         goto err;
@@ -376,11 +358,9 @@ main(int argc, char *argv[])
     LPBYTE buf1 = bufs1;
     DWORD lens1[] = {20, 233, 21, 328, 88, 5, 69, 7, 7, 5, 5, 5, 5, 5, 5, 5,
         5, 5, 5, 5, 5, 5, 5, 5, 5, 17, 75};
-    SCARD_IO_REQUEST ridpioRecvPci;
     for (l = 0; l < sizeof(lens1)/sizeof(DWORD); l++) {
         recvlen = sizeof(recvbuf);
-        r = SCardTransmit(hCard, SCARD_PCI_T0, buf1, lens1[l], &ridpioRecvPci,
-                recvbuf, &recvlen);
+        r = pcsc_transmit(protocol, hCard, buf1, lens1[l], recvbuf, &recvlen);
         if (r != SCARD_S_SUCCESS) {
             fprintf(stderr,
                     "Simulation of Terminal and Chip Authentication failed\n");
@@ -388,33 +368,16 @@ main(int argc, char *argv[])
         }
         buf1 += lens1[l];
     }
-    r = SCardReconnect(hCard, SCARD_SHARE_DIRECT, 0, SCARD_LEAVE_CARD, &ctl);
+    r = SCardReconnect(hCard, SCARD_SHARE_DIRECT, 0, SCARD_LEAVE_CARD, &protocol);
     if (r != SCARD_S_SUCCESS) {
         fprintf(stderr, "Could not reconnect\n");
         goto err;
     }
 #endif
 
-
-    r = SCardDisconnect(hCard, SCARD_LEAVE_CARD);
-    if (r != SCARD_S_SUCCESS)
-        goto err;
-
-    r = SCardFreeMemory(hContext, readers);
-    if (r != SCARD_S_SUCCESS)
-        goto err;
-
-
-    exit(0);
-
 err:
-#ifdef HAVE_PCSCLITE_H
-    if (r != SCARD_S_SUCCESS)
-        puts(pcsc_stringify_error(r));
-#endif
-    if (readers)
-        SCardFreeMemory(hContext, readers);
+    stringify_error(r);
+    pcsc_disconnect(hContext, hCard, readers);
 
-
-    exit(1);
+    exit(r == SCARD_S_SUCCESS ? 0 : 1);
 }
