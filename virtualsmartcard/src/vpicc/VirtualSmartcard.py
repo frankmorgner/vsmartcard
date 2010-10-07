@@ -83,6 +83,9 @@ class SmartcardOS(object): # {{{
         self.atr = SmartcardOS.makeATR(T=1, directConvention = True, TA1=0x13,
                 histChars = chr(0x80) + chr(0x70 + len(card_capabilities)) +
                 card_capabilities)
+
+    def getATR(self):
+        return self.atr
         
     def powerUp(self):
         pass
@@ -340,6 +343,45 @@ class CryptoflexOS(SmartcardOS): # {{{
         return r
 # }}}
 
+class RelayOS(object): # {{{ 
+    def __init__(self, readernum):
+        import smartcard
+
+        if readernum:
+            #self.reader = smartcard.System.readers()[readernum]
+            self.reader = smartcard.System.listReaders()[readernum]
+        else:
+            self.reader = None
+
+        self.session = smartcard.Session(self.reader)
+
+        print "Connected to %s" % self.session.readerName
+
+    def getATR(self):
+        return "".join([chr(b) for b in self.session.getATR()])
+        
+    def powerUp(self):
+        pass
+
+    def powerDown(self):
+        self.session.close()
+
+    def reset(self):
+        pass
+
+    def execute(self, msg):
+        #apdu = [].append(ord(b) for b in msg)
+        apdu = []
+        for b in msg:
+            apdu.append(ord(b))
+
+        rapdu, sw1, sw2 = self.session.sendCommandAPDU(apdu)
+        rapdu = rapdu + [sw1, sw2]
+
+        return "".join([chr(b) for b in rapdu])
+# }}}
+      
+
 
 # sizeof(int) taken from asizof-package {{{
 _Csizeof_short = len(struct.pack('h', 0))
@@ -354,7 +396,7 @@ VPCD_CTRL_ATR	= 4
 
 class VirtualICC(object): # {{{ 
     
-    def __init__(self, filename, type, lenlen=3, host="localhost", port=35963):
+    def __init__(self, filename, type, host, port, lenlen=3, readernum=None):
         from os.path import exists
         
         self.filename = None
@@ -377,6 +419,8 @@ class VirtualICC(object): # {{{
             self.os = SmartcardOS(MF, SAM)
         elif type == "cryptoflex":
             self.os = CryptoflexOS(MF, SAM)
+        elif type == "relay":
+            self.os = RelayOS(readernum)
         else:
             print "Unknown cardtype " + type + ". Will use standard ISO 7816 cardtype"
             type = "iso7816"
@@ -440,7 +484,7 @@ class VirtualICC(object): # {{{
 		    print "Reset"
 		    self.os.reset()
 		elif msg == chr(VPCD_CTRL_ATR):
-		    self.__sendToVPICC(self.os.atr)
+		    self.__sendToVPICC(self.os.getATR())
 		else:
 		    print "unknown control command"
             else:
@@ -455,12 +499,22 @@ if __name__ == "__main__":
     parser = OptionParser()
     parser.add_option("-t", "--type", action="store", type="choice",
             default='iso7816',
-            choices=['iso7816', 'cryptoflex', 'ePass'],
+            choices=['iso7816', 'cryptoflex', 'ePass', 'relay'],
             help="Type of Smartcard [default: %default]")
+    parser.add_option("-r", "--reader", action="store", type="int",
+            default=None,
+            help="Number of reader for relaying")
     parser.add_option("-f", "--file", action="store", type="string",
-            dest="filename", default=None,
-            help="Name of a smartcard stored in the filesystem. The card will be loaded")
+            default=None,
+            help="Load a saved card")
+    parser.add_option("-n", "--hostname", action="store", type="string",
+            default='localhost',
+            help="Address of Virtual PCD [default: %default]")
+    parser.add_option("-p", "--port", action="store", type="int",
+            default=35963,
+            help="Port of Virtual PCD [default: %default]")
     (options, args) = parser.parse_args()
 
-    vicc = VirtualICC(options.filename, options.type)
+    vicc = VirtualICC(options.file, options.type, options.hostname,
+            options.port, readernum=options.reader)
     vicc.run()

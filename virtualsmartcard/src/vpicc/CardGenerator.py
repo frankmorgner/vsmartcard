@@ -36,11 +36,7 @@ from SmartcardFilesystem import *
 
 class CardGenerator(object):
     
-    def __init__(self, type='iso7816', sam=None, mf=None):
-        types = ['iso7816', 'ePass', 'cryptoflex']
-        if not type in types:
-            raise ValueError, "Unsupported type " % type
-        
+    def __init__(self, type=None, sam=None, mf=None):
         self.type = type
         self.mf = None
         self.sam = None
@@ -133,7 +129,7 @@ class CardGenerator(object):
         elif self.type == 'cryptoflex':
             self.__generate_cryptoflex()
         else:
-            raise ValueError, "Unsupported card type " % self.type
+            return (None, None)
     
     def getCard(self):
         if self.sam is None or self.mf is None:
