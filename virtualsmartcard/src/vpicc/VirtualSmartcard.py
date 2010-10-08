@@ -348,7 +348,9 @@ class RelayOS(object): # {{{
         import smartcard
 
         if readernum:
-            #self.reader = smartcard.System.readers()[readernum]
+            # XXX this is a workaround, see on sourceforge bug #3083254
+            # should better use
+            # self.reader = smartcard.System.readers()[readernum]
             self.reader = smartcard.System.listReaders()[readernum]
         else:
             self.reader = None
@@ -361,10 +363,18 @@ class RelayOS(object): # {{{
         return "".join([chr(b) for b in self.session.getATR()])
         
     def powerUp(self):
-        pass
+        import smartcard
+        try:
+            self.session.getATR()
+        except smartcard.Exceptions.CardConnectionException:
+            self.session = smartcard.Session(self.reader)
 
     def powerDown(self):
-        self.session.close()
+        import smartcard
+        try:
+            self.session.close()
+        except smartcard.Exceptions.CardConnectionException:
+            pass
 
     def reset(self):
         pass
@@ -376,7 +386,14 @@ class RelayOS(object): # {{{
             apdu.append(ord(b))
 
         rapdu, sw1, sw2 = self.session.sendCommandAPDU(apdu)
-        rapdu = rapdu + [sw1, sw2]
+
+        # XXX this is a workaround, see on sourceforge bug #3083586
+        # should better use
+        # rapdu = rapdu + [sw1, sw2]
+        if rapdu[-2:] == [sw1, sw2]:
+            pass
+        else:
+            rapdu = rapdu + [sw1, sw2]
 
         return "".join([chr(b) for b in rapdu])
 # }}}
