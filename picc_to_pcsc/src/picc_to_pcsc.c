@@ -32,7 +32,7 @@
 #include "picc_to_pcsc.h"
 #include "pcscutil.h"
 
-static FILE *picc_fd = 0; /*filehandle used for PICCDEV*/
+static FILE *picc_fd = NULL; /*filehandle used for PICCDEV*/
 
 static LPSTR readers = NULL;
 static SCARDCONTEXT hContext = 0;
@@ -49,7 +49,8 @@ void cleanup_exit(int signo){
 }
 
 void cleanup(void) {
-    fclose(picc_fd); 
+    if (picc_fd)
+        fclose(picc_fd); 
     pcsc_disconnect(hContext, hCard, readers);
 }
 
@@ -60,8 +61,8 @@ size_t picc_decode_apdu(char *inbuf, size_t inlen, unsigned char **outbuf)
     char *end, *p;
     unsigned long int b;
 
-    if (inbuf == NULL || inlen == 0 || inbuf[0] == '\0') {
-        //Ignore empty lines and 'RESET' lines
+    if (!outbuf || inbuf == NULL || inlen == 0 || inbuf[0] == '\0') {
+        /* Ignore invalid parameters, empty and 'RESET' lines */
         goto noapdu;
     }
 
@@ -102,10 +103,10 @@ size_t picc_encode_rapdu(unsigned char *inbuf, size_t inlen, char **outbuf)
     unsigned char *next;
     size_t length;
 
-    if (!inbuf || inlen > 0xffff)
+    if (!inbuf || inlen > 0xffff || !outbuf)
         goto err;
 
-    length = inlen*3+5;
+    length = 5+inlen*3+1;
     p = realloc(*outbuf, length);
     if (!p) {
         fprintf(stderr, "Error allocating memory for encoded R-APDU\n");
@@ -239,8 +240,6 @@ int main (int argc, char **argv)
 
 err:
     cleanup();
-    stringify_error(r);
-    pcsc_disconnect(hContext, hCard, readers);
 
     exit(r == SCARD_S_SUCCESS ? 0 : 1);
 }
