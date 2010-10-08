@@ -52,8 +52,10 @@ IFDHGetCapabilities (DWORD Lun, DWORD Tag, PDWORD Length, PUCHAR Value)
             }
             Log2(PCSC_LOG_DEBUG, "Got ATR (%d bytes)", size);
 
-            if (*Length < size)
+            if (*Length < size) {
+                Log1(PCSC_LOG_ERROR, "Not enough memory for ATR");
                 return IFD_COMMUNICATION_ERROR;
+            }
 
             memcpy(Value, atr, size);
             *Length = size;
@@ -61,8 +63,10 @@ IFDHGetCapabilities (DWORD Lun, DWORD Tag, PDWORD Length, PUCHAR Value)
 
             break;
         case TAG_IFD_SLOTS_NUMBER:
-            if (*Length < 1)
+            if (*Length < 1) {
+                Log1(PCSC_LOG_ERROR, "Invalid input data");
                 return IFD_COMMUNICATION_ERROR;
+            }
 
             *Value  = 1;
             *Length = 1;
@@ -79,6 +83,9 @@ IFDHGetCapabilities (DWORD Lun, DWORD Tag, PDWORD Length, PUCHAR Value)
 RESPONSECODE
 IFDHSetCapabilities (DWORD Lun, DWORD Tag, DWORD Length, PUCHAR Value)
 {
+    Log9(PCSC_LOG_DEBUG, "IFDHSetCapabilities not supported (Lun=%u Tag=%u Length=%u Value=%p)%s%s%s%s",
+            (unsigned int) Lun, (unsigned int) Tag, (unsigned int) Length,
+            (unsigned char *) Value, "", "", "", "");
     return IFD_NOT_SUPPORTED;
 }
 
@@ -86,7 +93,9 @@ RESPONSECODE
 IFDHSetProtocolParameters (DWORD Lun, DWORD Protocol, UCHAR Flags, UCHAR PTS1,
         UCHAR PTS2, UCHAR PTS3)
 {
-    Log1(PCSC_LOG_DEBUG, "");
+    Log9(PCSC_LOG_DEBUG, "Ignoring IFDHSetProtocolParameters (Lun=%u Protocol=%u Flags=%u PTS1=%u PTS2=%u PTS3=%u)%s%s",
+            (unsigned int) Lun, (unsigned int) Protocol, (unsigned char) Flags,
+            (unsigned char) PTS1, (unsigned char) PTS2, (unsigned char) PTS3, "", "");
     return IFD_SUCCESS;
 }
 
@@ -120,6 +129,11 @@ IFDHPowerICC (DWORD Lun, DWORD Action, PUCHAR Atr, PDWORD AtrLength)
             return IFD_NOT_SUPPORTED;
     }
 
+    /* XXX this is a workaround
+     * pcscd should normally set the length to the number of bytes in Atr */
+    if (!*AtrLength)
+        *AtrLength = MAX_ATR_SIZE;
+
     return IFDHGetCapabilities (Lun, TAG_IFD_ATR, AtrLength, Atr);
 }
 
@@ -128,8 +142,10 @@ IFDHTransmitToICC (DWORD Lun, SCARD_IO_HEADER SendPci, PUCHAR TxBuffer,
         DWORD TxLength, PUCHAR RxBuffer, PDWORD RxLength,
         PSCARD_IO_HEADER RecvPci)
 {
-    if (!RxLength || !RecvPci)
+    if (!RxLength || !RecvPci) {
+        Log1(PCSC_LOG_ERROR, "Invalid input data");
         return IFD_COMMUNICATION_ERROR;
+    }
 
     char *rapdu;
     int size = vicc_transmit(TxLength, (char *) TxBuffer, &rapdu);
@@ -166,5 +182,10 @@ RESPONSECODE
 IFDHControl (DWORD Lun, DWORD dwControlCode, PUCHAR TxBuffer, DWORD TxLength,
         PUCHAR RxBuffer, DWORD RxLength, LPDWORD pdwBytesReturned)
 {
+    Log9(PCSC_LOG_DEBUG, "IFDHControl not supported (Lun=%u ControlCode=%u TxBuffer=%p TxLength=%u RxBuffer=%p RxLength=%u pBytesReturned=%p)%s",
+            (unsigned int) Lun, (unsigned int) dwControlCode,
+            (unsigned char *) TxBuffer, (unsigned int) TxLength,
+            (unsigned char *) RxBuffer, (unsigned int) RxLength,
+            (unsigned int *) pdwBytesReturned, "");
     return IFD_ERROR_NOT_SUPPORTED;
 }
