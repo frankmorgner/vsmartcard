@@ -19,7 +19,7 @@
 from ConstantDefinitions import *
 from TLVutils import *
 from SWutils import SwError, SW
-from SmartcardFilesystem import prettyprint_anything, MF, DF, CryptoflexMF, TransparentStructureEF
+from SmartcardFilesystem import prettyprint_anything, MF, DF, CryptoflexMF, TransparentStructureEF, make_property
 from utils import C_APDU, R_APDU, hexdump, inttostring
 from SmartcardSAM import SAM, PassportSAM, CryptoflexSAM
 import CardGenerator
@@ -29,7 +29,36 @@ import socket, struct, sys, signal, atexit, traceback
 import struct, getpass, anydbm
 
 
-class SmartcardOS(object): # {{{ 
+class SmartcardOS(object):
+    """Base class for a smart card OS"""
+
+    mf  = make_property("mf",  "master file")
+    SAM = make_property("SAM", "secure access module")
+
+    def getATR(self):
+        """Returns the ATR of the card as string of characters"""
+        return ""
+        
+    def powerUp(self):
+        """Powers up the card"""
+        pass
+
+    def powerDown(self):
+        """Powers down the card"""
+        pass
+
+    def reset(self):
+        """Performs a warm reset of the card (no power down)"""
+        pass
+
+    def execute(self, msg):
+        """Returns response to the given APDU as string of characters
+        
+        msg -- the APDU as string of characters
+        """
+        return ""
+
+class Iso7816OS(SmartcardOS): # {{{ 
     def __init__(self, mf, sam, ins2handler=None, maxle=MAX_SHORT_LE):
         self.mf = mf
         self.SAM = sam
@@ -79,23 +108,14 @@ class SmartcardOS(object): # {{{
         self.maxle = maxle
         self.lastCommandOffcut = ""
         self.lastCommandSW = SW["NORMAL"]
-        card_capabilities = self.mf.firstSFT + self.mf.secondSFT + SmartcardOS.makeThirdSoftwareFunctionTable()
-        self.atr = SmartcardOS.makeATR(T=1, directConvention = True, TA1=0x13,
+        card_capabilities = self.mf.firstSFT + self.mf.secondSFT + Iso7816OS.makeThirdSoftwareFunctionTable()
+        self.atr = Iso7816OS.makeATR(T=1, directConvention = True, TA1=0x13,
                 histChars = chr(0x80) + chr(0x70 + len(card_capabilities)) +
                 card_capabilities)
 
     def getATR(self):
         return self.atr
         
-    def powerUp(self):
-        pass
-
-    def powerDown(self):
-        pass
-
-    def reset(self):
-        pass
-
     @staticmethod
     def makeATR(**args): # {{{
         """Calculate Answer to Reset (ATR) and returns the bitstring.
@@ -298,9 +318,9 @@ class SmartcardOS(object): # {{{
         return answer
 # }}}
       
-class CryptoflexOS(SmartcardOS): # {{{ 
+class CryptoflexOS(Iso7816OS): # {{{ 
     def __init__(self, mf, sam, ins2handler=None, maxle=MAX_SHORT_LE):
-        SmartcardOS.__init__(self, mf, sam, ins2handler, maxle)
+        Iso7816OS.__init__(self, mf, sam, ins2handler, maxle)
         self.atr = '\x3B\xE2\x00\x00\x40\x20\x49\x06'
 
     def execute(self, msg):
@@ -338,12 +358,12 @@ class CryptoflexOS(SmartcardOS): # {{{
                 self.lastCommandOffcut = data
                 r = R_APDU(inttostring(SW["NORMAL_REST"] + min(0xff, len(data)))).render()
             else:
-                r = SmartcardOS.formatResult(self, le, data, sw, False)
+                r = Iso7816OS.formatResult(self, le, data, sw, False)
 
         return r
 # }}}
 
-class RelayOS(object): # {{{ 
+class RelayOS(SmartcardOS): # {{{ 
     def __init__(self, readernum):
         import smartcard
 
@@ -375,9 +395,6 @@ class RelayOS(object): # {{{
             self.session.close()
         except smartcard.Exceptions.CardConnectionException:
             pass
-
-    def reset(self):
-        pass
 
     def execute(self, msg):
         #apdu = [].append(ord(b) for b in msg)
@@ -433,7 +450,7 @@ class VirtualICC(object): # {{{
         
         #Generate an OS object of the correct type
         if type == "iso7816" or type == "ePass":
-            self.os = SmartcardOS(MF, SAM)
+            self.os = Iso7816OS(MF, SAM)
         elif type == "cryptoflex":
             self.os = CryptoflexOS(MF, SAM)
         elif type == "relay":
@@ -441,7 +458,7 @@ class VirtualICC(object): # {{{
         else:
             print "Unknown cardtype " + type + ". Will use standard ISO 7816 cardtype"
             type = "iso7816"
-            self.os = SmartcardOS(MF, SAM)
+            self.os = Iso7816OS(MF, SAM)
         self.type = type
             
         #Connect to the VPCD
