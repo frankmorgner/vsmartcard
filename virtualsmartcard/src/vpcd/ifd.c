@@ -10,9 +10,10 @@
 RESPONSECODE
 IFDHCreateChannel (DWORD Lun, DWORD Channel)
 {
-    Log1(PCSC_LOG_DEBUG, "");
-    if (vicc_init() < 0)
+    if (vicc_init() < 0) {
+        Log1(PCSC_LOG_ERROR, "Could not initialize connection to virtual ICC");
         return IFD_COMMUNICATION_ERROR;
+    }
 
     return IFD_SUCCESS;
 }
@@ -28,7 +29,10 @@ IFDHCloseChannel (DWORD Lun)
 {
     Log1(PCSC_LOG_DEBUG, "");
     RESPONSECODE r = vicc_eject();
-    if (vicc_exit() < 0) return IFD_COMMUNICATION_ERROR;
+    if (vicc_exit() < 0) {
+        Log1(PCSC_LOG_ERROR, "Could not close connection to virtual ICC");
+        return IFD_COMMUNICATION_ERROR;
+    }
 
     return r;
 }
