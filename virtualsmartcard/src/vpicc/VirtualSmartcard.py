@@ -377,7 +377,7 @@ class RelayOS(SmartcardOS): # {{{
             for removed in removedcards:
                 if removed.reader == self.os.reader:
                     if removed.atr == self.os.atr:
-                        print "Card removed from %s. Terminating." % self.os.reader
+                        print "Card removed from '%s'. Terminating." % self.os.reader
                         sys.exit()
     # }}}
 
@@ -401,7 +401,7 @@ class RelayOS(SmartcardOS): # {{{
         self.cm = CardMonitor()
         self.cm.addObserver(RelayOS.RelayCardObserver(self))
 
-        print "Connected to card in %s" % self.session.readerName
+        print "Connected to card in '%s'" % self.reader
 
         atexit.register(self.stop)
 
@@ -490,7 +490,8 @@ class VirtualICC(object): # {{{
             self.sock = self.connectToPort(host, port)
             self.sock.settimeout(None)
         except socket.error, e:
-            print "Failed to open socket: " + str(e) + ". Is pcscd running? Is vpcd loaded?"
+            print "Failed to open socket: %s" % str(e)
+            print "Is pcscd running at %s? Is vpcd loaded? Is a firewall blocking port %u?" % (host, port)
             sys.exit()
                        
         self.lenlen = lenlen
