@@ -23,13 +23,14 @@ from SmartcardFilesystem import prettyprint_anything, MF, DF, CryptoflexMF, Tran
 from utils import C_APDU, R_APDU, hexdump, inttostring
 from SmartcardSAM import SAM, PassportSAM, CryptoflexSAM
 import CardGenerator
+from smartcard.CardMonitoring import CardMonitor, CardObserver
 
 from pickle import dumps, loads
 import socket, struct, sys, signal, atexit, traceback
 import struct, getpass, anydbm
 
 
-class SmartcardOS(object):
+class SmartcardOS(object): # {{{
     """Base class for a smart card OS"""
 
     mf  = make_property("mf",  "master file")
@@ -57,6 +58,7 @@ class SmartcardOS(object):
         msg -- the APDU as string of characters
         """
         return ""
+# }}}
 
 class Iso7816OS(SmartcardOS): # {{{ 
     def __init__(self, mf, sam, ins2handler=None, maxle=MAX_SHORT_LE):
@@ -363,24 +365,51 @@ class CryptoflexOS(Iso7816OS): # {{{
         return r
 # }}}
 
-class RelayOS(SmartcardOS): # {{{ 
+class RelayOS(SmartcardOS): # {{{
+
+    import smartcard
+    class RelayCardObserver(smartcard.CardMonitoring.CardObserver): # {{{
+
+        def __init__(self, relayos):
+            self.os = relayos
+
+        def update(self, observable, (addedcards, removedcards)):
+            for removed in removedcards:
+                if removed.reader == self.os.reader:
+                    if removed.atr == self.os.atr:
+                        print "Card removed from %s. Terminating." % self.os.reader
+                        sys.exit()
+    # }}}
+
+
     def __init__(self, readernum):
         import smartcard
+        readers = smartcard.System.listReaders()
+        if len(readers) <= readernum:
+            print "Invalid number of reader '%u' (only %u available)" % (readernum, len(readers))
+            sys.exit()
+        # XXX this is a workaround, see on sourceforge bug #3083254
+        # should better use
+        # self.reader = smartcard.System.readers()[readernum]
+        self.reader = readers[readernum]
+        try:
+            self.session = smartcard.Session(self.reader)
+        except smartcard.Exceptions.CardConnectionException, e:
+            print "Could not connect to card: %s" % str(e)
+            sys.exit()
+        self.atr = self.session.getATR()
+        self.cm = CardMonitor()
+        self.cm.addObserver(RelayOS.RelayCardObserver(self))
 
-        if readernum:
-            # XXX this is a workaround, see on sourceforge bug #3083254
-            # should better use
-            # self.reader = smartcard.System.readers()[readernum]
-            self.reader = smartcard.System.listReaders()[readernum]
-        else:
-            self.reader = None
+        print "Connected to card in %s" % self.session.readerName
 
-        self.session = smartcard.Session(self.reader)
+        atexit.register(self.stop)
 
-        print "Connected to %s" % self.session.readerName
+    def stop(self):
+        self.session.close()
 
     def getATR(self):
-        return "".join([chr(b) for b in self.session.getATR()])
+        return "".join([chr(b) for b in self.atr])
         
     def powerUp(self):
         import smartcard
@@ -388,13 +417,10 @@ class RelayOS(SmartcardOS): # {{{
             self.session.getATR()
         except smartcard.Exceptions.CardConnectionException:
             self.session = smartcard.Session(self.reader)
+            self.atr = self.session.getATR()
 
     def powerDown(self):
-        import smartcard
-        try:
-            self.session.close()
-        except smartcard.Exceptions.CardConnectionException:
-            pass
+        self.session.close()
 
     def execute(self, msg):
         #apdu = [].append(ord(b) for b in msg)
@@ -437,14 +463,12 @@ class VirtualICC(object): # {{{
         self.cardGenerator = CardGenerator.CardGenerator(type)
         
         #If a filename is specified, try to load the card from disk      
-        if filename == None:
-            print "No filename specified. The card will not be safed!"
-        else:
+        if filename != None:
             self.filename = filename
             if exists(filename):
                 self.cardGenerator.loadCard(self.filename)
             else:
-                print "No file " + self.filename + " found. Will create new file at termination of program."
+                print "Creating new card which will be saved in %s." % self.filename
         
         MF, SAM = self.cardGenerator.getCard()
         
@@ -466,19 +490,15 @@ class VirtualICC(object): # {{{
             self.sock = self.connectToPort(host, port)
             self.sock.settimeout(None)
         except socket.error, e:
-            print "Failed to open socket: " + str(e) + ". Is pcscd running? Is vpcd installed?"
+            print "Failed to open socket: " + str(e) + ". Is pcscd running? Is vpcd loaded?"
             sys.exit()
                        
         self.lenlen = lenlen
+
         signal.signal(signal.SIGINT, self.signalHandler)
-        #atexit.register(self.signalHandler)
-        #atexit.register(saveCard)
+        atexit.register(self.stop)
     
     def signalHandler(self, signal=None, frame=None):
-        self.sock.close()
-        if self.filename != None:
-            self.cardGenerator.setCard(self.os.mf, self.os.SAM)
-            self.cardGenerator.saveCard(self.filename)
         sys.exit()
 
     @staticmethod
@@ -526,6 +546,12 @@ class VirtualICC(object): # {{{
                 answer = self.os.execute(msg)
                 print "RESP (%d Bytes):\n%s\n" % (len(answer),hexdump(answer, short=True))
                 self.__sendToVPICC(answer)
+
+    def stop(self):
+        self.sock.close()
+        if self.filename != None:
+            self.cardGenerator.setCard(self.os.mf, self.os.SAM)
+            self.cardGenerator.saveCard(self.filename)
 # }}} 
 
 if __name__ == "__main__":
