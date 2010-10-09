@@ -46,7 +46,7 @@ int sendToVICC(uint16_t size, const char* buffer);
 int recvFromVICC(char** buffer);
 
 int vicc_eject(void);
-int vicc_init(void);
+int vicc_init(unsigned short port);
 int vicc_exit(void);
 int vicc_transmit(int apdu_len, const char *apdu, char **rapdu);
 int vicc_getatr(char** atr);

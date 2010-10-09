@@ -78,7 +78,7 @@ int opensock(unsigned short port)
     struct sockaddr_in server_sockaddr;
     memset(&server_sockaddr, 0, sizeof(server_sockaddr));
     server_sockaddr.sin_family      = PF_INET;
-    server_sockaddr.sin_port        = htons(VPCDPORT);
+    server_sockaddr.sin_port        = htons(port);
     server_sockaddr.sin_addr.s_addr = htonl(INADDR_ANY);
 
     if (bind(sock, (struct sockaddr*)&server_sockaddr,
@@ -165,8 +165,8 @@ int vicc_eject(void) {
     return 0;
 }
 
-int vicc_init(void) {
-    server_sock = opensock(VPCDPORT);
+int vicc_init(unsigned short port) {
+    server_sock = opensock(port);
     if (server_sock < 0)
         return -1;
 

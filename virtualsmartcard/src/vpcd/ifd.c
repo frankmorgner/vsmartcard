@@ -10,7 +10,7 @@
 RESPONSECODE
 IFDHCreateChannel (DWORD Lun, DWORD Channel)
 {
-    if (vicc_init() < 0) {
+    if (vicc_init(Channel) < 0) {
         Log1(PCSC_LOG_ERROR, "Could not initialize connection to virtual ICC");
         return IFD_COMMUNICATION_ERROR;
     }
@@ -21,13 +21,13 @@ IFDHCreateChannel (DWORD Lun, DWORD Channel)
 RESPONSECODE
 IFDHCreateChannelByName (DWORD Lun, LPSTR DeviceName)
 {
-    return IFDHCreateChannel (Lun, 0);
+    Log2(PCSC_LOG_INFO, "Using default port %hu", VPCDPORT);
+    return IFDHCreateChannel (Lun, VPCDPORT);
 }
 
 RESPONSECODE
 IFDHCloseChannel (DWORD Lun)
 {
-    Log1(PCSC_LOG_DEBUG, "");
     RESPONSECODE r = vicc_eject();
     if (vicc_exit() < 0) {
         Log1(PCSC_LOG_ERROR, "Could not close connection to virtual ICC");
@@ -173,7 +173,7 @@ IFDHICCPresence (DWORD Lun)
         case 1:
             return IFD_ICC_PRESENT;
         default:
-            Log1(PCSC_LOG_DEBUG, "Could not get ICC state");
+            Log1(PCSC_LOG_ERROR, "Could not get ICC state");
             return IFD_COMMUNICATION_ERROR;
     }
 }
