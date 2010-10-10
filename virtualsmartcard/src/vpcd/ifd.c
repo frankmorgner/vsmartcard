@@ -21,7 +21,8 @@ IFDHCreateChannel (DWORD Lun, DWORD Channel)
 RESPONSECODE
 IFDHCreateChannelByName (DWORD Lun, LPSTR DeviceName)
 {
-    Log2(PCSC_LOG_INFO, "Using default port %hu", VPCDPORT);
+    /* XXX see bug #312749 on https://alioth.debian.org/projects/pcsclite/ */
+    Log3(PCSC_LOG_INFO, "Not opening %s. Using default port %hu", DeviceName, VPCDPORT);
     return IFDHCreateChannel (Lun, VPCDPORT);
 }
 
@@ -153,6 +154,13 @@ IFDHTransmitToICC (DWORD Lun, SCARD_IO_HEADER SendPci, PUCHAR TxBuffer,
     if (size < 0) {
         Log1(PCSC_LOG_ERROR, "could not send apdu or receive rapdu");
         *RxLength = 0;
+        return IFD_COMMUNICATION_ERROR;
+    }
+
+    if (*RxLength < size) {
+        Log1(PCSC_LOG_ERROR, "Not enough memory for rapdu");
+        *RxLength = 0;
+        free(rapdu);
         return IFD_COMMUNICATION_ERROR;
     }
 
