@@ -2,7 +2,11 @@
 #include <stdlib.h>
 
 #include <string.h>
+
+/* XXX see bug #312749 on https://alioth.debian.org/projects/pcsclite/ */
+/*#define IFDHANDLERv2*/
 #include <ifdhandler.h>
+
 #include <debuglog.h>
 
 #include "vpcd.h"
@@ -19,13 +23,36 @@ IFDHCreateChannel (DWORD Lun, DWORD Channel)
     return IFD_SUCCESS;
 }
 
-/* XXX see bug #312749 on https://alioth.debian.org/projects/pcsclite/ */
-#if 0
+#ifndef IFDHANDLERv2
 RESPONSECODE
 IFDHCreateChannelByName (DWORD Lun, LPSTR DeviceName)
 {
     Log3(PCSC_LOG_INFO, "Not opening %s. Using default port %hu", DeviceName, VPCDPORT);
     return IFDHCreateChannel (Lun, VPCDPORT);
+}
+
+RESPONSECODE
+IFDHControl (DWORD Lun, DWORD dwControlCode, PUCHAR TxBuffer, DWORD TxLength,
+        PUCHAR RxBuffer, DWORD RxLength, LPDWORD pdwBytesReturned)
+{
+    Log9(PCSC_LOG_DEBUG, "IFDHControl not supported (Lun=%u ControlCode=%u TxBuffer=%p TxLength=%u RxBuffer=%p RxLength=%u pBytesReturned=%p)%s",
+            (unsigned int) Lun, (unsigned int) dwControlCode,
+            (unsigned char *) TxBuffer, (unsigned int) TxLength,
+            (unsigned char *) RxBuffer, (unsigned int) RxLength,
+            (unsigned int *) pdwBytesReturned, "");
+    return IFD_ERROR_NOT_SUPPORTED;
+}
+#else
+RESPONSECODE
+IFDHControl(DWORD Lun, PUCHAR TxBuffer, DWORD TxLength, PUCHAR RxBuffer,
+        PDWORD RxLength)
+{
+    Log9(PCSC_LOG_DEBUG, "IFDHControl not supported (Lun=%u%s TxBuffer=%p TxLength=%u RxBuffer=%p RxLength=%u%s)%s",
+            (unsigned int) Lun, "",
+            (unsigned char *) TxBuffer, (unsigned int) TxLength,
+            (unsigned char *) RxBuffer, (unsigned int) RxLength,
+            "", "");
+    return IFD_ERROR_NOT_SUPPORTED;
 }
 #endif
 
@@ -187,16 +214,4 @@ IFDHICCPresence (DWORD Lun)
             Log1(PCSC_LOG_ERROR, "Could not get ICC state");
             return IFD_COMMUNICATION_ERROR;
     }
-}
-
-RESPONSECODE
-IFDHControl (DWORD Lun, DWORD dwControlCode, PUCHAR TxBuffer, DWORD TxLength,
-        PUCHAR RxBuffer, DWORD RxLength, LPDWORD pdwBytesReturned)
-{
-    Log9(PCSC_LOG_DEBUG, "IFDHControl not supported (Lun=%u ControlCode=%u TxBuffer=%p TxLength=%u RxBuffer=%p RxLength=%u pBytesReturned=%p)%s",
-            (unsigned int) Lun, (unsigned int) dwControlCode,
-            (unsigned char *) TxBuffer, (unsigned int) TxLength,
-            (unsigned char *) RxBuffer, (unsigned int) RxLength,
-            (unsigned int *) pdwBytesReturned, "");
-    return IFD_ERROR_NOT_SUPPORTED;
 }
