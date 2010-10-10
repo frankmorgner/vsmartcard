@@ -14,17 +14,20 @@ IFDHCreateChannel (DWORD Lun, DWORD Channel)
         Log1(PCSC_LOG_ERROR, "Could not initialize connection to virtual ICC");
         return IFD_COMMUNICATION_ERROR;
     }
+    Log2(PCSC_LOG_INFO, "Waiting for virtual ICC on port %hu", (unsigned short) Channel);
 
     return IFD_SUCCESS;
 }
 
+/* XXX see bug #312749 on https://alioth.debian.org/projects/pcsclite/ */
+#if 0
 RESPONSECODE
 IFDHCreateChannelByName (DWORD Lun, LPSTR DeviceName)
 {
-    /* XXX see bug #312749 on https://alioth.debian.org/projects/pcsclite/ */
     Log3(PCSC_LOG_INFO, "Not opening %s. Using default port %hu", DeviceName, VPCDPORT);
     return IFDHCreateChannel (Lun, VPCDPORT);
 }
+#endif
 
 RESPONSECODE
 IFDHCloseChannel (DWORD Lun)
