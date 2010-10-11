@@ -28,6 +28,7 @@ void print_usage(const char *app_name, const struct option options[],
     printf("Usage: %s [OPTIONS]\nOptions:\n", app_name);
 
     while (options[i].name) {
+        /* Flawfinder: ignore */
         char buf[40], tmp[5];
         const char *arg_str;
 
@@ -38,6 +39,7 @@ void print_usage(const char *app_name, const struct option options[],
         }
 
         if (options[i].val > 0 && options[i].val < 128)
+            /* Flawfinder: ignore */
             sprintf(tmp, "-%c", options[i].val);
         else
             tmp[0] = 0;
@@ -52,8 +54,8 @@ void print_usage(const char *app_name, const struct option options[],
                 arg_str = "";
                 break;
         }
-        sprintf(buf, "--%-13s%s%s", options[i].name, tmp, arg_str);
-        if (strlen(buf) > 24) {
+        snprintf(buf, sizeof(buf), "--%-13s%s%s", options[i].name, tmp, arg_str);
+        if (strnlen(buf, sizeof(buf)) > 24) {
             printf("  %s\n", buf);
             buf[0] = '\0';
         }

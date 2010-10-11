@@ -331,6 +331,7 @@ get_RDR_to_PC_SlotStatus(__u8 bSlot, __u8 bSeq, int sc_result, __u8 **outbuf, si
     status->bError       = get_bError(sc_result);
     status->bClockStatus = 0;
 
+    /* Flawfinder: ignore */
     memcpy((*outbuf) + sizeof(*status), abProtocolDataStructure, abProtocolDataStructureLen);
 
     return SC_SUCCESS;
@@ -362,6 +363,7 @@ get_RDR_to_PC_DataBlock(__u8 bSlot, __u8 bSeq, int sc_result, __u8 **outbuf,
     data->bError          = get_bError(sc_result);
     data->bChainParameter = 0;
 
+    /* Flawfinder: ignore */
     memcpy((*outbuf) + sizeof(*data), abData, abDataLen);
 
     return SC_SUCCESS;
@@ -848,6 +850,7 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
         sc_result = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
     }
+    /* Flawfinder: ignore */
     memcpy(&word, &abData[parsed], sizeof word);
     pace_input.certificate_description_length = __le16_to_cpu(word);
     parsed += sizeof word;
@@ -892,6 +895,7 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
 
 
     dword = __cpu_to_le32(pace_output.result);
+    /* Flawfinder: ignore */
     memcpy(p, &dword, sizeof dword);
     p += sizeof dword;
 
@@ -902,6 +906,7 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
             1+pace_output.recent_car_length +
             1+pace_output.previous_car_length +
             2+pace_output.id_icc_length);
+    /* Flawfinder: ignore */
     memcpy(p, &word, sizeof word);
     p += sizeof word;
 
@@ -920,9 +925,11 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
         goto err;
     }
     word = __cpu_to_le16(pace_output.ef_cardaccess_length);
+    /* Flawfinder: ignore */
     memcpy(p, &word, sizeof word);
     p += sizeof word;
 
+    /* Flawfinder: ignore */
     memcpy(p, pace_output.ef_cardaccess,
             pace_output.ef_cardaccess_length);
     p += pace_output.ef_cardaccess_length;
@@ -937,6 +944,7 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
     *p = pace_output.recent_car_length;
     p += 1;
 
+    /* Flawfinder: ignore */
     memcpy(p, pace_output.recent_car,
             pace_output.recent_car_length);
     p += pace_output.recent_car_length;
@@ -951,6 +959,7 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
     *p = pace_output.previous_car_length;
     p += 1;
 
+    /* Flawfinder: ignore */
     memcpy(p, pace_output.previous_car,
             pace_output.previous_car_length);
     p += pace_output.previous_car_length;
@@ -963,9 +972,11 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
         goto err;
     }
     word = __cpu_to_le16(pace_output.id_icc_length);
+    /* Flawfinder: ignore */
     memcpy(p, &word, sizeof word);
     p += sizeof word;
 
+    /* Flawfinder: ignore */
     memcpy(p, pace_output.id_icc,
             pace_output.id_icc_length);
     p += pace_output.id_icc_length;
@@ -1215,9 +1226,9 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
     }
 
     /* set length of PIN */
-    curr_pin.len = strlen((char *) curr_pin.data);
+    curr_pin.len = strnlen((char *) curr_pin.data, curr_pin.max_length);
     if (modify) {
-        new_pin.len = strlen((char *) new_pin.data);
+        new_pin.len = strnlen((char *) new_pin.data, new_pin.max_length);
     }
 
     /* Note: pin.offset and pin.length_offset are relative to the first
@@ -1498,6 +1509,7 @@ int ccid_parse_control(struct usb_ctrlrequest *setup, __u8 **outbuf)
                 }
                 *outbuf = tmp;
                 __le32 clock  = ccid_desc.dwDefaultClock;
+                /* Flawfinder: ignore */
                 memcpy(*outbuf, &clock,  sizeof (__le32));
                 break;
 
@@ -1515,6 +1527,7 @@ int ccid_parse_control(struct usb_ctrlrequest *setup, __u8 **outbuf)
                 }
                 *outbuf = tmp;
                 __le32 drate  = ccid_desc.dwDataRate;
+                /* Flawfinder: ignore */
                 memcpy(*outbuf, &drate,  sizeof (__le32));
                 break;
 

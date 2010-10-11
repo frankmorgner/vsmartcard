@@ -61,6 +61,7 @@ add_iso_pad(const u8 *data, size_t datalen, int block_size, u8 **padded)
         return SC_ERROR_OUT_OF_MEMORY;
 
     if (*padded != data)
+        /* Flawfinder: ignore */
         memcpy(p, data, datalen);
 
     *padded = p;
@@ -85,6 +86,7 @@ add_padding(const struct sm_ctx *ctx, const u8 *data, size_t datalen,
                 if (!p)
                     return SC_ERROR_OUT_OF_MEMORY;
                 *padded = p;
+                /* Flawfinder: ignore */
                 memcpy(*padded, data, datalen);
             }
             return datalen;
@@ -173,6 +175,7 @@ static int prefix_buf(u8 prefix, u8 *buf, size_t buflen, u8 **cat)
     if (*cat == buf) {
         memmove(p + 1, p, buflen);
     } else {
+        /* Flawfinder: ignore */
         memcpy(p + 1, buf, buflen);
     }
     p[0] = prefix;
@@ -407,6 +410,7 @@ static int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
             goto err;
         }
         mac_data = p;
+        /* Flawfinder: ignore */
         memcpy(mac_data + mac_data_len, asn1, asn1_len);
         mac_data_len += asn1_len;
         r = add_padding(ctx, mac_data, mac_data_len, &mac_data);
@@ -440,6 +444,7 @@ static int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
         r = SC_ERROR_OUT_OF_MEMORY;
         goto err;
     }
+    /* Flawfinder: ignore */
     memcpy((u8 *) sm_apdu->data, sm_data, sm_data_len);
     sm_apdu->datalen = sm_data_len;
     sm_apdu->lc = sm_apdu->datalen;
@@ -537,6 +542,7 @@ static int sm_decrypt(const struct sm_ctx *ctx, sc_card_t *card,
             r = SC_ERROR_OUT_OF_MEMORY;
             goto err;
         }
+        /* Flawfinder: ignore */
         memcpy(apdu->resp, data, r);
         apdu->resplen = r;
     } else {

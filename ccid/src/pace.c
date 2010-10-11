@@ -441,6 +441,7 @@ static int pace_gen_auth_1_encrypted_nonce(struct sm_ctx *oldpacectx,
         r = SC_ERROR_OUT_OF_MEMORY;
         goto err;
     }
+    /* Flawfinder: ignore */
     memcpy(*enc_nonce, p, l);
     *enc_nonce_len = l;
 
@@ -555,6 +556,7 @@ static int pace_gen_auth_2_map_nonce(struct sm_ctx *oldpacectx,
         r = SC_ERROR_OUT_OF_MEMORY;
         goto err;
     }
+    /* Flawfinder: ignore */
     memcpy(*map_data_out, p, l);
     *map_data_out_len = l;
 
@@ -669,6 +671,7 @@ static int pace_gen_auth_3_perform_key_agreement(
         r = SC_ERROR_OUT_OF_MEMORY;
         goto err;
     }
+    /* Flawfinder: ignore */
     memcpy(*eph_pub_key_out, p, l);
     *eph_pub_key_out_len = l;
 
@@ -787,6 +790,7 @@ static int pace_gen_auth_4_mutual_authentication(
             r = SC_ERROR_OUT_OF_MEMORY;
             goto err;
         }
+        /* Flawfinder: ignore */
         memcpy(*recent_car, r_data->cur_car->data, r_data->cur_car->length);
         *recent_car_len = r_data->cur_car->length;
     } else
@@ -799,6 +803,7 @@ static int pace_gen_auth_4_mutual_authentication(
             r = SC_ERROR_OUT_OF_MEMORY;
             goto err;
         }
+        /* Flawfinder: ignore */
         memcpy(*prev_car, r_data->prev_car->data, r_data->prev_car->length);
         *prev_car_len = r_data->prev_car->length;
     } else
@@ -809,6 +814,7 @@ static int pace_gen_auth_4_mutual_authentication(
         r = SC_ERROR_OUT_OF_MEMORY;
         goto err;
     }
+    /* Flawfinder: ignore */
     memcpy(*auth_token_out, p, l);
     *auth_token_out_len = l;
 
@@ -864,7 +870,7 @@ pace_reset_retry_counter(struct sm_ctx *ctx, sc_card_t *card,
             free(p);
             return SC_ERROR_INTERNAL;
         }
-        new_len = strlen(p);
+        new_len = strnlen(p, MAX_PIN_LEN+1);
         new = p;
     }
 
@@ -900,6 +906,7 @@ get_psec(sc_card_t *card, const char *pin, size_t length_pin, enum s_type pin_id
     char *p = NULL;
     PACE_SEC *r;
     int sc_result;
+    /* Flawfinder: ignore */
     char buf[MAX_MRZ_LEN > 32 ? MAX_MRZ_LEN : 32];
 
     if (!length_pin || !pin) {
@@ -919,7 +926,7 @@ get_psec(sc_card_t *card, const char *pin, size_t length_pin, enum s_type pin_id
                     pace_secret_name(pin_id));
             return NULL;
         }
-        length_pin = strlen(p);
+        length_pin = strnlen(p, MAX_MRZ_LEN);
         pin = p;
     }
 
@@ -1209,6 +1216,7 @@ int EstablishPACEChannel(struct sm_ctx *oldpacectx, sc_card_t *card,
     }
     pace_output->id_icc = p;
     pace_output->id_icc_length = comp_pub_opp->length;
+    /* Flawfinder: ignore */
     memcpy(pace_output->id_icc, comp_pub_opp->data, comp_pub_opp->length);
     bin_log(card->ctx, "ID ICC", pace_output->id_icc,
             pace_output->id_icc_length);
@@ -1219,6 +1227,7 @@ int EstablishPACEChannel(struct sm_ctx *oldpacectx, sc_card_t *card,
     }
     pace_output->id_pcd = p;
     pace_output->id_pcd_length = comp_pub->length;
+    /* Flawfinder: ignore */
     memcpy(pace_output->id_pcd, comp_pub->data, comp_pub->length);
     bin_log(card->ctx, "ID PCD", pace_output->id_pcd,
             pace_output->id_pcd_length);
@@ -1387,6 +1396,7 @@ pace_sm_encrypt(sc_card_t *card, const struct sm_ctx *ctx,
         goto err;
     }
     *enc = p;
+    /* Flawfinder: ignore */
     memcpy(*enc, encbuf->data, encbuf->length);
     r = encbuf->length;
 
@@ -1430,6 +1440,7 @@ pace_sm_decrypt(sc_card_t *card, const struct sm_ctx *ctx,
         goto err;
     }
     *data = p;
+    /* Flawfinder: ignore */
     memcpy(*data, databuf->data, databuf->length);
     r = databuf->length;
 
@@ -1474,6 +1485,7 @@ pace_sm_authenticate(sc_card_t *card, const struct sm_ctx *ctx,
         goto err;
     }
     *macdata = p;
+    /* Flawfinder: ignore */
     memcpy(*macdata, macbuf->data, macbuf->length);
     r = macbuf->length;
 

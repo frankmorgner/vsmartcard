@@ -193,6 +193,7 @@ void _bin_log(sc_context_t *ctx, int type, const char *file, int line,
         FILE *f)
 {
     /* this is the maximum supported by sc_do_log_va */
+    /* Flawfinder: ignore */
     char buf[1800];
 
     if (data)
