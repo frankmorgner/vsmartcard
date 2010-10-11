@@ -507,6 +507,8 @@ class VirtualICC(object): # {{{
                        
         self.lenlen = lenlen
 
+        print "Connected to virtual PCD at %s:%u" % (host, port)
+
         signal.signal(signal.SIGINT, self.signalHandler)
         atexit.register(self.stop)
     
