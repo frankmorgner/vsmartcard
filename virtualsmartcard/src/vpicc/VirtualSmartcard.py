@@ -367,21 +367,6 @@ class CryptoflexOS(Iso7816OS): # {{{
 
 class RelayOS(SmartcardOS): # {{{
 
-    import smartcard
-    class RelayCardObserver(smartcard.CardMonitoring.CardObserver): # {{{
-
-        def __init__(self, relayos):
-            self.os = relayos
-
-        def update(self, observable, (addedcards, removedcards)):
-            for removed in removedcards:
-                if removed.reader == self.os.reader:
-                    if removed.atr == self.os.atr:
-                        print "Card removed from '%s'. Terminating." % self.os.reader
-                        self.os.exit = True
-    # }}}
-
-
     def __init__(self, readernum):
         import smartcard
         readers = smartcard.System.listReaders()
@@ -397,49 +382,66 @@ class RelayOS(SmartcardOS): # {{{
         try:
             self.session = smartcard.Session(self.reader)
         except smartcard.Exceptions.CardConnectionException, e:
-            print "Could not connect to card: %s" % str(e)
+            print "Error connecting to card: %s" % e.message
             sys.exit()
-        self.atr = self.session.getATR()
-        self.cm = CardMonitor()
-        self.cm.addObserver(RelayOS.RelayCardObserver(self))
 
         print "Connected to card in '%s'" % self.reader
 
-        atexit.register(self.session.close)
+        atexit.register(self.cleanup)
+
+    def cleanup(self):
+        import smartcard
+        try:
+            self.session.close()
+        except smartcard.Exceptions.CardConnectionException, e:
+            print "Error disconnecting from card: %s" % e.message
 
     def getATR(self):
-        if self.exit:
-            sys.exit()
+        import smartcard
+        try:
+            atr = self.session.getATR()
+        except smartcard.Exceptions.CardConnectionException, e:
+            try:
+                self.session.close()
+                self.session = smartcard.Session(self.reader)
+                atr = self.session.getATR()
+            except smartcard.Exceptions.CardConnectionException, e:
+                print "Error getting ATR: %s" % e.message
+                sys.exit()
 
-        return "".join([chr(b) for b in self.atr])
+        return "".join([chr(b) for b in atr])
         
     def powerUp(self):
-        if self.exit:
-            sys.exit()
-
         import smartcard
         try:
             self.session.getATR()
-        except smartcard.Exceptions.CardConnectionException:
-            self.session = smartcard.Session(self.reader)
-            self.atr = self.session.getATR()
+        except smartcard.Exceptions.CardConnectionException, e:
+            try:
+                self.session = smartcard.Session(self.reader)
+            except smartcard.Exceptions.CardConnectionException, e:
+                print "Error connecting to card: %s" % e.message
+                sys.exit()
 
     def powerDown(self):
-        if self.exit:
+        import smartcard
+        try:
+            self.session.close()
+        except smartcard.Exceptions.CardConnectionException, e:
+            print "Error disconnecting from card: %s" % str(e)
             sys.exit()
-
-        self.session.close()
 
     def execute(self, msg):
-        if self.exit:
-            sys.exit()
-
         #apdu = [].append(ord(b) for b in msg)
         apdu = []
         for b in msg:
             apdu.append(ord(b))
 
-        rapdu, sw1, sw2 = self.session.sendCommandAPDU(apdu)
+        import smartcard
+        try:
+            rapdu, sw1, sw2 = self.session.sendCommandAPDU(apdu)
+        except smartcard.Exceptions.CardConnectionException, e:
+            print "Error transmitting APDU: %s" % str(e)
+            sys.exit()
 
         # XXX this is a workaround, see on sourceforge bug #3083586
         # should better use
