@@ -3,8 +3,11 @@
 
 #include <string.h>
 
-/* XXX see bug #312749 on https://alioth.debian.org/projects/pcsclite/ */
-/*#define IFDHANDLERv2*/
+/* XXX see bug #312749 on https://alioth.debian.org/projects/pcsclite/
+ * should use the right reader.conf, but pcscd older than r5294 will throw an
+ * error with the new configuration
+ * */
+#define IFDHANDLERv2
 #include <ifdhandler.h>
 
 #include <debuglog.h>
@@ -141,8 +144,11 @@ IFDHPowerICC (DWORD Lun, DWORD Action, PUCHAR Atr, PDWORD AtrLength)
                 return IFD_COMMUNICATION_ERROR;
             }
 
+            /* XXX see bug #312754 on https://alioth.debian.org/projects/pcsclite */
+#if 0
             *AtrLength = 0;
 
+#endif
             return IFD_SUCCESS;
         case IFD_POWER_UP:
             if (vicc_poweron() < 0) {
@@ -160,11 +166,6 @@ IFDHPowerICC (DWORD Lun, DWORD Action, PUCHAR Atr, PDWORD AtrLength)
             Log2(PCSC_LOG_ERROR, "%d not supported", Action);
             return IFD_NOT_SUPPORTED;
     }
-
-    /* XXX this is a workaround
-     * pcscd should normally set the length to the number of bytes in Atr */
-    if (!*AtrLength)
-        *AtrLength = MAX_ATR_SIZE;
 
     return IFDHGetCapabilities (Lun, TAG_IFD_ATR, AtrLength, Atr);
 }
