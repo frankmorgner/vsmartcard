@@ -189,9 +189,13 @@ int vicc_transmit(int apdu_len, const char *apdu, char **rapdu) {
 }
 
 int vicc_present(void) {
-    if (client_sock > 0)
+    if (client_sock > 0) {
+        char *atr = NULL;
+        if (vicc_getatr(&atr) < 0)
+            return 0;
+        free(atr);
         return 1;
-    else {
+    } else {
         /* Wait up to one microsecond. */
         client_sock = waitforclient(server_sock, 0, 1);
         if (client_sock < 0)

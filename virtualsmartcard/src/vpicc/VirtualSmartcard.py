@@ -378,7 +378,7 @@ class RelayOS(SmartcardOS): # {{{
                 if removed.reader == self.os.reader:
                     if removed.atr == self.os.atr:
                         print "Card removed from '%s'. Terminating." % self.os.reader
-                        sys.exit()
+                        self.os.exit = True
     # }}}
 
 
@@ -392,6 +392,8 @@ class RelayOS(SmartcardOS): # {{{
         # should better use
         # self.reader = smartcard.System.readers()[readernum]
         self.reader = readers[readernum]
+        # set exit to True if you want to terminate relaying
+        self.exit = False
         try:
             self.session = smartcard.Session(self.reader)
         except smartcard.Exceptions.CardConnectionException, e:
@@ -403,15 +405,18 @@ class RelayOS(SmartcardOS): # {{{
 
         print "Connected to card in '%s'" % self.reader
 
-        atexit.register(self.stop)
-
-    def stop(self):
-        self.session.close()
+        atexit.register(self.session.close)
 
     def getATR(self):
+        if self.exit:
+            sys.exit()
+
         return "".join([chr(b) for b in self.atr])
         
     def powerUp(self):
+        if self.exit:
+            sys.exit()
+
         import smartcard
         try:
             self.session.getATR()
@@ -420,9 +425,15 @@ class RelayOS(SmartcardOS): # {{{
             self.atr = self.session.getATR()
 
     def powerDown(self):
+        if self.exit:
+            sys.exit()
+
         self.session.close()
 
     def execute(self, msg):
+        if self.exit:
+            sys.exit()
+
         #apdu = [].append(ord(b) for b in msg)
         apdu = []
         for b in msg:
