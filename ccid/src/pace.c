@@ -190,6 +190,11 @@ int get_ef_card_access(sc_card_t *card,
     sc_file_t *file = NULL;
     u8 *p;
 
+    if (!ef_cardaccess || !length_ef_cardaccess) {
+        r = SC_ERROR_INVALID_ARGUMENTS;
+        goto err;
+    }
+
     memset(&path, 0, sizeof path);
     r = sc_append_file_id(&path, FID_EF_CARDACCESS);
     if (r < 0) {
