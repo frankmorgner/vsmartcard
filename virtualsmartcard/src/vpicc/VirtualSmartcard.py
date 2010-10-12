@@ -529,7 +529,11 @@ class VirtualICC(object): # {{{
 
     def __recvFromVPICC(self):
         # receive message size
-        size = struct.unpack('!H', self.sock.recv(_Csizeof_short))[0]
+        sizestr = self.sock.recv(_Csizeof_short)
+        if len(sizestr) == 0:
+            print "Virtual PCD shut down"
+            sys.exit()
+        size = struct.unpack('!H', sizestr)[0]
 
         # receive and return message
 	if size:
