@@ -538,8 +538,11 @@ class VirtualICC(object): # {{{
         # receive and return message
 	if size:
 	    msg = self.sock.recv(size)
+            if len(msg) == 0:
+                print "Virtual PCD shut down"
 	else:
 	    msg = None
+
 	return size, msg
 
     def run(self):
@@ -562,6 +565,9 @@ class VirtualICC(object): # {{{
 		else:
 		    print "unknown control command"
             else:
+                if size != len(msg):
+                    print "Expected APDU of %u bytes, but received only %u" % (size, len(msg))
+
                 print "APDU (%d Bytes):\n%s" % (len(msg),hexdump(msg, short=True))
                 answer = self.os.execute(msg)
                 print "RESP (%d Bytes):\n%s\n" % (len(answer),hexdump(answer, short=True))
