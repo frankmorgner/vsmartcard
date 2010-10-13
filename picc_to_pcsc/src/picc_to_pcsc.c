@@ -38,10 +38,11 @@ static LPSTR readers = NULL;
 static SCARDCONTEXT hContext = 0;
 static SCARDHANDLE hCard = 0;
 
-
-static sighandler_t register_sig(int signo, sighandler_t sighandler) {
-
-}
+/* Forward declaration */
+static void cleanup_exit(int signo);
+static void cleanup(void);
+static size_t picc_decode_apdu(char *inbuf, size_t inlen, unsigned char **outbuf)
+static size_t picc_encode_rapdu(unsigned char *inbuf, size_t inlen, char **outbuf)
 
 void cleanup_exit(int signo){
     cleanup();
