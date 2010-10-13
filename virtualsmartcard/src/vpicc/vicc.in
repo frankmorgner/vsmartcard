@@ -1,0 +1,45 @@
+#! PYTHONBIN
+#
+#
+# Copyright (C) 2009 Frank Morgner, Dominik Oepen
+# 
+# This file is part of virtualsmartcard.
+# 
+# virtualsmartcard is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+# 
+# virtualsmartcard is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+# more details.
+# 
+# You should have received a copy of the GNU General Public License along with
+# virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+from optparse import OptionParser
+parser = OptionParser()
+parser.add_option("-t", "--type", action="store", type="choice",
+        default='iso7816',
+        choices=['iso7816', 'cryptoflex', 'ePass', 'relay'],
+        help="Type of Smartcard [default: %default]")
+parser.add_option("-r", "--reader", action="store", type="int",
+        default=None,
+        help="Number of reader for relaying")
+parser.add_option("-f", "--file", action="store", type="string",
+        default=None,
+        help="Load a saved card")
+parser.add_option("-n", "--hostname", action="store", type="string",
+        default='localhost',
+        help="Address of Virtual PCD [default: %default]")
+parser.add_option("-p", "--port", action="store", type="int",
+        default=35963,
+        help="Port of Virtual PCD [default: %default]")
+(options, args) = parser.parse_args()
+
+from virtualsmartcard.VirtualSmartcard import VirtualICC
+vicc = VirtualICC(options.file, options.type,
+        options.hostname, options.port, readernum=options.reader)
+vicc.run()
