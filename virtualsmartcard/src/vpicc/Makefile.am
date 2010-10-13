@@ -1,3 +1,5 @@
+bin_SCRIPTS = vicc
+CLEANFILES = $(bin_SCRIPTS)
 EXTRA_DIST = vicc.in
 
 vpiccdir = $(pythondir)/virtualsmartcard
@@ -14,13 +16,8 @@ vpicc_PYTHON = virtualsmartcard/CardGenerator.py \
 	       virtualsmartcard/VirtualSmartcard.py \
 	       virtualsmartcard/__init__.py
 
-all-local:
-	perl -ne "s|PYTHONBIN|$(PYTHON)| ; print" vicc.in > vicc
-	$(mkinstalldirs) $(DESTDIR)$(bindir)
-	$(INSTALL_SCRIPT) vicc $(DESTDIR)$(bindir)/vicc
+do_subst = sed -e 's,[@]PYTHON[@],$(PYTHON),g'
 
-uninstall-local:
-	rm -f $(DESTDIR)$(bindir)/vicc
-
-clean-local:
-	rm -f vicc
+vicc: vicc.in Makefile
+	$(do_subst) < $(srcdir)/vicc.in > vicc
+	chmod +x vicc

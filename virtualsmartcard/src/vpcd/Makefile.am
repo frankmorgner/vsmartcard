@@ -9,22 +9,22 @@ noinst_HEADERS = vpcd.h
 
 EXTRA_DIST = reader.conf.in
 
+
+do_subst = sed -e 's,[@]TARGET[@],$(serialdropdir)/$(VPCD_LIB),g'
+
+
 install: install_libvpcd
 
-install_libvpcd: libvpcd.la
+install_libvpcd: libvpcd.la reader.conf.in
 	$(mkinstalldirs) $(DESTDIR)$(serialdropdir)
 	$(LIBTOOL) --mode=install cp .libs/$(VPCD_LIB) $(DESTDIR)$(serialdropdir)/$(VPCD_LIB).$(VERSION)
 	ln -fs $(VPCD_LIB).$(VERSION) $(DESTDIR)$(serialdropdir)/$(VPCD_LIB)
-	if [ -e $(DESTDIR)$(sysconfdir)/reader.conf ] ; \
-	then \
-		echo "Edit existing /etc/reader.conf" ; \
-	else \
-		$(mkinstalldirs) $(DESTDIR)$(sysconfdir) ; \
-		perl -ne "s|TARGET|$(serialdropdir)/$(VPCD_LIB)| ; print" $(srcdir)/reader.conf.in > $(DESTDIR)$(sysconfdir)/reader.conf ; \
-	fi
+	$(mkinstalldirs) $(DESTDIR)$(sysconfdir)/reader.conf.d
+	$(do_subst) < $(srcdir)/reader.conf.in > $(DESTDIR)$(sysconfdir)/reader.conf.d/vpcd
 
 uninstall: uninstall_libvpcd
 
 uninstall_libvpcd:
 	rm -f $(DESTDIR)$(serialdropdir)/$(VPCD_LIB).$(VERSION) \
-	    $(DESTDIR)$(serialdropdir)/$(VPCD_LIB)
+	    $(DESTDIR)$(serialdropdir)/$(VPCD_LIB) \
+	    $(DESTDIR)$(sysconfdir)/reader.conf.d/vpcd

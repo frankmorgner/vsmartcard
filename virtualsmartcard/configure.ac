@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.64])
-AC_INIT([virtualsmartcard], [0.2], [morgner@informatik.hu-berlin.de])
+AC_INIT([virtualsmartcard], [0.2], [http://sourceforge.net/projects/vsmartcard/support])
 AC_CONFIG_SRCDIR([src/vpcd/ifd.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -90,7 +90,7 @@ esac
 
 cat << EOF
 
-virtualsmartcard has been configured with following options:
+${PACKAGE} has been configured with following options:
 
 Version:              ${PACKAGE_VERSION}
 User binaries:        $(eval eval eval echo "${bindir}")
@@ -116,5 +116,6 @@ EOF
 AC_CONFIG_FILES([Makefile
                  src/Makefile
                  src/vpcd/Makefile
-                 src/vpicc/Makefile])
+                 src/vpicc/Makefile
+                 ])
 AC_OUTPUT
