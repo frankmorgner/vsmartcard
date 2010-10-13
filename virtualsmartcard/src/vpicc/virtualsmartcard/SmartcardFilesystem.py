@@ -21,10 +21,10 @@
 @todo zu lange daten abschneiden und trotzdem tlv laenge beibehalten
 """
 from pickle import dumps, loads
-from ConstantDefinitions import *
-from TLVutils import *
-from SWutils import *
-from utils import stringtoint, inttostring
+from virtualsmartcard.ConstantDefinitions import *
+from virtualsmartcard.TLVutils import *
+from virtualsmartcard.SWutils import *
+from virtualsmartcard.utils import stringtoint, inttostring
 
 def isEqual(list): # {{{
     """Returns True, if all items are equal, otherwise False"""

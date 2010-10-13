@@ -20,8 +20,8 @@
 import sys, getpass, anydbm, readline, os, dircache
 from pickle import loads, dumps
 from TLVutils import pack
-from utils import inttostring
-from SmartcardFilesystem import * 
+from virtualsmartcard.utils import inttostring
+from virtualsmartcard.SmartcardFilesystem import * 
 
 # pgp directory
 #self.mf.append(DF(parent=self.mf,
@@ -42,7 +42,7 @@ class CardGenerator(object):
         self.sam = None
     
     def __generate_iso_card(self):
-        from SmartcardSAM import SAM
+        from virtualsmartcard.SmartcardSAM import SAM
          
         print "Using default SAM. Insecure!!!"
         self.sam = SAM("1234", "1234567890") #FIXME: Use user provided data
@@ -52,7 +52,7 @@ class CardGenerator(object):
            
     def __generate_ePass(self):
             from PIL import Image
-            from SmartcardSAM import PassportSAM
+            from virtualsmartcard.SmartcardSAM import PassportSAM
             
             MRZ = raw_input("Please enter the MRZ as one string: ") #TODO: Sanity checks
     
@@ -114,7 +114,7 @@ class CardGenerator(object):
             self.sam = PassportSAM(self.mf)
     
     def __generate_cryptoflex(self):
-        from SmartcardSAM import CryptoflexSAM
+        from virtualsmartcard.SmartcardSAM import CryptoflexSAM
                         
         self.mf = CryptoflexMF()
         self.mf.append(TransparentStructureEF(parent=self.mf, fid=0x0002, filedescriptor=0x01,
@@ -144,7 +144,7 @@ class CardGenerator(object):
         
     
     def loadCard(self, filename, password=None):
-        from CryptoUtils import read_protected_string
+        from virtualsmartcard.CryptoUtils import read_protected_string
         
         try:
             db = anydbm.open(filename, 'r')
@@ -161,7 +161,7 @@ class CardGenerator(object):
         self.type = db["type"]
             
     def saveCard(self, filename, password=None):      
-        from CryptoUtils import protect_string        
+        from virtualsmartcard.CryptoUtils import protect_string        
                
         if password is None:
             passwd1 = getpass.getpass("Please enter a password.")

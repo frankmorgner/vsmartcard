@@ -16,12 +16,12 @@
 # You should have received a copy of the GNU General Public License along with
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 #
-from ConstantDefinitions import *
-from TLVutils import *
-from SWutils import SwError, SW
-from SmartcardFilesystem import prettyprint_anything, MF, DF, CryptoflexMF, TransparentStructureEF, make_property
-from utils import C_APDU, R_APDU, hexdump, inttostring
-from SmartcardSAM import SAM, PassportSAM, CryptoflexSAM
+from virtualsmartcard.ConstantDefinitions import *
+from virtualsmartcard.TLVutils import *
+from virtualsmartcard.SWutils import SwError, SW
+from virtualsmartcard.SmartcardFilesystem import prettyprint_anything, MF, DF, CryptoflexMF, TransparentStructureEF, make_property
+from virtualsmartcard.utils import C_APDU, R_APDU, hexdump, inttostring
+from virtualsmartcard.SmartcardSAM import SAM, PassportSAM, CryptoflexSAM
 import CardGenerator
 from smartcard.CardMonitoring import CardMonitor, CardObserver
 
@@ -579,28 +579,3 @@ class VirtualICC(object): # {{{
             self.cardGenerator.setCard(self.os.mf, self.os.SAM)
             self.cardGenerator.saveCard(self.filename)
 # }}} 
-
-if __name__ == "__main__":
-    from optparse import OptionParser
-    parser = OptionParser()
-    parser.add_option("-t", "--type", action="store", type="choice",
-            default='iso7816',
-            choices=['iso7816', 'cryptoflex', 'ePass', 'relay'],
-            help="Type of Smartcard [default: %default]")
-    parser.add_option("-r", "--reader", action="store", type="int",
-            default=None,
-            help="Number of reader for relaying")
-    parser.add_option("-f", "--file", action="store", type="string",
-            default=None,
-            help="Load a saved card")
-    parser.add_option("-n", "--hostname", action="store", type="string",
-            default='localhost',
-            help="Address of Virtual PCD [default: %default]")
-    parser.add_option("-p", "--port", action="store", type="int",
-            default=35963,
-            help="Port of Virtual PCD [default: %default]")
-    (options, args) = parser.parse_args()
-
-    vicc = VirtualICC(options.file, options.type, options.hostname,
-            options.port, readernum=options.reader)
-    vicc.run()

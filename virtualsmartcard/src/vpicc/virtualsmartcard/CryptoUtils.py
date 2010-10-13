@@ -21,7 +21,7 @@ from Crypto.Cipher import DES3, DES, AES, ARC4 #,IDEA no longer present in pytho
 from struct import pack
 from binascii import b2a_hex
 from random import randint
-from utils import inttostring, stringtoint, hexdump
+from virtualsmartcard.utils import inttostring, stringtoint, hexdump
 import string
 import re
 

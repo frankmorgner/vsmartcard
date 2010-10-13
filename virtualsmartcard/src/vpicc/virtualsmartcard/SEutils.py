@@ -16,11 +16,11 @@
 # You should have received a copy of the GNU General Public License along with
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 #
-import TLVutils
+import virtualsmartcard.TLVutils
 from time import time
 from random import seed, randint
-from ConstantDefinitions import *
-from utils import inttostring, stringtoint
+from virtualsmartcard.ConstantDefinitions import *
+from virtualsmartcard.utils import inttostring, stringtoint
 
 class ControlReferenceTemplate:
     def __init__(self,type,config=""):
