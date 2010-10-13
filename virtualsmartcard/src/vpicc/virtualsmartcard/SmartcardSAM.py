@@ -16,13 +16,13 @@
 # You should have received a copy of the GNU General Public License along with
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 #
-import virtualsmartcard.SmartcardFilesystem, virtualsmartcard.CryptoUtils, virtualsmartcard.TLVutils
-import random, re, struct, Crypto
+import virtualsmartcard.SmartcardFilesystem, TLVutils
+import random, re, struct#, Crypto
 import hashlib
 from virtualsmartcard.SWutils import SwError, SW, SW_MESSAGES
 from pickle import dumps, loads
 from virtualsmartcard.utils import inttostring, stringtoint, hexdump, C_APDU, R_APDU
-from Crypto.Cipher import DES3
+#from Crypto.Cipher import DES3
 from virtualsmartcard.ConstantDefinitions import *
 from virtualsmartcard.SEutils import ControlReferenceTemplate as CRT
 
@@ -57,9 +57,10 @@ class CardContainer:
     system. The keys in the hashmap are indexed via the path
     to the corresponding container.
     """
-    
+   
     def __init__(self, PIN=None, cardNumber=None, cardSecret=None):
-        from os import urandom
+        from os import urandom      
+        import virtualsmartcard.CryptoUtils 
         
         self.cardNumber = cardNumber
         self.PIN = PIN
@@ -121,8 +122,9 @@ class CardContainer:
             return None
                 
 class SAM(object):
-       
+    
     def __init__(self, PIN, cardNumber, mf=None):
+        import virtualsmartcard.CryptoUtils
 
         self.CardContainer = CardContainer(PIN, cardNumber)      
         #self.CardContainer.loadConfiguration(path, password)
@@ -425,10 +427,10 @@ class PassportSAM(SAM):
         #SAM.__init__(self, path, key,None)
         SAM.__init__(self, None, None, mf)
         self.SM_handler = ePass_SM(mf, None, None, None)
-        self.SM_handler.CAPDU_SE.cct.algo = "CC"
-        self.SM_handler.RAPDU_SE.cct.algo = "CC"
-        self.SM_handler.CAPDU_SE.ct.algo = "DES3-CBC"
-        self.SM_handler.RAPDU_SE.ct.algo = "DES3-CBC"
+        self.SM_handler.CAPDU_SE.cct.algorithm = "CC"
+        self.SM_handler.RAPDU_SE.cct.algorithm = "CC"
+        self.SM_handler.CAPDU_SE.ct.algorithm = "DES3-CBC"
+        self.SM_handler.RAPDU_SE.ct.algorithm = "DES3-CBC"
         
     def __computeKeys(self):
         """Computes the keys depending on the machine readable 
@@ -490,10 +492,10 @@ class PassportSAM(SAM):
         self.SM_handler.RAPDU_SE.ct.key = self.KSenc
         self.SM_handler.RAPDU_SE.cct.key = self.KSmac
         self.SM_handler.ssc = stringtoint(rnd_icc[-4:] + rnd_ifd[-4:])
-        self.SM_handler.CAPDU_SE.ct.algo = "DES3-CBC"
-        self.SM_handler.RAPDU_SE.ct.algo = "DES3-CBC"
-        self.SM_handler.CAPDU_SE.cct.algo = "CC"
-        self.SM_handler.RAPDU_SE.cct.algo = "CC"
+        self.SM_handler.CAPDU_SE.ct.algorithm = "DES3-CBC"
+        self.SM_handler.RAPDU_SE.ct.algorithm = "DES3-CBC"
+        self.SM_handler.CAPDU_SE.cct.algorithm = "CC"
+        self.SM_handler.RAPDU_SE.cct.algorithm = "CC"
         return SW["NORMAL"], Eicc + Micc
         
     def _mac(self, key, data, ssc = None, dopad=True):
@@ -575,7 +577,10 @@ class Security_Environment(object):
     			raise ValueError
     
 class Secure_Messaging(object):
+    
     def __init__(self,MF,CAPDU_SE=None,RAPDU_SE=None):
+        import virtualsmartcard.CryptoUtils
+
         self.mf = MF
         if not CAPDU_SE:
             self.CAPDU_SE = Security_Environment()
@@ -784,7 +789,7 @@ class Secure_Messaging(object):
                 sw, plain = self.decipher(tag,0x80,value[1:])
                 if sw != 0x9000:
         			raise ValueError
-                plain = virtualsmartcard.CryptoUtils.strip_padding(self.CAPDU_SE.ct.algo,plain,padding_indicator)
+                plain = virtualsmartcard.CryptoUtils.strip_padding(self.CAPDU_SE.ct.algorithm,plain,padding_indicator)
                 return_data.append(plain)
 
             #SM data objects for authentication 
@@ -872,15 +877,15 @@ class Secure_Messaging(object):
             return_data += encrypted_tlv 
         
         if sw == SW["NORMAL"]:
-            if self.CAPDU_SE.cct.algo == None:
+            if self.CAPDU_SE.cct.algorithm == None:
                 raise SwError(SW["CONDITIONSNOTSATISFIED"])
-            elif self.CAPDU_SE.cct.algo == "CCT":
+            elif self.CAPDU_SE.cct.algorithm == "CCT":
                 tag = SM_Class["CHECKSUM"]
                 to_auth = virtualsmartcard.CryptoUtils.append_padding("DES-ECB", return_data)
                 sw, auth = self.compute_cryptographic_checksum(0x8E, 0x80, to_auth)
                 length = len(auth)
                 return_data += TLVutils.pack([(tag,length,auth)])
-            elif self.CAPDU_SE.cct.algo == "SIGNATURE":
+            elif self.CAPDU_SE.cct.algorithm == "SIGNATURE":
                 tag = SM_Class["DIGITAL_SIGNATURE"]
                 hash = self.hash(0x90, 0x80, return_data)
                 sw, auth = self.compute_digital_signature(0x9E, 0x9A, hash)
@@ -932,10 +937,10 @@ class Secure_Messaging(object):
         """
         if p1 != 0x8E or p2 != 0x80:
             raise SwError(SW["ERR_INCORRECTP1P2"])
-        if self.CAPDU_SE.cct.algo == None or self.current_SE.cct.key == None:
+        if self.CAPDU_SE.cct.algorithm == None or self.current_SE.cct.key == None:
             raise SWError(SE["ERR_CONDITIONNOTSATISFIED"])
          
-        checksum = virtualsmartcard.CryptoUtils.crypto_checksum(self.current_SE.cct.algo, 
+        checksum = virtualsmartcard.CryptoUtils.crypto_checksum(self.current_SE.cct.algorithm, 
                                                self.current_SE.cct.key, 
                                                data, 
                                                self.current_SE.cct.iv)
@@ -976,7 +981,7 @@ class Secure_Messaging(object):
         """        
         if p1 != 0x90 or not p2 in (0x80,0xA0):
             raise SwError(SW["ERR_INCORRECTP1P2"])
-        algo = self.current_SE.ht.algo
+        algo = self.current_SE.ht.algorithm
         if algo == None:
             raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
         try:
@@ -994,7 +999,7 @@ class Secure_Messaging(object):
         plain = ""
         cct = ""
 
-        algo = self.current_SE.cct.algo
+        algo = self.current_SE.cct.algorithm
         key = self.current_SE.cct.key
         iv = self.current_SE.cct.iv
         if algo == None or key == None:
@@ -1059,7 +1064,7 @@ class Secure_Messaging(object):
         by the current Security environment.
         Return raw data (no TLV coding).
         """
-        algo = self.current_SE.ct.algo
+        algo = self.current_SE.ct.algorithm
         key = self.current_SE.ct.key
         if key == None or algo == None:
             return SW["ERR_CONDITIONNOTSATISFIED"], ""
@@ -1074,7 +1079,7 @@ class Secure_Messaging(object):
         by the current Security environment.
         Return raw data (no TLV coding). Padding is not removed!!!
         """
-        algo = self.current_SE.ct.algo
+        algo = self.current_SE.ct.algorithm
         key = self.current_SE.ct.key
         if key == None or algo == None:
             return SW["ERR_CONDITIONNOTSATISFIED"], ""
@@ -1090,7 +1095,7 @@ class Secure_Messaging(object):
         from Crypto.Util.randpool import RandomPool
         rnd = RandomPool()
 
-        cipher = self.CAPDU_SE.ct.algo #FIXME: Current SE?
+        cipher = self.CAPDU_SE.ct.algorithm #FIXME: Current SE?
 
         c_class = locals().get(cipher, None)
         if c_class is None: 
@@ -1201,9 +1206,9 @@ class ePass_SM(Secure_Messaging):
         if p1 != 0x8E or p2 != 0x80:
             raise SwError(SW["ERR_INCORRECTP1P2"])
         
-        #checksum = CryptoUtils.calculate_MAC(self.CAPDU_SE.cct.key,data,self.CAPDU_SE.cct.iv)
+        #checksum = virtualsmartcard.CryptoUtils.calculate_MAC(self.CAPDU_SE.cct.key,data,self.CAPDU_SE.cct.iv)
         self.ssc += 1
-        checksum = virtualsmartcard.CryptoUtils.crypto_checksum(self.CAPDU_SE.cct.algo,
+        checksum = virtualsmartcard.CryptoUtils.crypto_checksum(self.CAPDU_SE.cct.algorithm,
                                                self.CAPDU_SE.cct.key,
                                                data,
                                                self.CAPDU_SE.cct.iv,
@@ -1215,6 +1220,8 @@ if __name__ == "__main__":
     """
     Unit test:
     """
+
+    import virtualsmartcard.CryptoUtils
 
     password = "DUMMYKEYDUMMYKEY"
     #generate_SAM_config("1234567890", "1234", "keykeykeykeykeyk", path, password)
@@ -1241,21 +1248,21 @@ if __name__ == "__main__":
         sw = e.sw
     print "Decryption Status code: %x" % sw
 
-    SM = Secure_Messaging(None)
-    testvektor = "foobar"
-    print "Testvektor = %s" % testvektor
-    sw, hash = SM.hash(0x90,0x80,testvektor)
-    print "SW after hashing = %s" % sw
-    print "Hash = %s" % hash
-    sw, crypted = SM.encipher(0x00, 0x00, testvektor)
-    print "SW after encryption = %s" % sw
-    sw, plain = SM.decipher(0x00, 0x00, crypted)
-    print "SW after encryption = %s" % sw
-    print "Testvektor after en- and deciphering: %s" % plain
-    sw, pk = SM.generate_public_key_pair(0x02, 0x00, "")
-    print "SW after keygen = %s" % sw
-    print "Public Key = %s" % pk
-    CF = CryptoflexSM(None)
-    print CF.generate_public_key_pair(0x00, 0x80, "\x01\x00\x01\x00")
-    print MyCard._read_FS_data(0x01, 16)
-    print MyCard._get_referenced_key(0x01)
+    #SM = Secure_Messaging(None)
+    #testvektor = "foobar"
+    #print "Testvektor = %s" % testvektor
+    #sw, hash = SM.hash(0x90,0x80,testvektor)
+    #print "SW after hashing = %s" % sw
+    #print "Hash = %s" % hash
+    #sw, crypted = SM.encipher(0x00, 0x00, testvektor)
+    #print "SW after encryption = %s" % sw
+    #sw, plain = SM.decipher(0x00, 0x00, crypted)
+    #print "SW after encryption = %s" % sw
+    #print "Testvektor after en- and deciphering: %s" % plain
+    #sw, pk = SM.generate_public_key_pair(0x02, 0x00, "")
+    #print "SW after keygen = %s" % sw
+    #print "Public Key = %s" % pk
+    #CF = CryptoflexSM(None)
+    #print CF.generate_public_key_pair(0x00, 0x80, "\x01\x00\x01\x00")
+    #print MyCard._read_FS_data(0x01, 16)
+    #print MyCard._get_referenced_key(0x01)
