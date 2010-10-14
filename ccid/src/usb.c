@@ -62,6 +62,7 @@ static const char *doserial = NULL;
 static const char *doiintf = NULL;
 static int usb_reader_num = -1;
 static const char *cdriver = NULL;
+static const char *gadgetfs = "/dev/gadget";
 
 #define OPT_HELP        'h'
 #define OPT_INTERRUPT   'n'
@@ -73,6 +74,7 @@ static const char *cdriver = NULL;
 #define OPT_VERBOSE     'v'
 #define OPT_INFO        'o'
 #define OPT_CARD        'c'
+#define OPT_GADGETFS    'g'
 
 static const struct option options[] = {
     /*{ "hid", no_argument, &dohid, 1 },*/
@@ -86,6 +88,7 @@ static const struct option options[] = {
     { "interrupt",   no_argument,       NULL, OPT_INTERRUPT },
     { "verbose",     no_argument,       NULL, OPT_VERBOSE },
     { "info",        no_argument,       NULL, OPT_INFO },
+    { "gadgetfs",    required_argument, NULL, OPT_GADGETFS },
     { NULL,          0,                 NULL, 0 }
 };
 static const char *option_help[] = {
@@ -99,7 +102,8 @@ static const char *option_help[] = {
     "USB vendor ID       (default: 0x0D46)",
     "Add interrupt pipe for CCID",
     "Use (several times) to be more verbose",
-    "Print version, available readers and drivers.",
+    "Print version, available readers and drivers",
+    "Directory where GadgetFS is mounted",
 };
 
 /* NOTE:  these IDs don't imply endpoint numbering; host side drivers
@@ -1311,8 +1315,8 @@ static int init_device (void)
 #endif
 		result = autoconfig ();
 	if (result < 0) {
-		fprintf (stderr, "?? don't recognize /dev/gadget %s device\n",
-			iso ? "iso" : "bulk");
+		fprintf (stderr, "?? don't recognize %s %s device\n",
+			gadgetfs, iso ? "iso" : "bulk");
 		return result;
 	}
 
@@ -1727,7 +1731,7 @@ main (int argc, char **argv)
     int oindex = 0;
 
     while (1) {
-        c = getopt_long(argc, argv, "hnr:s:i:p:e:voc:", options, &oindex);
+        c = getopt_long(argc, argv, "hnr:s:i:p:e:voc:g:", options, &oindex);
         if (c == -1)
             break;
         switch (c) {
@@ -1777,6 +1781,9 @@ main (int argc, char **argv)
             case OPT_INTERRUPT:
                 doint++;
                 break;
+            case OPT_GADGETFS:
+                gadgetfs = optarg;
+                break;
             case '?':
                 /* fall through */
             default:
@@ -1809,8 +1816,8 @@ main (int argc, char **argv)
     if (verbose)
         fprintf (stderr, "serial=\"%s\"\n", serial);
 
-    if (chdir ("/dev/gadget") < 0) {
-        perror ("can't chdir /dev/gadget");
+    if (chdir (gadgetfs) < 0) {
+        fprintf (stderr, "Error changing directory to %s\n", gadgetfs);
         return 1;
     }
 
@@ -1844,7 +1851,7 @@ main (int argc, char **argv)
     if (fd < 0)
         return 1;
     if (debug)
-        fprintf (stderr, "/dev/gadget/%s ep0 configured\n", DEVNAME);
+        fprintf (stderr, "%s%s ep0 configured\n", gadgetfs, DEVNAME);
 
     fflush (stdout);
     fflush (stderr);
