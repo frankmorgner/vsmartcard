@@ -7,4 +7,4 @@ picc_to_pcsc_SOURCES = picc_to_pcsc.c pcscutil.c
 picc_to_pcsc_LDADD = $(PCSC_LIBS)
 picc_to_pcsc_CFLAGS = $(PCSC_CFLAGS)
 
-noinst_HEADERS = picc_to_pcsc.h pcscutil.h
+noinst_HEADERS = pcscutil.h

@@ -29,7 +29,7 @@
 #include <string.h>
 #include <errno.h>
 
-#include "picc_to_pcsc.h"
+#include "config.h"
 #include "pcscutil.h"
 
 static FILE *picc_fd = NULL; /*filehandle used for PICCDEV*/
@@ -41,8 +41,8 @@ static SCARDHANDLE hCard = 0;
 /* Forward declaration */
 static void cleanup_exit(int signo);
 static void cleanup(void);
-static size_t picc_decode_apdu(char *inbuf, size_t inlen, unsigned char **outbuf)
-static size_t picc_encode_rapdu(unsigned char *inbuf, size_t inlen, char **outbuf)
+static size_t picc_decode_apdu(char *inbuf, size_t inlen, unsigned char **outbuf);
+static size_t picc_encode_rapdu(unsigned char *inbuf, size_t inlen, char **outbuf);
 
 void cleanup_exit(int signo){
     cleanup();

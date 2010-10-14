@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([picc_to_pcsc], [0.1], [oepen@informatik.hu-berlin.de])
+AC_INIT([picc_to_pcsc], [0.1], [http://sourceforge.net/projects/vsmartcard/support])
 AC_CONFIG_SRCDIR([src/picc_to_pcsc.c])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE
@@ -31,6 +31,13 @@ AC_TRY_LINK_FUNC(SCardEstablishContext, [ AC_MSG_RESULT([yes]) ],
 CPPFLAGS="$saved_CPPFLAGS"
 LIBS="$saved_LIBS"
 
+
+# --enable-piccdev=DEV
+piccdev_default=
+AC_ARG_ENABLE(piccdev,
+              AC_HELP_STRING([--enable-piccdev=DEV],[OpenPICC character device (default: /dev/ttyACM0)]),
+              [piccdev="${enableval}"], [piccdev="/dev/ttyACM0"])
+AC_DEFINE_UNQUOTED(PICCDEV, "${piccdev}", [OpenPICC character device])
 
 # Checks for header files.
 AC_CHECK_HEADERS([fcntl.h stdint.h stdlib.h string.h unistd.h])
