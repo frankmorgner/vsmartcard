@@ -212,3 +212,58 @@ void _bin_log(sc_context_t *ctx, int type, const char *file, int line,
     }
 }
 
+static int list_drivers(sc_context_t *ctx)
+{
+	int i;
+	
+	if (ctx->card_drivers[0] == NULL) {
+		printf("No card drivers installed!\n");
+		return 0;
+	}
+	printf("Configured card drivers:\n");
+	for (i = 0; ctx->card_drivers[i] != NULL; i++) {
+		printf("  %-16s %s\n", ctx->card_drivers[i]->short_name,
+		       ctx->card_drivers[i]->name);
+	}
+
+	return 0;
+}
+
+static int list_readers(sc_context_t *ctx)
+{
+	unsigned int i, rcount = sc_ctx_get_reader_count(ctx);
+	
+	if (rcount == 0) {
+		printf("No smart card readers found.\n");
+		return 0;
+	}
+	printf("Readers known about:\n");
+	printf("Nr.    Driver     Name\n");
+	for (i = 0; i < rcount; i++) {
+		sc_reader_t *screader = sc_ctx_get_reader(ctx, i);
+		printf("%-7d%-11s%s\n", i, screader->driver->short_name,
+		       screader->name);
+	}
+
+	return 0;
+}
+
+int print_avail(int verbose)
+{
+    sc_context_t *ctx = NULL;
+
+    int r;
+    r = sc_context_create(&ctx, NULL);
+    if (r) {
+        fprintf(stderr, "Failed to establish context: %s\n", sc_strerror(r));
+        return 1;
+    }
+    ctx->debug = verbose;
+
+    r = list_readers(ctx)|list_drivers(ctx);
+
+    if (ctx)
+        sc_release_context(ctx);
+
+    return r;
+}

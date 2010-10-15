@@ -24,6 +24,9 @@ noinst_HEADERS = \
 		 ccid.h \
 		 usbstring.h
 
+flaw:
+	flawfinder -SQD *.h *.c
+
 if WITH_CCID
 bin_PROGRAMS += ccid-emulator
 endif

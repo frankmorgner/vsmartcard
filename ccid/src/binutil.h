@@ -26,6 +26,4 @@ void print_usage(const char *app_name, const struct option options[],
 void parse_error(const char *app_name, const struct option options[],
         const char *option_help[], const char *optarg, int opt_ind);
 
-int print_avail(int verbose);
-
 #endif

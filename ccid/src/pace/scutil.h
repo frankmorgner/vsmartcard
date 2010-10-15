@@ -89,4 +89,6 @@ void _bin_log(sc_context_t *ctx, int type, const char *file, int line,
         const char *func, const char *label, const u8 *data, size_t len,
         FILE *f);
 
+int print_avail(int verbose);
+
 #endif

@@ -293,6 +293,7 @@ static const struct usb_endpoint_descriptor *hs_eps [] = {
 /*-------------------------------------------------------------------------*/
 
 /* 56 is the maximum for the KOBIL Class 3 Reader */
+/* Flawfinder: ignore */
 static char serial [57];
 
 static const char interrupt_on_string[]  = "Insertion and removal events enabled";
