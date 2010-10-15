@@ -1,8 +1,8 @@
 VPCD_LIB = libvpcd.$(DYN_LIB_EXT)
 
 lib_LTLIBRARIES = libvpcd.la
-libvpcd_la_SOURCES = ifd.c vpcd.c
-#libvpcd_la_LIBADD = $(PCSC_LIBS)
+libvpcd_la_SOURCES = ifd-vpcd.c vpcd.c
+libvpcd_la_LIBADD = $(PCSC_LIBS)
 libvpcd_la_CFLAGS = $(PCSC_CFLAGS)
 
 noinst_HEADERS = vpcd.h
@@ -21,6 +21,7 @@ install_libvpcd: libvpcd.la reader.conf.in
 	ln -fs $(VPCD_LIB).$(VERSION) $(DESTDIR)$(serialdropdir)/$(VPCD_LIB)
 	$(mkinstalldirs) $(DESTDIR)$(sysconfdir)/reader.conf.d
 	$(do_subst) < $(srcdir)/reader.conf.in > $(DESTDIR)$(sysconfdir)/reader.conf.d/vpcd
+
 
 uninstall: uninstall_libvpcd
 

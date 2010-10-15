@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.64])
 AC_INIT([virtualsmartcard], [0.2], [http://sourceforge.net/projects/vsmartcard/support])
-AC_CONFIG_SRCDIR([src/vpcd/ifd.c])
+AC_CONFIG_SRCDIR([src/vpcd/ifd-vpcd.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE
@@ -18,15 +18,18 @@ AM_PROG_CC_C_O
 AM_PATH_PYTHON
 PKG_PROG_PKG_CONFIG
 
+
 # Checks for libraries.
 PKG_CHECK_EXISTS([libpcsclite],
                  [PKG_CHECK_MODULES([PCSC], [libpcsclite])],
                  [AC_MSG_WARN([libpcsclite not found by pkg-config])])
+
 saved_CPPFLAGS="$CPPFLAGS"
 CPPFLAGS="$CPPFLAGS $PCSC_CFLAGS"
 AC_CHECK_HEADERS(ifdhandler.h,,
         [ AC_MSG_ERROR([ifdhandler.h not found, install libpcsclite or use ./configure PCSC_CFLAGS=...]) ])
 CPPFLAGS="$saved_CPPFLAGS"
+
 
 # --enable-serialdropdir=DIR
 AC_ARG_ENABLE(serialdropdir,
@@ -46,6 +49,7 @@ if test "${serialdropdir}" = false ; then
 		fi
 	fi
 fi
+
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h stdint.h stdlib.h string.h sys/socket.h sys/time.h unistd.h])
@@ -94,7 +98,6 @@ ${PACKAGE} has been configured with following options:
 
 Version:              ${PACKAGE_VERSION}
 User binaries:        $(eval eval eval echo "${bindir}")
-Configuration files:  $(eval eval eval echo "${sysconfdir}")
 Python site-packages: $(eval eval eval echo "${pythondir}")
 Driver directory:     ${serialdropdir}
 

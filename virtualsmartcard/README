@@ -1,5 +1,6 @@
 Title            : virtualsmartcard
-Authors          : Frank Morgner, Dominik Oepen
+Authors          : Frank Morgner <morgner@informatik.hu-berlin.de>
+                   Dominik Oepen <oepen@informatik.hu-berlin.de>
 Version          : 1.0.0 27 Jul 2009
 License          : See file COPYING
 Tested Platforms : Linux 2.6 (Debian, Ubuntu, Om 2008)
@@ -40,6 +41,4 @@ PC/SC API. You can use the opensc-explorer or pcsc_scan to test that.
 QUESTIONS
 ---------
 
-For questions, please email us at:
-Frank Morgner <morgner@informatik.hu-berlin.de>
-Dominik Oepen <oepen@informatik.hu-berlin.de>
+For questions, please use http://sourceforge.net/projects/vsmartcard/support
