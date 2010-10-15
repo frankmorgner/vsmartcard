@@ -1,5 +1,6 @@
 Title            : picc
-Authors          : Dominik Oepen
+Authors          : Dominik Oepen <oepen@informatik.hu-berlin.de>
+                   Frank Morgner <morgner@informatik.hu-berlin.de>
 Version          : 1.0.0 04 Aug 2009
 License          : See file COPYING
 Tested Platforms : Linux 2.6 (Debian, Ubuntu, Om 2008)
@@ -9,13 +10,14 @@ card to a smartcard reader via the PCSC middleware. You can use this program
 in combination with the virtaulPCD and virtual smartcard programs to achieve
 communication of the virtual smartcard and a contactless smartcard reader. 
 
+
 INSTALLATION
 ------------
 
 See file INSTALL.
 
+
 QUESTIONS
 ---------
 
-For questions, please email me at:
-Dominik Oepen <oepen@informatik.hu-berlin.de>
+For questions, please use http://sourceforge.net/projects/vsmartcard/support
