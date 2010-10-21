@@ -1022,20 +1022,16 @@ perform_PC_to_RDR_Secure_GetReadersPACECapabilities(__u8 **abDataOut,
     if (!abDataOut || !abDataOutLen)
         return SC_ERROR_INVALID_ARGUMENTS;
 
-    result = realloc(*abDataOut, 2);
+    result = realloc(*abDataOut, 1);
     if (!result)
         return SC_ERROR_OUT_OF_MEMORY;
     *abDataOut = result;
-
-    /* lengthBitMap */
-    *result = 1;
-    result++;
 
     sc_result = GetReadersPACECapabilities(result);
     if (sc_result < 0)
         return sc_result;
 
-    *abDataOutLen = 2;
+    *abDataOutLen = 1;
 
     return SC_SUCCESS;
 }

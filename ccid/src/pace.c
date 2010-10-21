@@ -173,7 +173,7 @@ int GetReadersPACECapabilities(u8 *bitmap)
         return SC_ERROR_INVALID_ARGUMENTS;
 
     /* BitMap */
-    *bitmap = PACE_BITMAP_EID|PACE_BITMAP_EID|PACE_BITMAP_ESIGN;
+    *bitmap = PACE_BITMAP_PACE|PACE_BITMAP_EID|PACE_BITMAP_ESIGN;
 
     return SC_SUCCESS;
 }
