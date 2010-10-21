@@ -173,7 +173,7 @@ int GetReadersPACECapabilities(u8 *bitmap)
         return SC_ERROR_INVALID_ARGUMENTS;
 
     /* BitMap */
-    *bitmap = PACE_BITMAP_PACE|PACE_BITMAP_EID;
+    *bitmap = PACE_BITMAP_EID|PACE_BITMAP_EID|PACE_BITMAP_ESIGN;
 
     return SC_SUCCESS;
 }
@@ -1256,10 +1256,6 @@ int EstablishPACEChannel(struct sm_ctx *oldpacectx, sc_card_t *card,
     sctx->padding_indicator = SM_ISO_PADDING;
     sctx->block_length = EVP_CIPHER_block_size(pctx->cipher);
     sctx->active = 1;
-
-    /* All cards with PACE support extended length
-     * XXX this should better be done by the card driver */
-    card->caps |= SC_CARD_CAP_APDU_EXT;
 
 err:
     if (info)
