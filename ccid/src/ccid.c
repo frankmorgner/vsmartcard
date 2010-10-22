@@ -1022,16 +1022,29 @@ perform_PC_to_RDR_Secure_GetReadersPACECapabilities(__u8 **abDataOut,
     if (!abDataOut || !abDataOutLen)
         return SC_ERROR_INVALID_ARGUMENTS;
 
+#ifdef BUERGERCLIENT_WORKAROUND
     result = realloc(*abDataOut, 1);
+#else
+    result = realloc(*abDataOut, 2);
+#endif
     if (!result)
         return SC_ERROR_OUT_OF_MEMORY;
     *abDataOut = result;
 
+#ifndef BUERGERCLIENT_WORKAROUND
+    *result = 1;
+    result++;
+
+#endif
     sc_result = GetReadersPACECapabilities(result);
     if (sc_result < 0)
         return sc_result;
 
+#ifdef BUERGERCLIENT_WORKAROUND
     *abDataOutLen = 1;
+#else
+    *abDataOutLee = 2;
+#endif
 
     return SC_SUCCESS;
 }
