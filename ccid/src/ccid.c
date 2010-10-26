@@ -137,9 +137,8 @@ int ccid_initialize(int reader_id, const char *cdriver, int verbose)
 {
     int i;
 
-    for (i = 0; i < sizeof *card_in_slot; i++) {
+    for (i = 0; i < sizeof(card_in_slot)/sizeof(*card_in_slot); i++)
         card_in_slot[i] = NULL;
-    }
 
     i = initialize(reader_id, cdriver, verbose, &ctx, &reader);
     if (i < 0)
@@ -1153,7 +1152,8 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
             sc_result = perform_PC_to_RDR_Secure_GetReadersPACECapabilities(
                     &abDataOut, &abDataOutLen);
 
-            bin_log(card_in_slot[request->bSlot], "PACE Capabilities", abDataOut, abDataOutLen);
+            if (card_in_slot[request->bSlot])
+                bin_log(card_in_slot[request->bSlot]->ctx, "PACE Capabilities", abDataOut, abDataOutLen);
 
             goto err;
             break;

@@ -1814,9 +1814,6 @@ main (int argc, char **argv)
         return 1;
     }
 
-    if (verbose)
-        fprintf (stderr, "serial=\"%s\"\n", serial);
-
     if (chdir (gadgetfs) < 0) {
         fprintf (stderr, "Error changing directory to %s\n", gadgetfs);
         return 1;
@@ -1838,6 +1835,9 @@ main (int argc, char **argv)
                 serial [i++] = c;
         }
     }
+
+    if (verbose)
+        fprintf (stderr, "serial=\"%s\"\n", doserial ? doserial : serial);
 
     if (doiintf) {
         for (i=0; i<sizeof(stringtab)/sizeof(struct usb_string); i++) {

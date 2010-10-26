@@ -56,12 +56,12 @@ int initialize(int reader_id, const char *cdriver, int verbose,
             *reader = sc_ctx_get_reader(*ctx, i);
             if (sc_detect_card_presence(*reader, 0) & SC_SLOT_CARD_PRESENT) {
                 reader_id = i;
-                sc_debug(*ctx, "Using reader with a card: %s", (*reader)->name);
+                sc_debug(*ctx, "Using the first reader with a card: %s", (*reader)->name);
                 break;
             }
         }
         if (reader_id >= reader_count) {
-            /* no reader found, use the first */
+            sc_debug(*ctx, "No card found, using the first reader.");
             reader_id = 0;
         }
     }
