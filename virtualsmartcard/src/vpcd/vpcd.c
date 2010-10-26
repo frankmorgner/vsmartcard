@@ -76,13 +76,13 @@ int opensock(unsigned short port)
     if (sock < 0) return -1;
 
     struct sockaddr_in server_sockaddr;
-    memset(&server_sockaddr, 0, sizeof(server_sockaddr));
+    memset(&server_sockaddr, 0, sizeof server_sockaddr);
     server_sockaddr.sin_family      = PF_INET;
     server_sockaddr.sin_port        = htons(port);
     server_sockaddr.sin_addr.s_addr = htonl(INADDR_ANY);
 
     if (bind(sock, (struct sockaddr*)&server_sockaddr,
-                sizeof(server_sockaddr)) < 0) return -1;
+                sizeof server_sockaddr) < 0) return -1;
 
     if (listen(sock, 0) < 0) return -1;
 
@@ -105,7 +105,7 @@ int waitforclient(int server, long int secs, long int usecs) {
 
     if (FD_ISSET(server, &rfds)) {
         struct sockaddr_in client_sockaddr;
-        socklen_t client_socklen = sizeof(client_sockaddr);
+        socklen_t client_socklen = sizeof client_sockaddr;
         sock = accept(server,
                 (struct sockaddr*)&client_sockaddr,
                 &client_socklen);
