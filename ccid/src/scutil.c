@@ -89,7 +89,7 @@ int build_apdu(sc_context_t *ctx, const u8 *buf, size_t len, sc_apdu_t *apdu)
         return SC_ERROR_INVALID_DATA;
     }
 
-    memset(apdu, 0, sizeof(*apdu));
+    memset(apdu, 0, sizeof *apdu);
     p = buf;
     apdu->cla = *p++;
     apdu->ins = *p++;

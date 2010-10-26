@@ -108,7 +108,7 @@ detect_card_presence(int slot)
 {
     int sc_result;
 
-    if (slot >= sizeof *card_in_slot)
+    if (slot >= sizeof card_in_slot/sizeof *card_in_slot )
         return SC_ERROR_INVALID_ARGUMENTS;
 
     sc_result = sc_detect_card_presence(reader, slot);
@@ -137,7 +137,7 @@ int ccid_initialize(int reader_id, const char *cdriver, int verbose)
 {
     int i;
 
-    for (i = 0; i < sizeof(card_in_slot)/sizeof(*card_in_slot); i++)
+    for (i = 0; i < sizeof card_in_slot/sizeof *card_in_slot; i++)
         card_in_slot[i] = NULL;
 
     i = initialize(reader_id, cdriver, verbose, &ctx, &reader);
@@ -161,7 +161,7 @@ int ccid_initialize(int reader_id, const char *cdriver, int verbose)
 void ccid_shutdown()
 {
     int i;
-    for (i = 0; i < sizeof *card_in_slot; i++) {
+    for (i = 0; i < sizeof card_in_slot/sizeof *card_in_slot; i++) {
         if (card_in_slot[i] && sc_card_valid(card_in_slot[i])) {
             sc_disconnect_card(card_in_slot[i], 0);
         }
@@ -184,7 +184,7 @@ static int get_rapdu(sc_apdu_t *apdu, size_t slot, __u8 **buf, size_t *resplen)
 {
     int sc_result;
 
-    if (!apdu || !buf || !resplen || slot >= sizeof *card_in_slot) {
+    if (!apdu || !buf || !resplen || slot >= sizeof card_in_slot/sizeof *card_in_slot) {
         sc_result = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
     }
@@ -410,7 +410,7 @@ perform_PC_to_RDR_IccPowerOn(const __u8 *in, size_t inlen, __u8 **out, size_t *o
             request->abRFU        != 0)
         sc_debug(ctx, "warning: malformed PC_to_RDR_IccPowerOn");
 
-    if (request->bSlot < sizeof *card_in_slot) {
+    if (request->bSlot < sizeof card_in_slot/sizeof *card_in_slot) {
         if (card_in_slot[request->bSlot]
                 && sc_card_valid(card_in_slot[request->bSlot])) {
             sc_debug(ctx, "Card is already powered on.");
@@ -465,7 +465,7 @@ perform_PC_to_RDR_IccPowerOff(const __u8 *in, size_t inlen, __u8 **out, size_t *
             request->abRFU2       != 0)
         sc_debug(ctx, "warning: malformed PC_to_RDR_IccPowerOff");
 
-    if (request->bSlot > sizeof *card_in_slot)
+    if (request->bSlot > sizeof card_in_slot/sizeof *card_in_slot)
         sc_result = SC_ERROR_INVALID_DATA;
     else {
         sc_reset(card_in_slot[request->bSlot]);
@@ -496,7 +496,7 @@ perform_PC_to_RDR_XfrBlock(const u8 *in, size_t inlen, __u8** out, size_t *outle
             request->bBWI  != 0)
         sc_debug(ctx, "malformed PC_to_RDR_XfrBlock, will continue anyway");
 
-    if (request->bSlot > sizeof *card_in_slot)
+    if (request->bSlot > sizeof card_in_slot/sizeof *card_in_slot)
         sc_result = SC_ERROR_INVALID_DATA;
     else {
         sc_result = build_apdu(ctx, abDataIn, __le32_to_cpu(request->dwLength),
@@ -536,7 +536,7 @@ perform_PC_to_RDR_GetParamters(const __u8 *in, size_t inlen, __u8** out, size_t 
             request->dwLength != __constant_cpu_to_le32(0))
         sc_debug(ctx, "warning: malformed PC_to_RDR_GetParamters");
 
-    if (request->bSlot < sizeof *card_in_slot) {
+    if (request->bSlot < sizeof card_in_slot/sizeof *card_in_slot) {
         switch (reader->slot[request->bSlot].active_protocol) {
             case SC_PROTO_T0:
                 result = realloc(*out, sizeof *result + sizeof *t0);
@@ -793,8 +793,8 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
     __le32 dword;
     __u8 *p;
 
-    memset(&pace_input, 0, sizeof(pace_input));
-    memset(&pace_output, 0, sizeof(pace_output));
+    memset(&pace_input, 0, sizeof pace_input);
+    memset(&pace_output, 0, sizeof pace_output);
 
 
     if (!abDataOut || !abDataOutLen) {
@@ -848,7 +848,7 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
     parsed += pace_input.pin_length;
 
 
-    if (abDatalen < parsed+sizeof(word)) {
+    if (abDatalen < parsed+sizeof word) {
         sc_error(ctx, "Buffer too small, could not get lengthCertificateDescription");
         sc_result = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
@@ -1091,7 +1091,7 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
     if (request->bMessageType != 0x69)
         sc_debug(ctx,  "warning: malformed PC_to_RDR_Secure");
 
-    if (request->bSlot > sizeof *card_in_slot) {
+    if (request->bSlot > sizeof card_in_slot/sizeof *card_in_slot) {
         sc_error(ctx, "Received request to invalid slot (bSlot=0x%02x)", request->bSlot);
         goto err;
     }
@@ -1144,8 +1144,8 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
             bmPINBlockString = modify->bmPINBlockString;
             bmFormatString = modify->bmFormatString;
             bNumberMessage = modify->bNumberMessage;
-            abPINApdu = (__u8*) modify + sizeof(*modify);
-            apdulen = __le32_to_cpu(request->dwLength) - sizeof(*modify) - sizeof(__u8);
+            abPINApdu = (__u8*) modify + sizeof *modify;
+            apdulen = __le32_to_cpu(request->dwLength) - sizeof *modify - sizeof(__u8);
             break;
         case 0x10:
 

@@ -604,7 +604,7 @@ static int autoconfig ()
             source_sink_intf.bNumEndpoints = 2;
             int i;
             if (!doiintf) {
-                for (i=0; i<sizeof(stringtab)/sizeof(struct usb_string); i++) {
+                for (i=0; i<sizeof stringtab/sizeof(struct usb_string); i++) {
                     if (stringtab[i].id == STRINGID_INTERFACE) {
                         stringtab[i].s = interrupt_off_string;
                         break;
@@ -1820,7 +1820,7 @@ main (int argc, char **argv)
     }
 
     if (doserial) {
-        for (i=0; i<sizeof(stringtab)/sizeof(struct usb_string); i++) {
+        for (i=0; i<sizeof stringtab/sizeof(struct usb_string); i++) {
             if (stringtab[i].id == STRINGID_SERIAL) {
                 stringtab[i].s = doserial;
                 break;
@@ -1840,7 +1840,7 @@ main (int argc, char **argv)
         fprintf (stderr, "serial=\"%s\"\n", doserial ? doserial : serial);
 
     if (doiintf) {
-        for (i=0; i<sizeof(stringtab)/sizeof(struct usb_string); i++) {
+        for (i=0; i<sizeof stringtab/sizeof(struct usb_string); i++) {
             if (stringtab[i].id == STRINGID_INTERFACE) {
                 stringtab[i].s = doiintf;
                 break;

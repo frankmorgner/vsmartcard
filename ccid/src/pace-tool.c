@@ -117,7 +117,7 @@ int pace_translate_apdus(struct sm_ctx *sctx, sc_card_t *card)
     ssize_t linelen;
     int r;
 
-    memset(&apdu, 0, sizeof(apdu));
+    memset(&apdu, 0, sizeof apdu);
 
     while (1) {
         printf("Enter unencrypted APDU (empty line to exit)\n");
@@ -148,7 +148,7 @@ int pace_translate_apdus(struct sm_ctx *sctx, sc_card_t *card)
         }
 
         apdu.resp = buf;
-        apdu.resplen = sizeof(buf);
+        apdu.resplen = sizeof buf;
 
         r = sm_transmit_apdu(sctx, card, &apdu);
         if (r < 0) {
@@ -177,10 +177,10 @@ main (int argc, char **argv)
     time_t t_start, t_end;
     size_t outlen;
 
-    memset(&sctx, 0, sizeof(sctx));
-    memset(&tmpctx, 0, sizeof(tmpctx));
-    memset(&pace_input, 0, sizeof(pace_input));
-    memset(&pace_output, 0, sizeof(pace_output));
+    memset(&sctx, 0, sizeof sctx);
+    memset(&tmpctx, 0, sizeof tmpctx);
+    memset(&pace_input, 0, sizeof pace_input);
+    memset(&pace_output, 0, sizeof pace_output);
 
     while (1) {
         i = getopt_long(argc, argv, "hr:i::u::a::z::bC:D:N::RUtvoc:", options, &oindex);

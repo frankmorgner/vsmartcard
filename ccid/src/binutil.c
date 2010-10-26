@@ -53,8 +53,8 @@ void print_usage(const char *app_name, const struct option options[],
                 arg_str = "";
                 break;
         }
-        snprintf(buf, sizeof(buf), "--%-13s%s%s", options[i].name, tmp, arg_str);
-        if (strnlen(buf, sizeof(buf)) > 24) {
+        snprintf(buf, sizeof buf, "--%-13s%s%s", options[i].name, tmp, arg_str);
+        if (strnlen(buf, sizeof buf) > 24) {
             printf("  %s\n", buf);
             buf[0] = '\0';
         }
