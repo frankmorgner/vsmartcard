@@ -40,7 +40,8 @@ If you only use pace-tool for testing your card, you don't need gadgetfs.
 
 If ccid runs into a checking error, because the Le field of the APDU is 0 (as
 set for the General Authenticate APDU during PACE), you need to patch libopensc
-(see http://www.opensc-project.org/opensc/ticket/209)
+(see http://www.opensc-project.org/opensc/ticket/209). Such an error looks something like this:
+[default] apdu.c:343:sc_check_apdu: Invalid Case 4 short APDU: cse=04 cla=0c ins=2a p1=00 p2=be lc=351 le=0
 
 
 @section u USAGE
@@ -48,10 +49,8 @@ set for the General Authenticate APDU during PACE), you need to patch libopensc
 When testing PACE with either PIN, CAN, MRZ or PUK run pace-tool. Here you can
 enter APDUs which are to be converted according to the secure messaging
 parameter and to be sent to the card. Herefor insert the APDU in hex (upper or
-lower case) with a colon to separate the bytes or without it. So to read the
-current selected file both of these forms would be valid:
-00:b0:02:00:00
-00B0020000
+lower case) with a colon to separate the bytes or without it. Example APDUs can
+be found in the file apdus.
 To pass a secret to pace-tool, the command line parameters or the environment
 variables PIN/CAN/MRZ/PUK/NEWPIN can be used. If none of these options is used,
 pace-tool will show a password prompt.

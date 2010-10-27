@@ -49,6 +49,8 @@ static u8 chat[0xff];
 static u8 desc[0xffff];
 static const char *cdriver = NULL;
 
+static FILE *input;
+
 static sc_context_t *ctx = NULL;
 static sc_card_t *card = NULL;
 static sc_reader_t *reader;
@@ -84,15 +86,15 @@ static const struct option options[] = {
     { "new-pin", optional_argument, NULL, OPT_CHANGE_PIN },
     { "resume-pin", no_argument, NULL, OPT_RESUME_PIN },
     { "unblock-pin", no_argument, NULL, OPT_UNBLOCK_PIN },
-    { "translate", no_argument, NULL, OPT_TRANSLATE },
+    { "translate", optional_argument, NULL, OPT_TRANSLATE },
     { "verbose", no_argument, NULL, OPT_VERBOSE },
     { "info", no_argument, NULL, OPT_INFO },
     { NULL, 0, NULL, 0 }
 };
 static const char *option_help[] = {
     "Print help and exit",
-    "Number of reader to use  (default: auto-detect)",
-    "Which card driver to use (default: auto-detect)",
+    "Number of reader to use          (default: auto-detect)",
+    "Which card driver to use         (default: auto-detect)",
     "Run PACE with (transport) PIN",
     "Run PACE with PUK",
     "Run PACE with CAN",
@@ -103,7 +105,7 @@ static const char *option_help[] = {
     "Install a new PIN",
     "Resume PIN (uses CAN to activate last retry)",
     "Unblock PIN (uses PUK to activate three more retries)",
-    "Send plaintext APDUs through the PACE SM channel",
+    "APDUs to send through SM channel (default: stdin)",
     "Use (several times) to be more verbose",
     "Print version, available readers and drivers.",
 };
@@ -122,7 +124,7 @@ int pace_translate_apdus(struct sm_ctx *sctx, sc_card_t *card)
     while (1) {
         printf("Enter unencrypted APDU (empty line to exit)\n");
 
-        linelen = getline(&read, &readlen, stdin);
+        linelen = getline(&read, &readlen, input);
         if (linelen <= 1) {
             if (linelen < 0) {
                 r = SC_ERROR_INTERNAL;
@@ -183,7 +185,7 @@ main (int argc, char **argv)
     memset(&pace_output, 0, sizeof pace_output);
 
     while (1) {
-        i = getopt_long(argc, argv, "hr:i::u::a::z::bC:D:N::RUtvoc:", options, &oindex);
+        i = getopt_long(argc, argv, "hr:i::u::a::z::bC:D:N::RUt::voc:", options, &oindex);
         if (i == -1)
             break;
         switch (i) {
@@ -204,7 +206,7 @@ main (int argc, char **argv)
                 verbose++;
                 break;
             case OPT_INFO:
-                doinfo++;
+                doinfo = 1;
                 break;
             case OPT_PUK:
                 usepuk = 1;
@@ -265,6 +267,11 @@ main (int argc, char **argv)
                 break;
             case OPT_TRANSLATE:
                 dotranslate = 1;
+                if (optarg) {
+                    input = fopen(optarg, "r");
+                    if (!input)
+                        perror("Opening file with APDUs");
+                }
                 break;
             case '?':
                 /* fall through */

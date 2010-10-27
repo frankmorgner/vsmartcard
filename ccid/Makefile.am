@@ -3,7 +3,7 @@ SUBDIRS = src m4 patches
 
 DISTCLEANFILES = Doxyfile libpace.pc
 
-EXTRA_DIST = README.dox libpace.pc.in Doxyfile.in
+EXTRA_DIST = README.dox libpace.pc.in Doxyfile.in apdus
 
 do_subst = sed \
 	   -e 's,[@]PACKAGE_NAME[@],$(PACKAGE_NAME),g' \
