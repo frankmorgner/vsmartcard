@@ -202,12 +202,10 @@ void _bin_log(sc_context_t *ctx, int type, const char *file, int line,
         buf[0] = 0;
     if (!f) {
         sc_do_log(ctx, type, file, line, func,
-                "\n%s (%u byte%s):\n%s"
-                "======================================================================",
+                "\n%s (%u byte%s):\n%s",
                 label, len, len==1?"":"s", buf);
     } else {
-        fprintf(f, "%s (%u byte%s):\n%s"
-                "======================================================================\n",
+        fprintf(f, "%s (%u byte%s):\n%s",
                 label, len, len==1?"":"s", buf);
     }
 }

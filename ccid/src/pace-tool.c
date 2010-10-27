@@ -48,8 +48,7 @@ static u8 usemrz = 0;
 static u8 chat[0xff];
 static u8 desc[0xffff];
 static const char *cdriver = NULL;
-
-static FILE *input;
+static char *file = NULL;
 
 static sc_context_t *ctx = NULL;
 static sc_card_t *card = NULL;
@@ -110,7 +109,7 @@ static const char *option_help[] = {
     "Print version, available readers and drivers.",
 };
 
-int pace_translate_apdus(struct sm_ctx *sctx, sc_card_t *card)
+int pace_translate_apdus(struct sm_ctx *sctx, sc_card_t *card, FILE *input)
 {
     u8 buf[4 + 3 + 0xffff + 3];
     char *read = NULL;
@@ -122,7 +121,8 @@ int pace_translate_apdus(struct sm_ctx *sctx, sc_card_t *card)
     memset(&apdu, 0, sizeof apdu);
 
     while (1) {
-        printf("Enter unencrypted APDU (empty line to exit)\n");
+        if (input == stdin)
+            printf("Enter unencrypted C-APDU (empty line to exit)\n");
 
         linelen = getline(&read, &readlen, input);
         if (linelen <= 1) {
@@ -135,9 +135,11 @@ int pace_translate_apdus(struct sm_ctx *sctx, sc_card_t *card)
             }
             break;
         }
+        read[linelen - 1] = 0;
+        if (input != stdin)
+            bin_print(stdout, "Unencrypted C-APDU", read, linelen);
 
         apdulen = sizeof buf;
-        read[linelen - 1] = 0;
         if (sc_hex_to_bin(read, buf, &apdulen) < 0) {
             sc_error(card->ctx, "Could not format binary string");
             continue;
@@ -145,7 +147,7 @@ int pace_translate_apdus(struct sm_ctx *sctx, sc_card_t *card)
 
         r = build_apdu(card->ctx, buf, apdulen, &apdu);
         if (r < 0) {
-            bin_log(ctx, "Invalid APDU", buf, apdulen);
+            bin_log(ctx, "Invalid C-APDU", buf, apdulen);
             continue;
         }
 
@@ -154,12 +156,13 @@ int pace_translate_apdus(struct sm_ctx *sctx, sc_card_t *card)
 
         r = sm_transmit_apdu(sctx, card, &apdu);
         if (r < 0) {
-            sc_error(card->ctx, "Could not send APDU: %s", sc_strerror(r));
+            sc_error(card->ctx, "Could not send C-APDU: %s", sc_strerror(r));
             continue;
         }
 
-        printf("Decrypted APDU sw1=%02x sw2=%02x\n", apdu.sw1, apdu.sw2);
-        bin_print(stdout, "Decrypted APDU response data", apdu.resp, apdu.resplen);
+        printf("Decrypted R-APDU sw1=%02x sw2=%02x\n", apdu.sw1, apdu.sw2);
+        bin_print(stdout, "Decrypted R-APDU response data", apdu.resp, apdu.resplen);
+        printf("======================================================================\n");
     }
 
     if (read)
@@ -268,9 +271,7 @@ main (int argc, char **argv)
             case OPT_TRANSLATE:
                 dotranslate = 1;
                 if (optarg) {
-                    input = fopen(optarg, "r");
-                    if (!input)
-                        perror("Opening file with APDUs");
+                    file = optarg;
                 }
                 break;
             case '?':
@@ -502,7 +503,17 @@ main (int argc, char **argv)
                 pace_secret_name(pace_input.pin_id), difftime(t_end, t_start));
 
         if (dotranslate) {
-            i = pace_translate_apdus(&sctx, card);
+            FILE *input;
+            if (!file || strncmp(file, "stdin", strlen("stdin")) == 0)
+                input = stdin;
+            else {
+                input = fopen(file, "r");
+                if (!input)
+                    perror("Opening file with APDUs");
+            }
+
+            i = pace_translate_apdus(&sctx, card, input);
+            fclose(input);
             if (i < 0)
                 goto err;
         }
