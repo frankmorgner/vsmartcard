@@ -247,6 +247,10 @@ int get_ef_card_access(sc_card_t *card,
         goto err;
     }
 
+    /* All cards with PACE support extended length
+     * XXX this should better be done by the card driver */
+    card->caps |= SC_CARD_CAP_APDU_EXT;
+
     r = SC_SUCCESS;
 
 err:

@@ -424,10 +424,6 @@ perform_PC_to_RDR_IccPowerOn(const __u8 *in, size_t inlen, __u8 **out, size_t *o
                 if (get_ef_card_access(card_in_slot[request->bSlot],
                             (u8 **) &ef_cardaccess, &ef_cardaccess_length) < 0) {
                     sc_error(ctx, "Could not get EF.CardAccess.");
-                } else {
-                    /* All cards with PACE support extended length
-                     * XXX this should better be done by the card driver */
-                    card_in_slot[request->bSlot]->caps |= SC_CARD_CAP_APDU_EXT;
                 }
             }
 #endif
