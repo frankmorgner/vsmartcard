@@ -38,7 +38,8 @@ If you only use pace-tool for testing your card, you don't need gadgetfs.
 
 @subsection o HINTS ON OPENSC
 
-OpenSC older than r4244 will yield something like this error:
+With PACE support enabled OpenSC older than r4244 will yield something like
+this error:
 
 [default] apdu.c:341:sc_check_apdu: Invalid Case 4 short APDU:
 cse=04 cla=10 ins=86 p1=00 p2=00 lc=2 le=0
@@ -65,7 +66,7 @@ pace-tool will show a password prompt.
 
 
 @section q QUESTIONS
-For questions, please email me.
+For questions, please use http://sourceforge.net/projects/vsmartcard/support
 
 @author Frank Morgner <morgner@informatik.hu-berlin.de>
 */
