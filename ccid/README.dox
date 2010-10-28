@@ -38,10 +38,18 @@ If you only use pace-tool for testing your card, you don't need gadgetfs.
 
 @subsection o HINTS ON OPENSC
 
-If ccid runs into a checking error, because the Le field of the APDU is 0 (as
-set for the General Authenticate APDU during PACE), you need to patch libopensc
-(see http://www.opensc-project.org/opensc/ticket/209). Such an error looks something like this:
-[default] apdu.c:343:sc_check_apdu: Invalid Case 4 short APDU: cse=04 cla=0c ins=2a p1=00 p2=be lc=351 le=0
+OpenSC older than r4244 will yield something like this error:
+
+[default] apdu.c:341:sc_check_apdu: Invalid Case 4 short APDU:
+cse=04 cla=10 ins=86 p1=00 p2=00 lc=2 le=0
+resp=0x10353c0 resplen=256 data=0x1034a30 datalen=2
+[default] pace.c:1110:EstablishPACEChannel: Could not get encrypted nonce from card (General Authenticate step 1 failed).
+
+It requires the following patch:
+http://www.opensc-project.org/opensc/raw-attachment/ticket/209/le0.patch
+
+The following patch makes the hex dumped output more readable:
+http://www.opensc-project.org/opensc/raw-attachment/ticket/263/hex_dump_align.patch
 
 
 @section u USAGE

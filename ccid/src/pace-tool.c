@@ -136,14 +136,14 @@ int pace_translate_apdus(struct sm_ctx *sctx, sc_card_t *card, FILE *input)
             break;
         }
         read[linelen - 1] = 0;
-        if (input != stdin)
-            bin_print(stdout, "Unencrypted C-APDU", read, linelen);
 
         apdulen = sizeof buf;
         if (sc_hex_to_bin(read, buf, &apdulen) < 0) {
             sc_error(card->ctx, "Could not format binary string");
             continue;
         }
+        if (input != stdin)
+            bin_print(stdout, "Unencrypted C-APDU", buf, apdulen);
 
         r = build_apdu(card->ctx, buf, apdulen, &apdu);
         if (r < 0) {
