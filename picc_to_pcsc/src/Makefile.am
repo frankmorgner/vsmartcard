@@ -1,10 +1,10 @@
 EXTRA_DIST = picc.py
 
-bin_PROGRAMS = picc_to_pcsc
+bin_PROGRAMS = pcsc-relay
 bin_SCRIPTS = picc.py
 
-picc_to_pcsc_SOURCES = picc_to_pcsc.c pcscutil.c
-picc_to_pcsc_LDADD = $(PCSC_LIBS)
-picc_to_pcsc_CFLAGS = $(PCSC_CFLAGS)
+pcsc_relay_SOURCES = pcsc-relay.c pcscutil.c opicc.c
+pcsc_relay_LDADD = $(PCSC_LIBS)
+pcsc_relay_CFLAGS = $(PCSC_CFLAGS)
 
-noinst_HEADERS = pcscutil.h
+noinst_HEADERS = pcscutil.h pcsc-relay.h

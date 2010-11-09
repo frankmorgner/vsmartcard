@@ -30,21 +30,21 @@
 #include <errno.h>
 
 #include "config.h"
+#include "pcsc-relay.h"
 #include "pcscutil.h"
 
-static FILE *picc_fd = NULL; /*filehandle used for PICCDEV*/
+struct rf_driver *driver = &driver_openpicc;
+
 
 static LPSTR readers = NULL;
 static SCARDCONTEXT hContext = 0;
 static SCARDHANDLE hCard = 0;
-static int verbose = 0, debug = 0;
+int verbose = 0, debug = 0;
 
 /* Forward declaration */
 static void daemonize();
 static void cleanup_exit(int signo);
 static void cleanup(void);
-static size_t picc_decode_apdu(char *inbuf, size_t inlen, unsigned char **outbuf);
-static size_t picc_encode_rapdu(unsigned char *inbuf, size_t inlen, char **outbuf);
 
 void daemonize() {
     pid_t pid, sid;
@@ -86,89 +86,8 @@ void cleanup_exit(int signo){
 }
 
 void cleanup(void) {
-    if (picc_fd)
-        fclose(picc_fd); 
+    driver->disconnect(driver->data);
     pcsc_disconnect(hContext, hCard, readers);
-}
-
-size_t picc_decode_apdu(char *inbuf, size_t inlen, unsigned char **outbuf)
-{
-    size_t pos, length;
-    unsigned char buf[0xffff];
-    char *end, *p;
-    unsigned long int b;
-
-    if (!outbuf || inbuf == NULL || inlen == 0 || inbuf[0] == '\0') {
-        /* Ignore invalid parameters, empty and 'RESET' lines */
-        goto noapdu;
-    }
-
-    length = strtoul(inbuf, &end, 16);
-
-    /* check for ':' right behind the length */
-    if (inbuf+inlen < end+1 || end[0] != ':')
-        goto noapdu;
-    end++;
-
-    p = realloc(*outbuf, length);
-    if (!p) {
-        if (debug || verbose)
-            fprintf(stderr, "Error allocating memory for decoded C-APDU\n");
-        goto noapdu;
-    }
-    *outbuf = p;
-
-    pos = 0;
-    while(inbuf+inlen > end && length > pos) {
-        b = strtoul(end, &end, 16);
-        if (b > 0xff) {
-            if (debug || verbose)
-                fprintf(stderr, "%s:%u Error decoding C-APDU\n", __FILE__, __LINE__);
-            goto noapdu;
-        }
-
-        (*outbuf)[pos++] = b;
-    }
-
-    return length;
-
-noapdu:
-    return 0;
-}
-
-size_t picc_encode_rapdu(unsigned char *inbuf, size_t inlen, char **outbuf)
-{
-    char *p;
-    unsigned char *next;
-    size_t length;
-
-    if (!inbuf || inlen > 0xffff || !outbuf)
-        goto err;
-
-    length = 5+inlen*3+1;
-    p = realloc(*outbuf, length);
-    if (!p) {
-        if (debug || verbose)
-            fprintf(stderr, "Error allocating memory for encoded R-APDU\n");
-        goto err;
-    }
-    *outbuf = p;
-
-    sprintf(*outbuf, "%04X:", inlen);
-
-    next = inbuf;
-    /* let p point behind ':' */
-    p += 5;
-    while (inbuf+inlen > next) {
-        sprintf(p," %02X",*next);
-        next++;
-        p += 3;
-    }
-
-    return length;
-
-err:
-    return 0;
 }
 
 int main (int argc, char **argv)
@@ -185,7 +104,6 @@ int main (int argc, char **argv)
 
     char *read = NULL;
     size_t readlen = 0;
-    ssize_t linelen;
 
     unsigned int readernum = 0;
 
@@ -223,15 +141,7 @@ parse_err:
 
 
     /* Open the device */
-    picc_fd = fopen(PICCDEV, "a+"); /*O_NOCTTY ?*/
-    if (!picc_fd) {
-        if (debug || verbose)
-            fprintf(stderr,"Error opening %s\n", PICCDEV);
-        goto err;
-    }
-    if (debug || verbose)
-        printf("Connected to %s\n", PICCDEV);
-
+    driver->connect(&driver->data);
 
     /* connect to reader and card */
     r = pcsc_connect(readernum, SCARD_SHARE_EXCLUSIVE, SCARD_PROTOCOL_ANY,
@@ -241,27 +151,7 @@ parse_err:
 
 
     while(1) {
-        /* read C-APDU */
-        linelen = getline(&read, &readlen, picc_fd);
-        if (linelen < 0) {
-            if (linelen < 0) {
-                if (debug || verbose)
-                    fprintf(stderr,"Error reading from %s\n", PICCDEV);
-                goto err;
-            }
-        }
-        if (linelen == 0)
-            continue;
-        fflush(picc_fd);
-
-        if (debug)
-            printf("%s\n", read);
-
-
-        /* decode C-APDU */
-        buflen = picc_decode_apdu(read, linelen, (unsigned char **) &buf);
-        if (!buflen)
-            continue;
+        driver->receive_capdu(driver->data, (unsigned char **) &buf, &buflen);
 
         if (!verbose)
             printb("C-APDU: ===================================================\n", buf, buflen);
@@ -277,16 +167,7 @@ parse_err:
             printb("R-APDU:\n", outputBuffer, outputLength);
 
 
-        /* encode R-APDU */
-        buflen = picc_encode_rapdu(outputBuffer, outputLength, (char **) &buf);
-
-
-        /* write R-APDU */
-        if (debug)
-            printf("INF: Writing R-APDU\n\n%s\n\n", (char *) buf);
-
-        fprintf(picc_fd,"%s\r\n", (char *) buf);
-        fflush(picc_fd);
+        driver->send_rapdu(driver->data, outputBuffer, outputLength);
     }
 
 err:
