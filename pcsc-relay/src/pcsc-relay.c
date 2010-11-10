@@ -33,7 +33,7 @@
 #include "pcsc-relay.h"
 #include "pcscutil.h"
 
-struct rf_driver *driver = &driver_openpicc;
+struct rf_driver *driver = &driver_libnfc;
 
 
 static LPSTR readers = NULL;
@@ -141,7 +141,8 @@ parse_err:
 
 
     /* Open the device */
-    driver->connect(&driver->data);
+    if (!driver->connect(&driver->data))
+        goto err;
 
     /* connect to reader and card */
     r = pcsc_connect(readernum, SCARD_SHARE_EXCLUSIVE, SCARD_PROTOCOL_ANY,
@@ -151,7 +152,10 @@ parse_err:
 
 
     while(1) {
-        driver->receive_capdu(driver->data, (unsigned char **) &buf, &buflen);
+        if (!driver->receive_capdu(driver->data, (unsigned char **) &buf, &buflen))
+            goto err;
+        if (!buflen)
+            continue;
 
         if (!verbose)
             printb("C-APDU: ===================================================\n", buf, buflen);
@@ -167,7 +171,8 @@ parse_err:
             printb("R-APDU:\n", outputBuffer, outputLength);
 
 
-        driver->send_rapdu(driver->data, outputBuffer, outputLength);
+        if (!driver->send_rapdu(driver->data, outputBuffer, outputLength))
+            goto err;
     }
 
 err:

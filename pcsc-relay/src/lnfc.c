@@ -114,7 +114,6 @@ static int lnfc_connect(void **driver_data)
     data = realloc(*driver_data, sizeof *data);
     if (!data)
         return 0;
-    memset(data, 0, sizeof *data);
     *driver_data = data;
 
     /* FIXME

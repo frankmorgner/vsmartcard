@@ -70,7 +70,6 @@ err:
 size_t picc_decode_apdu(const char *inbuf, size_t inlen, unsigned char **outbuf)
 {
     size_t pos, length;
-    unsigned char buf[0xffff];
     char *end, *p;
     unsigned long int b;
 
@@ -120,10 +119,10 @@ static int picc_connect(void **driver_data)
     if (!driver_data)
         return 0;
 
+
     data = realloc(*driver_data, sizeof *data);
     if (!data)
         return 0;
-    memset(data, 0, sizeof *data);
     *driver_data = data;
 
     data->fd = fopen(PICCDEV, "a+"); /*O_NOCTTY ?*/
@@ -132,6 +131,11 @@ static int picc_connect(void **driver_data)
             fprintf(stderr,"Error opening %s\n", PICCDEV);
         return 0;
     }
+
+    data->buf = NULL;
+    data->buflen = 0;
+
+
     if (debug || verbose)
         printf("Connected to %s\n", PICCDEV);
 
@@ -141,12 +145,17 @@ static int picc_connect(void **driver_data)
 static int picc_disconnect(void *driver_data)
 {
     struct picc_data *data = driver_data;
+
+
     if (data) {
         if (data->fd)
             fclose(data->fd); 
-        if (data->buf)
-            free(data->buf);
+        data->fd = NULL;
+        free(data->buf);
+        data->buf = NULL;
+        data->buflen = 0;
     }
+
 
     return 1;
 }
@@ -156,13 +165,15 @@ static int picc_receive_capdu(void *driver_data,
 {
     ssize_t linelen;
     struct picc_data *data = driver_data;
+    size_t buflen = 0;
+    char *buf = NULL;
 
     if (!data || !capdu || !len)
         return 0;
 
 
     /* read C-APDU */
-    linelen = getline(&data->buf, &data->buflen, data->fd);
+    linelen = getline(&buf, &buflen, data->fd);
     if (linelen < 0) {
         if (linelen < 0) {
             if (debug || verbose)
@@ -177,11 +188,11 @@ static int picc_receive_capdu(void *driver_data,
     fflush(data->fd);
 
     if (debug)
-        printf("%s\n", data->buf);
+        printf("%s\n", buf);
 
 
     /* decode C-APDU */
-    *len = picc_decode_apdu(data->buf, linelen, capdu);
+    *len = picc_decode_apdu(buf, linelen, capdu);
 
     return 1;
 }
