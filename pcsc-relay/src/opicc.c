@@ -25,7 +25,7 @@
 
 struct picc_data {
     char *buf;
-    size_t buflen;
+    size_t bufmax;
     FILE *fd;
 };
 static int picc_encode_rapdu(const unsigned char *inbuf, size_t inlen,
@@ -75,7 +75,6 @@ int picc_decode_apdu(const char *inbuf, size_t inlen,
     unsigned long int b;
 
     if (!outbuf || !outlen) {
-        /* Invalid parameters */
         return 0;
     }
     if (inbuf == NULL || inlen == 0 || inbuf[0] == '\0') {
@@ -135,10 +134,11 @@ static int picc_connect(void **driver_data)
     }
 
     data->buf = NULL;
-    data->buflen = 0;
+    data->bufmax = 0;
 
 
-    INFO("Connected to %s\n", PICCDEV);
+    if (verbose >= 0)
+        printf("Connected to %s\n", PICCDEV);
 
     return 1;
 }
@@ -154,7 +154,7 @@ static int picc_disconnect(void *driver_data)
         data->fd = NULL;
         free(data->buf);
         data->buf = NULL;
-        data->buflen = 0;
+        data->bufmax = 0;
     }
 
 
@@ -211,12 +211,12 @@ static int picc_send_rapdu(void *driver_data,
     /* encode R-APDU */
     if (!picc_encode_rapdu(rapdu, len, &data->buf, &buflen))
         return 0;
-    if (data->buflen < buflen)
-        data->buflen = buflen;
+    if (data->bufmax < buflen)
+        data->bufmax = buflen;
 
 
     /* write R-APDU */
-    DEBUG("INF: Writing R-APDU\n\n%s\n\n", data->buf);
+    DEBUG("INF: Writing R-APDU\r\n%s\r\n", data->buf);
 
     if (fprintf(data->fd,"%s\r\n", (char *) data->buf) < 0
             || fflush(data->fd) != 0) {

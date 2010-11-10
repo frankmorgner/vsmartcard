@@ -51,7 +51,7 @@ static const char *option_help[] = {
     "Print help and exit",
     "Number of reader to use (default: 0)",
     "Stay in foreground",
-    "Emulation backend       (openpicc [default], libnfc)",
+    "NFC emulator backend    (openpicc [default], libnfc)",
     "Use (several times) to be more verbose",
 };
 static int doinfo = 0;

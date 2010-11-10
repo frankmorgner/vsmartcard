@@ -124,21 +124,21 @@ static int lnfc_connect(void **driver_data)
     *driver_data = data;
 
 
-    // Try to open the NFC emulator device
     data->pndTarget = nfc_connect (NULL);
     if (data->pndTarget == NULL) {
-        ERROR("Error connecting NFC emulator device\n");
+        ERROR("Error connecting to NFC emulator device\n");
         return 0;
     }
 
-    INFO("Connected to the NFC emulator device: %s\n", data->pndTarget->acName);
+    if (verbose >= 0)
+        printf("Connected to %s\n", data->pndTarget->acName);
 
     if (!nfc_target_init (data->pndTarget, &ntEmulatedTarget, data->abtCapdu, &data->szCapduLen)) {
         ERROR("Initialization of NFC emulator failed");
         nfc_disconnect (data->pndTarget);
         return 0;
     }
-    DEBUG("%s\n", "Done, relaying frames now!");
+    DEBUG("Initialized NFC emulator\n");
 
 
     return 1;
@@ -159,6 +159,7 @@ static int lnfc_receive_capdu(void *driver_data,
         unsigned char **capdu, size_t *len)
 {
     struct lnfc_data *data = driver_data;
+    unsigned char *p;
 
     if (!data || !capdu || !len)
         return 0;
@@ -170,6 +171,16 @@ static int lnfc_receive_capdu(void *driver_data,
             nfc_perror (data->pndTarget, "nfc_target_receive_bytes");
         return 0;
     }
+
+
+    p = realloc(*capdu, data->szCapduLen);
+    if (!p) {
+        ERROR("Error allocating memory for C-APDU\n");
+        return 0;
+    }
+    memcpy(p, data->abtCapdu, data->szCapduLen);
+    *capdu = p;
+    *len = data->szCapduLen;
 
 
     return 1;
