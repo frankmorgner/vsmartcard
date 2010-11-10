@@ -29,17 +29,41 @@
 #include <string.h>
 #include <errno.h>
 
+#include "binutil.h"
 #include "config.h"
 #include "pcsc-relay.h"
 #include "pcscutil.h"
 
-struct rf_driver *driver = &driver_libnfc;
+#define OPT_HELP        'h'
+#define OPT_READER      'r'
+#define OPT_VERBOSE     'v'
+#define OPT_FOREGROUND  'f'
+#define OPT_EMULATOR    'e'
+static const struct option options[] = {
+    { "help", no_argument, NULL, OPT_HELP },
+    { "reader",	required_argument, NULL, OPT_READER },
+    { "foreground", no_argument, NULL, OPT_FOREGROUND },
+    { "emulator", required_argument, NULL, OPT_EMULATOR },
+    { "verbose", no_argument, NULL, OPT_VERBOSE },
+    { NULL, 0, NULL, 0 }
+};
+static const char *option_help[] = {
+    "Print help and exit",
+    "Number of reader to use (default: 0)",
+    "Stay in foreground",
+    "Emulation backend       (openpicc [default], libnfc)",
+    "Use (several times) to be more verbose",
+};
+static int doinfo = 0;
+static int dodaemon = 1;
+int verbose = 0;
+static unsigned int readernum = 0;
+static struct rf_driver *driver = &driver_openpicc;
 
 
 static LPSTR readers = NULL;
 static SCARDCONTEXT hContext = 0;
 static SCARDHANDLE hCard = 0;
-int verbose = 0, debug = 0;
 
 /* Forward declaration */
 static void daemonize();
@@ -93,8 +117,9 @@ void cleanup(void) {
 int main (int argc, char **argv)
 {
     /*printf("%s:%d\n", __FILE__, __LINE__);*/
-    void *buf = NULL;
+    unsigned char *buf = NULL;
     size_t buflen;
+    int i, oindex;
 
     BYTE outputBuffer[MAX_BUFFER_SIZE];
     DWORD outputLength;
@@ -102,34 +127,63 @@ int main (int argc, char **argv)
     LONG r = SCARD_S_SUCCESS;
     DWORD ctl, protocol;
 
-    char *read = NULL;
-    size_t readlen = 0;
-
-    unsigned int readernum = 0;
-
     struct sigaction new_sig, old_sig;
 
 
-    if (argc > 1) {
-        readernum = strtoul(argv[1], NULL, 10);
-        if (argc > 2) {
-            if (0 == strcmp(argv[2], "verbose")) 
+    while (1) {
+        i = getopt_long(argc, argv, "hr:fe:v", options, &oindex);
+        if (i == -1)
+            break;
+        switch (i) {
+            case OPT_HELP:
+                print_usage(argv[0] , options, option_help);
+                exit(0);
+                break;
+            case OPT_READER:
+                if (sscanf(optarg, "%u", &readernum) != 1) {
+                    parse_error(argv[0], options, option_help, optarg, oindex);
+                    exit(2);
+                }
+                break;
+            case OPT_VERBOSE:
                 verbose++;
-            else if (0 == strcmp(argv[2], "debug"))
-                debug++;
-            else
-                goto parse_err;
-            if (argc > 3) {
-parse_err:                
-                fprintf(stderr, "Usage:  "
-                        "%s [reader number] [verbose | debug]\n", argv[0]);
-                exit(2);
-            }
+                dodaemon = 0;
+                break;
+            case OPT_FOREGROUND:
+                dodaemon = 0;
+                break;
+            case OPT_EMULATOR:
+                if (strncmp(optarg, "openpicc", strlen("openpicc")) == 0)
+                    driver = &driver_openpicc;
+                else
+                    if (strncmp(optarg, "libnfc", strlen("libnfc")) == 0)
+                        driver = &driver_libnfc;
+                    else {
+                        parse_error(argv[0], options, option_help, optarg, oindex);
+                        exit(2);
+                    }
+                break;
+            case '?':
+                /* fall through */
+            default:
+                exit(1);
+                break;
         }
     }
 
-    if (!verbose && !debug)
+
+    if (doinfo) {
+        fprintf(stderr, "%s  written by Frank Morgner.\n" ,
+                PACKAGE_STRING);
+        return 0;
+    }
+
+
+    if (dodaemon) {
+        verbose = -1;
         daemonize();
+    }
+
 
     /* Register signal handlers */
     new_sig.sa_handler = cleanup_exit;
@@ -144,6 +198,7 @@ parse_err:
     if (!driver->connect(&driver->data))
         goto err;
 
+
     /* connect to reader and card */
     r = pcsc_connect(readernum, SCARD_SHARE_EXCLUSIVE, SCARD_PROTOCOL_ANY,
             &hContext, &readers, &hCard, &protocol);
@@ -152,13 +207,14 @@ parse_err:
 
 
     while(1) {
-        if (!driver->receive_capdu(driver->data, (unsigned char **) &buf, &buflen))
+        /* get C-APDU */
+        if (!driver->receive_capdu(driver->data, &buf, &buflen))
             goto err;
-        if (!buflen)
+        if (!buflen || !buf)
             continue;
 
-        if (!verbose)
-            printb("C-APDU: ===================================================\n", buf, buflen);
+        if (verbose >= 0)
+            printb("C-APDU:\n", buf, buflen);
 
 
         /* transmit APDU to card */
@@ -167,9 +223,10 @@ parse_err:
         if (r != SCARD_S_SUCCESS)
             goto err;
 
-        if (!verbose)
-            printb("R-APDU:\n", outputBuffer, outputLength);
 
+        /* send R-APDU */
+        if (verbose >= 0)
+            printb("R-APDU:\n", outputBuffer, outputLength);
 
         if (!driver->send_rapdu(driver->data, outputBuffer, outputLength))
             goto err;

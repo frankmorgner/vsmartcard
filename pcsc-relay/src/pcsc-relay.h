@@ -37,10 +37,22 @@ struct rf_driver {
             const unsigned char *rapdu, size_t len);
 };
 
-extern int verbose, debug;
+extern int verbose;
 
 extern struct rf_driver driver_openpicc;
 extern struct rf_driver driver_libnfc;
+
+#define LEVEL_INFO    1
+#define LEVEL_DEBUG   2
+#define DEBUG(...) \
+    {if (verbose >= LEVEL_DEBUG) \
+        printf (__VA_ARGS__);}
+#define INFO(...) \
+    {if (verbose >= LEVEL_INFO) \
+        printf (__VA_ARGS__);}
+#define ERROR(...) \
+    {if (verbose >= 0) \
+        fprintf (stderr, __VA_ARGS__);}
 
 
 #ifdef  __cplusplus

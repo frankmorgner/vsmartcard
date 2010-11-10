@@ -127,22 +127,18 @@ static int lnfc_connect(void **driver_data)
     // Try to open the NFC emulator device
     data->pndTarget = nfc_connect (NULL);
     if (data->pndTarget == NULL) {
-        if (verbose || debug)
-            fprintf (stderr, "Error connecting NFC emulator device\n");
+        ERROR("Error connecting NFC emulator device\n");
         return 0;
     }
 
-    if (verbose)
-        printf ("Connected to the NFC emulator device: %s\n", data->pndTarget->acName);
+    INFO("Connected to the NFC emulator device: %s\n", data->pndTarget->acName);
 
     if (!nfc_target_init (data->pndTarget, &ntEmulatedTarget, data->abtCapdu, &data->szCapduLen)) {
-        if (verbose || debug)
-            fprintf (stderr, "%s", "Initialization of NFC emulator failed");
+        ERROR("Initialization of NFC emulator failed");
         nfc_disconnect (data->pndTarget);
         return 0;
     }
-    if (debug)
-        printf ("%s\n", "Done, relaying frames now!");
+    DEBUG("%s\n", "Done, relaying frames now!");
 
 
     return 1;
@@ -170,7 +166,7 @@ static int lnfc_receive_capdu(void *driver_data,
 
     // Receive external reader command through target
     if (!nfc_target_receive_bytes(data->pndTarget, data->abtCapdu, &data->szCapduLen)) {
-        if (verbose || debug)
+        if (verbose >= 0)
             nfc_perror (data->pndTarget, "nfc_target_receive_bytes");
         return 0;
     }
@@ -189,7 +185,8 @@ static int lnfc_send_rapdu(void *driver_data,
 
 
     if (!nfc_target_send_bytes(data->pndTarget, rapdu, len)) {
-        nfc_perror (data->pndTarget, "nfc_target_send_bytes");
+        if (verbose >= 0)
+            nfc_perror (data->pndTarget, "nfc_target_send_bytes");
         return 0;
     }
 

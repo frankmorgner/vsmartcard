@@ -28,25 +28,27 @@ struct picc_data {
     size_t buflen;
     FILE *fd;
 };
-static size_t picc_encode_rapdu(const unsigned char *inbuf, size_t inlen, char **outbuf);
-static size_t picc_decode_apdu(const char *inbuf, size_t inlen, unsigned char **outbuf);
+static int picc_encode_rapdu(const unsigned char *inbuf, size_t inlen,
+        char **outbuf, size_t *outlen);
+static int picc_decode_apdu(const char *inbuf, size_t inlen,
+        unsigned char **outbuf, size_t *outlen);
 
 
-size_t picc_encode_rapdu(const unsigned char *inbuf, size_t inlen, char **outbuf)
+int picc_encode_rapdu(const unsigned char *inbuf, size_t inlen,
+        char **outbuf, size_t *outlen)
 {
     char *p;
     const unsigned char *next;
     size_t length;
 
     if (!inbuf || inlen > 0xffff || !outbuf)
-        goto err;
+        return 0;
 
     length = 5+inlen*3+1;
     p = realloc(*outbuf, length);
     if (!p) {
-        if (debug || verbose)
-            fprintf(stderr, "Error allocating memory for encoded R-APDU\n");
-        goto err;
+        ERROR("Error allocating memory for encoded R-APDU\n");
+        return 0;
     }
     *outbuf = p;
 
@@ -61,35 +63,38 @@ size_t picc_encode_rapdu(const unsigned char *inbuf, size_t inlen, char **outbuf
         p += 3;
     }
 
-    return length;
-
-err:
-    return 0;
+    *outlen = length;
+    return 1;
 }
 
-size_t picc_decode_apdu(const char *inbuf, size_t inlen, unsigned char **outbuf)
+int picc_decode_apdu(const char *inbuf, size_t inlen,
+        unsigned char **outbuf, size_t *outlen)
 {
     size_t pos, length;
     char *end, *p;
     unsigned long int b;
 
-    if (!outbuf || inbuf == NULL || inlen == 0 || inbuf[0] == '\0') {
-        /* Ignore invalid parameters, empty and 'RESET' lines */
-        goto noapdu;
+    if (!outbuf || !outlen) {
+        /* Invalid parameters */
+        return 0;
+    }
+    if (inbuf == NULL || inlen == 0 || inbuf[0] == '\0') {
+        /* Ignore empty and 'RESET' lines */
+        *outlen = 0;
+        return 1;
     }
 
     length = strtoul(inbuf, &end, 16);
 
     /* check for ':' right behind the length */
     if (inbuf+inlen < end+1 || end[0] != ':')
-        goto noapdu;
+        return 0;
     end++;
 
     p = realloc(*outbuf, length);
     if (!p) {
-        if (debug || verbose)
-            fprintf(stderr, "Error allocating memory for decoded C-APDU\n");
-        goto noapdu;
+        ERROR("Error allocating memory for decoded C-APDU\n");
+        return 0;
     }
     *outbuf = p;
 
@@ -97,18 +102,16 @@ size_t picc_decode_apdu(const char *inbuf, size_t inlen, unsigned char **outbuf)
     while(inbuf+inlen > end && length > pos) {
         b = strtoul(end, &end, 16);
         if (b > 0xff) {
-            if (debug || verbose)
-                fprintf(stderr, "%s:%u Error decoding C-APDU\n", __FILE__, __LINE__);
-            goto noapdu;
+            ERROR( "%s:%u Error decoding C-APDU\n", __FILE__, __LINE__);
+            return 0;
         }
 
         (*outbuf)[pos++] = b;
     }
 
-    return length;
+    *outlen = length;
 
-noapdu:
-    return 0;
+    return 1;
 }
 
 
@@ -127,8 +130,7 @@ static int picc_connect(void **driver_data)
 
     data->fd = fopen(PICCDEV, "a+"); /*O_NOCTTY ?*/
     if (!data->fd) {
-        if (debug || verbose)
-            fprintf(stderr,"Error opening %s\n", PICCDEV);
+        ERROR("Error opening %s\n", PICCDEV);
         return 0;
     }
 
@@ -136,8 +138,7 @@ static int picc_connect(void **driver_data)
     data->buflen = 0;
 
 
-    if (debug || verbose)
-        printf("Connected to %s\n", PICCDEV);
+    INFO("Connected to %s\n", PICCDEV);
 
     return 1;
 }
@@ -176,8 +177,7 @@ static int picc_receive_capdu(void *driver_data,
     linelen = getline(&buf, &buflen, data->fd);
     if (linelen < 0) {
         if (linelen < 0) {
-            if (debug || verbose)
-                fprintf(stderr,"Error reading from %s\n", PICCDEV);
+            ERROR("Error reading from %s\n", PICCDEV);
             return 0;
         }
     }
@@ -187,12 +187,13 @@ static int picc_receive_capdu(void *driver_data,
     }
     fflush(data->fd);
 
-    if (debug)
-        printf("%s\n", buf);
+    DEBUG("%s\n", buf);
 
 
     /* decode C-APDU */
-    *len = picc_decode_apdu(buf, linelen, capdu);
+    if (!picc_decode_apdu(buf, linelen, capdu, len))
+        return 0;
+
 
     return 1;
 }
@@ -200,27 +201,28 @@ static int picc_receive_capdu(void *driver_data,
 static int picc_send_rapdu(void *driver_data,
         const unsigned char *rapdu, size_t len)
 {
-    size_t buflen;
     struct picc_data *data = driver_data;
+    size_t buflen;
 
     if (!data || !rapdu)
         return 0;
 
 
     /* encode R-APDU */
-    buflen = picc_encode_rapdu(rapdu, len, &data->buf);
-    if (buflen > data->buflen)
+    if (!picc_encode_rapdu(rapdu, len, &data->buf, &buflen))
+        return 0;
+    if (data->buflen < buflen)
         data->buflen = buflen;
 
 
     /* write R-APDU */
-    if (debug)
-        printf("INF: Writing R-APDU\n\n%s\n\n", data->buf);
+    DEBUG("INF: Writing R-APDU\n\n%s\n\n", data->buf);
 
     if (fprintf(data->fd,"%s\r\n", (char *) data->buf) < 0
             || fflush(data->fd) != 0) {
         return 0;
     }
+
 
     return 1;
 }
