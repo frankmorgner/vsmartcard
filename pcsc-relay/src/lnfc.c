@@ -30,6 +30,75 @@ struct lnfc_data {
 };
 
 
+static size_t get_historical_bytes(unsigned char *atr, size_t atrlen,
+        unsigned char **hb)
+{
+    size_t i, hblen;
+    char tax_present, tbx_present, tcx_present, tdx_present, x;
+
+    if (!atr || !hb)
+        return 0;
+
+
+    /* TS - The Initial Character */
+    i = 0;
+    if (i >= atrlen)
+        return 0;
+
+
+    /* T0 - The Format Character */
+    i++;
+    if (i >= atrlen)
+        return 0;
+    hblen = atr[i] & 0xf;
+    /* T0 is a specieal case of TD */
+    x = 0;
+    tdx_present = 1;
+
+
+    /* TA1, TB1, TC1, TD1... - The Interface Characters */
+    while (x <= 4 && tdx_present) {
+        if (i >= atrlen)
+            return 0;
+
+        if (atr[i] & 0x80) {
+            /* TAX is present */
+            i++;
+            if (i >= atrlen)
+                return 0;
+        }
+        if (atr[i] & 0x40) {
+            /* TBX is present */
+            i++;
+            if (i >= atrlen)
+                return 0;
+        }
+        if (atr[i] & 0x20) {
+            /* TCX is present */
+            i++;
+            if (i >= atrlen)
+                return 0;
+        }
+        if (!(atr[i] & 0x10)) {
+            /* TDX is NOT present */
+            tdx_present = 0;
+        }
+
+        x++;
+        i++;
+        if (i >= atrlen)
+            return 0;
+    }
+
+    if (i + hblen > atrlen)
+        return 0;
+
+    *hb = atr + i;
+
+    return hblen;
+}
+
+
 static int lnfc_connect(void **driver_data)
 {
     struct lnfc_data *data;
