@@ -102,9 +102,16 @@ static size_t get_historical_bytes(unsigned char *atr, size_t atrlen,
 static int lnfc_connect(void **driver_data)
 {
     struct lnfc_data *data;
+    /* data derived from German (test) identity card issued 2010 */
     nfc_target_t ntEmulatedTarget = {
-      .nm.nmt = NMT_ISO14443A,
-      .nm.nbr = NBR_106,
+        .nti.nai.abtAtqa = {0x00, 0x08},
+        .nti.nai.btSak = 0x20,
+        .nti.nai.szUidLen = 4,
+        .nti.nai.abtUid = {0x08, 0xdb, 0x02, 0xfe},
+        .nti.nai.szAtsLen = 8,
+        .nti.nai.abtAts = {0x78, 0x77, 0xd4, 0x02, 0x00, 0x00, 0x90, 0x00},
+        .nm.nmt = NMT_ISO14443A,
+        .nm.nbr = NBR_106,
     };
 
     if (!driver_data)
@@ -116,42 +123,6 @@ static int lnfc_connect(void **driver_data)
         return 0;
     *driver_data = data;
 
-    /* FIXME
-     * ntEmulatedTarget.nti.nai.abtUid
-     * ntEmulatedTarget.nti.nai.abtAtqa
-     * ntEmulatedTarget.nti.nai.btSak
-     * ntEmulatedTarget.nti.nai.abtAts
-     */
-    // We can only emulate a short UID, so fix length & ATQA bit:
-    ntEmulatedTarget.nti.nai.szUidLen = 4;
-    ntEmulatedTarget.nti.nai.abtAtqa[1] &= (0xFF-0x40);
-    // First byte of UID is always automatically replaced by 0x08 in this mode anyway
-    ntEmulatedTarget.nti.nai.abtUid[0] = 0x08;
-    // ATS is always automatically replaced by PN532, we've no control on it:
-    // ATS = (05) 75 33 92 03
-    //       (TL) T0 TA TB TC
-    //             |  |  |  +-- CID supported, NAD supported
-    //             |  |  +----- FWI=9 SFGI=2 => FWT=154ms, SFGT=1.21ms
-    //             |  +-------- DR=2,4 DS=2,4 => supports 106, 212 & 424bps in both directions
-    //             +----------- TA,TB,TC, FSCI=5 => FSC=64
-    // It seems hazardous to tell we support NAD if the tag doesn't support NAD but I don't know how to disable it
-    // PC/SC pseudo-ATR = 3B 80 80 01 01 if there is no historical bytes
-
-    // Creates ATS and copy max 48 bytes of Tk:
-    /*
-    byte_t * pbtTk;
-    size_t szTk;
-    pbtTk = iso14443a_locate_historical_bytes (ntEmulatedTarget.nti.nai.abtAts, ntEmulatedTarget.nti.nai.szAtsLen, &szTk);
-    szTk = (szTk > 48) ? 48 : szTk;
-    byte_t pbtTkt[48];
-    memcpy(pbtTkt, pbtTk, szTk);
-    ntEmulatedTarget.nti.nai.abtAts[0] = 0x75;
-    ntEmulatedTarget.nti.nai.abtAts[1] = 0x33;
-    ntEmulatedTarget.nti.nai.abtAts[2] = 0x92;
-    ntEmulatedTarget.nti.nai.abtAts[3] = 0x03;
-    ntEmulatedTarget.nti.nai.szAtsLen = 4 + szTk;
-    memcpy(&(ntEmulatedTarget.nti.nai.abtAts[4]), pbtTkt, szTk);
-    */
 
     // Try to open the NFC emulator device
     data->pndTarget = nfc_connect (NULL);
@@ -217,8 +188,10 @@ static int lnfc_send_rapdu(void *driver_data,
         return 0;
 
 
-    if (!nfc_target_send_bytes(data->pndTarget, rapdu, len))
+    if (!nfc_target_send_bytes(data->pndTarget, rapdu, len)) {
         nfc_perror (data->pndTarget, "nfc_target_send_bytes");
+        return 0;
+    }
 
 
     return 1;
