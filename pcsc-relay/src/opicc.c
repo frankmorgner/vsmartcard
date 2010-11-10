@@ -1,30 +1,31 @@
 /*
  * Copyright (C) 2010 Frank Morgner
  *
- * This file is part of ccid.
+ * This file is part of pcsc-relay.
  *
- * ccid is free software: you can redistribute it and/or modify it under the
- * terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version.
+ * pcsc-relay is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option)
+ * any later version.
  *
- * ccid is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
- * details.
+ * pcsc-relay is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
  *
  * You should have received a copy of the GNU General Public License along with
- * ccid.  If not, see <http://www.gnu.org/licenses/>.
+ * pcsc-relay.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "config.h"
 #include "pcsc-relay.h"
 
 struct picc_data {
-    char *read;
-    size_t readlen;
+    char *buf;
+    size_t buflen;
     FILE *fd;
 };
 static size_t picc_encode_rapdu(const unsigned char *inbuf, size_t inlen, char **outbuf);
@@ -114,18 +115,19 @@ noapdu:
 
 static int picc_connect(void **driver_data)
 {
-    struct picc_data *p;
+    struct picc_data *data;
 
     if (!driver_data)
         return 0;
 
-    p = realloc(*driver_data, sizeof *p);
-    if (!p)
+    data = realloc(*driver_data, sizeof *data);
+    if (!data)
         return 0;
-    *driver_data = p;
+    memset(data, 0, sizeof *data);
+    *driver_data = data;
 
-    p->fd = fopen(PICCDEV, "a+"); /*O_NOCTTY ?*/
-    if (!p->fd) {
+    data->fd = fopen(PICCDEV, "a+"); /*O_NOCTTY ?*/
+    if (!data->fd) {
         if (debug || verbose)
             fprintf(stderr,"Error opening %s\n", PICCDEV);
         return 0;
@@ -139,8 +141,12 @@ static int picc_connect(void **driver_data)
 static int picc_disconnect(void *driver_data)
 {
     struct picc_data *data = driver_data;
-    if (data && data->fd)
-        fclose(data->fd); 
+    if (data) {
+        if (data->fd)
+            fclose(data->fd); 
+        if (data->buf)
+            free(data->buf);
+    }
 
     return 1;
 }
@@ -156,7 +162,7 @@ static int picc_receive_capdu(void *driver_data,
 
 
     /* read C-APDU */
-    linelen = getline(&data->read, &data->readlen, data->fd);
+    linelen = getline(&data->buf, &data->buflen, data->fd);
     if (linelen < 0) {
         if (linelen < 0) {
             if (debug || verbose)
@@ -171,11 +177,11 @@ static int picc_receive_capdu(void *driver_data,
     fflush(data->fd);
 
     if (debug)
-        printf("%s\n", data->read);
+        printf("%s\n", data->buf);
 
 
     /* decode C-APDU */
-    *len = picc_decode_apdu(data->read, linelen, capdu);
+    *len = picc_decode_apdu(data->buf, linelen, capdu);
 
     return 1;
 }
@@ -183,7 +189,6 @@ static int picc_receive_capdu(void *driver_data,
 static int picc_send_rapdu(void *driver_data,
         const unsigned char *rapdu, size_t len)
 {
-    char *buf = NULL;
     size_t buflen;
     struct picc_data *data = driver_data;
 
@@ -192,20 +197,19 @@ static int picc_send_rapdu(void *driver_data,
 
 
     /* encode R-APDU */
-    buflen = picc_encode_rapdu(rapdu, len, &buf);
+    buflen = picc_encode_rapdu(rapdu, len, &data->buf);
+    if (buflen > data->buflen)
+        data->buflen = buflen;
 
 
     /* write R-APDU */
     if (debug)
-        printf("INF: Writing R-APDU\n\n%s\n\n", buf);
+        printf("INF: Writing R-APDU\n\n%s\n\n", data->buf);
 
-    if (fprintf(data->fd,"%s\r\n", (char *) buf) < 0
+    if (fprintf(data->fd,"%s\r\n", (char *) data->buf) < 0
             || fflush(data->fd) != 0) {
-        free(buf);
         return 0;
     }
-
-    free(buf);
 
     return 1;
 }

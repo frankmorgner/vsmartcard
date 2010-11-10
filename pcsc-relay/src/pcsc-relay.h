@@ -1,20 +1,20 @@
 /*
  * Copyright (C) 2010 Frank Morgner
  *
- * This file is part of ccid.
+ * This file is part of pcsc-relay.
  *
- * ccid is free software: you can redistribute it and/or modify it under the
- * terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version.
+ * pcsc-relay is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option)
+ * any later version.
  *
- * ccid is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
- * details.
+ * pcsc-relay is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
  *
  * You should have received a copy of the GNU General Public License along with
- * ccid.  If not, see <http://www.gnu.org/licenses/>.
+ * pcsc-relay.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
  * @file
