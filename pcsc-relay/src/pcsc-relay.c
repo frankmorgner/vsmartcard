@@ -178,6 +178,15 @@ int main (int argc, char **argv)
         }
     }
 
+    if (optind < argc) {
+        fprintf (stderr, "Unknown argument%s:", optind+1 == argc ? "" : "s");
+        while (optind < argc) {
+            fprintf(stderr, " \"%s\"", argv[optind++]);
+            fprintf(stderr, "%c", optind == argc ? '\n' : ',');
+        }
+        exit(1);
+    }
+
 
     if (doinfo) {
         fprintf(stderr, "%s  written by Frank Morgner.\n" ,
