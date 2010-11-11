@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
 #include "config.h"
 #include "pcsc-relay.h"
@@ -129,7 +130,7 @@ static int picc_connect(void **driver_data)
 
     data->fd = fopen(PICCDEV, "a+"); /*O_NOCTTY ?*/
     if (!data->fd) {
-        ERROR("Error opening %s\n", PICCDEV);
+        ERROR("Error opening %s: %s\n", PICCDEV, strerror(errno));
         return 0;
     }
 
@@ -166,18 +167,16 @@ static int picc_receive_capdu(void *driver_data,
 {
     ssize_t linelen;
     struct picc_data *data = driver_data;
-    size_t buflen = 0;
-    char *buf = NULL;
 
     if (!data || !capdu || !len)
         return 0;
 
 
     /* read C-APDU */
-    linelen = getline(&buf, &buflen, data->fd);
+    linelen = getline(&data->buf, &data->bufmax, data->fd);
     if (linelen < 0) {
         if (linelen < 0) {
-            ERROR("Error reading from %s\n", PICCDEV);
+            ERROR("Error reading from %s: %s\n", PICCDEV, strerror(errno));
             return 0;
         }
     }
@@ -187,15 +186,11 @@ static int picc_receive_capdu(void *driver_data,
     }
     fflush(data->fd);
 
-    DEBUG("%s\n", buf);
+    DEBUG("%s\n", data->buf);
 
 
     /* decode C-APDU */
-    if (!picc_decode_apdu(buf, linelen, capdu, len))
-        return 0;
-
-
-    return 1;
+    return picc_decode_apdu(data->buf, linelen, capdu, len);
 }
 
 static int picc_send_rapdu(void *driver_data,
@@ -218,8 +213,12 @@ static int picc_send_rapdu(void *driver_data,
     /* write R-APDU */
     DEBUG("INF: Writing R-APDU\r\n%s\r\n", data->buf);
 
-    if (fprintf(data->fd,"%s\r\n", (char *) data->buf) < 0
-            || fflush(data->fd) != 0) {
+    if (fprintf(data->fd,"%s\r\n", (char *) data->buf) < 0) {
+        ERROR("fprintf: %s\n", strerror(errno));
+        return 0;
+    }
+    if (fflush(data->fd) != 0) {
+        ERROR("fflush: %s\n", strerror(errno));
         return 0;
     }
 

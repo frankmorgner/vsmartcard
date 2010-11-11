@@ -70,13 +70,16 @@ static void daemonize();
 static void cleanup_exit(int signo);
 static void cleanup(void);
 
+
 void daemonize() {
     pid_t pid, sid;
 
-    /*Fork and continue as child process*/
+    /* Fork and continue as child process */
     pid = fork();
-    if (pid < 0)
+    if (pid < 0) {
+        ERROR("fork: %s\n", strerror(errno));
         goto err;
+    }
     if (pid > 0) /* Exit the parent */
         exit(0);
 
@@ -84,13 +87,17 @@ void daemonize() {
 
     /* Create new session and set the process group ID */
     sid = setsid();
-    if (sid < 0)
+    if (sid < 0) {
+        ERROR("setsid: %s\n", strerror(errno));
         goto err;
+    }
          
     /* Change the current working directory.  This prevents the current
-       directory from being locked; hence not being able to remove it. */
-    if (chdir("/") < 0)
+     * directory from being locked; hence not being able to remove it. */
+    if (chdir("/") < 0) {
+        ERROR("chdir: %s\n", strerror(errno));
         goto err;
+    }
 
     /* Redirect standard files to /dev/null */
     close(STDIN_FILENO);
@@ -190,8 +197,10 @@ int main (int argc, char **argv)
     sigemptyset(&new_sig.sa_mask);
     new_sig.sa_flags = SA_RESTART;
     if ((sigaction(SIGINT, &new_sig, &old_sig) < 0)
-            || (sigaction(SIGTERM, &new_sig, &old_sig) < 0))
+            || (sigaction(SIGTERM, &new_sig, &old_sig) < 0)) {
+        ERROR("sigaction: %s\n", strerror(errno));
         goto err;
+    }
 
 
     /* Open the device */
@@ -218,7 +227,7 @@ int main (int argc, char **argv)
 
 
         /* transmit APDU to card */
-        outputLength = MAX_BUFFER_SIZE;
+        outputLength = sizeof outputBuffer;
         r = pcsc_transmit(protocol, hCard, buf, buflen, outputBuffer, &outputLength);
         if (r != SCARD_S_SUCCESS)
             goto err;
@@ -235,5 +244,10 @@ int main (int argc, char **argv)
 err:
     cleanup();
 
-    exit(r == SCARD_S_SUCCESS ? 0 : 1);
+    if (r != SCARD_S_SUCCESS) {
+        ERROR(pcsc_stringify_error(r));
+        exit(1);
+    }
+
+    exit(0);
 }

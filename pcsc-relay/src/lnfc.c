@@ -167,8 +167,7 @@ static int lnfc_receive_capdu(void *driver_data,
 
     // Receive external reader command through target
     if (!nfc_target_receive_bytes(data->pndTarget, data->abtCapdu, &data->szCapduLen)) {
-        if (verbose >= 0)
-            nfc_perror (data->pndTarget, "nfc_target_receive_bytes");
+        ERROR ("nfc_target_receive_bytes: %s\n", nfc_strerror(data->pndTarget));
         return 0;
     }
 
@@ -196,8 +195,7 @@ static int lnfc_send_rapdu(void *driver_data,
 
 
     if (!nfc_target_send_bytes(data->pndTarget, rapdu, len)) {
-        if (verbose >= 0)
-            nfc_perror (data->pndTarget, "nfc_target_send_bytes");
+        ERROR ("nfc_target_send_bytes: %s\n", nfc_strerror(data->pndTarget));
         return 0;
     }
 

@@ -51,8 +51,10 @@ extern struct rf_driver driver_libnfc;
     {if (verbose >= LEVEL_INFO) \
         printf (__VA_ARGS__);}
 #define ERROR(...) \
-    {if (verbose >= 0) \
-        fprintf (stderr, __VA_ARGS__);}
+    { \
+        if (verbose >= LEVEL_DEBUG) fprintf (stderr, "%s:%u\t", __FILE__, __LINE__); \
+        if (verbose >= 0) fprintf (stderr, __VA_ARGS__); \
+    }
 
 
 #ifdef  __cplusplus
