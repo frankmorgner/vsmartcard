@@ -45,6 +45,7 @@ int picc_encode_rapdu(const unsigned char *inbuf, size_t inlen,
     if (!inbuf || inlen > 0xffff || !outbuf)
         return 0;
 
+    /* length with ':' + for each byte ' ' with hex + '\0' */
     length = 5+inlen*3+1;
     p = realloc(*outbuf, length);
     if (!p) {
@@ -62,7 +63,7 @@ int picc_encode_rapdu(const unsigned char *inbuf, size_t inlen,
     /* let p point behind ':' to write hex encoded bytes */
     p += 5;
     while (inbuf+inlen > next) {
-        sprintf(p," %02X",*next);
+        sprintf(p, " %02X", *next);
         next++;
         p += 3;
     }
@@ -187,7 +188,7 @@ static int picc_receive_capdu(driver_data_t *driver_data,
     if (fflush(data->fd) != 0)
         ERROR("Warning, fflush failed: %s\n", strerror(errno));
 
-    DEBUG("%s\n", data->buf);
+    DEBUG("%s", data->buf);
 
 
     /* decode C-APDU */
