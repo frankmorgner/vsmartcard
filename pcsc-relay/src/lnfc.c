@@ -99,7 +99,7 @@ static size_t get_historical_bytes(unsigned char *atr, size_t atrlen,
 }
 
 
-static int lnfc_connect(void **driver_data)
+static int lnfc_connect(driver_data_t **driver_data)
 {
     struct lnfc_data *data;
     /* data derived from German (test) identity card issued 2010 */
@@ -131,10 +131,11 @@ static int lnfc_connect(void **driver_data)
     }
 
     if (verbose >= 0)
-        printf("Connected to %s\n", data->pndTarget->acName);
+        printf("Connected to %s\n", nfc_device_name(data->pndTarget));
 
+    DEBUG("Waiting for a command that is not part of the anti-collision...\n");
     if (!nfc_target_init (data->pndTarget, &ntEmulatedTarget, data->abtCapdu, &data->szCapduLen)) {
-        ERROR("Initialization of NFC emulator failed");
+        ERROR("nfc_target_init: %s\n", nfc_strerror(data->pndTarget));
         nfc_disconnect (data->pndTarget);
         return 0;
     }
@@ -144,18 +145,21 @@ static int lnfc_connect(void **driver_data)
     return 1;
 }
 
-static int lnfc_disconnect(void *driver_data)
+static int lnfc_disconnect(driver_data_t *driver_data)
 {
     struct lnfc_data *data = driver_data;
 
 
-    nfc_disconnect (data->pndTarget);
+    if (data) {
+        nfc_disconnect (data->pndTarget);
+        free(data);
+    }
 
 
     return 1;
 }
 
-static int lnfc_receive_capdu(void *driver_data,
+static int lnfc_receive_capdu(driver_data_t *driver_data,
         unsigned char **capdu, size_t *len)
 {
     struct lnfc_data *data = driver_data;
@@ -185,7 +189,7 @@ static int lnfc_receive_capdu(void *driver_data,
     return 1;
 }
 
-static int lnfc_send_rapdu(void *driver_data,
+static int lnfc_send_rapdu(driver_data_t *driver_data,
         const unsigned char *rapdu, size_t len)
 {
     struct lnfc_data *data = driver_data;
@@ -205,7 +209,6 @@ static int lnfc_send_rapdu(void *driver_data,
 
 
 struct rf_driver driver_libnfc = {
-    .data = NULL,
     .connect = lnfc_connect,
     .disconnect = lnfc_disconnect,
     .receive_capdu = lnfc_receive_capdu,

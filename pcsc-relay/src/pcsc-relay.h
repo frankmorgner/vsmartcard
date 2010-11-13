@@ -27,13 +27,13 @@
 extern "C" {
 #endif
 
+typedef void driver_data_t;
 struct rf_driver {
-    void *data;
-    int (*connect) (void **driver_data);
-    int (*disconnect) (void *driver_data);
-    int (*receive_capdu) (void *driver_data,
+    int (*connect) (driver_data_t **driver_data);
+    int (*disconnect) (driver_data_t *driver_data);
+    int (*receive_capdu) (driver_data_t *driver_data,
             unsigned char **capdu, size_t *len);
-    int (*send_rapdu) (void *driver_data,
+    int (*send_rapdu) (driver_data_t *driver_data,
             const unsigned char *rapdu, size_t len);
 };
 

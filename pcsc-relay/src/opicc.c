@@ -52,11 +52,14 @@ int picc_encode_rapdu(const unsigned char *inbuf, size_t inlen,
         return 0;
     }
     *outbuf = p;
+    *outlen = length;
 
-    sprintf(*outbuf, "%04X:", inlen);
+    /* write length of R-APDU */
+    sprintf(p, "%04X:", inlen);
 
+    /* next points to the next byte to encode */
     next = inbuf;
-    /* let p point behind ':' */
+    /* let p point behind ':' to write hex encoded bytes */
     p += 5;
     while (inbuf+inlen > next) {
         sprintf(p," %02X",*next);
@@ -64,7 +67,6 @@ int picc_encode_rapdu(const unsigned char *inbuf, size_t inlen,
         p += 3;
     }
 
-    *outlen = length;
     return 1;
 }
 
@@ -115,7 +117,7 @@ int picc_decode_apdu(const char *inbuf, size_t inlen,
 }
 
 
-static int picc_connect(void **driver_data)
+static int picc_connect(driver_data_t **driver_data)
 {
     struct picc_data *data;
 
@@ -128,14 +130,14 @@ static int picc_connect(void **driver_data)
         return 0;
     *driver_data = data;
 
+    data->buf = NULL;
+    data->bufmax = 0;
+
     data->fd = fopen(PICCDEV, "a+"); /*O_NOCTTY ?*/
     if (!data->fd) {
         ERROR("Error opening %s: %s\n", PICCDEV, strerror(errno));
         return 0;
     }
-
-    data->buf = NULL;
-    data->bufmax = 0;
 
 
     if (verbose >= 0)
@@ -144,7 +146,7 @@ static int picc_connect(void **driver_data)
     return 1;
 }
 
-static int picc_disconnect(void *driver_data)
+static int picc_disconnect(driver_data_t *driver_data)
 {
     struct picc_data *data = driver_data;
 
@@ -152,17 +154,15 @@ static int picc_disconnect(void *driver_data)
     if (data) {
         if (data->fd)
             fclose(data->fd); 
-        data->fd = NULL;
         free(data->buf);
-        data->buf = NULL;
-        data->bufmax = 0;
+        free(data);
     }
 
 
     return 1;
 }
 
-static int picc_receive_capdu(void *driver_data,
+static int picc_receive_capdu(driver_data_t *driver_data,
         unsigned char **capdu, size_t *len)
 {
     ssize_t linelen;
@@ -184,7 +184,8 @@ static int picc_receive_capdu(void *driver_data,
         *len = 0;
         return 1;
     }
-    fflush(data->fd);
+    if (fflush(data->fd) != 0)
+        ERROR("Warning, fflush failed: %s\n", strerror(errno));
 
     DEBUG("%s\n", data->buf);
 
@@ -193,7 +194,7 @@ static int picc_receive_capdu(void *driver_data,
     return picc_decode_apdu(data->buf, linelen, capdu, len);
 }
 
-static int picc_send_rapdu(void *driver_data,
+static int picc_send_rapdu(driver_data_t *driver_data,
         const unsigned char *rapdu, size_t len)
 {
     struct picc_data *data = driver_data;
@@ -213,14 +214,12 @@ static int picc_send_rapdu(void *driver_data,
     /* write R-APDU */
     DEBUG("INF: Writing R-APDU\r\n%s\r\n", data->buf);
 
-    if (fprintf(data->fd,"%s\r\n", (char *) data->buf) < 0) {
-        ERROR("fprintf: %s\n", strerror(errno));
+    if (fprintf(data->fd,"%s\r\n", data->buf) < 0) {
+        ERROR("Error writing to %s: %s\n", PICCDEV, strerror(errno));
         return 0;
     }
-    if (fflush(data->fd) != 0) {
-        ERROR("fflush: %s\n", strerror(errno));
-        return 0;
-    }
+    if (fflush(data->fd) != 0)
+        ERROR("Warning, fflush failed: %s\n", strerror(errno));
 
 
     return 1;
@@ -228,7 +227,6 @@ static int picc_send_rapdu(void *driver_data,
 
 
 struct rf_driver driver_openpicc = {
-    .data = NULL,
     .connect = picc_connect,
     .disconnect = picc_disconnect,
     .receive_capdu = picc_receive_capdu,

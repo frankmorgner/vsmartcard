@@ -59,6 +59,7 @@ static int dodaemon = 1;
 int verbose = 0;
 static unsigned int readernum = 0;
 static struct rf_driver *driver = &driver_openpicc;
+static driver_data_t *driver_data = NULL;
 
 
 static LPSTR readers = NULL;
@@ -66,12 +67,12 @@ static SCARDCONTEXT hContext = 0;
 static SCARDHANDLE hCard = 0;
 
 /* Forward declaration */
-static void daemonize();
+static void daemonize(void);
 static void cleanup_exit(int signo);
 static void cleanup(void);
 
 
-void daemonize() {
+void daemonize(void) {
     pid_t pid, sid;
 
     /* Fork and continue as child process */
@@ -117,7 +118,8 @@ void cleanup_exit(int signo){
 }
 
 void cleanup(void) {
-    driver->disconnect(driver->data);
+    driver->disconnect(driver_data);
+    driver_data = NULL;
     pcsc_disconnect(hContext, hCard, readers);
 }
 
@@ -195,12 +197,6 @@ int main (int argc, char **argv)
     }
 
 
-    if (dodaemon) {
-        verbose = -1;
-        daemonize();
-    }
-
-
     /* Register signal handlers */
     new_sig.sa_handler = cleanup_exit;
     sigemptyset(&new_sig.sa_mask);
@@ -213,7 +209,7 @@ int main (int argc, char **argv)
 
 
     /* Open the device */
-    if (!driver->connect(&driver->data))
+    if (!driver->connect(&driver_data))
         goto err;
 
 
@@ -224,9 +220,16 @@ int main (int argc, char **argv)
         goto err;
 
 
+    if (dodaemon) {
+        INFO("Forking to background...\n");
+        verbose = -1;
+        daemonize();
+    }
+
+
     while(1) {
         /* get C-APDU */
-        if (!driver->receive_capdu(driver->data, &buf, &buflen))
+        if (!driver->receive_capdu(driver_data, &buf, &buflen))
             goto err;
         if (!buflen || !buf)
             continue;
@@ -246,9 +249,10 @@ int main (int argc, char **argv)
         if (verbose >= 0)
             printb("R-APDU:\n", outputBuffer, outputLength);
 
-        if (!driver->send_rapdu(driver->data, outputBuffer, outputLength))
+        if (!driver->send_rapdu(driver_data, outputBuffer, outputLength))
             goto err;
     }
+
 
 err:
     cleanup();
