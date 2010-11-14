@@ -7,6 +7,7 @@ AC_CONFIG_SRCDIR([src/ccid.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE
+LT_INIT
 
 # Checks for programs.
 AC_PROG_CXX
@@ -14,7 +15,6 @@ AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_LIBTOOL
-AC_PROG_RANLIB
 AM_PROG_CC_C_O
 PKG_PROG_PKG_CONFIG
 
@@ -74,27 +74,34 @@ saved_CPPFLAGS="$CPPFLAGS"
 saved_LIBS="$LIBS"
 CPPFLAGS="$CPPFLAGS $OPENSSL_CFLAGS"
 LIBS="$LDFLAGS $OPENSSL_LIBS"
-
 AC_CHECK_HEADERS(openssl/evp.h, [], [ AC_MSG_ERROR([openssl/evp.h not found, install OpenSSL or use ./configure OPENSSL_CFLAGS=...]) ])
 AC_MSG_CHECKING([for EVP_read_pw_string_min])
 AC_TRY_LINK_FUNC(EVP_read_pw_string_min, [ AC_MSG_RESULT([yes]) ], [ AC_MSG_ERROR([OpenSSL not found, use ./configure OPENSSL_LIBS=...]) ])
+CPPFLAGS="$saved_CPPFLAGS"
+LIBS="$saved_LIBS"
+AC_SUBST(OPENSSL_CFLAGS)
+AC_SUBST(OPENSSL_LIBS)
 
 # --enable-pace
 AC_ARG_ENABLE(pace,
               AS_HELP_STRING([--enable-pace], [Enable Password Authenticated Connection Establishment (PACE)]),
               [enable_pace="${enableval}"], [enable_pace=no])
 if test "x$enable_pace" != xno ; then
-    AC_CHECK_HEADERS(openssl/pace.h, [], [ AC_MSG_ERROR([openssl/pace.h not found, install OpenPACE or use ./configure OPENSSL_CFLAGS=...]) ])
-    AC_MSG_CHECKING([for parse_ef_card_access])
-    AC_TRY_LINK_FUNC(parse_ef_card_access, [ AC_MSG_RESULT([yes]) ], [ AC_MSG_ERROR([OpenPACE not found, use ./configure OPENSSL_LIBS=...]) ])
+    PKG_CHECK_EXISTS([libpace],
+                     [PKG_CHECK_MODULES([LIBPACE], [libpace])],
+                     [AC_MSG_WARN([libpace not found by pkg-config])])
+    saved_CPPFLAGS="$CPPFLAGS"
+    saved_LIBS="$LIBS"
+    CPPFLAGS="$CPPFLAGS $LIBPACE_CFLAGS"
+    LIBS="$LDFLAGS $LIBPACE_LIBS"
+    AC_CHECK_HEADERS(pace/pace.h, [], [ AC_MSG_ERROR([pace/pace.h not found, install libpace or use ./configure LIBPACE_CFLAGS=...]) ])
+    AC_MSG_CHECKING([for EstablishPACEChannel])
+    AC_TRY_LINK_FUNC(EstablishPACEChannel, [ AC_MSG_RESULT([yes]) ], [ AC_MSG_ERROR([libpace not found, use ./configure LIBPACE_LIBS=...]) ])
+    CPPFLAGS="$saved_CPPFLAGS"
+    LIBS="$saved_LIBS"
 
     enable_pace=yes
 fi
-
-CPPFLAGS="$saved_CPPFLAGS"
-LIBS="$saved_LIBS"
-AC_SUBST(OPENSSL_CFLAGS)
-AC_SUBST(OPENSSL_LIBS)
 
 AM_CONDITIONAL(WITH_PACE, test "${enable_pace}" != "no")
 AM_COND_IF(WITH_PACE, [AC_DEFINE(WITH_PACE, 1, [enable PACE support])])
@@ -160,7 +167,7 @@ AC_TYPE_UINT8_T
 # Checks for library functions.
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
-AC_CHECK_FUNCS([memmove memset strerror])
+AC_CHECK_FUNCS([memmove memset strerror strtol])
 
 cat << EOF
 
@@ -185,6 +192,8 @@ OPENSC_CFLAGS:        ${OPENSC_CFLAGS}
 OPENSC_LIBS:          ${OPENSC_LIBS}
 OPENSSL_CFLAGS:       ${OPENSSL_CFLAGS}
 OPENSSL_LIBS:         ${OPENSSL_LIBS}
+LIBPACE_CFLAGS:       ${LIBPACE_CFLAGS}
+LIBPACE_LIBS:         ${LIBPACE_LIBS}
 PCSC_CFLAGS:          ${PCSC_CFLAGS}
 PCSC_LIBS:            ${PCSC_LIBS}
 
