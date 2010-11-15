@@ -92,7 +92,7 @@ void daemonize(void) {
         ERROR("setsid: %s\n", strerror(errno));
         goto err;
     }
-         
+
     /* Change the current working directory.  This prevents the current
      * directory from being locked; hence not being able to remove it. */
     if (chdir("/") < 0) {

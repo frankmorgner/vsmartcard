@@ -25,8 +25,9 @@
 #include "pcsc-relay.h"
 
 struct picc_data {
-    char *buf;
-    size_t bufmax;
+    char *e_rapdu;
+    char *line;
+    size_t linemax;
     FILE *fd;
 };
 static int picc_encode_rapdu(const unsigned char *inbuf, size_t inlen,
@@ -90,8 +91,10 @@ int picc_decode_apdu(const char *inbuf, size_t inlen,
     length = strtoul(inbuf, &end, 16);
 
     /* check for ':' right behind the length */
-    if (inbuf+inlen < end+1 || end[0] != ':')
-        return 0;
+    if (inbuf+inlen < end+1 || end[0] != ':') {
+        *outlen = 0;
+        return 1;
+    }
     end++;
 
     p = realloc(*outbuf, length);
@@ -105,11 +108,11 @@ int picc_decode_apdu(const char *inbuf, size_t inlen,
     while(inbuf+inlen > end && length > pos) {
         b = strtoul(end, &end, 16);
         if (b > 0xff) {
-            ERROR( "%s:%u Error decoding C-APDU\n", __FILE__, __LINE__);
+            ERROR("Error decoding C-APDU\n");
             return 0;
         }
 
-        (*outbuf)[pos++] = b;
+        p[pos++] = b;
     }
 
     *outlen = length;
@@ -131,8 +134,9 @@ static int picc_connect(driver_data_t **driver_data)
         return 0;
     *driver_data = data;
 
-    data->buf = NULL;
-    data->bufmax = 0;
+    data->e_rapdu = NULL;
+    data->line = NULL;
+    data->linemax = 0;
 
     data->fd = fopen(PICCDEV, "a+"); /*O_NOCTTY ?*/
     if (!data->fd) {
@@ -155,7 +159,8 @@ static int picc_disconnect(driver_data_t *driver_data)
     if (data) {
         if (data->fd)
             fclose(data->fd); 
-        free(data->buf);
+        free(data->e_rapdu);
+        free(data->line);
         free(data);
     }
 
@@ -174,25 +179,25 @@ static int picc_receive_capdu(driver_data_t *driver_data,
 
 
     /* read C-APDU */
-    linelen = getline(&data->buf, &data->bufmax, data->fd);
-    if (linelen < 0) {
+    linelen = getline(&data->line, &data->linemax, data->fd);
+    if (linelen <= 0) {
         if (linelen < 0) {
             ERROR("Error reading from %s: %s\n", PICCDEV, strerror(errno));
             return 0;
         }
-    }
-    if (linelen == 0) {
-        *len = 0;
-        return 1;
+        if (linelen == 0) {
+            *len = 0;
+            return 1;
+        }
     }
     if (fflush(data->fd) != 0)
         ERROR("Warning, fflush failed: %s\n", strerror(errno));
 
-    DEBUG("%s", data->buf);
+    DEBUG("%s", data->line);
 
 
     /* decode C-APDU */
-    return picc_decode_apdu(data->buf, linelen, capdu, len);
+    return picc_decode_apdu(data->line, linelen, capdu, len);
 }
 
 static int picc_send_rapdu(driver_data_t *driver_data,
@@ -206,16 +211,14 @@ static int picc_send_rapdu(driver_data_t *driver_data,
 
 
     /* encode R-APDU */
-    if (!picc_encode_rapdu(rapdu, len, &data->buf, &buflen))
+    if (!picc_encode_rapdu(rapdu, len, &data->e_rapdu, &buflen))
         return 0;
-    if (data->bufmax < buflen)
-        data->bufmax = buflen;
 
 
     /* write R-APDU */
-    DEBUG("INF: Writing R-APDU\r\n%s\r\n", data->buf);
+    DEBUG("INF: Writing R-APDU\r\n%s\r\n", data->e_rapdu);
 
-    if (fprintf(data->fd,"%s\r\n", data->buf) < 0) {
+    if (fprintf(data->fd,"%s\r\n", data->e_rapdu) < 0) {
         ERROR("Error writing to %s: %s\n", PICCDEV, strerror(errno));
         return 0;
     }
