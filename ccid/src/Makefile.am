@@ -11,6 +11,7 @@ bin_PROGRAMS =
 noinst_HEADERS = \
 		 binutil.h \
 		 pcscutil.h \
+		 scutil.h \
 		 ccid.h \
 		 usbstring.h
 
@@ -31,5 +32,5 @@ if WITH_PACE
 ccid_emulator_LDADD += $(LIBPACE_LIBS)
 ccid_emulator_CFLAGS += $(LIBPACE_CFLAGS)
 else
-ccid_emulator_SOURCES += scutil.c sm.c
+ccid_emulator_SOURCES += scutil.c
 endif

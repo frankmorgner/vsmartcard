@@ -41,7 +41,7 @@ static size_t ef_cardaccess_length = 0;
 #endif
 
 #else
-#include "pace/scutil.h"
+#include "scutil.h"
 #endif
 
 static sc_context_t *ctx = NULL;
