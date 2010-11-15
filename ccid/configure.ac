@@ -111,7 +111,7 @@ AM_COND_IF(WITH_PACE, [AC_DEFINE(BUERGERCLIENT_WORKAROUND, 1, [Always get EF.Car
 # --disable-cats
 AC_ARG_ENABLE(cats,
               AS_HELP_STRING([--enable-cats], [Disable tool for CAT-S and CAT-C (pinpad readers with PACE support)]),
-              [enable_cats="${enableval}"], [enable_cats=yes])
+              [enable_cats="${enableval}"], [enable_cats=no])
 if test "x$enable_cats" != xno ; then
     PKG_CHECK_EXISTS([libpcsclite > 1.4.102],
                      [PKG_CHECK_MODULES([PCSC], [libpcsclite > 1.4.102])],
@@ -137,7 +137,7 @@ if test "x$enable_cats" != xno ; then
 
     enable_cats=yes
 fi
-AM_CONDITIONAL(WITH_CATS, test "${enable_ccid}" != "no")
+AM_CONDITIONAL(WITH_CATS, test "x${enable_cats}" != "xno")
 
 
 # Documentation (default: no)
