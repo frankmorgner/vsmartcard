@@ -16,13 +16,15 @@
  * You should have received a copy of the GNU General Public License along with
  * pcsc-relay.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
+#include <termios.h>
 
 #include "config.h"
 #include "pcsc-relay.h"
+
 
 struct picc_data {
     char *e_rapdu;
@@ -34,6 +36,7 @@ static int picc_encode_rapdu(const unsigned char *inbuf, size_t inlen,
         char **outbuf, size_t *outlen);
 static int picc_decode_apdu(const char *inbuf, size_t inlen,
         unsigned char **outbuf, size_t *outlen);
+static void un_braindead_ify_device(int fd);
 
 
 int picc_encode_rapdu(const unsigned char *inbuf, size_t inlen,
@@ -120,6 +123,27 @@ int picc_decode_apdu(const char *inbuf, size_t inlen,
     return 1;
 }
 
+void un_braindead_ify_device(int fd)
+{
+    /* For some stupid reason the default setting for a serial console is to
+     * use XON/XOFF. This means that some of the bytes will be dropped, making
+     * the device completely unusable for a binary protocol.  Remove that
+     * setting */
+    struct termios options;
+
+    tcgetattr (fd, &options);
+
+    options.c_lflag = 0;
+    options.c_iflag &= IGNPAR | IGNBRK;
+    options.c_oflag &= IGNPAR | IGNBRK;
+
+    cfsetispeed (&options, B115200);
+    cfsetospeed (&options, B115200);
+
+    if (tcsetattr (fd, TCSANOW, &options))
+        ERROR("Can't set device attributes");
+}
+
 
 static int picc_connect(driver_data_t **driver_data)
 {
@@ -143,6 +167,7 @@ static int picc_connect(driver_data_t **driver_data)
         ERROR("Error opening %s: %s\n", PICCDEV, strerror(errno));
         return 0;
     }
+    un_braindead_ify_device(fileno(data->fd));
 
 
     if (verbose >= 0)
@@ -193,7 +218,7 @@ static int picc_receive_capdu(driver_data_t *driver_data,
     if (fflush(data->fd) != 0)
         ERROR("Warning, fflush failed: %s\n", strerror(errno));
 
-    DEBUG("%s", data->line);
+    DEBUG(data->line);
 
 
     /* decode C-APDU */
