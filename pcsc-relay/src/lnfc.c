@@ -114,6 +114,17 @@ static int lnfc_connect(driver_data_t **driver_data)
         .nm.nbr = NBR_106,
     };
 
+    /* fix emulation issues. Initialisation taken from nfc-relay-picc */
+    // We can only emulate a short UID, so fix length & ATQA bit:
+    ntEmulatedTarget.nti.nai.szUidLen = 4;
+    ntEmulatedTarget.nti.nai.abtAtqa[1] &= (0xFF-0x40);
+    // First byte of UID is always automatically replaced by 0x08 in this mode anyway
+    ntEmulatedTarget.nti.nai.abtUid[0] = 0x08;
+    ntEmulatedTarget.nti.nai.abtAts[0] = 0x75;
+    ntEmulatedTarget.nti.nai.abtAts[1] = 0x33;
+    ntEmulatedTarget.nti.nai.abtAts[2] = 0x92;
+    ntEmulatedTarget.nti.nai.abtAts[3] = 0x03;
+
     if (!driver_data)
         return 0;
 
