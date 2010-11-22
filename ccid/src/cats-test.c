@@ -311,8 +311,10 @@ main(int argc, char *argv[])
             (int)recvlen);
 
     r = parse_EstablishPACEChannel_OutputData(recvbuf, recvlen);
-    if (r != SCARD_S_SUCCESS)
+    if (r != SCARD_S_SUCCESS) {
+        printb("EstablishPACEChannel", recvbuf, recvlen);
         goto err;
+    }
 
     printf("Established PACE channel returned in %.0fs.\n",
             difftime(t_end, t_start));

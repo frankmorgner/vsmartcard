@@ -24,11 +24,13 @@
 #endif
 
 #include <stdio.h>
+#include <winscard.h>
 #ifdef HAVE_PCSCLITE_H
 #include <pcsclite.h>
 #define stringify_error(r) { if (r != SCARD_S_SUCCESS) fputs(pcsc_stringify_error(r), stderr); }
 #else
 #define stringify_error(r) { if (r != SCARD_S_SUCCESS) fprintf(stderr, "PC/SC error code %u\n", (unsigned int) r); }
+#define SCARD_PROTOCOL_ANY (SCARD_PROTOCOL_T0|SCARD_PROTOCOL_T1)
 #endif
 
 #ifdef HAVE_READER_H

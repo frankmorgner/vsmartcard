@@ -23,7 +23,7 @@
 
 LONG
 pcsc_connect(unsigned int readernum, DWORD dwShareMode, DWORD dwPreferredProtocols,
-        SCARDCONTEXT *hContext, LPSTR *readers, LPSCARDHANDLE phCard,
+        LPSCARDCONTEXT phContext, LPSTR *readers, LPSCARDHANDLE phCard,
         LPDWORD pdwActiveProtocol)
 {
     LONG r;
@@ -31,7 +31,7 @@ pcsc_connect(unsigned int readernum, DWORD dwShareMode, DWORD dwPreferredProtoco
     char *reader;
     size_t l, i;
 
-    r = SCardEstablishContext(SCARD_SCOPE_SYSTEM, NULL, NULL, &hContext);
+    r = SCardEstablishContext(SCARD_SCOPE_SYSTEM, NULL, NULL, phContext);
     if (r != SCARD_S_SUCCESS) {
         fprintf(stderr, "Could not connect to PC/SC Service\n");
         goto err;
@@ -39,7 +39,7 @@ pcsc_connect(unsigned int readernum, DWORD dwShareMode, DWORD dwPreferredProtoco
 
 
     readerslen = SCARD_AUTOALLOCATE;
-    r = SCardListReaders(hContext, NULL, (LPSTR) readers, &readerslen);
+    r = SCardListReaders(*phContext, NULL, (LPSTR) readers, &readerslen);
     if (r != SCARD_S_SUCCESS) {
         fprintf(stderr, "Could not get readers\n");
         goto err;
@@ -58,7 +58,7 @@ pcsc_connect(unsigned int readernum, DWORD dwShareMode, DWORD dwPreferredProtoco
     }
 
 
-    r = SCardConnect(hContext, reader, dwShareMode, dwPreferredProtocols,
+    r = SCardConnect(*phContext, reader, dwShareMode, dwPreferredProtocols,
             phCard, pdwActiveProtocol); 
     if (r != SCARD_S_SUCCESS) {
         fprintf(stderr, "Could not connect to %s\n", reader);
