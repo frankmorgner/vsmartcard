@@ -1,3 +1,154 @@
+2010-10-26 20:21  frankmorgner
+
+	* src/vpcd/vpcd.c: unified usage of sizeof.
+
+2010-10-15 20:15  frankmorgner
+
+	* README, configure.ac, src/vpcd/Makefile.am, src/vpcd/ifd-vpcd.c,
+	  src/vpcd/ifd.c: - renamed ifd.c to ifd-vpcd.c to have more
+	  readable logging in pcscd
+	  - updated support information
+
+2010-10-13 19:18  frankmorgner
+
+	* configure.ac, src/vpcd/Makefile.am, src/vpcd/reader.conf.in,
+	  src/vpicc/Makefile.am, src/vpicc/vicc.in,
+	  src/vpicc/virtualsmartcard.in: - switched from perl to sed for
+	  substitution of autoconf variables
+	  - changed from generating reader.conf to vpcd in
+	  /etc/reader.conf.d
+
+2010-10-13 16:21  frankmorgner
+
+	* src/vpicc/SmartcardSAM.py, src/vpicc/vicc.in: added missing file,
+	  deleted unused file
+
+2010-10-13 07:46  frankmorgner
+
+	* src/vpicc/virtualsmartcard/SmartcardSAM.py: merged with changes
+	  of r320
+
+2010-10-13 07:40  frankmorgner
+
+	* src/vpicc/CardGenerator.py, src/vpicc/ConstantDefinitions.py,
+	  src/vpicc/CryptoUtils.py, src/vpicc/Makefile.am,
+	  src/vpicc/SEutils.py, src/vpicc/SWutils.py,
+	  src/vpicc/SmartcardFilesystem.py, src/vpicc/TLVutils.py,
+	  src/vpicc/VirtualSmartcard.py, src/vpicc/utils.py,
+	  src/vpicc/virtualsmartcard,
+	  src/vpicc/virtualsmartcard/CardGenerator.py,
+	  src/vpicc/virtualsmartcard/ConstantDefinitions.py,
+	  src/vpicc/virtualsmartcard/CryptoUtils.py,
+	  src/vpicc/virtualsmartcard/SEutils.py,
+	  src/vpicc/virtualsmartcard/SWutils.py,
+	  src/vpicc/virtualsmartcard/SmartcardFilesystem.py,
+	  src/vpicc/virtualsmartcard/SmartcardSAM.py,
+	  src/vpicc/virtualsmartcard/TLVutils.py,
+	  src/vpicc/virtualsmartcard/VirtualSmartcard.py,
+	  src/vpicc/virtualsmartcard/__init__.py,
+	  src/vpicc/virtualsmartcard/utils.py: grouped virtual smartcard
+	  objects in virtualsmartcard package
+
+2010-10-12 12:33  frankmorgner
+
+	* src/vpicc/VirtualSmartcard.py: added inconsistency check for the
+	  received apdu
+
+2010-10-12 12:24  frankmorgner
+
+	* src/vpicc/VirtualSmartcard.py: let vicc recognize shutdown of
+	  vpcd
+
+2010-10-11 18:43  frankmorgner
+
+	* src/vpcd/ifd.c: added workaround for bug 312754 of pcsc-lite
+
+2010-10-11 17:30  frankmorgner
+
+	* src/vpicc/VirtualSmartcard.py: RelayOS: removed card observer
+	  (thread). a removed card is now handled by exceptions.
+
+2010-10-11 15:53  oepen
+
+	* src/vpicc/SmartcardSAM.py: -pycrypto should now only be imported
+	  if an instance of the SAM class is created
+	  -Removed deprecated unit tests
+	  -fixed some bugs caused by incorrect naming
+
+2010-10-11 12:35  frankmorgner
+
+	* src/vpicc/VirtualSmartcard.py: added status message
+
+2010-10-11 12:31  frankmorgner
+
+	* src/vpcd/vpcd.c, src/vpicc/VirtualSmartcard.py: activated ATR
+	  polling as workaround for pyscard bug #3084449. now when the real
+	  smartcard is removed, the relay process terminates
+
+2010-10-11 10:59  frankmorgner
+
+	* src/vpcd/ifd.c: checked ifd.c and vpcd.c with flawfinder rats and
+	  pscan
+
+2010-10-10 16:20  frankmorgner
+
+	* src/vpcd/ifd.c: fixed problems for workaround of pcscd bug 312749
+
+2010-10-10 15:45  frankmorgner
+
+	* src/vpcd/ifd.c, src/vpcd/reader.conf.in: added workaround for
+	  pcscd bug #312749
+
+2010-10-10 14:38  frankmorgner
+
+	* src/vpcd/ifd.c: added length check on rapdu buffer.
+
+2010-10-09 20:42  frankmorgner
+
+	* src/vpicc/VirtualSmartcard.py: modified error messages
+
+2010-10-09 20:32  frankmorgner
+
+	* src/vpcd/ifd.c, src/vpcd/reader.conf.in, src/vpcd/vpcd.c,
+	  src/vpcd/vpcd.h: now reading the port to open from reader.conf
+
+2010-10-09 13:33  frankmorgner
+
+	* src/vpicc/VirtualSmartcard.py: - added more error handling to
+	  RelayOS
+	  - vicc in relay mode terminates when card is removed
+	  - created cleanup routines to use with atexit.register
+
+2010-10-08 20:14  frankmorgner
+
+	* src/vpcd/ifd.c: - added workaround for "Error resetting card." in
+	  pcscd. it is propably a bug in pcscd
+	  - added more debug information
+
+2010-10-08 20:12  frankmorgner
+
+	* src/vpicc/VirtualSmartcard.py: added better inheritance to
+	  smartcard os's
+
+2010-10-08 08:44  frankmorgner
+
+	* src/vpicc/VirtualSmartcard.py: - exception handling on power up
+	  and power down
+	  - added workaround for pyscard bugs #3083586 and #3083254
+
+2010-10-08 08:11  frankmorgner
+
+	* src/vpcd/ifd.c: added debug information
+
+2010-10-07 21:04  frankmorgner
+
+	* src/vpicc/CardGenerator.py, src/vpicc/VirtualSmartcard.py:
+	  implemented smart card class for relaying
+
+2010-07-01 11:13  frankmorgner
+
+	* ChangeLog, configure.ac: releasing 0.2
+
 2010-06-23 07:10  frankmorgner
 
 	* src/vpcd/ifd.c: removed the last references of references to
