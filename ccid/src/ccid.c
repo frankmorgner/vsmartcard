@@ -791,6 +791,7 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
 
     memset(&pace_input, 0, sizeof pace_input);
     memset(&pace_output, 0, sizeof pace_output);
+    pace_input.tr_version = PACE_TR_VERSION_2_02;
 
 
     if (!abDataOut || !abDataOutLen) {
