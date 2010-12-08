@@ -1,16 +1,431 @@
+2010-12-08 12:01  frankmorgner
+
+	* src/pace.c: adapted to the latest changes of OpenPACE
+
+2010-12-07 20:07  frankmorgner
+
+	* README.dox: updated information
+
+2010-12-07 15:48  frankmorgner
+
+	* configure.ac: linking against libopensc not easily possible. we
+	  need to remove this dependancy
+
+2010-11-14 20:34  frankmorgner
+
+	* ., Makefile.am, apdus, configure.ac, m4/acx_pthread.m4, patches,
+	  src/Makefile.am, src/binutil.c, src/binutil.h, src/cats-test.c,
+	  src/ccid.c, src/ccid.h, src/pcscutil.c, src/pcscutil.h,
+	  src/usb.c, src/usbstring.c, src/usbstring.h: extracted libpace
+	  from ccid
+
+2010-10-28 10:00  frankmorgner
+
+	* updated support information
+
+2010-10-28 09:10  frankmorgner
+
+	* - fixed: pace-tool dumped wrong apdu buffer
+	  - updated documentation on opensc
+
+2010-10-27 19:05  frankmorgner
+
+	* - cleaned (debug) output
+	  - fixed error in interactive mode of pace-tool
+
+2010-10-27 14:50  frankmorgner
+
+	* pace card supports extended lengths. note that we really need a
+	  card driver which covers that
+
+2010-10-27 12:11  frankmorgner
+
+	* plaintext apdus to be sent via SM can now be read from a file
+
+2010-10-26 18:41  frankmorgner
+
+	* unified usage of sizeof. found some potential memory corruptions
+	  with that.
+
+2010-10-26 13:47  frankmorgner
+
+	* - fixed memory corruption on card initialization
+	  - fixed compilation warning
+
+2010-10-22 08:31  frankmorgner
+
+	* added workaround for ausweisapp
+
+2010-10-21 18:54  frankmorgner
+
+	* fixed formating of ReadersPACECapabilities result. errors were
+	  due to changes of r284
+
+2010-10-21 12:45  frankmorgner
+
+	* - enable extended length apdu for all cards that have an
+	  ef.cardaccess
+	  - set the bit for esign by default (for testing only)
+
+2010-10-15 16:59  frankmorgner
+
+	* - moved OpenSC-related functions to scutil
+	  - added make-target for flawfinder (to be used with vim)
+
+2010-10-14 05:00  frankmorgner
+
+	* added command line option for gadgetfs mountpoint
+
+2010-10-13 20:10  frankmorgner
+
+	* switched from automake to sed for substitution of automake
+	  variables
+
+2010-10-11 12:02  frankmorgner
+
+	* added argument checking
+
+2010-10-11 11:56  frankmorgner
+
+	* reviewed files with flawfinder
+
+2010-10-07 10:41  frankmorgner
+
+	* - cats-test and picc_to_pcsc are using the same pcsc abstraction.
+	  this reduces the code to maintain
+	  - partial rewrite of picc_to_pcsc to reduce memory leaks and add
+	  fault tolerancy
+
+2010-10-06 20:01  frankmorgner
+
+	* prepare to merge with pcsc_to_picc
+
+2010-10-04 20:05  frankmorgner
+
+	* added missing files
+
+2010-10-04 13:54  frankmorgner
+
+	* using strtol instead of sscanf
+
+2010-10-04 12:04  frankmorgner
+
+	* - added command line parameter for USB iInterface, use it to fool
+	  AusweisApp
+	  - fixed population of event notification status
+	  - dont initialize serial number, when given in input
+
+2010-10-04 05:53  frankmorgner
+
+	* added README as link to doxygen file
+
+2010-10-04 05:52  frankmorgner
+
+	* only using doxygen description as readme
+
+2010-10-02 20:35  frankmorgner
+
+	* changed to a more simplistic generation of documentation
+
+2010-10-01 20:46  frankmorgner
+
+	* added documentation
+
+2010-09-30 20:45  frankmorgner
+
+	* sending description about the running configuration via usb
+	  descriptor
+
+2010-09-30 11:16  frankmorgner
+
+	* added documentation
+
+2010-09-29 21:01  frankmorgner
+
+	* added documentation
+
+2010-09-29 12:57  frankmorgner
+
+	* adapted to the latest changes of OpenPACE
+
+2010-09-28 09:11  frankmorgner
+
+	* postpone patch update for higher versions of ccid
+
+2010-09-28 09:10  frankmorgner
+
+	* forgot writeback to RxBuffer in ccid driver
+
+2010-09-27 20:48  frankmorgner
+
+	* added support for dynamic pace result generation to be
+	  transmitted to the pc/sc client. note that other ccid patches are
+	  not up to date
+
+2010-09-27 10:58  frankmorgner
+
+	* corrected indent and title of CHAT and certificate description
+
+2010-09-27 09:04  frankmorgner
+
+	* added support for printing and transmitting chat
+
+2010-09-27 08:35  frankmorgner
+
+	* print certificate description
+
+2010-09-27 05:18  frankmorgner
+
+	* working on support for certificate description
+
+2010-09-25 05:20  frankmorgner
+
+	* deactivate emulators sm context, when host sends sm protected
+	  apdus
+
+2010-09-24 14:07  frankmorgner
+
+	* - finished simulation of ta/ca
+	  - fixed parsing case 4 extended apdu
+
+2010-09-24 12:22  frankmorgner
+
+	* - fixed pace input parameters of cats-tool
+	  - fixed apdu of simulation of ta/ca (cats-tool)
+	  - fixed padding removal (sm)
+
+2010-09-24 07:42  frankmorgner
+
+	* - updated patch to pcsclite trunk
+	  - changed default ccid command buffer size to support sending
+	  extended apdus in a single transmit (only for ccid-1.3.11
+	  necessary)
+
+2010-09-23 19:36  frankmorgner
+
+	* - added le/lc to apdu debugging
+	  - fixed byte order problem for PC_to_RDR_XfrBlock
+	  - cats-tool: added simulation of part of TA/CA
+
+2010-09-23 12:56  frankmorgner
+
+	* - fixed compiling errors
+	  - adjusted secure messaging to support extended length apdus
+	  - card has to support extended length, this is hardcoded at the
+	  moment, but should better be done in the appropriate card driver
+
+2010-09-23 11:12  frankmorgner
+
+	* added debugging of invalid apdus
+
+2010-09-23 09:03  frankmorgner
+
+	* adatpted to the latest changes of OpenPACE. EstablishPACEChannel
+	  now fully functional
+
+2010-09-21 08:17  frankmorgner
+
+	* - fixed receive length
+	  - added simulation of buergerclient/ausweisapp
+
+2010-09-20 20:01  frankmorgner
+
+	* - removed unnecessary checks of NULL pointer before using free()
+	  - fixed memory leak for buergerclient workaround
+
+2010-09-19 12:00  frankmorgner
+
+	* fixed case 2 extended apdu parsing
+
+2010-09-18 12:42  frankmorgner
+
+	* - extended length fully functional. fixed last problems with
+	  lengths and ccid descriptor.
+
+2010-09-16 10:08  frankmorgner
+
+	* bugfix: case 2 extended length apdu are now recognized
+
+2010-09-15 21:14  frankmorgner
+
+	* - Added capabilities to parse and send extended length APDUs.
+	  This does not
+	  work proberly with libccid, so it is disabled at the moment
+	  - unpower card only on PC_to_RDR_IccPowerOff
+
+2010-09-15 09:49  frankmorgner
+
+	* reset the card before disconnecting to unpower and reset the
+	  secure messaging status
+
+2010-09-14 20:37  frankmorgner
+
+	* - some unneded functions are no longer available in header files
+	  - cleaned memory leaks in pace-tool and ccid-emulator
+
+2010-09-14 16:07  frankmorgner
+
+	* - fixed wrong PCSC-PACE-data
+	  - fixed command line parsing
+
+2010-09-13 14:11  frankmorgner
+
+	* added support for unambiguous PACE-channel selection (ID.icc and
+	  ID.pcd)
+
+2010-09-13 09:24  frankmorgner
+
+	* fixed memory corruption for too long _RDR_to_PC_DataBlock
+	  packages
+
+2010-09-09 10:04  frankmorgner
+
+	* bugfix: wrong format strings
+
+2010-09-01 05:49  frankmorgner
+
+	* - renamed ccid-test to cats-tool, since it is suitable for all
+	  readers of type cat-s and cat-b
+	  - cats-tool takes PIN as input parameter
+
+2010-08-31 10:54  frankmorgner
+
+	* - bugfix: pace output data now parsed correctly
+	  - added time measurement
+
+2010-08-31 10:26  frankmorgner
+
+	* removed PCSC_TLV_STRUCTURE since its the attributes are not
+	  always packed
+
+2010-08-31 09:09  frankmorgner
+
+	* - bugfix: now converting pace io control to host byte order
+	  - now parsing pace output data
+	  - use pcsclite-capabilities, if possible
+
+2010-08-30 19:39  frankmorgner
+
+	* including reader.h, if possible
+
+2010-08-30 13:18  frankmorgner
+
+	* added compatibility with windows
+
+2010-08-25 17:13  frankmorgner
+
+	* added missing file
+
+2010-08-25 13:25  frankmorgner
+
+	* added pace-tool can now break can, pin, puk with brute force
+
+2010-08-24 08:31  frankmorgner
+
+	* added workaround for current buergerclient to read efcardaccess
+
+2010-07-15 18:53  frankmorgner
+
+	* - made establishpacechannel output independant from any byte
+	  order conversion.
+	  little endian handling is done by the ccid-part.
+	  - pacelib exports PACE-functionality.
+
+2010-07-12 22:54  frankmorgner
+
+	* - usb.c: fixed signal handling
+	  - ccid.c: revised construction of RDR_to_PC_*-packages to make
+	  the code more readable
+
+2010-07-12 21:27  frankmorgner
+
+	* - made establishpacechannel output independant from any byte
+	  order conversion.
+	  little endian handling is done by the ccid-part.
+
+2010-07-12 12:18  frankmorgner
+
+	* bugfix: transform pace output buffer on usb from little endian to
+	  host byte order
+
+2010-07-12 11:28  frankmorgner
+
+	* - fixed parse errors
+
+2010-07-12 09:58  frankmorgner
+
+	* - pace debug output of libccid is shown by default in pcscd's log
+	  - made establishpacechannel input independant from any byte order
+	  conversion.
+	  little endian handling is done by the ccid-part.
+
+2010-07-07 16:38  frankmorgner
+
+	* - added support for IDicc
+	  - fixed parse error of pace output buffer
+
+2010-07-07 10:31  frankmorgner
+
+	* - added parsing of PACE data
+	  - bugfix: PACE output data had to be wrapped again
+
+2010-07-05 15:07  frankmorgner
+
+	* bugfix: PACE response data was not copied to application
+
+2010-07-04 21:00  frankmorgner
+
+	* printing received buffers
+
+2010-07-04 18:06  frankmorgner
+
+	* bugfix: get the whole PACE response data
+
+2010-07-04 11:35  frankmorgner
+
+	* - added information how many bytes were actually transmitted via
+	  usb
+	  - split general authenticate into multiple functions, one for
+	  every step of
+	  PACE.
+	  - including recent and previous car in output buffer of
+	  EstablishPACEChannel
+	  - ccid-emulator initiates EstablishPACEChannel always with a new
+	  sm_ctx
+
+2010-07-02 21:03  frankmorgner
+
+	* added ef.cardaccess and statusbytes to response of
+	  establishpacechannel
+
+2010-07-02 20:26  frankmorgner
+
+	* fixed wrong text of prompt for secret
+
+2010-07-01 11:12  frankmorgner
+
+	* really releasing 0.3
+
+2010-07-01 10:59  frankmorgner
+
+	* fixed missing Makefile to include patche
+
+2010-07-01 10:56  frankmorgner
+
+	* added patches to distribution file
+
 2010-07-01 10:11  frankmorgner
 
-	* ChangeLog, configure.ac: releasing 0.3
+	* releasing 0.3
 
 2010-07-01 10:09  frankmorgner
 
-	* src/pace-tool.c, src/pace.h: - fixed unblock pin, it is now
-	  successfully tested
+	* - fixed unblock pin, it is now successfully tested
 
 2010-06-25 21:31  frankmorgner
 
-	* src/ccid.c, src/pace.c, src/pace.h: - Replaced references to
-	  sc_get_pin* with its OpenSSL counter parts (untested)
+	* - Replaced references to sc_get_pin* with its OpenSSL counter
+	  parts (untested)
 	  - UI functionality and maybe more is no longer shipped in
 	  opensc>=0.12. This
 	  and the fact that linking against libopensc in general is
@@ -19,21 +434,18 @@
 
 2010-06-23 15:04  oepen
 
-	* patches/ccid-1.3.11.patch, patches/ccid-1.3.13.patch,
-	  patches/pcsc-lite-1.5.5.patch, patches/pcsc-lite-1.6.1.patch:
-	  -Fixed patches so bitbake can apply them
+	* -Fixed patches so bitbake can apply them
 	  -Added patches to bitbake recipes
 
 2010-06-23 12:20  frankmorgner
 
-	* src/ccid.c, src/usb.c: - better (or at least some) signal
-	  handling
+	* - better (or at least some) signal handling
 	  - always checking the existance of a card, when requested
 
 2010-06-22 21:29  frankmorgner
 
-	* src/ccid.c, src/ccid.h, src/usb.c: - restructured handling of
-	  interrupt thread to kill the thread along with all
+	* - restructured handling of interrupt thread to kill the thread
+	  along with all
 	  the others
 	  - fixed error on input parameter parsing when interrupt is
 	  activated
@@ -41,40 +453,32 @@
 
 2010-06-22 09:45  frankmorgner
 
-	* src/ccid.c, src/ccid.h, src/usb.c: forcing empty parameter list
-	  with function(void) instead of unspecified parameter list with
-	  function()
+	* forcing empty parameter list with function(void) instead of
+	  unspecified parameter list with function()
 
 2010-06-21 16:17  frankmorgner
 
-	* src/ccid.c, src/pace.c, src/scutil.c, src/sm.c: - made debugging
-	  of openssl errors human readable
+	* - made debugging of openssl errors human readable
 	  - removed debugging of return values, added human readable
 	  messages instead
 
 2010-06-20 20:15  frankmorgner
 
-	* patches/ccid-1.3.13.patch, patches/pcsc-lite-1.6.1.patch: added
-	  patches for newer versions of ccid and pcsc-lite
+	* added patches for newer versions of ccid and pcsc-lite
 
 2010-06-20 19:52  frankmorgner
 
-	* patches, patches/ccid-1.3.11.patch,
-	  patches/pcsc-lite-1.5.5.patch,
-	  patches/pcsclite_trunk_r4993.patch, pcsclite_trunk.patch: added
-	  patches for distribution packages of ccid and pcsc-lite
+	* added patches for distribution packages of ccid and pcsc-lite
 
 2010-06-19 18:27  frankmorgner
 
-	* src/pace-tool.c, src/pace.c: - pace-tool: fixed length of input
-	  buffer for EstablishPACEChannel
+	* - pace-tool: fixed length of input buffer for
+	  EstablishPACEChannel
 	  - added debug messages to pace.c
 
 2010-06-19 16:19  frankmorgner
 
-	* Makefile.am, pcsclite_trunk.patch, src/ccid-test.c, src/ccid.c,
-	  src/ccid.h, src/pace-tool.c, src/pace.c, src/pace.h, src/usb.c: -
-	  added patch to distribution package
+	* - added patch to distribution package
 	  - changed debug_sc_result to be a define. this now gets the line
 	  of code correct
 	  - added checking for input length to functions that parse the
@@ -90,8 +494,7 @@
 
 2010-06-18 21:20  frankmorgner
 
-	* pcsclite_trunk.patch, src/ccid-test.c, src/ccid.c: - renamed
-	  Special PIN Verification/Capabilities to PACE
+	* - renamed Special PIN Verification/Capabilities to PACE
 	  Verification/Capabilities
 	  - fixed PIN PACE support in ccid descriptor
 	  - using uint16_t instead of WORD in PACE structures
@@ -105,8 +508,7 @@
 
 2010-06-18 16:27  frankmorgner
 
-	* pcsclite_trunk.patch, src/ccid-test.c, src/ccid.c: -
-	  ccid-emulator: propagating PACE capabilities to ccid descriptor
+	* - ccid-emulator: propagating PACE capabilities to ccid descriptor
 	  of
 	  - ccid-test: IOCTL_FEATURE_IFD_PIN_PROPERTIES is currently
 	  hardcoded and should
@@ -117,42 +519,36 @@
 
 2010-06-17 20:54  frankmorgner
 
-	* configure.ac, src/Makefile.am, src/ccid-test.c: added ccid-test
-	  to evaluate the PACE features of ccid-emulator (untested)
+	* added ccid-test to evaluate the PACE features of ccid-emulator
+	  (untested)
 
 2010-06-16 21:06  frankmorgner
 
-	* configure.ac, pcsclite_trunk.patch, src/Makefile.am, src/ccid.c,
-	  src/pace.c, src/sm.c, src/sm.h: added PACE features to
-	  ccid-emulator (untested)
+	* added PACE features to ccid-emulator (untested)
 
 2010-06-10 11:14  frankmorgner
 
-	* src/pace-tool.c, src/pace.c: - implemented passing a CHAT to the
-	  card.
+	* - implemented passing a CHAT to the card.
 	  - note that the type PACE_CHAT should be integrated into OpenPACE
 	  - added parameters for passing CHAT and certificate description
 	  to pace-tool
 
 2010-06-09 15:45  frankmorgner
 
-	* configure.ac, src/Makefile.am: renamed ccid to ccid-emulator to
-	  avoid conflicts with libccid
+	* renamed ccid to ccid-emulator to avoid conflicts with libccid
 
 2010-06-09 15:28  frankmorgner
 
-	* Makefile.am, src/Makefile.am: added missing files for
-	  distribution packages
+	* added missing files for distribution packages
 
 2010-06-05 22:10  frankmorgner
 
-	* ChangeLog: updated checksums, install files for recipes. updated
-	  log files for 0.6.1
+	* updated checksums, install files for recipes. updated log files
+	  for 0.6.1
 
 2010-06-05 14:34  frankmorgner
 
-	* src/pace-tool.c, src/pace.c, src/pace.h, src/sm.c, src/sm.h: -
-	  dropped pace_transmit_apdu in favour of a solution with
+	* - dropped pace_transmit_apdu in favour of a solution with
 	  sm_transmit_apdu.
 	  post_transmit and pre_transmit can be used to perform actions
 	  before
@@ -165,76 +561,67 @@
 
 2010-06-04 21:34  frankmorgner
 
-	* src/sm.c: fixed uninitialized pointer which caused segfault on
-	  decryption.
+	* fixed uninitialized pointer which caused segfault on decryption.
 
 2010-06-04 19:05  frankmorgner
 
-	* src/pace.c: fixed segfault if ef.cardaccess is not readable
+	* fixed segfault if ef.cardaccess is not readable
 
 2010-06-03 22:17  frankmorgner
 
-	* src/sm.c: added error messages
+	* added error messages
 
 2010-06-03 21:34  frankmorgner
 
-	* src/pace-tool.c: bugfix for conversion of hex to binary for
-	  interactive mode
+	* bugfix for conversion of hex to binary for interactive mode
 
 2010-06-02 13:16  frankmorgner
 
-	* README, src/pace-tool.c: added information about the environment
-	  variables used
+	* added information about the environment variables used
 
 2010-06-02 11:39  frankmorgner
 
-	* src/pace-tool.c: pace-tool can now read secrets from environment
-	  variables
+	* pace-tool can now read secrets from environment variables
 
 2010-06-02 11:20  frankmorgner
 
-	* src/pace-tool.c: made pin puk can or mrz an optional command line
-	  argument
+	* made pin puk can or mrz an optional command line argument
 
 2010-06-02 10:50  frankmorgner
 
-	* src/pace-tool.c: fixed precision of time measurement
+	* fixed precision of time measurement
 
 2010-06-02 10:43  frankmorgner
 
-	* src/pace-tool.c: added time measurement for a PACE run
+	* added time measurement for a PACE run
 
 2010-06-01 17:44  frankmorgner
 
-	* src/pace-tool.c: establish pace channel and exit, when no further
-	  commandline option is given
+	* establish pace channel and exit, when no further commandline
+	  option is given
 
 2010-06-01 14:52  frankmorgner
 
-	* src/pace-tool.c: - added switch to enable apdu translating
-	  (disabled by default)
+	* - added switch to enable apdu translating (disabled by default)
 
 2010-05-26 20:32  frankmorgner
 
-	* src/pace-tool.c, src/pace.c, src/pace.h, src/sm.c: removed some
-	  messages, when less verbose. fixed little endian problem when
-	  parsing input buffer of EstablishPACEChannel.
+	* removed some messages, when less verbose. fixed little endian
+	  problem when parsing input buffer of EstablishPACEChannel.
 
 2010-05-20 19:26  frankmorgner
 
-	* src/sm.c: fixed class byte generation for sm apdu
+	* fixed class byte generation for sm apdu
 
 2010-05-20 18:26  frankmorgner
 
-	* src/pace-tool.c, src/pace.c, src/sm.c: - sm_transmit_apdu doesn't
-	  check SWs anymore
+	* - sm_transmit_apdu doesn't check SWs anymore
 	  - not throwing error for sw=63XX in mse:set at
 
 2010-05-20 08:17  frankmorgner
 
-	* src/pace-tool.c, src/pace.c, src/pace.h, src/sm.c: - using short
-	  apdus for mse:set at and generic authenticate. to make it work
-	  with the sm implementation
+	* - using short apdus for mse:set at and generic authenticate. to
+	  make it work with the sm implementation
 	  - added parameter oldpacectx to EstablishPACEChannel to allow a a
 	  new PACE connection inside an exitsting PACE connection (the
 	  output buffer of the latter connection must be provided since it
@@ -250,145 +637,127 @@
 
 2010-05-18 11:39  oepen
 
-	* src/pace.c: Changed EXPLICIT tagging of CHAT and auxiliary
-	  authenticated data to IMPLICIT tagging
+	* Changed EXPLICIT tagging of CHAT and auxiliary authenticated data
+	  to IMPLICIT tagging
 
 2010-05-16 18:53  frankmorgner
 
-	* src/pace-tool.c, src/pace.c, src/pace.h: - Added handling for
-	  output buffer of EstablishPACEChannel, but CARs are still missing
+	* - Added handling for output buffer of EstablishPACEChannel, but
+	  CARs are still missing
 	  - Handed over code for handling of IV and SSC for PACE to
 	  OpenPACE
 
 2010-05-08 18:36  frankmorgner
 
-	* configure.ac: added maintainer
+	* added maintainer
 
 2010-05-08 14:44  frankmorgner
 
-	* src/scutil.c, src/scutil.h, src/sm.c, src/sm.h: moved bin_log to
-	  scutil
+	* moved bin_log to scutil
 
 2010-05-08 07:19  frankmorgner
 
-	* README: updated informations about pace-tool
+	* updated informations about pace-tool
 
 2010-05-07 21:27  frankmorgner
 
-	* configure.ac: corrected configure output
+	* corrected configure output
 
 2010-05-07 19:03  frankmorgner
 
-	* INSTALL, configure.ac: removed unmodified file
+	* removed unmodified file
 
 2010-05-07 18:02  frankmorgner
 
-	* src/pace.c: added _essential_ missing file
+	* added _essential_ missing file
 
 2010-05-07 14:30  frankmorgner
 
-	* Makefile.am: added missing file
+	* added missing file
 
 2010-05-07 11:50  frankmorgner
 
-	* ChangeLog, INSTALL, Makefile, NEWS, binutil.c, binutil.h, ccid.c,
-	  ccid.h, configure.ac, m4, m4/Makefile.am, m4/acx_pthread.m4,
-	  pace-tool.c, pace.c, pace.h, pace_lib.c, pace_lib.h, scutil.c,
-	  scutil.h, sm.c, sm.h, src, src/Makefile.am, src/binutil.c,
-	  src/binutil.h, src/ccid.c, src/ccid.h, src/pace-tool.c,
-	  src/pace.h, src/pace_lib.c, src/pace_lib.h, src/scutil.c,
-	  src/scutil.h, src/sm.c, src/sm.h, src/usb.c, src/usbstring.c,
-	  src/usbstring.h, usb.c, usbstring.c, usbstring.h: fixed include
-	  in pace.c. switched to autotools
+	* fixed include in pace.c. switched to autotools
 
 2010-05-05 14:38  frankmorgner
 
-	* Makefile, binutil.c, binutil.h, ccid.c, pace-tool.c, scutil.c,
-	  scutil.h, usb.c, util.c, util.h: split up utils into stuff for
-	  program and sc handling
+	* split up utils into stuff for program and sc handling
 
 2010-05-04 21:01  frankmorgner
 
-	* pace-tool.c, pace.c, pace.h: cleaned up pace.c and moved
-	  test_pace to pace-tool.c
+	* cleaned up pace.c and moved test_pace to pace-tool.c
 
 2010-05-04 20:16  frankmorgner
 
-	* Makefile, pace-tool.c, pace.c: openpace is now a hard dependancy
-	  for pace-tool. ccid does not yet depend on pace, since the USB
-	  interface to pace is not yet defined.
+	* openpace is now a hard dependancy for pace-tool. ccid does not
+	  yet depend on pace, since the USB interface to pace is not yet
+	  defined.
 
 2010-05-04 20:03  frankmorgner
 
-	* Makefile, ccid.c, ccid.h, pace-tool.c, pace.c, usb.c, util.c,
-	  util.h: cleaned up command line options of pace-tool and made it
+	* cleaned up command line options of pace-tool and made it
 	  independant from ccid
 
 2010-05-04 08:07  frankmorgner
 
-	* pace.c, sm.c: bugfix: initializing apdu in pace_gen_auth. bin_log
-	  now checks input data.
+	* bugfix: initializing apdu in pace_gen_auth. bin_log now checks
+	  input data.
 
 2010-05-04 07:57  frankmorgner
 
-	* pace.c: changed length of read binary apdu to support acr 122
+	* changed length of read binary apdu to support acr 122
 
 2010-05-03 19:52  frankmorgner
 
-	* Makefile, pace-tool.c, usb.c, util.c, util.h: put static pace
-	  functionality into the new program pace-tool
+	* put static pace functionality into the new program pace-tool
 
 2010-05-03 13:46  frankmorgner
 
-	* pace.c: the number of remaining retries is a warning from the
-	  card, not a fatal error
+	* the number of remaining retries is a warning from the card, not a
+	  fatal error
 
 2010-04-29 07:33  frankmorgner
 
-	* pace.c: using proper type for getline result
+	* using proper type for getline result
 
 2010-04-28 13:14  frankmorgner
 
-	* ccid.c, ccid.h, pace.c, pace.h, usb.c: added support for changing
-	  CAN and PIN for PACE
+	* added support for changing CAN and PIN for PACE
 
 2010-04-27 20:02  frankmorgner
 
-	* INSTALL: updated instructions
+	* updated instructions
 
 2010-04-27 20:00  frankmorgner
 
-	* Makefile, ccid.c, pace.c, sm.c, usb.c: - sm will yield error when
-	  the class byte indicates a sm apdu and pace will
+	* - sm will yield error when the class byte indicates a sm apdu and
+	  pace will
 	  simply transmit the apdu without encrypting/authenticating it.
 	  - fixed building process when compiling without pace
 
 2010-04-19 18:12  frankmorgner
 
-	* Makefile, ccid.c, ccid.h, usb.c: added option to select card
-	  driver. beautified usage dialog.
+	* added option to select card driver. beautified usage dialog.
 
 2010-04-16 20:37  frankmorgner
 
-	* Makefile: improved build process
+	* improved build process
 
 2010-04-16 18:18  frankmorgner
 
-	* usb.c: improved option parsing
+	* improved option parsing
 
 2010-04-16 14:08  frankmorgner
 
-	* ccid.c, ccid.h, usb.c: added option to scan for available readers
+	* added option to scan for available readers
 
 2010-04-15 20:03  frankmorgner
 
-	* Makefile, pace.h, pace_lib.c, pace_lib.h: added header file for
-	  pace library functions
+	* added header file for pace library functions
 
 2010-04-15 18:37  frankmorgner
 
-	* Makefile, README, apdu.c, apdu.h, pace.c, sm.c: - added
-	  information about opensc
+	* - added information about opensc
 	  - using sc_transmit_apdu instead of my_transmit_apdu. fixing the
 	  opensc error
 	  is the better solution than implementing it twice (see
@@ -396,12 +765,11 @@
 
 2010-04-15 07:41  frankmorgner
 
-	* README: updated information
+	* updated information
 
 2010-04-15 07:37  frankmorgner
 
-	* README, ccid.c, ccid.h, pace.c, pace.h, sm.c, sm.h, usb.c: -
-	  Fixed error when testing pace without card
+	* - Fixed error when testing pace without card
 	  - Testing pace allows now to choose the type of the secret (mrz,
 	  pin, can, puk).
 	  The secret can be given as commandline option or interactively.
@@ -413,28 +781,27 @@
 
 2010-04-13 21:06  frankmorgner
 
-	* pace.c, pace.h, sm.c: - completed mac verification. sm with pace
-	  is now fully functional.
+	* - completed mac verification. sm with pace is now fully
+	  functional.
 	  - made pace_test more fault tolerant.
 
 2010-04-12 21:22  frankmorgner
 
-	* pace.c, sm.c: - decryption of sm apdu now working. verification
-	  of mac still missing.
+	* - decryption of sm apdu now working. verification of mac still
+	  missing.
 
 2010-04-12 19:54  frankmorgner
 
-	* ccid.c, pace.c, sm.c, usb.c: fixed various memory leaks and
-	  potential segfaults
+	* fixed various memory leaks and potential segfaults
 
 2010-04-12 14:26  frankmorgner
 
-	* pace.c, pace.h, pace_lib.c: - protocol nid in pace_sm_ctx is not
-	  needed any longer due to the changes of OpenPACE
+	* - protocol nid in pace_sm_ctx is not needed any longer due to the
+	  changes of OpenPACE
 
 2010-04-12 14:04  frankmorgner
 
-	* pace.c, sm.c: bugfixes:
+	* bugfixes:
 	  - sm.c: fixed mac data padding, when sending sm apdu without
 	  data.
 	  - pace.c: for iv calculation ecb is used instead of cbc
@@ -442,40 +809,39 @@
 
 2010-04-12 12:09  frankmorgner
 
-	* pace.c, pace.h: - trying new apdu to reset retry counter in
-	  pace_test
+	* - trying new apdu to reset retry counter in pace_test
 	  - added pace wrapper for sm_transmit_apdu which automatically
 	  increments the ssc
 
 2010-04-12 10:31  frankmorgner
 
-	* pace.c: added missing include
+	* added missing include
 
 2010-04-12 07:34  frankmorgner
 
-	* pace.c: added code for reading cardsecurity
+	* added code for reading cardsecurity
 
 2010-04-12 07:23  frankmorgner
 
-	* sm.c: - reverted changes from last commit
+	* - reverted changes from last commit
 
 2010-04-12 07:18  frankmorgner
 
-	* sm.c: - added more debugging
+	* - added more debugging
 	  - bugfix: header of sm apdu is authenticated instead of the
 	  original apdu
 
 2010-04-11 21:06  frankmorgner
 
-	* pace.c: bugfix: fetching unhandled error in update_iv
+	* bugfix: fetching unhandled error in update_iv
 
 2010-04-11 20:49  frankmorgner
 
-	* sm.c, sm.h: made bin_log more verbose
+	* made bin_log more verbose
 
 2010-04-11 20:31  frankmorgner
 
-	* pace.c, pace.h, pace_lib.c, sm.c: Bugfixes:
+	* Bugfixes:
 	  - ssc is a BIGNUM, since its size can be up to 16 bytes (not 16
 	  bits as before)
 	  - protected le is now encoded as octet string (not as unsigned
@@ -488,11 +854,11 @@
 
 2010-04-10 20:39  frankmorgner
 
-	* sm.c, sm.h: made sm code independant from openssl
+	* made sm code independant from openssl
 
 2010-04-10 18:16  frankmorgner
 
-	* ccid.c, pace.c, sm.c, sm.h: - pace.c: removed unused variable ssc
+	* - pace.c: removed unused variable ssc
 	  - pace.c: bugfix: don't increment ssc when resetting it.
 	  - sm.c/.h: wrote wrapper sm_transmit_apdu
 	  - sm.c: removed sm error handling, should be done by sc_check_sw
@@ -500,16 +866,15 @@
 
 2010-04-10 17:00  frankmorgner
 
-	* pace.c, sm.c, sm.h: added sw checking for sm
+	* added sw checking for sm
 
 2010-04-10 15:12  frankmorgner
 
-	* pace.c, sm.c: added missing return buffer for select of
-	  CardSecurity
+	* added missing return buffer for select of CardSecurity
 
 2010-04-10 14:53  frankmorgner
 
-	* pace.c, pace.h, sm.c: - sm.c (sm_encrypt) fixed header of sm apdu
+	* - sm.c (sm_encrypt) fixed header of sm apdu
 	  - pace.c (EstablishPACEChannel) Fixed initialisation of
 	  authentication_ctx.
 	  (pace_test) Fixed usage of SC_TEST_RET and initialisation of
@@ -518,9 +883,8 @@
 
 2010-04-09 20:36  frankmorgner
 
-	* Makefile, apdu.h, ccid.c, ccid.h, pace.c, pace.h, pace_lib.c,
-	  sm.c, sm.h, utils.c, utils.h: - Work in progress: Almost finished
-	  (hopefully) flexible sm implementation
+	* - Work in progress: Almost finished (hopefully) flexible sm
+	  implementation
 	  (untested). struct sm_ctx needs external cipher and
 	  authentication
 	  implementations. Here only routines for
@@ -529,54 +893,53 @@
 
 2010-04-01 05:52  frankmorgner
 
-	* ccid.c, pace.c, pace.h, sm.h: integrated SM into pace
+	* integrated SM into pace
 
 2010-03-31 21:58  frankmorgner
 
-	* sm.c, sm.h, utils.c, utils.h: - added untested function to
-	  decrypt sm
+	* - added untested function to decrypt sm
 	  - function cipher now always disables automatic padding
 
 2010-03-29 19:53  frankmorgner
 
-	* Makefile, sm.c, sm.h, utils.c, utils.h: - Added an untested SM
-	  implementation, currently only with encryption
+	* - Added an untested SM implementation, currently only with
+	  encryption
 	  - Added utils from OpenPACE
 
 2010-03-22 14:42  frankmorgner
 
-	* pace.c: adapted latest changes of OpenPACE
+	* adapted latest changes of OpenPACE
 
 2010-03-15 18:34  frankmorgner
 
-	* pace.c: bugfix: corrected types of fields from ASN1_INTEGER to
+	* bugfix: corrected types of fields from ASN1_INTEGER to
 	  ASN1_OCTET_STRING
 
 2010-03-15 15:01  frankmorgner
 
-	* pace.c: - adopted the latest changes of OpenPACE
+	* - adopted the latest changes of OpenPACE
 	  - bugfix: created receive buffer before sending general
 	  authenticate apdus
 	  - added more debug output
 
 2010-03-10 09:14  frankmorgner
 
-	* apdu.c, apdu.h: bugfix
+	* bugfix
 
 2010-03-09 19:30  frankmorgner
 
-	* pace.c: using specifications from TR-03110 2.01 as default (as
-	  done by test
+	* using specifications from TR-03110 2.01 as default (as done by
+	  test
 	  cards)
 
 2010-03-09 07:01  frankmorgner
 
-	* Makefile: bugfix: building with apdu.c apdu.h
+	* bugfix: building with apdu.c apdu.h
 
 2010-03-08 22:16  frankmorgner
 
-	* apdu.c, apdu.h, pace.c: - bugfix: general authenticate response
-	  data is now encapsulated in a
+	* - bugfix: general authenticate response data is now encapsulated
+	  in a
 	  dynamic data object
 	  - added more debug messages
 	  - bugfix: get_ef_card_access didn't fetch the whole file
@@ -593,13 +956,13 @@
 
 2010-03-05 22:35  frankmorgner
 
-	* pace.c, pace.h: - fixed includes
+	* - fixed includes
 	  - fixed return value from pace_test if NO_PACE is defined
 
 2010-03-05 09:53  frankmorgner
 
-	* ccid.c, ccid.h, pace.c, pace.h, usb.c: - pace-testing is not done
-	  in threads anymore, program exits when test is finished
+	* - pace-testing is not done in threads anymore, program exits when
+	  test is finished
 	  - bugfix in debug_ossl
 	  - more generic aproach to select EF.CardAccess
 	  - EF.CardAccess is read sequencially, to get a correct send
@@ -607,51 +970,49 @@
 
 2010-03-01 16:22  frankmorgner
 
-	* ccid.c, ccid.h, pace.c, pace.h, usb.c: - bugfix: moved ASN.1
-	  declaration of PACE-APDUs to pace.c
+	* - bugfix: moved ASN.1 declaration of PACE-APDUs to pace.c
 	  - added commandline-option to test PACE currently with hard coded
 	  secret etc.
 
 2010-02-28 18:58  frankmorgner
 
-	* INSTALL, Makefile, README, ccid.c, pace.c, pace.h: Added support
-	  for Password Authenticated Connection Establishment (PACE) using
+	* Added support for Password Authenticated Connection Establishment
+	  (PACE) using
 	  OpenPACE (http://sourceforge.net/projects/openpace/). Since it is
 	  currently
 	  untested, it is disabled by default.
 
 2010-01-31 15:57  frankmorgner
 
-	* usb.c: - implemented option parsing with getopt_long
+	* - implemented option parsing with getopt_long
 
 2010-01-31 01:47  frankmorgner
 
-	* ccid.c: - Some minor code improvements: catch and fix some rare
-	  errors, taking more
+	* - Some minor code improvements: catch and fix some rare errors,
+	  taking more
 	  usage of opensc debugging methods, removed not needed variables
 	  and code
 	  fragments
 
 2010-01-30 11:52  frankmorgner
 
-	* ccid.c, usb.c: - fixed segmentation fault, ccid running stable
-	  now again
+	* - fixed segmentation fault, ccid running stable now again
 
 2010-01-30 02:43  frankmorgner
 
-	* ccid.c: - switched to opensc's debugging function in log.h
+	* - switched to opensc's debugging function in log.h
 	  - a segmentation fault of unknown origin crashes ccid after too
 	  many
 	  operations. last stable version is revision 29.
 
 2010-01-30 00:04  frankmorgner
 
-	* ccid.c: - created detect_card_presence to avoid limitations of
+	* - created detect_card_presence to avoid limitations of
 	  sc_detect_card_presence
 
 2010-01-29 18:04  frankmorgner
 
-	* ccid.c, ccid.h, usb.c: - added functions for simplified debugging
+	* - added functions for simplified debugging
 	  - changed functions to pass pointers instead of structs and using
 	  realloc
 	  instead of malloc to reduce memory overhead/usage
@@ -663,26 +1024,26 @@
 
 2010-01-24 07:13  frankmorgner
 
-	* ccid.c, ccid.h: added support for bNumberMessage
+	* added support for bNumberMessage
 
 2010-01-23 22:45  frankmorgner
 
-	* ccid.c: added support for flags in bConfirmPIN
+	* added support for flags in bConfirmPIN
 
 2010-01-23 22:10  frankmorgner
 
-	* ccid.c: added support for pin modification
+	* added support for pin modification
 
 2010-01-23 21:37  frankmorgner
 
-	* ccid.c, ccid.h, usb.c: - added defines for pin modification
+	* - added defines for pin modification
 	  - debugging apdu and rapdu there where they are created
 	  - splitted pin block operations into several functions
 
 2010-01-21 21:48  frankmorgner
 
-	* Makefile, ccid.c, ccid.h, usb.c: - switched from libpcsc to
-	  libopensc. This brings some new features:
+	* - switched from libpcsc to libopensc. This brings some new
+	  features:
 	  - Support for 4 slots per reader
 	  - abstraction of user interface
 	  - interactive pin verification
@@ -694,43 +1055,40 @@
 
 2010-01-14 22:29  frankmorgner
 
-	* ccid.c, ccid.h, usb.c: changed naming
+	* changed naming
 
 2010-01-14 20:28  frankmorgner
 
-	* usb.c: removed not needed iso-identifier
+	* removed not needed iso-identifier
 
 2010-01-14 19:20  frankmorgner
 
-	* Makefile, ccid.c, ccid.h, usb.c: code split into multiple files,
-	  added include guards
+	* code split into multiple files, added include guards
 
 2010-01-12 10:06  frankmorgner
 
-	* ccid.h: perform_PC_to_RDR_Secure works, read actual PIN is still
-	  missing
+	* perform_PC_to_RDR_Secure works, read actual PIN is still missing
 
 2010-01-10 23:09  frankmorgner
 
-	* ccid.h: added support for pinpad. doesn't work atm, somehow
-	  abPINApdu is wrong.
+	* added support for pinpad. doesn't work atm, somehow abPINApdu is
+	  wrong.
 
 2010-01-05 18:44  frankmorgner
 
-	* ccid.c, ccid.h: changed vendorid/productid, added new structures
-	  for future PIN support.
+	* changed vendorid/productid, added new structures for future PIN
+	  support.
 
 2010-01-04 20:38  frankmorgner
 
-	* ccid.c: Cleaned up warnings.
+	* Cleaned up warnings.
 
 2010-01-04 19:48  frankmorgner
 
-	* ccid.bb: Separated bitbake recipes. vscarchitecture.bb simply
-	  collects the other recipes now.
+	* Separated bitbake recipes. vscarchitecture.bb simply collects the
+	  other recipes now.
 
 2009-08-06 20:25  schertz123456
 
-	* ., AUTHORS, COPYING, INSTALL, Makefile, README, ccid.bb, ccid.c,
-	  ccid.h, usbstring.c, usbstring.h: Initial commit.
+	* Initial commit.
 
