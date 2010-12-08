@@ -1,25 +1,149 @@
+2010-11-16 12:24  frankmorgner
+
+	* src/opicc.c: fixed problems with stupid tty-rewrites
+
+2010-11-16 09:47  frankmorgner
+
+	* src/lnfc.c: fixed intialization issues of libnfc relay
+
+2010-11-15 13:40  frankmorgner
+
+	* src/opicc.c, src/pcsc-relay.c: fixed some memory corruption
+
+2010-11-13 16:03  frankmorgner
+
+	* src/opicc.c: made some things better readable
+
+2010-11-13 13:32  frankmorgner
+
+	* src/lnfc.c, src/opicc.c, src/pcsc-relay.c, src/pcsc-relay.h: -
+	  driver data is now allocated and destroyed by drivers
+	  - new type driver_data_t, driver data is not stored in struct
+	  rf_driver.
+	  - added some comments and better debug messages
+
+2010-11-11 10:43  frankmorgner
+
+	* src/pcsc-relay.c: added handling of unknown command line options
+
+2010-11-11 09:51  frankmorgner
+
+	* src/lnfc.c, src/opicc.c, src/pcsc-relay.c, src/pcsc-relay.h:
+	  added more error debugging
+
+2010-11-10 20:44  frankmorgner
+
+	* src/lnfc.c, src/opicc.c, src/pcsc-relay.c: - lnfc: capdu was not
+	  copied, fixed
+	  - changed some output messages
+
+2010-11-10 20:14  frankmorgner
+
+	* src/Makefile.am, src/binutil.c, src/binutil.h, src/lnfc.c,
+	  src/opicc.c, src/pcsc-relay.c, src/pcsc-relay.h: added option
+	  parsing and more error checking
+
+2010-11-10 18:42  frankmorgner
+
+	* src/lnfc.c: changed default values for emulated target to match
+	  German identity card
+
+2010-11-10 14:30  frankmorgner
+
+	* src/lnfc.c, src/opicc.c, src/pcsc-relay.c: added more error
+	  handling
+
+2010-11-10 12:43  frankmorgner
+
+	* src/lnfc.c: added function to extract historical bytes from atr
+
+2010-11-10 11:28  frankmorgner
+
+	* ., src/Makefile.am, src/lnfc.c, src/opicc.c, src/pcsc-relay.c,
+	  src/pcsc-relay.h: completed renaming. fixed memory loss in
+	  openpicc driver. implemented libnfc driver.
+
+2010-11-09 20:07  frankmorgner
+
+	* refactored picc_to_pcsc to support other drivers to send data via
+	  rfid. renamed to pcsc-relay.
+
+2010-10-15 20:11  frankmorgner
+
+	* updated support information
+
+2010-10-14 12:34  oepen
+
+	* picc_to_pcsc now runs as a daemon if the parameters verbose or
+	  debug are not defined
+
+2010-10-14 05:39  frankmorgner
+
+	* - define PICCDEV at compile time via configure option
+	  - fixed compile error due to missing semi colon
+
+2010-10-13 13:20  oepen
+
+	* -Removed header file because we don't need to provide an
+	  interface
+	  -Added forward function declarations to .c file
+
+2010-10-08 07:51  frankmorgner
+
+	* - fixed invalid memory read
+	  - added more input checking
+
+2010-10-07 13:12  frankmorgner
+
+	* added copyright and author
+
+2010-10-07 13:00  frankmorgner
+
+	* rewrite and cleanup complete
+
+2010-10-07 10:41  frankmorgner
+
+	* - cats-test and picc_to_pcsc are using the same pcsc abstraction.
+	  this reduces the code to maintain
+	  - partial rewrite of picc_to_pcsc to reduce memory leaks and add
+	  fault tolerancy
+
+2010-10-06 13:48  frankmorgner
+
+	* svc fixed uninitialized value
+
+2010-07-01 11:08  frankmorgner
+
+	* fixed distribution file
+
+2010-06-22 09:45  frankmorgner
+
+	* forcing empty parameter list with function(void) instead of
+	  unspecified parameter list with function()
+
+2010-06-05 22:10  frankmorgner
+
+	* updated checksums, install files for recipes. updated log files
+	  for 0.6.1
+
 2010-05-09 08:34  frankmorgner
 
-	* configure.ac: be less restrictive in ./configure. better output
-	  of configuration details
+	* be less restrictive in ./configure. better output of
+	  configuration details
 
 2010-05-08 19:09  frankmorgner
 
-	* ChangeLog, Makefile.am, NEWS, configure.ac, picc.py,
-	  picc_to_pcsc.c, picc_to_pcsc.h, src, src/Makefile.am,
-	  src/picc.py, src/picc_to_pcsc.c, src/picc_to_pcsc.h: switched to
-	  autotools
+	* switched to autotools
 
 2010-01-05 14:17  frankmorgner
 
-	* Makefile: Added target clean
+	* Added target clean
 
 2010-01-05 14:04  frankmorgner
 
-	* Makefile, picc_to_pcsc.c: Fixed Makefile, removed warning.
+	* Fixed Makefile, removed warning.
 
 2010-01-04 19:56  frankmorgner
 
-	* ., AUTHORS, COPYING, Makefile, README, picc.py, picc_to_pcsc.c,
-	  picc_to_pcsc.h: Added picc_to_pcsc.
+	* Added picc_to_pcsc.
 
