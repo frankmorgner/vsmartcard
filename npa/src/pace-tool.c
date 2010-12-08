@@ -70,6 +70,7 @@ static sc_reader_t *reader;
 #define OPT_VERBOSE     'v'
 #define OPT_INFO        'o'
 #define OPT_CARD        'c'
+#define OPT_TRVERSION   'n'
 
 static const struct option options[] = {
     { "help", no_argument, NULL, OPT_HELP },
@@ -86,6 +87,7 @@ static const struct option options[] = {
     { "resume-pin", no_argument, NULL, OPT_RESUME_PIN },
     { "unblock-pin", no_argument, NULL, OPT_UNBLOCK_PIN },
     { "translate", optional_argument, NULL, OPT_TRANSLATE },
+    { "tr-03110v", required_argument, NULL, OPT_TRVERSION },
     { "verbose", no_argument, NULL, OPT_VERBOSE },
     { "info", no_argument, NULL, OPT_INFO },
     { NULL, 0, NULL, 0 }
@@ -105,6 +107,7 @@ static const char *option_help[] = {
     "Resume PIN (uses CAN to activate last retry)",
     "Unblock PIN (uses PUK to activate three more retries)",
     "APDUs to send through SM channel (default: stdin)",
+    "Version of TR-03110 (default: 2, for version 2 and later)",
     "Use (several times) to be more verbose",
     "Print version, available readers and drivers.",
 };
@@ -188,7 +191,7 @@ main (int argc, char **argv)
     memset(&pace_output, 0, sizeof pace_output);
 
     while (1) {
-        i = getopt_long(argc, argv, "hr:i::u::a::z::bC:D:N::RUt::voc:", options, &oindex);
+        i = getopt_long(argc, argv, "hr:i::u::a::z::bC:D:N::RUt::voc:n:", options, &oindex);
         if (i == -1)
             break;
         switch (i) {
@@ -272,6 +275,12 @@ main (int argc, char **argv)
                 dotranslate = 1;
                 if (optarg) {
                     file = optarg;
+                }
+                break;
+            case OPT_TRVERSION:
+                if (sscanf(optarg, "%d", &pace_input.tr_version) != 1) {
+                    parse_error(argv[0], options, option_help, optarg, oindex);
+                    exit(2);
                 }
                 break;
             case '?':

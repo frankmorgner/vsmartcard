@@ -1098,7 +1098,7 @@ int EstablishPACEChannel(struct sm_ctx *oldpacectx, sc_card_t *card,
         r = SC_ERROR_INTERNAL;
         goto err;
     }
-    pctx->tr_version = PACE_TR_VERSION_2_02;
+    pctx->tr_version = pace_input.tr_version;
 
     r = pace_mse_set_at(oldpacectx, card, info->protocol, pace_input.pin_id,
             chat, &pace_output->mse_set_at_sw1, &pace_output->mse_set_at_sw2);

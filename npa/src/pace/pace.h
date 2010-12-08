@@ -100,6 +100,9 @@ const char *pace_secret_name(enum s_type pin_id);
  * Input data for EstablishPACEChannel()
  */
 struct establish_pace_channel_input {
+    /** Version of TR-03110 to use with PACE */
+    enum tr_version tr_version;
+
     /** Type of secret (CAN, MRZ, PIN or PUK). You may use <tt>enum s_type</tt> from \c <openssl/pace.h> */
     unsigned char pin_id;
 
