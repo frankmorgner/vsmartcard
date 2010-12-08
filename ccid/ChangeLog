@@ -1,3 +1,477 @@
+2010-12-07 15:48  frankmorgner
+
+	* configure.ac, src/scutil.h: linking against libopensc not easily
+	  possible. we need to remove this dependancy
+
+2010-11-22 09:48  frankmorgner
+
+	* src/cats-test.c, src/pcscutil.c, src/pcscutil.h: fixed compiling
+	  for windows
+
+2010-11-15 09:27  frankmorgner
+
+	* src/Makefile.am, src/ccid.c, src/scutil.h, src/sm.c:
+	  removed/replaced remains of libpace
+
+2010-11-15 09:21  frankmorgner
+
+	* configure.ac: not building cats-test by default.
+
+2010-11-14 20:34  frankmorgner
+
+	* Makefile.am, configure.ac, libpace.pc.in, src/Makefile.am,
+	  src/pace, src/pace-tool.c, src/pace.c, src/pace_lib.c,
+	  src/scutil.c, src/sm.c: extracted libpace from ccid
+
+2010-10-28 10:00  frankmorgner
+
+	* README.dox: updated support information
+
+2010-10-28 09:10  frankmorgner
+
+	* README.dox, apdus, src/pace-tool.c: - fixed: pace-tool dumped
+	  wrong apdu buffer
+	  - updated documentation on opensc
+
+2010-10-27 19:05  frankmorgner
+
+	* src/pace-tool.c, src/scutil.c: - cleaned (debug) output
+	  - fixed error in interactive mode of pace-tool
+
+2010-10-27 14:50  frankmorgner
+
+	* src/ccid.c, src/pace.c: pace card supports extended lengths. note
+	  that we really need a card driver which covers that
+
+2010-10-27 12:11  frankmorgner
+
+	* Makefile.am, README.dox, apdus, src/pace-tool.c: plaintext apdus
+	  to be sent via SM can now be read from a file
+
+2010-10-26 18:41  frankmorgner
+
+	* src/binutil.c, src/ccid.c, src/pace-tool.c, src/scutil.c,
+	  src/usb.c: unified usage of sizeof. found some potential memory
+	  corruptions with that.
+
+2010-10-26 13:47  frankmorgner
+
+	* src/ccid.c, src/scutil.c, src/usb.c: - fixed memory corruption on
+	  card initialization
+	  - fixed compilation warning
+
+2010-10-22 08:31  frankmorgner
+
+	* src/ccid.c: added workaround for ausweisapp
+
+2010-10-21 18:54  frankmorgner
+
+	* src/ccid.c, src/pace.c: fixed formating of
+	  ReadersPACECapabilities result. errors were due to changes of
+	  r284
+
+2010-10-21 12:45  frankmorgner
+
+	* src/ccid.c, src/pace.c: - enable extended length apdu for all
+	  cards that have an ef.cardaccess
+	  - set the bit for esign by default (for testing only)
+
+2010-10-15 16:59  frankmorgner
+
+	* src/Makefile.am, src/binutil.c, src/binutil.h, src/pace/scutil.h,
+	  src/scutil.c, src/usb.c: - moved OpenSC-related functions to
+	  scutil
+	  - added make-target for flawfinder (to be used with vim)
+
+2010-10-14 05:00  frankmorgner
+
+	* src/usb.c: added command line option for gadgetfs mountpoint
+
+2010-10-13 20:10  frankmorgner
+
+	* Makefile.am, configure.ac: switched from automake to sed for
+	  substitution of automake variables
+
+2010-10-11 12:02  frankmorgner
+
+	* src/pace.c: added argument checking
+
+2010-10-11 11:56  frankmorgner
+
+	* src/binutil.c, src/ccid.c, src/pace.c, src/scutil.c, src/sm.c:
+	  reviewed files with flawfinder
+
+2010-10-07 10:41  frankmorgner
+
+	* src/cats-test.c, src/pcscutil.c, src/pcscutil.h: - cats-test and
+	  picc_to_pcsc are using the same pcsc abstraction. this reduces
+	  the code to maintain
+	  - partial rewrite of picc_to_pcsc to reduce memory leaks and add
+	  fault tolerancy
+
+2010-10-06 20:01  frankmorgner
+
+	* src/Makefile.am, src/cats-test.c, src/pcscutil.c, src/pcscutil.h:
+	  prepare to merge with pcsc_to_picc
+
+2010-10-04 20:05  frankmorgner
+
+	* Doxyfile.in, README.dox: added missing files
+
+2010-10-04 13:54  frankmorgner
+
+	* src/ccid.h, src/usb.c: using strtol instead of sscanf
+
+2010-10-04 12:04  frankmorgner
+
+	* src/usb.c: - added command line parameter for USB iInterface, use
+	  it to fool AusweisApp
+	  - fixed population of event notification status
+	  - dont initialize serial number, when given in input
+
+2010-10-04 05:53  frankmorgner
+
+	* README: added README as link to doxygen file
+
+2010-10-04 05:52  frankmorgner
+
+	* Makefile.am, README, src/usb.c: only using doxygen description as
+	  readme
+
+2010-10-02 20:35  frankmorgner
+
+	* Doxyfile, Makefile.am, configure.ac, doxygen.am, m4/doxygen.m4:
+	  changed to a more simplistic generation of documentation
+
+2010-10-01 20:46  frankmorgner
+
+	* src/ccid.h, src/pace/pace.h, src/pace/sm.h, src/usb.c: added
+	  documentation
+
+2010-09-30 20:45  frankmorgner
+
+	* src/usb.c: sending description about the running configuration
+	  via usb descriptor
+
+2010-09-30 11:16  frankmorgner
+
+	* Doxyfile, Makefile.am, configure.ac, doxygen.am, m4/doxygen.m4,
+	  src/ccid.h, src/pace/pace.h, src/pace/pace_lib.h,
+	  src/pace/scutil.h, src/pace/sm.h, src/sm.c: added documentation
+
+2010-09-29 21:01  frankmorgner
+
+	* src/cats-test.c, src/ccid.c, src/ccid.h, src/pace.c,
+	  src/pace/pace.h, src/pace/sm.h, src/usb.c: added documentation
+
+2010-09-29 12:57  frankmorgner
+
+	* src/pace.c: adapted to the latest changes of OpenPACE
+
+2010-09-28 09:11  frankmorgner
+
+	* patches/Makefile.am, patches/ccid-1.3.13.patch,
+	  patches/pcsclite_trunk_r5270.patch: postpone patch update for
+	  higher versions of ccid
+
+2010-09-28 09:10  frankmorgner
+
+	* patches/ccid-1.3.11.patch, src/ccid.c: forgot writeback to
+	  RxBuffer in ccid driver
+
+2010-09-27 20:48  frankmorgner
+
+	* patches/ccid-1.3.11.patch, src/ccid.c, src/pace/pace.h: added
+	  support for dynamic pace result generation to be transmitted to
+	  the pc/sc client. note that other ccid patches are not up to date
+
+2010-09-27 10:58  frankmorgner
+
+	* src/pace.c: corrected indent and title of CHAT and certificate
+	  description
+
+2010-09-27 09:04  frankmorgner
+
+	* src/pace.c: added support for printing and transmitting chat
+
+2010-09-27 08:35  frankmorgner
+
+	* src/pace.c, src/pace/pace.h: print certificate description
+
+2010-09-27 05:18  frankmorgner
+
+	* src/Makefile.am, src/cats-test.c, src/cats-tool.c, src/pace.c,
+	  src/pace/pace.h: working on support for certificate description
+
+2010-09-25 05:20  frankmorgner
+
+	* src/pace/sm.h, src/sm.c: deactivate emulators sm context, when
+	  host sends sm protected apdus
+
+2010-09-24 14:07  frankmorgner
+
+	* src/cats-tool.c, src/scutil.c: - finished simulation of ta/ca
+	  - fixed parsing case 4 extended apdu
+
+2010-09-24 12:22  frankmorgner
+
+	* src/cats-tool.c, src/sm.c: - fixed pace input parameters of
+	  cats-tool
+	  - fixed apdu of simulation of ta/ca (cats-tool)
+	  - fixed padding removal (sm)
+
+2010-09-24 07:42  frankmorgner
+
+	* patches/ccid-1.3.11.patch, patches/ccid-1.3.13.patch,
+	  patches/pcsclite_trunk_r5067.patch,
+	  patches/pcsclite_trunk_r5270.patch: - updated patch to pcsclite
+	  trunk
+	  - changed default ccid command buffer size to support sending
+	  extended apdus in a single transmit (only for ccid-1.3.11
+	  necessary)
+
+2010-09-23 19:36  frankmorgner
+
+	* src/cats-tool.c, src/ccid.c, src/scutil.c: - added le/lc to apdu
+	  debugging
+	  - fixed byte order problem for PC_to_RDR_XfrBlock
+	  - cats-tool: added simulation of part of TA/CA
+
+2010-09-23 12:56  frankmorgner
+
+	* src/ccid.c, src/pace-tool.c, src/pace.c, src/sm.c: - fixed
+	  compiling errors
+	  - adjusted secure messaging to support extended length apdus
+	  - card has to support extended length, this is hardcoded at the
+	  moment, but should better be done in the appropriate card driver
+
+2010-09-23 11:12  frankmorgner
+
+	* src/ccid.c, src/pace-tool.c: added debugging of invalid apdus
+
+2010-09-23 09:03  frankmorgner
+
+	* src/pace.c: adatpted to the latest changes of OpenPACE.
+	  EstablishPACEChannel now fully functional
+
+2010-09-21 08:17  frankmorgner
+
+	* src/cats-tool.c: - fixed receive length
+	  - added simulation of buergerclient/ausweisapp
+
+2010-09-20 20:01  frankmorgner
+
+	* src/ccid.c: - removed unnecessary checks of NULL pointer before
+	  using free()
+	  - fixed memory leak for buergerclient workaround
+
+2010-09-19 12:00  frankmorgner
+
+	* src/scutil.c: fixed case 2 extended apdu parsing
+
+2010-09-18 12:42  frankmorgner
+
+	* src/ccid.c, src/ccid.h, src/usb.c: - extended length fully
+	  functional. fixed last problems with lengths and ccid descriptor.
+
+2010-09-16 10:08  frankmorgner
+
+	* src/scutil.c: bugfix: case 2 extended length apdu are now
+	  recognized
+
+2010-09-15 21:14  frankmorgner
+
+	* src/ccid.c, src/scutil.c, src/usb.c: - Added capabilities to
+	  parse and send extended length APDUs. This does not
+	  work proberly with libccid, so it is disabled at the moment
+	  - unpower card only on PC_to_RDR_IccPowerOff
+
+2010-09-15 09:49  frankmorgner
+
+	* src/ccid.c, src/pace-tool.c: reset the card before disconnecting
+	  to unpower and reset the secure messaging status
+
+2010-09-14 20:37  frankmorgner
+
+	* src/ccid.c, src/pace-tool.c, src/pace.c, src/pace/sm.h, src/sm.c:
+	  - some unneded functions are no longer available in header files
+	  - cleaned memory leaks in pace-tool and ccid-emulator
+
+2010-09-14 16:07  frankmorgner
+
+	* src/cats-tool.c: - fixed wrong PCSC-PACE-data
+	  - fixed command line parsing
+
+2010-09-13 14:11  frankmorgner
+
+	* src/pace.c, src/pace/pace.h: added support for unambiguous
+	  PACE-channel selection (ID.icc and ID.pcd)
+
+2010-09-13 09:24  frankmorgner
+
+	* src/ccid.c: fixed memory corruption for too long
+	  _RDR_to_PC_DataBlock packages
+
+2010-09-09 10:04  frankmorgner
+
+	* src/cats-tool.c, src/usb.c: bugfix: wrong format strings
+
+2010-09-01 05:49  frankmorgner
+
+	* configure.ac, src/Makefile.am, src/cats-tool.c, src/ccid-test.c:
+	  - renamed ccid-test to cats-tool, since it is suitable for all
+	  readers of type cat-s and cat-b
+	  - cats-tool takes PIN as input parameter
+
+2010-08-31 10:54  frankmorgner
+
+	* src/ccid-test.c: - bugfix: pace output data now parsed correctly
+	  - added time measurement
+
+2010-08-31 10:26  frankmorgner
+
+	* src/ccid-test.c: removed PCSC_TLV_STRUCTURE since its the
+	  attributes are not always packed
+
+2010-08-31 09:09  frankmorgner
+
+	* configure.ac, src/ccid-test.c: - bugfix: now converting pace io
+	  control to host byte order
+	  - now parsing pace output data
+	  - use pcsclite-capabilities, if possible
+
+2010-08-30 19:39  frankmorgner
+
+	* src/ccid-test.c: including reader.h, if possible
+
+2010-08-30 13:18  frankmorgner
+
+	* src/ccid-test.c: added compatibility with windows
+
+2010-08-25 17:13  frankmorgner
+
+	* configure.ac, libpace.pc.in: added missing file
+
+2010-08-25 13:25  frankmorgner
+
+	* src/pace-tool.c: added pace-tool can now break can, pin, puk with
+	  brute force
+
+2010-08-24 08:31  frankmorgner
+
+	* configure.ac, src/ccid.c, src/pace.c, src/pace/pace.h: added
+	  workaround for current buergerclient to read efcardaccess
+
+2010-07-15 18:53  frankmorgner
+
+	* Makefile.am, configure.ac, patches/Makefile.am, src/Makefile.am,
+	  src/ccid.c, src/pace, src/pace.h, src/pace/pace.h,
+	  src/pace/pace_lib.h, src/pace/scutil.h, src/pace/sm.h,
+	  src/pace_lib.h, src/scutil.h, src/sm.h: - made
+	  establishpacechannel output independant from any byte order
+	  conversion.
+	  little endian handling is done by the ccid-part.
+	  - pacelib exports PACE-functionality.
+
+2010-07-12 22:54  frankmorgner
+
+	* src/ccid.c, src/usb.c: - usb.c: fixed signal handling
+	  - ccid.c: revised construction of RDR_to_PC_*-packages to make
+	  the code more readable
+
+2010-07-12 21:27  frankmorgner
+
+	* src/ccid.c, src/pace-tool.c, src/pace.c, src/pace.h: - made
+	  establishpacechannel output independant from any byte order
+	  conversion.
+	  little endian handling is done by the ccid-part.
+
+2010-07-12 12:18  frankmorgner
+
+	* patches/ccid-1.3.11.patch, patches/ccid-1.3.13.patch,
+	  patches/pcsclite_trunk_r5067.patch: bugfix: transform pace output
+	  buffer on usb from little endian to host byte order
+
+2010-07-12 11:28  frankmorgner
+
+	* patches/ccid-1.3.11.patch, patches/ccid-1.3.13.patch,
+	  patches/pcsclite_trunk_r5063.patch,
+	  patches/pcsclite_trunk_r5067.patch: - fixed parse errors
+
+2010-07-12 09:58  frankmorgner
+
+	* patches/Makefile.am, patches/ccid-1.3.11.patch,
+	  patches/ccid-1.3.13.patch, src/ccid.c, src/pace-tool.c,
+	  src/pace.c, src/pace.h: - pace debug output of libccid is shown
+	  by default in pcscd's log
+	  - made establishpacechannel input independant from any byte order
+	  conversion.
+	  little endian handling is done by the ccid-part.
+
+2010-07-07 16:38  frankmorgner
+
+	* patches/ccid-1.3.11.patch, patches/ccid-1.3.13.patch,
+	  patches/pcsclite_trunk_r5063.patch, src/pace.c: - added support
+	  for IDicc
+	  - fixed parse error of pace output buffer
+
+2010-07-07 10:31  frankmorgner
+
+	* patches/ccid-1.3.11.patch, patches/ccid-1.3.13.patch,
+	  patches/pcsclite_trunk_r4993.patch,
+	  patches/pcsclite_trunk_r5063.patch: - added parsing of PACE data
+	  - bugfix: PACE output data had to be wrapped again
+
+2010-07-05 15:07  frankmorgner
+
+	* patches/ccid-1.3.11.patch, patches/ccid-1.3.13.patch,
+	  patches/pcsclite_trunk_r4993.patch: bugfix: PACE response data
+	  was not copied to application
+
+2010-07-04 21:00  frankmorgner
+
+	* src/ccid-test.c: printing received buffers
+
+2010-07-04 18:06  frankmorgner
+
+	* patches/ccid-1.3.11.patch, patches/ccid-1.3.13.patch,
+	  patches/pcsclite_trunk_r4993.patch: bugfix: get the whole PACE
+	  response data
+
+2010-07-04 11:35  frankmorgner
+
+	* src/ccid.c, src/pace.c, src/usb.c: - added information how many
+	  bytes were actually transmitted via usb
+	  - split general authenticate into multiple functions, one for
+	  every step of
+	  PACE.
+	  - including recent and previous car in output buffer of
+	  EstablishPACEChannel
+	  - ccid-emulator initiates EstablishPACEChannel always with a new
+	  sm_ctx
+
+2010-07-02 21:03  frankmorgner
+
+	* src/pace.c: added ef.cardaccess and statusbytes to response of
+	  establishpacechannel
+
+2010-07-02 20:26  frankmorgner
+
+	* src/ccid.c, src/pace.c: fixed wrong text of prompt for secret
+
+2010-07-01 11:12  frankmorgner
+
+	* ChangeLog: really releasing 0.3
+
+2010-07-01 10:59  frankmorgner
+
+	* Makefile.am: fixed missing Makefile to include patche
+
+2010-07-01 10:56  frankmorgner
+
+	* Makefile.am, configure.ac, patches/Makefile.am: added patches to
+	  distribution file
+
 2010-07-01 10:11  frankmorgner
 
 	* ChangeLog, configure.ac: releasing 0.3
