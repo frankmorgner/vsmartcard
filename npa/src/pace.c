@@ -1091,6 +1091,15 @@ int EstablishPACEChannel(struct sm_ctx *oldpacectx, sc_card_t *card,
         goto err;
     }
 
+    pctx = PACE_CTX_new();
+    if (!pctx || !PACE_init(pctx, &static_dp, info)) {
+        sc_error(card->ctx, "Could not initialize PACE parameters.");
+        ssl_error(card->ctx);
+        r = SC_ERROR_INTERNAL;
+        goto err;
+    }
+    pctx->tr_version = PACE_TR_VERSION_2_02;
+
     r = pace_mse_set_at(oldpacectx, card, info->protocol, pace_input.pin_id,
             chat, &pace_output->mse_set_at_sw1, &pace_output->mse_set_at_sw2);
     if (r < 0) {
@@ -1122,12 +1131,6 @@ int EstablishPACEChannel(struct sm_ctx *oldpacectx, sc_card_t *card,
         r = SC_ERROR_INTERNAL;
         goto err;
     }
-    pctx = PACE_CTX_new();
-    if (!pctx || !PACE_CTX_init(pctx, info)) {
-        r = SC_ERROR_INTERNAL;
-        goto err;
-    }
-    pctx->tr_version = PACE_TR_VERSION_2_01;
 
     nonce = PACE_STEP2_dec_nonce(sec, enc_nonce, pctx);
 
