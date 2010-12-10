@@ -23,6 +23,9 @@
 #include <winscard.h>
 #include <time.h>
 
+#pragma comment(lib, "ws2_32.lib")
+#pragma comment(lib, "winscard.lib")
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -205,7 +208,6 @@ main(int argc, char *argv[])
         goto err;
 
 
-#define SIMULATE_BUERGERCLIENT 1
 #ifdef SIMULATE_BUERGERCLIENT
     r = SCardReconnect(hCard, SCARD_SHARE_EXCLUSIVE, SCARD_PROTOCOL_ANY,
             SCARD_LEAVE_CARD, &protocol);
@@ -320,7 +322,6 @@ main(int argc, char *argv[])
             difftime(t_end, t_start));
 
 
-#define SIMULATE_TA_CA 1
 #ifdef SIMULATE_TA_CA
     r = SCardReconnect(hCard, SCARD_SHARE_EXCLUSIVE, SCARD_PROTOCOL_ANY,
             SCARD_LEAVE_CARD, &protocol);

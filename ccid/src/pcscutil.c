@@ -21,6 +21,8 @@
 
 #include "pcscutil.h"
 
+#pragma comment(lib, "winscard.lib")
+
 LONG
 pcsc_connect(unsigned int readernum, DWORD dwShareMode, DWORD dwPreferredProtocols,
         LPSCARDCONTEXT phContext, LPSTR *readers, LPSCARDHANDLE phCard,
@@ -39,7 +41,7 @@ pcsc_connect(unsigned int readernum, DWORD dwShareMode, DWORD dwPreferredProtoco
 
 
     readerslen = SCARD_AUTOALLOCATE;
-    r = SCardListReaders(*phContext, NULL, (LPSTR) readers, &readerslen);
+    r = SCardListReaders(*phContext, NULL, (LPCWSTR) readers, &readerslen);
     if (r != SCARD_S_SUCCESS) {
         fprintf(stderr, "Could not get readers\n");
         goto err;
@@ -58,7 +60,7 @@ pcsc_connect(unsigned int readernum, DWORD dwShareMode, DWORD dwPreferredProtoco
     }
 
 
-    r = SCardConnect(*phContext, reader, dwShareMode, dwPreferredProtocols,
+    r = SCardConnect(*phContext, (LPCWSTR) reader, dwShareMode, dwPreferredProtocols,
             phCard, pdwActiveProtocol); 
     if (r != SCARD_S_SUCCESS) {
         fprintf(stderr, "Could not connect to %s\n", reader);
