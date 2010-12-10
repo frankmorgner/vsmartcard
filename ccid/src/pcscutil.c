@@ -41,7 +41,7 @@ pcsc_connect(unsigned int readernum, DWORD dwShareMode, DWORD dwPreferredProtoco
 
 
     readerslen = SCARD_AUTOALLOCATE;
-    r = SCardListReaders(*phContext, NULL, (LPCWSTR) readers, &readerslen);
+    r = SCardListReaders(*phContext, NULL, (LPTSTR) readers, &readerslen);
     if (r != SCARD_S_SUCCESS) {
         fprintf(stderr, "Could not get readers\n");
         goto err;
@@ -60,7 +60,7 @@ pcsc_connect(unsigned int readernum, DWORD dwShareMode, DWORD dwPreferredProtoco
     }
 
 
-    r = SCardConnect(*phContext, (LPCWSTR) reader, dwShareMode, dwPreferredProtocols,
+    r = SCardConnect(*phContext, reader, dwShareMode, dwPreferredProtocols,
             phCard, pdwActiveProtocol); 
     if (r != SCARD_S_SUCCESS) {
         fprintf(stderr, "Could not connect to %s\n", reader);
