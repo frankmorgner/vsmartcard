@@ -37,6 +37,15 @@ The following patch makes the hex dumped output more readable:
 http://www.opensc-project.org/opensc/raw-attachment/ticket/263/hex_dump_align.2.patch
 
 
+@subsection o HINTS ON OPENSSL
+
+If you have a local build of OpenSSL with OpenPACE, that you want to link
+against use something like the following command:
+./configure \
+    OPENSSL_CFLAGS="-I/path/to/openssl-1.0.0c_with_openpace-0.4/include" \
+    OPENSSL_LIBS="-L/path/to/openssl-1.0.0c_with_openpace-0.4 -lcrypto"
+
+
 @section u USAGE
 
 When testing PACE with either PIN, CAN, MRZ or PUK run pace-tool. Here you can
