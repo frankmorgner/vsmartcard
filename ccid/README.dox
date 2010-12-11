@@ -56,8 +56,8 @@ If you have a local build of OpenSSL with OpenPACE, that you want to link
 against use something like the following command:
 ./configure \
     OPENSSL_CFLAGS="-I/path/to/openssl-1.0.0c_with_openpace-0.4/include" \
-    LIBPACE_CFLAGS="-I/path/to/openssl-1.0.0c_with_openpace-0.4/include -I/path/to/libpace-0.1/src"
-    OPENSSL_LIBS="-L/path/to/openssl-1.0.0c_with_openpace-0.4 -lcrypto"
+    LIBPACE_CFLAGS="-I/path/to/openssl-1.0.0c_with_openpace-0.4/include -I/path/to/libpace-0.1/src" \
+    OPENSSL_LIBS="-L/path/to/openssl-1.0.0c_with_openpace-0.4 -lcrypto" \
     LIBPACE_LIBS="-L/path/to/openssl-1.0.0c_with_openpace-0.4 -lcrypto -L/path/to/libpace-0.1/src/.libs -lpace"
 
 
