@@ -19,7 +19,6 @@
 #include "binutil.h"
 #include "pace.h"
 #include "scutil.h"
-#include <asm/byteorder.h>
 #include <opensc/log.h>
 #include <openssl/pace.h>
 #include <stdint.h>
