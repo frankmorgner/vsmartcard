@@ -1,19 +1,21 @@
 Title            : virtualsmartcard
 Authors          : Frank Morgner <morgner@informatik.hu-berlin.de>
                    Dominik Oepen <oepen@informatik.hu-berlin.de>
-Version          : 1.0.0 27 Jul 2009
+Version          : 0.3 2010-13-08
 License          : See file COPYING
 Tested Platforms : Linux 2.6 (Debian, Ubuntu, Om 2008)
 
 Welcome to virtualsmartcard. The purpose of virtualsmartcard is to emulate a
-smartcard and make it accessible through PCSC. Currently the virtual smartcard
-supports almost all commands of ISO-7816 including secure messaging. Besides a
-plain ISO-7816 smartcard it is also possible to emulate a German ePass (only
-basic access control) and a rudimentary Cryptoflex smartcard.
+smart card and make it accessible through PCSC. Currently the virtual smart
+card supports almost all commands of ISO-7816 including secure messaging.
+Besides a plain ISO-7816 smart card it is also possible to emulate a German
+ePass (only basic access control) and a rudimentary Cryptoflex smart card. The
+virtual smart card can be accessed through the virtual smart card reader which
+is a driver for pcscd of PCSC-Lite.
 
-The virtual smartcard communicates with the virtual smartcard driver through a
-socket on port 35963. The file utils.py was taken from Henryk Plötz's
-cyberflex-shell.
+By default the virtual smart card communicates with the virtual smart card
+reader through a socket on localhost port 35963. The file utils.py was taken
+from Henryk Plötz's cyberflex-shell.
 
 
 INSTALLATION
@@ -25,16 +27,16 @@ See file INSTALL.
 RUNNING virtualsmartcard
 ------------------------
 
-First you need to make sure that pcscd loads the virtual smartcard driver. You
-might run "update-reader.conf" to update pcscd's configuration file. Then
-"pcscd -f -d" should say something like
+First you need to make sure that pcscd loads the virtual smart card driver. You
+might run `update-reader.conf` to update pcscd's configuration file. Then
+`pcscd -f -d` should say something like
 readerfactory.c:1024:RFInitializeReader() Attempting startup of Virtual PCD 00 00 using /usr/lib/pcsc/drivers/serial/libvpcd.so
 
-Now you can run "virtualsmartcard" which connects to the virtual reader. The
-command "virtualsmartcard --help" gives an overview about the command line
+Now you can run `virtualsmartcard` which connects to the virtual reader. The
+command `virtualsmartcard --help` gives an overview about the command line
 options.
 
-You should now be able to access the virtual smartcard through the system's
+You should now be able to access the virtual smart card through the system's
 PC/SC API. You can use the opensc-explorer or pcsc_scan to test that.
 
 

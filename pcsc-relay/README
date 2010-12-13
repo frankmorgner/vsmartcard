@@ -1,7 +1,7 @@
 Title            : pcsc-relay
 Authors          : Dominik Oepen <oepen@informatik.hu-berlin.de>
                    Frank Morgner <morgner@informatik.hu-berlin.de>
-Version          : 1.0.0 04 Aug 2009
+Version          : 0.2 2010-12-08
 License          : See file COPYING
 Tested Platforms : Linux 2.6 (Debian, Ubuntu, Om 2008)
 
