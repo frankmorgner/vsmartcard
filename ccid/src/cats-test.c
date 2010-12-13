@@ -168,6 +168,17 @@ static LONG parse_EstablishPACEChannel_OutputData(
 }
 
 int
+printusageexit(FILE *f, const char *s, int e)
+{
+    fprintf(f, "Usage:  "
+            "%s secret [secret type] [reader number]\n"
+            "    secret type:    MRZ 1, CAN 2, PIN 3 [default], PUK 4\n"
+            "    reader number:  0 [default]\n"
+            , s);
+    exit(e);
+}
+
+int
 main(int argc, char *argv[])
 {
     LONG r;
@@ -180,26 +191,28 @@ main(int argc, char *argv[])
     size_t l, pinlen = 0;
     char *pin = NULL;
     unsigned int readernum = 0, i;
+    unsigned char secret_type = 0x03;
 
 
     if (argc > 1) {
-        if (sscanf(argv[1], "%u", &readernum) != 1) {
-            fprintf(stderr, "Could not get number of reader\n");
-            exit(2);
-        }
+        pin = argv[1];
+        pinlen = strlen(pin);
         if (argc > 2) {
-            pin = argv[2];
-            pinlen = strlen(pin);
-            if (pinlen < 5 || pinlen > 6) {
-                fprintf(stderr, "PIN too long\n");
+            if (sscanf(argv[2], "%u", &secret_type) != 1) {
+                fprintf(stderr, "Could not get type of secret\n");
                 exit(2);
             }
         }
         if (argc > 3) {
-            fprintf(stderr, "Usage:  "
-                    "%s [reader number] [PIN]\n", argv[0]);
+            if (sscanf(argv[3], "%u", &readernum) != 1) {
+                fprintf(stderr, "Could not get number of reader\n");
+                exit(2);
+            }
         }
-    }
+        if (argc > 4)
+            printusageexit(stderr, argv[0], 1);
+    } else
+        printusageexit(stderr, argv[0], 1);
 
 
     r = pcsc_connect(readernum, SCARD_SHARE_DIRECT, 0, &hContext, &readers,
@@ -294,7 +307,7 @@ main(int argc, char *argv[])
     sendbuf[0] = 0x02;              /* idxFunction = EstabishPACEChannel */
     sendbuf[1] = (5+pinlen)&0xff;   /* lengthInputData */
     sendbuf[2] = (5+pinlen)>>8;     /* lengthInputData */
-    sendbuf[3] = 0x03;              /* PACE with PIN */
+    sendbuf[3] = secret_type;
     sendbuf[4] = 0x00;              /* length CHAT */
     sendbuf[5] = pinlen;            /* length PIN */
     memcpy(sendbuf+6, pin, pinlen); /* PIN */
