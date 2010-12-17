@@ -325,30 +325,34 @@ main (int argc, char **argv)
     }
 
     if (dobreak) {
-        char can_ch[7];
-        unsigned int can_nb = 0;
+        /* The biggest buffer sprintf could write with "%llu" */
+        char can_ch[strlen("18446744073709551615")+1];
+        unsigned long long can_nb = 0;
 
         if (usepin) {
             pace_input.pin_id = PACE_PIN;
+            pace_input.pin_length = 6;
             if (pin) {
-                if (sscanf(pin, "%u", &can_nb) != 1) {
-                    fprintf(stderr, "PIN is not an unsigned integer.\n");
+                if (sscanf(pin, "%llu", &can_nb) != 1) {
+                    fprintf(stderr, "PIN is not an unsigned long long.\n");
                     exit(2);
                 }
             }
         } else if (usecan) {
             pace_input.pin_id = PACE_CAN;
+            pace_input.pin_length = 6;
             if (can) {
-                if (sscanf(can, "%u", &can_nb) != 1) {
-                    fprintf(stderr, "CAN is not an unsigned integer.\n");
+                if (sscanf(can, "%llu", &can_nb) != 1) {
+                    fprintf(stderr, "CAN is not an unsigned long long.\n");
                     exit(2);
                 }
             }
         } else if (usepuk) {
             pace_input.pin_id = PACE_PUK;
+            pace_input.pin_length = 10;
             if (puk) {
-                if (sscanf(puk, "%u", &can_nb) != 1) {
-                    fprintf(stderr, "PUK is not an unsigned integer.\n");
+                if (sscanf(puk, "%llu", &can_nb) != 1) {
+                    fprintf(stderr, "PUK is not an unsigned long long.\n");
                     exit(2);
                 }
             }
@@ -358,22 +362,24 @@ main (int argc, char **argv)
             exit(1);
         }
 
-        sprintf(can_ch, "%06u", can_nb);
         pace_input.pin = can_ch;
-        pace_input.pin_length = strlen(can_ch);
 
         t_start = time(NULL);
-        while (0 > EstablishPACEChannel(NULL, card, pace_input, &pace_output,
-                    &sctx)) {
-            printf("Failed trying %s=%s\n",
-                    pace_secret_name(pace_input.pin_id), pace_input.pin);
-            can_nb++;
-            sprintf(can_ch, "%06u", can_nb);
-            if (can_nb > 999999)
+        do {
+            sprintf(can_ch, "%0*llu", pace_input.pin_length, can_nb);
+            if (strlen(can_ch) > pace_input.pin_length)
                 break;
-        }
+
+            printf("Trying %s=%s\n",
+                    pace_secret_name(pace_input.pin_id), pace_input.pin);
+            i = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
+                    &sctx);
+
+            can_nb++;
+        } while (0 > i);
         t_end = time(NULL);
-        if (can_nb > 999999) {
+
+        if (0 > i) {
             printf("Tried breaking %s for %.0fs without success.\n",
                     pace_secret_name(pace_input.pin_id), difftime(t_end, t_start));
             goto err;
