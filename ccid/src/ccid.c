@@ -45,8 +45,7 @@ static size_t ef_cardaccess_length = 0;
 #endif
 
 static sc_context_t *ctx = NULL;
-#define SC_MAX_SLOTS 1
-static sc_card_t *card_in_slot[SC_MAX_SLOTS];
+static sc_card_t *card = NULL;
 static sc_reader_t *reader;
 
 struct ccid_class_descriptor
@@ -54,7 +53,7 @@ ccid_desc = {
     .bLength                = sizeof ccid_desc,
     .bDescriptorType        = 0x21,
     .bcdCCID                = __constant_cpu_to_le16(0x0110),
-    .bMaxSlotIndex          = SC_MAX_SLOTS,
+    .bMaxSlotIndex          = 1,
     .bVoltageSupport        = 0x01,  // 5.0V
     .dwProtocols            = __constant_cpu_to_le32(
                               0x01|  // T=0
@@ -108,16 +107,16 @@ detect_card_presence(void)
     sc_result = sc_detect_card_presence(reader);
 
     if (sc_result == 0
-            && card_in_slot[0]) {
-        sc_disconnect_card(card_in_slot[0]);
+            && card) {
+        sc_disconnect_card(card);
         sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "Card removed from slot 0");
     }
     if (sc_result & SC_READER_CARD_CHANGED) {
-        sc_disconnect_card(card_in_slot[0]);
+        sc_disconnect_card(card);
         sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "Card exchanged in slot 0");
     }
     if (sc_result & SC_READER_CARD_PRESENT
-            && !card_in_slot[0]) {
+            && !card) {
         sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "Unused card in slot 0");
     }
 
@@ -128,9 +127,6 @@ detect_card_presence(void)
 int ccid_initialize(int reader_id, const char *cdriver, int verbose)
 {
     int i;
-
-    for (i = 0; i < sizeof card_in_slot/sizeof *card_in_slot; i++)
-        card_in_slot[i] = NULL;
 
     i = initialize(reader_id, cdriver, verbose, &ctx, &reader);
     if (i < 0)
@@ -153,10 +149,8 @@ int ccid_initialize(int reader_id, const char *cdriver, int verbose)
 void ccid_shutdown()
 {
     int i;
-    for (i = 0; i < sizeof card_in_slot/sizeof *card_in_slot; i++) {
-        if (card_in_slot[i]) {
-            sc_disconnect_card(card_in_slot[i]);
-        }
+    if (card) {
+        sc_disconnect_card(card);
     }
     if (ctx)
         sc_release_context(ctx);
@@ -176,7 +170,7 @@ static int get_rapdu(sc_apdu_t *apdu, size_t slot, __u8 **buf, size_t *resplen)
 {
     int sc_result;
 
-    if (!apdu || !buf || !resplen || slot >= sizeof card_in_slot/sizeof *card_in_slot) {
+    if (!apdu || !buf || !resplen) {
         sc_result = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
     }
@@ -191,9 +185,9 @@ static int get_rapdu(sc_apdu_t *apdu, size_t slot, __u8 **buf, size_t *resplen)
     *buf = apdu->resp;
 
 #ifdef WITH_PACE
-    sc_result = sm_transmit_apdu(&sctx, card_in_slot[slot], apdu);
+    sc_result = sm_transmit_apdu(&sctx, card, apdu);
 #else
-    sc_result = sc_transmit_apdu(&sctx, card_in_slot[slot], apdu);
+    sc_result = sc_transmit_apdu(card, apdu);
 #endif
     if (sc_result < 0) {
         goto err;
@@ -256,7 +250,7 @@ static __u8 get_bStatus(int sc_result, __u8 bSlot)
         if (sc_result < 0) {
             if (flags & SC_READER_CARD_PRESENT) {
                 if (flags & SC_READER_CARD_CHANGED
-                        || (card_in_slot[bSlot])) {
+                        || card) {
                     /*sc_debug(ctx, SC_LOG_DEBUG_NORMAL, SC_LOG_DEBUG_NORMAL, "error inactive");*/
                     bstatus = CCID_BSTATUS_ERROR_INACTIVE;
                 } else {
@@ -269,8 +263,8 @@ static __u8 get_bStatus(int sc_result, __u8 bSlot)
             }
         } else {
             if (flags & SC_READER_CARD_PRESENT) {
-                if (flags & SC_READER_CARD_CHANGED || (
-                            card_in_slot[bSlot])) {
+                if (flags & SC_READER_CARD_CHANGED
+                        || card) {
                     /*sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "ok inactive");*/
                     bstatus = CCID_BSTATUS_OK_INACTIVE;
                 } else {
@@ -397,31 +391,24 @@ perform_PC_to_RDR_IccPowerOn(const __u8 *in, size_t inlen, __u8 **out, size_t *o
             request->abRFU        != 0)
         sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "warning: malformed PC_to_RDR_IccPowerOn");
 
-    if (request->bSlot < sizeof card_in_slot/sizeof *card_in_slot) {
-        if (card_in_slot[request->bSlot]) {
-            sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "Card is already powered on.");
-            /*sc_reset(card_in_slot[request->bSlot], 0);*/
-            /*sc_disconnect_card(card_in_slot[request->bSlot]);*/
-        } else {
-            sc_result = sc_connect_card(reader,
-                    &card_in_slot[request->bSlot]);
-#ifdef BUERGERCLIENT_WORKAROUND
-            if (sc_result >= 0) {
-                if (get_ef_card_access(card_in_slot[request->bSlot],
-                            (u8 **) &ef_cardaccess, &ef_cardaccess_length) < 0) {
-                    sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Could not get EF.CardAccess.");
-                }
-            }
-#endif
-        }
+    if (card) {
+        sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "Card is already powered on.");
+        sc_result = SC_SUCCESS;
     } else {
-        sc_result = SC_ERROR_INVALID_DATA;
+        sc_result = sc_connect_card(reader, &card);
+#ifdef BUERGERCLIENT_WORKAROUND
+        if (sc_result >= 0) {
+            if (get_ef_card_access(card,
+                        (u8 **) &ef_cardaccess, &ef_cardaccess_length) < 0) {
+                sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Could not get EF.CardAccess.");
+            }
+        }
+#endif
     }
 
     if (sc_result >= 0) {
         return get_RDR_to_PC_SlotStatus(request->bSlot, request->bSeq,
-                sc_result, out, outlen, card_in_slot[request->bSlot]->atr,
-                card_in_slot[request->bSlot]->atr_len);
+                sc_result, out, outlen, card->atr, card->atr_len);
     } else {
         sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Returning default status package.");
         return get_RDR_to_PC_SlotStatus(request->bSlot, request->bSeq,
@@ -447,12 +434,8 @@ perform_PC_to_RDR_IccPowerOff(const __u8 *in, size_t inlen, __u8 **out, size_t *
             request->abRFU2       != 0)
         sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "warning: malformed PC_to_RDR_IccPowerOff");
 
-    if (request->bSlot > sizeof card_in_slot/sizeof *card_in_slot)
-        sc_result = SC_ERROR_INVALID_DATA;
-    else {
-        sc_reset(card_in_slot[request->bSlot], 1);
-        sc_result = sc_disconnect_card(card_in_slot[request->bSlot]);
-    }
+    sc_reset(card, 1);
+    sc_result = sc_disconnect_card(card);
 
     return get_RDR_to_PC_SlotStatus(request->bSlot, request->bSeq, sc_result,
                 out, outlen, NULL, 0);
@@ -478,18 +461,14 @@ perform_PC_to_RDR_XfrBlock(const u8 *in, size_t inlen, __u8** out, size_t *outle
             request->bBWI  != 0)
         sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "malformed PC_to_RDR_XfrBlock, will continue anyway");
 
-    if (request->bSlot > sizeof card_in_slot/sizeof *card_in_slot)
-        sc_result = SC_ERROR_INVALID_DATA;
-    else {
-        sc_result = build_apdu(ctx, abDataIn, __le32_to_cpu(request->dwLength),
-                &apdu);
-        if (sc_result >= 0)
-            sc_result = get_rapdu(&apdu, request->bSlot, &abDataOut,
-                    &abDataOutLen);
-        else
-            bin_log(ctx, SC_LOG_DEBUG_VERBOSE, "Invalid APDU", abDataIn,
-                    __le32_to_cpu(request->dwLength));
-    }
+    sc_result = build_apdu(ctx, abDataIn, __le32_to_cpu(request->dwLength),
+            &apdu);
+    if (sc_result >= 0)
+        sc_result = get_rapdu(&apdu, request->bSlot, &abDataOut,
+                &abDataOutLen);
+    else
+        bin_log(ctx, SC_LOG_DEBUG_VERBOSE, "Invalid APDU", abDataIn,
+                __le32_to_cpu(request->dwLength));
 
     sc_result = get_RDR_to_PC_DataBlock(request->bSlot, request->bSeq, sc_result,
             out, outlen, abDataOut, abDataOutLen);
@@ -518,65 +497,63 @@ perform_PC_to_RDR_GetParamters(const __u8 *in, size_t inlen, __u8** out, size_t 
             request->dwLength != __constant_cpu_to_le32(0))
         sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "warning: malformed PC_to_RDR_GetParamters");
 
-    if (request->bSlot < sizeof card_in_slot/sizeof *card_in_slot) {
-        switch (reader->active_protocol) {
-            case SC_PROTO_T0:
-                result = realloc(*out, sizeof *result + sizeof *t0);
-                if (!result)
-                    return SC_ERROR_OUT_OF_MEMORY;
-                *out = (__u8 *) result;
+    switch (reader->active_protocol) {
+        case SC_PROTO_T0:
+            result = realloc(*out, sizeof *result + sizeof *t0);
+            if (!result)
+                return SC_ERROR_OUT_OF_MEMORY;
+            *out = (__u8 *) result;
 
-                result->bProtocolNum = 0;
-                result->dwLength = __constant_cpu_to_le32(sizeof *t0);
+            result->bProtocolNum = 0;
+            result->dwLength = __constant_cpu_to_le32(sizeof *t0);
 
-                t0 = (abProtocolDataStructure_T0_t *) result + sizeof *result;
-                /* values taken from ISO 7816-3 defaults
-                 * FIXME analyze ATR to get values */
-                t0->bmFindexDindex    =
-                    1<<4|   // index to table 7 ISO 7816-3 (Fi)
-                    1;      // index to table 8 ISO 7816-3 (Di)
-                t0->bmTCCKST0         = 0<<1;   // convention (direct)
-                t0->bGuardTimeT0      = 0xFF;
-                t0->bWaitingIntegerT0 = 0x10;
-                t0->bClockStop        = 0;      // (not allowed)
+            t0 = (abProtocolDataStructure_T0_t *) result + sizeof *result;
+            /* values taken from ISO 7816-3 defaults
+             * FIXME analyze ATR to get values */
+            t0->bmFindexDindex    =
+                1<<4|   // index to table 7 ISO 7816-3 (Fi)
+                1;      // index to table 8 ISO 7816-3 (Di)
+            t0->bmTCCKST0         = 0<<1;   // convention (direct)
+            t0->bGuardTimeT0      = 0xFF;
+            t0->bWaitingIntegerT0 = 0x10;
+            t0->bClockStop        = 0;      // (not allowed)
 
-                sc_result = SC_SUCCESS;
-                break;
+            sc_result = SC_SUCCESS;
+            break;
 
-            case SC_PROTO_T1:
-                result = realloc(*out, sizeof *result + sizeof *t1);
-                if (!result)
-                    return SC_ERROR_OUT_OF_MEMORY;
-                *out = (__u8 *) result;
+        case SC_PROTO_T1:
+            result = realloc(*out, sizeof *result + sizeof *t1);
+            if (!result)
+                return SC_ERROR_OUT_OF_MEMORY;
+            *out = (__u8 *) result;
 
-                result->bProtocolNum = 1;
-                result->dwLength = __constant_cpu_to_le32(sizeof *t1);
+            result->bProtocolNum = 1;
+            result->dwLength = __constant_cpu_to_le32(sizeof *t1);
 
-                t1 = (abProtocolDataStructure_T1_t *) result + sizeof *result;
-                /* values taken from OpenPGP-card
-                 * FIXME analyze ATR to get values */
-                t1->bmFindexDindex     =
-                    1<<4|   // index to table 7 ISO 7816-3 (Fi)
-                    3;      // index to table 8 ISO 7816-3 (Di)
-                t1->bmTCCKST1          =
-                    0|      // checksum type (CRC)
-                    0<<1|   // convention (direct)
-                    0x10;
-                t1->bGuardTimeT1       = 0xFF;
-                t1->bWaitingIntegersT1 =
-                    4<<4|   // BWI
-                    5;      // CWI
-                t1->bClockStop         = 0;      // (not allowed)
-                t1->bIFSC              = 0x80;
-                t1->bNadValue          = 0;      // see 7816-3 9.4.2.1 (only default value)
+            t1 = (abProtocolDataStructure_T1_t *) result + sizeof *result;
+            /* values taken from OpenPGP-card
+             * FIXME analyze ATR to get values */
+            t1->bmFindexDindex     =
+                1<<4|   // index to table 7 ISO 7816-3 (Fi)
+                3;      // index to table 8 ISO 7816-3 (Di)
+            t1->bmTCCKST1          =
+                0|      // checksum type (CRC)
+                0<<1|   // convention (direct)
+                0x10;
+            t1->bGuardTimeT1       = 0xFF;
+            t1->bWaitingIntegersT1 =
+                4<<4|   // BWI
+                5;      // CWI
+            t1->bClockStop         = 0;      // (not allowed)
+            t1->bIFSC              = 0x80;
+            t1->bNadValue          = 0;      // see 7816-3 9.4.2.1 (only default value)
 
-                sc_result = SC_SUCCESS;
-                break;
+            sc_result = SC_SUCCESS;
+            break;
 
-            default:
-                goto invaliddata;
-        }
-    } else {
+        default:
+            goto invaliddata;
+    }
 invaliddata:
         result = realloc(*out, sizeof *result);
         if (!result)
@@ -584,7 +561,6 @@ invaliddata:
         *out = (__u8 *) result;
 
         sc_result = SC_ERROR_INVALID_DATA;
-    }
 
     result->bMessageType = 0x82;
     result->bSlot = request->bSlot;
@@ -1074,11 +1050,6 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
     if (request->bMessageType != 0x69)
         sc_debug(ctx, SC_LOG_DEBUG_NORMAL,  "warning: malformed PC_to_RDR_Secure");
 
-    if (request->bSlot > sizeof card_in_slot/sizeof *card_in_slot) {
-        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Received request to invalid slot (bSlot=0x%02x)", request->bSlot);
-        goto err;
-    }
-
     if (request->wLevelParameter != CCID_WLEVEL_DIRECT) {
         sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Received request with unsupported wLevelParameter (0x%04x)",
                 __le16_to_cpu(request->wLevelParameter));
@@ -1135,16 +1106,15 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
             sc_result = perform_PC_to_RDR_Secure_GetReadersPACECapabilities(
                     &abDataOut, &abDataOutLen);
 
-            if (card_in_slot[request->bSlot])
-                bin_log(card_in_slot[request->bSlot]->ctx, SC_LOG_DEBUG_VERBOSE, "PACE Capabilities", abDataOut, abDataOutLen);
+            if (card)
+                bin_log(card->ctx, SC_LOG_DEBUG_VERBOSE, "PACE Capabilities", abDataOut, abDataOutLen);
 
             goto err;
             break;
         case 0x20:
 
-            sc_result = perform_PC_to_RDR_Secure_EstablishPACEChannel(
-                    card_in_slot[request->bSlot], abData+1, abDatalen-1,
-                    &abDataOut, &abDataOutLen);
+            sc_result = perform_PC_to_RDR_Secure_EstablishPACEChannel(card,
+                    abData+1, abDatalen-1, &abDataOut, &abDataOutLen);
             goto err;
             break;
         case 0x04:
