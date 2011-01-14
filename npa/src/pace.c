@@ -19,9 +19,9 @@
 #include "pace.h"
 #include "sm.h"
 #include "scutil.h"
-#include <opensc/asn1.h>
-#include <opensc/log.h>
-#include <opensc/opensc.h>
+#include <libopensc/asn1.h>
+#include <libopensc/log.h>
+#include <libopensc/opensc.h>
 #include <openssl/asn1t.h>
 #include <openssl/bio.h>
 #include <openssl/buffer.h>
@@ -198,18 +198,18 @@ int get_ef_card_access(sc_card_t *card,
     memset(&path, 0, sizeof path);
     r = sc_append_file_id(&path, FID_EF_CARDACCESS);
     if (r < 0) {
-        sc_error(card->ctx, "Could not create path object.");
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not create path object.");
         goto err;
     }
     r = sc_concatenate_path(&path, sc_get_mf_path(), &path);
     if (r < 0) {
-        sc_error(card->ctx, "Could not create path object.");
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not create path object.");
         goto err;
     }
 
     r = sc_select_file(card, &path, &file);
     if (r < 0) {
-        sc_error(card->ctx, "Could not select EF.CardAccess.");
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not select EF.CardAccess.");
         goto err;
     }
 
@@ -231,7 +231,7 @@ int get_ef_card_access(sc_card_t *card,
         }
 
         if (r < 0) {
-            sc_error(card->ctx, "Could not read EF.CardAccess.");
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not read EF.CardAccess.");
             goto err;
         }
 
@@ -241,7 +241,7 @@ int get_ef_card_access(sc_card_t *card,
     /* test cards only return an empty FCI template,
      * so we can't determine any file proberties */
     if (*length_ef_cardaccess < file->size) {
-        sc_error(card->ctx, "Actual filesize differs from the size in file "
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Actual filesize differs from the size in file "
                 "proberties (%u!=%u).", *length_ef_cardaccess, file->size);
         r = SC_ERROR_FILE_TOO_SMALL;
         goto err;
@@ -298,7 +298,7 @@ static int pace_mse_set_at(struct sm_ctx *oldpacectx, sc_card_t *card,
     }
 
     if (!ASN1_INTEGER_set(data->key_reference1, secret_key)) {
-        sc_error(card->ctx, "Error setting key reference 1 of MSE:Set AT data");
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Error setting key reference 1 of MSE:Set AT data");
         r = SC_ERROR_INTERNAL;
         goto err;
     }
@@ -308,7 +308,7 @@ static int pace_mse_set_at(struct sm_ctx *oldpacectx, sc_card_t *card,
 
     r = i2d_PACE_MSE_SET_AT_C(data, &d);
     if (r < 0) {
-        sc_error(card->ctx, "Error encoding MSE:Set AT APDU data");
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Error encoding MSE:Set AT APDU data");
         r = SC_ERROR_INTERNAL;
         goto err;
     }
@@ -318,8 +318,7 @@ static int pace_mse_set_at(struct sm_ctx *oldpacectx, sc_card_t *card,
     apdu.data = sc_asn1_find_tag(card->ctx, d, r, 0x30, &apdu.datalen);
     apdu.lc = apdu.datalen;
 
-    if (card->ctx->debug > SC_LOG_TYPE_DEBUG)
-        bin_log(card->ctx, "MSE:Set AT command data", apdu.data, apdu.datalen);
+    bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "MSE:Set AT command data", apdu.data, apdu.datalen);
 
     if (oldpacectx)
         r = sm_transmit_apdu(oldpacectx, card, &apdu);
@@ -329,7 +328,7 @@ static int pace_mse_set_at(struct sm_ctx *oldpacectx, sc_card_t *card,
         goto err;
 
     if (apdu.resplen) {
-        sc_error(card->ctx, "MSE:Set AT response data should be empty "
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "MSE:Set AT response data should be empty "
                 "(contains %u bytes)", apdu.resplen);
         r = SC_ERROR_UNKNOWN_DATA_RECEIVED;
         goto err;
@@ -343,19 +342,19 @@ static int pace_mse_set_at(struct sm_ctx *oldpacectx, sc_card_t *card,
             tries = apdu.sw2 & 0x0f;
             if (tries <= 1) {
                 /* this is only a warning... */
-                sc_error(card->ctx, "Remaining tries: %d (%s must be %s)\n",
+                sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Remaining tries: %d (%s must be %s)\n",
                         tries, pace_secret_name(secret_key),
                         tries ? "resumed" : "unblocked");
             }
             r = SC_SUCCESS;
         } else {
-            sc_error(card->ctx, "Unknown status bytes: SW1=%02X, SW2=%02X\n",
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Unknown status bytes: SW1=%02X, SW2=%02X\n",
                     apdu.sw1, apdu.sw2);
             r = SC_ERROR_CARD_CMD_FAILED;
             goto err;
         }
     } else if (apdu.sw1 == 0x62 && apdu.sw2 == 0x83) {
-             sc_error(card->ctx, "Password is deactivated\n");
+             sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Password is deactivated\n");
              r = SC_ERROR_AUTH_METHOD_BLOCKED;
              goto err;
     } else {
@@ -405,8 +404,7 @@ static int pace_gen_auth_1_encrypted_nonce(struct sm_ctx *oldpacectx,
     apdu.datalen = r;
     apdu.lc = r;
 
-    if (card->ctx->debug > SC_LOG_TYPE_DEBUG)
-        bin_log(card->ctx, "General authenticate (Encrypted Nonce) command data", apdu.data, apdu.datalen);
+    bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "General authenticate (Encrypted Nonce) command data", apdu.data, apdu.datalen);
 
     apdu.resplen = maxresp;
     apdu.resp = malloc(apdu.resplen);
@@ -421,12 +419,11 @@ static int pace_gen_auth_1_encrypted_nonce(struct sm_ctx *oldpacectx,
     if (r < 0)
         goto err;
 
-    if (card->ctx->debug > SC_LOG_TYPE_DEBUG)
-        bin_log(card->ctx, "General authenticate (Encrypted Nonce) response data", apdu.resp, apdu.resplen);
+    bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "General authenticate (Encrypted Nonce) response data", apdu.resp, apdu.resplen);
 
     if (!d2i_PACE_GEN_AUTH_R(&r_data,
                 (const unsigned char **) &apdu.resp, apdu.resplen)) {
-        sc_error(card->ctx, "Could not parse general authenticate response data.");
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not parse general authenticate response data.");
         r = SC_ERROR_INTERNAL;
         goto err;
     }
@@ -437,7 +434,7 @@ static int pace_gen_auth_1_encrypted_nonce(struct sm_ctx *oldpacectx,
             || r_data->auth_token
             || r_data->cur_car
             || r_data->prev_car) {
-        sc_error(card->ctx, "Response data of general authenticate for "
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Response data of general authenticate for "
                 "step 1 should (only) contain the encrypted nonce.");
         r = SC_ERROR_UNKNOWN_DATA_RECEIVED;
         goto err;
@@ -520,8 +517,7 @@ static int pace_gen_auth_2_map_nonce(struct sm_ctx *oldpacectx,
     apdu.datalen = r;
     apdu.lc = r;
 
-    if (card->ctx->debug > SC_LOG_TYPE_DEBUG)
-        bin_log(card->ctx, "General authenticate (Map Nonce) command data", apdu.data, apdu.datalen);
+    bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "General authenticate (Map Nonce) command data", apdu.data, apdu.datalen);
 
     apdu.resplen = maxresp;
     apdu.resp = malloc(apdu.resplen);
@@ -536,12 +532,11 @@ static int pace_gen_auth_2_map_nonce(struct sm_ctx *oldpacectx,
     if (r < 0)
         goto err;
 
-    if (card->ctx->debug > SC_LOG_TYPE_DEBUG)
-        bin_log(card->ctx, "General authenticate (Map Nonce) response data", apdu.resp, apdu.resplen);
+    bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "General authenticate (Map Nonce) response data", apdu.resp, apdu.resplen);
 
     if (!d2i_PACE_GEN_AUTH_R(&r_data,
                 (const unsigned char **) &apdu.resp, apdu.resplen)) {
-        sc_error(card->ctx, "Could not parse general authenticate response data.");
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not parse general authenticate response data.");
         r = SC_ERROR_INTERNAL;
         goto err;
     }
@@ -552,7 +547,7 @@ static int pace_gen_auth_2_map_nonce(struct sm_ctx *oldpacectx,
             || r_data->auth_token
             || r_data->cur_car
             || r_data->prev_car) {
-        sc_error(card->ctx, "Response data of general authenticate for "
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Response data of general authenticate for "
                 "step 2 should (only) contain the mapping data.");
         r = SC_ERROR_UNKNOWN_DATA_RECEIVED;
         goto err;
@@ -635,8 +630,7 @@ static int pace_gen_auth_3_perform_key_agreement(
     apdu.datalen = r;
     apdu.lc = r;
 
-    if (card->ctx->debug > SC_LOG_TYPE_DEBUG)
-        bin_log(card->ctx, "General authenticate (Perform Key Agreement) command data", apdu.data, apdu.datalen);
+    bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "General authenticate (Perform Key Agreement) command data", apdu.data, apdu.datalen);
 
     apdu.resplen = maxresp;
     apdu.resp = malloc(apdu.resplen);
@@ -651,12 +645,11 @@ static int pace_gen_auth_3_perform_key_agreement(
     if (r < 0)
         goto err;
 
-    if (card->ctx->debug > SC_LOG_TYPE_DEBUG)
-        bin_log(card->ctx, "General authenticate (Perform Key Agreement) response data", apdu.resp, apdu.resplen);
+    bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "General authenticate (Perform Key Agreement) response data", apdu.resp, apdu.resplen);
 
     if (!d2i_PACE_GEN_AUTH_R(&r_data,
                 (const unsigned char **) &apdu.resp, apdu.resplen)) {
-        sc_error(card->ctx, "Could not parse general authenticate response data.");
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not parse general authenticate response data.");
         r = SC_ERROR_INTERNAL;
         goto err;
     }
@@ -667,7 +660,7 @@ static int pace_gen_auth_3_perform_key_agreement(
             || r_data->auth_token
             || r_data->cur_car
             || r_data->prev_car) {
-        sc_error(card->ctx, "Response data of general authenticate for "
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Response data of general authenticate for "
                 "step 3 should (only) contain the ephemeral public key.");
         r = SC_ERROR_UNKNOWN_DATA_RECEIVED;
         goto err;
@@ -753,8 +746,7 @@ static int pace_gen_auth_4_mutual_authentication(
     apdu.datalen = r;
     apdu.lc = r;
 
-    if (card->ctx->debug > SC_LOG_TYPE_DEBUG)
-        bin_log(card->ctx, "General authenticate (Perform Key Agreement) command data", apdu.data, apdu.datalen);
+    bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "General authenticate (Perform Key Agreement) command data", apdu.data, apdu.datalen);
 
     apdu.resplen = maxresp;
     apdu.resp = malloc(apdu.resplen);
@@ -769,12 +761,11 @@ static int pace_gen_auth_4_mutual_authentication(
     if (r < 0)
         goto err;
 
-    if (card->ctx->debug > SC_LOG_TYPE_DEBUG)
-        bin_log(card->ctx, "General authenticate (Perform Key Agreement) response data", apdu.resp, apdu.resplen);
+    bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "General authenticate (Perform Key Agreement) response data", apdu.resp, apdu.resplen);
 
     if (!d2i_PACE_GEN_AUTH_R(&r_data,
                 (const unsigned char **) &apdu.resp, apdu.resplen)) {
-        sc_error(card->ctx, "Could not parse general authenticate response data.");
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not parse general authenticate response data.");
         r = SC_ERROR_INTERNAL;
         goto err;
     }
@@ -783,7 +774,7 @@ static int pace_gen_auth_4_mutual_authentication(
             || r_data->mapping_data
             || r_data->eph_pub_key
             || !r_data->auth_token) {
-        sc_error(card->ctx, "Response data of general authenticate for "
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Response data of general authenticate for "
                 "step 4 should (only) contain the authentication token.");
         r = SC_ERROR_UNKNOWN_DATA_RECEIVED;
         goto err;
@@ -792,7 +783,7 @@ static int pace_gen_auth_4_mutual_authentication(
     l = r_data->auth_token->length;
     /* XXX CAR sould be returned as result in some way */
     if (r_data->cur_car) {
-        bin_log(card->ctx, "Most recent Certificate Authority Reference",
+        bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "Most recent Certificate Authority Reference",
                 r_data->cur_car->data, r_data->cur_car->length);
         *recent_car = malloc(r_data->cur_car->length);
         if (!*recent_car) {
@@ -805,7 +796,7 @@ static int pace_gen_auth_4_mutual_authentication(
     } else
         *recent_car_len = 0;
     if (r_data->prev_car) {
-        bin_log(card->ctx, "Previous Certificate Authority Reference",
+        bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "Previous Certificate Authority Reference",
                 r_data->prev_car->data, r_data->prev_car->length);
         *prev_car = malloc(r_data->prev_car->length);
         if (!*prev_car) {
@@ -869,13 +860,13 @@ pace_reset_retry_counter(struct sm_ctx *ctx, sc_card_t *card,
     if (ask_for_secret && (!new || !new_len)) {
         p = malloc(MAX_PIN_LEN+1);
         if (!p) {
-            sc_error(card->ctx, "Not enough memory for new PIN.\n");
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Not enough memory for new PIN.\n");
             return SC_ERROR_OUT_OF_MEMORY;
         }
         if (0 > EVP_read_pw_string_min(p,
                     MIN_PIN_LEN, MAX_PIN_LEN+1,
                     "Please enter your new PIN: ", 0)) {
-            sc_error(card->ctx, "Could not read new PIN.\n");
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not read new PIN.\n");
             free(p);
             return SC_ERROR_INTERNAL;
         }
@@ -921,17 +912,17 @@ get_psec(sc_card_t *card, const char *pin, size_t length_pin, enum s_type pin_id
     if (!length_pin || !pin) {
         if (0 > snprintf(buf, sizeof buf, "Please enter your %s: ",
                     pace_secret_name(pin_id))) {
-            sc_error(card->ctx, "Could not create password prompt.\n");
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not create password prompt.\n");
             return NULL;
         }
         p = malloc(MAX_MRZ_LEN);
         if (!p) {
-            sc_error(card->ctx, "Not enough memory for %s.\n",
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Not enough memory for %s.\n",
                     pace_secret_name(pin_id));
             return NULL;
         }
         if (0 > EVP_read_pw_string_min(p, 0, MAX_MRZ_LEN, buf, 0)) {
-            sc_error(card->ctx, "Could not read %s.\n",
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not read %s.\n",
                     pace_secret_name(pin_id));
             return NULL;
         }
@@ -953,7 +944,7 @@ void ssl_error(sc_context_t *ctx) {
     unsigned long r;
     ERR_load_crypto_strings();
     for (r = ERR_get_error(); r; r = ERR_get_error()) {
-        sc_error(ctx, ERR_error_string(r, NULL));
+        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, ERR_error_string(r, NULL));
     }
     ERR_free_strings();
 }
@@ -989,7 +980,7 @@ int EstablishPACEChannel(struct sm_ctx *oldpacectx, sc_card_t *card,
         if (!bio_stdout)
             bio_stdout = BIO_new_fp(stdout, BIO_NOCLOSE);
         if (!bio_stdout) {
-            sc_error(card->ctx, "Could not create output buffer.");
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not create output buffer.");
             ssl_error(card->ctx);
             r = SC_ERROR_INTERNAL;
             goto err;
@@ -1000,24 +991,24 @@ int EstablishPACEChannel(struct sm_ctx *oldpacectx, sc_card_t *card,
                     pace_input.certificate_description,
                     pace_input.certificate_description_length, "\t")) {
             case -1:
-                sc_error(card->ctx, "Could not print certificate description.");
+                sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not print certificate description.");
                 ssl_error(card->ctx);
                 r = SC_ERROR_INTERNAL;
                 goto err;
             case 0:
                 break;
             case 1:
-                sc_error(card->ctx, "Certificate description in "
+                sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Certificate description in "
                         "HTML format can not (yet) be handled.");
                 r = SC_ERROR_NOT_SUPPORTED;
                 goto err;
             case 2:
-                sc_error(card->ctx, "Certificate description in "
+                sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Certificate description in "
                         "PDF format can not (yet) be handled.");
                 r = SC_ERROR_NOT_SUPPORTED;
                 goto err;
             default:
-                sc_error(card->ctx, "Certificate description in "
+                sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Certificate description in "
                         "unknown format can not (yet) be handled.");
                 r = SC_ERROR_NOT_SUPPORTED;
                 goto err;
@@ -1027,7 +1018,7 @@ int EstablishPACEChannel(struct sm_ctx *oldpacectx, sc_card_t *card,
                 pace_input.certificate_description,
                 pace_input.certificate_description_length);
         if (!hash_cert_desc) {
-            sc_error(card->ctx, "Could not hash certificate description.");
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not hash certificate description.");
             ssl_error(card->ctx);
             r = SC_ERROR_INTERNAL;
             goto err;
@@ -1035,7 +1026,7 @@ int EstablishPACEChannel(struct sm_ctx *oldpacectx, sc_card_t *card,
 
         p = realloc(pace_output->hash_cert_desc, hash_cert_desc->length);
         if (!p) {
-            sc_error(card->ctx, "Not enough memory for hash of certificate description.\n");
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Not enough memory for hash of certificate description.\n");
             r = SC_ERROR_OUT_OF_MEMORY;
             goto err;
         }
@@ -1050,7 +1041,7 @@ int EstablishPACEChannel(struct sm_ctx *oldpacectx, sc_card_t *card,
         if (!bio_stdout)
             bio_stdout = BIO_new_fp(stdout, BIO_NOCLOSE);
         if (!bio_stdout) {
-            sc_error(card->ctx, "Could not create output buffer.");
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not create output buffer.");
             ssl_error(card->ctx);
             r = SC_ERROR_INTERNAL;
             goto err;
@@ -1058,14 +1049,14 @@ int EstablishPACEChannel(struct sm_ctx *oldpacectx, sc_card_t *card,
 
         if (!d2i_CVC_CHAT(&chat, (const unsigned char **) &pace_input.chat,
                     pace_input.chat_length)) {
-            sc_error(card->ctx, "Could not parse card holder authorization template (CHAT).");
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not parse card holder authorization template (CHAT).");
             r = SC_ERROR_INTERNAL;
             goto err;
         }
 
         printf("Card holder authorization template (CHAT)\n");
         if (!cvc_chat_print(bio_stdout, chat, "\t")) {
-            sc_error(card->ctx, "Could not print card holder authorization template (CHAT).");
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not print card holder authorization template (CHAT).");
             ssl_error(card->ctx);
             r = SC_ERROR_INTERNAL;
             goto err;
@@ -1076,16 +1067,16 @@ int EstablishPACEChannel(struct sm_ctx *oldpacectx, sc_card_t *card,
         r = get_ef_card_access(card, &pace_output->ef_cardaccess,
                 &pace_output->ef_cardaccess_length);
         if (r < 0) {
-            sc_error(card->ctx, "Could not get EF.CardAccess.");
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not get EF.CardAccess.");
             goto err;
         }
     }
-    bin_log(card->ctx, "EF.CardAccess", pace_output->ef_cardaccess,
+    bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "EF.CardAccess", pace_output->ef_cardaccess,
             pace_output->ef_cardaccess_length);
 
     if (!parse_ef_card_access(pace_output->ef_cardaccess,
                 pace_output->ef_cardaccess_length, &info, &static_dp)) {
-        sc_error(card->ctx, "Could not parse EF.CardAccess.");
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not parse EF.CardAccess.");
         ssl_error(card->ctx);
         r = SC_ERROR_INTERNAL;
         goto err;
@@ -1093,7 +1084,7 @@ int EstablishPACEChannel(struct sm_ctx *oldpacectx, sc_card_t *card,
 
     pctx = PACE_CTX_new();
     if (!pctx || !PACE_init(pctx, &static_dp, info)) {
-        sc_error(card->ctx, "Could not initialize PACE parameters.");
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not initialize PACE parameters.");
         ssl_error(card->ctx);
         r = SC_ERROR_INTERNAL;
         goto err;
@@ -1103,7 +1094,7 @@ int EstablishPACEChannel(struct sm_ctx *oldpacectx, sc_card_t *card,
     r = pace_mse_set_at(oldpacectx, card, info->protocol, pace_input.pin_id,
             chat, &pace_output->mse_set_at_sw1, &pace_output->mse_set_at_sw2);
     if (r < 0) {
-        sc_error(card->ctx, "Could not select protocol proberties "
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not select protocol proberties "
                 "(MSE: Set AT failed).");
         goto err;
     }
@@ -1115,18 +1106,17 @@ int EstablishPACEChannel(struct sm_ctx *oldpacectx, sc_card_t *card,
     r = pace_gen_auth_1_encrypted_nonce(oldpacectx, card, (u8 **) &enc_nonce->data,
             &enc_nonce->length);
     if (r < 0) {
-        sc_error(card->ctx, "Could not get encrypted nonce from card "
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not get encrypted nonce from card "
                 "(General Authenticate step 1 failed).");
         goto err;
     }
-    if (card->ctx->debug >= SC_LOG_TYPE_DEBUG)
-        bin_log(card->ctx, "Encrypted nonce from MRTD", (u8 *)enc_nonce->data, enc_nonce->length);
+    bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "Encrypted nonce from MRTD", (u8 *)enc_nonce->data, enc_nonce->length);
     enc_nonce->max = enc_nonce->length;
 
     sec = get_psec(card, (char *) pace_input.pin, pace_input.pin_length,
             pace_input.pin_id);
     if (!sec) {
-        sc_error(card->ctx, "Could not encode PACE secret.");
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not encode PACE secret.");
         ssl_error(card->ctx);
         r = SC_ERROR_INTERNAL;
         goto err;
@@ -1137,7 +1127,7 @@ int EstablishPACEChannel(struct sm_ctx *oldpacectx, sc_card_t *card,
     mdata_opp = BUF_MEM_new();
     mdata = PACE_STEP3A_generate_mapping_data(static_dp, pctx);
     if (!nonce || !mdata || !mdata_opp) {
-        sc_error(card->ctx, "Could not generate mapping data.");
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not generate mapping data.");
         ssl_error(card->ctx);
         r = SC_ERROR_INTERNAL;
         goto err;
@@ -1145,19 +1135,18 @@ int EstablishPACEChannel(struct sm_ctx *oldpacectx, sc_card_t *card,
     r = pace_gen_auth_2_map_nonce(oldpacectx, card, (u8 *) mdata->data, mdata->length,
             (u8 **) &mdata_opp->data, &mdata_opp->length);
     if (r < 0) {
-        sc_error(card->ctx, "Could not exchange mapping data with card "
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not exchange mapping data with card "
                 "(General Authenticate step 2 failed).");
         goto err;
     }
     mdata_opp->max = mdata_opp->length;
-    if (card->ctx->debug >= SC_LOG_TYPE_DEBUG)
-        bin_log(card->ctx, "Mapping data from MRTD", (u8 *) mdata_opp->data, mdata_opp->length);
+    bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "Mapping data from MRTD", (u8 *) mdata_opp->data, mdata_opp->length);
 
     eph_dp = PACE_STEP3A_map_dp(static_dp, pctx, nonce, mdata_opp);
     pub = PACE_STEP3B_generate_ephemeral_key(eph_dp, pctx);
     pub_opp = BUF_MEM_new();
     if (!eph_dp || !pub || !pub_opp) {
-        sc_error(card->ctx, "Could not generate ephemeral domain parameter or "
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not generate ephemeral domain parameter or "
                 "ephemeral key pair.");
         ssl_error(card->ctx);
         r = SC_ERROR_INTERNAL;
@@ -1166,18 +1155,17 @@ int EstablishPACEChannel(struct sm_ctx *oldpacectx, sc_card_t *card,
     r = pace_gen_auth_3_perform_key_agreement(oldpacectx, card, (u8 *) pub->data, pub->length,
             (u8 **) &pub_opp->data, &pub_opp->length);
     if (r < 0) {
-        sc_error(card->ctx, "Could not exchange ephemeral public key with card "
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not exchange ephemeral public key with card "
                 "(General Authenticate step 3 failed).");
         goto err;
     }
     pub_opp->max = pub_opp->length;
-    if (card->ctx->debug >= SC_LOG_TYPE_DEBUG)
-        bin_log(card->ctx, "Ephemeral public key from MRTD", (u8 *) pub_opp->data, pub_opp->length);
+    bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "Ephemeral public key from MRTD", (u8 *) pub_opp->data, pub_opp->length);
 
     key = PACE_STEP3B_compute_ephemeral_key(eph_dp, pctx, pub_opp);
     if (!key ||
             !PACE_STEP3C_derive_keys(key, pctx, info, &k_mac, &k_enc)) {
-        sc_error(card->ctx, "Could not compute ephemeral shared secret or "
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not compute ephemeral shared secret or "
                 "derive keys for encryption and authentication.");
         ssl_error(card->ctx);
         r = SC_ERROR_INTERNAL;
@@ -1187,7 +1175,7 @@ int EstablishPACEChannel(struct sm_ctx *oldpacectx, sc_card_t *card,
             eph_dp, info, pub_opp, k_mac);
     token_opp = BUF_MEM_new();
     if (!token || !token_opp) {
-        sc_error(card->ctx, "Could not compute authentication token.");
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not compute authentication token.");
         ssl_error(card->ctx);
         r = SC_ERROR_INTERNAL;
         goto err;
@@ -1198,7 +1186,7 @@ int EstablishPACEChannel(struct sm_ctx *oldpacectx, sc_card_t *card,
             &pace_output->previous_car, &pace_output->previous_car_length);
 
     if (r < 0) {
-        sc_error(card->ctx, "Could not exchange authentication token with card "
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not exchange authentication token with card "
                 "(General Authenticate step 4 failed).");
         goto err;
     }
@@ -1206,7 +1194,7 @@ int EstablishPACEChannel(struct sm_ctx *oldpacectx, sc_card_t *card,
 
     if (!PACE_STEP3D_verify_authentication_token(pctx,
             eph_dp, info, k_mac, token_opp)) {
-        sc_error(card->ctx, "Could not verify authentication token.");
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not verify authentication token.");
         ssl_error(card->ctx);
         r = SC_ERROR_INTERNAL;
         goto err;
@@ -1216,32 +1204,32 @@ int EstablishPACEChannel(struct sm_ctx *oldpacectx, sc_card_t *card,
     comp_pub = PACE_Comp(eph_dp, pctx, pub);
     comp_pub_opp = PACE_Comp(eph_dp, pctx, pub_opp);
     if (!comp_pub || !comp_pub_opp) {
-        sc_error(card->ctx, "Could not compress public keys for identification.");
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not compress public keys for identification.");
         ssl_error(card->ctx);
         r = SC_ERROR_INTERNAL;
         goto err;
     }
     p = realloc(pace_output->id_icc, comp_pub_opp->length);
     if (!p) {
-        sc_error(card->ctx, "Not enough memory for ID ICC.\n");
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Not enough memory for ID ICC.\n");
         return SC_ERROR_OUT_OF_MEMORY;
     }
     pace_output->id_icc = p;
     pace_output->id_icc_length = comp_pub_opp->length;
     /* Flawfinder: ignore */
     memcpy(pace_output->id_icc, comp_pub_opp->data, comp_pub_opp->length);
-    bin_log(card->ctx, "ID ICC", pace_output->id_icc,
+    bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "ID ICC", pace_output->id_icc,
             pace_output->id_icc_length);
     p = realloc(pace_output->id_pcd, comp_pub->length);
     if (!p) {
-        sc_error(card->ctx, "Not enough memory for ID PCD.\n");
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Not enough memory for ID PCD.\n");
         return SC_ERROR_OUT_OF_MEMORY;
     }
     pace_output->id_pcd = p;
     pace_output->id_pcd_length = comp_pub->length;
     /* Flawfinder: ignore */
     memcpy(pace_output->id_pcd, comp_pub->data, comp_pub->length);
-    bin_log(card->ctx, "ID PCD", pace_output->id_pcd,
+    bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "ID PCD", pace_output->id_pcd,
             pace_output->id_pcd_length);
 
     sctx->authentication_ctx = pace_sm_ctx_create(k_mac,
@@ -1392,7 +1380,7 @@ pace_sm_encrypt(sc_card_t *card, const struct sm_ctx *ctx,
     databuf = BUF_MEM_create_init(data, datalen);
     encbuf = PACE_encrypt(psmctx->ctx, psmctx->ssc, psmctx->key_enc, databuf);
     if (!databuf || !encbuf) {
-        sc_error(card->ctx, "Could not encrypt data.");
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not encrypt data.");
         ssl_error(card->ctx);
         r = SC_ERROR_INTERNAL;
         goto err;
@@ -1436,7 +1424,7 @@ pace_sm_decrypt(sc_card_t *card, const struct sm_ctx *ctx,
     encbuf = BUF_MEM_create_init(enc, enclen);
     databuf = PACE_decrypt(psmctx->ctx, psmctx->ssc, psmctx->key_enc, encbuf);
     if (!encbuf || !databuf) {
-        sc_error(card->ctx, "Could not decrypt data.");
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not decrypt data.");
         ssl_error(card->ctx);
         r = SC_ERROR_INTERNAL;
         goto err;
@@ -1480,8 +1468,8 @@ pace_sm_authenticate(sc_card_t *card, const struct sm_ctx *ctx,
     macbuf = PACE_authenticate(psmctx->ctx, psmctx->ssc, psmctx->key_mac,
             data, datalen);
     if (!macbuf) {
-        sc_error(card->ctx, "Could not compute message authentication code "
-                "(MAC).");
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
+                "Could not compute message authentication code (MAC).");
         ssl_error(card->ctx);
         r = SC_ERROR_INTERNAL;
         goto err;
@@ -1524,8 +1512,8 @@ pace_sm_verify_authentication(sc_card_t *card, const struct sm_ctx *ctx,
     my_mac = PACE_authenticate(psmctx->ctx, psmctx->ssc, psmctx->key_mac,
             macdata, macdatalen);
     if (!my_mac) {
-        sc_error(card->ctx, "Could not compute message authentication code "
-                "(MAC) for verification.");
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
+                "Could not compute message authentication code (MAC) for verification.");
         ssl_error(card->ctx);
         r = SC_ERROR_INTERNAL;
         goto err;
@@ -1534,12 +1522,12 @@ pace_sm_verify_authentication(sc_card_t *card, const struct sm_ctx *ctx,
     if (my_mac->length != maclen ||
             memcmp(my_mac->data, mac, maclen) != 0) {
         r = SC_ERROR_OBJECT_NOT_VALID;
-        sc_error(card->ctx, "Authentication data not verified");
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
+                "Authentication data not verified");
         goto err;
     }
 
-    if (card->ctx->debug > SC_LOG_TYPE_DEBUG)
-        sc_debug(card->ctx, "Authentication data verified");
+    sc_debug(card->ctx, SC_LOG_DEBUG_NORMAL, "Authentication data verified");
 
     r = SC_SUCCESS;
 
@@ -1554,13 +1542,13 @@ static int
 pace_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
         sc_apdu_t *apdu)
 {
-    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG,
+    SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_NORMAL,
             increment_ssc(ctx->cipher_ctx));
 }
 
 static int pace_sm_post_transmit(sc_card_t *card, const struct sm_ctx *ctx,
         sc_apdu_t *sm_apdu)
 {
-    SC_FUNC_RETURN(card->ctx, SC_LOG_TYPE_DEBUG,
+    SC_FUNC_RETURN(card->ctx,  SC_LOG_DEBUG_NORMAL,
             increment_ssc(ctx->cipher_ctx));
 }

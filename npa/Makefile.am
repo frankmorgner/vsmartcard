@@ -16,6 +16,20 @@ do_subst = sed \
 	   -e 's,[@]VERSION[@],$(VERSION),g' \
 	   -e 's,[@]top_srcdir[@],$(top_srcdir),g'
 
+opensc-0.11.13.tar.gz:
+	wget http://www.opensc-project.org/files/opensc/opensc-0.11.13.tar.gz
+
+opensc-0.11.13: opensc-0.11.13.tar.gz
+	tar xzf opensc-0.11.13.tar.gz
+	patch -p1 -d opensc-0.11.13 < opensc/le0.patch
+	patch -p0 -d opensc-0.11.13 < opensc/hex_dump_align.2.patch
+
+win: opensc-0.11.13
+	cd opensc-0.11.13 && \
+	    ./bootstrap && \
+	    ./configure --disable-doc && \
+	    env OPENSSL_VERSION="1.0.0c_with_openpace-0.4.1" OPENSSL_URL="http://downloads.sourceforge.net/project/openpace/openssl-1.0.0c_with_openpace-0.4.1.tar.gz" EXTRA_OPENSSL_CONFIG="experimental-pace" ../opensc/installer_from_build.sh opensc/win32/build
+
 if DOC_ENABLED
 clean-local:
 	rm -rf doc

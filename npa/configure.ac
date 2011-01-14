@@ -19,9 +19,6 @@ AM_PROG_CC_C_O
 PKG_PROG_PKG_CONFIG
 
 # Checks for libraries.
-PKG_CHECK_EXISTS([libopensc],
-                 [PKG_CHECK_MODULES([OPENSC], [libopensc < 0.12 ])],
-                 [AC_MSG_WARN([libopensc < 0.12 not found by pkg-config])])
 PKG_CHECK_EXISTS([libssl],
                  [PKG_CHECK_MODULES([OPENSSL], [libssl])],
                  [AC_MSG_WARN([libssl not found by pkg-config])])
@@ -29,14 +26,8 @@ PKG_CHECK_EXISTS([libssl],
 
 saved_CPPFLAGS="$CPPFLAGS"
 saved_LIBS="$LIBS"
-CPPFLAGS="$CPPFLAGS $OPENSC_CFLAGS $OPENSSL_CFLAGS"
-LIBS="$LDFLAGS $OPENSC_LIBS $OPENSSL_LIBS"
-
-AC_CHECK_HEADERS(opensc/opensc.h,,
-        [ AC_MSG_ERROR([opensc/opensc.h not found, install libopensc < 0.12 or use ./configure OPENSC_CFLAGS=...]) ])
-AC_MSG_CHECKING([for sc_context_create])
-AC_TRY_LINK_FUNC(sc_context_create, [ AC_MSG_RESULT([yes]) ],
-        [ AC_MSG_ERROR([libopensc < 0.12 not found, use ./configure OPENSC_LIBS=...]) ])
+CPPFLAGS="$CPPFLAGS $OPENSSL_CFLAGS"
+LIBS="$LDFLAGS $OPENSSL_LIBS"
 
 AC_CHECK_HEADERS(openssl/evp.h, [], [ AC_MSG_ERROR([openssl/evp.h not found, install OpenSSL or use ./configure OPENSSL_CFLAGS=...]) ])
 AC_MSG_CHECKING([for EVP_read_pw_string_min])
@@ -100,8 +91,6 @@ Compiler flags:       ${CFLAGS}
 Preprocessor flags:   ${CPPFLAGS}
 Linker flags:         ${LDFLAGS}
 Libraries:            ${LIBS}
-OPENSC_CFLAGS:        ${OPENSC_CFLAGS}
-OPENSC_LIBS:          ${OPENSC_LIBS}
 OPENSSL_CFLAGS:       ${OPENSSL_CFLAGS}
 OPENSSL_LIBS:         ${OPENSSL_LIBS}
 

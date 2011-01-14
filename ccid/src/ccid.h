@@ -23,7 +23,7 @@
 #define _CCID_H
 
 #include <linux/usb/ch9.h>
-#include <opensc/opensc.h>
+#include <libopensc/opensc.h>
 
 #ifdef __cplusplus
 extern "C" {

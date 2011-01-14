@@ -19,7 +19,7 @@
 #include "scutil.h"
 #include <stdio.h>
 #include <string.h>
-#include <opensc/log.h>
+#include <libopensc/log.h>
 
 int initialize(int reader_id, const char *cdriver, int verbose,
         sc_context_t **ctx, sc_reader_t **reader)
@@ -38,7 +38,7 @@ int initialize(int reader_id, const char *cdriver, int verbose,
     if (cdriver != NULL) {
         r = sc_set_card_driver(*ctx, cdriver);
         if (r < 0) {
-            sc_error(*ctx, "Card driver '%s' not found!\n", cdriver);
+            sc_debug(*ctx, SC_LOG_DEBUG_VERBOSE, "Card driver '%s' not found!\n", cdriver);
             return r;
         }
     }
@@ -54,14 +54,14 @@ int initialize(int reader_id, const char *cdriver, int verbose,
         /* Automatically try to skip to a reader with a card if reader not specified */
         for (i = 0; i < reader_count; i++) {
             *reader = sc_ctx_get_reader(*ctx, i);
-            if (sc_detect_card_presence(*reader, 0) & SC_SLOT_CARD_PRESENT) {
+            if (sc_detect_card_presence(*reader) & SC_READER_CARD_PRESENT) {
                 reader_id = i;
-                sc_debug(*ctx, "Using the first reader with a card: %s", (*reader)->name);
+                sc_debug(*ctx, SC_LOG_DEBUG_NORMAL, "Using the first reader with a card: %s", (*reader)->name);
                 break;
             }
         }
         if (reader_id >= reader_count) {
-            sc_debug(*ctx, "No card found, using the first reader.");
+            sc_debug(*ctx, SC_LOG_DEBUG_NORMAL, "No card found, using the first reader.");
             reader_id = 0;
         }
     }
@@ -85,7 +85,7 @@ int build_apdu(sc_context_t *ctx, const u8 *buf, size_t len, sc_apdu_t *apdu)
 
     len0 = len;
     if (len < 4) {
-        sc_error(ctx, "APDU too short (must be at least 4 bytes)");
+        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "APDU too short (must be at least 4 bytes)");
         return SC_ERROR_INVALID_DATA;
     }
 
@@ -115,7 +115,7 @@ int build_apdu(sc_context_t *ctx, const u8 *buf, size_t len, sc_apdu_t *apdu)
                 apdu->lc += *p++;
                 len -= 3;
                 if (len < apdu->lc) {
-                    sc_error(ctx, "APDU too short (need %lu more bytes)\n",
+                    sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "APDU too short (need %lu more bytes)\n",
                             (unsigned long) apdu->lc - len);
                     return SC_ERROR_INVALID_DATA;
                 }
@@ -128,7 +128,7 @@ int build_apdu(sc_context_t *ctx, const u8 *buf, size_t len, sc_apdu_t *apdu)
                 } else {
                     /* at this point the apdu has a Lc, so Le is on 2 bytes */
                     if (len < 2) {
-                        sc_error(ctx, "APDU too short (need 2 more bytes)\n");
+                        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "APDU too short (need 2 more bytes)\n");
                         return SC_ERROR_INVALID_DATA;
                     }
                     apdu->le = (*p++)<<8;
@@ -151,7 +151,7 @@ int build_apdu(sc_context_t *ctx, const u8 *buf, size_t len, sc_apdu_t *apdu)
                 apdu->lc = *p++;
                 len--;
                 if (len < apdu->lc) {
-                    sc_error(ctx, "APDU too short (need %lu more bytes)\n",
+                    sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "APDU too short (need %lu more bytes)\n",
                             (unsigned long) apdu->lc - len);
                     return SC_ERROR_INVALID_DATA;
                 }
@@ -172,7 +172,7 @@ int build_apdu(sc_context_t *ctx, const u8 *buf, size_t len, sc_apdu_t *apdu)
             }
         }
         if (len) {
-            sc_error(ctx, "APDU too long (%lu bytes extra)\n",
+            sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "APDU too long (%lu bytes extra)\n",
                     (unsigned long) len);
             return SC_ERROR_INVALID_DATA;
         }
@@ -180,7 +180,7 @@ int build_apdu(sc_context_t *ctx, const u8 *buf, size_t len, sc_apdu_t *apdu)
 
     apdu->flags = SC_APDU_FLAGS_NO_GET_RESP|SC_APDU_FLAGS_NO_RETRY_WL;
 
-    sc_debug(ctx, "Case %d %s APDU, %lu bytes:\tins=%02x p1=%02x p2=%02x lc=%04x le=%04x",
+    sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "Case %d %s APDU, %lu bytes:\tins=%02x p1=%02x p2=%02x lc=%04x le=%04x",
             apdu->cse & SC_APDU_SHORT_MASK,
             (apdu->cse & SC_APDU_EXT) != 0 ? "extended" : "short",
             (unsigned long) len0, apdu->ins, apdu->p1, apdu->p2, apdu->lc, apdu->le);
@@ -197,7 +197,7 @@ void _bin_log(sc_context_t *ctx, int type, const char *file, int line,
     char buf[1800];
 
     if (data)
-        sc_hex_dump(ctx, data, len, buf, sizeof buf);
+        sc_hex_dump(ctx, SC_LOG_DEBUG_NORMAL, data, len, buf, sizeof buf);
     else
         buf[0] = 0;
     if (!f) {

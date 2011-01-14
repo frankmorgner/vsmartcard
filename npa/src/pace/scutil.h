@@ -22,7 +22,7 @@
 #ifndef _CCID_SCUTIL_H
 #define _CCID_SCUTIL_H
 
-#include <opensc/opensc.h>
+#include <libopensc/opensc.h>
 
 /** 
  * @brief Initializes smart card context and reader
@@ -68,8 +68,8 @@ int build_apdu(sc_context_t *ctx, const u8 *buf, size_t len, sc_apdu_t *apdu);
  * @param[in] data  Binary data
  * @param[in] len   Length of \a data
  */
-#define bin_log(ctx, label, data, len) \
-    _bin_log(ctx, SC_LOG_TYPE_DEBUG, __FILE__, __LINE__, __FUNCTION__, label, data, len, NULL)
+#define bin_log(ctx, level, label, data, len) \
+    _bin_log(ctx, level, __FILE__, __LINE__, __FUNCTION__, label, data, len, NULL)
 /** 
  * @brief Log binary data
  *

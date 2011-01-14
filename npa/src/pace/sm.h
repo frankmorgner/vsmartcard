@@ -22,7 +22,7 @@
 #ifndef _CCID_SM_H
 #define _CCID_SM_H
 
-#include <opensc/opensc.h>
+#include <libopensc/opensc.h>
 
 #ifdef __cplusplus
 extern "C" {

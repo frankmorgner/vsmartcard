@@ -19,7 +19,7 @@
 #include "binutil.h"
 #include "pace.h"
 #include "scutil.h"
-#include <opensc/log.h>
+#include <libopensc/log.h>
 #include <openssl/pace.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -130,7 +130,8 @@ int pace_translate_apdus(struct sm_ctx *sctx, sc_card_t *card, FILE *input)
         if (linelen <= 1) {
             if (linelen < 0) {
                 r = SC_ERROR_INTERNAL;
-                sc_error(card->ctx, "Could not read line");
+                sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE_TOOL,
+                        "Could not read line");
             } else {
                 r = SC_SUCCESS;
                 printf("Thanks for flying with ccid\n");
@@ -141,7 +142,8 @@ int pace_translate_apdus(struct sm_ctx *sctx, sc_card_t *card, FILE *input)
 
         apdulen = sizeof buf;
         if (sc_hex_to_bin(read, buf, &apdulen) < 0) {
-            sc_error(card->ctx, "Could not format binary string");
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE_TOOL,
+                    "Could not format binary string");
             continue;
         }
         if (input != stdin)
@@ -149,7 +151,7 @@ int pace_translate_apdus(struct sm_ctx *sctx, sc_card_t *card, FILE *input)
 
         r = build_apdu(card->ctx, buf, apdulen, &apdu);
         if (r < 0) {
-            bin_log(ctx, "Invalid C-APDU", buf, apdulen);
+            bin_log(ctx, SC_LOG_DEBUG_NORMAL, "Invalid C-APDU", buf, apdulen);
             continue;
         }
 
@@ -158,7 +160,8 @@ int pace_translate_apdus(struct sm_ctx *sctx, sc_card_t *card, FILE *input)
 
         r = sm_transmit_apdu(sctx, card, &apdu);
         if (r < 0) {
-            sc_error(card->ctx, "Could not send C-APDU: %s", sc_strerror(r));
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE_TOOL,
+                    "Could not send C-APDU: %s", sc_strerror(r));
             continue;
         }
 
@@ -312,14 +315,8 @@ main (int argc, char **argv)
         exit(1);
     }
 
-    for (i = 0; i < SC_MAX_SLOTS; i++) {
-        if (sc_detect_card_presence(reader, 0) & SC_SLOT_CARD_PRESENT) {
-            sc_connect_card(reader, i, &card);
-            break;
-        }
-    }
-    if (i == SC_MAX_SLOTS) {
-        fprintf(stderr, "No card found\n");
+    if (sc_connect_card(reader, &card) < 0) {
+        fprintf(stderr, "Could not connect to card\n");
         sc_release_context(ctx);
         exit(1);
     }
@@ -547,8 +544,8 @@ err:
     if (pace_output.id_pcd)
         free(pace_output.id_pcd);
 
-    sc_reset(card);
-    sc_disconnect_card(card, 0);
+    sc_reset(card, 1);
+    sc_disconnect_card(card);
     sc_release_context(ctx);
 
     return -i;

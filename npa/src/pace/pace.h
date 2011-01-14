@@ -24,7 +24,7 @@
 
 #include <pace/pace_lib.h>
 #include <pace/sm.h>
-#include <opensc/opensc.h>
+#include <libopensc/opensc.h>
 #include <openssl/bn.h>
 #include <openssl/pace.h>
 

@@ -19,21 +19,6 @@ AM_PROG_CC_C_O
 PKG_PROG_PKG_CONFIG
 
 # Checks for libraries.
-PKG_CHECK_EXISTS([libopensc],
-                 [PKG_CHECK_MODULES([OPENSC], [libopensc < 0.12])],
-                 [AC_MSG_WARN([libopensc < 0.12 not found by pkg-config])])
-
-saved_CPPFLAGS="$CPPFLAGS"
-saved_LIBS="$LIBS"
-CPPFLAGS="$CPPFLAGS $OPENSC_CFLAGS"
-LIBS="$LDFLAGS $OPENSC_LIBS"
-AC_CHECK_HEADERS(opensc/opensc.h,,
-        [ AC_MSG_ERROR([opensc/opensc.h not found, install libopensc < 0.12 or use ./configure OPENSC_CFLAGS=...]) ])
-AC_MSG_CHECKING([for sc_context_create])
-AC_TRY_LINK_FUNC(sc_context_create, [ AC_MSG_RESULT([yes]) ],
-        [ AC_MSG_ERROR([libopensc < 0.12 not found, use ./configure OPENSC_LIBS=...]) ])
-CPPFLAGS="$saved_CPPFLAGS"
-LIBS="$saved_LIBS"
 
 # --disable-ccid
 AC_ARG_ENABLE(ccid,
@@ -92,7 +77,7 @@ if test "x$enable_pace" != xno ; then
                      [AC_MSG_WARN([libpace not found by pkg-config])])
     saved_CPPFLAGS="$CPPFLAGS"
     saved_LIBS="$LIBS"
-    CPPFLAGS="$CPPFLAGS $LIBPACE_CFLAGS"
+    CPPFLAGS="$CPPFLAGS $LIBPACE_CFLAGS -I$(pwd)/src/opensc-0.12.0/src"
     LIBS="$LDFLAGS $LIBPACE_LIBS"
     AC_CHECK_HEADERS(pace/pace.h, [], [ AC_MSG_ERROR([pace/pace.h not found, install libpace or use ./configure LIBPACE_CFLAGS=...]) ])
     AC_MSG_CHECKING([for EstablishPACEChannel])
@@ -126,7 +111,7 @@ if test "x$enable_cats" != xno ; then
     AC_CHECK_HEADERS(reader.h, [AC_DEFINE(HAVE_READER_H, 1, [use reader.h from PC/SC Lite])], [])
     AC_CHECK_HEADERS(pcsclite.h, [AC_DEFINE(HAVE_PCSCLITE_H, 1, [use pcsclite.h from PC/SC Lite])], [])
     AC_CHECK_DECL(FEATURE_EXECUTE_PACE, [],
-                    [AC_MSG_ERROR([libpcsclite > 1.4.102 patched with pcsclite_trunk.patch not found, use ./configure PCSC_LIBS=...]) ],
+                    [AC_MSG_WARN([libpcsclite > 1.4.102 patched with pcsclite_trunk.patch not found]) ],
                     [#include <reader.h>])
     AC_MSG_CHECKING([for SCardEstablishContext])
     AC_TRY_LINK_FUNC(SCardEstablishContext, [ AC_MSG_RESULT([yes]) ],
@@ -188,8 +173,6 @@ Linker flags:         ${LDFLAGS}
 Libraries:            ${LIBS}
 PTHREAD_CFLAGS:       ${PTHREAD_CFLAGS}
 PTHREAD_LIBS:         ${PTHREAD_LIBS}
-OPENSC_CFLAGS:        ${OPENSC_CFLAGS}
-OPENSC_LIBS:          ${OPENSC_LIBS}
 OPENSSL_CFLAGS:       ${OPENSSL_CFLAGS}
 OPENSSL_LIBS:         ${OPENSSL_LIBS}
 LIBPACE_CFLAGS:       ${LIBPACE_CFLAGS}

@@ -1,3 +1,9 @@
+OPENSCVERSION = 0.12.0
+
+EXTRA_DIST = opensc-$(OPENSCVERSION)
+
+AM_CPPFLAGS = -I$(top_srcdir)/src/opensc-$(OPENSCVERSION)/src
+
 ccid_emulator_SOURCES = ccid.c usbstring.c usb.c binutil.c
 ccid_emulator_LDADD = $(OPENSC_LIBS) $(OPENSSL_LIBS) $(PTHREAD_LIBS)
 ccid_emulator_CFLAGS = $(OPENSC_CFLAGS) $(OPENSSL_CFLAGS) $(PTHREAD_CFLAGS)
@@ -14,6 +20,14 @@ noinst_HEADERS = \
 		 scutil.h \
 		 ccid.h \
 		 usbstring.h
+
+opensc: opensc-$(OPENSCVERSION)
+	cd $(top_builddir)/src && cp -r opensc-$(OPENSCVERSION) opensc
+
+libopensc.la: opensc
+	cd $(top_builddir)/src/opensc && ./configure
+	$(MAKE) -C opensc
+	cp $(top_builddir)/src/opensc/src/libopensc/.libs/libopensc* $(top_builddir)/src
 
 flaw:
 	flawfinder -SQD *.h *.c
@@ -33,4 +47,5 @@ ccid_emulator_LDADD += $(LIBPACE_LIBS)
 ccid_emulator_CFLAGS += $(LIBPACE_CFLAGS)
 else
 ccid_emulator_SOURCES += scutil.c
+ccid_emulator_LDADD += libopensc.la
 endif
