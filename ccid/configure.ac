@@ -46,26 +46,22 @@ if test "x$enable_ccid" != xno ; then
 
     enable_ccid=yes
 fi
-AC_SUBST(PTHREAD_CFLAGS)
-AC_SUBST(PTHREAD_LIBS)
 AM_CONDITIONAL(WITH_CCID, test "${enable_ccid}" != "no")
 
 
 PKG_CHECK_EXISTS([libssl],
-                 [PKG_CHECK_MODULES([OPENSSL], [libssl])],
+                 [PKG_CHECK_MODULES([OPENSSL], [libssl >= 1.0.0])],
                  [AC_MSG_WARN([libssl not found by pkg-config])])
 
 saved_CPPFLAGS="$CPPFLAGS"
 saved_LIBS="$LIBS"
 CPPFLAGS="$CPPFLAGS $OPENSSL_CFLAGS"
 LIBS="$LDFLAGS $OPENSSL_LIBS"
-AC_CHECK_HEADERS(openssl/evp.h, [], [ AC_MSG_ERROR([openssl/evp.h not found, install OpenSSL or use ./configure OPENSSL_CFLAGS=...]) ])
+AC_CHECK_HEADERS(openssl/evp.h, [], [ AC_MSG_ERROR([openssl/evp.h not found, install OpenSSL >= 1.0.0 or use ./configure OPENSSL_CFLAGS=...]) ])
 AC_MSG_CHECKING([for EVP_read_pw_string_min])
-AC_TRY_LINK_FUNC(EVP_read_pw_string_min, [ AC_MSG_RESULT([yes]) ], [ AC_MSG_ERROR([OpenSSL not found, use ./configure OPENSSL_LIBS=...]) ])
+AC_TRY_LINK_FUNC(EVP_read_pw_string_min, [ AC_MSG_RESULT([yes]) ], [ AC_MSG_ERROR([OpenSSL >= 1.0.0 not found, use ./configure OPENSSL_LIBS=...]) ])
 CPPFLAGS="$saved_CPPFLAGS"
 LIBS="$saved_LIBS"
-AC_SUBST(OPENSSL_CFLAGS)
-AC_SUBST(OPENSSL_LIBS)
 
 # --enable-pace
 AC_ARG_ENABLE(pace,
@@ -138,6 +134,9 @@ fi
 AM_CONDITIONAL(DOC_ENABLED, [test x"$enable_doc" = xyes])
 
 
+AC_SUBST(OPENSC_CONFIGURE)
+
+
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h memory.h stdint.h stdlib.h string.h sys/ioctl.h unistd.h])
 
@@ -179,6 +178,7 @@ LIBPACE_CFLAGS:       ${LIBPACE_CFLAGS}
 LIBPACE_LIBS:         ${LIBPACE_LIBS}
 PCSC_CFLAGS:          ${PCSC_CFLAGS}
 PCSC_LIBS:            ${PCSC_LIBS}
+OPENSC_CONFIGURE:     ${OPENSC_CONFIGURE}
 
 CCID emulator:        ${enable_ccid}
 PACE support:         ${enable_pace}

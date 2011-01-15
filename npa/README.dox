@@ -19,22 +19,20 @@ See file INSTALL.
 
 @subsection o HINTS ON OPENSC
 
-npa links against libopensc, which is discouraged and hindered since
-opensc>=0.12. We really need to get rid of this dependency. But since this is a
-lot of work, you will have to use older versions of opensc.
+libnpa links against libopensc, which is discouraged and hindered since
+opensc>=0.12. We really need to get rid of this dependency. But so far we
+manually build it to have libopensc for linking. The good thing is that you
+don't need any opensc components to be installed. The bad thing is, that libnpa
+configures and builds opensc on its own. So you might need to pass some extra
+configure options to opensc. So if you need to pass options to opensc, use
+something like the following command:
+./configure \
+    OPENSC_CONFIGURE="options"
 
-OpenSC older than r4244 will yield something like this error:
-
-[default] apdu.c:341:sc_check_apdu: Invalid Case 4 short APDU:
-cse=04 cla=10 ins=86 p1=00 p2=00 lc=2 le=0
-resp=0x10353c0 resplen=256 data=0x1034a30 datalen=2
-[default] pace.c:1110:EstablishPACEChannel: Could not get encrypted nonce from card (General Authenticate step 1 failed).
-
-This requires the following patch:
-http://www.opensc-project.org/opensc/raw-attachment/ticket/209/le0.patch
-
-The following patch makes the hex dumped output more readable:
-http://www.opensc-project.org/opensc/raw-attachment/ticket/263/hex_dump_align.2.patch
+Worse gets the situation if you need to link against libnpa and some opensc
+library at the same time. This will yield conflicts since functionality of
+libopensc is linked into both libraries. This is possible (see ccid-emulator),
+but not recommended. Only do this if you know what you are doing.
 
 
 @subsection o HINTS ON OPENSSL

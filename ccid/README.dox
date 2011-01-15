@@ -1,15 +1,16 @@
 /** @mainpage
 
-Welcome to ccid.  The purpose of ccid is to forward a PCSC smartcard reader
-as a standard USB CCID reader. If the host system is in USB device mode, ccid
-forwards the local reader via USB to an other device. If in USB host mode,
-ccid virtually plugges in a USB CCID reader to the host system.  ccid has
-support for Password Authenticated Connection Establishment (PACE) using
-OpenPACE (http://sourceforge.net/projects/openpace/).
+Welcome to ccid-emulator.  The purpose of ccid-emulator is to forward a PCSC
+smartcard reader as a standard USB CCID reader. If the host system is in USB
+device mode, ccid-emulator forwards the local reader via USB to an other
+device. If in USB host mode, ccid-emulator virtually plugges in a USB CCID
+reader to the host system.  ccid-emulator has support for Password
+Authenticated Connection Establishment (PACE) using OpenPACE
+(http://sourceforge.net/projects/openpace/).
 
-ccid is implemented using GadgetFS. Some fragments of the source code is based
-on the GadgetFS example at http://www.linux-usb.org/gadget/ and on the source
-code of the OpenSC tools.
+ccid-emulator is implemented using GadgetFS. Some fragments of the source code
+is based on the GadgetFS example at http://www.linux-usb.org/gadget/ and on the
+source code of the OpenSC tools.
 
 
 @section i INSTALLATION
@@ -32,27 +33,20 @@ https://docs.openmoko.org/trac/ticket/2240).
 
 @subsection o HINTS ON OPENSC
 
-ccid links against libopensc, which is discouraged and hindered since
-opensc>=0.12. We really need to get rid of this dependency. But since this is a
-lot of work, you will have to use older versions of opensc.
-
-OpenSC older than r4244 will yield something like this error:
-
-[default] apdu.c:341:sc_check_apdu: Invalid Case 4 short APDU:
-cse=04 cla=10 ins=86 p1=00 p2=00 lc=2 le=0
-resp=0x10353c0 resplen=256 data=0x1034a30 datalen=2
-[default] pace.c:1110:EstablishPACEChannel: Could not get encrypted nonce from card (General Authenticate step 1 failed).
-
-This requires the following patch:
-http://www.opensc-project.org/opensc/raw-attachment/ticket/209/le0.patch
-
-The following patch makes the hex dumped output more readable:
-http://www.opensc-project.org/opensc/raw-attachment/ticket/263/hex_dump_align.2.patch
+ccid-emulator links against libopensc, which is discouraged and hindered since
+opensc>=0.12. We really need to get rid of this dependency. But so far we
+manually build it to have libopensc for linking. The good thing is that you
+don't need any opensc components to be installed. The bad thing is, that
+ccid-emulator configures and builds opensc on its own. So you might need to
+pass some extra configure options to opensc. So if you need to pass options to
+opensc, use something like the following command:
+./configure \
+    OPENSC_CONFIGURE="options"
 
 
-@subsection o HINTS ON LIBPACE
+@subsection l HINTS ON LIBPACE
 
-If you have a local build of OpenSSL with OpenPACE, that you want to link
+If you have a local build of libpace and OpenPACE, that you want to link
 against use something like the following command:
 ./configure \
     OPENSSL_CFLAGS="-I/path/to/openssl-1.0.0c_with_openpace-0.4/include" \

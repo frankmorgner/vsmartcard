@@ -6,6 +6,6 @@ includedir=@includedir@
 Name: libpace
 Description: Password Authenticated Connection Establishment (PACE) library
 Version: @VERSION@
-Requires: libopensc libssl
+Requires: libssl
 Libs: -L${libdir} -lpace
 Cflags: -I${includedir}

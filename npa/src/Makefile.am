@@ -18,7 +18,7 @@ opensc: opensc-$(OPENSCVERSION)
 	cd $(top_builddir)/src && cp -r opensc-$(OPENSCVERSION) opensc
 
 libopensc.la: opensc
-	cd $(top_builddir)/src/opensc && ./configure
+	cd $(top_builddir)/src/opensc && ./configure $(OPENSC_CONFIGURE)
 	$(MAKE) -C opensc
 	cp $(top_builddir)/src/opensc/src/libopensc/.libs/libopensc* $(top_builddir)/src
 

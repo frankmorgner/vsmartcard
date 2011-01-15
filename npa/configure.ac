@@ -39,8 +39,6 @@ AC_TRY_LINK_FUNC(parse_ef_card_access, [ AC_MSG_RESULT([yes]) ], [ AC_MSG_ERROR(
 
 CPPFLAGS="$saved_CPPFLAGS"
 LIBS="$saved_LIBS"
-AC_SUBST(OPENSSL_CFLAGS)
-AC_SUBST(OPENSSL_LIBS)
 
 AC_DEFINE(BUERGERCLIENT_WORKAROUND, 1, [Always get EF.CardAccess, when connecting to a smart card. This is a workaround for the recent Buergerclient])
 
@@ -56,6 +54,9 @@ then
     fi
 fi
 AM_CONDITIONAL(DOC_ENABLED, [test x"$enable_doc" = xyes])
+
+
+AC_SUBST(OPENSC_CONFIGURE)
 
 
 # Checks for header files.
@@ -93,6 +94,7 @@ Linker flags:         ${LDFLAGS}
 Libraries:            ${LIBS}
 OPENSSL_CFLAGS:       ${OPENSSL_CFLAGS}
 OPENSSL_LIBS:         ${OPENSSL_LIBS}
+OPENSC_CONFIGURE:     ${OPENSC_CONFIGURE}
 
 Documentation:        ${enable_doc}
 
