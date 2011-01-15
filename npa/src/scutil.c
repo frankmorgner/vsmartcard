@@ -31,14 +31,14 @@ int initialize(int reader_id, const char *cdriver, int verbose,
 
     int r = sc_context_create(ctx, NULL);
     if (r < 0) {
-        printf("Failed to create initial context: %s", sc_strerror(r));
+        fprintf(stderr, "Failed to create initial context: %s", sc_strerror(r));
         return r;
     }
 
     if (cdriver != NULL) {
         r = sc_set_card_driver(*ctx, cdriver);
         if (r < 0) {
-            sc_debug(*ctx, SC_LOG_DEBUG_VERBOSE, "Card driver '%s' not found!\n", cdriver);
+            sc_debug(*ctx, SC_LOG_DEBUG_VERBOSE, "Card driver '%s' not found.\n", cdriver);
             return r;
         }
     }
@@ -47,8 +47,10 @@ int initialize(int reader_id, const char *cdriver, int verbose,
 
     reader_count = sc_ctx_get_reader_count(*ctx);
 
-    if (reader_count == 0)
+    if (reader_count == 0) {
+        sc_debug(*ctx, SC_LOG_DEBUG_NORMAL, "No reader not found.\n");
         return SC_ERROR_NO_READERS_FOUND;
+    }
 
     if (reader_id < 0) {
         /* Automatically try to skip to a reader with a card if reader not specified */
@@ -56,7 +58,8 @@ int initialize(int reader_id, const char *cdriver, int verbose,
             *reader = sc_ctx_get_reader(*ctx, i);
             if (sc_detect_card_presence(*reader) & SC_READER_CARD_PRESENT) {
                 reader_id = i;
-                sc_debug(*ctx, SC_LOG_DEBUG_NORMAL, "Using the first reader with a card: %s", (*reader)->name);
+                sc_debug(*ctx, SC_LOG_DEBUG_NORMAL, "Using the first reader"
+                        " with a card: %s", (*reader)->name);
                 break;
             }
         }
@@ -66,8 +69,11 @@ int initialize(int reader_id, const char *cdriver, int verbose,
         }
     }
 
-    if (reader_id >= reader_count)
+    if (reader_id >= reader_count) {
+        sc_debug(*ctx, SC_LOG_DEBUG_NORMAL, "Invalid reader number "
+                "(%d), only %d available.\n", reader_id, reader_count);
         return SC_ERROR_NO_READERS_FOUND;
+    }
 
     *reader = sc_ctx_get_reader(*ctx, reader_id);
 
