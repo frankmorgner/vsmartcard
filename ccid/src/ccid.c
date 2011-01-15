@@ -46,7 +46,7 @@ static size_t ef_cardaccess_length = 0;
 
 static sc_context_t *ctx = NULL;
 static sc_card_t *card = NULL;
-static sc_reader_t *reader;
+static sc_reader_t *reader = NULL;
 
 struct ccid_class_descriptor
 ccid_desc = {
@@ -109,15 +109,15 @@ detect_card_presence(void)
     if (sc_result == 0
             && card) {
         sc_disconnect_card(card);
-        sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "Card removed from slot 0");
+        sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "Card removed");
     }
     if (sc_result & SC_READER_CARD_CHANGED) {
         sc_disconnect_card(card);
-        sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "Card exchanged in slot 0");
+        sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "Card exchanged");
     }
     if (sc_result & SC_READER_CARD_PRESENT
             && !card) {
-        sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "Unused card in slot 0");
+        sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "Unused card");
     }
 
     return sc_result;
@@ -131,8 +131,6 @@ int ccid_initialize(int reader_id, const char *cdriver, int verbose)
     i = initialize(reader_id, cdriver, verbose, &ctx, &reader);
     if (i < 0)
         return i;
-
-    ccid_desc.bMaxSlotIndex = 1;
 
 #ifdef WITH_PACE
     memset(&sctx, 0, sizeof(sctx));
@@ -166,7 +164,7 @@ void ccid_shutdown()
 #endif
 }
 
-static int get_rapdu(sc_apdu_t *apdu, size_t slot, __u8 **buf, size_t *resplen)
+static int get_rapdu(sc_apdu_t *apdu, __u8 **buf, size_t *resplen)
 {
     int sc_result;
 
@@ -239,7 +237,7 @@ static __u8 get_bError(int sc_result)
         return CCID_BERROR_OK;
 }
 
-static __u8 get_bStatus(int sc_result, __u8 bSlot)
+static __u8 get_bStatus(int sc_result)
 {
     int flags;
     __u8 bstatus = 0;
@@ -250,29 +248,29 @@ static __u8 get_bStatus(int sc_result, __u8 bSlot)
         if (sc_result < 0) {
             if (flags & SC_READER_CARD_PRESENT) {
                 if (flags & SC_READER_CARD_CHANGED
-                        || card) {
-                    /*sc_debug(ctx, SC_LOG_DEBUG_NORMAL, SC_LOG_DEBUG_NORMAL, "error inactive");*/
+                        && !card) {
+                    sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "error inactive");
                     bstatus = CCID_BSTATUS_ERROR_INACTIVE;
                 } else {
-                    /*sc_debug(ctx, SC_LOG_DEBUG_NORMAL, SC_LOG_DEBUG_NORMAL, "error active");*/
+                    sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "error active");
                     bstatus = CCID_BSTATUS_ERROR_ACTIVE;
                 }
             } else {
-                /*sc_debug(ctx, SC_LOG_DEBUG_NORMAL, SC_LOG_DEBUG_NORMAL, "error no icc");*/
+                sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "error no icc");
                 bstatus = CCID_BSTATUS_ERROR_NOICC;
             }
         } else {
             if (flags & SC_READER_CARD_PRESENT) {
                 if (flags & SC_READER_CARD_CHANGED
-                        || card) {
-                    /*sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "ok inactive");*/
+                        && !card) {
+                    sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "ok inactive");
                     bstatus = CCID_BSTATUS_OK_INACTIVE;
                 } else {
-                    /*sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "ok active");*/
+                    sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "ok active");
                     bstatus = CCID_BSTATUS_OK_ACTIVE;
                 }
             } else {
-                /*sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "ok no icc");*/
+                sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "ok no icc");
                 bstatus = CCID_BSTATUS_OK_NOICC;
             }
         }
@@ -286,7 +284,7 @@ static __u8 get_bStatus(int sc_result, __u8 bSlot)
 }
 
 static int
-get_RDR_to_PC_SlotStatus(__u8 bSlot, __u8 bSeq, int sc_result, __u8 **outbuf, size_t *outlen,
+get_RDR_to_PC_SlotStatus(__u8 bSeq, int sc_result, __u8 **outbuf, size_t *outlen,
         const __u8 *abProtocolDataStructure, size_t abProtocolDataStructureLen)
 {
     if (!outbuf)
@@ -305,9 +303,9 @@ get_RDR_to_PC_SlotStatus(__u8 bSlot, __u8 bSeq, int sc_result, __u8 **outbuf, si
 
     status->bMessageType = 0x81;
     status->dwLength     = __constant_cpu_to_le32(abProtocolDataStructureLen);
-    status->bSlot        = bSlot;
+    status->bSlot        = 0;
     status->bSeq         = bSeq;
-    status->bStatus      = get_bStatus(sc_result, bSlot);
+    status->bStatus      = get_bStatus(sc_result);
     status->bError       = get_bError(sc_result);
     status->bClockStatus = 0;
 
@@ -318,7 +316,7 @@ get_RDR_to_PC_SlotStatus(__u8 bSlot, __u8 bSeq, int sc_result, __u8 **outbuf, si
 }
 
 static int
-get_RDR_to_PC_DataBlock(__u8 bSlot, __u8 bSeq, int sc_result, __u8 **outbuf,
+get_RDR_to_PC_DataBlock(__u8 bSeq, int sc_result, __u8 **outbuf,
         size_t *outlen, const __u8 *abData, size_t abDataLen)
 {
     if (!outbuf)
@@ -337,9 +335,9 @@ get_RDR_to_PC_DataBlock(__u8 bSlot, __u8 bSeq, int sc_result, __u8 **outbuf,
 
     data->bMessageType    = 0x80;
     data->dwLength        = __constant_cpu_to_le32(abDataLen);
-    data->bSlot           = bSlot;
+    data->bSlot           = 0;
     data->bSeq            = bSeq;
-    data->bStatus         = get_bStatus(sc_result, bSlot);
+    data->bStatus         = get_bStatus(sc_result);
     data->bError          = get_bError(sc_result);
     data->bChainParameter = 0;
 
@@ -362,13 +360,14 @@ perform_PC_to_RDR_GetSlotStatus(const __u8 *in, size_t inlen, __u8 **out, size_t
 
     *outlen = sizeof(RDR_to_PC_SlotStatus_t);
 
-    if (    request->bMessageType != 0x65 ||
-            request->dwLength     != __constant_cpu_to_le32(0) ||
-            request->abRFU1       != 0 ||
-            request->abRFU2       != 0)
+    if (request->bMessageType != 0x65
+            || request->dwLength != __constant_cpu_to_le32(0)
+            || request->bSlot != 0
+            || request->abRFU1 != 0
+            || request->abRFU2 != 0)
         sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "warning: malformed PC_to_RDR_GetSlotStatus");
 
-    return get_RDR_to_PC_SlotStatus(request->bSlot, request->bSeq, SC_SUCCESS,
+    return get_RDR_to_PC_SlotStatus(request->bSeq, SC_SUCCESS,
             out, outlen, NULL, 0);
 }
 
@@ -384,11 +383,12 @@ perform_PC_to_RDR_IccPowerOn(const __u8 *in, size_t inlen, __u8 **out, size_t *o
     if (inlen < sizeof *request)
         SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_VERBOSE, SC_ERROR_INVALID_DATA);
 
-    if (    request->bMessageType != 0x62 ||
-            request->dwLength     != __constant_cpu_to_le32(0) ||
-            !( request->bPowerSelect == 0 ||
-                request->bPowerSelect & ccid_desc.bVoltageSupport ) ||
-            request->abRFU        != 0)
+    if (request->bMessageType != 0x62
+            || request->dwLength != __constant_cpu_to_le32(0)
+            || request->bSlot != 0
+            || !( request->bPowerSelect == 0
+                || request->bPowerSelect & ccid_desc.bVoltageSupport)
+            || request->abRFU != 0)
         sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "warning: malformed PC_to_RDR_IccPowerOn");
 
     if (card) {
@@ -407,11 +407,11 @@ perform_PC_to_RDR_IccPowerOn(const __u8 *in, size_t inlen, __u8 **out, size_t *o
     }
 
     if (sc_result >= 0) {
-        return get_RDR_to_PC_SlotStatus(request->bSlot, request->bSeq,
+        return get_RDR_to_PC_SlotStatus(request->bSeq,
                 sc_result, out, outlen, card->atr, card->atr_len);
     } else {
         sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Returning default status package.");
-        return get_RDR_to_PC_SlotStatus(request->bSlot, request->bSeq,
+        return get_RDR_to_PC_SlotStatus(request->bSeq,
                 sc_result, out, outlen, NULL, 0);
     }
 }
@@ -428,16 +428,17 @@ perform_PC_to_RDR_IccPowerOff(const __u8 *in, size_t inlen, __u8 **out, size_t *
     if (inlen < sizeof *request)
         SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_VERBOSE, SC_ERROR_INVALID_DATA);
 
-    if (    request->bMessageType != 0x63 ||
-            request->dwLength     != __constant_cpu_to_le32(0) ||
-            request->abRFU1       != 0 ||
-            request->abRFU2       != 0)
+    if (request->bMessageType != 0x63
+            || request->dwLength != __constant_cpu_to_le32(0)
+            || request->bSlot != 0
+            || request->abRFU1 != 0
+            || request->abRFU2 != 0)
         sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "warning: malformed PC_to_RDR_IccPowerOff");
 
     sc_reset(card, 1);
     sc_result = sc_disconnect_card(card);
 
-    return get_RDR_to_PC_SlotStatus(request->bSlot, request->bSeq, sc_result,
+    return get_RDR_to_PC_SlotStatus(request->bSeq, sc_result,
                 out, outlen, NULL, 0);
 }
 
@@ -457,20 +458,21 @@ perform_PC_to_RDR_XfrBlock(const u8 *in, size_t inlen, __u8** out, size_t *outle
     if (inlen < sizeof *request)
         SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_VERBOSE, SC_ERROR_INVALID_DATA);
 
-    if (    request->bMessageType != 0x6F ||
-            request->bBWI  != 0)
+    if (request->bMessageType != 0x6F
+            || request->bSlot != 0
+            || request->bBWI  != 0)
         sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "malformed PC_to_RDR_XfrBlock, will continue anyway");
 
     sc_result = build_apdu(ctx, abDataIn, __le32_to_cpu(request->dwLength),
             &apdu);
     if (sc_result >= 0)
-        sc_result = get_rapdu(&apdu, request->bSlot, &abDataOut,
+        sc_result = get_rapdu(&apdu, &abDataOut,
                 &abDataOutLen);
     else
         bin_log(ctx, SC_LOG_DEBUG_VERBOSE, "Invalid APDU", abDataIn,
                 __le32_to_cpu(request->dwLength));
 
-    sc_result = get_RDR_to_PC_DataBlock(request->bSlot, request->bSeq, sc_result,
+    sc_result = get_RDR_to_PC_DataBlock(request->bSeq, sc_result,
             out, outlen, abDataOut, abDataOutLen);
 
     free(abDataOut);
@@ -493,8 +495,9 @@ perform_PC_to_RDR_GetParamters(const __u8 *in, size_t inlen, __u8** out, size_t 
     if (inlen < sizeof *request)
         SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_VERBOSE, SC_ERROR_INVALID_DATA);
 
-    if (    request->bMessageType != 0x6C ||
-            request->dwLength != __constant_cpu_to_le32(0))
+    if (request->bMessageType != 0x6C
+            || request->dwLength != __constant_cpu_to_le32(0)
+            || request->bSlot != 0)
         sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "warning: malformed PC_to_RDR_GetParamters");
 
     switch (reader->active_protocol) {
@@ -563,9 +566,9 @@ invaliddata:
         sc_result = SC_ERROR_INVALID_DATA;
 
     result->bMessageType = 0x82;
-    result->bSlot = request->bSlot;
+    result->bSlot = 0;
     result->bSeq = request->bSeq;
-    result->bStatus = get_bStatus(sc_result, request->bSlot);
+    result->bStatus = get_bStatus(sc_result);
     result->bError  = get_bError(sc_result);
 
     if (sc_result < 0)
@@ -1047,7 +1050,8 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
     if (inlen < sizeof *request + 1)
         SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_VERBOSE, SC_ERROR_INVALID_DATA);
 
-    if (request->bMessageType != 0x69)
+    if (request->bMessageType != 0x69
+            || request->bSlot != 0)
         sc_debug(ctx, SC_LOG_DEBUG_NORMAL,  "warning: malformed PC_to_RDR_Secure");
 
     if (request->wLevelParameter != CCID_WLEVEL_DIRECT) {
@@ -1224,7 +1228,7 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
                 &sc_result))
         goto err;
 
-    sc_result = get_rapdu(&apdu, request->bSlot, &abDataOut, &abDataOutLen);
+    sc_result = get_rapdu(&apdu, &abDataOut, &abDataOutLen);
 
     /* clear PINs that have been transmitted */
     sc_mem_clear((u8 *) apdu.data, apdu.datalen);
@@ -1239,7 +1243,7 @@ err:
         free((u8 *) new_pin.data);
     }
 
-    sc_result = get_RDR_to_PC_DataBlock(request->bSlot, request->bSeq, sc_result, out,
+    sc_result = get_RDR_to_PC_DataBlock(request->bSeq, sc_result, out,
             outlen, abDataOut, abDataOutLen);
 
     free(abDataOut);
@@ -1289,10 +1293,9 @@ get_RDR_to_PC_NotifySlotChange(RDR_to_PC_NotifySlotChange_t **out)
     if (sc_result & SC_READER_CARD_PRESENT)
         oldmask |= present[0];
     if (sc_result & SC_READER_CARD_CHANGED) {
-        sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "Card status changed in slot 0.");
+        sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "Card status changed.");
         result->bmSlotICCState |= changed[0];
     }
-
 
     sleep(10);
 
@@ -1305,12 +1308,12 @@ get_RDR_to_PC_NotifySlotChange(RDR_to_PC_NotifySlotChange_t **out)
     if (sc_result & SC_READER_CARD_PRESENT)
         result->bmSlotICCState |= present[0];
     if (sc_result & SC_READER_CARD_CHANGED) {
-        sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "Card status changed in slot 0.");
+        sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "Card status changed.");
         result->bmSlotICCState |= changed[0];
     }
 
     if ((oldmask & present[0]) != (result->bmSlotICCState & present[0])) {
-        sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "Card status changed in slot 0.");
+        sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "Card status changed.");
         result->bmSlotICCState |= changed[0];
     }
 
@@ -1366,10 +1369,9 @@ perform_unknown(const __u8 *in, size_t inlen, __u8 **out, size_t *outlen)
             result->bMessageType = 0;
     }
     result->dwLength     = __constant_cpu_to_le32(0);
-    result->bSlot        = request->bSlot,
+    result->bSlot        = 0,
     result->bSeq         = request->bSeq;
-    result->bStatus      = get_bStatus(SC_ERROR_UNKNOWN_DATA_RECEIVED,
-            request->bSlot);
+    result->bStatus      = get_bStatus(SC_ERROR_UNKNOWN_DATA_RECEIVED);
     result->bError       = 0;
     result->bClockStatus = 0;
 

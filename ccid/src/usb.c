@@ -1728,6 +1728,7 @@ done:
 int
 main (int argc, char **argv)
 {
+    /*printf("%s:%d\n", __FILE__, __LINE__);*/
     int fd, c, i;
     int oindex = 0;
 
@@ -1810,7 +1811,7 @@ main (int argc, char **argv)
     }
 
     if (ccid_initialize(usb_reader_num, cdriver, verbose) < 0) {
-        perror("Can't initialize ccid");
+        fprintf (stderr, "Can't initialize ccid\n");
         return 1;
     }
 
