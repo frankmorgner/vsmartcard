@@ -14,9 +14,10 @@ pace_tool_CFLAGS = $(OPENSSL_CFLAGS)
 
 opensc:
 	cp -r $(top_srcdir)/src/opensc-$(OPENSCVERSION) opensc
+	cd opensc && ./configure OPENSSL_LIBS="$(OPENSSL_LIBS)" OPENSSL_CFLAGS="$(OPENSSL_CFLAGS)" $(OPENSC_CONFIGURE)
 
+.PHONY:libopensc.la
 libopensc.la: opensc
-	cd opensc && ./configure $(OPENSC_CONFIGURE)
 	$(MAKE) -C opensc
 	cp opensc/src/libopensc/.libs/libopensc.* .
 

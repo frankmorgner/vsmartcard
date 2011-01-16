@@ -195,13 +195,8 @@ int get_ef_card_access(sc_card_t *card,
         goto err;
     }
 
-    memset(&path, 0, sizeof path);
+    memcpy(&path, sc_get_mf_path(), sizeof path);
     r = sc_append_file_id(&path, FID_EF_CARDACCESS);
-    if (r < 0) {
-        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not create path object.");
-        goto err;
-    }
-    r = sc_concatenate_path(&path, sc_get_mf_path(), &path);
     if (r < 0) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not create path object.");
         goto err;
