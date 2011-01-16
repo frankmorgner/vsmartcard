@@ -11,20 +11,24 @@ libpace_la_CFLAGS = $(OPENSSL_CFLAGS)
 pace_tool_SOURCES = pace-tool.c binutil.c
 pace_tool_LDADD = $(OPENSSL_LIBS) libpace.la libopensc.la
 pace_tool_CFLAGS = $(OPENSSL_CFLAGS)
-noinst_HEADERS = \
-		 binutil.h
 
-opensc: opensc-$(OPENSCVERSION)
-	cd $(top_builddir)/src && cp -r opensc-$(OPENSCVERSION) opensc
+opensc:
+	cp -r $(top_srcdir)/src/opensc-$(OPENSCVERSION) opensc
 
 libopensc.la: opensc
-	cd $(top_builddir)/src/opensc && ./configure $(OPENSC_CONFIGURE)
+	cd opensc && ./configure $(OPENSC_CONFIGURE)
 	$(MAKE) -C opensc
-	cp $(top_builddir)/src/opensc/src/libopensc/.libs/libopensc* $(top_builddir)/src
+	cp opensc/src/libopensc/.libs/libopensc.* .
+
+clean-local:
+	rm -rf opensc libopensc.*
 
 bin_PROGRAMS = pace-tool
 
 lib_LTLIBRARIES = libpace.la
+
+noinst_HEADERS = \
+		 binutil.h
 
 nobase_include_HEADERS = \
 	pace/sm.h \

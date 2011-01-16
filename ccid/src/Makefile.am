@@ -12,6 +12,17 @@ cats_test_SOURCES = cats-test.c pcscutil.c
 cats_test_LDADD = $(PCSC_LIBS)
 cats_test_CFLAGS = $(PCSC_CFLAGS)
 
+opensc:
+	cp -r $(top_srcdir)/src/opensc-$(OPENSCVERSION) opensc
+
+libopensc.la: opensc
+	cd opensc && ./configure $(OPENSC_CONFIGURE)
+	$(MAKE) -C opensc
+	cp opensc/src/libopensc/.libs/libopensc.* .
+
+clean-local:
+	rm -rf opensc libopensc.*
+
 bin_PROGRAMS =
 
 noinst_HEADERS = \
@@ -20,17 +31,6 @@ noinst_HEADERS = \
 		 scutil.h \
 		 ccid.h \
 		 usbstring.h
-
-opensc: opensc-$(OPENSCVERSION)
-	cd $(top_builddir)/src && cp -r opensc-$(OPENSCVERSION) opensc
-
-libopensc.la: opensc
-	cd $(top_builddir)/src/opensc && ./configure $(OPENSC_CONFIGURE)
-	$(MAKE) -C opensc
-	cp $(top_builddir)/src/opensc/src/libopensc/.libs/libopensc* $(top_builddir)/src
-
-flaw:
-	flawfinder -SQD *.h *.c
 
 if WITH_CCID
 bin_PROGRAMS += ccid-emulator

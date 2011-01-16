@@ -1,8 +1,6 @@
 ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = src m4
 
-DISTCLEANFILES = Doxyfile libpace.pc
-
 EXTRA_DIST = README.dox libpace.pc.in Doxyfile.in
 
 do_subst = sed \
@@ -31,17 +29,16 @@ win: opensc-0.11.13
 	    env OPENSSL_VERSION="1.0.0c_with_openpace-0.4.1" OPENSSL_URL="http://downloads.sourceforge.net/project/openpace/openssl-1.0.0c_with_openpace-0.4.1.tar.gz" EXTRA_OPENSSL_CONFIG="experimental-pace" ../opensc/installer_from_build.sh opensc/win32/build
 
 if DOC_ENABLED
-clean-local:
-	rm -rf doc
-
+.PHONY: doc
 doc :
 	$(do_subst) < $(srcdir)/Doxyfile.in > Doxyfile
 	$(DOXYGEN) Doxyfile
-
-.PHONY: doc
 endif
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libpace.pc
-libpace.pc :
+libpace.pc:
 	$(do_subst) < $(srcdir)/libpace.pc.in > libpace.pc
+
+clean-local:
+	rm -rf doc Doxyfile libpace.pc
