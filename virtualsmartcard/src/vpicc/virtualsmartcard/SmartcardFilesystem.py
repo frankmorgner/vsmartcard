@@ -45,7 +45,7 @@ def walk(start, path): # {{{
     if len(path) % 2 != 0:
         raise SwError(SW["ERR_INCORRECTPARAMETERS"])
     index = 0
-    while index + 2 < len(path):
+    while index + 2 <= len(path):
         if not isinstance(start, DF):
             # File or application not found
             raise SwError(SW["ERR_FILENOTFOUND"])

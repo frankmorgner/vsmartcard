@@ -81,22 +81,18 @@ class CardGenerator(object):
             mf = MF()
             
             #We need a MF with Application DF \xa0\x00\x00\x02G\x10\x01
-            mf.append(DF(parent=mf, fid=4, dfname='\xa0\x00\x00\x02G\x10\x01', bertlv_data=[]))
-            df = mf.currentDF()
-            mf.append(TransparentStructureEF(parent=df, fid=0x011E, filedescriptor=0, data=""))#EF.COM
-            mf.append(TransparentStructureEF(parent=df, fid=0x0101, filedescriptor=0, data=""))#EF.DG1
-            mf.append(TransparentStructureEF(parent=df, fid=0x0102, filedescriptor=0, data=""))#EF.DG2
-            mf.append(TransparentStructureEF(parent=df, fid=0x010D, filedescriptor=0, data=""))#EF.SOD
+            df = DF(parent=mf, fid=4, dfname='\xa0\x00\x00\x02G\x10\x01', bertlv_data=[])
+
             #EF.COM
             COM = pack([(0x5F01,4,"0107"),(0x5F36,6,"040000"),(0x5C,2,"6175")])
             COM = pack(((0x60,len(COM),COM),))
-            fid = df.select("fid",0x011E)
-            fid.writebinary([0],[COM])        
+            df.append(TransparentStructureEF(parent=df, fid=0x011E, filedescriptor=0, data=COM))
+
             #EF.DG1
             DG1 = pack([(0x5F1F,len(MRZ),MRZ)])
             DG1 = pack([(0x61,len(DG1),DG1)])
-            fid = df.select("fid",0x0101)
-            fid.writebinary([0],[DG1])        
+            df.append(TransparentStructureEF(parent=df, fid=0x0101, filedescriptor=0, data=DG1))
+
             #EF.DG2
             if picture != None:
                 IIB = "\x00\x01" + inttostring(pic_width,2) + inttostring(pic_height,2) + 6 * "\x00" 
@@ -107,9 +103,15 @@ class CardGenerator(object):
                 DG2 = pack([(0xA1,8,"\x87\x02\x01\x01\x88\x02\x05\x01"),(0x5F2E,len(picture),picture)])
                 DG2 = pack([(0x02,1,"\x01"),(0x7F60,len(DG2),DG2)])
                 DG2 = pack([(0x7F61,len(DG2),DG2)])
-                fid = df.select("fid",0x0102)
-                fid.writebinary([0],[DG2])
-    
+            else:
+                DG2=""
+            df.append(TransparentStructureEF(parent=df, fid=0x0102, filedescriptor=0, data=DG2))
+
+            #EF.SOD
+            df.append(TransparentStructureEF(parent=df, fid=0x010D, filedescriptor=0, data=""))
+
+            mf.append(df)
+
             self.mf = mf
             self.sam = PassportSAM(self.mf)
     

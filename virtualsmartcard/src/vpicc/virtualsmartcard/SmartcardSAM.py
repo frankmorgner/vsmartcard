@@ -413,8 +413,8 @@ class SAM(object):
 
 class PassportSAM(SAM):       
     def __init__(self, mf):
-        df = mf.currentDF()
-        ef_dg1 = df.select("fid", 0x0101)
+        
+        ef_dg1 = virtualsmartcard.SmartcardFilesystem.walk(mf, "\x00\x04\x01\x01")
         dg1 = ef_dg1.readbinary(5)
         self.mrz1 = dg1[:43]
         self.mrz2 = dg1[44:]
