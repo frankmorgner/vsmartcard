@@ -12,6 +12,7 @@ do_subst = sed \
 	   -e 's,[@]libdir[@],$(libdir),g' \
 	   -e 's,[@]includedir[@],$(includedir),g' \
 	   -e 's,[@]VERSION[@],$(VERSION),g' \
+	   -e 's,[@]OPENSC_LIBS[@],$(OPENSC_LIBS),g' \
 	   -e 's,[@]top_srcdir[@],$(top_srcdir),g'
 
 opensc-0.11.13.tar.gz:

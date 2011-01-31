@@ -185,6 +185,7 @@ main (int argc, char **argv)
     struct establish_pace_channel_input pace_input;
     struct establish_pace_channel_output pace_output;
     time_t t_start, t_end;
+    struct timeval tv;
     size_t outlen;
 
     memset(&sctx, 0, sizeof sctx);
@@ -367,23 +368,28 @@ main (int argc, char **argv)
             if (strlen(can_ch) > pace_input.pin_length)
                 break;
 
-            printf("Trying %s=%s\n",
+            gettimeofday(&tv, NULL);
+            printf("%d,%06d: Trying %s=%s\n",
+                    tv.tv_sec, tv.tv_usec,
                     pace_secret_name(pace_input.pin_id), pace_input.pin);
             i = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
                     &sctx);
 
-            can_nb++;
-        } while (0 > i);
+            can_nb--;
+        } while (0 > i && can_nb > 0);
         t_end = time(NULL);
 
+        gettimeofday(&tv, NULL);
         if (0 > i) {
-            printf("Tried breaking %s for %.0fs without success.\n",
+            printf("%d,%06d: Tried breaking %s for %.0fs without success.\n",
+                    tv.tv_sec, tv.tv_usec,
                     pace_secret_name(pace_input.pin_id), difftime(t_end, t_start));
             goto err;
         } else {
-            printf("Tried breaking %s for %.0fs with success.\n",
-                    pace_secret_name(pace_input.pin_id), difftime(t_end, t_start));
-            printf("%s=%s\n", pace_secret_name(pace_input.pin_id), pace_input.pin);
+            printf("%d,%06d: Tried breaking %s for %.0fs with success (%s=%s).\n",
+                    tv.tv_sec, tv.tv_usec,
+                    pace_secret_name(pace_input.pin_id), difftime(t_end, t_start),
+                    pace_secret_name(pace_input.pin_id), pace_input.pin);
         }
     }
 

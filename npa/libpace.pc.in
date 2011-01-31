@@ -7,5 +7,5 @@ Name: libpace
 Description: Password Authenticated Connection Establishment (PACE) library
 Version: @VERSION@
 Requires: libssl
-Libs: -L${libdir} -lpace
+Libs: -L${libdir} -lpace @OPENSC_LIBS@
 Cflags: -I${includedir}

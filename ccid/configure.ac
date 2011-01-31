@@ -67,22 +67,31 @@ LIBS="$saved_LIBS"
 AC_ARG_ENABLE(pace,
               AS_HELP_STRING([--enable-pace], [Enable Password Authenticated Connection Establishment (PACE)]),
               [enable_pace="${enableval}"], [enable_pace=no])
+saved_CPPFLAGS="$CPPFLAGS"
+saved_LIBS="$LIBS"
 if test "x$enable_pace" != xno ; then
     PKG_CHECK_EXISTS([libpace],
                      [PKG_CHECK_MODULES([LIBPACE], [libpace])],
                      [AC_MSG_WARN([libpace not found by pkg-config])])
-    saved_CPPFLAGS="$CPPFLAGS"
-    saved_LIBS="$LIBS"
-    CPPFLAGS="$CPPFLAGS $LIBPACE_CFLAGS -I$(pwd)/src/opensc-0.12.0/src"
+    CPPFLAGS="$CPPFLAGS $LIBPACE_CFLAGS -I$(pwd)/src/opensc/src"
     LIBS="$LDFLAGS $LIBPACE_LIBS"
     AC_CHECK_HEADERS(pace/pace.h, [], [ AC_MSG_ERROR([pace/pace.h not found, install libpace or use ./configure LIBPACE_CFLAGS=...]) ])
     AC_MSG_CHECKING([for EstablishPACEChannel])
     AC_TRY_LINK_FUNC(EstablishPACEChannel, [ AC_MSG_RESULT([yes]) ], [ AC_MSG_ERROR([libpace not found, use ./configure LIBPACE_LIBS=...]) ])
-    CPPFLAGS="$saved_CPPFLAGS"
-    LIBS="$saved_LIBS"
 
     enable_pace=yes
+else
+    PKG_CHECK_EXISTS([libopensc],
+                     [PKG_CHECK_MODULES([OPENSC], [libopensc >= 0.12])],
+                     [AC_MSG_WARN([libopensc >= 0.12 not found by pkg-config])])
+    test -z "$OPENSC_LIBS" && OPENSC_LIBS="-lopensc"
+    LIBS="$LDFLAGS $OPENSC_LIBS $OPENSSL_LIBS"
+    AC_MSG_CHECKING([for sc_ctx_get_reader_count])
+    AC_TRY_LINK_FUNC(sc_ctx_get_reader_count, [ AC_MSG_RESULT([yes]) ],
+    [ AC_MSG_ERROR([libopensc >= 0.12 not found, use ./configure OPENSC_LIBS=...]) ])
 fi
+CPPFLAGS="$saved_CPPFLAGS"
+LIBS="$saved_LIBS"
 
 AM_CONDITIONAL(WITH_PACE, test "${enable_pace}" != "no")
 AM_COND_IF(WITH_PACE, [AC_DEFINE(WITH_PACE, 1, [enable PACE support])])
@@ -134,9 +143,6 @@ fi
 AM_CONDITIONAL(DOC_ENABLED, [test x"$enable_doc" = xyes])
 
 
-AC_SUBST(OPENSC_CONFIGURE)
-
-
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h memory.h stdint.h stdlib.h string.h sys/ioctl.h unistd.h])
 
@@ -172,13 +178,13 @@ Linker flags:         ${LDFLAGS}
 Libraries:            ${LIBS}
 PTHREAD_CFLAGS:       ${PTHREAD_CFLAGS}
 PTHREAD_LIBS:         ${PTHREAD_LIBS}
+OPENSC_LIBS:          ${OPENSC_LIBS}
 OPENSSL_CFLAGS:       ${OPENSSL_CFLAGS}
 OPENSSL_LIBS:         ${OPENSSL_LIBS}
 LIBPACE_CFLAGS:       ${LIBPACE_CFLAGS}
 LIBPACE_LIBS:         ${LIBPACE_LIBS}
 PCSC_CFLAGS:          ${PCSC_CFLAGS}
 PCSC_LIBS:            ${PCSC_LIBS}
-OPENSC_CONFIGURE:     ${OPENSC_CONFIGURE}
 
 CCID emulator:        ${enable_ccid}
 PACE support:         ${enable_pace}

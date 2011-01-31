@@ -33,26 +33,12 @@ https://docs.openmoko.org/trac/ticket/2240).
 
 @subsection o HINTS ON OPENSC
 
-ccid-emulator links against libopensc, which is discouraged and hindered since
-opensc>=0.12. We really need to get rid of this dependency. But so far we
-manually build it to have libopensc for linking. The good thing is that you
-don't need any opensc components to be installed. The bad thing is, that
-ccid-emulator configures and builds opensc on its own. So you might need to
-pass some extra configure options to opensc. So if you need to pass options to
-opensc, use something like the following command:
+Without libnpa ccid-emulator links against libopensc, which is discouraged and
+hindered since opensc>=0.12. We really need to get rid of this dependency. You
+need the opensc components to be installed (especially libopensc.so). But you
+might need to adjust the opensc library flags:
 ./configure \
-    OPENSC_CONFIGURE="options"
-
-
-@subsection l HINTS ON LIBPACE
-
-If you have a local build of libpace and OpenPACE, that you want to link
-against use something like the following command:
-./configure \
-    OPENSSL_CFLAGS="-I/path/to/openssl-1.0.0c_with_openpace-0.4/include" \
-    LIBPACE_CFLAGS="-I/path/to/openssl-1.0.0c_with_openpace-0.4/include -I/path/to/libpace-0.1/src" \
-    OPENSSL_LIBS="-L/path/to/openssl-1.0.0c_with_openpace-0.4 -lcrypto" \
-    LIBPACE_LIBS="-L/path/to/openssl-1.0.0c_with_openpace-0.4 -lcrypto -L/path/to/libpace-0.1/src/.libs -lpace"
+    OPENSC_LIBS="-L/path/to/opensc/libdir -lopensc"
 
 
 @section u USAGE
