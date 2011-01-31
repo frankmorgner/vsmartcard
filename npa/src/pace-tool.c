@@ -86,7 +86,7 @@ static const struct option options[] = {
     { "resume-pin", no_argument, NULL, OPT_RESUME_PIN },
     { "unblock-pin", no_argument, NULL, OPT_UNBLOCK_PIN },
     { "translate", optional_argument, NULL, OPT_TRANSLATE },
-    { "tr-03110v", required_argument, NULL, OPT_TRVERSION },
+    { "tr-03110v20", required_argument, NULL, OPT_TRVERSION },
     { "verbose", no_argument, NULL, OPT_VERBOSE },
     { "info", no_argument, NULL, OPT_INFO },
     { NULL, 0, NULL, 0 }
@@ -106,7 +106,7 @@ static const char *option_help[] = {
     "Resume PIN (uses CAN to activate last retry)",
     "Unblock PIN (uses PUK to activate three more retries)",
     "APDUs to send through SM channel (default: stdin)",
-    "Version of TR-03110 (default: 2, for version 2 and later)",
+    "Version of TR-03110 (default: 2, for v2.02 and later)",
     "Use (several times) to be more verbose",
     "Print version, available readers and drivers.",
 };
