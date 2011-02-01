@@ -1,0 +1,293 @@
+Index: ccid-1.3.13/src/ifdhandler.c
+===================================================================
+--- ccid-1.3.13/src/ifdhandler.c	(Revision 4979)
++++ ccid-1.3.13/src/ifdhandler.c	(Arbeitskopie)
+@@ -1384,6 +1384,16 @@
+ 			iBytesReturned += sizeof(PCSC_TLV_STRUCTURE);
+ 		}
+ 
++		if (ccid_descriptor -> bPINSupport & CCID_CLASS_PIN_PACE_CAPABILITIES)
++		{
++			pcsc_tlv -> tag = FEATURE_EXECUTE_PACE;
++			pcsc_tlv -> length = 0x04; /* always 0x04 */
++			pcsc_tlv -> value = htonl(IOCTL_FEATURE_EXECUTE_PACE);
++
++			pcsc_tlv++;
++			iBytesReturned += sizeof(PCSC_TLV_STRUCTURE);
++		}
++
+ 		/* We can always forward wLcdLayout */
+ 		pcsc_tlv -> tag = FEATURE_IFD_PIN_PROPERTIES;
+ 		pcsc_tlv -> length = 0x04; /* always 0x04 */
+@@ -1548,6 +1558,43 @@
+ 		}
+ 	}
+ 
++	if (IOCTL_FEATURE_EXECUTE_PACE == dwControlCode)
++	{
++            if (TxLength < 3 || !TxBuffer) {
++                DEBUG_CRITICAL("Buffer too small, could not determine length of "
++                        "input data");
++                return_value = IFD_COMMUNICATION_ERROR;
++            } else {
++                uint16_t lengthInputData;
++                lengthInputData = *((uint16_t *) (TxBuffer + 1));
++
++                if (TxLength != 3+lengthInputData) {
++                    DEBUG_CRITICAL3("Buffer too small or too big to contain only "
++                            "function index and input data (expected %u, got %u)",
++                            3+lengthInputData, TxLength);
++                    return_value = IFD_COMMUNICATION_ERROR;
++                } else {
++                    unsigned int iBytesReturned;
++                    iBytesReturned = RxLength;
++
++                    if (*TxBuffer == 1) {
++                        return_value = SecurePINPACECapabilities(reader_index,
++                                TxBuffer + 3, lengthInputData,
++                                RxBuffer, &iBytesReturned);
++                        *pdwBytesReturned = iBytesReturned;
++                    } else if (*TxBuffer == 2) {
++                        return_value = SecurePINPACEVerify(reader_index,
++                                TxBuffer + 3, lengthInputData,
++                                RxBuffer, &iBytesReturned);
++                        *pdwBytesReturned = iBytesReturned;
++                    } else {
++                        DEBUG_CRITICAL2("Unknown PACE function %u", *TxBuffer);
++                        return_value = IFD_COMMUNICATION_ERROR;
++                    }
++                }
++            }
++        }
++
+ 	if (IFD_SUCCESS != return_value)
+ 		*pdwBytesReturned = 0;
+ 
+Index: ccid-1.3.13/src/commands.c
+===================================================================
+--- ccid-1.3.13/src/commands.c	(Revision 4979)
++++ ccid-1.3.13/src/commands.c	(Arbeitskopie)
+@@ -68,7 +68,13 @@
+ 	unsigned int tx_length, unsigned char tx_buffer[], unsigned int *rx_length,
+ 	unsigned char rx_buffer[]);
+ 
++static RESPONSECODE SecurePINPACE(unsigned int reader_index,
++	unsigned char TxBuffer[], unsigned int TxLength,
++	unsigned char RxBuffer[], unsigned int *RxLength,
++        unsigned char bPINOperation);
++
+ static void i2dw(int value, unsigned char *buffer);
++static void i2w(uint16_t value, unsigned char *buffer);
+ 
+ 
+ /*****************************************************************************
+@@ -712,7 +718,144 @@
+ 	return ret;
+ } /* SecurePINModify */
+ 
++RESPONSECODE SecurePINPACEVerify(unsigned int reader_index,
++	unsigned char TxBuffer[], unsigned int TxLength,
++	unsigned char RxBuffer[], unsigned int *RxLength)
++{
++    RESPONSECODE return_value;
++    unsigned char lengthCHAT, lengthPIN;
++    uint16_t lengthCertificateDescription;
++    int old_read_timeout;
++    _ccid_descriptor *ccid_descriptor = get_ccid_descriptor(reader_index);
+ 
++    old_read_timeout= ccid_descriptor -> readTimeout;
++    ccid_descriptor -> readTimeout = 30*1000;	/* 30 seconds */
++
++    if (TxLength < 2) {
++        DEBUG_CRITICAL("Buffer too small, could not determine length of "
++                "CHAT");
++        return_value = IFD_COMMUNICATION_ERROR;
++        goto err;
++    }
++    lengthCHAT = *(TxBuffer + 1);
++
++    if (TxLength < 2+lengthCHAT) {
++        DEBUG_CRITICAL("Buffer too small, could not determine length of "
++                "PIN");
++        return_value = IFD_COMMUNICATION_ERROR;
++        goto err;
++    }
++    lengthPIN = *(TxBuffer + 1 + lengthCHAT);
++
++    if (TxLength < 3+lengthCHAT+lengthPIN) {
++        DEBUG_CRITICAL("Buffer too small, could not determine length of "
++                "certificate description");
++        return_value = IFD_COMMUNICATION_ERROR;
++        goto err;
++    }
++    lengthCertificateDescription = *((uint16_t *)
++            (TxBuffer + 1 + lengthCHAT + lengthPIN));
++
++    if (TxLength != 5+lengthCHAT+lengthPIN+lengthCertificateDescription) {
++        DEBUG_CRITICAL3("Buffer too small or too big to contain only "
++                "CHAT, PIN and certificate description (expected %u, got %u)",
++                5+lengthCHAT+lengthPIN+lengthCertificateDescription, TxLength);
++        return_value = IFD_COMMUNICATION_ERROR;
++        goto err;
++    }
++
++    i2w(lengthCertificateDescription, TxBuffer + 1 + lengthCHAT + lengthPIN);
++
++    /* bPINOperation: PIN PACE Capabilities */
++    return_value = SecurePINPACE(reader_index, TxBuffer, TxLength, RxBuffer,
++            RxLength, CCID_CLASS_PIN_PACE_EXECUTE);
++
++err:
++    ccid_descriptor -> readTimeout = old_read_timeout;
++    return return_value;
++}
++
++RESPONSECODE SecurePINPACECapabilities(unsigned int reader_index,
++	unsigned char TxBuffer[], unsigned int TxLength,
++	unsigned char RxBuffer[], unsigned int *RxLength)
++{
++    /* bPINOperation: PIN PACE Capabilities */
++    return SecurePINPACE(reader_index, TxBuffer, TxLength, RxBuffer,
++            RxLength, CCID_CLASS_PIN_PACE_CAPABILITIES);
++}
++
++static RESPONSECODE SecurePINPACE(unsigned int reader_index,
++	unsigned char TxBuffer[], unsigned int TxLength,
++	unsigned char RxBuffer[], unsigned int *RxLength,
++        unsigned char bPINOperation)
++{
++	unsigned char cmd[11+CMD_BUF_SIZE];
++        unsigned int length;
++	_ccid_descriptor *ccid_descriptor = get_ccid_descriptor(reader_index);
++	status_t res;
++
++	cmd[0] = 0x69;	/* Secure */
++	i2dw(TxLength, cmd+1);	/* dwLength */
++	cmd[5] = ccid_descriptor->bCurrentSlotIndex;	/* slot number */
++	cmd[6] = (*ccid_descriptor->pbSeq)++;
++	cmd[7] = 0;		/* bBWI */
++	cmd[8] = 0;		/* wLevelParameter */
++	cmd[9] = 0;
++	cmd[10] = bPINOperation;
++
++	memcpy(cmd + 11, TxBuffer, TxLength);
++
++	res = WritePort(reader_index, 11 + TxLength, cmd);
++	if (res != STATUS_SUCCESS)
++	{
++            if (STATUS_NO_SUCH_DEVICE == res)
++                return IFD_NO_SUCH_DEVICE;
++            return IFD_COMMUNICATION_ERROR;
++	}
++
++	length = sizeof(cmd);
++	res = ReadPort(reader_index, &length, cmd);
++	if (res != STATUS_SUCCESS)
++	{
++		if (STATUS_NO_SUCH_DEVICE == res)
++			return IFD_NO_SUCH_DEVICE;
++		return IFD_COMMUNICATION_ERROR;
++	}
++
++	if (length < STATUS_OFFSET+1)
++	{
++		DEBUG_CRITICAL2("Not enough data received: %d bytes", length);
++		return IFD_COMMUNICATION_ERROR;
++	}
++
++	if (cmd[STATUS_OFFSET] & CCID_COMMAND_FAILED)
++	{
++		ccid_error(cmd[ERROR_OFFSET], __FILE__, __LINE__, __FUNCTION__);    /* bError */
++		return IFD_COMMUNICATION_ERROR;
++	}
++
++	/* we have read less (or more) data than the CCID frame says to contain */
++	if (length-10 != dw2i(cmd, 1))
++	{
++		DEBUG_CRITICAL3("Can't read all data (%d out of %d expected)",
++			length-10, dw2i(cmd, 1));
++		return IFD_COMMUNICATION_ERROR;
++	}
++
++	length = dw2i(cmd, 1);
++	if (length <= *RxLength)
++		*RxLength = length;
++	else
++	{
++		DEBUG_CRITICAL2("overrun by %d bytes", length - *RxLength);
++		length = *RxLength;
++		return IFD_ERROR_INSUFFICIENT_BUFFER;
++	}
++
++	return IFD_SUCCESS;
++}
++
++
+ /*****************************************************************************
+  *
+  *					Escape
+@@ -2113,3 +2256,15 @@
+ 	buffer[3] = (value >> 24) & 0xFF;
+ } /* i2dw */
+ 
++
++/*****************************************************************************
++ *
++ *					i2w
++ *
++ ****************************************************************************/
++static void i2w(uint16_t value, unsigned char buffer[])
++{
++	buffer[0] = value & 0xFF;
++	buffer[1] = (value >> 8) & 0xFF;
++} /* i2w */
++
+Index: ccid-1.3.13/src/commands.h
+===================================================================
+--- ccid-1.3.13/src/commands.h	(Revision 4979)
++++ ccid-1.3.13/src/commands.h	(Arbeitskopie)
+@@ -37,6 +37,14 @@
+ 	unsigned char TxBuffer[], unsigned int TxLength,
+ 	unsigned char RxBuffer[], unsigned int *RxLength);
+ 
++RESPONSECODE SecurePINPACECapabilities(unsigned int reader_index,
++	unsigned char TxBuffer[], unsigned int TxLength,
++	unsigned char RxBuffer[], unsigned int *RxLength);
++
++RESPONSECODE SecurePINPACEVerify(unsigned int reader_index,
++	unsigned char TxBuffer[], unsigned int TxLength,
++	unsigned char RxBuffer[], unsigned int *RxLength);
++
+ RESPONSECODE CmdEscape(unsigned int reader_index,
+ 	const unsigned char TxBuffer[], unsigned int TxLength,
+ 	unsigned char RxBuffer[], unsigned int *RxLength);
+Index: ccid-1.3.13/src/ccid.h
+===================================================================
+--- ccid-1.3.13/src/ccid.h	(Revision 4979)
++++ ccid-1.3.13/src/ccid.h	(Arbeitskopie)
+@@ -142,8 +142,10 @@
+ #define CCID_CLASS_EXCHANGE_MASK	0x00070000
+ 
+ /* Features from bPINSupport */
+-#define CCID_CLASS_PIN_VERIFY		0x01
+-#define CCID_CLASS_PIN_MODIFY		0x02
++#define CCID_CLASS_PIN_VERIFY			0x01
++#define CCID_CLASS_PIN_MODIFY			0x02
++#define CCID_CLASS_PIN_PACE_CAPABILITIES	0x10
++#define CCID_CLASS_PIN_PACE_EXECUTE		0x20
+ 
+ /* See CCID specs ch. 4.2.1 */
+ #define CCID_ICC_PRESENT_ACTIVE		0x00	/* 00 0000 00 */
+Index: ccid-1.3.13/src/ccid_ifdhandler.h
+===================================================================
+--- ccid-1.3.13/src/ccid_ifdhandler.h	(Revision 4979)
++++ ccid-1.3.13/src/ccid_ifdhandler.h	(Arbeitskopie)
+@@ -37,6 +37,8 @@
+ 	SCARD_CTL_CODE(FEATURE_IFD_PIN_PROPERTIES + CLASS2_IOCTL_MAGIC)
+ #define IOCTL_FEATURE_GET_TLV_PROPERTIES \
+ 	SCARD_CTL_CODE(FEATURE_GET_TLV_PROPERTIES + CLASS2_IOCTL_MAGIC)
++#define IOCTL_FEATURE_EXECUTE_PACE \
++	SCARD_CTL_CODE(FEATURE_EXECUTE_PACE + CLASS2_IOCTL_MAGIC)
+ 
+ #define DRIVER_OPTION_CCID_EXCHANGE_AUTHORIZED 1
+ #define DRIVER_OPTION_GEMPC_TWIN_KEY_APDU 2

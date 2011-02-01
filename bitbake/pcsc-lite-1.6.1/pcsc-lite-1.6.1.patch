@@ -1,0 +1,12 @@
+Index: pcsc-lite-1.6.1/src/PCSC/reader.h.in
+===================================================================
+--- pcsc-lite-1.6.1/src/PCSC/reader.h.in	(Revision 4978)
++++ pcsc-lite-1.6.1/src/PCSC/reader.h.in	(Arbeitskopie)
+@@ -121,6 +121,7 @@
+ #define FEATURE_IFD_DISPLAY_PROPERTIES   0x11
+ #define FEATURE_GET_TLV_PROPERTIES       0x12
+ #define FEATURE_CCID_ESC_COMMAND         0x13
++#define FEATURE_EXECUTE_PACE             0x20
+ 
+ /* structures used (but not defined) in PC/SC Part 10:
+  * "IFDs with Secure Pin Entry Capabilities" */

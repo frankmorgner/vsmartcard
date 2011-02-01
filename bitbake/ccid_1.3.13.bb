@@ -3,7 +3,7 @@ HOMEPAGE = "http://pcsclite.alioth.debian.org/ccid.html"
 LICENSE = "GPL"
 PR = "r0"
 
-DEPENDS = "virtual/libusb0 pcsc-lite"
+DEPENDS = "virtual/libusb1 pcsc-lite"
 RDEPENDS = "pcsc-lite"
 
 SRC_URI = "http://alioth.debian.org/download.php/3300/ccid-${PV}.tar.bz2 \
