@@ -184,7 +184,6 @@ main (int argc, char **argv)
     struct sm_ctx sctx, tmpctx;
     struct establish_pace_channel_input pace_input;
     struct establish_pace_channel_output pace_output;
-    time_t t_start, t_end;
     struct timeval tv;
     size_t outlen;
 
@@ -324,15 +323,22 @@ main (int argc, char **argv)
 
     if (dobreak) {
         /* The biggest buffer sprintf could write with "%llu" */
-        char can_ch[strlen("18446744073709551615")+1];
-        unsigned long long can_nb = 0;
+        char secretbuf[strlen("18446744073709551615")+1];
+        unsigned long long secret = 0;
 
         if (usepin) {
             pace_input.pin_id = PACE_PIN;
             pace_input.pin_length = 6;
             if (pin) {
-                if (sscanf(pin, "%llu", &can_nb) != 1) {
-                    fprintf(stderr, "PIN is not an unsigned long long.\n");
+                if (sscanf(pin, "%llu", &secret) != 1) {
+                    fprintf(stderr, "%s is not an unsigned long long.\n",
+                            pace_secret_name(pace_input.pin_id));
+                    exit(2);
+                }
+                if (strlen(can) > pace_input.pin_length) {
+                    fprintf(stderr, "%s too big, only %d digits allowed.\n",
+                            pace_secret_name(pace_input.pin_id),
+                            pace_input.pin_length);
                     exit(2);
                 }
             }
@@ -340,8 +346,15 @@ main (int argc, char **argv)
             pace_input.pin_id = PACE_CAN;
             pace_input.pin_length = 6;
             if (can) {
-                if (sscanf(can, "%llu", &can_nb) != 1) {
-                    fprintf(stderr, "CAN is not an unsigned long long.\n");
+                if (sscanf(can, "%llu", &secret) != 1) {
+                    fprintf(stderr, "%s is not an unsigned long long.\n",
+                            pace_secret_name(pace_input.pin_id));
+                    exit(2);
+                }
+                if (strlen(can) > pace_input.pin_length) {
+                    fprintf(stderr, "%s too big, only %d digits allowed.\n",
+                            pace_secret_name(pace_input.pin_id),
+                            pace_input.pin_length);
                     exit(2);
                 }
             }
@@ -349,8 +362,15 @@ main (int argc, char **argv)
             pace_input.pin_id = PACE_PUK;
             pace_input.pin_length = 10;
             if (puk) {
-                if (sscanf(puk, "%llu", &can_nb) != 1) {
-                    fprintf(stderr, "PUK is not an unsigned long long.\n");
+                if (sscanf(puk, "%llu", &secret) != 1) {
+                    fprintf(stderr, "%s is not an unsigned long long.\n",
+                            pace_secret_name(pace_input.pin_id));
+                    exit(2);
+                }
+                if (strlen(puk) > pace_input.pin_length) {
+                    fprintf(stderr, "%s too big, only %d digits allowed.\n",
+                            pace_secret_name(pace_input.pin_id),
+                            pace_input.pin_length);
                     exit(2);
                 }
             }
@@ -360,36 +380,33 @@ main (int argc, char **argv)
             exit(1);
         }
 
-        pace_input.pin = can_ch;
+        pace_input.pin = secretbuf;
 
-        t_start = time(NULL);
         do {
-            sprintf(can_ch, "%0*llu", pace_input.pin_length, can_nb);
-            if (strlen(can_ch) > pace_input.pin_length)
-                break;
+            sprintf(secretbuf, "%0*llu", pace_input.pin_length, secret);
 
             gettimeofday(&tv, NULL);
-            printf("%d,%06d: Trying %s=%s\n",
+            printf("%u,%06u: Trying %s=%s\n",
                     tv.tv_sec, tv.tv_usec,
                     pace_secret_name(pace_input.pin_id), pace_input.pin);
+
             i = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
                     &sctx);
 
-            can_nb--;
-        } while (0 > i && can_nb > 0);
-        t_end = time(NULL);
+            secret--;
+        } while (0 > i && secret > 0);
 
         gettimeofday(&tv, NULL);
         if (0 > i) {
-            printf("%d,%06d: Tried breaking %s for %.0fs without success.\n",
+            printf("%u,%06u: Tried breaking %s without success.\n",
                     tv.tv_sec, tv.tv_usec,
-                    pace_secret_name(pace_input.pin_id), difftime(t_end, t_start));
+                    pace_secret_name(pace_input.pin_id));
             goto err;
         } else {
-            printf("%d,%06d: Tried breaking %s for %.0fs with success (%s=%s).\n",
+            printf("%u,%06u: Tried breaking %s with success (=%s).\n",
                     tv.tv_sec, tv.tv_usec,
-                    pace_secret_name(pace_input.pin_id), difftime(t_end, t_start),
-                    pace_secret_name(pace_input.pin_id), pace_input.pin);
+                    pace_secret_name(pace_input.pin_id),
+                    pace_input.pin);
         }
     }
 
@@ -402,14 +419,11 @@ main (int argc, char **argv)
             pace_input.pin = NULL;
             pace_input.pin_length = 0;
         }
-        t_start = time(NULL);
         i = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
             &tmpctx);
-        t_end = time(NULL);
         if (i < 0)
             goto err;
-        printf("Established PACE channel with CAN in %.0fs.\n",
-                difftime(t_end, t_start));
+        printf("Established PACE channel with CAN.\n");
 
         pace_input.pin_id = PACE_PIN;
         if (pin) {
@@ -419,14 +433,11 @@ main (int argc, char **argv)
             pace_input.pin = NULL;
             pace_input.pin_length = 0;
         }
-        t_start = time(NULL);
         i = EstablishPACEChannel(&tmpctx, card, pace_input, &pace_output,
             &sctx);
-        t_end = time(NULL);
         if (i < 0)
             goto err;
-        printf("Established PACE channel with PIN in %.0fs. PIN resumed.\n",
-                difftime(t_end, t_start));
+        printf("Established PACE channel with PIN. PIN resumed.\n");
     }
 
     if (dounblock) {
@@ -438,14 +449,11 @@ main (int argc, char **argv)
             pace_input.pin = NULL;
             pace_input.pin_length = 0;
         }
-        t_start = time(NULL);
         i = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
             &sctx);
-        t_end = time(NULL);
         if (i < 0)
             goto err;
-        printf("Established PACE channel with PUK in %.0fs.\n",
-                difftime(t_end, t_start));
+        printf("Established PACE channel with PUK.\n");
 
         i = pace_unblock_pin(&sctx, card);
         if (i < 0)
@@ -462,14 +470,11 @@ main (int argc, char **argv)
             pace_input.pin = NULL;
             pace_input.pin_length = 0;
         }
-        t_start = time(NULL);
         i = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
             &sctx);
-        t_end = time(NULL);
         if (i < 0)
             goto err;
-        printf("Established PACE channel with PIN in %.0fs.\n",
-                difftime(t_end, t_start));
+        printf("Established PACE channel with PIN.\n");
 
         i = pace_change_pin(&sctx, card, newpin, newpin ? strlen(newpin) : 0);
         if (i < 0)
@@ -510,14 +515,12 @@ main (int argc, char **argv)
             exit(1);
         }
 
-        t_start = time(NULL);
         i = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
             &sctx);
-        t_end = time(NULL);
         if (i < 0)
             goto err;
-        printf("Established PACE channel with %s in %.0fs.\n",
-                pace_secret_name(pace_input.pin_id), difftime(t_end, t_start));
+        printf("Established PACE channel with %s.\n",
+                pace_secret_name(pace_input.pin_id));
 
         if (dotranslate) {
             FILE *input;
