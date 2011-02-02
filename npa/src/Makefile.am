@@ -1,4 +1,4 @@
-EXTRA_DIST = opensc
+EXTRA_DIST = $(shell find $(top_srcdir)/src/opensc -path '*/.svn' -prune -o -type f -a -name '*.h' -print)
 
 AM_CPPFLAGS = -I$(top_srcdir)/src/npa -I$(top_srcdir)/src/opensc/src
 
