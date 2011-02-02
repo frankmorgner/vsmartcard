@@ -30,9 +30,9 @@
 #include "config.h"
 
 #ifdef WITH_PACE
-#include <pace/pace.h>
-#include <pace/sm.h>
-#include <pace/scutil.h>
+#include <npa/npa.h>
+#include <npa/sm.h>
+#include <npa/scutil.h>
 
 static struct sm_ctx sctx;
 #ifdef BUERGERCLIENT_WORKAROUND
@@ -154,7 +154,7 @@ void ccid_shutdown()
         sc_release_context(ctx);
 
 #ifdef WITH_PACE
-    pace_sm_ctx_clear_free(sctx.cipher_ctx);
+    npa_sm_ctx_clear_free(sctx.cipher_ctx);
     memset(&sctx, 0, sizeof(sctx));
 #ifdef BUERGERCLIENT_WORKAROUND
     free(ef_cardaccess);

@@ -1805,8 +1805,8 @@ main (int argc, char **argv)
 
 
     if (doinfo) {
-        fprintf(stderr, "%s 0.9  written by Frank Morgner.\n\n" ,
-                argv[0]);
+        fprintf(stderr, "%s %s  written by Frank Morgner.\n\n" ,
+                argv[0], VERSION);
         return print_avail(verbose);
     }
 

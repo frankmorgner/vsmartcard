@@ -1,1 +1,1 @@
-../../npa/src/pace/scutil.h
+../../npa/src/npa/scutil.h

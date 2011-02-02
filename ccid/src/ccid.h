@@ -260,7 +260,7 @@ typedef struct {
 } __attribute__ ((packed)) RDR_to_PC_Parameters_t;
 typedef struct {
     __u8   bMessageType;
-    __u8   bmSlotICCState; /* we support 4 slots, so we need 2*4 bits = 1 byte */
+    __u8   bmSlotICCState; /* we support 1 slots, so we need 2*1 bits = 1 byte */
 } __attribute__ ((packed)) RDR_to_PC_NotifySlotChange_t;
 
 struct hid_class_descriptor {

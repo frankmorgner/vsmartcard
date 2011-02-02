@@ -31,8 +31,8 @@ endif
 
 
 if WITH_PACE
-ccid_emulator_LDADD += $(LIBPACE_LIBS)
-ccid_emulator_CFLAGS += $(LIBPACE_CFLAGS)
+ccid_emulator_LDADD += $(LIBNPA_LIBS)
+ccid_emulator_CFLAGS += $(LIBNPA_CFLAGS)
 else
 ccid_emulator_SOURCES += scutil.c
 ccid_emulator_LDADD += $(OPENSC_LIBS)

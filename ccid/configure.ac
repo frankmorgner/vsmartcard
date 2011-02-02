@@ -70,14 +70,14 @@ AC_ARG_ENABLE(pace,
 saved_CPPFLAGS="$CPPFLAGS"
 saved_LIBS="$LIBS"
 if test "x$enable_pace" != xno ; then
-    PKG_CHECK_EXISTS([libpace],
-                     [PKG_CHECK_MODULES([LIBPACE], [libpace])],
-                     [AC_MSG_WARN([libpace not found by pkg-config])])
-    CPPFLAGS="$CPPFLAGS $LIBPACE_CFLAGS -I$(pwd)/src/opensc/src"
-    LIBS="$LDFLAGS $LIBPACE_LIBS"
-    AC_CHECK_HEADERS(pace/pace.h, [], [ AC_MSG_ERROR([pace/pace.h not found, install libpace or use ./configure LIBPACE_CFLAGS=...]) ])
+    PKG_CHECK_EXISTS([libnpa],
+                     [PKG_CHECK_MODULES([LIBNPA], [libnpa])],
+                     [AC_MSG_WARN([libnpa not found by pkg-config])])
+    CPPFLAGS="$CPPFLAGS $LIBNPA_CFLAGS -I$(pwd)/src/opensc/src"
+    LIBS="$LDFLAGS $LIBNPA_LIBS"
+    AC_CHECK_HEADERS(npa/npa.h, [], [ AC_MSG_ERROR([npa/npa.h not found, install libnpa or use ./configure LIBNPA_CFLAGS=...]) ])
     AC_MSG_CHECKING([for EstablishPACEChannel])
-    AC_TRY_LINK_FUNC(EstablishPACEChannel, [ AC_MSG_RESULT([yes]) ], [ AC_MSG_ERROR([libpace not found, use ./configure LIBPACE_LIBS=...]) ])
+    AC_TRY_LINK_FUNC(EstablishPACEChannel, [ AC_MSG_RESULT([yes]) ], [ AC_MSG_ERROR([libnpa not found, use ./configure LIBNPA_LIBS=...]) ])
 
     enable_pace=yes
 else

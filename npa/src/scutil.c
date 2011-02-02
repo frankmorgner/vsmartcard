@@ -29,7 +29,7 @@ int initialize(int reader_id, const char *cdriver, int verbose,
     if (!ctx || !reader)
         return SC_ERROR_INVALID_ARGUMENTS;
 
-    int r = sc_context_create(ctx, NULL);
+    int r = sc_establish_context(ctx, "");
     if (r < 0) {
         fprintf(stderr, "Failed to create initial context: %s", sc_strerror(r));
         return r;
@@ -257,7 +257,7 @@ int print_avail(int verbose)
     sc_context_t *ctx = NULL;
 
     int r;
-    r = sc_context_create(&ctx, NULL);
+    r = sc_establish_context(&ctx, "");
     if (r) {
         fprintf(stderr, "Failed to establish context: %s\n", sc_strerror(r));
         return 1;

@@ -19,11 +19,11 @@
 /**
  * @file
  */
-#ifndef _CCID_PACE_H
-#define _CCID_PACE_H
+#ifndef _CCID_NPA_H
+#define _CCID_NPA_H
 
-#include <pace/pace_lib.h>
-#include <pace/sm.h>
+#include <npa/npa_lib.h>
+#include <npa/sm.h>
 #include <libopensc/opensc.h>
 #include <openssl/bn.h>
 #include <openssl/pace.h>
@@ -32,49 +32,49 @@
 extern "C" {
 #endif
 
-/** PACE capabilities (TR-03119): PACE */
-#define PACE_BITMAP_PACE  0x40
-/** PACE capabilities (TR-03119): EPA: eID */
-#define PACE_BITMAP_EID   0x20
-/** PACE capabilities (TR-03119): EPA: eSign */
-#define PACE_BITMAP_ESIGN 0x10
+/** NPA capabilities (TR-03119): PACE */
+#define NPA_BITMAP_PACE  0x40
+/** NPA capabilities (TR-03119): EPA: eID */
+#define NPA_BITMAP_EID   0x20
+/** NPA capabilities (TR-03119): EPA: eSign */
+#define NPA_BITMAP_ESIGN 0x10
 
-/** PACE result (TR-03119): Kein Fehler */
-#define PACE_SUCCESS                            0x00000000
-/** PACE result (TR-03119): Längen im Input sind inkonsistent */
-#define PACE_ERROR_LENGTH_INCONSISTENT          0xD0000001
-/** PACE result (TR-03119): Unerwartete Daten im Input */
-#define PACE_ERROR_UNEXPECTED_DATA              0xD0000002
-/** PACE result (TR-03119): Unerwartete Kombination von Daten im Input */
-#define PACE_ERROR_UNEXPECTED_DATA_COMBINATION  0xD0000003
-/** PACE result (TR-03119): Die Karte unterstützt das PACE – Verfahren nicht.  (Unerwartete Struktur in Antwortdaten der Karte) */
-#define PACE_ERROR_CARD_NOT_SUPPORTED           0xE0000001
-/** PACE result (TR-03119): Der Kartenleser unterstützt den angeforderten bzw. den ermittelten Algorithmus nicht.  */
-#define PACE_ERROR_ALGORITH_NOT_SUPPORTED       0xE0000002
-/** PACE result (TR-03119): Der Kartenleser kennt die PIN – ID nicht. */
-#define PACE_ERROR_PINID_NOT_SUPPORTED          0xE0000003
-/** PACE result (TR-03119): Negative Antwort der Karte auf Select EF_CardAccess (needs to be OR-ed with SW1|SW2) */
-#define PACE_ERROR_SELECT_EF_CARDACCESS         0xF0000000
-/** PACE result (TR-03119): Negative Antwort der Karte auf Read Binary (needs to be OR-ed with SW1|SW2) */
-#define PACE_ERROR_READ_BINARY                  0xF0010000
-/** PACE result (TR-03119): Negative Antwort der Karte auf MSE: Set AT (needs to be OR-ed with SW1|SW2) */
-#define PACE_ERROR_MSE_SET_AT                   0xF0020000
-/** PACE result (TR-03119): Negative Antwort der Karte auf General Authenticate Step 1 (needs to be OR-ed with SW1|SW2) */
-#define PACE_ERROR_GENERAL_AUTHENTICATE_1       0xF0030000
-/** PACE result (TR-03119): Negative Antwort der Karte auf General Authenticate Step 2 (needs to be OR-ed with SW1|SW2) */
-#define PACE_ERROR_GENERAL_AUTHENTICATE_2       0xF0040000
-/** PACE result (TR-03119): Negative Antwort der Karte auf General Authenticate Step 3 (needs to be OR-ed with SW1|SW2) */
-#define PACE_ERROR_GENERAL_AUTHENTICATE_3       0xF0050000
-/** PACE result (TR-03119): Negative Antwort der Karte auf General Authenticate Step 4 (needs to be OR-ed with SW1|SW2) */
-#define PACE_ERROR_GENERAL_AUTHENTICATE_4       0xF0060000
-/** PACE result (TR-03119): Kommunikationsabbruch mit Karte. */
-#define PACE_ERROR_COMMUNICATION                0xF0100001
-/** PACE result (TR-03119): Keine Karte im Feld. */
-#define PACE_ERROR_NO_CARD                      0xF0100002
-/** PACE result (TR-03119): Benutzerabbruch. */
-#define PACE_ERROR_ABORTED                      0xF0200001
-/** PACE result (TR-03119): Benutzer – Timeout */
-#define PACE_ERROR_TIMEOUT                      0xF0200002
+/** NPA result (TR-03119): Kein Fehler */
+#define NPA_SUCCESS                            0x00000000
+/** NPA result (TR-03119): Längen im Input sind inkonsistent */
+#define NPA_ERROR_LENGTH_INCONSISTENT          0xD0000001
+/** NPA result (TR-03119): Unerwartete Daten im Input */
+#define NPA_ERROR_UNEXPECTED_DATA              0xD0000002
+/** NPA result (TR-03119): Unerwartete Kombination von Daten im Input */
+#define NPA_ERROR_UNEXPECTED_DATA_COMBINATION  0xD0000003
+/** NPA result (TR-03119): Die Karte unterstützt das PACE – Verfahren nicht.  (Unerwartete Struktur in Antwortdaten der Karte) */
+#define NPA_ERROR_CARD_NOT_SUPPORTED           0xE0000001
+/** NPA result (TR-03119): Der Kartenleser unterstützt den angeforderten bzw. den ermittelten Algorithmus nicht.  */
+#define NPA_ERROR_ALGORITH_NOT_SUPPORTED       0xE0000002
+/** NPA result (TR-03119): Der Kartenleser kennt die PIN – ID nicht. */
+#define NPA_ERROR_PINID_NOT_SUPPORTED          0xE0000003
+/** NPA result (TR-03119): Negative Antwort der Karte auf Select EF_CardAccess (needs to be OR-ed with SW1|SW2) */
+#define NPA_ERROR_SELECT_EF_CARDACCESS         0xF0000000
+/** NPA result (TR-03119): Negative Antwort der Karte auf Read Binary (needs to be OR-ed with SW1|SW2) */
+#define NPA_ERROR_READ_BINARY                  0xF0010000
+/** NPA result (TR-03119): Negative Antwort der Karte auf MSE: Set AT (needs to be OR-ed with SW1|SW2) */
+#define NPA_ERROR_MSE_SET_AT                   0xF0020000
+/** NPA result (TR-03119): Negative Antwort der Karte auf General Authenticate Step 1 (needs to be OR-ed with SW1|SW2) */
+#define NPA_ERROR_GENERAL_AUTHENTICATE_1       0xF0030000
+/** NPA result (TR-03119): Negative Antwort der Karte auf General Authenticate Step 2 (needs to be OR-ed with SW1|SW2) */
+#define NPA_ERROR_GENERAL_AUTHENTICATE_2       0xF0040000
+/** NPA result (TR-03119): Negative Antwort der Karte auf General Authenticate Step 3 (needs to be OR-ed with SW1|SW2) */
+#define NPA_ERROR_GENERAL_AUTHENTICATE_3       0xF0050000
+/** NPA result (TR-03119): Negative Antwort der Karte auf General Authenticate Step 4 (needs to be OR-ed with SW1|SW2) */
+#define NPA_ERROR_GENERAL_AUTHENTICATE_4       0xF0060000
+/** NPA result (TR-03119): Kommunikationsabbruch mit Karte. */
+#define NPA_ERROR_COMMUNICATION                0xF0100001
+/** NPA result (TR-03119): Keine Karte im Feld. */
+#define NPA_ERROR_NO_CARD                      0xF0100002
+/** NPA result (TR-03119): Benutzerabbruch. */
+#define NPA_ERROR_ABORTED                      0xF0200001
+/** NPA result (TR-03119): Benutzer – Timeout */
+#define NPA_ERROR_TIMEOUT                      0xF0200002
 
 //#define PACE_MRZ 0x01
 //#define PACE_CAN 0x02
@@ -93,7 +93,7 @@ extern "C" {
 /** Minimum length of MRZ */
 #define MAX_MRZ_LEN       128
 
-const char *pace_secret_name(enum s_type pin_id);
+const char *npa_secret_name(enum s_type pin_id);
 
 
 /** 
@@ -213,7 +213,7 @@ int EstablishPACEChannel(struct sm_ctx *oldpacectx, sc_card_t *card,
  * operation to be authorized either by an established PACE channel or by the
  * effective authorization of the terminal's certificate.
  * 
- * @param[in] ctx            (optional) PACE SM context
+ * @param[in] ctx            (optional) NPA SM context
  * @param[in] card
  * @param[in] pin_id         Type of secret (usually PIN or CAN). You may use <tt>enum s_type</tt> from \c <openssl/pace.h>.
  * @param[in] ask_for_secret whether to ask the user for the secret (\c 1) or not (\c 0)
@@ -222,26 +222,26 @@ int EstablishPACEChannel(struct sm_ctx *oldpacectx, sc_card_t *card,
  * 
  * @return \c SC_SUCCESS or error code if an error occurred
  */
-int pace_reset_retry_counter(struct sm_ctx *ctx, sc_card_t *card,
+int npa_reset_retry_counter(struct sm_ctx *ctx, sc_card_t *card,
         enum s_type pin_id, int ask_for_secret,
         const char *new, size_t new_len);
 /** 
  * @brief Send APDU to unblock the PIN
  *
- * @param[in] ctx            (optional) PACE SM context
+ * @param[in] ctx            (optional) NPA SM context
  * @param[in] card
  */
-#define pace_unblock_pin(ctx, card) \
-    pace_reset_retry_counter(ctx, card, PACE_PIN, 0, NULL, 0)
+#define npa_unblock_pin(ctx, card) \
+    npa_reset_retry_counter(ctx, card, PACE_PIN, 0, NULL, 0)
 /** Send APDU to set a new PIN
  *
- * @param[in] ctx            (optional) PACE SM context
+ * @param[in] ctx            (optional) NPA SM context
  * @param[in] card
  * @param[in] new            (optional) new PIN
  * @param[in] new_len        (optional) length of \a new
  */
-#define pace_change_pin(ctx, card, newp, newplen) \
-    pace_reset_retry_counter(ctx, card, PACE_PIN, 1, newp, newplen)
+#define npa_change_pin(ctx, card, newp, newplen) \
+    npa_reset_retry_counter(ctx, card, PACE_PIN, 1, newp, newplen)
 
 #ifdef  __cplusplus
 }

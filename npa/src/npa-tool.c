@@ -16,8 +16,9 @@
  * You should have received a copy of the GNU General Public License along with
  * ccid.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include "config.h"
 #include "binutil.h"
-#include "pace.h"
+#include "npa.h"
 #include "scutil.h"
 #include <libopensc/log.h>
 #include <openssl/pace.h>
@@ -111,7 +112,7 @@ static const char *option_help[] = {
     "Print version, available readers and drivers.",
 };
 
-int pace_translate_apdus(struct sm_ctx *sctx, sc_card_t *card, FILE *input)
+int npa_translate_apdus(struct sm_ctx *sctx, sc_card_t *card, FILE *input)
 {
     u8 buf[4 + 3 + 0xffff + 3];
     char *read = NULL;
@@ -304,8 +305,8 @@ main (int argc, char **argv)
 
 
     if (doinfo) {
-        fprintf(stderr, "%s 0.9  written by Frank Morgner.\n\n" ,
-                argv[0]);
+        fprintf(stderr, "%s %s  written by Frank Morgner.\n\n" ,
+                argv[0], VERSION);
         return print_avail(verbose);
     }
 
@@ -332,12 +333,12 @@ main (int argc, char **argv)
             if (pin) {
                 if (sscanf(pin, "%llu", &secret) != 1) {
                     fprintf(stderr, "%s is not an unsigned long long.\n",
-                            pace_secret_name(pace_input.pin_id));
+                            npa_secret_name(pace_input.pin_id));
                     exit(2);
                 }
                 if (strlen(can) > pace_input.pin_length) {
                     fprintf(stderr, "%s too big, only %d digits allowed.\n",
-                            pace_secret_name(pace_input.pin_id),
+                            npa_secret_name(pace_input.pin_id),
                             pace_input.pin_length);
                     exit(2);
                 }
@@ -348,12 +349,12 @@ main (int argc, char **argv)
             if (can) {
                 if (sscanf(can, "%llu", &secret) != 1) {
                     fprintf(stderr, "%s is not an unsigned long long.\n",
-                            pace_secret_name(pace_input.pin_id));
+                            npa_secret_name(pace_input.pin_id));
                     exit(2);
                 }
                 if (strlen(can) > pace_input.pin_length) {
                     fprintf(stderr, "%s too big, only %d digits allowed.\n",
-                            pace_secret_name(pace_input.pin_id),
+                            npa_secret_name(pace_input.pin_id),
                             pace_input.pin_length);
                     exit(2);
                 }
@@ -364,12 +365,12 @@ main (int argc, char **argv)
             if (puk) {
                 if (sscanf(puk, "%llu", &secret) != 1) {
                     fprintf(stderr, "%s is not an unsigned long long.\n",
-                            pace_secret_name(pace_input.pin_id));
+                            npa_secret_name(pace_input.pin_id));
                     exit(2);
                 }
                 if (strlen(puk) > pace_input.pin_length) {
                     fprintf(stderr, "%s too big, only %d digits allowed.\n",
-                            pace_secret_name(pace_input.pin_id),
+                            npa_secret_name(pace_input.pin_id),
                             pace_input.pin_length);
                     exit(2);
                 }
@@ -388,7 +389,7 @@ main (int argc, char **argv)
             gettimeofday(&tv, NULL);
             printf("%u,%06u: Trying %s=%s\n",
                     tv.tv_sec, tv.tv_usec,
-                    pace_secret_name(pace_input.pin_id), pace_input.pin);
+                    npa_secret_name(pace_input.pin_id), pace_input.pin);
 
             i = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
                     &sctx);
@@ -400,12 +401,12 @@ main (int argc, char **argv)
         if (0 > i) {
             printf("%u,%06u: Tried breaking %s without success.\n",
                     tv.tv_sec, tv.tv_usec,
-                    pace_secret_name(pace_input.pin_id));
+                    npa_secret_name(pace_input.pin_id));
             goto err;
         } else {
             printf("%u,%06u: Tried breaking %s with success (=%s).\n",
                     tv.tv_sec, tv.tv_usec,
-                    pace_secret_name(pace_input.pin_id),
+                    npa_secret_name(pace_input.pin_id),
                     pace_input.pin);
         }
     }
@@ -455,7 +456,7 @@ main (int argc, char **argv)
             goto err;
         printf("Established PACE channel with PUK.\n");
 
-        i = pace_unblock_pin(&sctx, card);
+        i = npa_unblock_pin(&sctx, card);
         if (i < 0)
             goto err;
         printf("Unblocked PIN.\n");
@@ -476,7 +477,7 @@ main (int argc, char **argv)
             goto err;
         printf("Established PACE channel with PIN.\n");
 
-        i = pace_change_pin(&sctx, card, newpin, newpin ? strlen(newpin) : 0);
+        i = npa_change_pin(&sctx, card, newpin, newpin ? strlen(newpin) : 0);
         if (i < 0)
             goto err;
         printf("Changed PIN.\n");
@@ -520,7 +521,7 @@ main (int argc, char **argv)
         if (i < 0)
             goto err;
         printf("Established PACE channel with %s.\n",
-                pace_secret_name(pace_input.pin_id));
+                npa_secret_name(pace_input.pin_id));
 
         if (dotranslate) {
             FILE *input;
@@ -532,7 +533,7 @@ main (int argc, char **argv)
                     perror("Opening file with APDUs");
             }
 
-            i = pace_translate_apdus(&sctx, card, input);
+            i = npa_translate_apdus(&sctx, card, input);
             fclose(input);
             if (i < 0)
                 goto err;
@@ -540,8 +541,8 @@ main (int argc, char **argv)
     }
 
 err:
-    pace_sm_ctx_clear_free(sctx.cipher_ctx);
-    pace_sm_ctx_clear_free(tmpctx.cipher_ctx);
+    npa_sm_ctx_clear_free(sctx.cipher_ctx);
+    npa_sm_ctx_clear_free(tmpctx.cipher_ctx);
     if (pace_output.ef_cardaccess)
         free(pace_output.ef_cardaccess);
     if (pace_output.recent_car)

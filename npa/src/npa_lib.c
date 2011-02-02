@@ -16,15 +16,15 @@
  * You should have received a copy of the GNU General Public License along with
  * ccid.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "pace_lib.h"
+#include "npa_lib.h"
 #include <openssl/buffer.h>
 #include <openssl/pace.h>
 
-struct pace_sm_ctx *
-pace_sm_ctx_create(const BUF_MEM *key_mac,
+struct npa_sm_ctx *
+npa_sm_ctx_create(const BUF_MEM *key_mac,
         const BUF_MEM *key_enc, PACE_CTX *ctx)
 {
-    struct pace_sm_ctx *out = malloc(sizeof *out);
+    struct npa_sm_ctx *out = malloc(sizeof *out);
     if (!out)
         return NULL;
 
@@ -42,7 +42,7 @@ pace_sm_ctx_create(const BUF_MEM *key_mac,
 }
 
 void
-pace_sm_ctx_free(struct pace_sm_ctx *ctx)
+npa_sm_ctx_free(struct npa_sm_ctx *ctx)
 {
     if (ctx) {
         if (ctx->ssc)
@@ -52,7 +52,7 @@ pace_sm_ctx_free(struct pace_sm_ctx *ctx)
 }
 
 void
-pace_sm_ctx_clear_free(struct pace_sm_ctx *ctx)
+npa_sm_ctx_clear_free(struct npa_sm_ctx *ctx)
 {
     if (ctx) {
         if (ctx->key_mac) {
@@ -64,6 +64,6 @@ pace_sm_ctx_clear_free(struct pace_sm_ctx *ctx)
             BUF_MEM_free((BUF_MEM *) ctx->key_enc);
         }
         PACE_CTX_clear_free(ctx->ctx);
-        pace_sm_ctx_free(ctx);
+        npa_sm_ctx_free(ctx);
     }
 }

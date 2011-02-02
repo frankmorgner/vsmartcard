@@ -19,8 +19,8 @@
 /**
  * @file
  */
-#ifndef _CCID_PACE_LIB_H
-#define _CCID_PACE_LIB_H
+#ifndef _CCID_NPA_LIB_H
+#define _CCID_NPA_LIB_H
 
 #include <openssl/pace.h>
 
@@ -28,8 +28,8 @@
 extern "C" {
 #endif
 
-/** PACE secure messaging context */
-struct pace_sm_ctx {
+/** NPA secure messaging context */
+struct npa_sm_ctx {
     /** Send sequence counter */
     BIGNUM *ssc;
     /** Key for message authentication code */
@@ -42,34 +42,34 @@ struct pace_sm_ctx {
 
 
 /** 
- * @brief Creates a PACE SM object
+ * @brief Creates a NPA SM object
  * 
  * @param[in] key_mac Key for message authentication code
  * @param[in] key_enc Key for encryption and decryption
- * @param[in] ctx     PACE context
+ * @param[in] ctx     NPA context
  * 
- * @return Initialized PACE SM object or NULL, if an error occurred
+ * @return Initialized NPA SM object or NULL, if an error occurred
  */
-struct pace_sm_ctx * pace_sm_ctx_create(const BUF_MEM *key_mac,
+struct npa_sm_ctx * npa_sm_ctx_create(const BUF_MEM *key_mac,
         const BUF_MEM *key_enc, PACE_CTX *ctx);
 
 /** 
- * @brief Frees a PACE SM object
+ * @brief Frees a NPA SM object
  *
  * Frees memory allocated for \a ctx and its send sequence counter
  * 
  * @param[in] ctx object to be freed
  */
-void pace_sm_ctx_free(struct pace_sm_ctx *ctx);
+void npa_sm_ctx_free(struct npa_sm_ctx *ctx);
 
 /** 
- * @brief Frees a PACE SM object and all its components
+ * @brief Frees a NPA SM object and all its components
  *
  * Frees memory allocated for \a ctx and its send sequence counter, keys and PACE context
  * 
  * @param[in] ctx object to be freed
  */
-void pace_sm_ctx_clear_free(struct pace_sm_ctx *ctx);
+void npa_sm_ctx_clear_free(struct npa_sm_ctx *ctx);
 
 #ifdef  __cplusplus
 }

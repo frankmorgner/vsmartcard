@@ -7,8 +7,8 @@ secure messaging, which could also be used for other cards.
 npa is implemented using OpenPACE (http://sourceforge.net/projects/openpace/).
 Some fragments of the source code are on the source code of the OpenSC tools.
 
-The included pace-tool has support for Password Authenticated Connection
-Establishment (PACE). pace-tool can be used for PIN management or to encrypt
+The included npa-tool has support for Password Authenticated Connection
+Establishment (PACE). npa-tool can be used for PIN management or to encrypt
 APDUs inside a secure messaging channel established with PACE.
 
 
@@ -38,28 +38,28 @@ against use something like the following command:
 
 @section u USAGE
 
-When testing PACE with either PIN, CAN, MRZ or PUK run pace-tool. Here you can
+When testing PACE with either PIN, CAN, MRZ or PUK run npa-tool. Here you can
 enter APDUs which are to be converted according to the secure messaging
 parameter and to be sent to the card. Herefor insert the APDU in hex (upper or
 lower case) with a colon to separate the bytes or without it. Example APDUs can
 be found in the file apdus.
-To pass a secret to pace-tool, the command line parameters or the environment
+To pass a secret to npa-tool, the command line parameters or the environment
 variables PIN/CAN/MRZ/PUK/NEWPIN can be used. If none of these options is used,
-pace-tool will show a password prompt.
+npa-tool will show a password prompt.
 
 @subsection l LINKING AGAINST LIBNPA
 
-If you have a local build of libpace and OpenPACE, the preferred way to adjust
+If you have a local build of libnpa and OpenPACE, the preferred way to adjust
 libraries and cflags for foreign code is to use pkg-config:
 ./configure \
-    PKG_CONFIG_PATH=/path/to/openssl-1.0.0c_with_openpace-0.4/lib/pkgconfig:/path/to/libpace/lib/pkgconfig"
+    PKG_CONFIG_PATH=/path/to/openssl-1.0.0c_with_openpace-0.4/lib/pkgconfig:/path/to/libnpa/lib/pkgconfig"
 
 Alternatively you can define libs and cflags by hand:
 ./configure \
     OPENSSL_CFLAGS="-I/path/to/openssl-1.0.0c_with_openpace-0.4/include" \
-    LIBPACE_CFLAGS="-I/path/to/openssl-1.0.0c_with_openpace-0.4/include -I/path/to/libpace-0.1/src" \
+    LIBNPA_CFLAGS="-I/path/to/openssl-1.0.0c_with_openpace-0.4/include -I/path/to/libnpa-0.1/src" \
     OPENSSL_LIBS="-L/path/to/openssl-1.0.0c_with_openpace-0.4 -lcrypto" \
-    LIBPACE_LIBS="-L/path/to/openssl-1.0.0c_with_openpace-0.4 -lcrypto -L/path/to/libpace-0.1/src/.libs -lpace"
+    LIBNPA_LIBS="-L/path/to/openssl-1.0.0c_with_openpace-0.4 -lcrypto -L/path/to/libnpa-0.1/src/.libs -lnpa"
 
 
 @section q QUESTIONS
