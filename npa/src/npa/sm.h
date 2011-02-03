@@ -38,13 +38,14 @@ struct sm_ctx {
     /** 1 if secure messaging is activated, 0 otherwise */
     unsigned char active;
 
+    /** data of the specific crypto implementation */
+    void *priv_data;
+
     /** Padding-content indicator byte (ISO 7816-4 Table 30) */
     u8 padding_indicator;
     /** Pad to this block length */
     size_t block_length;
 
-    /** Authentication context for the specific authentication implementation */
-    void *authentication_ctx;
     /** Call back function for authentication of data */
     int (*authenticate)(sc_card_t *card, const struct sm_ctx *ctx,
             const u8 *data, size_t datalen, u8 **outdata);
@@ -53,8 +54,6 @@ struct sm_ctx {
             const u8 *mac, size_t maclen,
             const u8 *macdata, size_t macdatalen);
 
-    /** Cipher context for the specific cipher implementation */
-    void *cipher_ctx;
     /** Call back function for encryption of data */
     int (*encrypt)(sc_card_t *card, const struct sm_ctx *ctx,
             const u8 *data, size_t datalen, u8 **enc);
@@ -68,6 +67,9 @@ struct sm_ctx {
     /** Call back function for actions before decryption and decoding of \a sm_apdu */
     int (*post_transmit)(sc_card_t *card, const struct sm_ctx *ctx,
             sc_apdu_t *sm_apdu);
+
+    /** Clears and frees private data */
+    void (*clear_free)(const struct sm_ctx *ctx);
 };
 
 /** 
@@ -91,6 +93,15 @@ struct sm_ctx {
  */
 int sm_transmit_apdu(struct sm_ctx *sctx, sc_card_t *card,
         sc_apdu_t *apdu);
+
+/** 
+ * @brief Clears and frees private data of the SM context
+ *
+ * Calls \a sctx->clear_free
+ * 
+ * @param[in]     sctx (optional)
+ */
+void sm_ctx_clear_free(const struct sm_ctx *sctx);
 
 #ifdef  __cplusplus
 }

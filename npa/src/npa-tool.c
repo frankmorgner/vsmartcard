@@ -541,8 +541,8 @@ main (int argc, char **argv)
     }
 
 err:
-    npa_sm_ctx_clear_free(sctx.cipher_ctx);
-    npa_sm_ctx_clear_free(tmpctx.cipher_ctx);
+    sm_ctx_clear_free(&sctx);
+    sm_ctx_clear_free(&tmpctx);
     if (pace_output.ef_cardaccess)
         free(pace_output.ef_cardaccess);
     if (pace_output.recent_car)

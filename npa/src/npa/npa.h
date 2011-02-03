@@ -22,7 +22,6 @@
 #ifndef _CCID_NPA_H
 #define _CCID_NPA_H
 
-#include <npa/npa_lib.h>
 #include <npa/sm.h>
 #include <libopensc/opensc.h>
 #include <openssl/bn.h>

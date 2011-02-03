@@ -148,6 +148,18 @@ IMPLEMENT_ASN1_FUNCTIONS(NPA_GEN_AUTH_R)
 
 const size_t maxresp = SC_MAX_APDU_BUFFER_SIZE - 2;
 
+/** NPA secure messaging context */
+struct npa_sm_ctx {
+    /** Send sequence counter */
+    BIGNUM *ssc;
+    /** Key for message authentication code */
+    const BUF_MEM *key_mac;
+    /** Key for encryption and decryption */
+    const BUF_MEM *key_enc;
+    /** PACE context */
+    PACE_CTX *ctx;
+};
+
 static int npa_sm_encrypt(sc_card_t *card, const struct sm_ctx *ctx,
         const u8 *data, size_t datalen, u8 **enc);
 static int npa_sm_decrypt(sc_card_t *card, const struct sm_ctx *ctx,
@@ -161,10 +173,39 @@ static int npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
         sc_apdu_t *apdu);
 static int npa_sm_post_transmit(sc_card_t *card, const struct sm_ctx *ctx,
         sc_apdu_t *sm_apdu);
+static void npa_sm_clear_free(const struct sm_ctx *ctx);
 
 static int increment_ssc(struct npa_sm_ctx *psmctx);
 static int decrement_ssc(struct npa_sm_ctx *psmctx);
 static int reset_ssc(struct npa_sm_ctx *psmctx);
+
+static struct npa_sm_ctx *
+npa_sm_ctx_create(const BUF_MEM *key_mac,
+        const BUF_MEM *key_enc, PACE_CTX *ctx)
+{
+    struct npa_sm_ctx *out = malloc(sizeof *out);
+    if (!out)
+        goto err;
+
+    out->ssc = BN_new();
+    if (!out->ssc || reset_ssc(out) < 0)
+        goto err;
+
+    out->key_enc = key_enc;
+    out->key_mac = key_mac;
+    out->ctx = ctx;
+
+
+    return out;
+
+err:
+    if (out) {
+        if (out->ssc)
+            BN_clear_free(out->ssc);
+        free(out);
+    }
+    return NULL;
+}
 
 
 int GetReadersPACECapabilities(u8 *bitmap)
@@ -1227,22 +1268,18 @@ int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
     bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "ID PCD", pace_output->id_pcd,
             pace_output->id_pcd_length);
 
-    sctx->authentication_ctx = npa_sm_ctx_create(k_mac,
-            k_enc, pctx);
-    if (!sctx->authentication_ctx) {
+    sctx->priv_data = npa_sm_ctx_create(k_mac, k_enc, pctx);
+    if (!sctx->priv_data) {
         r = SC_ERROR_OUT_OF_MEMORY;
         goto err;
     }
-    r = reset_ssc(sctx->authentication_ctx);
-    if (r < 0)
-        goto err;
-    sctx->cipher_ctx = sctx->authentication_ctx;
     sctx->authenticate = npa_sm_authenticate;
     sctx->encrypt = npa_sm_encrypt;
     sctx->decrypt = npa_sm_decrypt;
     sctx->verify_authentication = npa_sm_verify_authentication;
     sctx->pre_transmit = npa_sm_pre_transmit;
     sctx->post_transmit = npa_sm_post_transmit;
+    sctx->clear_free = npa_sm_clear_free;
     sctx->padding_indicator = SM_ISO_PADDING;
     sctx->block_length = EVP_CIPHER_block_size(pctx->cipher);
     sctx->active = 1;
@@ -1298,8 +1335,8 @@ err:
         }
         if (pctx)
             PACE_CTX_clear_free(pctx);
-        if (sctx->authentication_ctx)
-            npa_sm_ctx_free(sctx->authentication_ctx);
+        if (sctx->priv_data)
+            npa_sm_clear_free(sctx->priv_data);
     }
 
     return r;
@@ -1366,11 +1403,11 @@ npa_sm_encrypt(sc_card_t *card, const struct sm_ctx *ctx,
     u8 *p = NULL;
     int r;
 
-    if (!ctx || !enc || !ctx->cipher_ctx) {
+    if (!ctx || !enc || !ctx->priv_data) {
         r = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
     }
-    struct npa_sm_ctx *psmctx = ctx->cipher_ctx;
+    struct npa_sm_ctx *psmctx = ctx->priv_data;
 
     databuf = BUF_MEM_create_init(data, datalen);
     encbuf = PACE_encrypt(psmctx->ctx, psmctx->ssc, psmctx->key_enc, databuf);
@@ -1410,11 +1447,11 @@ npa_sm_decrypt(sc_card_t *card, const struct sm_ctx *ctx,
     u8 *p = NULL;
     int r;
 
-    if (!ctx || !enc || !ctx->cipher_ctx || !data) {
+    if (!ctx || !enc || !ctx->priv_data || !data) {
         r = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
     }
-    struct npa_sm_ctx *psmctx = ctx->cipher_ctx;
+    struct npa_sm_ctx *psmctx = ctx->priv_data;
 
     encbuf = BUF_MEM_create_init(enc, enclen);
     databuf = PACE_decrypt(psmctx->ctx, psmctx->ssc, psmctx->key_enc, encbuf);
@@ -1454,11 +1491,11 @@ npa_sm_authenticate(sc_card_t *card, const struct sm_ctx *ctx,
     u8 *p = NULL, *ssc = NULL;
     int r;
 
-    if (!ctx || !ctx->cipher_ctx || !macdata) {
+    if (!ctx || !ctx->priv_data || !macdata) {
         r = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
     }
-    struct npa_sm_ctx *psmctx = ctx->cipher_ctx;
+    struct npa_sm_ctx *psmctx = ctx->priv_data;
 
     macbuf = PACE_authenticate(psmctx->ctx, psmctx->ssc, psmctx->key_mac,
             data, datalen);
@@ -1498,11 +1535,11 @@ npa_sm_verify_authentication(sc_card_t *card, const struct sm_ctx *ctx,
     char *p;
     BUF_MEM *my_mac = NULL;
 
-    if (!ctx || !ctx->cipher_ctx) {
+    if (!ctx || !ctx->priv_data) {
         r = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
     }
-    struct npa_sm_ctx *psmctx = ctx->cipher_ctx;
+    struct npa_sm_ctx *psmctx = ctx->priv_data;
 
     my_mac = PACE_authenticate(psmctx->ctx, psmctx->ssc, psmctx->key_mac,
             macdata, macdatalen);
@@ -1538,12 +1575,33 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
         sc_apdu_t *apdu)
 {
     SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_NORMAL,
-            increment_ssc(ctx->cipher_ctx));
+            increment_ssc(ctx->priv_data));
 }
 
-static int npa_sm_post_transmit(sc_card_t *card, const struct sm_ctx *ctx,
+static int
+npa_sm_post_transmit(sc_card_t *card, const struct sm_ctx *ctx,
         sc_apdu_t *sm_apdu)
 {
     SC_FUNC_RETURN(card->ctx,  SC_LOG_DEBUG_NORMAL,
-            increment_ssc(ctx->cipher_ctx));
+            increment_ssc(ctx->priv_data));
+}
+
+static void
+npa_sm_clear_free(const struct sm_ctx *ctx)
+{
+    if (ctx) {
+        struct npa_sm_ctx *psmctx = ctx->priv_data;
+        if (psmctx->key_mac) {
+            OPENSSL_cleanse(psmctx->key_mac->data, psmctx->key_mac->max);
+            BUF_MEM_free((BUF_MEM *) psmctx->key_mac);
+        }
+        if (psmctx->key_enc) {
+            OPENSSL_cleanse(psmctx->key_enc->data, psmctx->key_enc->max);
+            BUF_MEM_free((BUF_MEM *) psmctx->key_enc);
+        }
+        PACE_CTX_clear_free(psmctx->ctx);
+        if (psmctx->ssc)
+            BN_clear_free(psmctx->ssc);
+        free(psmctx);
+    }
 }

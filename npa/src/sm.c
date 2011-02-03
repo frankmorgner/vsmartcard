@@ -605,3 +605,9 @@ int sm_transmit_apdu(struct sm_ctx *sctx, sc_card_t *card,
 
     return SC_SUCCESS;
 }
+
+void sm_ctx_clear_free(const struct sm_ctx *sctx)
+{
+    if (sctx && sctx->clear_free)
+        sctx->clear_free(sctx);
+}
