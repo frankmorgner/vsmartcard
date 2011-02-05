@@ -18,7 +18,11 @@
  */
 #include "scutil.h"
 #include "sm.h"
+#ifdef _WIN32
+#include <winsock2.h>
+#else
 #include <arpa/inet.h>
+#endif
 #include <libopensc/asn1.h>
 #include <libopensc/log.h>
 #include <stdlib.h>
