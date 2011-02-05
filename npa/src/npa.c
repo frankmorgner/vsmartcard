@@ -305,12 +305,13 @@ static int npa_mse_set_at(struct sm_ctx *oldnpactx, sc_card_t *card,
     NPA_MSE_SET_AT_C *data = NULL;
     int r, tries;
 
+    memset(&apdu, 0, sizeof apdu);
+
     if (!sw1 || !sw2) {
         r = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
     }
 
-    memset(&apdu, 0, sizeof apdu);
     apdu.ins = 0x22;
     apdu.p1 = 0xc1;
     apdu.p2 = 0xa4;

@@ -196,7 +196,7 @@ static int format_data(sc_card_t *card, const struct sm_ctx *ctx,
 {
     int r;
     u8 *pad_data = NULL;
-    size_t pad_data_len;
+    size_t pad_data_len = 0;
 
     if (!ctx || !formatted_data || !formatted_data_len) {
         r = SC_ERROR_INVALID_ARGUMENTS;
