@@ -907,7 +907,9 @@ npa_reset_retry_counter(struct sm_ctx *ctx, sc_card_t *card,
             free(p);
             return SC_ERROR_INTERNAL;
         }
-        new_len = strnlen(p, MAX_PIN_LEN+1);
+        new_len = strlen(p);
+        if (new_len > MAX_PIN_LEN)
+            return SC_ERROR_INVALID_PIN_LENGTH;
         new = p;
     }
 
@@ -952,7 +954,7 @@ get_psec(sc_card_t *card, const char *pin, size_t length_pin, enum s_type pin_id
             sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not create password prompt.\n");
             return NULL;
         }
-        p = malloc(MAX_MRZ_LEN);
+        p = malloc(MAX_MRZ_LEN+1);
         if (!p) {
             sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Not enough memory for %s.\n",
                     npa_secret_name(pin_id));
@@ -963,7 +965,11 @@ get_psec(sc_card_t *card, const char *pin, size_t length_pin, enum s_type pin_id
                     npa_secret_name(pin_id));
             return NULL;
         }
-        length_pin = strnlen(p, MAX_MRZ_LEN);
+        length_pin = strlen(p);
+        if (length_pin > MAX_MRZ_LEN) {
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "MRZ too long");
+            return NULL;
+        }
         pin = p;
     }
 

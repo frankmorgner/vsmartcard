@@ -26,7 +26,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
+#include <sys/time.h>
+
+#ifndef HAVE_GETLINE
+static ssize_t getline(char **lineptr, size_t *n, FILE *stream)
+{
+    if (!lineptr)
+        return -1;
+
+    char *p = realloc(*lineptr, SC_MAX_EXT_APDU_BUFFER_SIZE*3);
+    if (!p)
+        return -1;
+    *lineptr = p;
+
+    if (fgets(p, SC_MAX_EXT_APDU_BUFFER_SIZE*3, stream) == NULL)
+        return -1;
+
+    return strlen(p);
+}
+#endif
 
 static int verbose    = 0;
 static int doinfo     = 0;
