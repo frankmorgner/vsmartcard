@@ -15,19 +15,11 @@ do_subst = sed \
 	   -e 's,[@]OPENSC_LIBS[@],$(OPENSC_LIBS),g' \
 	   -e 's,[@]top_srcdir[@],$(top_srcdir),g'
 
-opensc-0.11.13.tar.gz:
-	wget http://www.opensc-project.org/files/opensc/opensc-0.11.13.tar.gz
-
-opensc-0.11.13: opensc-0.11.13.tar.gz
-	tar xzf opensc-0.11.13.tar.gz
-	patch -p1 -d opensc-0.11.13 < opensc/le0.patch
-	patch -p0 -d opensc-0.11.13 < opensc/hex_dump_align.2.patch
-
-win: opensc-0.11.13
-	cd opensc-0.11.13 && \
+win:
+	cd $(top_srcdir)/src/opensc && \
 	    ./bootstrap && \
 	    ./configure --disable-doc && \
-	    env OPENSSL_VERSION="1.0.0c_with_openpace-0.4.1" OPENSSL_URL="http://downloads.sourceforge.net/project/openpace/openssl-1.0.0c_with_openpace-0.4.1.tar.gz" EXTRA_OPENSSL_CONFIG="experimental-pace" ../opensc/installer_from_build.sh opensc/win32/build
+	    env OPENSSL_VERSION="1" OPENSSL_URL="https://www2.informatik.hu-berlin.de/~morgner/files/openssl-1.tar.gz" EXTRA_OPENSSL_CONFIG="experimental-pace" win32/installer_from_build.sh
 
 if DOC_ENABLED
 .PHONY: doc
