@@ -1,3 +1,109 @@
+2011-02-06 20:26  frankmorgner
+
+	* configure.ac, src/npa-tool.c, src/npa.c: added compatibility to
+	  mingw
+
+2011-02-05 22:06  frankmorgner
+
+	* src/npa.c, src/sm.c: avoiding problems due to uninitialized
+	  values
+
+2011-02-05 15:11  frankmorgner
+
+	* src/sm.c: - windows dependant include
+
+2011-02-03 22:09  frankmorgner
+
+	* src/Makefile.am, src/npa-tool.c, src/npa.c, src/npa/npa.h,
+	  src/npa/npa_lib.h, src/npa/sm.h, src/npa_lib.c, src/sm.c: - not
+	  exporting npa internal stuff anymore
+	  - added sm_ctx_clear_free
+
+2011-02-02 19:06  frankmorgner
+
+	* src/Makefile.am: building clean distribution file
+
+2011-02-02 18:49  frankmorgner
+
+	* Makefile.am, README.dox, configure.ac, libnpa.pc.in,
+	  libpace.pc.in, src/Makefile.am, src/npa, src/npa-tool.c,
+	  src/npa.c, src/npa/npa.h, src/npa/npa_lib.h, src/npa/pace.h,
+	  src/npa/pace_lib.h, src/npa_lib.c, src/pace, src/pace-tool.c,
+	  src/pace.c, src/pace_lib.c, src/scutil.c: renamed libpace to
+	  libnpa
+
+2011-02-01 13:47  oepen
+
+	* configure.ac: Shut up autotools
+
+2011-02-01 10:41  frankmorgner
+
+	* src/pace-tool.c: cleaned up time management. might not work for
+	  systems where time_t is not an integer.
+
+2011-01-31 19:46  frankmorgner
+
+	* src/pace-tool.c: - fixed description of version parameter
+
+2011-01-31 11:51  frankmorgner
+
+	* Makefile.am, README.dox, configure.ac, libpace.pc.in, src,
+	  src/Makefile.am, src/pace-tool.c: linking against opensc now as
+	  shared library
+
+2011-01-16 23:34  frankmorgner
+
+	* src/Makefile.am, src/pace.c: - fixed memory corruption when
+	  getting ef.cardaccess
+	  - minor changes in build process with libopensc
+
+2011-01-16 01:21  frankmorgner
+
+	* Makefile.am, src/Makefile.am: optimized makefile-targets
+
+2011-01-15 10:43  frankmorgner
+
+	* README.dox, configure.ac, libpace.pc.in, src/Makefile.am: - added
+	  customization via OPENSC_CONFIGURE
+	  - changed information regarding opensc
+	  - fixed pkg-config file
+
+2011-01-15 00:36  frankmorgner
+
+	* src/scutil.c: added more error messages
+
+2011-01-14 14:24  frankmorgner
+
+	* Makefile.am, configure.ac, src/Makefile.am, src/pace-tool.c,
+	  src/pace.c, src/pace/pace.h, src/pace/scutil.h, src/pace/sm.h,
+	  src/scutil.c, src/sm.c: switched to opensc.0.12.0. note that this
+	  has some issues when linking against both libnpa and the opensc
+	  libraries at the same time. readme information would be usefull
+	  for this...
+
+2010-12-17 10:46  frankmorgner
+
+	* src/pace-tool.c: fix error when breaking a secret where all
+	  digits are 9
+
+2010-12-12 12:15  frankmorgner
+
+	* src/pace-tool.c: removed byteorder.h from includes, not needed.
+	  thanks Dennis
+
+2010-12-11 01:38  frankmorgner
+
+	* README.dox: - updated information
+
+2010-12-08 14:44  frankmorgner
+
+	* ChangeLog, m4/Makefile.am: releasing 0.1
+
+2010-12-08 13:16  frankmorgner
+
+	* src/pace-tool.c, src/pace.c, src/pace/pace.h: added input
+	  parameter for version of 03110
+
 2010-12-08 12:01  frankmorgner
 
 	* src/pace.c: adapted to the latest changes of OpenPACE
