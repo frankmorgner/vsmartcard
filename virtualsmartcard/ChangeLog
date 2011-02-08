@@ -1,3 +1,31 @@
+2011-02-01 13:53  oepen
+
+	* src/vpcd/ifd-vpcd.c: Reverting bad commit
+
+2011-02-01 13:47  oepen
+
+	* src/vpcd/ifd-vpcd.c: Shut up autotools
+
+2011-01-25 12:53  frankmorgner
+
+	* src/vpicc/virtualsmartcard/CardGenerator.py,
+	  src/vpicc/virtualsmartcard/SmartcardFilesystem.py,
+	  src/vpicc/virtualsmartcard/SmartcardSAM.py: fixed generation of
+	  ePass file system (fixes 3164830)
+
+2011-01-24 15:30  frankmorgner
+
+	* src/vpicc/virtualsmartcard/SmartcardFilesystem.py: fixed path
+	  walking (fixes 3164775)
+
+2010-12-13 08:51  frankmorgner
+
+	* README: update information
+
+2010-12-08 12:27  frankmorgner
+
+	* ChangeLog, configure.ac: releasing 0.3
+
 2010-10-26 20:21  frankmorgner
 
 	* src/vpcd/vpcd.c: unified usage of sizeof.
