@@ -1,3 +1,103 @@
+2011-02-08 21:48  frankmorgner
+
+	* src, src/opensc: fixed generation of distribution file
+
+2011-02-08 21:35  frankmorgner
+
+	* src/ccid.c: adapted to the latest changes of libnpa
+
+2011-02-08 14:03  frankmorgner
+
+	* src/binutil.c: added mingw compatibility
+
+2011-02-02 19:06  frankmorgner
+
+	* configure.ac, src/Makefile.am: building clean distribution file
+
+2011-02-02 18:49  frankmorgner
+
+	* configure.ac, src/Makefile.am, src/ccid.c, src/ccid.h,
+	  src/scutil.h, src/usb.c: renamed libpace to libnpa
+
+2011-02-01 19:07  frankmorgner
+
+	* src, src/opensc: getting opensc only once
+
+2011-01-31 11:51  frankmorgner
+
+	* README.dox, configure.ac, src, src/Makefile.am: linking against
+	  opensc now as shared library
+
+2011-01-16 23:34  frankmorgner
+
+	* src/Makefile.am: - fixed memory corruption when getting
+	  ef.cardaccess
+	  - minor changes in build process with libopensc
+
+2011-01-16 01:21  frankmorgner
+
+	* Makefile.am, src/Makefile.am: optimized makefile-targets
+
+2011-01-15 10:43  frankmorgner
+
+	* README.dox, configure.ac, src/Makefile.am: - added customization
+	  via OPENSC_CONFIGURE
+	  - changed information regarding opensc
+	  - fixed pkg-config file
+
+2011-01-15 00:35  frankmorgner
+
+	* src/ccid.c, src/usb.c: - fixed problem when powering the card
+	  - removed unused code that had to do with slot-complexity
+
+2011-01-14 22:31  frankmorgner
+
+	* src/ccid.c: supporting only one slot due to new opensc
+	  limitations
+
+2011-01-14 14:24  frankmorgner
+
+	* configure.ac, src/Makefile.am, src/ccid.c, src/ccid.h: switched
+	  to opensc.0.12.0. note that this has some issues when linking
+	  against both libnpa and the opensc libraries at the same time.
+	  readme information would be usefull for this...
+
+2010-12-13 10:29  frankmorgner
+
+	* src/cats-test.c: type of secret can be specified via command line
+
+2010-12-11 01:40  frankmorgner
+
+	* README.dox: fixed configure command
+
+2010-12-11 01:38  frankmorgner
+
+	* README.dox: - updated information
+
+2010-12-10 18:50  frankmorgner
+
+	* src/pcscutil.c: fixed build with pcsc-lite
+
+2010-12-10 18:45  frankmorgner
+
+	* src/cats-test.c, src/pcscutil.c: Fix build with visual studio
+
+2010-12-08 15:11  frankmorgner
+
+	* src/ccid.c: adapted to the latest changes of libpace
+
+2010-12-08 12:22  frankmorgner
+
+	* ChangeLog, configure.ac: releasing 0.4
+
+2010-12-07 20:07  frankmorgner
+
+	* README.dox: updated information
+
+2010-12-07 15:50  frankmorgner
+
+	* src/scutil.h: added missing file
+
 2010-12-07 15:48  frankmorgner
 
 	* configure.ac, src/scutil.h: linking against libopensc not easily
