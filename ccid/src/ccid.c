@@ -154,7 +154,7 @@ void ccid_shutdown()
         sc_release_context(ctx);
 
 #ifdef WITH_PACE
-    npa_sm_ctx_clear_free(sctx.cipher_ctx);
+    sm_ctx_clear_free(&sctx);
     memset(&sctx, 0, sizeof(sctx));
 #ifdef BUERGERCLIENT_WORKAROUND
     free(ef_cardaccess);
