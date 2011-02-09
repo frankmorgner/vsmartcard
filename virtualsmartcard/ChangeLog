@@ -1,3 +1,7 @@
+2011-02-08 21:31  frankmorgner
+
+	* ChangeLog, configure.ac: released 0.3
+
 2011-02-01 13:53  oepen
 
 	* src/vpcd/ifd-vpcd.c: Reverting bad commit
