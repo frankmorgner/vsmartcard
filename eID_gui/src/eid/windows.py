@@ -462,13 +462,13 @@ class PinpadGTK(object):
         return False
 
     def btnOk_clicked(self, widget):
-        """Pass the entered secret to pace-tool. If pace-tool is run
+        """Pass the entered secret to npa-tool. If npa-tool is run
            sucessfully exit, otherwise restart the PIN entry"""
 
         env_args = os.environ
 
         #cmd contains the command and all the parameters for our subproccess
-        cmd = ["pace-tool"]
+        cmd = ["npa-tool"]
 
         #We have to select the type of secret to use via a command line
         #parameter and provide the actual secret via an environment variable
@@ -484,13 +484,13 @@ class PinpadGTK(object):
         else:
             raise ValueError("Unknown secret type: %s" % self.secret)
 
-        #If we have a CHAT, we pass it to pace-tool
+        #If we have a CHAT, we pass it to npa-tool
         #if (self.chat):
         #    cmd.append("--chat=" + self.chat)
 
         cmd.append("-v")
 
-        #Try to call pace-tool. This is a blocking call. An animation is being
+        #Try to call npa-tool. This is a blocking call. An animation is being
         #shown while the subprocess is running
         try:
             #Stop polling the card while PACE is running
@@ -498,7 +498,7 @@ class PinpadGTK(object):
             proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, env=env_args,
                     close_fds=True)
         except OSError:
-            popup = MsgBox(self.window, "pace-tool wurde nicht gefunden",
+            popup = MsgBox(self.window, "npa-tool wurde nicht gefunden",
                            "error")
             popup.run()
             popup.destroy()
@@ -524,7 +524,7 @@ class PinpadGTK(object):
                 gtk.main_iteration()
             line = proc.stdout.readline()
 
-        #Get the return value of the pace-tool process
+        #Get the return value of the npa-tool process
         ret = proc.poll()
         waiting.destroy()
         self.cardChecker.resume()
@@ -632,16 +632,16 @@ class PINChanger(PinpadGTK):
         def __check_old_pin(self):
             """Run PACE with the old pin to see if it is correct"""
             #cmd contains the command and all the parameters for our subproccess
-            cmd = ["pace-tool", "--pin=" + self.pin]
+            cmd = ["npa-tool", "--pin=" + self.pin]
 
-            #Try to call pace-tool. This is a blocking call. An animation is being
+            #Try to call npa-tool. This is a blocking call. An animation is being
             #shown while the subprocess is running
             try:
             #Stop polling the card while PACE is running
                self.cardChecker.pause()
                proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, close_fds=True)
             except OSError:
-                popup = MsgBox(self.window, "pace-tool wurde nicht gefunden",
+                popup = MsgBox(self.window, "npa-tool wurde nicht gefunden",
                                "error")
                 popup.run()
                 popup.destroy()
@@ -667,7 +667,7 @@ class PINChanger(PinpadGTK):
                     gtk.main_iteration()
                 line = proc.stdout.readline()
 
-            #Get the return value of the pace-tool process
+            #Get the return value of the npa-tool process
             ret = proc.poll()
             waiting.destroy()
             self.cardChecker.resume()
@@ -682,20 +682,20 @@ class PINChanger(PinpadGTK):
 
 
         def __change_pin(self):
-            """Change the pin using pace-tool"""
+            """Change the pin using npa-tool"""
 
             #cmd contains the command and all the parameters for our subproccess
-            cmd = ["pace-tool", "--pin=" + self.__old_pin,
+            cmd = ["npa-tool", "--pin=" + self.__old_pin,
                         "--new-pin=" + self.__new_pin1]
 
-            #Try to call pace-tool. This is a blocking call. An animation is being
+            #Try to call npa-tool. This is a blocking call. An animation is being
             #shown while the subprocess is running
             try:
             #Stop polling the card while PACE is running
                self.cardChecker.pause()
                proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, close_fds=True)
             except OSError:
-                popup = MsgBox(self.window, "pace-tool wurde nicht gefunden",
+                popup = MsgBox(self.window, "npa-tool wurde nicht gefunden",
                                "error")
                 popup.run()
                 popup.destroy()
@@ -721,7 +721,7 @@ class PINChanger(PinpadGTK):
                     gtk.main_iteration()
                 line = proc.stdout.readline()
 
-            #Get the return value of the pace-tool process
+            #Get the return value of the npa-tool process
             ret = proc.poll()
             waiting.destroy()
             self.cardChecker.resume()

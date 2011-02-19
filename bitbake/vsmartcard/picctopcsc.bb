@@ -4,11 +4,11 @@ LICENSE     = "GPL"
 DEPENDS     = "pcsc-lite"
 RDEPENDS    = "pcsc-lite"
 
-SRC_URI = "svn://vsmartcard.svn.sourceforge.net/svnroot/vsmartcard;module=picc_to_pcsc;proto=https;rev=180"
+SRC_URI = "svn://vsmartcard.svn.sourceforge.net/svnroot/vsmartcard;module=picc_to_pcsc;proto=https;rev=417"
 
 S = "${WORKDIR}/picc_to_pcsc"
 
-inherit autotools_stage pkgconfig
+inherit autotools pkgconfig
 
 FILES_${PN} += "\
     ${bindir}/* \

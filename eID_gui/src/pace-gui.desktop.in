@@ -2,7 +2,7 @@
 Version=@VERSION@
 Encoding=UTF-8
 Name=eID
-Comment=GUI zur Eingabe einer PIN/CAN/PUK fuer pace-tool
+Comment=GUI zur Eingabe einer PIN/CAN/PUK fuer npa-tool
 Exec=eid_gui.py
 Icon=@prefix@/share/eid_gui/images/OpenPACElogo.png
 Terminal=false

@@ -4,11 +4,11 @@ LICENSE     = "GPL"
 DEPENDS     = "pcsc-lite linux-libc-headers openssl opensc"
 RDEPENDS    = "pcsc-lite kernel-module-gadgetfs libcrypto opensc"
 
-SRC_URI = "svn://vsmartcard.svn.sourceforge.net/svnroot/vsmartcard;module=ccid;proto=https;rev=180"
+SRC_URI = "svn://vsmartcard.svn.sourceforge.net/svnroot/vsmartcard;module=ccid;proto=https;rev=417"
 
 S = "${WORKDIR}/ccid"
 
-inherit autotools_stage pkgconfig
+inherit autotools pkgconfig
 
 EXTRA_OECONF = "--enable-pace"
 

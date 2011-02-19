@@ -2,9 +2,9 @@ DESCRIPTION = "API and Tools for the new German identity card (neuer Personalaus
 LICENSE     = "GPL"
 
 DEPENDS     = "openssl opensc"
-RDEPENDS    = "libcrypto"
+RDEPENDS    = "libcrypto opensc"
 
-SRC_URI = "svn://vsmartcard.svn.sourceforge.net/svnroot;module=vsmartcard;proto=https;rev=396"
+SRC_URI = "svn://vsmartcard.svn.sourceforge.net/svnroot;module=vsmartcard;proto=https;rev=417"
 
 S = "${WORKDIR}/vsmartcard/npa"
 
