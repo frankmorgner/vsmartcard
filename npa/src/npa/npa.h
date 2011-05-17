@@ -25,6 +25,7 @@
 #include <npa/sm.h>
 #include <libopensc/opensc.h>
 #include <openssl/bn.h>
+#include <openssl/eac.h>
 #include <openssl/pace.h>
 
 #ifdef __cplusplus
@@ -100,7 +101,7 @@ const char *npa_secret_name(enum s_type pin_id);
  */
 struct establish_pace_channel_input {
     /** Version of TR-03110 to use with PACE */
-    enum tr_version tr_version;
+    enum eac_tr_version tr_version;
 
     /** Type of secret (CAN, MRZ, PIN or PUK). You may use <tt>enum s_type</tt> from \c <openssl/pace.h> */
     unsigned char pin_id;

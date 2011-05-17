@@ -40,9 +40,9 @@ AC_CHECK_HEADERS(openssl/evp.h, [], [ AC_MSG_ERROR([openssl/evp.h not found, ins
 AC_MSG_CHECKING([for EVP_read_pw_string_min])
 AC_TRY_LINK_FUNC(EVP_read_pw_string_min, [ AC_MSG_RESULT([yes]) ], [ AC_MSG_ERROR([OpenSSL not found, use ./configure OPENSSL_LIBS=...]) ])
 
-AC_CHECK_HEADERS(openssl/pace.h, [], [ AC_MSG_ERROR([openssl/pace.h not found, install OpenPACE or use ./configure OPENSSL_CFLAGS=...]) ])
-AC_MSG_CHECKING([for parse_ef_card_access])
-AC_TRY_LINK_FUNC(parse_ef_card_access, [ AC_MSG_RESULT([yes]) ], [ AC_MSG_ERROR([OpenPACE not found, use ./configure OPENSSL_LIBS=...]) ])
+AC_CHECK_HEADERS(openssl/eac.h, [], [ AC_MSG_ERROR([openssl/eac.h not found, install OpenPACE or use ./configure OPENSSL_CFLAGS=...]) ])
+AC_MSG_CHECKING([for EAC_CTX_init_pace])
+AC_TRY_LINK_FUNC(EAC_CTX_init_pace, [ AC_MSG_RESULT([yes]) ], [ AC_MSG_ERROR([OpenPACE not found, use ./configure OPENSSL_LIBS=...]) ])
 
 CPPFLAGS="$saved_CPPFLAGS"
 LIBS="$saved_LIBS"

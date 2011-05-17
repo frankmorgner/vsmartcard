@@ -29,7 +29,9 @@
 #include <openssl/err.h>
 #include <openssl/evp.h>
 #include <openssl/objects.h>
+#include <openssl/eac.h>
 #include <openssl/pace.h>
+#include <openssl/cv_cert.h>
 #include <string.h>
 
 
@@ -152,12 +154,8 @@ const size_t maxresp = SC_MAX_APDU_BUFFER_SIZE - 2;
 struct npa_sm_ctx {
     /** Send sequence counter */
     BIGNUM *ssc;
-    /** Key for message authentication code */
-    const BUF_MEM *key_mac;
-    /** Key for encryption and decryption */
-    const BUF_MEM *key_enc;
-    /** PACE context */
-    PACE_CTX *ctx;
+    /** EAC context */
+    EAC_CTX *ctx;
 };
 
 static int npa_sm_encrypt(sc_card_t *card, const struct sm_ctx *ctx,
@@ -175,13 +173,12 @@ static int npa_sm_post_transmit(sc_card_t *card, const struct sm_ctx *ctx,
         sc_apdu_t *sm_apdu);
 static void npa_sm_clear_free(const struct sm_ctx *ctx);
 
-static int increment_ssc(struct npa_sm_ctx *psmctx);
-static int decrement_ssc(struct npa_sm_ctx *psmctx);
-static int reset_ssc(struct npa_sm_ctx *psmctx);
+static int increment_ssc(struct npa_sm_ctx *eacsmctx);
+static int decrement_ssc(struct npa_sm_ctx *eacsmctx);
+static int reset_ssc(struct npa_sm_ctx *eacsmctx);
 
 static struct npa_sm_ctx *
-npa_sm_ctx_create(const BUF_MEM *key_mac,
-        const BUF_MEM *key_enc, PACE_CTX *ctx)
+npa_sm_ctx_create(EAC_CTX *ctx)
 {
     struct npa_sm_ctx *out = malloc(sizeof *out);
     if (!out)
@@ -191,8 +188,6 @@ npa_sm_ctx_create(const BUF_MEM *key_mac,
     if (!out->ssc || reset_ssc(out) < 0)
         goto err;
 
-    out->key_enc = key_enc;
-    out->key_mac = key_mac;
     out->ctx = ctx;
 
 
@@ -998,14 +993,11 @@ int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
         struct sm_ctx *sctx)
 {
     u8 *p = NULL;
-    PACEInfo *info = NULL;
-    PACEDomainParameterInfo *static_dp = NULL, *eph_dp = NULL;
-    BUF_MEM *enc_nonce = NULL, *nonce = NULL, *mdata = NULL, *mdata_opp = NULL,
-            *k_enc = NULL, *k_mac = NULL, *token_opp = NULL,
-            *token = NULL, *pub = NULL, *pub_opp = NULL, *key = NULL,
-            *comp_pub = NULL, *comp_pub_opp = NULL, *hash_cert_desc = NULL;
+	EAC_CTX *eac_ctx = NULL;
+	BUF_MEM *enc_nonce = NULL, *mdata = NULL, *mdata_opp = NULL,
+			*token_opp = NULL, *token = NULL, *pub = NULL, *pub_opp = NULL,
+			*comp_pub = NULL, *comp_pub_opp = NULL, *hash_cert_desc = NULL;
     PACE_SEC *sec = NULL;
-    PACE_CTX *pctx = NULL;
     CVC_CHAT *chat = NULL;
     BIO *bio_stdout = NULL;
     int r;
@@ -1057,7 +1049,7 @@ int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
                 goto err;
         }
 
-        hash_cert_desc = PACE_hash_certificate_description(
+        hash_cert_desc = EAC_hash_certificate_description(
                 pace_input.certificate_description,
                 pace_input.certificate_description_length);
         if (!hash_cert_desc) {
@@ -1117,24 +1109,19 @@ int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
     bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "EF.CardAccess", pace_output->ef_cardaccess,
             pace_output->ef_cardaccess_length);
 
-    if (!parse_ef_card_access(pace_output->ef_cardaccess,
-                pace_output->ef_cardaccess_length, &info, &static_dp)) {
-        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not parse EF.CardAccess.");
+	eac_ctx = EAC_CTX_new();
+    if (!eac_ctx
+			|| !EAC_CTX_init_ef_cardaccess(pace_output->ef_cardaccess,
+				pace_output->ef_cardaccess_length, eac_ctx)) {
+		sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not parse EF.CardAccess.");
         ssl_error(card->ctx);
         r = SC_ERROR_INTERNAL;
         goto err;
     }
 
-    pctx = PACE_CTX_new();
-    if (!pctx || !PACE_init(pctx, &static_dp, info)) {
-        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not initialize PACE parameters.");
-        ssl_error(card->ctx);
-        r = SC_ERROR_INTERNAL;
-        goto err;
-    }
-    pctx->tr_version = pace_input.tr_version;
+    eac_ctx->tr_version = pace_input.tr_version;
 
-    r = npa_mse_set_at(oldnpactx, card, info->protocol, pace_input.pin_id,
+    r = npa_mse_set_at(oldnpactx, card, eac_ctx->pace_ctx->protocol, pace_input.pin_id,
             chat, &pace_output->mse_set_at_sw1, &pace_output->mse_set_at_sw2);
     if (r < 0) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not select protocol proberties "
@@ -1165,11 +1152,16 @@ int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
         goto err;
     }
 
-    nonce = PACE_STEP2_dec_nonce(sec, enc_nonce, pctx);
+    if (!PACE_STEP2_dec_nonce(eac_ctx, sec, enc_nonce)) {
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not decrypt MRTD's nonce.");
+        ssl_error(card->ctx);
+        r = SC_ERROR_INTERNAL;
+        goto err;
+    }
 
     mdata_opp = BUF_MEM_new();
-    mdata = PACE_STEP3A_generate_mapping_data(static_dp, pctx);
-    if (!nonce || !mdata || !mdata_opp) {
+    mdata = PACE_STEP3A_generate_mapping_data(eac_ctx);
+    if (!mdata || !mdata_opp) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not generate mapping data.");
         ssl_error(card->ctx);
         r = SC_ERROR_INTERNAL;
@@ -1185,10 +1177,16 @@ int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
     mdata_opp->max = mdata_opp->length;
     bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "Mapping data from MRTD", (u8 *) mdata_opp->data, mdata_opp->length);
 
-    eph_dp = PACE_STEP3A_map_dp(static_dp, pctx, nonce, mdata_opp);
-    pub = PACE_STEP3B_generate_ephemeral_key(eph_dp, pctx);
+    if (!PACE_STEP3A_map_generator(eac_ctx, mdata_opp)) {
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not map generator.");
+        ssl_error(card->ctx);
+        r = SC_ERROR_INTERNAL;
+        goto err;
+    }
+
+    pub = PACE_STEP3B_generate_ephemeral_key(eac_ctx);
     pub_opp = BUF_MEM_new();
-    if (!eph_dp || !pub || !pub_opp) {
+    if (!pub || !pub_opp) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not generate ephemeral domain parameter or "
                 "ephemeral key pair.");
         ssl_error(card->ctx);
@@ -1205,17 +1203,16 @@ int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
     pub_opp->max = pub_opp->length;
     bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "Ephemeral public key from MRTD", (u8 *) pub_opp->data, pub_opp->length);
 
-    key = PACE_STEP3B_compute_ephemeral_key(eph_dp, pctx, pub_opp);
-    if (!key ||
-            !PACE_STEP3C_derive_keys(key, pctx, info, &k_mac, &k_enc)) {
+    
+    if (!PACE_STEP3B_compute_shared_secret(eac_ctx, pub_opp)
+			|| !PACE_STEP3C_derive_keys(eac_ctx)) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not compute ephemeral shared secret or "
                 "derive keys for encryption and authentication.");
         ssl_error(card->ctx);
         r = SC_ERROR_INTERNAL;
         goto err;
     }
-    token = PACE_STEP3D_compute_authentication_token(pctx,
-            eph_dp, info, pub_opp, k_mac);
+    token = PACE_STEP3D_compute_authentication_token(eac_ctx, pub_opp);
     token_opp = BUF_MEM_new();
     if (!token || !token_opp) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not compute authentication token.");
@@ -1235,17 +1232,24 @@ int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
     }
     token_opp->max = token_opp->length;
 
-    if (!PACE_STEP3D_verify_authentication_token(pctx,
-            eph_dp, info, k_mac, token_opp)) {
+    if (!PACE_STEP3D_verify_authentication_token(eac_ctx, token_opp)) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not verify authentication token.");
         ssl_error(card->ctx);
         r = SC_ERROR_INTERNAL;
         goto err;
     }
 
+    /* Initialize secure channel */
+    if (!EAC_CTX_set_encryption_ctx(eac_ctx, EAC_ID_PACE)) {
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not initialize encryption.");
+        ssl_error(card->ctx);
+        r = SC_ERROR_INTERNAL;
+        goto err;
+    }
+
     /* Identifier for ICC and PCD */
-    comp_pub = PACE_Comp(eph_dp, pctx, pub);
-    comp_pub_opp = PACE_Comp(eph_dp, pctx, pub_opp);
+    comp_pub = EAC_Comp(eac_ctx, EAC_ID_PACE, pub);
+    comp_pub_opp = EAC_Comp(eac_ctx, EAC_ID_PACE, pub_opp);
     if (!comp_pub || !comp_pub_opp) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not compress public keys for identification.");
         ssl_error(card->ctx);
@@ -1275,7 +1279,7 @@ int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
     bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "ID PCD", pace_output->id_pcd,
             pace_output->id_pcd_length);
 
-    sctx->priv_data = npa_sm_ctx_create(k_mac, k_enc, pctx);
+    sctx->priv_data = npa_sm_ctx_create(eac_ctx);
     if (!sctx->priv_data) {
         r = SC_ERROR_OUT_OF_MEMORY;
         goto err;
@@ -1288,22 +1292,12 @@ int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
     sctx->post_transmit = npa_sm_post_transmit;
     sctx->clear_free = npa_sm_clear_free;
     sctx->padding_indicator = SM_ISO_PADDING;
-    sctx->block_length = EVP_CIPHER_block_size(pctx->cipher);
+    sctx->block_length = EVP_CIPHER_block_size(eac_ctx->key_ctx->cipher);
     sctx->active = 1;
 
 err:
-    if (info)
-        PACEInfo_free(info);
-    if (static_dp)
-        PACEDomainParameterInfo_clear_free(static_dp);
-    if (eph_dp)
-        PACEDomainParameterInfo_clear_free(eph_dp);
     if (enc_nonce)
         BUF_MEM_free(enc_nonce);
-    if (nonce) {
-        OPENSSL_cleanse(nonce->data, nonce->length);
-        BUF_MEM_free(nonce);
-    }
     if (mdata)
         BUF_MEM_free(mdata);
     if (mdata_opp)
@@ -1322,26 +1316,14 @@ err:
         BUF_MEM_free(comp_pub);
     if (hash_cert_desc)
         BUF_MEM_free(hash_cert_desc);
-    if (key) {
-        OPENSSL_cleanse(key->data, key->length);
-        BUF_MEM_free(key);
-    }
     if (sec)
         PACE_SEC_clean_free(sec);
     if (bio_stdout)
         BIO_free_all(bio_stdout);
 
     if (r < 0) {
-        if (k_enc) {
-            OPENSSL_cleanse(k_enc->data, k_enc->length);
-            BUF_MEM_free(k_enc);
-        }
-        if (k_mac) {
-            OPENSSL_cleanse(k_mac->data, k_mac->length);
-            BUF_MEM_free(k_mac);
-        }
-        if (pctx)
-            PACE_CTX_clear_free(pctx);
+        if (eac_ctx)
+            EAC_CTX_clear_free(eac_ctx);
         if (sctx->priv_data)
             npa_sm_clear_free(sctx->priv_data);
     }
@@ -1370,34 +1352,34 @@ const char *npa_secret_name(enum s_type pin_id) {
 }
 
 int
-increment_ssc(struct npa_sm_ctx *psmctx)
+increment_ssc(struct npa_sm_ctx *eacsmctx)
 {
-    if (!psmctx)
+    if (!eacsmctx)
         return SC_ERROR_INVALID_ARGUMENTS;
 
-    BN_add_word(psmctx->ssc, 1);
+    BN_add_word(eacsmctx->ssc, 1);
 
     return SC_SUCCESS;
 }
 
 int
-decrement_ssc(struct npa_sm_ctx *psmctx)
+decrement_ssc(struct npa_sm_ctx *eacsmctx)
 {
-    if (!psmctx)
+    if (!eacsmctx)
         return SC_ERROR_INVALID_ARGUMENTS;
 
-    BN_sub_word(psmctx->ssc, 1);
+    BN_sub_word(eacsmctx->ssc, 1);
 
     return SC_SUCCESS;
 }
 
 int
-reset_ssc(struct npa_sm_ctx *psmctx)
+reset_ssc(struct npa_sm_ctx *eacsmctx)
 {
-    if (!psmctx)
+    if (!eacsmctx)
         return SC_ERROR_INVALID_ARGUMENTS;
 
-    BN_zero(psmctx->ssc);
+    BN_zero(eacsmctx->ssc);
 
     return SC_SUCCESS;
 }
@@ -1414,10 +1396,10 @@ npa_sm_encrypt(sc_card_t *card, const struct sm_ctx *ctx,
         r = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
     }
-    struct npa_sm_ctx *psmctx = ctx->priv_data;
+    struct npa_sm_ctx *eacsmctx = ctx->priv_data;
 
     databuf = BUF_MEM_create_init(data, datalen);
-    encbuf = PACE_encrypt(psmctx->ctx, psmctx->ssc, psmctx->key_enc, databuf);
+    encbuf = EAC_encrypt(eacsmctx->ctx, eacsmctx->ssc, databuf);
     if (!databuf || !encbuf) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not encrypt data.");
         ssl_error(card->ctx);
@@ -1458,10 +1440,10 @@ npa_sm_decrypt(sc_card_t *card, const struct sm_ctx *ctx,
         r = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
     }
-    struct npa_sm_ctx *psmctx = ctx->priv_data;
+    struct npa_sm_ctx *eacsmctx = ctx->priv_data;
 
     encbuf = BUF_MEM_create_init(enc, enclen);
-    databuf = PACE_decrypt(psmctx->ctx, psmctx->ssc, psmctx->key_enc, encbuf);
+    databuf = EAC_decrypt(eacsmctx->ctx, eacsmctx->ssc, encbuf);
     if (!encbuf || !databuf) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not decrypt data.");
         ssl_error(card->ctx);
@@ -1502,10 +1484,9 @@ npa_sm_authenticate(sc_card_t *card, const struct sm_ctx *ctx,
         r = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
     }
-    struct npa_sm_ctx *psmctx = ctx->priv_data;
+    struct npa_sm_ctx *eacsmctx = ctx->priv_data;
 
-    macbuf = PACE_authenticate(psmctx->ctx, psmctx->ssc, psmctx->key_mac,
-            data, datalen);
+	macbuf = EAC_authenticate(eacsmctx->ctx, eacsmctx->ssc, data, datalen);
     if (!macbuf) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
                 "Could not compute message authentication code (MAC).");
@@ -1546,10 +1527,10 @@ npa_sm_verify_authentication(sc_card_t *card, const struct sm_ctx *ctx,
         r = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
     }
-    struct npa_sm_ctx *psmctx = ctx->priv_data;
+    struct npa_sm_ctx *eacsmctx = ctx->priv_data;
 
-    my_mac = PACE_authenticate(psmctx->ctx, psmctx->ssc, psmctx->key_mac,
-            macdata, macdatalen);
+	my_mac = EAC_authenticate(eacsmctx->ctx, eacsmctx->ssc, macdata,
+			macdatalen);
     if (!my_mac) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
                 "Could not compute message authentication code (MAC) for verification.");
@@ -1597,18 +1578,10 @@ static void
 npa_sm_clear_free(const struct sm_ctx *ctx)
 {
     if (ctx) {
-        struct npa_sm_ctx *psmctx = ctx->priv_data;
-        if (psmctx->key_mac) {
-            OPENSSL_cleanse(psmctx->key_mac->data, psmctx->key_mac->max);
-            BUF_MEM_free((BUF_MEM *) psmctx->key_mac);
-        }
-        if (psmctx->key_enc) {
-            OPENSSL_cleanse(psmctx->key_enc->data, psmctx->key_enc->max);
-            BUF_MEM_free((BUF_MEM *) psmctx->key_enc);
-        }
-        PACE_CTX_clear_free(psmctx->ctx);
-        if (psmctx->ssc)
-            BN_clear_free(psmctx->ssc);
-        free(psmctx);
+        struct npa_sm_ctx *eacsmctx = ctx->priv_data;
+        PACE_CTX_clear_free(eacsmctx->ctx);
+        if (eacsmctx->ssc)
+            BN_clear_free(eacsmctx->ssc);
+        free(eacsmctx);
     }
 }
