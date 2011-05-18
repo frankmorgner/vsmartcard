@@ -1317,7 +1317,7 @@ err:
     if (hash_cert_desc)
         BUF_MEM_free(hash_cert_desc);
     if (sec)
-        PACE_SEC_clean_free(sec);
+        PACE_SEC_clear_free(sec);
     if (bio_stdout)
         BIO_free_all(bio_stdout);
 
