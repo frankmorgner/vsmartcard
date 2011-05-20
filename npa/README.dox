@@ -4,7 +4,7 @@ Welcome to npa. The purpose of npa is to offer an easy to use API for the new
 German identity card (neuer Personalausweis, nPA). The library also implements
 secure messaging, which could also be used for other cards.
 
-npa is implemented using OpenPACE (http://sourceforge.net/projects/openpace/).
+npa is implemented using OpenPACE 0.6 (http://sourceforge.net/projects/openpace/).
 Some fragments of the source code are on the source code of the OpenSC tools.
 
 The included npa-tool has support for Password Authenticated Connection
@@ -23,17 +23,21 @@ libnpa links against libopensc, which is discouraged and hindered since
 opensc>=0.12. We really need to get rid of this dependency. You need the opensc
 components to be installed (especially libopensc.so). But you might need to
 adjust the opensc library flags:
+@code
 ./configure \
     OPENSC_LIBS="-L/path/to/opensc/libdir -lopensc"
+@endcode
 
 
 @subsection o HINTS ON OPENSSL
 
 If you have a local build of OpenSSL with OpenPACE, that you want to link
 against use something like the following command:
+@code
 ./configure \
-    OPENSSL_CFLAGS="-I/path/to/openssl-1.0.0c_with_openpace-0.4/include" \
-    OPENSSL_LIBS="-L/path/to/openssl-1.0.0c_with_openpace-0.4 -lcrypto"
+    OPENSSL_CFLAGS="-I/path/to/openssl-1.0.0d_with_openpace-0.6/include" \
+    OPENSSL_LIBS="-L/path/to/openssl-1.0.0d_with_openpace-0.6 -lcrypto"
+@endcode
 
 
 @section u USAGE
@@ -51,15 +55,19 @@ npa-tool will show a password prompt.
 
 If you have a local build of libnpa and OpenPACE, the preferred way to adjust
 libraries and cflags for foreign code is to use pkg-config:
+@code
 ./configure \
-    PKG_CONFIG_PATH=/path/to/openssl-1.0.0c_with_openpace-0.4/lib/pkgconfig:/path/to/libnpa/lib/pkgconfig"
+    PKG_CONFIG_PATH=/path/to/openssl-1.0.0d_with_openpace-0.6/lib/pkgconfig:/path/to/libnpa/lib/pkgconfig"
+@endcode
 
 Alternatively you can define libs and cflags by hand:
+@code
 ./configure \
-    OPENSSL_CFLAGS="-I/path/to/openssl-1.0.0c_with_openpace-0.4/include" \
-    LIBNPA_CFLAGS="-I/path/to/openssl-1.0.0c_with_openpace-0.4/include -I/path/to/libnpa-0.1/src" \
-    OPENSSL_LIBS="-L/path/to/openssl-1.0.0c_with_openpace-0.4 -lcrypto" \
-    LIBNPA_LIBS="-L/path/to/openssl-1.0.0c_with_openpace-0.4 -lcrypto -L/path/to/libnpa-0.1/src/.libs -lnpa"
+    OPENSSL_CFLAGS="-I/path/to/openssl-1.0.0d_with_openpace-0.6/include" \
+    LIBNPA_CFLAGS="-I/path/to/openssl-1.0.0d_with_openpace-0.6/include -I/path/to/libnpa-0.1/src" \
+    OPENSSL_LIBS="-L/path/to/openssl-1.0.0d_with_openpace-0.6 -lcrypto" \
+    LIBNPA_LIBS="-L/path/to/openssl-1.0.0d_with_openpace-0.6 -lcrypto -L/path/to/libnpa-0.1/src/.libs -lnpa"
+@endcode
 
 
 @section q QUESTIONS
