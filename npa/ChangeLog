@@ -1,3 +1,32 @@
+2011-05-20 08:55  frankmorgner
+
+	* README.dox: updated documentation
+
+2011-05-20 08:44  frankmorgner
+
+	* src/npa.c, src/sm.c: - sm.c: added test for available memory
+	  - npa.c: removed obsolete comments
+
+2011-05-20 08:23  frankmorgner
+
+	* src/npa.c: fixed segfault on cleanup
+
+2011-05-18 11:41  frankmorgner
+
+	* src/npa.c: fixed usage of PACE_SEC_clear_free
+
+2011-05-17 19:04  frankmorgner
+
+	* configure.ac, src/npa.c, src/npa/npa.h: adapted to openpace 0.6
+
+2011-02-08 14:01  frankmorgner
+
+	* ChangeLog, configure.ac: released 0.2
+
+2011-02-07 12:15  frankmorgner
+
+	* Makefile.am:
+
 2011-02-06 20:26  frankmorgner
 
 	* configure.ac, src/npa-tool.c, src/npa.c: added compatibility to
@@ -15,8 +44,8 @@
 2011-02-03 22:09  frankmorgner
 
 	* src/Makefile.am, src/npa-tool.c, src/npa.c, src/npa/npa.h,
-	  src/npa/npa_lib.h, src/npa/sm.h, src/npa_lib.c, src/sm.c: - not
-	  exporting npa internal stuff anymore
+	  src/npa/npa_lib.h[DEL], src/npa/sm.h, src/npa_lib.c[DEL],
+	  src/sm.c: - not exporting npa internal stuff anymore
 	  - added sm_ctx_clear_free
 
 2011-02-02 19:06  frankmorgner
@@ -25,12 +54,13 @@
 
 2011-02-02 18:49  frankmorgner
 
-	* Makefile.am, README.dox, configure.ac, libnpa.pc.in,
-	  libpace.pc.in, src/Makefile.am, src/npa, src/npa-tool.c,
-	  src/npa.c, src/npa/npa.h, src/npa/npa_lib.h, src/npa/pace.h,
-	  src/npa/pace_lib.h, src/npa_lib.c, src/pace, src/pace-tool.c,
-	  src/pace.c, src/pace_lib.c, src/scutil.c: renamed libpace to
-	  libnpa
+	* Makefile.am, README.dox, configure.ac, libnpa.pc.in[CPY],
+	  libpace.pc.in[DEL], src/Makefile.am, src/npa[CPY],
+	  src/npa-tool.c[CPY], src/npa.c[CPY], src/npa/npa.h[CPY],
+	  src/npa/npa_lib.h[CPY], src/npa/pace.h[DEL],
+	  src/npa/pace_lib.h[DEL], src/npa_lib.c[CPY], src/pace[DEL],
+	  src/pace-tool.c[DEL], src/pace.c[DEL], src/pace_lib.c[DEL],
+	  src/scutil.c: renamed libpace to libnpa
 
 2011-02-01 13:47  oepen
 
@@ -119,11 +149,12 @@
 
 2010-11-14 20:34  frankmorgner
 
-	* ., Makefile.am, apdus, configure.ac, m4/acx_pthread.m4, patches,
-	  src/Makefile.am, src/binutil.c, src/binutil.h, src/cats-test.c,
-	  src/ccid.c, src/ccid.h, src/pcscutil.c, src/pcscutil.h,
-	  src/usb.c, src/usbstring.c, src/usbstring.h: extracted libpace
-	  from ccid
+	* .[CPY], Makefile.am, apdus[DEL], configure.ac,
+	  m4/acx_pthread.m4[DEL], patches[DEL], src/Makefile.am,
+	  src/binutil.c, src/binutil.h, src/cats-test.c[DEL],
+	  src/ccid.c[DEL], src/ccid.h[DEL], src/pcscutil.c[DEL],
+	  src/pcscutil.h[DEL], src/usb.c[DEL], src/usbstring.c[DEL],
+	  src/usbstring.h[DEL]: extracted libpace from ccid
 
 2010-10-28 10:00  frankmorgner
 
