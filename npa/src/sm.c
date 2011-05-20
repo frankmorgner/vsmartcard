@@ -528,7 +528,7 @@ static int sm_decrypt(const struct sm_ctx *ctx, sc_card_t *card,
             goto err;
         }
 
-        if (apdu->resplen < r) {
+        if (apdu->resplen < r || (r && !apdu->resp)) {
             sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Response of SM APDU too long");
             r = SC_ERROR_OUT_OF_MEMORY;
             goto err;

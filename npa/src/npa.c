@@ -484,28 +484,12 @@ static int npa_gen_auth_1_encrypted_nonce(struct sm_ctx *oldnpactx,
     *enc_nonce_len = l;
 
 err:
-    if (c_data) {
-        /* XXX
-        if (c_data->mapping_data)
-            ASN1_OCTET_STRING_free(c_data->mapping_data);
-        if (c_data->eph_pub_key)
-            ASN1_OCTET_STRING_free(c_data->eph_pub_key);
-        if (c_data->auth_token)
-            ASN1_OCTET_STRING_free(c_data->auth_token);*/
+    if (c_data)
         NPA_GEN_AUTH_C_free(c_data);
-    }
     if (d)
         free(d);
-    if (r_data) {
-        /* XXX
-        if (r_data->mapping_data)
-            ASN1_OCTET_STRING_free(r_data->mapping_data);
-        if (r_data->eph_pub_key)
-            ASN1_OCTET_STRING_free(r_data->eph_pub_key);
-        if (r_data->auth_token)
-            ASN1_OCTET_STRING_free(r_data->auth_token);*/
+    if (r_data)
         NPA_GEN_AUTH_R_free(r_data);
-    }
     /* XXX */
     /*if (apdu.resp)*/
         /*free(apdu.resp);*/
