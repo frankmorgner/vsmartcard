@@ -148,7 +148,7 @@ IMPLEMENT_ASN1_FUNCTIONS(NPA_GEN_AUTH_R)
 
 
 
-const size_t maxresp = SC_MAX_APDU_BUFFER_SIZE - 2;
+#define maxresp SC_MAX_APDU_BUFFER_SIZE - 2
 
 /** NPA secure messaging context */
 struct npa_sm_ctx {
@@ -415,6 +415,7 @@ static int npa_gen_auth_1_encrypted_nonce(struct sm_ctx *oldnpactx,
     NPA_GEN_AUTH_R *r_data = NULL;
     unsigned char *d = NULL, *p;
     int r, l;
+	unsigned char resp[maxresp];
 
     memset(&apdu, 0, sizeof apdu);
     apdu.cla = 0x10;
@@ -438,8 +439,8 @@ static int npa_gen_auth_1_encrypted_nonce(struct sm_ctx *oldnpactx,
 
     bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "General authenticate (Encrypted Nonce) command data", apdu.data, apdu.datalen);
 
-    apdu.resplen = maxresp;
-    apdu.resp = malloc(apdu.resplen);
+    apdu.resplen = sizeof resp;
+    apdu.resp = resp;
     if (oldnpactx)
         r = sm_transmit_apdu(oldnpactx, card, &apdu);
     else
@@ -490,9 +491,6 @@ err:
         free(d);
     if (r_data)
         NPA_GEN_AUTH_R_free(r_data);
-    /* XXX */
-    /*if (apdu.resp)*/
-        /*free(apdu.resp);*/
 
     return r;
 }
@@ -505,6 +503,7 @@ static int npa_gen_auth_2_map_nonce(struct sm_ctx *oldnpactx,
     NPA_GEN_AUTH_R *r_data = NULL;
     unsigned char *d = NULL, *p;
     int r, l;
+	unsigned char resp[maxresp];
 
     memset(&apdu, 0, sizeof apdu);
     apdu.cla = 0x10;
@@ -535,8 +534,8 @@ static int npa_gen_auth_2_map_nonce(struct sm_ctx *oldnpactx,
 
     bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "General authenticate (Map Nonce) command data", apdu.data, apdu.datalen);
 
-    apdu.resplen = maxresp;
-    apdu.resp = malloc(apdu.resplen);
+    apdu.resplen = sizeof resp;
+    apdu.resp = resp;
     if (oldnpactx)
         r = sm_transmit_apdu(oldnpactx, card, &apdu);
     else
@@ -581,31 +580,12 @@ static int npa_gen_auth_2_map_nonce(struct sm_ctx *oldnpactx,
     *map_data_out_len = l;
 
 err:
-    if (c_data) {
-        /* XXX
-        if (c_data->mapping_data)
-            ASN1_OCTET_STRING_free(c_data->mapping_data);
-        if (c_data->eph_pub_key)
-            ASN1_OCTET_STRING_free(c_data->eph_pub_key);
-        if (c_data->auth_token)
-            ASN1_OCTET_STRING_free(c_data->auth_token);*/
+    if (c_data)
         NPA_GEN_AUTH_C_free(c_data);
-    }
     if (d)
         free(d);
-    if (r_data) {
-        /* XXX
-        if (r_data->mapping_data)
-            ASN1_OCTET_STRING_free(r_data->mapping_data);
-        if (r_data->eph_pub_key)
-            ASN1_OCTET_STRING_free(r_data->eph_pub_key);
-        if (r_data->auth_token)
-            ASN1_OCTET_STRING_free(r_data->auth_token);*/
+    if (r_data)
         NPA_GEN_AUTH_R_free(r_data);
-    }
-    /* XXX */
-    /*if (apdu.resp)*/
-        /*free(apdu.resp);*/
 
     return r;
 }
@@ -618,6 +598,7 @@ static int npa_gen_auth_3_perform_key_agreement(
     NPA_GEN_AUTH_R *r_data = NULL;
     unsigned char *d = NULL, *p;
     int r, l;
+	unsigned char resp[maxresp];
 
     memset(&apdu, 0, sizeof apdu);
     apdu.cla = 0x10;
@@ -648,8 +629,8 @@ static int npa_gen_auth_3_perform_key_agreement(
 
     bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "General authenticate (Perform Key Agreement) command data", apdu.data, apdu.datalen);
 
-    apdu.resplen = maxresp;
-    apdu.resp = malloc(apdu.resplen);
+    apdu.resplen = sizeof resp;
+    apdu.resp = resp;
     if (oldnpactx)
         r = sm_transmit_apdu(oldnpactx, card, &apdu);
     else
@@ -694,31 +675,12 @@ static int npa_gen_auth_3_perform_key_agreement(
     *eph_pub_key_out_len = l;
 
 err:
-    if (c_data) {
-        /* XXX
-        if (c_data->mapping_data)
-            ASN1_OCTET_STRING_free(c_data->mapping_data);
-        if (c_data->eph_pub_key)
-            ASN1_OCTET_STRING_free(c_data->eph_pub_key);
-        if (c_data->auth_token)
-            ASN1_OCTET_STRING_free(c_data->auth_token);*/
+    if (c_data)
         NPA_GEN_AUTH_C_free(c_data);
-    }
     if (d)
         free(d);
-    if (r_data) {
-        /* XXX
-        if (r_data->mapping_data)
-            ASN1_OCTET_STRING_free(r_data->mapping_data);
-        if (r_data->eph_pub_key)
-            ASN1_OCTET_STRING_free(r_data->eph_pub_key);
-        if (r_data->auth_token)
-            ASN1_OCTET_STRING_free(r_data->auth_token);*/
+    if (r_data)
         NPA_GEN_AUTH_R_free(r_data);
-    }
-    /* XXX */
-    /*if (apdu.resp)*/
-        /*free(apdu.resp);*/
 
     return r;
 }
@@ -733,6 +695,7 @@ static int npa_gen_auth_4_mutual_authentication(
     NPA_GEN_AUTH_R *r_data = NULL;
     unsigned char *d = NULL, *p;
     int r, l;
+	unsigned char resp[maxresp];
 
     memset(&apdu, 0, sizeof apdu);
     apdu.cla = 0x10;
@@ -764,8 +727,8 @@ static int npa_gen_auth_4_mutual_authentication(
 
     bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "General authenticate (Perform Key Agreement) command data", apdu.data, apdu.datalen);
 
-    apdu.resplen = maxresp;
-    apdu.resp = malloc(apdu.resplen);
+    apdu.resplen = sizeof resp;
+    apdu.resp = resp;
     if (oldnpactx)
         r = sm_transmit_apdu(oldnpactx, card, &apdu);
     else
@@ -835,31 +798,12 @@ static int npa_gen_auth_4_mutual_authentication(
     *auth_token_out_len = l;
 
 err:
-    if (c_data) {
-        /* XXX
-        if (c_data->mapping_data)
-            ASN1_OCTET_STRING_free(c_data->mapping_data);
-        if (c_data->eph_pub_key)
-            ASN1_OCTET_STRING_free(c_data->eph_pub_key);
-        if (c_data->auth_token)
-            ASN1_OCTET_STRING_free(c_data->auth_token);*/
+    if (c_data)
         NPA_GEN_AUTH_C_free(c_data);
-    }
     if (d)
         free(d);
-    if (r_data) {
-        /* XXX
-        if (r_data->mapping_data)
-            ASN1_OCTET_STRING_free(r_data->mapping_data);
-        if (r_data->eph_pub_key)
-            ASN1_OCTET_STRING_free(r_data->eph_pub_key);
-        if (r_data->auth_token)
-            ASN1_OCTET_STRING_free(r_data->auth_token);*/
+    if (r_data)
         NPA_GEN_AUTH_R_free(r_data);
-    }
-    /* XXX */
-    /*if (apdu.resp)*/
-        /*free(apdu.resp);*/
 
     return r;
 }
