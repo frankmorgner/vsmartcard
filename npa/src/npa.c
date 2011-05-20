@@ -1579,7 +1579,7 @@ npa_sm_clear_free(const struct sm_ctx *ctx)
 {
     if (ctx) {
         struct npa_sm_ctx *eacsmctx = ctx->priv_data;
-        PACE_CTX_clear_free(eacsmctx->ctx);
+        EAC_CTX_clear_free(eacsmctx->ctx);
         if (eacsmctx->ssc)
             BN_clear_free(eacsmctx->ssc);
         free(eacsmctx);
