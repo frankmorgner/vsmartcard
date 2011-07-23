@@ -11,6 +11,9 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 AM_PATH_PYTHON
 
+# If you need to see the details, just run make V=1.
+m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
+
 # Checks for libraries.
 PKG_CHECK_MODULES(PYGTK, pygtk-2.0)
 AC_SUBST(PYGTK_CFLAGS)

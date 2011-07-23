@@ -18,6 +18,9 @@ AM_PROG_CC_C_O
 AM_PATH_PYTHON
 PKG_PROG_PKG_CONFIG
 
+# If you need to see the details, just run make V=1.
+m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
+
 
 # Checks for libraries.
 PKG_CHECK_EXISTS([libpcsclite],
