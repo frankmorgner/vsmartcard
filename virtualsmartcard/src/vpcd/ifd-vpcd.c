@@ -3,11 +3,15 @@
 
 #include <string.h>
 
-/* XXX see bug #312749 on https://alioth.debian.org/projects/pcsclite/
- * should use the right reader.conf, but pcscd older than r5294 will throw an
- * error with the new configuration
- * */
+/* The default configuration for vpcd provides a IFD-handler conforming to
+ * version 2 of the IFDHandler API with adjustable port by ChannelID in
+ * reader.conf. If you want vpcd to conform to version 3, you must...
+ * 1. have a pcscd of r5294 and later (see but #312749 on
+ *    https://alioth.debian.org/projects/pcsclite/ )
+ * 2. remove the line "DEVICENAME   /dev/null" from the provided reader.conf
+ * 3. not define IFDHANDLERv2 (e.g. remove the following line) */
 #define IFDHANDLERv2
+
 #include <ifdhandler.h>
 
 #include <debuglog.h>
