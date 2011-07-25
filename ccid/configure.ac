@@ -85,13 +85,13 @@ if test "x$enable_pace" != xno ; then
     enable_pace=yes
 else
     PKG_CHECK_EXISTS([libopensc],
-                     [PKG_CHECK_MODULES([OPENSC], [libopensc >= 0.12])],
-                     [AC_MSG_WARN([libopensc >= 0.12 not found by pkg-config])])
+                     [PKG_CHECK_MODULES([OPENSC], [libopensc >= 0.12.1])],
+                     [AC_MSG_WARN([libopensc >= 0.12.1 not found by pkg-config])])
     test -z "$OPENSC_LIBS" && OPENSC_LIBS="-lopensc"
     LIBS="$LDFLAGS $OPENSC_LIBS $OPENSSL_LIBS"
-    AC_MSG_CHECKING([for sc_ctx_get_reader_count])
-    AC_TRY_LINK_FUNC(sc_ctx_get_reader_count, [ AC_MSG_RESULT([yes]) ],
-    [ AC_MSG_ERROR([libopensc >= 0.12 not found, use ./configure OPENSC_LIBS=...]) ])
+    AC_MSG_CHECKING([for sc_bytes2apdu])
+    AC_TRY_LINK_FUNC(sc_bytes2apdu, [ AC_MSG_RESULT([yes]) ],
+    [ AC_MSG_ERROR([libopensc >= 0.12.1 not found, use ./configure OPENSC_LIBS=...]) ])
 fi
 CPPFLAGS="$saved_CPPFLAGS"
 LIBS="$saved_LIBS"

@@ -168,7 +168,7 @@ int npa_translate_apdus(struct sm_ctx *sctx, sc_card_t *card, FILE *input)
         if (input != stdin)
             bin_print(stdout, "Unencrypted C-APDU", buf, apdulen);
 
-        r = build_apdu(card->ctx, buf, apdulen, &apdu);
+        r = sc_bytes2apdu(card->ctx, buf, apdulen, &apdu);
         if (r < 0) {
             bin_log(ctx, SC_LOG_DEBUG_NORMAL, "Invalid C-APDU", buf, apdulen);
             continue;

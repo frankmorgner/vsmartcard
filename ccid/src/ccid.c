@@ -408,7 +408,7 @@ perform_PC_to_RDR_IccPowerOn(const __u8 *in, size_t inlen, __u8 **out, size_t *o
 
     if (sc_result >= 0) {
         return get_RDR_to_PC_SlotStatus(request->bSeq,
-                sc_result, out, outlen, card->atr, card->atr_len);
+                sc_result, out, outlen, card->atr.value, card->atr.len);
     } else {
         sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Returning default status package.");
         return get_RDR_to_PC_SlotStatus(request->bSeq,
@@ -544,7 +544,7 @@ perform_PC_to_RDR_XfrBlock(const u8 *in, size_t inlen, __u8** out, size_t *outle
 		sc_result = perform_pseudo_apdu(abDataIn, apdulen, &abDataOut,
 				&abDataOutLen);
 	} else {
-		sc_result = build_apdu(ctx, abDataIn, apdulen, &apdu);
+		sc_result = sc_bytes2apdu(ctx, abDataIn, apdulen, &apdu);
 		if (sc_result >= 0)
 			sc_result = get_rapdu(&apdu, &abDataOut,
 					&abDataOutLen);
@@ -1217,7 +1217,7 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
 		sc_result = SC_ERROR_INVALID_DATA;
 		goto err;
 	}
-    sc_result = build_apdu(ctx, abPINApdu, apdulen, &apdu);
+    sc_result = sc_bytes2apdu(ctx, abPINApdu, apdulen, &apdu);
     if (sc_result < 0) {
         bin_log(ctx, SC_LOG_DEBUG_VERBOSE, "Invalid APDU", abPINApdu, apdulen);
         goto err;
