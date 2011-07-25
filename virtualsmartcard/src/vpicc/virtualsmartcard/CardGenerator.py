@@ -154,7 +154,7 @@ class CardGenerator(object):
             print "Failed to open " + filename
         
         if password is None:
-            password = getpass.getpass("Please enter your password.")
+            password = getpass.getpass("Please enter your password:")
         
         serializedMF = read_protected_string(db["mf"], password)
         serializedSAM = read_protected_string(db["sam"], password)
@@ -166,8 +166,8 @@ class CardGenerator(object):
         from virtualsmartcard.CryptoUtils import protect_string        
                
         if password is None:
-            passwd1 = getpass.getpass("Please enter a password.")
-            passwd2 = getpass.getpass("Please retype your password.")
+            passwd1 = getpass.getpass("Please enter your password:")
+            passwd2 = getpass.getpass("Please retype your password:")
             if (passwd1 != passwd2):
                 raise ValueError, "Passwords did not match. Will now exit"
             else:
