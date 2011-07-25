@@ -443,6 +443,77 @@ perform_PC_to_RDR_IccPowerOff(const __u8 *in, size_t inlen, __u8 **out, size_t *
 }
 
 static int
+perform_pseudo_apdu(const __u8 *in, size_t inlen, __u8 **out, size_t *outlen)
+{
+    __u8 *p;
+
+    if (!in || !out || !outlen)
+        return SC_ERROR_INVALID_ARGUMENTS;
+
+    if (*in != 0xFF)
+		sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "malformed PC_to_RDR_XfrBlock, will continue anyway");
+
+	if (inlen < 5) {
+        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Not enough Data for Pseudo-APDU");
+        SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_VERBOSE, SC_ERROR_INVALID_DATA);
+	}
+	switch (in[1]) {
+		case 0x9A:
+			/* GetReaderInfo */
+			if (in[2] != 0x01 || inlen != 5 || in[4] != 0x00) {
+parse_error:
+					p = realloc(*out, 2);
+					if (!p)
+						SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_VERBOSE, SC_ERROR_OUT_OF_MEMORY);
+					*out = p;
+					memcpy(*out, "\x6A\x86", 2);
+					*outlen = 2;
+			}
+			/* TODO Merge this with STRINGID_MFGR, STRINGID_PRODUCT in usb.c */
+			/* Copied from olsc/AusweisApp/Data/siqTerminalsInfo.cfg */
+			const char *info;
+			const char *Herstellername = "REINER SCT";
+			const char *Produktname = "cyberJack RFID komfort";
+			const char *Firmwareversion = "1.0";
+			const char *Treiberversion = "3.99.5";
+			switch (in[3]) {
+				case 0x01:
+					info = Herstellername;
+					break;
+				case 0x03:
+					info = Produktname;
+					break;
+				case 0x06:
+					info = Firmwareversion;
+					break;
+				case 0x07:
+					info = Treiberversion;
+					break;
+				default:
+					goto parse_error;
+			}
+			size_t infolen = strlen(info);
+			p = realloc(*out, infolen);
+			if (!p)
+				SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_VERBOSE, SC_ERROR_OUT_OF_MEMORY);
+			*out = p;
+			memcpy(*out, info, infolen);
+			*outlen = infolen;
+			break;
+
+		default:
+			p = realloc(*out, 2);
+			if (!p)
+				SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_VERBOSE, SC_ERROR_OUT_OF_MEMORY);
+			*out = p;
+			memcpy(*out, "\x6A\x81", 2);
+			*outlen = 2;
+	}
+
+    return SC_SUCCESS;
+}
+
+static int
 perform_PC_to_RDR_XfrBlock(const u8 *in, size_t inlen, __u8** out, size_t *outlen)
 {
     const PC_to_RDR_XfrBlock_t *request = (PC_to_RDR_XfrBlock_t *) in;
@@ -469,13 +540,18 @@ perform_PC_to_RDR_XfrBlock(const u8 *in, size_t inlen, __u8** out, size_t *outle
         SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_VERBOSE, SC_ERROR_INVALID_DATA);
 	}
 
-    sc_result = build_apdu(ctx, abDataIn, apdulen, &apdu);
-    if (sc_result >= 0)
-        sc_result = get_rapdu(&apdu, &abDataOut,
-                &abDataOutLen);
-    else
-        bin_log(ctx, SC_LOG_DEBUG_VERBOSE, "Invalid APDU", abDataIn,
-                __le32_to_cpu(request->dwLength));
+	if (apdulen >= 1 && *abDataIn == 0xff) {
+		sc_result = perform_pseudo_apdu(abDataIn, apdulen, &abDataOut,
+				&abDataOutLen);
+	} else {
+		sc_result = build_apdu(ctx, abDataIn, apdulen, &apdu);
+		if (sc_result >= 0)
+			sc_result = get_rapdu(&apdu, &abDataOut,
+					&abDataOutLen);
+		else
+			bin_log(ctx, SC_LOG_DEBUG_VERBOSE, "Invalid APDU", abDataIn,
+					__le32_to_cpu(request->dwLength));
+	}
 
     sc_result = get_RDR_to_PC_DataBlock(request->bSeq, sc_result,
             out, outlen, abDataOut, abDataOutLen);
