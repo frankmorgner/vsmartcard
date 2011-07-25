@@ -448,7 +448,7 @@ perform_PC_to_RDR_XfrBlock(const u8 *in, size_t inlen, __u8** out, size_t *outle
     const PC_to_RDR_XfrBlock_t *request = (PC_to_RDR_XfrBlock_t *) in;
     const __u8 *abDataIn = in + sizeof *request;
     int sc_result;
-    size_t abDataOutLen = 0;
+    size_t abDataOutLen = 0, apdulen;
     sc_apdu_t apdu;
     __u8 *abDataOut = NULL;
 
@@ -463,8 +463,13 @@ perform_PC_to_RDR_XfrBlock(const u8 *in, size_t inlen, __u8** out, size_t *outle
             || request->bBWI  != 0)
         sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "malformed PC_to_RDR_XfrBlock, will continue anyway");
 
-    sc_result = build_apdu(ctx, abDataIn, __le32_to_cpu(request->dwLength),
-            &apdu);
+	apdulen = __le32_to_cpu(request->dwLength);
+	if (inlen < apdulen+sizeof *request) {
+        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Not enough Data for APDU");
+        SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_VERBOSE, SC_ERROR_INVALID_DATA);
+	}
+
+    sc_result = build_apdu(ctx, abDataIn, apdulen, &apdu);
     if (sc_result >= 0)
         sc_result = get_rapdu(&apdu, &abDataOut,
                 &abDataOutLen);
@@ -756,7 +761,7 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
 
     memset(&pace_input, 0, sizeof pace_input);
     memset(&pace_output, 0, sizeof pace_output);
-    pace_input.tr_version = PACE_TR_VERSION_2_02;
+    pace_input.tr_version = EAC_TR_VERSION_2_02;
 
 
     if (!abDataOut || !abDataOutLen) {
@@ -1074,6 +1079,7 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
                 (abData + sizeof(__u8));
 
             if (abDatalen < sizeof *verify) {
+                sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Not enough data for abPINDataStucture_Verification_t");
                 sc_result = SC_ERROR_INVALID_DATA;
                 goto err;
             }
@@ -1130,6 +1136,11 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
             goto err;
     }
 
+	if (inlen - (abData - abPINApdu) < apdulen) {
+        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Not enough Data for APDU");
+		sc_result = SC_ERROR_INVALID_DATA;
+		goto err;
+	}
     sc_result = build_apdu(ctx, abPINApdu, apdulen, &apdu);
     if (sc_result < 0) {
         bin_log(ctx, SC_LOG_DEBUG_VERBOSE, "Invalid APDU", abPINApdu, apdulen);
