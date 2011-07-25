@@ -253,7 +253,7 @@ class Iso7816OS(SmartcardOS): # {{{
             c = C_APDU(msg)
         except ValueError, e:
             print e
-            return self.formatResult(0, 0, "", SW["ERR_INCORRECTPARAMETERS"])
+            return self.formatResult(0, "", SW["ERR_INCORRECTPARAMETERS"], False)
 
         #Handle Class Byte{{{
         class_byte = c.cla
