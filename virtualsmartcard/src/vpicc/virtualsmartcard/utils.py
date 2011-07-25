@@ -290,21 +290,34 @@ class C_APDU(APDU):
         apdu = apdu + [0] * max(4-len(apdu), 0)
         
         self.CLA, self.INS, self.P1, self.P2 = apdu[:4] # case 1, 2, 3, 4
-        if len(apdu) == 5:                              # case 2
-            self.Le = apdu[-1]
+        if len(apdu) == 4:                              # case 1
             self.data = ""
-        elif len(apdu) > 5:                             # case 3, 4
-            self.Lc = apdu[4]
-            if len(apdu) == 5 + self.Lc:                # case 3
-                self.data = apdu[5:]
-            elif len(apdu) == 5 + self.Lc + 1:          # case 4
-                self.data = apdu[5:-1]
+        elif (len(apdu) >= 7) and (apdu[5] == 0):       # extended length apdu
+            self.Lc = (apdu[5]<<8) + apdu[6]
+            if len(apdu) == 7:                          # case 2 extended length
+                self.data = ""
+            elif len(apdu) == 7 + self.Lc:              # case 3 extended length
+                self.data = apdu[7:]
+            elif len(apdu) == 7 + self.Lc + 3:          # case 4 extended length
+                self.data = apdu[7:-3]
+                self.Le = (apdu[-2]<<8) + apdu[-1]
+            else:
+                raise ValueError, "Invalid Lc value. Is %s, should be %s or %s" % (self.Lc,
+                    7 + self.Lc, 7 + self.Lc + 3)
+        else:                                           # short apdu
+            if len(apdu) == 5:                          # case 2 short apdu
                 self.Le = apdu[-1]
+                self.data = ""
+            elif len(apdu) > 5:                         # case 3, 4 short apdu
+                self.Lc = apdu[4]
+                if len(apdu) == 5 + self.Lc:            # case 3
+                    self.data = apdu[5:]
+                elif len(apdu) == 5 + self.Lc + 1:      # case 4
+                    self.data = apdu[5:-1]
+                    self.Le = apdu[-1]
             else:
                 raise ValueError, "Invalid Lc value. Is %s, should be %s or %s" % (self.Lc,
                     5 + self.Lc, 5 + self.Lc + 1)
-        else:                                           # case 1
-            self.data = ""
     
     CLA = _make_byte_property("CLA"); cla = CLA
     INS = _make_byte_property("INS"); ins = INS
