@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License along with
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 #
-import string, binascii, sys, re, getopt
+import string, binascii
 
 def stringtoint(str): # {{{
     #i = len(str) - 1
@@ -50,42 +50,6 @@ def inttostring(i, length=None): # {{{
 
     return str
 # }}}
-
-def represent_binary_fancy(len, value, mask = 0):
-    result = []
-    for i in range(len):
-        if i%4 == 0:
-            result.append( " " )
-        if i%8 == 0:
-            result.append( " " )
-        if mask & 0x01:
-            result.append( str(value & 0x01) )
-        else:
-            result.append( "." )
-        mask = mask >> 1
-        value = value >> 1
-    result.reverse()
-    
-    return "".join(result).strip()
-
-def parse_binary(value, bytemasks, verbose = False, value_len = 8):
-    ## Parses a binary structure and gives information back
-    ##  bytemasks is a sequence of (mask, value, string_if_no_match, string_if_match) tuples
-    result = []
-    for mask, byte, nonmatch, match in bytemasks:
-        
-        if verbose:
-            prefix = represent_binary_fancy(value_len, value, mask) + ": "
-        else:
-            prefix = ""
-        if (value & mask) == (byte & mask):
-            if match is not None:
-                result.append(prefix + match)
-        else:
-            if nonmatch is not None:
-                result.append(prefix + nonmatch)
-    
-    return result
 
 _myprintable = " " + string.letters + string.digits + string.punctuation
 def hexdump(data, indent = 0, short = False, linelen = 16, offset = 0):
@@ -285,7 +249,7 @@ class C_APDU(APDU):
     
     def parse(self, apdu):
         "Parse a full command APDU and assign the values to our object, overwriting whatever there was."
-        
+        print apdu 
         apdu = map( lambda a: (isinstance(a, str) and (ord(a),) or (a,))[0], apdu)
         apdu = apdu + [0] * max(4-len(apdu), 0)
         
@@ -361,7 +325,12 @@ class C_APDU(APDU):
             buffer.append(self.data)
         
         if hasattr(self, "_Le"):
-            buffer.append(chr(self.Le))
+            if self.__extended_length:
+                buffer.append(chr(0x00))
+                buffer.append(chr(self.Le>>8))
+                buffer.append(chr(self.Le - self.Le>>8))
+            else:
+                buffer.append(chr(self.Le))
         
         return "".join(buffer)
     
@@ -377,132 +346,8 @@ class C_APDU(APDU):
                 return 3
             else:
                 return 4
+
     
-    _apduregex = re.compile(r'^\s*([0-9a-f]{2}\s*){4,}$', re.I)
-    _fancyapduregex = re.compile(r'^\s*([0-9a-f]{2}\s*){4,}\s*((xx|yy)\s*)?(([0-9a-f]{2}|:|\)|\(|\[|\])\s*)*$', re.I)
-    @staticmethod
-    def parse_fancy_apdu(*args):
-        apdu_string = " ".join(args)
-        if not C_APDU._fancyapduregex.match(apdu_string):
-            raise ValueError
-        
-        apdu_string = apdu_string.lower()
-        have_le = False
-        pos = apdu_string.find("xx")
-        if pos == -1:
-            pos = apdu_string.find("yy")
-            have_le = True
-        
-        apdu_head = ""
-        apdu_tail = apdu_string
-        if pos != -1:
-            apdu_head = apdu_string[:pos]
-            apdu_tail = apdu_string[pos+2:]
-        
-        if apdu_head.strip() != "" and not C_APDU._apduregex.match(apdu_head):
-            raise ValueError
-        
-        class Node(list):
-            def __init__(self, parent = None, type = None):
-                list.__init__(self)
-                self.parent = parent
-                self.type = type
-            
-            def make_binary(self):
-                "Recursively transform hex strings to binary"
-                for index, child in enumerate(self):
-                    if isinstance(child,str):
-                        child = "".join( ("".join(child.split())).split(":") )
-                        assert len(child) % 2 == 0
-                        self[index] = binascii.a2b_hex(child)
-                    else:
-                        child.make_binary()
-            
-            def calculate_lengths(self):
-                "Recursively calculate lengths and insert length counts"
-                self.length = 0
-                index = 0
-                while index < len(self): ## Can't use enumerate() due to the insert() below
-                    child = self[index]
-                    
-                    if isinstance(child,str):
-                        self.length = self.length + len(child)
-                    else:
-                        child.calculate_lengths()
-                        
-                        formatted_len = binascii.a2b_hex("%02x" % child.length) ## FIXME len > 255?
-                        self.length = self.length + len(formatted_len) + child.length
-                        self.insert(index, formatted_len)
-                        index = index + 1
-                    
-                    index = index + 1
-            
-            def flatten(self, offset = 0, ignore_types=["("]):
-                "Recursively flatten, gather list of marks"
-                string_result = []
-                mark_result = []
-                for child in self:
-                    if isinstance(child,str):
-                        string_result.append(child)
-                        offset = offset + len(child)
-                    else:
-                        start = offset
-                        child_string, child_mark = child.flatten(offset, ignore_types)
-                        string_result.append(child_string)
-                        offset = end = offset + len(child_string)
-                        if not child.type in ignore_types:
-                            mark_result.append( (child.type, start, end) )
-                        mark_result.extend(child_mark)
-                
-                return "".join(string_result), mark_result
-        
-        
-        tree = Node()
-        current = tree
-        allowed_parens = {"(": ")", "[":"]"}
-        
-        for pos,char in enumerate(apdu_tail):
-            if char in (" ", "a", "b", "c", "d", "e", "f",":") or char.isdigit():
-                if len(current) > 0 and isinstance(current[-1],str):
-                    current[-1] = current[-1] + char
-                else:
-                    current.append(str(char))
-                
-            elif char in allowed_parens.values():
-                if current.parent is None:
-                    raise ValueError
-                if allowed_parens[current.type] != char:
-                    raise ValueError
-                
-                current = current.parent
-                
-            elif char in allowed_parens.keys():
-                current.append( Node(current, char) )
-                current = current[-1]
-                
-            else:
-                raise ValueError
-        
-        if current != tree:
-            raise ValueError
-        
-        tree.make_binary()
-        tree.calculate_lengths()
-        
-        apdu_head = apdu_head.strip()
-        if apdu_head != "":
-            l = tree.length
-            if have_le: 
-                l = l - 1 ## FIXME Le > 255?
-            formatted_len = "%02x" % l  ## FIXME len > 255?
-            apdu_head = binascii.a2b_hex("".join( (apdu_head + formatted_len).split() ))
-        
-        apdu_tail, marks = tree.flatten(offset=0)
-        
-        apdu = C_APDU(apdu_head + apdu_tail, marks = marks)
-        return apdu
-
-
 class R_APDU(APDU):
     "Class for a response APDU"
     
@@ -534,56 +379,6 @@ class R_APDU(APDU):
         return self.data + self.sw
     
 if __name__ == "__main__":
-    response = """
-0000:  07 A0 00 00 00 03 00 00 07 00 07 A0 00 00 00 62  ...............b
-0010:  00 01 01 00 07 A0 00 00 00 62 01 01 01 00 07 A0  .........b......
-0020:  00 00 00 62 01 02 01 00 07 A0 00 00 00 62 02 01  ...b.........b..
-0030:  01 00 07 A0 00 00 00 03 00 00 01 00 0E A0 00 00  ................
-0040:  00 30 00 00 90 07 81 32 10 00 00 01 00 0E A0 00  .0.....2........
-0050:  00 00 30 00 00 90 07 81 42 10 00 00 01 00 0E A0  ..0.....B.......
-0060:  00 00 00 30 00 00 90 07 81 41 10 00 00 07 00 0E  ...0.....A......
-0070:  A0 00 00 00 30 00 00 90 07 81 12 10 00 00 01 00  ....0...........
-0080:  09 53 4C 42 43 52 59 50 54 4F 07 00 90 00        .SLBCRYPTO....  
-""" # 64kv1 vorher
-    response = """
-0000:  07 A0 00 00 00 03 00 00 0F 00 07 A0 00 00 00 62  ...............b
-0010:  00 01 01 00 07 A0 00 00 00 62 01 01 01 00 07 A0  .........b......
-0020:  00 00 00 62 01 02 01 00 07 A0 00 00 00 62 02 01  ...b.........b..
-0030:  01 00 07 A0 00 00 00 03 00 00 01 00 08 A0 00 00  ................
-0040:  00 30 00 CA 10 01 00 0E A0 00 00 00 30 00 00 90  .0..........0...
-0050:  07 81 32 10 00 00 01 00 0E A0 00 00 00 30 00 00  ..2..........0..
-0060:  90 07 81 42 10 00 00 01 00 0E A0 00 00 00 30 00  ...B..........0.
-0070:  00 90 07 81 41 10 00 00 07 00 0E A0 00 00 00 30  ....A..........0
-0080:  00 00 90 07 81 12 10 00 00 01 00 09 53 4C 42 43  ............SLBC
-0090:  52 59 50 54 4F 07 00 90 00                       RYPTO....       
-""" # komische Karte
-    response = """
-0000:  07 A0 00 00 00 03 00 00 07 00 07 A0 00 00 00 62  ...............b
-0010:  00 01 01 00 07 A0 00 00 00 62 01 01 01 00 07 A0  .........b......
-0020:  00 00 00 62 01 02 01 00 07 A0 00 00 00 62 02 01  ...b.........b..
-0030:  01 00 07 A0 00 00 00 03 00 00 01 00 0E A0 00 00  ................
-0040:  00 30 00 00 90 07 81 32 10 00 00 01 00 0E A0 00  .0.....2........
-0050:  00 00 30 00 00 90 07 81 42 10 00 00 01 00 0E A0  ..0.....B.......
-0060:  00 00 00 30 00 00 90 07 81 41 10 00 00 07 00 0E  ...0.....A......
-0070:  A0 00 00 00 30 00 00 90 07 81 12 10 00 00 01 00  ....0...........
-0080:  09 53 4C 42 43 52 59 50 54 4F 07 00 05 A0 00 00  .SLBCRYPTO......
-0090:  00 01 01 00 90 00                                ......          
-""" # 64kv1 nachher
-    response = """
-0000:  07 A0 00 00 00 03 00 00 07 00 07 A0 00 00 00 62  ...............b
-0010:  00 01 01 00 07 A0 00 00 00 62 01 01 01 00 07 A0  .........b......
-0020:  00 00 00 62 01 02 01 00 07 A0 00 00 00 62 02 01  ...b.........b..
-0030:  01 00 07 A0 00 00 00 03 00 00 01 00 0E A0 00 00  ................
-0040:  00 30 00 00 90 07 81 32 10 00 00 01 00 0E A0 00  .0.....2........
-0050:  00 00 30 00 00 90 07 81 42 10 00 00 01 00 0E A0  ..0.....B.......
-0060:  00 00 00 30 00 00 90 07 81 41 10 00 00 07 00 0E  ...0.....A......
-0070:  A0 00 00 00 30 00 00 90 07 81 12 10 00 00 01 00  ....0...........
-0080:  09 53 4C 42 43 52 59 50 54 4F 07 00 05 A0 00 00  .SLBCRYPTO......
-0090:  00 01 01 00 06 A0 00 00 00 01 01 07 02 90 00     ............... 
-""" # 64k1 nach setup
-    #response = sys.stdin.read()
-    #parse_status(_unformat_hexdump(response)[:-2])
-    
     a = C_APDU(1,2,3,4) # case 1
     b = C_APDU(1,2,3,4,5) # case 2
     c = C_APDU((1,2,3), cla=0x23, data="hallo") # case 3
@@ -618,3 +413,10 @@ if __name__ == "__main__":
     print
     for i in e, f:
         print hexdump(i.render())
+
+    g = C_APDU(0x00, 0xb0, 0x9c, 0x00, 0x00, 0x00, 0x00) # case 2 extended length
+    
+    print
+    print g
+    print repr(g)
+    print hexdump(g.render()) 
