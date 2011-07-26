@@ -17,6 +17,7 @@
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 #
 import string, binascii
+from ConstantDefinitions import MAX_SHORT_LE, MAX_EXTENDED_LE
 
 def stringtoint(str): # {{{
     #i = len(str) - 1
@@ -298,9 +299,9 @@ class C_APDU(APDU):
     def effective_Le(self):
         if hasattr(self, "_Le") and (self.Le == 0):
             if self.__extended_length:
-                return 0xffff
+                return MAX_EXTENDED_LE 
             else:
-                return 0xff
+                return MAX_SHORT_LE
         else:
             return self.Le
 

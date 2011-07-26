@@ -45,8 +45,6 @@ TAG["OFFSET_DATA"]              = 0x54
 TAG["TAG_LIST"]                 = 0x5C
 TAG["HEADER_LIST"]              = 0x5D
 TAG["EXTENDED_HEADER_LIST"]     = 0x4D
-MAX_EXTENDED_LE                 = 0xffff
-MAX_SHORT_LE                    = 0xff
 
 def tlv_unpack(data): # {{{
     ber_class = (ord(data[0]) & 0xC0) >> 6

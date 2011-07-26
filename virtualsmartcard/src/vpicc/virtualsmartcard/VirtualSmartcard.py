@@ -61,7 +61,7 @@ class SmartcardOS(object): # {{{
 # }}}
 
 class Iso7816OS(SmartcardOS): # {{{ 
-    def __init__(self, mf, sam, ins2handler=None, maxle=MAX_SHORT_LE):
+    def __init__(self, mf, sam, ins2handler=None, extended_length=False):
         self.mf = mf
         self.SAM = sam
 
@@ -107,10 +107,15 @@ class Iso7816OS(SmartcardOS): # {{{
         else:
             self.ins2handler = ins2handler
 
-        self.maxle = maxle
+        if extended_length:
+            self.maxle = MAX_EXTENDED_LE
+        else:
+            self.maxle = MAX_SHORT_LE
+
         self.lastCommandOffcut = ""
         self.lastCommandSW = SW["NORMAL"]
-        card_capabilities = self.mf.firstSFT + self.mf.secondSFT + Iso7816OS.makeThirdSoftwareFunctionTable()
+        card_capabilities = self.mf.firstSFT + self.mf.secondSFT + \
+                Iso7816OS.makeThirdSoftwareFunctionTable(extendedLe = extended_length)
         self.atr = Iso7816OS.makeATR(T=1, directConvention = True, TA1=0x13,
                 histChars = chr(0x80) + chr(0x70 + len(card_capabilities)) +
                 card_capabilities)
