@@ -928,6 +928,7 @@ int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
     PACE_SEC *sec = NULL;
     CVC_CHAT *chat = NULL;
     BIO *bio_stdout = NULL;
+	CVC_CERTIFICATE_DESCRIPTION *desc = NULL;
     int r;
 
     if (!card)
@@ -940,6 +941,14 @@ int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
     if (pace_input.certificate_description_length &&
             pace_input.certificate_description) {
 
+		if (!d2i_CVC_CERTIFICATE_DESCRIPTION(&desc,
+					&pace_input.certificate_description,
+					pace_input.certificate_description_length)) {
+			sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not parse certificate description.");
+			r = SC_ERROR_INTERNAL;
+			goto err;
+		}
+
         if (!bio_stdout)
             bio_stdout = BIO_new_fp(stdout, BIO_NOCLOSE);
         if (!bio_stdout) {
@@ -950,9 +959,7 @@ int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
         }
 
         printf("Certificate Description\n");
-        switch(certificate_description_print(bio_stdout,
-                    pace_input.certificate_description,
-                    pace_input.certificate_description_length, "\t")) {
+		switch(certificate_description_print(bio_stdout, desc, 8)) {
             case -1:
                 sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not print certificate description.");
                 ssl_error(card->ctx);
@@ -1018,7 +1025,7 @@ int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
         }
 
         printf("Card holder authorization template (CHAT)\n");
-        if (!cvc_chat_print(bio_stdout, chat, "\t")) {
+        if (!cvc_chat_print(bio_stdout, chat, 8)) {
             sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not print card holder authorization template (CHAT).");
             ssl_error(card->ctx);
             r = SC_ERROR_INTERNAL;
