@@ -218,14 +218,7 @@ class Iso7816OS(SmartcardOS): # {{{
 # }}} 
 
     def formatResult(self, le, data, sw, sm):
-        if le == None:
-            count = 0
-        elif le == 0:
-            count = self.maxle
-        else:
-            count = le
-
-        self.lastCommandOffcut = data[count:]
+        self.lastCommandOffcut = data[le:]
         l = len(self.lastCommandOffcut)
         if l == 0:
             self.lastCommandSW = SW["NORMAL"]
@@ -233,7 +226,7 @@ class Iso7816OS(SmartcardOS): # {{{
             self.lastCommandSW = sw
             sw = SW["NORMAL_REST"] + min(0xff, l)
 
-        result = data[:count]
+        result = data[:le]
         if sm:
             sw, result = self.SAM.protect_result(sw,result)
 
@@ -307,15 +300,15 @@ class Iso7816OS(SmartcardOS): # {{{
                 raise SwError("ERR_SECMESSNOTSUPPORTED")
             sw, result = self.ins2handler.get(c.ins, notImplemented)(c.p1, c.p2, c.data)
             if SM_STATUS == "Standard SM":
-                answer = self.formatResult(c.le, result, sw, True)
+                answer = self.formatResult(c.effective_Le, result, sw, True)
             else:
-                answer = self.formatResult(c.le, result, sw, False)
+                answer = self.formatResult(c.effective_Le, result, sw, False)
         except SwError, e:
             print e.message
             #traceback.print_exception(*sys.exc_info())
             sw = e.sw
             result = ""
-            answer = self.formatResult(c.le, result, sw, False)
+            answer = self.formatResult(0, result, sw, False)
 
         return answer
 # }}}
