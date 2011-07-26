@@ -214,7 +214,7 @@ class APDU(object):
         elif isinstance(value, str):
             setattr(self, "_"+name, ord(value))
         else:
-            raise ValueError, "'%s' attribute can only be a byte, that is: int or str, not %s" % (namelower, type(value))
+            raise ValueError, "'%s' attribute can only be a byte, that is: int or str, not %s" % (name, type(value))
 
     def _format_parts(self, fields):
         "utility function to be used in __str__ and __repr__"
