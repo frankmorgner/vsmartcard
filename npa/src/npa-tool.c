@@ -299,7 +299,7 @@ main (int argc, char **argv)
                 }
                 break;
             case OPT_TRVERSION:
-                if (sscanf(optarg, "%d", &pace_input.tr_version) != 1) {
+                if (sscanf(optarg, "%d", (int *) &pace_input.tr_version) != 1) {
                     parse_error(argv[0], options, option_help, optarg, oindex);
                     exit(2);
                 }
@@ -406,7 +406,7 @@ main (int argc, char **argv)
 
             gettimeofday(&tv, NULL);
             printf("%u,%06u: Trying %s=%s\n",
-                    tv.tv_sec, tv.tv_usec,
+                    (unsigned int) tv.tv_sec, (unsigned int) tv.tv_usec,
                     npa_secret_name(pace_input.pin_id), pace_input.pin);
 
             i = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
@@ -418,12 +418,12 @@ main (int argc, char **argv)
         gettimeofday(&tv, NULL);
         if (0 > i) {
             printf("%u,%06u: Tried breaking %s without success.\n",
-                    tv.tv_sec, tv.tv_usec,
+                    (unsigned int) tv.tv_sec, (unsigned int) tv.tv_usec,
                     npa_secret_name(pace_input.pin_id));
             goto err;
         } else {
             printf("%u,%06u: Tried breaking %s with success (=%s).\n",
-                    tv.tv_sec, tv.tv_usec,
+                    (unsigned int) tv.tv_sec, (unsigned int) tv.tv_usec,
                     npa_secret_name(pace_input.pin_id),
                     pace_input.pin);
         }
