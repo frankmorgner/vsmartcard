@@ -2,14 +2,14 @@
 
 Welcome to ccid-emulator.  The purpose of ccid-emulator is to forward a PCSC
 smartcard reader as a standard USB CCID reader. If the host system is in USB
-device mode, ccid-emulator forwards the local reader via USB to an other
+device mode, ccid-emulator forwards the local reader via USB to another
 device. If in USB host mode, ccid-emulator virtually plugges in a USB CCID
 reader to the host system.  ccid-emulator has support for Password
 Authenticated Connection Establishment (PACE) using OpenPACE
 (http://sourceforge.net/projects/openpace/).
 
 ccid-emulator is implemented using GadgetFS. Some fragments of the source code
-is based on the GadgetFS example at http://www.linux-usb.org/gadget/ and on the
+are based on the GadgetFS example at http://www.linux-usb.org/gadget/ and on the
 source code of the OpenSC tools.
 
 
@@ -25,9 +25,9 @@ the kernel module gadgetfs. A guide focused on Debian based systems to run and
 compile gadgetfs, you can find here:
 http://wiki.openmoko.org/wiki/Building_Gadget_USB_Module
 
-On OpenMoko it is likely, that you need to patch your kernel (see
+On OpenMoko it is likely that you need to patch your kernel (see
 http://docs.openmoko.org/trac/ticket/2206). If you also want to switch multiple
-times between gadgetfs and g_ether an other patch is needed (see
+times between gadgetfs and g_ether, another patch is needed (see
 https://docs.openmoko.org/trac/ticket/2240).
 
 
@@ -44,7 +44,7 @@ might need to adjust the opensc library flags:
 @section u USAGE
 
 ccid-emulator has various command line options to customize the appearance on
-the USB host. To run ccid-emulator GadgetFS must be loaded and mounted.
+the USB host. In order to run ccid-emulator GadgetFS must be loaded and mounted.
 ccid-emulator is compatible with the unix driver libccid and the windows smart
 card driver. To initialize PACE using the PC/SC API you need to patch libccid
 and pcsc-lite (see directory patches).
