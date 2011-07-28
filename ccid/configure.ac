@@ -76,8 +76,8 @@ if test "x$enable_pace" != xno ; then
     PKG_CHECK_EXISTS([libnpa],
                      [PKG_CHECK_MODULES([LIBNPA], [libnpa])],
                      [AC_MSG_WARN([libnpa not found by pkg-config])])
-    CPPFLAGS="$CPPFLAGS $LIBNPA_CFLAGS -I$(pwd)/src/opensc/src"
-    LIBS="$LDFLAGS $LIBNPA_LIBS"
+    CPPFLAGS="$CPPFLAGS $LIBNPA_CFLAGS -I$(pwd)/src/opensc/src $OPENSSL_CFLAGS"
+    LIBS="$LDFLAGS $LIBNPA_LIBS $OPENSSL_LIBS"
     AC_CHECK_HEADERS(npa/npa.h, [], [ AC_MSG_ERROR([npa/npa.h not found, install libnpa or use ./configure LIBNPA_CFLAGS=...]) ])
     AC_MSG_CHECKING([for EstablishPACEChannel])
     AC_TRY_LINK_FUNC(EstablishPACEChannel, [ AC_MSG_RESULT([yes]) ], [ AC_MSG_ERROR([libnpa not found, use ./configure LIBNPA_LIBS=...]) ])
