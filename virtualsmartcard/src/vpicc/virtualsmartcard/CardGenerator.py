@@ -17,11 +17,12 @@
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import sys, getpass, anydbm, readline, dircache
+import sys, getpass, anydbm, readline
 from pickle import loads, dumps
 from TLVutils import pack
 from virtualsmartcard.utils import inttostring
-from virtualsmartcard.SmartcardFilesystem import * 
+from virtualsmartcard.SmartcardFilesystem import MF, DF, TransparentStructureEF
+from virtualsmartcard.ConstantDefinitions import FDB
 
 # pgp directory
 #self.mf.append(DF(parent=self.mf,
@@ -126,6 +127,7 @@ class CardGenerator(object):
     
     def __generate_cryptoflex(self):
         from virtualsmartcard.SmartcardSAM import CryptoflexSAM
+        from virtualsmartcard.SmartcardFilesystem import CryptoflexMF
                         
         self.mf = CryptoflexMF()
         self.mf.append(TransparentStructureEF(parent=self.mf, fid=0x0002,
