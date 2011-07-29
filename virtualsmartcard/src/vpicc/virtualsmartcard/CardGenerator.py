@@ -19,10 +19,12 @@
 
 import sys, getpass, anydbm, readline
 from pickle import loads, dumps
-from TLVutils import pack
+from virtualsmartcard.TLVutils import pack
 from virtualsmartcard.utils import inttostring
 from virtualsmartcard.SmartcardFilesystem import MF, DF, TransparentStructureEF
 from virtualsmartcard.ConstantDefinitions import FDB
+from virtualsmartcard.CryptoUtils import protect_string, read_protected_string
+import virtualsmartcard.SmartcardSAM
 
 # pgp directory
 #self.mf.append(DF(parent=self.mf,
@@ -43,17 +45,15 @@ class CardGenerator(object):
         self.sam = sam
     
     def __generate_iso_card(self):
-        from virtualsmartcard.SmartcardSAM import SAM
-         
         print "Using default SAM. Insecure!!!"
-        self.sam = SAM("1234", "1234567890") #FIXME: Use user provided data
+        #TODO: Use user provided data
+        self.sam = virtualsmartcard.SmartcardSAM.SAM("1234", "1234567890")
         
         self.mf = MF(filedescriptor=FDB["DF"])
         self.sam.set_MF(self.mf)
            
     def __generate_ePass(self):
         from PIL import Image
-        from virtualsmartcard.SmartcardSAM import PassportSAM
             
         MRZ = raw_input("Please enter the MRZ as one string: ") #TODO: Sanity checks
 
@@ -61,7 +61,7 @@ class CardGenerator(object):
         readline.parse_and_bind("tab: complete")
         
         picturepath = raw_input("Please enter the path to an image: ")
-        picturepath = picturepath.rstrip() #FIXME
+        picturepath = picturepath.strip()
         
         #MRZ1 = "P<UTOERIKSSON<<ANNA<MARIX<<<<<<<<<<<<<<<<<<<"
         #MRZ2 = "L898902C<3UTO6908061F9406236ZE184226B<<<<<14"
@@ -123,19 +123,19 @@ class CardGenerator(object):
         mf.append(df)
 
         self.mf = mf
-        self.sam = PassportSAM(self.mf)
+        self.sam = virtualsmartcard.SmartcardSAM.PassportSAM(self.mf)
     
     def __generate_cryptoflex(self):
-        from virtualsmartcard.SmartcardSAM import CryptoflexSAM
         from virtualsmartcard.SmartcardFilesystem import CryptoflexMF
-                        
+                       
         self.mf = CryptoflexMF()
         self.mf.append(TransparentStructureEF(parent=self.mf, fid=0x0002,
                        filedescriptor=0x01,
                        data="\x00\x00\x00\x01\x00\x01\x00\x00")) #EF.ICCSN
-        self.sam = CryptoflexSAM(self.mf)
+        self.sam = virtualsmartcard.SmartcardSAM.CryptoflexSAM(self.mf)
         
     def generateCard(self):
+        """Generate a new card"""
         if self.type == 'iso7816':
             self.__generate_iso_card()
         elif self.type == 'ePass':
@@ -146,11 +146,13 @@ class CardGenerator(object):
             return (None, None)
     
     def getCard(self):
+        """Get the MF and SAM from the current card"""
         if self.sam is None or self.mf is None:
             self.generateCard()
         return self.mf, self.sam
     
     def setCard(self, mf=None, sam=None):
+        """Set the MF and SAM of the current card"""
         if mf != None:
             self.mf = mf
         if sam != None:
@@ -158,12 +160,8 @@ class CardGenerator(object):
         
     
     def loadCard(self, filename, password=None):
-        from virtualsmartcard.CryptoUtils import read_protected_string
-        
-        try:
-            db = anydbm.open(filename, 'r')
-        except anydbm.error:
-            print "Failed to open " + filename
+        """Load a card from disk"""
+        db = anydbm.open(filename, 'r')
         
         if password is None:
             password = getpass.getpass("Please enter your password:")
@@ -174,9 +172,8 @@ class CardGenerator(object):
         self.mf = loads(serializedMF)
         self.type = db["type"]
             
-    def saveCard(self, filename, password=None):      
-        from virtualsmartcard.CryptoUtils import protect_string        
-               
+    def saveCard(self, filename, password=None):
+        """Save the currently running card to disk"""
         if password is None:
             passwd1 = getpass.getpass("Please enter your password:")
             passwd2 = getpass.getpass("Please retype your password:")
@@ -185,23 +182,22 @@ class CardGenerator(object):
             else:
                 password = passwd1
         
-        if self.mf == None or self.sam == None: #TODO: Sanity checks
-            raise ValueError, "Card Generator was not set up properly (missing mf or sam)"
+        if self.mf == None or self.sam == None:
+            raise ValueError, "Card Generator wasn't set up properly" +\
+                 "(missing MF or SAM)."
         
         mf_string = dumps(self.mf)
         sam_string = dumps(self.sam)
         protectedMF = protect_string(mf_string, password)
         protectedSAM = protect_string(sam_string, password)
         
-        try:
-            db = anydbm.open(filename, 'c')
-            db["mf"] = protectedMF
-            db["sam"] = protectedSAM
-            db["type"] = self.type
-            db["version"] = "0.1"
-            db.close()
-        except anydbm.error:
-            print "Failed to write data to disk"
+        db = anydbm.open(filename, 'c')
+        db["mf"] = protectedMF
+        db["sam"] = protectedSAM
+        db["type"] = self.type
+        db["version"] = "0.1"
+        db.close()
+
                           
 if __name__ == "__main__":
     from optparse import OptionParser
