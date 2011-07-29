@@ -24,7 +24,7 @@ import SmartcardFilesystem, TLVutils
 import virtualsmartcard.CryptoUtils as vsCrypto
 from virtualsmartcard.SWutils import SwError, SW
 from virtualsmartcard.utils import inttostring, stringtoint, hexdump, C_APDU
-from virtualsmartcard.ConstantDefinitions import *
+from virtualsmartcard.ConstantDefinitions import SM_Class
 from virtualsmartcard.SEutils import ControlReferenceTemplate as CRT
 
 def get_referenced_cipher(p1):
@@ -61,7 +61,7 @@ class CardContainer:
    
     def __init__(self, PIN=None, cardNumber=None, cardSecret=None):
         from os import urandom      
-        from vsCrypto import get_cipher_keylen, cipher
+        from virtualsmartcard.CryptoUtils import get_cipher_keylen, cipher
         
         self.cardNumber = cardNumber
         self.PIN = PIN
@@ -77,7 +77,8 @@ class CardContainer:
             self.cardSecret = urandom(keylen)
         else:
             if len(cardSecret) != keylen:
-                raise ValueError, "cardSecret has the wrong key length for: " + get_referenced_cipher(self.cipher)
+                raise ValueError, "cardSecret has the wrong key length for: " +\
+                    get_referenced_cipher(self.cipher)
             else:
                 self.cardSecret = cardSecret            
 
@@ -160,9 +161,9 @@ class SAM(object):
         
         cipher = get_referenced_cipher(self.CardContainer.cipher)
         padded_data = vsCrypto.append_padding(cipher, data)
-        crypted_data = vsCrypto.cipher(True, cipher, 
-                                       self.CardContainer.master_key,
-                                       padded_data)
+        crypted_data = vsCrypto.encrypt(cipher, 
+                                        self.CardContainer.master_key,
+                                        padded_data)
         return crypted_data
 
     def FSdecrypt(self, data):
@@ -173,9 +174,9 @@ class SAM(object):
             raise ValueError, "No master key set."
 
         cipher = get_referenced_cipher(self.CardContainer.cipher)                
-        decrypted_data = vsCrypto.cipher(False, cipher,
-                                         self.CardContainer.master_key,
-                                         data)
+        decrypted_data = vsCrypto.decrypt(cipher,
+                                          self.CardContainer.master_key,
+                                          data)
         unpadded_data = vsCrypto.strip_padding(cipher, decrypted_data)
         return unpadded_data
     
@@ -248,7 +249,7 @@ class SAM(object):
             crypted_challenge = inttostring(crypted_challenge)
         else:
             key = self._get_referenced_key(p1, p2)
-            crypted_challenge = vsCrypto.cipher(True, cipher, key, data)
+            crypted_challenge = vsCrypto.encrypt(cipher, key, data)
         
         return SW["NORMAL"], crypted_challenge
     
@@ -267,13 +268,13 @@ class SAM(object):
             cipher = get_referenced_cipher(p1)     
         
         reference = vsCrypto.append_padding(cipher, self.last_challenge)
-        reference = vsCrypto.cipher(True, cipher, key, reference)
+        reference = vsCrypto.encrypt(cipher, key, reference)
         if(reference == data):
             #Invalidate last challenge
             self.last_challenge = None
             return SW["NORMAL"], ""
         else:
-            plain = vsCrypto.cipher(False, cipher, key, data)
+            plain = vsCrypto.decrypt(cipher, key, data)
             print plain
             print "Reference: " + hexdump(reference)
             print "Data: " + hexdump(data)
@@ -302,7 +303,7 @@ class SAM(object):
         if (cipher == None):
             raise SwError(SW["ERR_INCORRECTP1P2"])
 
-        plain = vsCrypto.cipher(False, cipher, key, mutual_challenge)
+        plain = vsCrypto.decrypt(cipher, key, mutual_challenge)
         last_challenge_len = len(self.last_challenge)
         terminal_challenge = plain[:last_challenge_len-1]
         card_challenge = plain[last_challenge_len:-len(card_number)-1]
@@ -314,7 +315,7 @@ class SAM(object):
             raise SwError(SW["WARN_NOINFO63"])
         
         result = card_challenge + terminal_challenge
-        return SW["NORMAL"], vsCrypto.cipher(True, cipher, key, result)
+        return SW["NORMAL"], vsCrypto.encrypt(cipher, key, result)
     
     def get_challenge(self, p1, p2, data):
         """
@@ -363,9 +364,11 @@ class SAM(object):
 
         if (p2 == 0x00): #No information given, use the global card key
             key = self.CardContainer.cardSecret
-        #elif ((p2 >> 7) == 0x01 or (p2 >> 7) == 0x00): #We treat global and specific reference data alike
+        #We treat global and specific reference data alike
+        #elif ((p2 >> 7) == 0x01 or (p2 >> 7) == 0x00):
         else:		
-            try: #Interpret qualifier as an short fid and try to read the key from the FS
+            try:
+            #Interpret qualifier as an short fid (try to read the key from FS)
                 if self.mf == None: raise SwError(SW["CONDITIONSNOTSATISFIED"])
                 df = self.mf.currentDF()
                 fid = df.select("fid", stringtoint(qualifier))
@@ -373,7 +376,7 @@ class SAM(object):
             except SwError:
                 key = None
 
-            if key == None: #Try to read the key from the Key Container        
+            if key == None: #Try to read the key from the Key Container
                 key = self.CardContainer.getKey(p2)
 			              
         if key != None:
@@ -388,13 +391,17 @@ class SAM(object):
         can be read from the FS. It is here for testing purposes. Later on the OS
         interface to the FS should be used.
         """       
-        mf = SmartcardFilesystem.MF(filedescriptor=FDB["NOTSHAREABLEFILE"],
-            lifecycle=LCB["NOINFORMATION"], dfname=None)
-        
-        mf = SmartcardFilesystem.MF(filedescriptor=FDB["DF"], lifecycle=LCB["ACTIVATED"], dfname=None)
-        df = mf.append(SmartcardFilesystem.DF(parent=mf, fid=4, dfname='\xd2\x76\x00\x01\x24\x01', bertlv_data=[]))
-        mf.append(SmartcardFilesystem.TransparentStructureEF(parent=df, fid=0x1012,
-           filedescriptor=0, data="Key from the FS."))
+        mf = SmartcardFilesystem.MF()
+        df = mf.append(SmartcardFilesystem.DF(
+                            parent=mf, 
+                            fid=4,
+                            dfname='\xd2\x76\x00\x01\x24\x01',
+                            bertlv_data=[]))
+        mf.append(SmartcardFilesystem.TransparentStructureEF(
+                            parent=df,
+                            fid=0x1012,
+                            filedescriptor=0,
+                            data="Key from the FS."))
 
         df = mf.currentDF()
         fake_ef = df.select('fid', 0X1012)
@@ -469,9 +476,9 @@ class PassportSAM(SAM):
         Mifd = self._mac(self.KMac, Eifd)
         #Check the MAC
         if not Mifd == resp_data[-8:]:
-            raise ValueError, "Passport authentication failed: Wrong MAC on incoming data during Mutual Authenticate"
+            raise SwError(SW["ERR_SECMESSOBJECTSINCORRECT"])
         #Decrypt the data
-        plain = vsCrypto.cipher(False, "DES3-CBC", self.KEnc, resp_data[:-8])
+        plain = vsCrypto.decrypt("DES3-CBC", self.KEnc, resp_data[:-8])
         #Split decrypted data into the two nonces and 
         if plain[8:16] != rnd_icc:
             raise SwError(SW["WARN_NOINFO63"])
@@ -483,7 +490,7 @@ class PassportSAM(SAM):
         Kicc = inttostring(random.randint(0, int(max, 16)))
         #Generate Answer
         data = plain[8:16] + plain[:8] + Kicc
-        Eicc = vsCrypto.cipher(True, "DES3-CBC", self.KEnc, data)
+        Eicc = vsCrypto.encrypt("DES3-CBC", self.KEnc, data)
         Micc = self._mac(self.KMac, Eicc)
         #Derive the final keys
         KSseed = vsCrypto.operation_on_string(Kicc, Kifd, lambda a,b: a^b)
@@ -504,9 +511,9 @@ class PassportSAM(SAM):
         if dopad:
             topad = 8 - len(data) % 8
             data = data + "\x80" + ("\x00" * (topad-1))
-        a = vsCrypto.cipher(True, "des-cbc", key[:8], data)
-        b = vsCrypto.cipher(False, "des-ecb", key[8:16], a[-8:])
-        c = vsCrypto.cipher(True, "des-ecb", key[:8], b)
+        a = vsCrypto.encrypt("des-cbc", key[:8], data)
+        b = vsCrypto.decrypt("des-ecb", key[8:16], a[-8:])
+        c = vsCrypto.encrypt("des-ecb", key[:8], b)
         return c
     
 class CryptoflexSAM(SAM):
@@ -544,6 +551,15 @@ class CryptoflexSAM(SAM):
     
 class Security_Environment(object):
     
+    #Tags of control reference templates (CRT)
+    #TODO: Move to Constant Definitions
+    TEMPLATE_AT = 0xA4
+    TEMPLATE_KAT = 0xA6
+    TEMPLATE_HT = 0xAA
+    TEMPLATE_CCT = 0xB4 # Template for Cryptographic Checksum
+    TEMPLATE_DST = 0xB6
+    TEMPLATE_CT = 0xB8 # Template for Confidentiality
+
     def __init__(self):       
         self.SEID = None
         self.sm_objects = ""
@@ -562,6 +578,9 @@ class Security_Environment(object):
         self.externel_auth = False
 
     def mse(self, config):
+        """
+        Manage Security Environment
+        """
         structure = TLVutils.unpack(config)
         for tag, length, value in structure:
             if tag == TEMPLATE_AT:
@@ -612,13 +631,17 @@ class Secure_Messaging(object):
         cmd = p1 & 0x0F
         se = p1 >> 4
         if(cmd == 0x01):
-            if se & 0x01: #Secure messaging in command data field
+            #Secure messaging in command data field
+            if se & 0x01:
                 self.current_SE.capdu_sm = True
-            if se & 0x02: #Secure messaging in response data field
+            #Secure messaging in response data field
+            if se & 0x02:
                 self.current_SE.rapdu_sm = True
-            if se & 0x04: #Computation, decipherment, internal authentication and key agreement
+            #Computation, decipherment, internal authentication and key agreement
+            if se & 0x04: 
                 self.current_SE.internal_auth = True
-            if se & 0x08: #Verification, encipherment, external authentication and key agreement
+            #Verification, encipherment, external authentication and key agreement
+            if se & 0x08:
                 self.current_SE.external_auth = True
             self.__set_SE(p2, data)
         elif(cmd== 0x02):
@@ -702,7 +725,8 @@ class Secure_Messaging(object):
         le = None
         
         if header_authentication:
-            to_authenticate = inttostring(CAPDU.cla) + inttostring(CAPDU.ins) + inttostring(CAPDU.p1) + inttostring(CAPDU.p2)
+            to_authenticate = inttostring(CAPDU.cla) + inttostring(CAPDU.ins)+\
+                              inttostring(CAPDU.p1) + inttostring(CAPDU.p2)
             to_authenticate = vsCrypto.append_padding("DES-CBC", to_authenticate)
         else:
             to_authenticate = ""
@@ -716,12 +740,16 @@ class Secure_Messaging(object):
                 to_authenticate += inttostring(tag) + inttostring(length) + value
             
             #SM data objects for encapsulating plain values
-            if tag in (SM_Class["PLAIN_VALUE_NO_TLV"], SM_Class["PLAIN_VALUE_NO_TLV_ODD"]):
+            if tag in (SM_Class["PLAIN_VALUE_NO_TLV"],
+                       SM_Class["PLAIN_VALUE_NO_TLV_ODD"]):
                 return_data.append(value) #FIXME: Need TLV coding?
-            elif tag in (SM_Class["PLAIN_VALUE_TLV_INCULDING_SM"], SM_Class["PLAIN_VALUE_TLV_INCULDING_SM_ODD"]):
+            elif tag in (SM_Class["PLAIN_VALUE_TLV_INCULDING_SM"],
+                         SM_Class["PLAIN_VALUE_TLV_INCULDING_SM_ODD"]):
                 #Encapsulated SM objects. Parse them
-                return_data.append(self.parse_SM_CAPDU(value, header_authentication)) #FIXME: Need to pack value into a dummy CAPDU
-            elif tag in (SM_Class["PLAIN_VALUE_TLV_NO_SM"], SM_Class["PLAIN_VALUE_TLV_NO_SM_ODD"]):
+                #FIXME: Need to pack value into a dummy CAPDU
+                return_data.append(self.parse_SM_CAPDU(value, header_authentication)) 
+            elif tag in (SM_Class["PLAIN_VALUE_TLV_NO_SM"],
+                         SM_Class["PLAIN_VALUE_TLV_NO_SM_ODD"]):
                 #Encapsulated plaintext BER-TLV objects
                 return_data.append(value)
             elif tag in (SM_Class["Ne"], SM_Class["Ne_ODD"]):
@@ -736,16 +764,22 @@ class Secure_Messaging(object):
                     p2 = value[6:8]
 
             #SM data objects for confidentiality
-            if tag in (SM_Class["CRYPTOGRAM_PLAIN_TLV_INCLUDING_SM"], SM_Class["CRYPTOGRAM_PLAIN_TLV_INCLUDING_SM_ODD"]):
-                #The Cryptogram includes SM objects. We decrypt them and parse the objects.
-                plain = decipher(tag, 0x80, value) #TODO: Need Le = length
+            if tag in (SM_Class["CRYPTOGRAM_PLAIN_TLV_INCLUDING_SM"],
+                       SM_Class["CRYPTOGRAM_PLAIN_TLV_INCLUDING_SM_ODD"]):
+                #The Cryptogram includes SM objects. 
+                #We decrypt them and parse the objects.
+                plain = decipher(tag, 0x80, value)
+                #TODO: Need Le = length
                 return_data.append(self.parse_SM_CAPDU(plain, header_authentication))
-            elif tag in (SM_Class["CRYPTOGRAM_PLAIN_TLV_NO_SM"], SM_Class["CRYPTOGRAM_PLAIN_TLV_NO_SM_ODD"]):
-                #The Cryptogram includes BER-TLV enconded plaintext. We decrypt them and return the objects.
+            elif tag in (SM_Class["CRYPTOGRAM_PLAIN_TLV_NO_SM"],
+                         SM_Class["CRYPTOGRAM_PLAIN_TLV_NO_SM_ODD"]):
+                #The Cryptogram includes BER-TLV enconded plaintext. 
+                #We decrypt them and return the objects.
                 plain = decipher(tag, 0x80, value)
                 return_data.append(plain)
-            elif tag in (SM_Class["CRYPTOGRAM_PADDING_INDICATOR"], SM_Class["CRYPTOGRAM_PADDING_INDICATOR_ODD"]):
-                #The first byte of the specified data field indicates the padding to use:
+            elif tag in (SM_Class["CRYPTOGRAM_PADDING_INDICATOR"],
+                         SM_Class["CRYPTOGRAM_PADDING_INDICATOR_ODD"]):
+                #The first byte of the data field indicates the padding to use:
                 """
                 Value        Meaning
                 '00'     No further indication
@@ -766,13 +800,17 @@ class Secure_Messaging(object):
                 sw, plain = self.decipher(tag, 0x80, value[1:])
                 if sw != 0x9000:
                     raise ValueError
-                plain = vsCrypto.strip_padding(self.current_SE.ct.algorithm, plain, padding_indicator)
+                plain = vsCrypto.strip_padding(self.current_SE.ct.algorithm,
+                                               plain,
+                                               padding_indicator)
                 return_data.append(plain)
 
             #SM data objects for authentication 
             if tag == SM_Class["CHECKSUM"]:
                 auth = vsCrypto.append_padding("DES-CBC", to_authenticate)
-                sw, checksum = self.compute_cryptographic_checksum(0x8E, 0x80, auth)
+                sw, checksum = self.compute_cryptographic_checksum(0x8E,
+                                                                   0x80,
+                                                                   auth)
                 if checksum != value:
                     raise SwError(SW["ERR_SECMESSOBJECTSINCORRECT"])
             elif tag == SM_Class["DIGITAL_SIGNATURE"]:
@@ -830,7 +868,10 @@ class Secure_Messaging(object):
         if result != "": # Encrypt the data included in the RAPDU
             sw, encrypted = self.encipher(0x82, 0x80, result)
             encrypted = "\x01" + encrypted
-            encrypted_tlv = TLVutils.pack([(SM_Class["CRYPTOGRAM_PADDING_INDICATOR_ODD"], len(encrypted), encrypted)])
+            encrypted_tlv = TLVutils.pack([(
+                                SM_Class["CRYPTOGRAM_PADDING_INDICATOR_ODD"],
+                                len(encrypted),
+                                encrypted)])
             return_data += encrypted_tlv 
         
         if sw == SW["NORMAL"]:
@@ -854,13 +895,14 @@ class Secure_Messaging(object):
     #The following commands implement ISO 7816-8 {{{
     def perform_security_operation(self, p1, p2, data):
         """
-        In the end this command is nothing but a big switch for all the other commands
-        in ISO 7816-8. It will invoke the appropiate command and return its result
+        In the end this command is nothing but a big switch for all the other
+        commands in ISO 7816-8. It will invoke the appropiate command and return
+        its result
         """
         
-        allowed_P1P2 = ((0x90, 0x80), (0x90, 0xA0), (0x9E, 0x9A), (0x9E, 0xAC), \
-                        (0x9E, 0xBC), (0x00, 0xA2), (0x00, 0xA8), (0x00, 0x92), \
-                        (0x00, 0xAE), (0x00, 0xBE), (0x82, 0x80), (0x84, 0x80), \
+        allowed_P1P2 = ((0x90, 0x80), (0x90, 0xA0), (0x9E, 0x9A), (0x9E, 0xAC),
+                        (0x9E, 0xBC), (0x00, 0xA2), (0x00, 0xA8), (0x00, 0x92),
+                        (0x00, 0xAE), (0x00, 0xBE), (0x82, 0x80), (0x84, 0x80),
                         (0x86, 0x80), (0x80, 0x82), (0x80, 0x84), (0x80, 0x86))
     
         if (p1, p2) not in allowed_P1P2:
@@ -908,8 +950,8 @@ class Secure_Messaging(object):
         Compute a digital signature for the given data.
         Algorithm and key are specified in the current SE
         @param p1: Must be 0x9E = Secure Messaging class for digital signatures
-        @param p2: Must be one of 0x9A, 0xAC, 0xBC. Indicates what kind of data is 
-                   included in the data field.
+        @param p2: Must be one of 0x9A, 0xAC, 0xBC. Indicates what kind of data
+                   is included in the data field.
         """
         
         if p1 != 0x9E or not p2 in (0x9A, 0xAC, 0xBC):
@@ -1029,7 +1071,7 @@ class Secure_Messaging(object):
             return SW["ERR_CONDITIONNOTSATISFIED"], ""
         else:
             padded = vsCrypto.append_padding(algo, data)
-            crypted = vsCrypto.cipher(True, algo, key, padded, self.current_SE.ct.iv)
+            crypted = vsCrypto.encrypt(algo, key, padded, self.current_SE.ct.iv)
             return SW["NORMAL"], crypted
 
     def decipher(self, p1, p2, data):
@@ -1043,7 +1085,7 @@ class Secure_Messaging(object):
         if key == None or algo == None:
             return SW["ERR_CONDITIONNOTSATISFIED"], ""
         else:
-            plain = vsCrypto.cipher(False, algo, key, data, self.current_SE.ct.iv)
+            plain = vsCrypto.decrypt(algo, key, data, self.current_SE.ct.iv)
             return SW["NORMAL"], plain
 
     def generate_public_key_pair(self, p1, p2, data):
@@ -1061,7 +1103,8 @@ class Secure_Messaging(object):
             raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
 
         if p1 & 0x01 == 0x00: #Generate key
-            PublicKey = c_class.generate(self.current_SE.dst.keylength, rnd.get_bytes)
+            PublicKey = c_class.generate(self.current_SE.dst.keylength,
+                                         rnd.get_bytes)
             self.current_SE.dst.key = PublicKey
         else:
             pass #Read key
@@ -1123,7 +1166,8 @@ class CryptoflexSM(Secure_Messaging):
 
         e_in = struct.unpack("<i", data)
         if e_in[0] != 65537:
-            print "Warning: Exponents different from 65537 are ignored! The Exponent given is %i" % e_in[0]
+            print "Warning: Exponents different from 65537 are ignored!" +\
+                  "The Exponent given is %i" % e_in[0]
 
         #Encode Public key
         n = PublicKey.__getstate__()['n']
@@ -1132,9 +1176,9 @@ class CryptoflexSM(Secure_Messaging):
         e = PublicKey.__getstate__()['e']
         e_str = inttostring(e, 4)
         e_str = e_str[::-1]
-        padd = 187 * '\x30' #We don't have chinese remainder theorem components, so we need to inject padding
+        pad = 187 * '\x30' #We don't have CRT components, so we need to pad
         pk_n = TLVutils.bertlv_pack(((0x81, len(n_str), n_str), 
-                                     (0x01, len(padd), padd),
+                                     (0x01, len(pad), pad),
                                      (0x82, len(e_str), e_str)))
         #Private key
         d = PublicKey.__getstate__()['d']
@@ -1145,9 +1189,10 @@ class CryptoflexSM(Secure_Messaging):
         ef_pub_key.writebinary([0], [pk_n])
         data = ef_pub_key.getenc('data')
         
-        #Write private key to FID 00 12 EF-PRI-KEY (not necessary?)      
+        #Write private key to FID 00 12 EF-PRI-KEY (not necessary?)
+        #How to encode the private key?
         ef_priv_key = df.select("fid", 0x0012)
-        ef_priv_key.writebinary([0], [inttostring(d)]) #Do we need encoding for the private key?
+        ef_priv_key.writebinary([0], [inttostring(d)]) 
         data = ef_priv_key.getenc('data')     
         return PublicKey           
 
@@ -1167,7 +1212,6 @@ class ePass_SM(Secure_Messaging):
         if p1 != 0x8E or p2 != 0x80:
             raise SwError(SW["ERR_INCORRECTP1P2"])
         
-        #checksum = vsCrypto.calculate_MAC(self.current_SE.cct.key,data,self.current_SE_SE.cct.iv)
         self.ssc += 1
         checksum = vsCrypto.crypto_checksum(self.current_SE.cct.algorithm,
                                                self.current_SE.cct.key,
@@ -1183,7 +1227,6 @@ if __name__ == "__main__":
     """
 
     password = "DUMMYKEYDUMMYKEY"
-    #generate_SAM_config("1234567890", "1234", "keykeykeykeykeyk", path, password)
 
     MyCard = SAM("1234", "1234567890")
     try:
