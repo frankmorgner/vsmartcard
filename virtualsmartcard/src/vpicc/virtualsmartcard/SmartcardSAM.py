@@ -125,7 +125,6 @@ class CardContainer:
 class SAM(object):
     
     def __init__(self, PIN, cardNumber, mf=None):
-        import virtualsmartcard.CryptoUtils
 
         self.CardContainer = CardContainer(PIN, cardNumber)      
         #self.CardContainer.loadConfiguration(path, password)
@@ -575,8 +574,6 @@ class Security_Environment(object):
 class Secure_Messaging(object):
     
     def __init__(self, MF, SE=None):
-        import virtualsmartcard.CryptoUtils
-
         self.mf = MF
         if not SE:
             self.current_SE = Security_Environment()
@@ -911,9 +908,11 @@ class Secure_Messaging(object):
         
         if p1 != 0x9E or not p2 in (0x9A, 0xAC, 0xBC):
             raise SwError(SW["ERR_INCORRECTP1P2"])
+
         if self.current_SE.dst.key == None:
             raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
-              
+
+        to_sign = ""              
         if p2 == 0x9A: #Data to be signed
             to_sign = data
         elif p2 == 0xAC: #Data objects, sign values
@@ -924,7 +923,7 @@ class Secure_Messaging(object):
         elif p2 == 0xBC: #Data objects to be signed
             pass
         
-        signature = self.current_SE.dst.key.sign(data,"")
+        signature = self.current_SE.dst.key.sign(to_sign, "")
         return SW["NORMAL"], signature
     
     def hash(self, p1, p2, data):
