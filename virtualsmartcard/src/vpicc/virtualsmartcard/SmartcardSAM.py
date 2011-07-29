@@ -143,15 +143,7 @@ class SAM(object):
     def set_MF(self, mf):
         self.mf = mf
         self.SM_handler.set_MF(mf)
-
-    def addFSkey(self, path, key):
-        #Deprecated ?
-        self.CardContainer.addKey(path, key)
-    
-    def delFSkey(self, path):
-        #Deprecated ?
-        self.CardContainer.removeKey(path)
-        
+       
     def FSencrypt(self, data):
         """
         Encrypt the given data, using the parameters stored in the SAM
