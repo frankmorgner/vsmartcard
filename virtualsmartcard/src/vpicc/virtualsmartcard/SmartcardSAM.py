@@ -61,18 +61,13 @@ class CardContainer:
    
     def __init__(self, PIN=None, cardNumber=None, cardSecret=None):
         from os import urandom      
-        from virtualsmartcard.CryptoUtils import get_cipher_keylen, cipher
         
         self.cardNumber = cardNumber
         self.PIN = PIN
-        self.FSkeys = {}
         self.cipher = 0x01
-        self.master_password = None
-        self.master_key = None
-        self.salt = None
         self.asym_key = None
         
-        keylen = get_cipher_keylen(get_referenced_cipher(self.cipher))
+        keylen = vsCrypto.get_cipher_keylen(get_referenced_cipher(self.cipher))
         if cardSecret is None: #Generate a random card secret
             self.cardSecret = urandom(keylen)
         else:
@@ -91,36 +86,6 @@ class CardContainer:
     def getCardSecret(self):
         return self.cardSecret
     
-    def addKey(self, path, key):
-        """
-        Encrypt key and store it in the SAM
-        """
-        crypted_key = cipher(True, self.cipher, self.master_password, key)
-        if self.FSkeys.has_key(path):
-            print "Overwriting key for path %s" % path
-        self.FSkeys[path] = crypted_key
-    
-    def removeKey(self, path):
-        """
-        Erase a key from the SAM
-        """
-        if(self.FSkeys.has_key(path)):
-            del self.FSkeys[path]
-        else:
-            raise ValueError 
-    
-    def getKey(self, path):
-        """
-        Fetch a key from the SAM, decrypt and return it
-		@return: key if the key is in the container, otherwise None
-        """
-        if(self.FSkeys.has_key(path)):
-            plain_key = cipher(False, self.cipher, self.master_password,
-                               self.FSkeys[path]) #TODO: Error checking
-            return plain_key
-        else:
-            return None
-                
 class SAM(object):
     
     def __init__(self, PIN, cardNumber, mf=None):
@@ -143,31 +108,19 @@ class SAM(object):
        
     def FSencrypt(self, data):
         """
-        Encrypt the given data, using the parameters stored in the SAM
+        Encrypt the given data, using the parameters stored in the SAM.
+        Right now we do not encrypt the data. In memory encryption might or
+        might not be added in a future version.
         """
-        if self.CardContainer.master_key == None:
-            raise ValueError
-        
-        cipher = get_referenced_cipher(self.CardContainer.cipher)
-        padded_data = vsCrypto.append_padding(cipher, data)
-        crypted_data = vsCrypto.encrypt(cipher, 
-                                        self.CardContainer.master_key,
-                                        padded_data)
-        return crypted_data
+        return data
 
     def FSdecrypt(self, data):
         """
-        Decrypt the given data, using the parameters stored in the SAM
+        Decrypt the given data, using the parameters stored in the SAM.
+        Right now we do not encrypt the data. In memory encryption might or
+        might not be added in a future version.
         """
-        if self.CardContainer.master_key == None:
-            raise ValueError, "No master key set."
-
-        cipher = get_referenced_cipher(self.CardContainer.cipher)                
-        decrypted_data = vsCrypto.decrypt(cipher,
-                                          self.CardContainer.master_key,
-                                          data)
-        unpadded_data = vsCrypto.strip_padding(cipher, decrypted_data)
-        return unpadded_data
+        return data
     
     def set_asym_algorithm(self, cipher, keytype):
         """
