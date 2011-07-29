@@ -87,7 +87,7 @@ class CardContainer:
     def getPIN(self):
         return self.PIN
     
-    def setPIN(self,PIN):
+    def setPIN(self, PIN):
         self.PIN = PIN
     
     def getCardSecret(self):
@@ -102,7 +102,7 @@ class CardContainer:
             print "Overwriting key for path %s" % path
         self.FSkeys[path] = crypted_key
     
-    def removeKey(self,path):
+    def removeKey(self, path):
         """
         Erase a key from the SAM
         """
@@ -111,7 +111,7 @@ class CardContainer:
         else:
             raise ValueError 
     
-    def getKey(self,path):
+    def getKey(self, path):
         """
         Fetch a key from the SAM, decrypt and return it
 		@return: key if the key is in the container, otherwise None
@@ -139,19 +139,19 @@ class SAM(object):
 
         self.SM_handler = Secure_Messaging(self.mf)
 
-    def set_MF(self,mf):
+    def set_MF(self, mf):
         self.mf = mf
         self.SM_handler.set_MF(mf)
 
-    def addFSkey(self,path,key):
+    def addFSkey(self, path, key):
         #Deprecated ?
         self.CardContainer.addKey(path, key)
     
-    def delFSkey(self,path):
+    def delFSkey(self, path):
         #Deprecated ?
         self.CardContainer.removeKey(path)
         
-    def FSencrypt(self,data):
+    def FSencrypt(self, data):
         """
         Encrypt the given data, using the parameters stored in the SAM
         """
@@ -159,11 +159,11 @@ class SAM(object):
             raise ValueError
         
         cipher = get_referenced_cipher(self.CardContainer.cipher)
-        padded_data = virtualsmartcard.CryptoUtils.append_padding(cipher,data)
-        crypted_data = virtualsmartcard.CryptoUtils.cipher(True,cipher,self.CardContainer.master_key,padded_data)
+        padded_data = virtualsmartcard.CryptoUtils.append_padding(cipher, data)
+        crypted_data = virtualsmartcard.CryptoUtils.cipher(True, cipher, self.CardContainer.master_key, padded_data)
         return crypted_data
 
-    def FSdecrypt(self,data):
+    def FSdecrypt(self, data):
         """
         Decrypt the given data, using the parameters stored in the SAM
         """
@@ -171,28 +171,28 @@ class SAM(object):
             raise ValueError, "No master key set."
 
         cipher = get_referenced_cipher(self.CardContainer.cipher)                
-        decrypted_data = virtualsmartcard.CryptoUtils.cipher(False,cipher,self.CardContainer.master_key,data)
-        unpadded_data = virtualsmartcard.CryptoUtils.strip_padding(cipher,decrypted_data)
+        decrypted_data = virtualsmartcard.CryptoUtils.cipher(False, cipher, self.CardContainer.master_key, data)
+        unpadded_data = virtualsmartcard.CryptoUtils.strip_padding(cipher, decrypted_data)
         return unpadded_data
     
-    def set_algorithm(self,algo):
-        if not algo in range(0x01,0x06):
+    def set_algorithm(self, algo):
+        if not algo in range(0x01, 0x06):
             raise ValueError, "Illegal Parameter"
         else:
             self.CardContainer.cipher = algo
 
-    def set_asym_algorithm(self,cipher,type):
+    def set_asym_algorithm(self, cipher, type):
         """
         @param cipher: Public/private key object from Crypto.PublicKey used for encryption   
         @param type: Type of the public key (e.g. RSA, DSA) 
         """
-        if not type in range(0x07,0x08):
+        if not type in range(0x07, 0x08):
             raise ValueError, "Illegal Parameter"
         else:
             self.CardContainer.cipher = type
             self.CardContainer.asym_key = cipher
    
-    def verify(self,p1,p2,PIN):        
+    def verify(self, p1, p2, PIN):        
         """
         Authenticate the card user. Check if he entered a valid PIN.
         If the PIN is invalid decrement retry counter. If retry counter 
@@ -243,8 +243,8 @@ class SAM(object):
             crypted_challenge = crypted_challenge[0]
             crypted_challenge = inttostring(crypted_challenge)
         else:
-            key = self._get_referenced_key(p1,p2)
-            crypted_challenge = virtualsmartcard.CryptoUtils.cipher(True,cipher,key,data)
+            key = self._get_referenced_key(p1, p2)
+            crypted_challenge = virtualsmartcard.CryptoUtils.cipher(True, cipher, key, data)
         
         return SW["NORMAL"], crypted_challenge
     
@@ -256,27 +256,27 @@ class SAM(object):
         if self.last_challenge is None:
             raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
         
-        key = self._get_referenced_key(p1,p2) 
+        key = self._get_referenced_key(p1, p2) 
         if p1 == 0x00: #No information given
             cipher = get_referenced_cipher(self.CardContainer.cipher)   
         else:
             cipher = get_referenced_cipher(p1)     
         
-        reference = virtualsmartcard.CryptoUtils.append_padding(cipher,self.last_challenge)
-        reference = virtualsmartcard.CryptoUtils.cipher(True,cipher,key,reference)
+        reference = virtualsmartcard.CryptoUtils.append_padding(cipher, self.last_challenge)
+        reference = virtualsmartcard.CryptoUtils.cipher(True, cipher, key, reference)
         if(reference == data):
             #Invalidate last challenge
             self.last_challenge = None
             return SW["NORMAL"], ""
         else:
-            plain = virtualsmartcard.CryptoUtils.cipher(False,cipher,key,data)
+            plain = virtualsmartcard.CryptoUtils.cipher(False, cipher, key, data)
             print plain
             print "Reference: " + hexdump(reference)
             print "Data: " + hexdump(data)
             raise SwError(SW["WARN_NOINFO63"])
             #TODO: Counter for external authenticate?
 
-    def mutual_authenticate(self,p1,p2,mutual_challenge):   
+    def mutual_authenticate(self, p1, p2, mutual_challenge):   
         """
         Takes an encrypted challenge in the form 
         'Terminal Challenge | Card Challenge | Card number'
@@ -285,7 +285,7 @@ class SAM(object):
         returns this value
         """
         
-        key = self._get_referenced_key(p1,p2)
+        key = self._get_referenced_key(p1, p2)
         card_number = self.get_card_number()
 
         if (key == None):
@@ -297,7 +297,7 @@ class SAM(object):
         
         if (cipher == None):
             raise SwError(SW["ERR_INCORRECTP1P2"])
-        plain = virtualsmartcard.CryptoUtils.cipher(False,cipher,key,mutual_challenge)
+        plain = virtualsmartcard.CryptoUtils.cipher(False, cipher, key, mutual_challenge)
         terminal_challenge = plain[:len(self.last_challenge)-1]
         card_challenge = plain[len(self.last_challenge):len(challenge)-len(card_number)-1]
         serial_number = plain[(challenge)-len(card_number):]
@@ -309,7 +309,7 @@ class SAM(object):
             raise SwError(SW["WARN_NOINFO63"])
         
         result = card_challenge + terminal_challenge
-        return SW["NORMAL"], virtualsmartcard.CryptoUtils.cipher(True,cipher,key,result)
+        return SW["NORMAL"], virtualsmartcard.CryptoUtils.cipher(True, cipher, key, result)
     
     def get_challenge(self, p1, p2, data):
         """
@@ -325,9 +325,9 @@ class SAM(object):
         #block_size = Crypto.Cipher.cipher.block_size
 
         random.seed()
-        self.last_challenge = random.randint(0, int(max,16))
+        self.last_challenge = random.randint(0, int(max, 16))
         print "Generated challenge: %s" % str(self.last_challenge)
-        self.last_challenge = inttostring(self.last_challenge,length)
+        self.last_challenge = inttostring(self.last_challenge, length)
 
         return SW["NORMAL"], self.last_challenge
     
@@ -376,7 +376,7 @@ class SAM(object):
         else: 
             raise SwError(SW["DATANOTFOUND"])
                
-    def _read_FS_data(self,fid,length):
+    def _read_FS_data(self, fid, length):
         
         """
         This function creates a dummy filesystem, so that data (for example keys)
@@ -386,8 +386,8 @@ class SAM(object):
         mf = SmartcardFilesystem.MF(filedescriptor=FDB["NOTSHAREABLEFILE"],
             lifecycle=LCB["NOINFORMATION"], dfname=None)
         
-        mf = SmartcardFilesystem.MF(filedescriptor=FDB["DF"],lifecycle=LCB["ACTIVATED"], dfname=None)
-        df = mf.append(SmartcardFilesystem.DF(parent=mf,fid=4, dfname='\xd2\x76\x00\x01\x24\x01', bertlv_data=[]))
+        mf = SmartcardFilesystem.MF(filedescriptor=FDB["DF"], lifecycle=LCB["ACTIVATED"], dfname=None)
+        df = mf.append(SmartcardFilesystem.DF(parent=mf, fid=4, dfname='\xd2\x76\x00\x01\x24\x01', bertlv_data=[]))
         mf.append(SmartcardFilesystem.TransparentStructureEF(parent=df, fid=0x1012,
            filedescriptor=0, data="Key from the FS."))
 
@@ -400,10 +400,10 @@ class SAM(object):
     def generate_public_key_pair(self, p1, p2, data):
         return self.SM_handler.generate_public_key_pair(p1, p2, data)
 
-    def parse_SM_CAPDU(self,CAPDU,header_authentication):
+    def parse_SM_CAPDU(self, CAPDU, header_authentication):
         return self.SM_handler.parse_SM_CAPDU(CAPDU, header_authentication)
     
-    def protect_result(self,sw,unprotected_result):
+    def protect_result(self, sw, unprotected_result):
         return self.SM_handler.protect_response(sw, unprotected_result)
 
     def perform_security_operation(self, p1, p2, data):
@@ -452,7 +452,7 @@ class PassportSAM(SAM):
         Kb = H[8:16]
         return Ka + Kb
     
-    def external_authenticate(self,p1,p2,resp_data):
+    def external_authenticate(self, p1, p2, resp_data):
         """Performes the basic access controll protocoll as defined in
         the ICAO MRTD standard"""
         rnd_icc = self.last_challenge
@@ -466,7 +466,7 @@ class PassportSAM(SAM):
         if not Mifd == resp_data[-8:]:
             raise ValueError, "Passport authentication failed: Wrong MAC on incoming data during Mutual Authenticate"
         #Decrypt the data
-        plain = virtualsmartcard.CryptoUtils.cipher(False,"DES3-CBC",self.KEnc,resp_data[:-8])
+        plain = virtualsmartcard.CryptoUtils.cipher(False, "DES3-CBC", self.KEnc, resp_data[:-8])
         #Split decrypted data into the two nonces and 
         if plain[8:16] != rnd_icc:
             raise SwError(SW["WARN_NOINFO63"])
@@ -475,11 +475,11 @@ class PassportSAM(SAM):
         rnd_ifd = plain[:8]
         max = "0x" + 16 * "ff"
         random.seed()
-        Kicc = inttostring(random.randint(0, int(max,16)))
+        Kicc = inttostring(random.randint(0, int(max, 16)))
         #Generate Answer
         data = plain[8:16] + plain[:8] + Kicc
-        Eicc = virtualsmartcard.CryptoUtils.cipher(True, "DES3-CBC", self.KEnc,data)
-        Micc = self._mac(self.KMac,Eicc)
+        Eicc = virtualsmartcard.CryptoUtils.cipher(True, "DES3-CBC", self.KEnc, data)
+        Micc = self._mac(self.KMac, Eicc)
         #Derive the final keys
         KSseed = virtualsmartcard.CryptoUtils.operation_on_string(Kicc, Kifd, lambda a,b: a^b)
         self.KSenc = self.derive_key(KSseed, 1)
@@ -557,7 +557,7 @@ class Security_Environment(object):
         self.internal_auth = False
         self.externel_auth = False
 
-    def mse(self,config):
+    def mse(self, config):
     	structure = TLVutils.unpack(config)
     	for tag, length, value in structure:
     		if tag == TEMPLATE_AT:
@@ -575,7 +575,7 @@ class Security_Environment(object):
     
 class Secure_Messaging(object):
     
-    def __init__(self,MF,SE=None):
+    def __init__(self, MF, SE=None):
         import virtualsmartcard.CryptoUtils
 
         self.mf = MF
@@ -584,7 +584,7 @@ class Secure_Messaging(object):
         else:
             self.current_SE = SE
 
-    def set_MF(self,mf):
+    def set_MF(self, mf):
         self.mf = mf
 
     def manage_security_environment(self, p1, p2, data):
@@ -618,7 +618,7 @@ class Secure_Messaging(object):
                 self.current_SE.internal_auth = True
             if se & 0x08: #Verification, encipherment, external authentication and key agreement
                 self.current_SE.external_auth = True
-            self.__set_SE(p2,data)
+            self.__set_SE(p2, data)
         elif(cmd== 0x02):
             self.__store_SE(p2)
         elif(cmd == 0x03):
@@ -628,13 +628,13 @@ class Secure_Messaging(object):
         else:
             raise SwError(SW["ERR_INCORRECTP1P2"])
 
-    def __set_SE(self,p2,data):
+    def __set_SE(self, p2, data):
         """
         Manipulate the current Security Environment. P2 is the tag of a
         control reference template, data contains control reference objects
         """
         
-        valid_p2 = (0xA4,0xA6,0xB4,0xB6,0xB8)
+        valid_p2 = (0xA4, 0xA6, 0xB4, 0xB6, 0xB8)
         if not p2 in valid_p2:
             raise SwError(SW["ERR_INCORRECTP1P2"])
         if p2 == 0xA4:
@@ -650,7 +650,7 @@ class Secure_Messaging(object):
         elif p2 == 0xB8:
             self.current_SE.ct.parse_SE_config(data)
     
-    def __store_SE(self,SEID):
+    def __store_SE(self, SEID):
         """
         Stores the current Security environment in the secure access module. The
         SEID is used as a reference to identify the SE.
@@ -662,7 +662,7 @@ class Secure_Messaging(object):
             raise SwError["ERR_INCORRECTP1P2"]
 
     
-    def __restore_SE(self,SEID):
+    def __restore_SE(self, SEID):
         """
         Restores a Security Environment from the SAM and replaces the current SE
         with it 
@@ -674,13 +674,13 @@ class Secure_Messaging(object):
         else:
             raise SwError(SW["ERR_REFNOTUSABLE"])
     
-    def __erase_SE(self,SEID):
+    def __erase_SE(self, SEID):
         """
         Erases a Security Environment stored under SEID from the SAM
         """
         self.SAM.removeKey(SEID)
     
-    def parse_SM_CAPDU(self,CAPDU,header_authentication):
+    def parse_SM_CAPDU(self, CAPDU, header_authentication):
         """
         This methods parses a data field including Secure Messaging objects.
         SM_header indicates wether or not the header of the message shall be authenticated
@@ -705,8 +705,8 @@ class Secure_Messaging(object):
         else:
             to_authenticate = ""
 
-        for object in structure:
-            tag, length, value = object
+        for tlv in structure:
+            tag, length, value = tlv
             #TODO: Sanity checking
             #if not SM_Class.has_key(tag):
             #    raise ValueError, "unknown Secure messaging tag %#X" % tag
@@ -714,15 +714,15 @@ class Secure_Messaging(object):
                 to_authenticate += inttostring(tag) + inttostring(length) + value
             
             #SM data objects for encapsulating plain values
-            if tag in (SM_Class["PLAIN_VALUE_NO_TLV"],SM_Class["PLAIN_VALUE_NO_TLV_ODD"]):
+            if tag in (SM_Class["PLAIN_VALUE_NO_TLV"], SM_Class["PLAIN_VALUE_NO_TLV_ODD"]):
                 return_data.append(value) #FIXME: Need TLV coding?
-            elif tag in (SM_Class["PLAIN_VALUE_TLV_INCULDING_SM"],SM_Class["PLAIN_VALUE_TLV_INCULDING_SM_ODD"]):
+            elif tag in (SM_Class["PLAIN_VALUE_TLV_INCULDING_SM"], SM_Class["PLAIN_VALUE_TLV_INCULDING_SM_ODD"]):
                 #Encapsulated SM objects. Parse them
                 return_data.append(self.parse_SM_CAPDU(value, header_authentication)) #FIXME: Need to pack value into a dummy CAPDU
-            elif tag in (SM_Class["PLAIN_VALUE_TLV_NO_SM"],SM_Class["PLAIN_VALUE_TLV_NO_SM_ODD"]):
+            elif tag in (SM_Class["PLAIN_VALUE_TLV_NO_SM"], SM_Class["PLAIN_VALUE_TLV_NO_SM_ODD"]):
                 #Encapsulated plaintext BER-TLV objects
                 return_data.append(value)
-            elif tag in (SM_Class["Ne"],SM_Class["Ne_ODD"]):
+            elif tag in (SM_Class["Ne"], SM_Class["Ne_ODD"]):
                 le = value
             elif tag == SM_Class["PLAIN_COMMAND_HEADER"]:
                 if len(value) != 8:
@@ -734,15 +734,15 @@ class Secure_Messaging(object):
                     p2 = value[6:8]
 
             #SM data objects for confidentiality
-            if tag in (SM_Class["CRYPTOGRAM_PLAIN_TLV_INCLUDING_SM"],SM_Class["CRYPTOGRAM_PLAIN_TLV_INCLUDING_SM_ODD"]):
+            if tag in (SM_Class["CRYPTOGRAM_PLAIN_TLV_INCLUDING_SM"], SM_Class["CRYPTOGRAM_PLAIN_TLV_INCLUDING_SM_ODD"]):
                 #The Cryptogram includes SM objects. We decrypt them and parse the objects.
                 plain = decipher(tag, 0x80, value) #TODO: Need Le = length
                 return_data.append(self.parse_SM_CAPDU(plain, header_authentication))
-            elif tag in (SM_Class["CRYPTOGRAM_PLAIN_TLV_NO_SM"],SM_Class["CRYPTOGRAM_PLAIN_TLV_NO_SM_ODD"]):
+            elif tag in (SM_Class["CRYPTOGRAM_PLAIN_TLV_NO_SM"], SM_Class["CRYPTOGRAM_PLAIN_TLV_NO_SM_ODD"]):
                 #The Cryptogram includes BER-TLV enconded plaintext. We decrypt them and return the objects.
                 plain = decipher(tag, 0x80, value)
                 return_data.append(plain)
-            elif tag in (SM_Class["CRYPTOGRAM_PADDING_INDICATOR"],SM_Class["CRYPTOGRAM_PADDING_INDICATOR_ODD"]):
+            elif tag in (SM_Class["CRYPTOGRAM_PADDING_INDICATOR"], SM_Class["CRYPTOGRAM_PADDING_INDICATOR_ODD"]):
                 #The first byte of the specified data field indicates the padding to use:
                 """
                 Value        Meaning
@@ -761,10 +761,10 @@ class Secure_Messaging(object):
             '80' to '8E' Proprietary
                 """
                 padding_indicator = stringtoint(value[0])
-                sw, plain = self.decipher(tag,0x80,value[1:])
+                sw, plain = self.decipher(tag, 0x80, value[1:])
                 if sw != 0x9000:
         			raise ValueError
-                plain = virtualsmartcard.CryptoUtils.strip_padding(self.current_SE.ct.algorithm,plain,padding_indicator)
+                plain = virtualsmartcard.CryptoUtils.strip_padding(self.current_SE.ct.algorithm, plain, padding_indicator)
                 return_data.append(plain)
 
             #SM data objects for authentication 
@@ -778,7 +778,7 @@ class Secure_Messaging(object):
                 sw, signature = self.compute_digital_signature(0x9E, 0x9A, auth)
                 if signature != value:
                     raise SwError(SW["ERR_SECMESSOBJECTSINCORRECT"])
-            elif tag in (SM_Class["HASH_CODE"],SM_Class["HASH_CODE_ODD"]):
+            elif tag in (SM_Class["HASH_CODE"], SM_Class["HASH_CODE_ODD"]):
                 sw, hash = self.hash(p1, p2, to_authenticate)
                 if hash != value:
                     raise SwError(SW["ERR_SECMESSOBJECTSINCORRECT"])
@@ -805,10 +805,10 @@ class Secure_Messaging(object):
         if expected != "":
             raise SwError(SW["ERR_SECMESSOBJECTSMISSING"])
         
-        c = C_APDU(cla=cla,ins=ins,p1=p1,p2=p2,le=le,data="".join(return_data))    
+        c = C_APDU(cla=cla, ins=ins, p1=p1, p2=p2, le=le, data="".join(return_data))
         return c
 
-    def protect_response(self,sw,result):
+    def protect_response(self, sw, result):
         """
         This method protects a response APDU using secure messanging mechanisms
         It returns the protected data and the SW bytes
@@ -828,7 +828,7 @@ class Secure_Messaging(object):
         if result != "": # Encrypt the data included in the RAPDU
             sw, encrypted = self.encipher(0x82, 0x80, result)
             encrypted = "\x01" + encrypted
-            encrypted_tlv = TLVutils.pack([(SM_Class["CRYPTOGRAM_PADDING_INDICATOR_ODD"],len(encrypted),encrypted)])
+            encrypted_tlv = TLVutils.pack([(SM_Class["CRYPTOGRAM_PADDING_INDICATOR_ODD"], len(encrypted), encrypted)])
             return_data += encrypted_tlv 
         
         if sw == SW["NORMAL"]:
@@ -839,13 +839,13 @@ class Secure_Messaging(object):
                 to_auth = virtualsmartcard.CryptoUtils.append_padding("DES-ECB", return_data)
                 sw, auth = self.compute_cryptographic_checksum(0x8E, 0x80, to_auth)
                 length = len(auth)
-                return_data += TLVutils.pack([(tag,length,auth)])
+                return_data += TLVutils.pack([(tag, length, auth)])
             elif self.current_SE.cct.algorithm == "SIGNATURE":
                 tag = SM_Class["DIGITAL_SIGNATURE"]
                 hash = self.hash(0x90, 0x80, return_data)
                 sw, auth = self.compute_digital_signature(0x9E, 0x9A, hash)
                 length = len(auth)
-                return_data += TLVutils.pack([(tag,length,auth)])
+                return_data += TLVutils.pack([(tag, length, auth)])
         
         return SW["NORMAL"], return_data
 
@@ -856,26 +856,27 @@ class Secure_Messaging(object):
         in ISO 7816-8. It will invoke the appropiate command and return its result
         """
         
-        allowed_P1P2 = ((0x90,0x80),(0x90,0xA0),(0x9E,0x9A),(0x9E,0xAC),(0x9E,0xBC),(0x00,0xA2),
-                        (0x00,0xA8),(0x00,0x92),(0x00,0xAE),(0x00,0xBE),(0x82,0x80),(0x84,0x80),
-                        (0x86,0x80),(0x80,0x82),(0x80,0x84),(0x80,0x86))
+        allowed_P1P2 = ((0x90, 0x80), (0x90, 0xA0), (0x9E, 0x9A), (0x9E, 0xAC), \
+                        (0x9E, 0xBC), (0x00, 0xA2), (0x00, 0xA8), (0x00, 0x92), \
+                        (0x00, 0xAE), (0x00, 0xBE), (0x82, 0x80), (0x84, 0x80), \
+                        (0x86, 0x80), (0x80, 0x82), (0x80, 0x84), (0x80, 0x86))
     
-        if (p1,p2) not in allowed_P1P2:
+        if (p1, p2) not in allowed_P1P2:
             raise SwError(SW["INCORRECTP1P2"])
        
-        if(p2 in (0x80,0xA0) and p1==0x90):
-            sw, response_data = self.hash(p1,p2,data)
-        elif(p2 in (0x9A,0xAC,0xBC) and p1 == 0x9E):
+        if((p2 in (0x80, 0xA0)) and (p1 == 0x90)):
+            sw, response_data = self.hash(p1, p2, data)
+        elif(p2 in (0x9A, 0xAC, 0xBC) and p1 == 0x9E):
             sw, response_data = self.compute_digital_signature(p1, p2, data)
         elif(p2 == 0xA2 and p1 == 0x00):
             sw, response_data = self.verify_cryptographic_checksum(p1, p2, data)
         elif(p2 == 0xA8 and p1 == 0x00):
             sw, response_data = self.verify_digital_signature(p1, p2, data)
-        elif(p2 in (0x92,0xAE,0xBE) and p1 == 0x00):
+        elif(p2 in (0x92, 0xAE, 0xBE) and p1 == 0x00):
             sw, response_data = self.verify_certificate(p1, p2, data)
-        elif (p2 == 0x80 and p1 in (0x82,0x84,0x86)):
+        elif (p2 == 0x80 and p1 in (0x82, 0x84, 0x86)):
             sw, response_data = self.encipher(p1, p2, data)
-        elif (p2 in (0x82,0x84,0x86) and p1 == 0x80):
+        elif (p2 in (0x82, 0x84, 0x86) and p1 == 0x80):
             sw, response_data = self.decipher(p1, p2, data)
         
         if p1 == 0x00:
@@ -887,8 +888,7 @@ class Secure_Messaging(object):
     def compute_cryptographic_checksum(self, p1, p2, data):
         """
         Compute a cryptographic checksum (e.g. MAC) for the given data.
-        Algorithm and key are specified in the current (CAPDU) SE
-        @bug: Always use CAPDU settings ???
+        Algorithm and key are specified in the current SE
         """
         if p1 != 0x8E or p2 != 0x80:
             raise SwError(SW["ERR_INCORRECTP1P2"])
@@ -910,7 +910,7 @@ class Secure_Messaging(object):
                    included in the data field.
         """
         
-        if p1 != 0x9E or not p2 in (0x9A,0xAC,0xBC):
+        if p1 != 0x9E or not p2 in (0x9A, 0xAC, 0xBC):
             raise SwError(SW["ERR_INCORRECTP1P2"])
         if self.current_SE.dst.key == None:
             raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
@@ -934,13 +934,13 @@ class Secure_Messaging(object):
         current Security environment.
         Return raw data (no TLV coding).
         """        
-        if p1 != 0x90 or not p2 in (0x80,0xA0):
+        if p1 != 0x90 or not p2 in (0x80, 0xA0):
             raise SwError(SW["ERR_INCORRECTP1P2"])
         algo = self.current_SE.ht.algorithm
         if algo == None:
             raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
         try:
-            hash = virtualsmartcard.CryptoUtils.hash(algo,data)
+            hash = virtualsmartcard.CryptoUtils.hash(algo, data)
         except ValueError: #FIXME: Type of error
             raise SwError(SW["ERR_SECMESSNOTSUPPORTED"])
 
@@ -969,7 +969,7 @@ class Secure_Messaging(object):
         if plain == "" or cct == "":
             raise SwError(SW["ERR_SECMESSOBJECTSMISSING"])
         else:
-            my_cct = virtualsmartcard.CryptoUtils.crypto_checksum(algo,key,plain,iv)
+            my_cct = virtualsmartcard.CryptoUtils.crypto_checksum(algo, key, plain, iv)
             if my_cct == cct:
                 return SW["NORMAL"], ""
             else:
@@ -1129,7 +1129,9 @@ class CryptoflexSM(Secure_Messaging):
         e_str = inttostring(e, 4)
         e_str = e_str[::-1]
         padd = 187 * '\x30' #We don't have chinese remainder theorem components, so we need to inject padding
-        pk_n = TLVutils.bertlv_pack(((0x81,len(n_str),n_str),(0x01,len(padd),padd),(0x82,len(e_str),e_str)))
+        pk_n = TLVutils.bertlv_pack(((0x81, len(n_str), n_str), 
+                                     (0x01, len(padd), padd),
+                                     (0x82, len(e_str), e_str)))
         #Private key
         d = PublicKey.__getstate__()['d']
 
