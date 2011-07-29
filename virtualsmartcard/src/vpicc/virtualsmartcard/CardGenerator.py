@@ -17,7 +17,7 @@
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import sys, getpass, anydbm, readline, os, dircache
+import sys, getpass, anydbm, readline, dircache
 from pickle import loads, dumps
 from TLVutils import pack
 from virtualsmartcard.utils import inttostring
@@ -36,10 +36,10 @@ from virtualsmartcard.SmartcardFilesystem import *
 
 class CardGenerator(object):
     
-    def __init__(self, type=None, sam=None, mf=None):
-        self.type = type
-        self.mf = None
-        self.sam = None
+    def __init__(self, card_type=None, sam=None, mf=None):
+        self.type = card_type
+        self.mf = mf
+        self.sam = sam
     
     def __generate_iso_card(self):
         from virtualsmartcard.SmartcardSAM import SAM
@@ -47,80 +47,90 @@ class CardGenerator(object):
         print "Using default SAM. Insecure!!!"
         self.sam = SAM("1234", "1234567890") #FIXME: Use user provided data
         
-        self.mf = MF(filedescriptor=FDB["DF"], lifecycle=LCB["ACTIVATED"], dfname=None)
+        self.mf = MF(filedescriptor=FDB["DF"])
         self.sam.set_MF(self.mf)
            
     def __generate_ePass(self):
-            from PIL import Image
-            from virtualsmartcard.SmartcardSAM import PassportSAM
+        from PIL import Image
+        from virtualsmartcard.SmartcardSAM import PassportSAM
             
-            MRZ = raw_input("Please enter the MRZ as one string: ") #TODO: Sanity checks
-    
-            readline.set_completer_delims("")
-            readline.parse_and_bind("tab: complete")
-            
-            picturepath = raw_input("Please enter the path to an image: ")
-            picturepath = picturepath.rstrip() #FIXME
-            
-            #MRZ1 = "P<UTOERIKSSON<<ANNA<MARIX<<<<<<<<<<<<<<<<<<<"
-            #MRZ2 = "L898902C<3UTO6908061F9406236ZE184226B<<<<<14"
-            #MRZ = MRZ1 + MRZ2        
-    
-            try:
-                im = Image.open(picturepath)
-                pic_width, pic_height = im.size
-                fd = open(picturepath,"rb")
-                picture = fd.read()
-                fd.close()
-            except IOError:
-                print "Failed to open file: " + picturepath
-                pic_width = 0
-                pic_height = 0
-                picture = None  
-    
-            mf = MF()
-            
-            #We need a MF with Application DF \xa0\x00\x00\x02G\x10\x01
-            df = DF(parent=mf, fid=4, dfname='\xa0\x00\x00\x02G\x10\x01', bertlv_data=[])
+        MRZ = raw_input("Please enter the MRZ as one string: ") #TODO: Sanity checks
 
-            #EF.COM
-            COM = pack([(0x5F01,4,"0107"),(0x5F36,6,"040000"),(0x5C,2,"6175")])
-            COM = pack(((0x60,len(COM),COM),))
-            df.append(TransparentStructureEF(parent=df, fid=0x011E, filedescriptor=0, data=COM))
+        readline.set_completer_delims("")
+        readline.parse_and_bind("tab: complete")
+        
+        picturepath = raw_input("Please enter the path to an image: ")
+        picturepath = picturepath.rstrip() #FIXME
+        
+        #MRZ1 = "P<UTOERIKSSON<<ANNA<MARIX<<<<<<<<<<<<<<<<<<<"
+        #MRZ2 = "L898902C<3UTO6908061F9406236ZE184226B<<<<<14"
+        #MRZ = MRZ1 + MRZ2        
 
-            #EF.DG1
-            DG1 = pack([(0x5F1F,len(MRZ),MRZ)])
-            DG1 = pack([(0x61,len(DG1),DG1)])
-            df.append(TransparentStructureEF(parent=df, fid=0x0101, filedescriptor=0, data=DG1))
+        try:
+            im = Image.open(picturepath)
+            pic_width, pic_height = im.size
+            fd = open(picturepath,"rb")
+            picture = fd.read()
+            fd.close()
+        except IOError:
+            print "Failed to open file: " + picturepath
+            pic_width = 0
+            pic_height = 0
+            picture = None  
 
-            #EF.DG2
-            if picture != None:
-                IIB = "\x00\x01" + inttostring(pic_width,2) + inttostring(pic_height,2) + 6 * "\x00" 
-                length = 32 + len(picture) #32 is the length of IIB + FIB
-                FIB = inttostring(length,4) + 16 * "\x00"
-                FRH = "FAC" + "\x00" + "010" + "\x00" + inttostring(14+length,4) + inttostring(1,2)
-                picture = FRH + FIB + IIB + picture
-                DG2 = pack([(0xA1,8,"\x87\x02\x01\x01\x88\x02\x05\x01"),(0x5F2E,len(picture),picture)])
-                DG2 = pack([(0x02,1,"\x01"),(0x7F60,len(DG2),DG2)])
-                DG2 = pack([(0x7F61,len(DG2),DG2)])
-            else:
-                DG2=""
-            df.append(TransparentStructureEF(parent=df, fid=0x0102, filedescriptor=0, data=DG2))
+        mf = MF()
+        
+        #We need a MF with Application DF \xa0\x00\x00\x02G\x10\x01
+        df = DF(parent=mf, fid=4, dfname='\xa0\x00\x00\x02G\x10\x01',
+                bertlv_data=[])
 
-            #EF.SOD
-            df.append(TransparentStructureEF(parent=df, fid=0x010D, filedescriptor=0, data=""))
+        #EF.COM
+        COM = pack([(0x5F01, 4, "0107"), (0x5F36, 6, "040000"),
+                    (0x5C, 2, "6175")])
+        COM = pack(((0x60, len(COM), COM),))
+        df.append(TransparentStructureEF(parent=df, fid=0x011E,
+                  filedescriptor=0, data=COM))
 
-            mf.append(df)
+        #EF.DG1
+        DG1 = pack([(0x5F1F, len(MRZ), MRZ)])
+        DG1 = pack([(0x61, len(DG1), DG1)])
+        df.append(TransparentStructureEF(parent=df, fid=0x0101,
+                  filedescriptor=0, data=DG1))
 
-            self.mf = mf
-            self.sam = PassportSAM(self.mf)
+        #EF.DG2
+        if picture != None:
+            IIB = "\x00\x01" + inttostring(pic_width, 2) +\
+                    inttostring(pic_height, 2) + 6 * "\x00" 
+            length = 32 + len(picture) #32 is the length of IIB + FIB
+            FIB = inttostring(length, 4) + 16 * "\x00"
+            FRH = "FAC" + "\x00" + "010" + "\x00" +\
+                    inttostring(14 + length, 4) + inttostring(1, 2)
+            picture = FRH + FIB + IIB + picture
+            DG2 = pack([(0xA1, 8, "\x87\x02\x01\x01\x88\x02\x05\x01"), 
+                    (0x5F2E, len(picture), picture)])
+            DG2 = pack([(0x02, 1, "\x01"), (0x7F60, len(DG2), DG2)])
+            DG2 = pack([(0x7F61, len(DG2), DG2)])
+        else:
+            DG2 = ""
+        df.append(TransparentStructureEF(parent=df, fid=0x0102,
+                  filedescriptor=0, data=DG2))
+
+        #EF.SOD
+        df.append(TransparentStructureEF(parent=df, fid=0x010D,
+                  filedescriptor=0, data=""))
+
+        mf.append(df)
+
+        self.mf = mf
+        self.sam = PassportSAM(self.mf)
     
     def __generate_cryptoflex(self):
         from virtualsmartcard.SmartcardSAM import CryptoflexSAM
                         
         self.mf = CryptoflexMF()
-        self.mf.append(TransparentStructureEF(parent=self.mf, fid=0x0002, filedescriptor=0x01,
-                                         data="\x00\x00\x00\x01\x00\x01\x00\x00")) #EF.ICCSN
+        self.mf.append(TransparentStructureEF(parent=self.mf, fid=0x0002,
+                       filedescriptor=0x01,
+                       data="\x00\x00\x00\x01\x00\x01\x00\x00")) #EF.ICCSN
         self.sam = CryptoflexSAM(self.mf)
         
     def generateCard(self):
