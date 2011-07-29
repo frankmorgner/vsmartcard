@@ -181,12 +181,12 @@ class SAM(object):
         else:
             self.CardContainer.cipher = algo
 
-    def set_asym_algorithm(self, cipher, type):
+    def set_asym_algorithm(self, cipher, keytype):
         """
         @param cipher: Public/private key object from Crypto.PublicKey used for encryption   
-        @param type: Type of the public key (e.g. RSA, DSA) 
+        @param keytype: Type of the public key (e.g. RSA, DSA) 
         """
-        if not type in range(0x07, 0x08):
+        if not keytype in range(0x07, 0x08):
             raise ValueError, "Illegal Parameter"
         else:
             self.CardContainer.cipher = type
@@ -392,8 +392,8 @@ class SAM(object):
            filedescriptor=0, data="Key from the FS."))
 
         df = mf.currentDF()
-        file = df.select('fid', 0X1012)
-        sw, result = file.readbinary(0)
+        fake_ef = df.select('fid', 0X1012)
+        sw, result = fake_ef.readbinary(0)
         return sw, result
 
     #The following commands define the interface to the Secure Messaging functions
@@ -542,8 +542,7 @@ class Security_Environment(object):
     def __init__(self):       
         self.SEID = None
         self.sm_objects = ""
-        #Default configuration
-        ct = "\x80\x01\x01\x82\x01\x00\x85\x01\x00"
+
         #Control Reference Tables
         self.at = CRT(TEMPLATE_AT)
         self.kat = CRT(TEMPLATE_KAT)
@@ -558,20 +557,20 @@ class Security_Environment(object):
         self.externel_auth = False
 
     def mse(self, config):
-    	structure = TLVutils.unpack(config)
-    	for tag, length, value in structure:
-    		if tag == TEMPLATE_AT:
-    			self.at.parse_SE_config(config)
-    		elif tag == TEMPLATE_CCT:
-    			self.cct.parse_SE_config(config)
-    		elif tag == TEMPLATE_KAT:
-    			self.kat.parse_SE_config(config)
-    		elif tag == TEMPLATE_CT:
-    			self.ct.parse_SE_config(config)
-    		elif tag == TEMPLATE_DST:
-    			self.dst.parse_SE_config(config)
-    		else:
-    			raise ValueError
+        structure = TLVutils.unpack(config)
+        for tag, length, value in structure:
+            if tag == TEMPLATE_AT:
+                self.at.parse_SE_config(config)
+            elif tag == TEMPLATE_CCT:
+                self.cct.parse_SE_config(config)
+            elif tag == TEMPLATE_KAT:
+                self.kat.parse_SE_config(config)
+            elif tag == TEMPLATE_CT:
+                self.ct.parse_SE_config(config)
+            elif tag == TEMPLATE_DST:
+                self.dst.parse_SE_config(config)
+            else:
+                raise ValueError
     
 class Secure_Messaging(object):
     
@@ -763,7 +762,7 @@ class Secure_Messaging(object):
                 padding_indicator = stringtoint(value[0])
                 sw, plain = self.decipher(tag, 0x80, value[1:])
                 if sw != 0x9000:
-        			raise ValueError
+                    raise ValueError
                 plain = virtualsmartcard.CryptoUtils.strip_padding(self.current_SE.ct.algorithm, plain, padding_indicator)
                 return_data.append(plain)
 
@@ -1137,14 +1136,14 @@ class CryptoflexSM(Secure_Messaging):
 
         #Write result to FID 10 12 EF-PUB-KEY
         df = self.mf.currentDF()
-        file = df.select("fid", 0x1012)
-        file.writebinary([0], [pk_n])
-        data = file.getenc('data')
+        ef_pub_key = df.select("fid", 0x1012)
+        ef_pub_key.writebinary([0], [pk_n])
+        data = ef_pub_key.getenc('data')
         
         #Write private key to FID 00 12 EF-PRI-KEY (not necessary?)      
-        file = df.select("fid", 0x0012)
-        file.writebinary([0], [inttostring(d)]) #Do we need encoding for the private key?
-        data = file.getenc('data')     
+        ef_priv_key = df.select("fid", 0x0012)
+        ef_priv_key.writebinary([0], [inttostring(d)]) #Do we need encoding for the private key?
+        data = ef_priv_key.getenc('data')     
         return PublicKey           
 
 class ePass_SM(Secure_Messaging):
@@ -1177,8 +1176,6 @@ if __name__ == "__main__":
     """
     Unit test:
     """
-
-    import virtualsmartcard.CryptoUtils
 
     password = "DUMMYKEYDUMMYKEY"
     #generate_SAM_config("1234567890", "1234", "keykeykeykeykeyk", path, password)
