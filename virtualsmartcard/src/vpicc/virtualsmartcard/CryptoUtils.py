@@ -19,7 +19,7 @@
 import sys, binascii, utils, random
 from Crypto.Cipher import DES3, DES, AES, ARC4 #,IDEA no longer present in python-crypto?
 from struct import pack
-from binascii import b2a_hex
+from binascii import b2a_hex, a2b_hex
 from random import randint
 from virtualsmartcard.utils import inttostring, stringtoint, hexdump
 import string
@@ -79,7 +79,7 @@ def get_cipher_keylen(cipherspec):
     elif cipher == "DES3":
         return 16
     else:
-       raise ValueError, "Unsupported Encryption Algorithm: " + cipher
+        raise ValueError, "Unsupported Encryption Algorithm: " + cipher
 
 def get_cipher_blocklen(cipherspec):
     cipherparts = cipherspec.split("-")
@@ -108,7 +108,7 @@ def append_padding(cipherspec, data, padding_class=0x01):
 
     return data + padding
 
-def strip_padding(cipherspec,data,padding_class=0x01):
+def strip_padding(cipherspec, data, padding_class=0x01):
     """
     Strip the padding of decrypted data. Returns data without padding
     """
@@ -121,13 +121,13 @@ def strip_padding(cipherspec,data,padding_class=0x01):
         return data[:tail]
     
 def crypto_checksum(algo, key, data, iv=None, ssc=None):
-    if algo not in ("HMAC","MAC","CC"):
+    if algo not in ("HMAC", "MAC", "CC"):
         raise ValueError, "Unknown Algorithm %s" % algo
     
     if algo == "MAC":
-        checksum = calculate_MAC(key,data,0x00,iv) #FIXME: IV?
+        checksum = calculate_MAC(key, data, 0x00, iv) #FIXME: IV?
     elif algo == "HMAC":
-        hmac = HMAC.new(key,data)
+        hmac = HMAC.new(key, data)
         checksum = hmac.hexdigest()
         del hmac
     elif algo == "CC":
@@ -162,7 +162,7 @@ def encrypt(cipherspec, key, data, iv = None):
 def decrypt(cipherspec, key, data, iv = None):
     return cipher(False, cipherspec, key, data, iv)
 
-def hash(hashmethod,data):
+def hash(hashmethod, data):
     from Crypto.Hash import SHA, MD5#, RIPEMD
     hash_class = locals().get(hashmethod.upper(), None)
     if hash_class == None:
@@ -177,7 +177,7 @@ def operation_on_string(string1, string2, op):
         raise ValueError, "string1 and string2 must be of equal length"
     result = []
     for i in range(len(string1)):
-        result.append( chr(op(ord(string1[i]),ord(string2[i]))) )
+        result.append(chr(op(ord(string1[i]), ord(string2[i]))))
     return "".join(result)
 
 def protect_string(string, password, cipherspec=None):
@@ -277,7 +277,7 @@ def get_session_key(auth_key, host_challenge, card_challenge):
 
 def generate_host_challenge():
     random.seed()
-    return "".join([chr(random.randint(0,255)) for e in range(8)])
+    return "".join([chr(random.randint(0, 255)) for e in range(8)])
 
 def andstring(string1, string2):
     return operation_on_string(string1, string2, lambda a,b: a & b)
@@ -539,7 +539,6 @@ def _makesalt():
 
 def test_pbkdf2():
     """Module self-test"""
-    from binascii import a2b_hex
     
     #
     # Test vectors from RFC 3962
