@@ -17,8 +17,9 @@
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import random, struct, hashlib
+import struct, hashlib
 from pickle import dumps, loads
+from os import urandom
 
 import TLVutils
 import virtualsmartcard.CryptoUtils as vsCrypto
@@ -59,10 +60,7 @@ class CardContainer:
     to the corresponding container.
     """
    
-    def __init__(self, PIN=None, cardNumber=None, cardSecret=None):
-        from os import urandom      
-        
-        self.cardNumber = cardNumber
+    def __init__(self, PIN=None, cardSecret=None):
         self.PIN = PIN
         self.cipher = 0x01
         self.asym_key = None
@@ -90,8 +88,7 @@ class SAM(object):
     
     def __init__(self, PIN, cardNumber, mf=None):
 
-        self.CardContainer = CardContainer(PIN, cardNumber)      
-        #self.CardContainer.loadConfiguration(path, password)
+        self.CardContainer = CardContainer(PIN)      
         self.mf = mf
 
         self.cardNumber = cardNumber
@@ -261,13 +258,7 @@ class SAM(object):
             raise SwError(SW["ERR_INCORRECTP1P2"])
         
         length = 8 #Length of the challenge in Byte
-        max = "0x" + length * "ff"
-        
-        #cipher = get_referenced_cipher(self.CardContainer.cipher)        
-        #block_size = Crypto.Cipher.cipher.block_size
-
-        random.seed()
-        self.last_challenge = random.randint(0, int(max, 16))
+        self.last_challenge = urandom(length)
         print "Generated challenge: %s" % str(self.last_challenge)
         self.last_challenge = inttostring(self.last_challenge, length)
 
@@ -302,20 +293,17 @@ class SAM(object):
         #We treat global and specific reference data alike
         #elif ((p2 >> 7) == 0x01 or (p2 >> 7) == 0x00):
         else:		
-            try:
             #Interpret qualifier as an short fid (try to read the key from FS)
-                if self.mf == None:
-                    raise SwError(SW["CONDITIONSNOTSATISFIED"])
-                df = self.mf.currentDF()
-                fid = df.select("fid", stringtoint(qualifier))
-                key = fid.readbinary(keylength)
-            except SwError:
-                key = None
-			              
+            if self.mf == None:
+                raise SwError(SW["ERR_REFNOTUSABLE"])
+            df = self.mf.currentDF()
+            fid = df.select("fid", stringtoint(qualifier))
+            key = fid.readbinary(keylength)
+ 			              
         if key != None:
             return key
         else: 
-            raise SwError(SW["DATANOTFOUND"])
+            raise SwError(SW["ERR_REFNOTUSABLE"])
                
     #The following commands define the interface to the Secure Messaging functions
     def generate_public_key_pair(self, p1, p2, data):
@@ -400,9 +388,7 @@ class PassportSAM(SAM):
         #Extraxt keying material from IFD, generate ICC keying material
         Kifd = plain[16:]
         rnd_ifd = plain[:8]
-        max = "0x" + 16 * "ff"
-        random.seed()
-        Kicc = inttostring(random.randint(0, int(max, 16)))
+        Kicc = inttostring(urandom(16))
         #Generate Answer
         data = plain[8:16] + plain[:8] + Kicc
         Eicc = vsCrypto.encrypt("DES3-CBC", self.KEnc, data)
@@ -625,7 +611,7 @@ class Secure_Messaging(object):
         @return: Unprotected command APDU
         """    
         structure = TLVutils.unpack(CAPDU.data)
-        return_data = ["",];
+        return_data = ["",]
         expected = self.current_SE.sm_objects
         
         cla = None
