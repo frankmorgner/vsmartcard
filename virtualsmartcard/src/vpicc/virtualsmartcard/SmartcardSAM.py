@@ -50,8 +50,8 @@ def get_referenced_cipher(p1):
         return ciphertable[p1]
     else:
         raise SwError(SW["ERR_INCORRECTP1P2"])
-
-class CardContainer:
+ 
+class SAM(object):
     """
     This class is used to store the data needed by the SAM
     It includes the PIN, the master key of the SAM and a
@@ -59,9 +59,16 @@ class CardContainer:
     system. The keys in the hashmap are indexed via the path
     to the corresponding container.
     """
-   
-    def __init__(self, PIN=None, cardSecret=None):
+
+    def __init__(self, PIN, cardNumber, mf=None, cardSecret=None):
+
         self.PIN = PIN
+        self.mf = mf
+        self.cardNumber = cardNumber
+
+        self.last_challenge = None #Will contain non-readable binary string
+        self.counter = 3 #Number of tries for PIN validation
+
         self.cipher = 0x01
         self.asym_key = None
         
@@ -73,29 +80,7 @@ class CardContainer:
                 raise ValueError, "cardSecret has the wrong key length for: " +\
                     get_referenced_cipher(self.cipher)
             else:
-                self.cardSecret = cardSecret            
-    
-    def getPIN(self):
-        return self.PIN
-    
-    def setPIN(self, PIN):
-        self.PIN = PIN
-    
-    def getCardSecret(self):
-        return self.cardSecret
-    
-class SAM(object):
-    
-    def __init__(self, PIN, cardNumber, mf=None):
-
-        self.CardContainer = CardContainer(PIN)      
-        self.mf = mf
-
-        self.cardNumber = cardNumber
-        self.cardSecret = self.CardContainer.cardSecret
-
-        self.last_challenge = None #Will contain non-readable binary string
-        self.counter = 3 #Number of tries for PIN validation
+                self.cardSecret = cardSecret  
 
         self.SM_handler = Secure_Messaging(self.mf)
 
@@ -127,8 +112,8 @@ class SAM(object):
         if not keytype in range(0x07, 0x08):
             raise ValueError, "Illegal Parameter"
         else:
-            self.CardContainer.cipher = type
-            self.CardContainer.asym_key = cipher
+            self.cipher = type
+            self.asym_key = cipher
    
     def verify(self, p1, p2, PIN):        
         """
@@ -144,12 +129,12 @@ class SAM(object):
             raise SwError(SW["ERR_INCORRECTP1P2"])
         
         if self.counter > 0:
-            if self.CardContainer.getPIN() == PIN:
+            if self.PIN == PIN:
                 self.counter = 3
                 return SW["NORMAL"], ""
             else:
                 self.counter -= 1
-                print self.CardContainer.getPIN() + " != " + PIN
+                print self.PIN() + " != " + PIN
                 raise SwError(SW["WARN_NOINFO63"])
                 #raise SwError(0X63C0 + self.counter) #Be verbose
         else:
@@ -161,8 +146,8 @@ class SAM(object):
         """
         
         data = data.replace("\0","") #Strip NULL charakters
-        self.CardContainer.setPIN(data)
-        print "New PIN = %s" % self.CardContainer.getPIN()
+        self.PIN = data
+        print "New PIN = %s" % self.PIN
         return SW["NORMAL"], ""    
 
     def internal_authenticate(self, p1, p2, data):
@@ -172,12 +157,12 @@ class SAM(object):
         """
         
         if p1 == 0x00: #No information given
-            cipher = get_referenced_cipher(self.CardContainer.cipher)   
+            cipher = get_referenced_cipher(self.cipher)   
         else:
             cipher = get_referenced_cipher(p1)
 
         if cipher == "RSA" or cipher == "DSA":
-            crypted_challenge = self.CardContainer.asym_key.sign(data,"")
+            crypted_challenge = self.asym_key.sign(data,"")
             crypted_challenge = crypted_challenge[0]
             crypted_challenge = inttostring(crypted_challenge)
         else:
@@ -196,7 +181,7 @@ class SAM(object):
         
         key = self._get_referenced_key(p1, p2) 
         if p1 == 0x00: #No information given
-            cipher = get_referenced_cipher(self.CardContainer.cipher)   
+            cipher = get_referenced_cipher(self.cipher)   
         else:
             cipher = get_referenced_cipher(p1)     
         
@@ -229,7 +214,7 @@ class SAM(object):
         if (key == None):
             raise SwError(SW["ERR_INCORRECTP1P2"])
         if p1 == 0x00: #No information given
-            cipher = get_referenced_cipher(self.CardContainer.cipher)   
+            cipher = get_referenced_cipher(self.cipher)   
         else:
             cipher = get_referenced_cipher(p1)
         
@@ -289,7 +274,7 @@ class SAM(object):
         keylength = vsCrypto.get_cipher_keylen(algo)
 
         if (p2 == 0x00): #No information given, use the global card key
-            key = self.CardContainer.cardSecret
+            key = self.cardSecret
         #We treat global and specific reference data alike
         #elif ((p2 >> 7) == 0x01 or (p2 >> 7) == 0x00):
         else:		
