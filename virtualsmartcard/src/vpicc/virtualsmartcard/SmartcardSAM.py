@@ -426,7 +426,7 @@ class PassportSAM(SAM):
         self.__computeKeys()
         #SAM.__init__(self, path, key,None)
         SAM.__init__(self, None, None, mf)
-        self.SM_handler = ePass_SM(mf, None, None, None)
+        self.SM_handler = ePass_SM(mf, None, None)
         self.SM_handler.current_SE.cct.algorithm = "CC"
         self.SM_handler.current_SE.ct.algorithm = "DES3-CBC"
         
