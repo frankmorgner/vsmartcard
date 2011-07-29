@@ -20,7 +20,7 @@
 import random, struct, hashlib
 from pickle import dumps, loads
 
-import SmartcardFilesystem, TLVutils
+import TLVutils
 import virtualsmartcard.CryptoUtils as vsCrypto
 from virtualsmartcard.SWutils import SwError, SW
 from virtualsmartcard.utils import inttostring, stringtoint, hexdump, C_APDU
@@ -66,7 +66,7 @@ class CardContainer:
         self.cardNumber = cardNumber
         self.PIN = PIN
         self.FSkeys = {}
-        self.cipher = 0x01 #Algorithm reference for __get_referenced_algorithm(p1)
+        self.cipher = 0x01
         self.master_password = None
         self.master_key = None
         self.salt = None
@@ -385,8 +385,9 @@ class SAM(object):
 
 class PassportSAM(SAM):       
     def __init__(self, mf):
-        
-        ef_dg1 = virtualsmartcard.SmartcardFilesystem.walk(mf, "\x00\x04\x01\x01")
+        import virtualsmartcard.SmartcardFilesystem as vsFS  
+
+        ef_dg1 = vsFS.walk(mf, "\x00\x04\x01\x01")
         dg1 = ef_dg1.readbinary(5)
         self.mrz1 = dg1[:43]
         self.mrz2 = dg1[44:]

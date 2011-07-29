@@ -19,7 +19,7 @@
 import TLVutils
 from time import time
 from random import seed, randint
-from virtualsmartcard.ConstantDefinitions import *
+from virtualsmartcard.ConstantDefinitions import CRT_TEMPLATE
 from virtualsmartcard.utils import inttostring, stringtoint
 from virtualsmartcard.SWutils import *
 
@@ -30,7 +30,9 @@ class ControlReferenceTemplate:
         @param type: Type of the CRT (HT, AT, KT, CCT, DST, CT-sym, CT-asym) 
         @param config: A string containing TLV encoded Security Environment parameters 
         """
-        if type not in (TEMPLATE_AT, TEMPLATE_HT, TEMPLATE_KAT, TEMPLATE_CCT, TEMPLATE_DST, TEMPLATE_CT):
+        if type not in (CRT_TEMPLATE["AT"], CRT_TEMPLATE["HT"],
+                        CRT_TEMPLATE["KAT"], CRT_TEMPLATE["CCT"],
+                        CRT_TEMPLATE["DST"], CRT_TEMPLATE["CT"]):
             raise ValueError, "Unknown control reference tag."
         else:
             self.type = type
