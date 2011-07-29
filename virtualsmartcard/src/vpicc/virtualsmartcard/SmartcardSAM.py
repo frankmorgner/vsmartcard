@@ -169,12 +169,6 @@ class SAM(object):
         unpadded_data = vsCrypto.strip_padding(cipher, decrypted_data)
         return unpadded_data
     
-    def set_algorithm(self, algo):
-        if not algo in range(0x01, 0x06):
-            raise ValueError, "Illegal Parameter"
-        else:
-            self.CardContainer.cipher = algo
-
     def set_asym_algorithm(self, cipher, keytype):
         """
         @param cipher: Public/private key object from used for encryption   
@@ -493,6 +487,7 @@ class CryptoflexSAM(SAM):
         
     def generate_public_key_pair(self, p1, p2, data):
         asym_key = self.SM_handler.generate_public_key_pair(p1, p2, data)
+        #TODO: Use SE instead (and remove SAM.set_asym_algorithm)
         self.set_asym_algorithm(asym_key, 0x07)
         return SW["NORMAL"], ""
     
