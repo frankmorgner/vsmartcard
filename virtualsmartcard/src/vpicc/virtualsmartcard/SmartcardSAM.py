@@ -81,9 +81,6 @@ class CardContainer:
                     get_referenced_cipher(self.cipher)
             else:
                 self.cardSecret = cardSecret            
-
-    def __delete__(self):
-        print "Smartcard configuration is NOT saved!!!"
     
     def getPIN(self):
         return self.PIN
@@ -338,9 +335,8 @@ class SAM(object):
         stored on the cards filesystem or in memory.
 		@param p1: Specifies the algorithm to use. Needed to know the keylength.
         @param p2: Specifies a reference to the key to be used for encryption
-        """
-		
-        """ Meaning of p2:
+        		
+        Meaning of p2:
         b8 b7 b6 b5 b4 b3 b2 b1  | Meaning
         0  0  0  0  0  0  0  0   | No information is given
         0  -- -- -- -- -- -- --  | Global reference data(e.g. MF secific key)
@@ -361,7 +357,8 @@ class SAM(object):
         else:		
             try:
             #Interpret qualifier as an short fid (try to read the key from FS)
-                if self.mf == None: raise SwError(SW["CONDITIONSNOTSATISFIED"])
+                if self.mf == None:
+                    raise SwError(SW["CONDITIONSNOTSATISFIED"])
                 df = self.mf.currentDF()
                 fid = df.select("fid", stringtoint(qualifier))
                 key = fid.readbinary(keylength)
@@ -376,29 +373,6 @@ class SAM(object):
         else: 
             raise SwError(SW["DATANOTFOUND"])
                
-    def _read_FS_data(self, fid, length):
-        """
-        This function creates a dummy filesystem, so that data (for example keys)
-        can be read from the FS. It is here for testing purposes. Lateron the OS
-        interface to the FS should be used.
-        """       
-        mf = SmartcardFilesystem.MF()
-        df = mf.append(SmartcardFilesystem.DF(
-                            parent=mf, 
-                            fid=4,
-                            dfname='\xd2\x76\x00\x01\x24\x01',
-                            bertlv_data=[]))
-        mf.append(SmartcardFilesystem.TransparentStructureEF(
-                            parent=df,
-                            fid=0x1012,
-                            filedescriptor=0,
-                            data="Key from the FS."))
-
-        df = mf.currentDF()
-        fake_ef = df.select('fid', 0X1012)
-        sw, result = fake_ef.readbinary(0)
-        return sw, result
-
     #The following commands define the interface to the Secure Messaging functions
     def generate_public_key_pair(self, p1, p2, data):
         return self.SM_handler.generate_public_key_pair(p1, p2, data)
@@ -1268,5 +1242,4 @@ if __name__ == "__main__":
     #print "Public Key = %s" % pk
     #CF = CryptoflexSM(None)
     #print CF.generate_public_key_pair(0x00, 0x80, "\x01\x00\x01\x00")
-    #print MyCard._read_FS_data(0x01, 16)
     #print MyCard._get_referenced_key(0x01)
