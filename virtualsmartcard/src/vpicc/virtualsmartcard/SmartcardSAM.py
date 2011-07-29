@@ -530,11 +530,11 @@ class CryptoflexSAM(SAM):
         #    return SW["WARN_NOINFO63"], ""
         
     def internal_authenticate(self,p1,p2,data):
-	data = data[::-1] #Reverse Byte order
-	sw, data = SAM.internal_authenticate(self, p1, p2, data)
-	if data != "":
-		data = data[::-1]
-	return sw, data
+        data = data[::-1] #Reverse Byte order
+        sw, data = SAM.internal_authenticate(self, p1, p2, data)
+        if data != "":
+            data = data[::-1]
+        return sw, data
     
 class Security_Environment(object):
     
@@ -944,7 +944,7 @@ class Secure_Messaging(object):
         if algo == None:
             raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
         try:
-            hash = virtualsmartcard.CryptoUtils.hash("MD5",data)
+            hash = virtualsmartcard.CryptoUtils.hash(algo,data)
         except ValueError: #FIXME: Type of error
             raise SwError(SW["ERR_SECMESSNOTSUPPORTED"])
 
