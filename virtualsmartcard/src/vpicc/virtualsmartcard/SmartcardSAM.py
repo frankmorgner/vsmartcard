@@ -617,14 +617,16 @@ class Secure_Messaging(object):
         """
                
         cmd = p1 & 0x0F
-        se = p1 & 0xF0
+        se = p1 >> 4
         if(cmd == 0x01):
-            if se == 0x01: #Set the right SE
+            if se & 0x01: #Secure messaging in command data field
                 self.current_SE = self.CAPDU_SE
-            elif se == 0x02:
+            if se & 0x02: #Secure messaging in response data field
                 self.current_SE = self.RAPDU_SE
-            else:
-                pass #FIXME
+            if se & 0x04: #Computation, decipherment, internal authentication and key agreement
+                pass
+            if se & 0x08: #Verification, encipherment, external authentication and key agreement
+                pass
             self.__set_SE(p2,data)
         elif(cmd== 0x02):
             self.__store_SE(p2)
@@ -644,19 +646,18 @@ class Secure_Messaging(object):
         valid_p2 = (0xA4,0xA6,0xB4,0xB6,0xB8)
         if not p2 in valid_p2:
             raise SwError(SW["ERR_INCORRECTP1P2"])
-        tag, length, value = TLVutils.unpack(data) #Only one object?
         if p2 == 0xA4:
-            self.current_SE.at.parse_SE_config(value)
+            self.current_SE.at.parse_SE_config(data)
         elif p2 == 0xA6:
-            self.current_SE.kat.parse_SE_config(value)
+            self.current_SE.kat.parse_SE_config(data)
         elif p2 == 0xAA:
-            self.current_SE.ht.parse_SE_config(value)
+            self.current_SE.ht.parse_SE_config(data)
         elif p2 == 0xB4:
-            self.current_SE.cct.parse_SE_config(value)
+            self.current_SE.cct.parse_SE_config(data)
         elif p2 == 0xB6:
-            self.current_SE.dst.parse_SE_config(value)
+            self.current_SE.dst.parse_SE_config(data)
         elif p2 == 0xB8:
-            self.current_SE.ct.parse_SE_config(value)
+            self.current_SE.ct.parse_SE_config(data)
     
     def __store_SE(self,SEID):
         """

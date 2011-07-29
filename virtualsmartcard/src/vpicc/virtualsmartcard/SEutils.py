@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License along with
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 #
-import virtualsmartcard.TLVutils
+import TLVutils
 from time import time
 from random import seed, randint
 from virtualsmartcard.ConstantDefinitions import *
@@ -51,7 +51,7 @@ class ControlReferenceTemplate:
         for object in structure:
             tag, length, value = object    
             if tag == 0x80:
-                self.__set_algo(data)
+                self.__set_algo(value)
             elif tag in (0x81,0x82,0x83,0x84):
                 self.__set_key(tag,length,value)
             elif tag in range(0x85, 0x93):
