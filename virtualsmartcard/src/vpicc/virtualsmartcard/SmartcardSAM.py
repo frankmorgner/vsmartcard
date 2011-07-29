@@ -21,7 +21,7 @@ import random, struct, hashlib
 from pickle import dumps, loads
 
 import SmartcardFilesystem, TLVutils
-import virtualsmartcard.CryptoUtils
+import virtualsmartcard.CryptoUtils as vsCrypto
 from virtualsmartcard.SWutils import SwError, SW
 from virtualsmartcard.utils import inttostring, stringtoint, hexdump, C_APDU
 from virtualsmartcard.ConstantDefinitions import *
@@ -61,12 +61,12 @@ class CardContainer:
    
     def __init__(self, PIN=None, cardNumber=None, cardSecret=None):
         from os import urandom      
-        from virtualsmartcard.CryptoUtils import get_cipher_keylen, cipher
+        from vsCrypto import get_cipher_keylen, cipher
         
         self.cardNumber = cardNumber
         self.PIN = PIN
         self.FSkeys = {}
-        self.cipher = 0x01 # Algorithm reference defined in __get_referenced_algorithm(p1)
+        self.cipher = 0x01 #Algorithm reference for __get_referenced_algorithm(p1)
         self.master_password = None
         self.master_key = None
         self.salt = None
@@ -117,7 +117,8 @@ class CardContainer:
 		@return: key if the key is in the container, otherwise None
         """
         if(self.FSkeys.has_key(path)):
-            plain_key = cipher(False, self.cipher, self.master_password, self.FSkeys[path]) #TODO: Error checking:
+            plain_key = cipher(False, self.cipher, self.master_password,
+                               self.FSkeys[path]) #TODO: Error checking
             return plain_key
         else:
             return None
@@ -158,8 +159,10 @@ class SAM(object):
             raise ValueError
         
         cipher = get_referenced_cipher(self.CardContainer.cipher)
-        padded_data = virtualsmartcard.CryptoUtils.append_padding(cipher, data)
-        crypted_data = virtualsmartcard.CryptoUtils.cipher(True, cipher, self.CardContainer.master_key, padded_data)
+        padded_data = vsCrypto.append_padding(cipher, data)
+        crypted_data = vsCrypto.cipher(True, cipher, 
+                                       self.CardContainer.master_key,
+                                       padded_data)
         return crypted_data
 
     def FSdecrypt(self, data):
@@ -170,8 +173,10 @@ class SAM(object):
             raise ValueError, "No master key set."
 
         cipher = get_referenced_cipher(self.CardContainer.cipher)                
-        decrypted_data = virtualsmartcard.CryptoUtils.cipher(False, cipher, self.CardContainer.master_key, data)
-        unpadded_data = virtualsmartcard.CryptoUtils.strip_padding(cipher, decrypted_data)
+        decrypted_data = vsCrypto.cipher(False, cipher,
+                                         self.CardContainer.master_key,
+                                         data)
+        unpadded_data = vsCrypto.strip_padding(cipher, decrypted_data)
         return unpadded_data
     
     def set_algorithm(self, algo):
@@ -243,7 +248,7 @@ class SAM(object):
             crypted_challenge = inttostring(crypted_challenge)
         else:
             key = self._get_referenced_key(p1, p2)
-            crypted_challenge = virtualsmartcard.CryptoUtils.cipher(True, cipher, key, data)
+            crypted_challenge = vsCrypto.cipher(True, cipher, key, data)
         
         return SW["NORMAL"], crypted_challenge
     
@@ -261,14 +266,14 @@ class SAM(object):
         else:
             cipher = get_referenced_cipher(p1)     
         
-        reference = virtualsmartcard.CryptoUtils.append_padding(cipher, self.last_challenge)
-        reference = virtualsmartcard.CryptoUtils.cipher(True, cipher, key, reference)
+        reference = vsCrypto.append_padding(cipher, self.last_challenge)
+        reference = vsCrypto.cipher(True, cipher, key, reference)
         if(reference == data):
             #Invalidate last challenge
             self.last_challenge = None
             return SW["NORMAL"], ""
         else:
-            plain = virtualsmartcard.CryptoUtils.cipher(False, cipher, key, data)
+            plain = vsCrypto.cipher(False, cipher, key, data)
             print plain
             print "Reference: " + hexdump(reference)
             print "Data: " + hexdump(data)
@@ -296,19 +301,20 @@ class SAM(object):
         
         if (cipher == None):
             raise SwError(SW["ERR_INCORRECTP1P2"])
-        plain = virtualsmartcard.CryptoUtils.cipher(False, cipher, key, mutual_challenge)
-        terminal_challenge = plain[:len(self.last_challenge)-1]
-        card_challenge = plain[len(self.last_challenge):len(challenge)-len(card_number)-1]
-        serial_number = plain[(challenge)-len(card_number):]
+
+        plain = vsCrypto.cipher(False, cipher, key, mutual_challenge)
+        last_challenge_len = len(self.last_challenge)
+        terminal_challenge = plain[:last_challenge_len-1]
+        card_challenge = plain[last_challenge_len:-len(card_number)-1]
+        serial_number = plain[-len(card_number):]
+        
         if terminal_challenge != self.last_challenge:
-            print "Mutual authentication failed!"
             raise SwError(SW["WARN_NOINFO63"])
         elif serial_number != card_number:
-            print "Mutual authentication failed!" 
             raise SwError(SW["WARN_NOINFO63"])
         
         result = card_challenge + terminal_challenge
-        return SW["NORMAL"], virtualsmartcard.CryptoUtils.cipher(True, cipher, key, result)
+        return SW["NORMAL"], vsCrypto.cipher(True, cipher, key, result)
     
     def get_challenge(self, p1, p2, data):
         """
@@ -353,7 +359,7 @@ class SAM(object):
         key = None
         qualifier = p2 & 0x1F
         algo = get_referenced_cipher(p1)        
-        keylength = virtualsmartcard.CryptoUtils.get_cipher_keylen(algo)
+        keylength = vsCrypto.get_cipher_keylen(algo)
 
         if (p2 == 0x00): #No information given, use the global card key
             key = self.CardContainer.cardSecret
@@ -465,7 +471,7 @@ class PassportSAM(SAM):
         if not Mifd == resp_data[-8:]:
             raise ValueError, "Passport authentication failed: Wrong MAC on incoming data during Mutual Authenticate"
         #Decrypt the data
-        plain = virtualsmartcard.CryptoUtils.cipher(False, "DES3-CBC", self.KEnc, resp_data[:-8])
+        plain = vsCrypto.cipher(False, "DES3-CBC", self.KEnc, resp_data[:-8])
         #Split decrypted data into the two nonces and 
         if plain[8:16] != rnd_icc:
             raise SwError(SW["WARN_NOINFO63"])
@@ -477,10 +483,10 @@ class PassportSAM(SAM):
         Kicc = inttostring(random.randint(0, int(max, 16)))
         #Generate Answer
         data = plain[8:16] + plain[:8] + Kicc
-        Eicc = virtualsmartcard.CryptoUtils.cipher(True, "DES3-CBC", self.KEnc, data)
+        Eicc = vsCrypto.cipher(True, "DES3-CBC", self.KEnc, data)
         Micc = self._mac(self.KMac, Eicc)
         #Derive the final keys
-        KSseed = virtualsmartcard.CryptoUtils.operation_on_string(Kicc, Kifd, lambda a,b: a^b)
+        KSseed = vsCrypto.operation_on_string(Kicc, Kifd, lambda a,b: a^b)
         self.KSenc = self.derive_key(KSseed, 1)
         self.KSmac = self.derive_key(KSseed, 2)
         #self.ssc = rnd_icc[-4:] + rnd_ifd[-4:]
@@ -498,9 +504,9 @@ class PassportSAM(SAM):
         if dopad:
             topad = 8 - len(data) % 8
             data = data + "\x80" + ("\x00" * (topad-1))
-        a = virtualsmartcard.CryptoUtils.cipher(True, "des-cbc", key[:8], data)
-        b = virtualsmartcard.CryptoUtils.cipher(False, "des-ecb", key[8:16], a[-8:])
-        c = virtualsmartcard.CryptoUtils.cipher(True, "des-ecb", key[:8], b)
+        a = vsCrypto.cipher(True, "des-cbc", key[:8], data)
+        b = vsCrypto.cipher(False, "des-ecb", key[8:16], a[-8:])
+        c = vsCrypto.cipher(True, "des-ecb", key[:8], b)
         return c
     
 class CryptoflexSAM(SAM):
@@ -697,7 +703,7 @@ class Secure_Messaging(object):
         
         if header_authentication:
             to_authenticate = inttostring(CAPDU.cla) + inttostring(CAPDU.ins) + inttostring(CAPDU.p1) + inttostring(CAPDU.p2)
-            to_authenticate = virtualsmartcard.CryptoUtils.append_padding("DES-CBC", to_authenticate)
+            to_authenticate = vsCrypto.append_padding("DES-CBC", to_authenticate)
         else:
             to_authenticate = ""
 
@@ -760,12 +766,12 @@ class Secure_Messaging(object):
                 sw, plain = self.decipher(tag, 0x80, value[1:])
                 if sw != 0x9000:
                     raise ValueError
-                plain = virtualsmartcard.CryptoUtils.strip_padding(self.current_SE.ct.algorithm, plain, padding_indicator)
+                plain = vsCrypto.strip_padding(self.current_SE.ct.algorithm, plain, padding_indicator)
                 return_data.append(plain)
 
             #SM data objects for authentication 
             if tag == SM_Class["CHECKSUM"]:
-                auth = virtualsmartcard.CryptoUtils.append_padding("DES-CBC", to_authenticate)
+                auth = vsCrypto.append_padding("DES-CBC", to_authenticate)
                 sw, checksum = self.compute_cryptographic_checksum(0x8E, 0x80, auth)
                 if checksum != value:
                     raise SwError(SW["ERR_SECMESSOBJECTSINCORRECT"])
@@ -832,7 +838,7 @@ class Secure_Messaging(object):
                 raise SwError(SW["CONDITIONSNOTSATISFIED"])
             elif self.current_SE.cct.algorithm == "CCT":
                 tag = SM_Class["CHECKSUM"]
-                to_auth = virtualsmartcard.CryptoUtils.append_padding("DES-ECB", return_data)
+                to_auth = vsCrypto.append_padding("DES-ECB", return_data)
                 sw, auth = self.compute_cryptographic_checksum(0x8E, 0x80, to_auth)
                 length = len(auth)
                 return_data += TLVutils.pack([(tag, length, auth)])
@@ -891,7 +897,7 @@ class Secure_Messaging(object):
         if self.current_SE.cct.key == None:
             raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
          
-        checksum = virtualsmartcard.CryptoUtils.crypto_checksum(self.current_SE.cct.algorithm, 
+        checksum = vsCrypto.crypto_checksum(self.current_SE.cct.algorithm, 
                                                self.current_SE.cct.key, 
                                                data, 
                                                self.current_SE.cct.iv)
@@ -938,7 +944,7 @@ class Secure_Messaging(object):
         if algo == None:
             raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
         try:
-            hash = virtualsmartcard.CryptoUtils.hash(algo, data)
+            hash = vsCrypto.hash(algo, data)
         except ValueError: #FIXME: Type of error
             raise SwError(SW["ERR_SECMESSNOTSUPPORTED"])
 
@@ -967,7 +973,7 @@ class Secure_Messaging(object):
         if plain == "" or cct == "":
             raise SwError(SW["ERR_SECMESSOBJECTSMISSING"])
         else:
-            my_cct = virtualsmartcard.CryptoUtils.crypto_checksum(algo, key, plain, iv)
+            my_cct = vsCrypto.crypto_checksum(algo, key, plain, iv)
             if my_cct == cct:
                 return SW["NORMAL"], ""
             else:
@@ -1022,8 +1028,8 @@ class Secure_Messaging(object):
         if key == None or algo == None:
             return SW["ERR_CONDITIONNOTSATISFIED"], ""
         else:
-            padded = virtualsmartcard.CryptoUtils.append_padding(algo, data)
-            crypted = virtualsmartcard.CryptoUtils.cipher(True, algo, key, padded, self.current_SE.ct.iv)
+            padded = vsCrypto.append_padding(algo, data)
+            crypted = vsCrypto.cipher(True, algo, key, padded, self.current_SE.ct.iv)
             return SW["NORMAL"], crypted
 
     def decipher(self, p1, p2, data):
@@ -1037,7 +1043,7 @@ class Secure_Messaging(object):
         if key == None or algo == None:
             return SW["ERR_CONDITIONNOTSATISFIED"], ""
         else:
-            plain = virtualsmartcard.CryptoUtils.cipher(False, algo, key, data, self.current_SE.ct.iv)
+            plain = vsCrypto.cipher(False, algo, key, data, self.current_SE.ct.iv)
             return SW["NORMAL"], plain
 
     def generate_public_key_pair(self, p1, p2, data):
@@ -1161,9 +1167,9 @@ class ePass_SM(Secure_Messaging):
         if p1 != 0x8E or p2 != 0x80:
             raise SwError(SW["ERR_INCORRECTP1P2"])
         
-        #checksum = virtualsmartcard.CryptoUtils.calculate_MAC(self.current_SE.cct.key,data,self.current_SE_SE.cct.iv)
+        #checksum = vsCrypto.calculate_MAC(self.current_SE.cct.key,data,self.current_SE_SE.cct.iv)
         self.ssc += 1
-        checksum = virtualsmartcard.CryptoUtils.crypto_checksum(self.current_SE.cct.algorithm,
+        checksum = vsCrypto.crypto_checksum(self.current_SE.cct.algorithm,
                                                self.current_SE.cct.key,
                                                data,
                                                self.current_SE.cct.iv,
@@ -1190,7 +1196,7 @@ if __name__ == "__main__":
     print "Counter = " + str(MyCard.counter)
     sw, challenge = MyCard.get_challenge(0x00, 0x00, "")
     print "Before encryption: " + challenge
-    padded = virtualsmartcard.CryptoUtils.append_padding("DES3-ECB", challenge)
+    padded = vsCrypto.append_padding("DES3-ECB", challenge)
     sw, result = MyCard.internal_authenticate(0x00, 0x00, padded)
     print "Internal Authenticate status code: %x" % sw
 
