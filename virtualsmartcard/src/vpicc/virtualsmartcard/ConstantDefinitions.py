@@ -186,6 +186,14 @@ SM_Class["SIGNATURE_COMPUTATION_TEMPLATE_ODD"] = 0xBD
 SM_Class["CERTIFICATE_VERIFICATION_TEMPLATE"] = 0xBE 
 #}}}
 
+#Tags of control reference templates (CRT)
+CRT_TEMPLATE = {}
+CRT_TEMPLATE["AT"] = 0xA4
+CRT_TEMPLATE["KAT"] = 0xA6
+CRT_TEMPLATE["HT"] = 0xAA
+CRT_TEMPLATE["CCT"] = 0xB4 # Template for Cryptographic Checksum
+CRT_TEMPLATE["DST"]= 0xB6
+CRT_TEMPLATE["CT"]= 0xB8 # Template for Confidentiality
 
 #This table maps algorithms to numbers. It is used in the security environment
 ALGO_MAPPING = {}
@@ -203,14 +211,6 @@ ALGO_MAPPING[0x0A] = "HMAC"
 ALGO_MAPPING[0x0B] = "CC"
 ALGO_MAPPING[0x0C] = "RSA"
 ALGO_MAPPING[0x0D] = "DSA"
-
-#Tags of control reference templates (CRT)
-TEMPLATE_AT = 0xA4
-TEMPLATE_KAT = 0xA6
-TEMPLATE_HT = 0xAA
-TEMPLATE_CCT = 0xB4 # Template for Cryptographic Checksum
-TEMPLATE_DST = 0xB6
-TEMPLATE_CT = 0xB8 # Template for Confidentiality
 
 # Recerence control for select command, and record handling commands {{{
 REF = {

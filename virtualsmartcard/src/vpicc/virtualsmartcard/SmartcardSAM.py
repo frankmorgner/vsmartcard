@@ -24,7 +24,7 @@ import SmartcardFilesystem, TLVutils
 import virtualsmartcard.CryptoUtils as vsCrypto
 from virtualsmartcard.SWutils import SwError, SW
 from virtualsmartcard.utils import inttostring, stringtoint, hexdump, C_APDU
-from virtualsmartcard.ConstantDefinitions import SM_Class
+from virtualsmartcard.ConstantDefinitions import SM_Class, CRT_TEMPLATE
 from virtualsmartcard.SEutils import ControlReferenceTemplate as CRT
 
 def get_referenced_cipher(p1):
@@ -188,7 +188,7 @@ class SAM(object):
 
     def set_asym_algorithm(self, cipher, keytype):
         """
-        @param cipher: Public/private key object from Crypto.PublicKey used for encryption   
+        @param cipher: Public/private key object from used for encryption   
         @param keytype: Type of the public key (e.g. RSA, DSA) 
         """
         if not keytype in range(0x07, 0x08):
@@ -349,12 +349,12 @@ class SAM(object):
         """
 		
         """ Meaning of p2:
-        b8 b7 b6 b5 b4 b3 b2 b1  |  Meaning
-        0  0  0  0  0  0  0  0   |  No information is given
-        0  -- -- -- -- -- -- --  |  Global reference data (e.g. an MF secific key)
-        1  -- -- -- -- -- -- --  |  Specific reference data (e.g. DF specific key)
-        -- -- -- x  x  x  x  x   |  Number of the secret
-        Any other value          |  RFU
+        b8 b7 b6 b5 b4 b3 b2 b1  | Meaning
+        0  0  0  0  0  0  0  0   | No information is given
+        0  -- -- -- -- -- -- --  | Global reference data(e.g. MF secific key)
+        1  -- -- -- -- -- -- --  | Specific reference data(e.g. DF specific key)
+        -- -- -- x  x  x  x  x   | Number of the secret
+        Any other value          | RFU
         """
         
         key = None
@@ -385,10 +385,9 @@ class SAM(object):
             raise SwError(SW["DATANOTFOUND"])
                
     def _read_FS_data(self, fid, length):
-        
         """
         This function creates a dummy filesystem, so that data (for example keys)
-        can be read from the FS. It is here for testing purposes. Later on the OS
+        can be read from the FS. It is here for testing purposes. Lateron the OS
         interface to the FS should be used.
         """       
         mf = SmartcardFilesystem.MF()
@@ -444,9 +443,12 @@ class PassportSAM(SAM):
         self.SM_handler.current_SE.ct.algorithm = "DES3-CBC"
         
     def __computeKeys(self):
-        """Computes the keys depending on the machine readable 
+        """
+        Computes the keys depending on the machine readable 
         zone of the passport according to TR-PKI mrtds ICC read-only 
-        access v1.1 annex E.1."""
+        access v1.1 annex E.1.
+        """
+
         MRZ_information = self.mrz2[0:10] + self.mrz2[13:20] + self.mrz2[21:28]
         H = hashlib.sha1(MRZ_information).digest()
         self.KSeed = H[:16]
@@ -454,7 +456,9 @@ class PassportSAM(SAM):
         self.KMac = self.derive_key(self.KSeed, 2)
         
     def derive_key(self, seed, c):
-        """Derive a key according to TR-PKI mrtds ICC read-only access v1.1 annex E.1.
+        """
+        Derive a key according to TR-PKI mrtds ICC read-only access v1.1
+        annex E.1.
         c is either 1 for encryption or 2 for MAC computation.
         Returns: Ka + Kb
         Note: Does not adjust parity. Nobody uses that anyway ..."""
@@ -551,26 +555,17 @@ class CryptoflexSAM(SAM):
     
 class Security_Environment(object):
     
-    #Tags of control reference templates (CRT)
-    #TODO: Move to Constant Definitions
-    TEMPLATE_AT = 0xA4
-    TEMPLATE_KAT = 0xA6
-    TEMPLATE_HT = 0xAA
-    TEMPLATE_CCT = 0xB4 # Template for Cryptographic Checksum
-    TEMPLATE_DST = 0xB6
-    TEMPLATE_CT = 0xB8 # Template for Confidentiality
-
     def __init__(self):       
         self.SEID = None
         self.sm_objects = ""
 
         #Control Reference Tables
-        self.at = CRT(TEMPLATE_AT)
-        self.kat = CRT(TEMPLATE_KAT)
-        self.ht = CRT(TEMPLATE_HT)
-        self.cct = CRT(TEMPLATE_CCT)
-        self.dst = CRT(TEMPLATE_DST)
-        self.ct = CRT(TEMPLATE_CT)
+        self.at = CRT(CRT_TEMPLATE["AT"])
+        self.kat = CRT(CRT_TEMPLATE["KAT"])
+        self.ht = CRT(CRT_TEMPLATE["HT"])
+        self.cct = CRT(CRT_TEMPLATE["CCT"])
+        self.dst = CRT(CRT_TEMPLATE["DST"])
+        self.ct = CRT(CRT_TEMPLATE["CT"])
 
         self.capdu_sm = False
         self.rapdu_sm = False
@@ -583,15 +578,15 @@ class Security_Environment(object):
         """
         structure = TLVutils.unpack(config)
         for tag, length, value in structure:
-            if tag == TEMPLATE_AT:
+            if tag == CRT_TEMPLATE["AT"]:
                 self.at.parse_SE_config(config)
-            elif tag == TEMPLATE_CCT:
+            elif tag == CRT_TEMPLATE["CCT"]:
                 self.cct.parse_SE_config(config)
-            elif tag == TEMPLATE_KAT:
+            elif tag == CRT_TEMPLATE["KAT"]:
                 self.kat.parse_SE_config(config)
-            elif tag == TEMPLATE_CT:
+            elif tag == CRT_TEMPLATE["CT"]:
                 self.ct.parse_SE_config(config)
-            elif tag == TEMPLATE_DST:
+            elif tag == CRT_TEMPLATE["DST"]:
                 self.dst.parse_SE_config(config)
             else:
                 raise ValueError
@@ -620,8 +615,10 @@ class Secure_Messaging(object):
         b8 b7 b6 b5 b4 b3 b2 b1                                  Meaning
          -  -  -  1  -  -  -  - Secure messaging in command data field
          -  -  1  -  -  -  -  - Secure messaging in response data field
-         -  1  -  -  -  -  -  - Computation, decipherment, internal authentication and key agreement
-        1   -  -  -  -  -  -  - Verification, encipherment, external authentication and key agreement
+         -  1  -  -  -  -  -  - Computation, decipherment, internal 
+                                authentication and key agreement
+        1   -  -  -  -  -  -  - Verification, encipherment, external
+                                authentication and key agreement
          -  -  -  -  0  0  0 1  SET
         1  1  1  1  0  0  1  0  STORE
         1  1  1  1  0  0  1  1  RESTORE
@@ -711,7 +708,8 @@ class Secure_Messaging(object):
         SM_header indicates wether or not the header of the message shall be authenticated
         It returns an unprotected command APDU
         @param CAPDU: The protected CAPDU to be parsed
-        @param header_authentication: Wether or not the header should be included in authentication mechanisms 
+        @param header_authentication: Wether or not the header should be
+               included in authentication mechanisms 
         @return: Unprotected command APDU
         """    
         structure = TLVutils.unpack(CAPDU.data)
@@ -756,7 +754,8 @@ class Secure_Messaging(object):
                 le = value
             elif tag == SM_Class["PLAIN_COMMAND_HEADER"]:
                 if len(value) != 8:
-                    raise ValueError, "Plain Command Header expected, but received insufficient data"
+                    raise ValueError, "Plain Command Header expected, but" +\
+                            "received insufficient data"
                 else:
                     cla = value[:2]
                     ins = value[2:4]
@@ -785,15 +784,23 @@ class Secure_Messaging(object):
                 '00'     No further indication
                 '01'     Padding as specified in 6.2.3.1
                 '02'     No padding
-                '1X'     One to four secret keys for enciphering information, not keys ('X' is a bitmap with any value from '0' to 'F')
-                '11'     indicates the first key (e.g., an "even" control word in a pay TV system)
-                '12'     indicates the second key (e.g., an "odd" control word in a pay TV system)
-                '13'     indicates the first key followed by the second key (e.g., a pair of control words in a pay TV system)
-                '2X'     Secret key for enciphering keys, not information ('X' is a reference with any value from '0' to 'F')
-                            (e.g., in a pay TV system, either an operational key for enciphering control words, or a management key
-                            for enciphering operational keys)
-                '3X'     Private key of an asymmetric key pair ('X' is a reference with any value from '0' to 'F')
-                '4X'     Password ('X' is a reference with any value from '0' to 'F')
+                '1X'     One to four secret keys for enciphering information,
+                         not keys ('X' is a bitmap with any value from '0' to 'F')
+                '11'     indicates the first key (e.g., an "even" control word
+                         in a pay TV system)
+                '12'     indicates the second key (e.g., an "odd" control word
+                         in a pay TV system)
+                '13'     indicates the first key followed by the second key
+                         (e.g., a pair of control words in a pay TV system)
+                '2X'     Secret key for enciphering keys, not information
+                         ('X' is a reference with any value from '0' to 'F')
+                         (e.g., in a pay TV system, either an operational key
+                         for enciphering control words, or a management key for
+                         enciphering operational keys)
+                '3X'     Private key of an asymmetric key pair ('X' is a
+                         reference with any value from '0' to 'F')
+                '4X'     Password ('X' is a reference with any value from '0' to
+                         'F')
             '80' to '8E' Proprietary
                 """
                 padding_indicator = stringtoint(value[0])
@@ -994,8 +1001,9 @@ class Secure_Messaging(object):
 
     def verify_cryptographic_checksum(self, p1, p2, data):
         """
-        Verify the cryptographic checksum contained in the data field. Data field must contain
-        a cryptographic checksum (tag 0x8E) and a plain value (tag 0x80)
+        Verify the cryptographic checksum contained in the data field.
+        Data field must contain a cryptographic checksum (tag 0x8E) and a plain
+        value (tag 0x80)
         """
         plain = ""
         cct = ""
@@ -1023,8 +1031,9 @@ class Secure_Messaging(object):
 
     def verify_digital_signature(self, p1, p2, data):
         """
-        Verify the digital signature contained in the data field. Data must contain
-        a data to sign (tag 0x9A, 0xAC or 0xBC) and a digital signature (0x9E)
+        Verify the digital signature contained in the data field. Data must
+        contain a data to sign (tag 0x9A, 0xAC or 0xBC) and a digital signature
+        (0x9E)
         """
         key = self.current_SE.dst.key
         to_sign = ""
@@ -1146,7 +1155,8 @@ class CryptoflexSM(Secure_Messaging):
 
         @param data: Contains the public exponent used for key generation
         @param p1: The keynumber. Can be used later to refer to the generated key
-        @param p2: Used to specifiy the keylength. The mapping is: 0x40 => 256 Bit, 0x60 => 512 Bit, 0x80 => 1024
+        @param p2: Used to specifiy the keylength.
+                  The mapping is: 0x40 => 256 Bit, 0x60 => 512 Bit, 0x80 => 1024
         """
         from Crypto.PublicKey import RSA
         from Crypto.Util.randpool import RandomPool
