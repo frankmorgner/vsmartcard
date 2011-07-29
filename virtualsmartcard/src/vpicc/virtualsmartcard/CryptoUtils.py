@@ -156,6 +156,12 @@ def cipher(do_encrypt, cipherspec, key, data, iv = None):
     del cipher
     return result
 
+def encrypt(cipherspec, key, data, iv = None):
+    return cipher(True, cipherspec, key, data, iv)
+
+def decrypt(cipherspec, key, data, iv = None):
+    return cipher(False, cipherspec, key, data, iv)
+
 def hash(hashmethod,data):
     from Crypto.Hash import SHA, MD5#, RIPEMD
     hash_class = locals().get(hashmethod.upper(), None)
