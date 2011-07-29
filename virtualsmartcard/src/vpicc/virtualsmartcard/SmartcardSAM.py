@@ -279,7 +279,7 @@ class SAM(object):
     def _get_referenced_key(self, p1, p2):
         """
         This method returns the key specified by the p2 parameter. The key may be
-        stored on the cards filesystem or in memory.
+        stored on the cards filesystem.
 		@param p1: Specifies the algorithm to use. Needed to know the keylength.
         @param p2: Specifies a reference to the key to be used for encryption
         		
@@ -311,9 +311,6 @@ class SAM(object):
                 key = fid.readbinary(keylength)
             except SwError:
                 key = None
-
-            if key == None: #Try to read the key from the Key Container
-                key = self.CardContainer.getKey(p2)
 			              
         if key != None:
             return key
