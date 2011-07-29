@@ -21,6 +21,7 @@ from time import time
 from random import seed, randint
 from virtualsmartcard.ConstantDefinitions import *
 from virtualsmartcard.utils import inttostring, stringtoint
+from virtualsmartcard.SWutils import *
 
 class ControlReferenceTemplate:
     def __init__(self,type,config=""):
@@ -61,7 +62,7 @@ class ControlReferenceTemplate:
             
     def __set_algo(self,data):
         if not ALGO_MAPPING.has_key(data):
-            raise ValueError
+            raise SwError(SW["ERR_REFNOTUSABLE"]) 
         else:
             #TODO: Sanity checking
             self.algorithm = ALGO_MAPPING[data]

@@ -939,7 +939,7 @@ class Secure_Messaging(object):
         if p1 != 0x8E or p2 != 0x80:
             raise SwError(SW["ERR_INCORRECTP1P2"])
         if self.CAPDU_SE.cct.algorithm == None or self.current_SE.cct.key == None:
-            raise SWError(SE["ERR_CONDITIONNOTSATISFIED"])
+            raise SwError(SE["ERR_CONDITIONNOTSATISFIED"])
          
         checksum = virtualsmartcard.CryptoUtils.crypto_checksum(self.current_SE.cct.algorithm, 
                                                self.current_SE.cct.key, 
@@ -959,7 +959,7 @@ class Secure_Messaging(object):
         if p1 != 0x9E or not p2 in (0x9A,0xAC,0xBC):
             raise SwError(SW["ERR_INCORRECTP1P2"])
         if self.current_SE.dst.key == None:
-            raise SWError(SE["ERR_CONDITIONNOTSATISFIED"])
+            raise SwError(SE["ERR_CONDITIONNOTSATISFIED"])
               
         if p2 == 0x9A: #Data to be signed
             to_sign = data
