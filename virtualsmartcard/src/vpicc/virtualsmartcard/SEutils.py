@@ -19,23 +19,24 @@
 import TLVutils
 from time import time
 from random import seed, randint
-from virtualsmartcard.ConstantDefinitions import CRT_TEMPLATE
-from virtualsmartcard.utils import inttostring, stringtoint
-from virtualsmartcard.SWutils import *
+from virtualsmartcard.ConstantDefinitions import CRT_TEMPLATE, ALGO_MAPPING
+from virtualsmartcard.utils import inttostring
+from virtualsmartcard.SWutils import SwError, SW
 
 class ControlReferenceTemplate:
-    def __init__(self,type,config=""):
+    def __init__(self, tag, config=""):
         """
         Generates a new CRT
         @param type: Type of the CRT (HT, AT, KT, CCT, DST, CT-sym, CT-asym) 
-        @param config: A string containing TLV encoded Security Environment parameters 
+        @param config: A string containing TLV encoded Security Environment
+                       parameters 
         """
-        if type not in (CRT_TEMPLATE["AT"], CRT_TEMPLATE["HT"],
+        if tag not in (CRT_TEMPLATE["AT"], CRT_TEMPLATE["HT"],
                         CRT_TEMPLATE["KAT"], CRT_TEMPLATE["CCT"],
                         CRT_TEMPLATE["DST"], CRT_TEMPLATE["CT"]):
             raise ValueError, "Unknown control reference tag."
         else:
-            self.type = type
+            self.type = tag
 
         self.iv = None
         self.keyref = None
@@ -47,39 +48,39 @@ class ControlReferenceTemplate:
         self.usage_qualifier = None
         if config != "":
             self.parse_SE_config(config)
-	    self.__config_string = config
+        self.__config_string = config
         
-    def parse_SE_config(self,config):
+    def parse_SE_config(self, config):
         structure = TLVutils.unpack(config)
-        for object in structure:
-            tag, length, value = object    
+        for tlv in structure:
+            tag, length, value = tlv    
             if tag == 0x80:
                 self.__set_algo(value)
-            elif tag in (0x81,0x82,0x83,0x84):
-                self.__set_key(tag,length,value)
+            elif tag in (0x81, 0x82, 0x83, 0x84):
+                self.__set_key(tag, length, value)
             elif tag in range(0x85, 0x93):
-                self.__set_iv(tag,length,value)
+                self.__set_iv(tag, length, value)
             elif tag == 0x95:
-                self.usage_qualifier = data
+                self.usage_qualifier = value
             
-    def __set_algo(self,data):
+    def __set_algo(self, data):
         if not ALGO_MAPPING.has_key(data):
             raise SwError(SW["ERR_REFNOTUSABLE"]) 
         else:
             #TODO: Sanity checking
             self.algorithm = ALGO_MAPPING[data]
-            self.__replace_tag(0x80,data)
+            self.__replace_tag(0x80, data)
     
-    def __set_key(self,tag,length,value):
+    def __set_key(self, tag, length, value):
         if tag == 0x81:
             self.fileref = value
         elif tag == 0x82:
             self.DFref = value
-        elif tag in (0x83,0x84):
+        elif tag in (0x83, 0x84):
             #Todo: Resolve reference
             self.keyref = value
     
-    def __set_iv(self,tag,length,value):
+    def __set_iv(self, tag, length, value):
         iv = None
         if tag == 0x85:
             iv = 0x00
@@ -95,7 +96,7 @@ class ControlReferenceTemplate:
                 iv = value
             else:
                 seed(time())
-                iv = hex(randint(0,255))
+                iv = hex(randint(0, 255))
         elif tag == 0x92:
             if length != 0:
                 iv = value
@@ -103,14 +104,17 @@ class ControlReferenceTemplate:
                 iv = int(time())
         self.iv = iv
        
-    def __replace_tag(self,tag,data):
+    def __replace_tag(self, tag, data):
         position = 0
         while self.__config_string[position:position+1] != tag and position < len(self.__config_string):    
             length = inttostring(self.__config_string[position+1:position+2])
-            position += length + 3 
+            position += length + 3
+
         if position < len(self.__config_string): #Replace Tag
             length = inttostring(self.__config_string[position+1:position+2])
-            self.__config_string = self.__config_string[:position] + tag + inttostring(len(data)) + data + self.__config_string[position+2+length:]
+            self.__config_string = self.__config_string[:position] + tag +\
+                                   inttostring(len(data)) + data +\
+                                   self.__config_string[position+2+length:]
         else: #Add new tag
             self.__config_string += tag + inttostring(len(data)) + data
     
