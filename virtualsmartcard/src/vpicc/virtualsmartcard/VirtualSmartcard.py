@@ -16,18 +16,14 @@
 # You should have received a copy of the GNU General Public License along with
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 #
-from virtualsmartcard.ConstantDefinitions import *
-from virtualsmartcard.TLVutils import *
-from virtualsmartcard.SWutils import SwError, SW
-from virtualsmartcard.SmartcardFilesystem import prettyprint_anything, MF, DF, CryptoflexMF, TransparentStructureEF, make_property
-from virtualsmartcard.utils import C_APDU, R_APDU, hexdump, inttostring
-from virtualsmartcard.SmartcardSAM import SAM, PassportSAM, CryptoflexSAM
-import CardGenerator
-from smartcard.CardMonitoring import CardMonitor, CardObserver
 
-from pickle import dumps, loads
-import socket, struct, sys, signal, atexit, traceback
-import struct, getpass, anydbm
+from virtualsmartcard.ConstantDefinitions import MAX_EXTENDED_LE, MAX_SHORT_LE
+from virtualsmartcard.SWutils import SwError, SW
+from virtualsmartcard.SmartcardFilesystem import make_property
+from virtualsmartcard.utils import C_APDU, R_APDU, hexdump, inttostring
+import CardGenerator
+
+import socket, struct, sys, signal, atexit, smartcard
 
 
 class SmartcardOS(object): # {{{
@@ -233,7 +229,7 @@ class Iso7816OS(SmartcardOS): # {{{
 
         result = data[:le]
         if sm:
-            sw, result = self.SAM.protect_result(sw,result)
+            sw, result = self.SAM.protect_result(sw, result)
 
         return R_APDU(result, inttostring(sw)).render()
 
@@ -300,7 +296,7 @@ class Iso7816OS(SmartcardOS): # {{{
         
         try:             
             if SM_STATUS == "Standard SM":
-                c = self.SAM.parse_SM_CAPDU(c,header_authentication)
+                c = self.SAM.parse_SM_CAPDU(c, header_authentication)
             elif SM_STATUS == "Propietary SM":
                 raise SwError("ERR_SECMESSNOTSUPPORTED")
             sw, result = self.ins2handler.get(c.ins, notImplemented)(c.p1, c.p2, c.data)
@@ -350,13 +346,15 @@ class CryptoflexOS(Iso7816OS): # {{{
             # cryptoflex does not inpterpret le==0 as maxle
             self.lastCommandSW = sw
             self.lastCommandOffcut = data
-            r = R_APDU(inttostring(SW["ERR_WRONGLENGTH"] + min(0xff,len(data)))).render()
+            r = R_APDU(inttostring(SW["ERR_WRONGLENGTH"] +\
+                    min(0xff, len(data)))).render()
         else:
             if ins == 0xa4 and len(data):
                 # get response should be followed by select file
                 self.lastCommandSW = sw
                 self.lastCommandOffcut = data
-                r = R_APDU(inttostring(SW["NORMAL_REST"] + min(0xff, len(data)))).render()
+                r = R_APDU(inttostring(SW["NORMAL_REST"] +\
+                    min(0xff, len(data)))).render()
             else:
                 r = Iso7816OS.formatResult(self, le, data, sw, False)
 
@@ -366,7 +364,6 @@ class CryptoflexOS(Iso7816OS): # {{{
 class RelayOS(SmartcardOS): # {{{
 
     def __init__(self, readernum):
-        import smartcard
         readers = smartcard.System.listReaders()
         if len(readers) <= readernum:
             print "Invalid number of reader '%u' (only %u available)" % (readernum, len(readers))
@@ -388,14 +385,12 @@ class RelayOS(SmartcardOS): # {{{
         atexit.register(self.cleanup)
 
     def cleanup(self):
-        import smartcard
         try:
             self.session.close()
         except smartcard.Exceptions.CardConnectionException, e:
             print "Error disconnecting from card: %s" % e.message
 
     def getATR(self):
-        import smartcard
         try:
             atr = self.session.getATR()
         except smartcard.Exceptions.CardConnectionException, e:
@@ -410,7 +405,6 @@ class RelayOS(SmartcardOS): # {{{
         return "".join([chr(b) for b in atr])
         
     def powerUp(self):
-        import smartcard
         try:
             self.session.getATR()
         except smartcard.Exceptions.CardConnectionException, e:
@@ -421,7 +415,6 @@ class RelayOS(SmartcardOS): # {{{
                 sys.exit()
 
     def powerDown(self):
-        import smartcard
         try:
             self.session.close()
         except smartcard.Exceptions.CardConnectionException, e:
@@ -434,7 +427,6 @@ class RelayOS(SmartcardOS): # {{{
         for b in msg:
             apdu.append(ord(b))
 
-        import smartcard
         try:
             rapdu, sw1, sw2 = self.session.sendCommandAPDU(apdu)
         except smartcard.Exceptions.CardConnectionException, e:
@@ -523,7 +515,7 @@ class VirtualICC(object): # {{{
 
     def __sendToVPICC(self, msg):
         #size = inttostring(len(msg), self.lenlen)
-	self.sock.send(struct.pack('!H', len(msg)) + msg)
+        self.sock.send(struct.pack('!H', len(msg)) + msg)
 
     def __recvFromVPICC(self):
         # receive message size
@@ -534,41 +526,41 @@ class VirtualICC(object): # {{{
         size = struct.unpack('!H', sizestr)[0]
 
         # receive and return message
-	if size:
-	    msg = self.sock.recv(size)
+        if size:
+            msg = self.sock.recv(size)
             if len(msg) == 0:
                 print "Virtual PCD shut down"
-	else:
-	    msg = None
+        else:
+            msg = None
 
-	return size, msg
+        return size, msg
 
     def run(self):
         while True :
             (size, msg) = self.__recvFromVPICC()
             if not size:
                 print "error in communication protocol"
-	    elif size == VPCD_CTRL_LEN:
-		if msg == chr(VPCD_CTRL_OFF):
-		    print "Power Down"
-		    self.os.powerDown()
-		elif msg == chr(VPCD_CTRL_ON):
-		    print "Power Up"
-		    self.os.powerUp()
-		elif msg == chr(VPCD_CTRL_RESET):
-		    print "Reset"
-		    self.os.reset()
-		elif msg == chr(VPCD_CTRL_ATR):
-		    self.__sendToVPICC(self.os.getATR())
-		else:
-		    print "unknown control command"
+            elif size == VPCD_CTRL_LEN:
+                if msg == chr(VPCD_CTRL_OFF):
+                    print "Power Down"
+                    self.os.powerDown()
+                elif msg == chr(VPCD_CTRL_ON):
+                    print "Power Up"
+                    self.os.powerUp()
+                elif msg == chr(VPCD_CTRL_RESET):
+                    print "Reset"
+                    self.os.reset()
+                elif msg == chr(VPCD_CTRL_ATR):
+                    self.__sendToVPICC(self.os.getATR())
+                else:
+                    print "unknown control command"
             else:
                 if size != len(msg):
                     print "Expected APDU of %u bytes, but received only %u" % (size, len(msg))
 
-                print "APDU (%d Bytes):\n%s" % (len(msg),hexdump(msg, short=True))
+                print "APDU (%d Bytes):\n%s" % (len(msg), hexdump(msg, short=True))
                 answer = self.os.execute(msg)
-                print "RESP (%d Bytes):\n%s\n" % (len(answer),hexdump(answer, short=True))
+                print "RESP (%d Bytes):\n%s\n" % (len(answer), hexdump(answer, short=True))
                 self.__sendToVPICC(answer)
 
     def stop(self):
