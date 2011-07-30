@@ -110,7 +110,7 @@ class SAM(object):
         @param keytype: Type of the public key (e.g. RSA, DSA) 
         """
         if not keytype in range(0x07, 0x08):
-            raise ValueError, "Illegal Parameter"
+            raise SwError(SW["ERR_INCORRECTP1P2"])
         else:
             self.cipher = type
             self.asym_key = cipher
@@ -134,9 +134,7 @@ class SAM(object):
                 return SW["NORMAL"], ""
             else:
                 self.counter -= 1
-                print self.PIN() + " != " + PIN
                 raise SwError(SW["WARN_NOINFO63"])
-                #raise SwError(0X63C0 + self.counter) #Be verbose
         else:
             raise SwError(SW["ERR_AUTHBLOCKED"])
 
@@ -379,7 +377,7 @@ class PassportSAM(SAM):
         Eicc = vsCrypto.encrypt("DES3-CBC", self.KEnc, data)
         Micc = self._mac(self.KMac, Eicc)
         #Derive the final keys
-        KSseed = vsCrypto.operation_on_string(Kicc, Kifd, lambda a,b: a^b)
+        KSseed = vsCrypto.operation_on_string(Kicc, Kifd, lambda a, b: a^b)
         self.KSenc = self.derive_key(KSseed, 1)
         self.KSmac = self.derive_key(KSseed, 2)
         #self.ssc = rnd_icc[-4:] + rnd_ifd[-4:]
@@ -472,7 +470,7 @@ class Security_Environment(object):
             elif tag == CRT_TEMPLATE["DST"]:
                 self.dst.parse_SE_config(config)
             else:
-                raise ValueError
+                raise SwError(SW["ERR_REFNOTUSABLE"])
     
 class Secure_Messaging(object):
     
@@ -614,9 +612,11 @@ class Secure_Messaging(object):
 
         for tlv in structure:
             tag, length, value = tlv
-            #TODO: Sanity checking
-            #if not SM_Class.has_key(tag):
-            #    raise ValueError, "unknown Secure messaging tag %#X" % tag
+            
+            #Sanity checking
+            if not SM_Class.has_key(tag):
+                raise SwError(SW["ERR_SECMESSOBJECTSINCORRECT"])
+
             if tag % 2 == 1: #Include object in checksum calculation
                 to_authenticate += inttostring(tag) + inttostring(length) + value
             
@@ -624,21 +624,20 @@ class Secure_Messaging(object):
             if tag in (SM_Class["PLAIN_VALUE_NO_TLV"],
                        SM_Class["PLAIN_VALUE_NO_TLV_ODD"]):
                 return_data.append(value) #FIXME: Need TLV coding?
+            #Encapsulated SM objects. Parse them
+            #FIXME: Need to pack value into a dummy CAPDU
             elif tag in (SM_Class["PLAIN_VALUE_TLV_INCULDING_SM"],
                          SM_Class["PLAIN_VALUE_TLV_INCULDING_SM_ODD"]):
-                #Encapsulated SM objects. Parse them
-                #FIXME: Need to pack value into a dummy CAPDU
                 return_data.append(self.parse_SM_CAPDU(value, header_authentication)) 
+            #Encapsulated plaintext BER-TLV objects
             elif tag in (SM_Class["PLAIN_VALUE_TLV_NO_SM"],
                          SM_Class["PLAIN_VALUE_TLV_NO_SM_ODD"]):
-                #Encapsulated plaintext BER-TLV objects
                 return_data.append(value)
             elif tag in (SM_Class["Ne"], SM_Class["Ne_ODD"]):
                 le = value
             elif tag == SM_Class["PLAIN_COMMAND_HEADER"]:
                 if len(value) != 8:
-                    raise ValueError, "Plain Command Header expected, but" +\
-                            "received insufficient data"
+                    raise SwError(SW["ERR_SECMESSOBJECTSINCORRECT"])
                 else:
                     cla = value[:2]
                     ins = value[2:4]
@@ -688,8 +687,6 @@ class Secure_Messaging(object):
                 """
                 padding_indicator = stringtoint(value[0])
                 sw, plain = self.decipher(tag, 0x80, value[1:])
-                if sw != 0x9000:
-                    raise ValueError
                 plain = vsCrypto.strip_padding(self.current_SE.ct.algorithm,
                                                plain,
                                                padding_indicator)
@@ -877,8 +874,8 @@ class Secure_Messaging(object):
             raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
         try:
             hash = vsCrypto.hash(algo, data)
-        except ValueError: #FIXME: Type of error
-            raise SwError(SW["ERR_SECMESSNOTSUPPORTED"])
+        except ValueError:
+            raise SwError(SW["ERR_EXECUTION"])
 
         return SW["NORMAL"], hash
 
@@ -975,7 +972,7 @@ class Secure_Messaging(object):
         algo = self.current_SE.ct.algorithm
         key = self.current_SE.ct.key
         if key == None or algo == None:
-            return SW["ERR_CONDITIONNOTSATISFIED"], ""
+            raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
         else:
             plain = vsCrypto.decrypt(algo, key, data, self.current_SE.ct.iv)
             return SW["NORMAL"], plain

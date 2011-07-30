@@ -504,7 +504,9 @@ class VirtualICC(object): # {{{
         signal.signal(signal.SIGINT, self.signalHandler)
         atexit.register(self.stop)
     
-    def signalHandler(self, signal=None, frame=None):
+    def signalHandler(self, sig=None, frame=None):
+        """Basically this signal handler just surpresses a traceback from being
+           printed when the user presses crtl-c"""
         sys.exit()
 
     @staticmethod
