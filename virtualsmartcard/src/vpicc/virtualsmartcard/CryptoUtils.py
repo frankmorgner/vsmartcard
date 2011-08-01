@@ -124,7 +124,7 @@ def crypto_checksum(algo, key, data, iv=None, ssc=None):
         raise ValueError, "Unknown Algorithm %s" % algo
     
     if algo == "MAC":
-        checksum = calculate_MAC(key, data, 0x00, iv) #FIXME: IV?
+        checksum = calculate_MAC(key, data, iv)
     elif algo == "HMAC":
         hmac = HMAC.new(key, data)
         checksum = hmac.hexdigest()

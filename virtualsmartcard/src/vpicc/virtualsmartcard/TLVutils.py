@@ -16,6 +16,9 @@
 # You should have received a copy of the GNU General Public License along with
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 #
+
+from vsmartcard.utils import stringtoint
+
 TAG = {}
 TAG["FILECONTROLPARAMETERS"]    = 0x62
 TAG["FILEMANAGEMENTDATA"]       = 0x64
