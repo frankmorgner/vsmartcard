@@ -436,13 +436,13 @@ class DF(File): # {{{
         """
         x.__delitem__(key) <==> del x.content[key]
         """
-        del content[key]
+        del self.content[key]
 
     def __contains__(self, item):
         """
         x.__contains__(item) <==> item in x.content
         """
-        return item in content
+        return item in self.content
 
     def append(self, file):
         """Appends 'file' to the content of the DF."""
@@ -488,7 +488,7 @@ class DF(File): # {{{
 
     def remove(self, file):
         """Removes 'file' from the content of the DF"""
-        content.remove(file)
+        self.content.remove(file)
 # }}}
 
 
@@ -1591,7 +1591,7 @@ class RecordStructureEF(EF): # {{{
         """
         x.updaterecord(num_id, reference, offset, data) <==> x.writerecord(num_id, reference, offset, data, DCB["ONETIMEWRITE"])
         """
-        return writerecord(num_id, reference, offset, data, DCB["ONETIMEWRITE"])
+        return self.writerecord(num_id, reference, offset, data, DCB["ONETIMEWRITE"])
 
     def appendrecord(self, data):
         """
