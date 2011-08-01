@@ -17,7 +17,7 @@
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import sys, getpass, anydbm, readline
+import sys, getpass, anydbm, readline, logging
 from pickle import loads, dumps
 from virtualsmartcard.TLVutils import pack
 from virtualsmartcard.utils import inttostring
@@ -45,9 +45,13 @@ class CardGenerator(object):
         self.sam = sam
     
     def __generate_iso_card(self):
-        print "Using default SAM. Insecure!!!"
+        default_pin = "1234"
+        default_cardno = "1234567890"
+        
+        logging.warning("Using default SAM parameters. PIN=%s, Card Nr=%s"
+                        & (default_pin, default_cardno))
         #TODO: Use user provided data
-        self.sam = virtualsmartcard.SmartcardSAM.SAM("1234", "1234567890")
+        self.sam = virtualsmartcard.SmartcardSAM.SAM(default_pin, default_cardno)
         
         self.mf = MF(filedescriptor=FDB["DF"])
         self.sam.set_MF(self.mf)
@@ -74,7 +78,7 @@ class CardGenerator(object):
             picture = fd.read()
             fd.close()
         except IOError:
-            print "Failed to open file: " + picturepath
+            logging.warning("Failed to open file: " + picturepath)
             pic_width = 0
             pic_height = 0
             picture = None  
@@ -212,7 +216,7 @@ if __name__ == "__main__":
     (options, args) = parser.parse_args()
 
     if options.filename == None:
-        print "You have to provide a filename using the -f option"
+        logging.error("You have to provide a filename using the -f option")
         sys.exit()
     
     generator = CardGenerator(options.type)

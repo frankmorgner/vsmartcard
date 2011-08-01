@@ -16,14 +16,13 @@
 # You should have received a copy of the GNU General Public License along with
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 #
-import sys, binascii, utils, random
-from Crypto.Cipher import DES3, DES, AES, ARC4 #,IDEA no longer present in python-crypto?
+import sys, binascii, utils, random, logging
+from Crypto.Cipher import DES3, DES, AES, ARC4 #,IDEA no longer present in python-crypto? @UnusedImport
 from struct import pack
 from binascii import b2a_hex, a2b_hex
 from random import randint
-from virtualsmartcard.utils import inttostring, stringtoint, hexdump
-import string
-import re
+from virtualsmartcard.utils import inttostring, hexdump
+import string, re
 
 try:
     # Use PyCrypto (if available)
@@ -166,7 +165,7 @@ def hash(hashmethod, data):
     from Crypto.Hash import SHA, MD5#, RIPEMD
     hash_class = locals().get(hashmethod.upper(), None)
     if hash_class == None:
-        print "Unknown Hash method %s" % hashmethod
+        logging.error("Unknown Hash method %s" % hashmethod)
         raise ValueError
     hash = hash_class.new()
     hash.update(data)
@@ -231,7 +230,7 @@ def read_protected_string(string, password, cipherspec=None):
     #Verify HMAC
     checksum = crypto_checksum("HMAC", key, crypted)
     if checksum != hmac:
-        print "Found HMAC %s expected %s" % (str(hmac), str(checksum))
+        logging.error("Found HMAC %s expected %s" % (str(hmac), str(checksum)))
         raise ValueError, "Failed to authenticate data. Wrong password?"
     
     #Decrypt data

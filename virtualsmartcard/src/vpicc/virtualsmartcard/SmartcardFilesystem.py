@@ -21,6 +21,7 @@
 @todo zu lange daten abschneiden und trotzdem tlv laenge beibehalten
 """
 from pickle import dumps, loads
+import logging
 from virtualsmartcard.ConstantDefinitions import *
 from virtualsmartcard.TLVutils import *
 from virtualsmartcard.SWutils import *
@@ -481,9 +482,9 @@ class DF(File): # {{{
                 return file
         # not found
         if isinstance(value, int):
-            print "file not found %s=%x" % (attribute, value)
+            logging.debug("file not found %s=%x" % (attribute, value))
         elif isinstance(value, str):
-            print "file not found %s=%r" % (attribute, value)
+            logging.debug("file not found %s=%r" % (attribute, value))
         raise SwError(SW["ERR_FILENOTFOUND"])
 
     def remove(self, file):
@@ -674,7 +675,7 @@ class MF(DF): # {{{
             selected = self.select('dfname', data, p2 &
                     REF["REFERENCE_CONTROL"], index_current)
         else:
-            print "unknown selection method: p1 =", p1
+            logging.debug("unknown selection method: p1 =%s" % p1)
             selected = None
 
         if selected == None:
@@ -1219,7 +1220,7 @@ class MF(DF): # {{{
                 if shortfid != 0:
                     args["shortfid"] = shortfid
         def unknown(tag, value):
-            print "unknown tag 0x%x with %r" % tag, value
+            logging.debug("unknown tag 0x%x with %r" % (tag, value))
         tag2cmd = {
                 # TODO support other tags
                 TAG["FILEDISCRIPTORBYTE"]       : 'fdb2args(value, args)',
@@ -1250,7 +1251,7 @@ class MF(DF): # {{{
             if (args["filedescriptor"] & FDB["DF"]) == FDB["DF"]:
                 # FIXME: data for DF
                 if "data" in args:
-                    print 'what to do with DF-data %r?' % args["data"]
+                    logging.debug('what to do with DF-data %r?' % args["data"])
                     del args["data"]
                 file = DF(**args)
             elif ((args["filedescriptor"] & 7) in

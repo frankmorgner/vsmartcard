@@ -23,7 +23,7 @@ from virtualsmartcard.SmartcardFilesystem import make_property
 from virtualsmartcard.utils import C_APDU, R_APDU, hexdump, inttostring
 import CardGenerator
 
-import socket, struct, sys, signal, atexit, smartcard
+import socket, struct, sys, signal, atexit, smartcard, logging
 
 
 class SmartcardOS(object): # {{{
@@ -246,7 +246,7 @@ class Iso7816OS(SmartcardOS): # {{{
         try:
             c = C_APDU(msg)
         except ValueError, e:
-            print e
+            logging.warning(str(e))
             return self.formatResult(0, "", SW["ERR_INCORRECTPARAMETERS"], False)
 
         #Handle Class Byte{{{
@@ -258,7 +258,7 @@ class Iso7816OS(SmartcardOS): # {{{
         
         #Ugly Hack for OpenSC-explorer
         if(class_byte == 0xb0):
-            print "Open SC APDU"
+            logging.debug("Open SC APDU")
             SM_STATUS = "No SM"
         
         #If Bit 8,7,6 == 0 then first industry values are used
@@ -305,7 +305,7 @@ class Iso7816OS(SmartcardOS): # {{{
             else:
                 answer = self.formatResult(c.effective_Le, result, sw, False)
         except SwError, e:
-            print e.message
+            logging.info(e.message)
             #traceback.print_exception(*sys.exc_info())
             sw = e.sw
             result = ""
@@ -326,14 +326,14 @@ class CryptoflexOS(Iso7816OS): # {{{
         try:
             c = C_APDU(msg)
         except ValueError, e:
-            print e
+            logging.debug("Failed to parse APDU %s" % msg)
             return self.formatResult(0, 0, "", SW["ERR_INCORRECTPARAMETERS"])
 
         try:
             sw, result = self.ins2handler.get(c.ins, notImplemented)(c.p1, c.p2, c.data)
             #print type(result)
         except SwError, e:
-            print e.message
+            logging.info(e.message)
             #traceback.print_exception(*sys.exc_info())
             sw = e.sw
             result = ""
@@ -366,7 +366,8 @@ class RelayOS(SmartcardOS): # {{{
     def __init__(self, readernum):
         readers = smartcard.System.listReaders()
         if len(readers) <= readernum:
-            print "Invalid number of reader '%u' (only %u available)" % (readernum, len(readers))
+            logging.error("Invalid number of reader '%u' (only %u available)"
+                          % (readernum, len(readers)))
             sys.exit()
         # XXX this is a workaround, see on sourceforge bug #3083254
         # should better use
@@ -377,10 +378,10 @@ class RelayOS(SmartcardOS): # {{{
         try:
             self.session = smartcard.Session(self.reader)
         except smartcard.Exceptions.CardConnectionException, e:
-            print "Error connecting to card: %s" % e.message
+            logging.error("Error connecting to card: %s" % e.message)
             sys.exit()
 
-        print "Connected to card in '%s'" % self.reader
+        logging.info("Connected to card in '%s'" % self.reader)
 
         atexit.register(self.cleanup)
 
@@ -388,7 +389,7 @@ class RelayOS(SmartcardOS): # {{{
         try:
             self.session.close()
         except smartcard.Exceptions.CardConnectionException, e:
-            print "Error disconnecting from card: %s" % e.message
+            logging.warning("Error disconnecting from card: %s" % e.message)
 
     def getATR(self):
         try:
@@ -399,7 +400,7 @@ class RelayOS(SmartcardOS): # {{{
                 self.session = smartcard.Session(self.reader)
                 atr = self.session.getATR()
             except smartcard.Exceptions.CardConnectionException, e:
-                print "Error getting ATR: %s" % e.message
+                logging.error("Error getting ATR: %s" % e.message)
                 sys.exit()
 
         return "".join([chr(b) for b in atr])
@@ -411,14 +412,14 @@ class RelayOS(SmartcardOS): # {{{
             try:
                 self.session = smartcard.Session(self.reader)
             except smartcard.Exceptions.CardConnectionException, e:
-                print "Error connecting to card: %s" % e.message
+                logging.error("Error connecting to card: %s" % e.message)
                 sys.exit()
 
     def powerDown(self):
         try:
             self.session.close()
         except smartcard.Exceptions.CardConnectionException, e:
-            print "Error disconnecting from card: %s" % str(e)
+            logging.error("Error disconnecting from card: %s" % str(e))
             sys.exit()
 
     def execute(self, msg):
@@ -430,7 +431,7 @@ class RelayOS(SmartcardOS): # {{{
         try:
             rapdu, sw1, sw2 = self.session.sendCommandAPDU(apdu)
         except smartcard.Exceptions.CardConnectionException, e:
-            print "Error transmitting APDU: %s" % str(e)
+            logging.error("Error transmitting APDU: %s" % str(e))
             sys.exit()
 
         # XXX this is a workaround, see on sourceforge bug #3083586
@@ -462,6 +463,10 @@ class VirtualICC(object): # {{{
     def __init__(self, filename, type, host, port, lenlen=3, readernum=None):
         from os.path import exists
         
+        logging.basicConfig(level = logging.INFO, 
+                            format = "%(asctime)s  [%(levelname)s] %(message)s", 
+                            datefmt = "%d.%m.%Y %H:%M:%S") 
+        
         self.filename = None
         self.cardGenerator = CardGenerator.CardGenerator(type)
         
@@ -471,7 +476,8 @@ class VirtualICC(object): # {{{
             if exists(filename):
                 self.cardGenerator.loadCard(self.filename)
             else:
-                print "Creating new card which will be saved in %s." % self.filename
+                logging.info("Creating new card which will be saved in %s." 
+                             % self.filename)
         
         MF, SAM = self.cardGenerator.getCard()
         
@@ -483,7 +489,8 @@ class VirtualICC(object): # {{{
         elif type == "relay":
             self.os = RelayOS(readernum)
         else:
-            print "Unknown cardtype " + type + ". Will use standard ISO 7816 cardtype"
+            logging.warning("Unknown cardtype %s. Will use standard ISO 7816 cardtype"
+                         % type)
             type = "iso7816"
             self.os = Iso7816OS(MF, SAM)
         self.type = type
@@ -493,13 +500,13 @@ class VirtualICC(object): # {{{
             self.sock = self.connectToPort(host, port)
             self.sock.settimeout(None)
         except socket.error, e:
-            print "Failed to open socket: %s" % str(e)
-            print "Is pcscd running at %s? Is vpcd loaded? Is a firewall blocking port %u?" % (host, port)
+            logging.error("Failed to open socket: %s" % str(e))
+            logging.error("Is pcscd running at %s? Is vpcd loaded? Is a firewall blocking port %u?" % (host, port))
             sys.exit()
                        
         self.lenlen = lenlen
 
-        print "Connected to virtual PCD at %s:%u" % (host, port)
+        logging.info("Connected to virtual PCD at %s:%u" % (host, port))
 
         signal.signal(signal.SIGINT, self.signalHandler)
         atexit.register(self.stop)
@@ -523,7 +530,7 @@ class VirtualICC(object): # {{{
         # receive message size
         sizestr = self.sock.recv(_Csizeof_short)
         if len(sizestr) == 0:
-            print "Virtual PCD shut down"
+            logging.info("Virtual PCD shut down")
             sys.exit()
         size = struct.unpack('!H', sizestr)[0]
 
@@ -531,7 +538,7 @@ class VirtualICC(object): # {{{
         if size:
             msg = self.sock.recv(size)
             if len(msg) == 0:
-                print "Virtual PCD shut down"
+                logging.info("Virtual PCD shut down")
         else:
             msg = None
 
@@ -541,28 +548,28 @@ class VirtualICC(object): # {{{
         while True :
             (size, msg) = self.__recvFromVPICC()
             if not size:
-                print "error in communication protocol"
+                logging.warning("Error in communication protocol (missing size parameter)")
             elif size == VPCD_CTRL_LEN:
                 if msg == chr(VPCD_CTRL_OFF):
-                    print "Power Down"
+                    logging.info("Power Down")
                     self.os.powerDown()
                 elif msg == chr(VPCD_CTRL_ON):
-                    print "Power Up"
+                    logging.info("Power Up")
                     self.os.powerUp()
                 elif msg == chr(VPCD_CTRL_RESET):
-                    print "Reset"
+                    logging.info("Reset")
                     self.os.reset()
                 elif msg == chr(VPCD_CTRL_ATR):
                     self.__sendToVPICC(self.os.getATR())
                 else:
-                    print "unknown control command"
+                    logging.warning("unknown control command")
             else:
                 if size != len(msg):
-                    print "Expected APDU of %u bytes, but received only %u" % (size, len(msg))
+                    logging.warning("Expected APDU of %u bytes, but received only %u" % (size, len(msg)))
 
-                print "APDU (%d Bytes):\n%s" % (len(msg), hexdump(msg, short=True))
+                logging.info("APDU (%d Bytes):\n%s" % (len(msg), hexdump(msg, short=True)))
                 answer = self.os.execute(msg)
-                print "RESP (%d Bytes):\n%s\n" % (len(answer), hexdump(answer, short=True))
+                logging.info("RESP (%d Bytes):\n%s\n" % (len(answer), hexdump(answer, short=True)))
                 self.__sendToVPICC(answer)
 
     def stop(self):

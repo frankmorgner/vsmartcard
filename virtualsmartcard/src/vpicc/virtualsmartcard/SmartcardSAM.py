@@ -17,7 +17,7 @@
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import struct, hashlib
+import struct, hashlib, logging
 from pickle import dumps, loads
 from os import urandom
 
@@ -122,7 +122,7 @@ class SAM(object):
         equals zero, block the card until reset with correct PUK
         """
         
-        print "Received PIN: %s" % PIN.strip()
+        logging.debug("Received PIN: %s" % PIN.strip())
         PIN = PIN.replace("\0","") #Strip NULL charakters
         
         if p1 != 0x00:
@@ -145,7 +145,6 @@ class SAM(object):
         
         data = data.replace("\0","") #Strip NULL charakters
         self.PIN = data
-        print "New PIN = %s" % self.PIN
         return SW["NORMAL"], ""    
 
     def internal_authenticate(self, p1, p2, data):
@@ -171,7 +170,7 @@ class SAM(object):
     
     def external_authenticate(self, p1, p2, data):
         """
-        Authenticate the terminal to the card. Check wether Terminal correctly
+        Authenticate the terminal to the card. Check whether Terminal correctly
         encrypted the given challenge or not
         """
         if self.last_challenge is None:
@@ -190,10 +189,6 @@ class SAM(object):
             self.last_challenge = None
             return SW["NORMAL"], ""
         else:
-            plain = vsCrypto.decrypt(cipher, key, data)
-            print plain
-            print "Reference: " + hexdump(reference)
-            print "Data: " + hexdump(data)
             raise SwError(SW["WARN_NOINFO63"])
             #TODO: Counter for external authenticate?
 
@@ -201,7 +196,7 @@ class SAM(object):
         """
         Takes an encrypted challenge in the form 
         'Terminal Challenge | Card Challenge | Card number'
-        and checks it for validity. If the challenge is succesful
+        and checks it for validity. If the challenge is successful
         the card encrypts 'Card Challenge | Terminal challenge' and
         returns this value
         """
@@ -242,7 +237,7 @@ class SAM(object):
         
         length = 8 #Length of the challenge in Byte
         self.last_challenge = urandom(length)
-        print "Generated challenge: %s" % str(self.last_challenge)
+        logging.debug("Generated challenge: %s" % str(self.last_challenge))
         self.last_challenge = inttostring(self.last_challenge, length)
 
         return SW["NORMAL"], self.last_challenge
@@ -282,7 +277,7 @@ class SAM(object):
             df = self.mf.currentDF()
             fid = df.select("fid", stringtoint(qualifier))
             key = fid.readbinary(keylength)
- 			              
+
         if key != None:
             return key
         else: 
@@ -1056,8 +1051,8 @@ class CryptoflexSM(Secure_Messaging):
 
         e_in = struct.unpack("<i", data)
         if e_in[0] != 65537:
-            print "Warning: Exponents different from 65537 are ignored!" +\
-                  "The Exponent given is %i" % e_in[0]
+            logging.warning("Warning: Exponents different from 65537 are ignored!" +\
+                            "The Exponent given is %i" % e_in[0])
 
         #Encode Public key
         n = PublicKey.__getstate__()['n']
