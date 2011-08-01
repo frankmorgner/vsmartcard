@@ -644,14 +644,14 @@ class Secure_Messaging(object):
                        SM_Class["CRYPTOGRAM_PLAIN_TLV_INCLUDING_SM_ODD"]):
                 #The Cryptogram includes SM objects. 
                 #We decrypt them and parse the objects.
-                plain = decipher(tag, 0x80, value)
+                plain = self.decipher(tag, 0x80, value)
                 #TODO: Need Le = length
                 return_data.append(self.parse_SM_CAPDU(plain, header_authentication))
             elif tag in (SM_Class["CRYPTOGRAM_PLAIN_TLV_NO_SM"],
                          SM_Class["CRYPTOGRAM_PLAIN_TLV_NO_SM_ODD"]):
                 #The Cryptogram includes BER-TLV enconded plaintext. 
                 #We decrypt them and return the objects.
-                plain = decipher(tag, 0x80, value)
+                plain = self.decipher(tag, 0x80, value)
                 return_data.append(plain)
             elif tag in (SM_Class["CRYPTOGRAM_PADDING_INDICATOR"],
                          SM_Class["CRYPTOGRAM_PADDING_INDICATOR_ODD"]):
@@ -1004,14 +1004,17 @@ class Secure_Messaging(object):
             #Private key
             d = PublicKey.__getstate__()['d']
         elif cipher == "DSA":
-            #Public key
+            #DSAParams
             p = str(PublicKey.__getstate__()['p'])
             q = str(PublicKey.__getstate__()['q'])
             g = str(PublicKey.__getstate__()['g'])
+            #Public key
             y = str(PublicKey.__getstate__()['y'])
+            #TODO: Actual encoding
             #Private key
             x = str(PublicKey.__getstate__()['x'])
         #Add more algorithms here
+           
 
         if p1 & 0x02 == 0x02:
             return SW["NORMAL"], result

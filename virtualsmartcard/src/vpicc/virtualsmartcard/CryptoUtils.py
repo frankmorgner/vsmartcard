@@ -622,21 +622,21 @@ if __name__ == "__main__":
     card_crypto = binascii.a2b_hex("".join("8A D4 A9 2D 9B 6B 24 E0".split()))
     
     session_key = get_session_key(default_key, host_chal, card_chal)
-    print "Session-Key:  ", utils.hexdump(session_key)
+    print "Session-Key:  ", hexdump(session_key)
     
     print verify_card_cryptogram(session_key, host_chal, card_chal, card_crypto)
     
     host_crypto = calculate_host_cryptogram(session_key, card_chal, host_chal)
-    print "Host-Crypto:  ", utils.hexdump( host_crypto )
+    print "Host-Crypto:  ", hexdump( host_crypto )
 
     external_authenticate = binascii.a2b_hex("".join("84 82 01 00 10".split())) + host_crypto
-    print utils.hexdump(calculate_MAC(session_key, external_authenticate))
+    print hexdump(calculate_MAC(session_key, external_authenticate))
     
     too_short = binascii.a2b_hex("".join("89 45 19 BF".split()))
     padded = append_padding("DES3-ECB", too_short)
-    print "Padded data: " + utils.hexdump(padded)
+    print "Padded data: " + hexdump(padded)
     unpadded = strip_padding("DES3-ECB", padded)
-    print "Without padding: " + utils.hexdump(unpadded)
+    print "Without padding: " + hexdump(unpadded)
     
     teststring = "DEADBEEFistatsyksdvhihewohfwoehcowc8hw8rogfq8whv75tsgohsav8wress"
     foo = append_padding("AES", teststring)
