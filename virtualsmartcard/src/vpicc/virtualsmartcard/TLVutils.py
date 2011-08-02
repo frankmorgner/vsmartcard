@@ -17,7 +17,7 @@
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from vsmartcard.utils import stringtoint
+from virtualsmartcard.utils import stringtoint
 
 TAG = {}
 TAG["FILECONTROLPARAMETERS"]    = 0x62
