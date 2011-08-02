@@ -198,7 +198,7 @@ main(int argc, char *argv[])
         pin = argv[1];
         pinlen = strlen(pin);
         if (argc > 2) {
-            if (sscanf(argv[2], "%u", &secret_type) != 1) {
+            if (sscanf(argv[2], "%hhu", &secret_type) != 1) {
                 fprintf(stderr, "Could not get type of secret\n");
                 exit(2);
             }
