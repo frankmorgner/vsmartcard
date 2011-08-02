@@ -476,9 +476,9 @@ class DF(File): # {{{
 
         for i in indexes:
             file = self.content[i]
-            if ((hasattr(file, attribute) and getattr(file, attribute)==value)
+            if (hasattr(file, attribute) and ((getattr(file, attribute)==value)
                     or (attribute == 'dfname' and getattr(file,
-                        attribute).startswith(value))):
+                        attribute).startswith(value)))):
                 return file
         # not found
         if isinstance(value, int):
