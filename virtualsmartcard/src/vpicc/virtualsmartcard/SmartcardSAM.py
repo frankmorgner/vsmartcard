@@ -82,7 +82,7 @@ class SAM(object):
             else:
                 self.cardSecret = cardSecret  
 
-        self.SM_handler = Secure_Messaging(self.mf)
+        self.SM_handler = Secure_Messaging(self.mf, self)
 
     def set_MF(self, mf):
         self.mf = mf
@@ -313,7 +313,6 @@ class PassportSAM(SAM):
         self.KSenc = None
         self.KSmac = None
         self.__computeKeys()
-        #SAM.__init__(self, path, key,None)
         SAM.__init__(self, None, None, mf)
         self.SM_handler = ePass_SM(mf, None, None)
         self.SM_handler.current_SE.cct.algorithm = "CC"
@@ -352,7 +351,6 @@ class PassportSAM(SAM):
         
         #Receive Mutual Authenticate APDU from terminal
         #Decrypt data and check MAC
-        #cipher = DES3.new(self.KEnc,"des3-cbc")
         Eifd = resp_data[:-8]
         Mifd = self._mac(self.KMac, Eifd)
         #Check the MAC
@@ -469,8 +467,9 @@ class Security_Environment(object):
     
 class Secure_Messaging(object):
     
-    def __init__(self, MF, SE=None):
+    def __init__(self, MF, SAM, SE=None):
         self.mf = MF
+        self.sam = SAM
         if not SE:
             self.current_SE = Security_Environment()
         else:
@@ -555,7 +554,7 @@ class Secure_Messaging(object):
         """
         SEstr = dumps(self.current_SE)
         try:
-            self.SAM.addkey(SEID, SEstr) #TODO: Need SAM reference
+            self.sam.addkey(SEID, SEstr) #FIXME: Need SAM reference
         except ValueError:
             raise SwError["ERR_INCORRECTP1P2"]
 
@@ -565,7 +564,7 @@ class Secure_Messaging(object):
         Restores a Security Environment from the SAM and replaces the current SE
         with it 
         """
-        SEstr = self.SAM.get_key(SEID)
+        SEstr = self.sam.get_key(SEID)
         SE = loads(SEstr)
         if isinstance(SE, Security_Environment):
             self.current_SE = SE
@@ -576,7 +575,7 @@ class Secure_Messaging(object):
         """
         Erases a Security Environment stored under SEID from the SAM
         """
-        self.SAM.removeKey(SEID)
+        self.sam.removeKey(SEID)
     
     def parse_SM_CAPDU(self, CAPDU, header_authentication):
         """
