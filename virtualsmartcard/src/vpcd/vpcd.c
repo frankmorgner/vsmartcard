@@ -75,6 +75,10 @@ int opensock(unsigned short port)
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0) return -1;
 
+	int i = 1;
+	if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i)) < 0)
+		return -1;
+
     struct sockaddr_in server_sockaddr;
     memset(&server_sockaddr, 0, sizeof server_sockaddr);
     server_sockaddr.sin_family      = PF_INET;
