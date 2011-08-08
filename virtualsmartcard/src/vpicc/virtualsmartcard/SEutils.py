@@ -20,7 +20,7 @@ import TLVutils
 from time import time
 from random import seed, randint
 from virtualsmartcard.ConstantDefinitions import CRT_TEMPLATE, ALGO_MAPPING
-from virtualsmartcard.utils import inttostring
+from virtualsmartcard.utils import inttostring, stringtoint
 from virtualsmartcard.SWutils import SwError, SW
 
 class ControlReferenceTemplate:
@@ -81,10 +81,10 @@ class ControlReferenceTemplate:
         to support new or different algorithms.
         @param data: reference to an algorithm
         """
+        
         if not ALGO_MAPPING.has_key(data):
             raise SwError(SW["ERR_REFNOTUSABLE"]) 
         else:
-            #TODO: Sanity checking
             self.algorithm = ALGO_MAPPING[data]
             self.__replace_tag(0x80, data)
     
@@ -129,16 +129,16 @@ class ControlReferenceTemplate:
         """
         position = 0
         while self.__config_string[position:position+1] != tag and position < len(self.__config_string):    
-            length = inttostring(self.__config_string[position+1:position+2])
+            length = stringtoint(self.__config_string[position+1:position+2])
             position += length + 3
 
         if position < len(self.__config_string): #Replace Tag
-            length = inttostring(self.__config_string[position+1:position+2])
-            self.__config_string = self.__config_string[:position] + tag +\
-                                   inttostring(len(data)) + data +\
+            length = stringtoint(self.__config_string[position+1:position+2])
+            self.__config_string = self.__config_string[:position] +\
+                                   chr(tag) + inttostring(len(data)) + data +\
                                    self.__config_string[position+2+length:]
         else: #Add new tag
-            self.__config_string += tag + inttostring(len(data)) + data
+            self.__config_string += chr(tag) + inttostring(len(data)) + data
     
     def to_string(self):
         """
