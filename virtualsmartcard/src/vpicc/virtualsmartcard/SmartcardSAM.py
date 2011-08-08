@@ -464,6 +464,8 @@ class Security_Environment(object):
                 self.dst.parse_SE_config(config)
             else:
                 raise SwError(SW["ERR_REFNOTUSABLE"])
+            
+        return SW["NORMAL"], ""
     
 class Secure_Messaging(object):
     
