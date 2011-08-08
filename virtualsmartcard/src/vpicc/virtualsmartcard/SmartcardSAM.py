@@ -451,6 +451,10 @@ class Secure_Messaging(object):
     def __init__(self, MF, SAM, SE=None):
         self.mf = MF
         self.sam = SAM
+        
+        #Security Environments may be saved and retrieved from/to this dictionary
+        self.saved_SEs = {} 
+        
         if not SE:
             self.current_SE = Security_Environment()
         else:
@@ -495,17 +499,16 @@ class Secure_Messaging(object):
             #Verification, encipherment, external authentication and key agreement
             if se & 0x08:
                 self.current_SE.external_auth = True
-            self.__set_SE(p2, data)
+            return self.__set_SE(p2, data)
         elif(cmd== 0x02):
-            self.__store_SE(p2)
+            return self.__store_SE(p2)
         elif(cmd == 0x03):
-            self.__restore_SE(p2)
+            return self.__restore_SE(p2)
         elif(cmd == 0x04):
-            self.__erase_SE(p2)
+            return self.__erase_SE(p2)
         else:
             raise SwError(SW["ERR_INCORRECTP1P2"])
         
-        return SW["NORMAL"], ""
 
     def __set_SE(self, p2, data):
         """
@@ -517,17 +520,17 @@ class Secure_Messaging(object):
         if not p2 in valid_p2:
             raise SwError(SW["ERR_INCORRECTP1P2"])
         if p2 == 0xA4:
-            self.current_SE.at.parse_SE_config(data)
+            return self.current_SE.at.parse_SE_config(data)
         elif p2 == 0xA6:
-            self.current_SE.kat.parse_SE_config(data)
+            return self.current_SE.kat.parse_SE_config(data)
         elif p2 == 0xAA:
-            self.current_SE.ht.parse_SE_config(data)
+            return self.current_SE.ht.parse_SE_config(data)
         elif p2 == 0xB4:
-            self.current_SE.cct.parse_SE_config(data)
+            return self.current_SE.cct.parse_SE_config(data)
         elif p2 == 0xB6:
-            self.current_SE.dst.parse_SE_config(data)
+            return self.current_SE.dst.parse_SE_config(data)
         elif p2 == 0xB8:
-            self.current_SE.ct.parse_SE_config(data)
+            return self.current_SE.ct.parse_SE_config(data)
     
     def __store_SE(self, SEID):
         """
@@ -535,29 +538,38 @@ class Secure_Messaging(object):
         SEID is used as a reference to identify the SE.
         """
         SEstr = dumps(self.current_SE)
-        try:
-            self.sam.addkey(SEID, SEstr) #FIXME: Need SAM reference
-        except ValueError:
-            raise SwError["ERR_INCORRECTP1P2"]
-
+        self.saved_SEs[SEID] = SEstr
+        return SW["NORMAL"], ""
     
     def __restore_SE(self, SEID):
         """
         Restores a Security Environment from the SAM and replaces the current SE
         with it 
         """
-        SEstr = self.sam.get_key(SEID)
-        SE = loads(SEstr)
-        if isinstance(SE, Security_Environment):
-            self.current_SE = SE
-        else:
+        
+        if (not self.saved_SEs.has_key(SEID)):
             raise SwError(SW["ERR_REFNOTUSABLE"])
+        else:
+            SEstr = self.saved_SEs[SEID]
+            SE = loads(SEstr)
+            if isinstance(SE, Security_Environment):
+                self.current_SE = SE
+            else:
+                raise SwError(SW["ERR_REFNOTUSABLE"])
+            
+        return SW["NORMAL"], ""
+            
     
     def __erase_SE(self, SEID):
         """
         Erases a Security Environment stored under SEID from the SAM
         """
-        self.sam.removeKey(SEID)
+        if (not self.saved_SEs.has_key(SEID)):
+            raise SwError(SW["ERR_REFNOTUSABLE"])
+        else:
+            del self.saved_SEs[SEID]
+        
+        return SW["NORMAL"], ""
     
     def parse_SM_CAPDU(self, CAPDU, header_authentication):
         """

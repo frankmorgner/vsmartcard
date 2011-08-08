@@ -73,6 +73,10 @@ class ControlReferenceTemplate:
                 self.__set_iv(tag, length, value)
             elif tag == 0x95:
                 self.usage_qualifier = value
+            else:
+                raise SwError(SW["ERR_REFNOTUSABLE"])
+ 
+        return SW["NORMAL"], "" 
             
     def __set_algo(self, data):
         """
@@ -87,7 +91,6 @@ class ControlReferenceTemplate:
         else:
             self.algorithm = ALGO_MAPPING[data]
             self.__replace_tag(0x80, data)
-            return SW["NORMAL"], ""
     
     def __set_key(self, tag, value):
         if tag == 0x81:
