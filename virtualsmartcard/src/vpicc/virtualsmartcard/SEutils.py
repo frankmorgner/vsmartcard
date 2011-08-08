@@ -24,6 +24,12 @@ from virtualsmartcard.utils import inttostring
 from virtualsmartcard.SWutils import SwError, SW
 
 class ControlReferenceTemplate:
+    """
+    Control Reference Templates are used to configure the Security Environments.
+    They specifiy which algorithms to use in which mode of operation and with
+    which keys. There are six different types of Control Reference Template:
+    HT, AT, KT, CCT, DST, CT-sym, CT-asym.
+    """
     def __init__(self, tag, config=""):
         """
         Generates a new CRT
@@ -51,19 +57,30 @@ class ControlReferenceTemplate:
         self.__config_string = config
         
     def parse_SE_config(self, config):
+        """
+        Parse a control reference template as given e.g. in an MSE APDU.
+        @param config : a TLV string containing the configuration for the CRT. 
+        """
+        
         structure = TLVutils.unpack(config)
         for tlv in structure:
             tag, length, value = tlv    
             if tag == 0x80:
                 self.__set_algo(value)
             elif tag in (0x81, 0x82, 0x83, 0x84):
-                self.__set_key(tag, length, value)
+                self.__set_key(tag, value)
             elif tag in range(0x85, 0x93):
                 self.__set_iv(tag, length, value)
             elif tag == 0x95:
                 self.usage_qualifier = value
             
     def __set_algo(self, data):
+        """
+        Set the algorithm to be used by this CRT. The algorithms are specified
+        in a global dictionary. New cards may add or modify this table in order
+        to support new or different algorithms.
+        @param data: reference to an algorithm
+        """
         if not ALGO_MAPPING.has_key(data):
             raise SwError(SW["ERR_REFNOTUSABLE"]) 
         else:
@@ -71,7 +88,7 @@ class ControlReferenceTemplate:
             self.algorithm = ALGO_MAPPING[data]
             self.__replace_tag(0x80, data)
     
-    def __set_key(self, tag, length, value):
+    def __set_key(self, tag, value):
         if tag == 0x81:
             self.fileref = value
         elif tag == 0x82:
@@ -105,6 +122,11 @@ class ControlReferenceTemplate:
         self.iv = iv
        
     def __replace_tag(self, tag, data):
+        """
+        Adjust the config string using a given tag, value combination. If the
+        config string already contains a tag, value pair for the given tag,
+        replace it. Otherwise append tag, length and value to the config string.
+        """
         position = 0
         while self.__config_string[position:position+1] != tag and position < len(self.__config_string):    
             length = inttostring(self.__config_string[position+1:position+2])
