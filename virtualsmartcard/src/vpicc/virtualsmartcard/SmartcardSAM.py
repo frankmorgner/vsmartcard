@@ -255,7 +255,7 @@ class SAM(object):
         Meaning of p2:
         b8 b7 b6 b5 b4 b3 b2 b1  | Meaning
         0  0  0  0  0  0  0  0   | No information is given
-        0  -- -- -- -- -- -- --  | Global reference data(e.g. MF secific key)
+        0  -- -- -- -- -- -- --  | Global reference data(e.g. MF specific key)
         1  -- -- -- -- -- -- --  | Specific reference data(e.g. DF specific key)
         -- -- -- x  x  x  x  x   | Number of the secret
         Any other value          | RFU
@@ -345,7 +345,7 @@ class PassportSAM(SAM):
         return Ka + Kb
     
     def external_authenticate(self, p1, p2, resp_data):
-        """Performes the basic access controll protocoll as defined in
+        """Performs the basic access control protocol as defined in
         the ICAO MRTD standard"""
         rnd_icc = self.last_challenge
         
@@ -574,8 +574,8 @@ class Secure_Messaging(object):
     def parse_SM_CAPDU(self, CAPDU, header_authentication):
         """
         This methods parses a data field including Secure Messaging objects.
-        SM_header indicates wether or not the header of the message shall be authenticated
-        It returns an unprotected command APDU
+        SM_header indicates whether or not the header of the message shall be 
+        authenticated. It returns an unprotected command APDU
         @param CAPDU: The protected CAPDU to be parsed
         @param header_authentication: Wether or not the header should be
                included in authentication mechanisms 
@@ -725,7 +725,7 @@ class Secure_Messaging(object):
 
     def protect_response(self, sw, result):
         """
-        This method protects a response APDU using secure messanging mechanisms
+        This method protects a response APDU using secure messaging mechanisms
         It returns the protected data and the SW bytes
         """
         expected = self.current_SE.sm_objects
@@ -771,8 +771,8 @@ class Secure_Messaging(object):
     def perform_security_operation(self, p1, p2, data):
         """
         In the end this command is nothing but a big switch for all the other
-        commands in ISO 7816-8. It will invoke the appropiate command and return
-        its result
+        commands in ISO 7816-8. It will invoke the appropriate command and
+        return its result
         """
         
         allowed_P1P2 = ((0x90, 0x80), (0x90, 0xA0), (0x9E, 0x9A), (0x9E, 0xAC),
@@ -1026,7 +1026,7 @@ class CryptoflexSM(Secure_Messaging):
 
         @param data: Contains the public exponent used for key generation
         @param p1: The keynumber. Can be used later to refer to the generated key
-        @param p2: Used to specifiy the keylength.
+        @param p2: Used to specify the keylength.
                   The mapping is: 0x40 => 256 Bit, 0x60 => 512 Bit, 0x80 => 1024
         """
         from Crypto.PublicKey import RSA
@@ -1088,7 +1088,6 @@ class ePass_SM(Secure_Messaging):
         Compute a cryptographic checksum (e.g. MAC) for the given data.
         Algorithm and key are specified in the current (CAPDU) SE. The ePass
         uses a Send Sequence Counter for MAC calculation
-        @bug: Always use CAPDU settings ???
         """
         if p1 != 0x8E or p2 != 0x80:
             raise SwError(SW["ERR_INCORRECTP1P2"])
