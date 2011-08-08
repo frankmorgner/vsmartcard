@@ -87,6 +87,7 @@ class ControlReferenceTemplate:
         else:
             self.algorithm = ALGO_MAPPING[data]
             self.__replace_tag(0x80, data)
+            return SW["NORMAL"], ""
     
     def __set_key(self, tag, value):
         if tag == 0x81:

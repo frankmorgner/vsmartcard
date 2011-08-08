@@ -446,27 +446,6 @@ class Security_Environment(object):
         self.internal_auth = False
         self.externel_auth = False
 
-    def mse(self, config):
-        """
-        Manage Security Environment
-        """
-        structure = TLVutils.unpack(config)
-        for tag, length, value in structure:
-            if tag == CRT_TEMPLATE["AT"]:
-                self.at.parse_SE_config(config)
-            elif tag == CRT_TEMPLATE["CCT"]:
-                self.cct.parse_SE_config(config)
-            elif tag == CRT_TEMPLATE["KAT"]:
-                self.kat.parse_SE_config(config)
-            elif tag == CRT_TEMPLATE["CT"]:
-                self.ct.parse_SE_config(config)
-            elif tag == CRT_TEMPLATE["DST"]:
-                self.dst.parse_SE_config(config)
-            else:
-                raise SwError(SW["ERR_REFNOTUSABLE"])
-            
-        return SW["NORMAL"], ""
-    
 class Secure_Messaging(object):
     
     def __init__(self, MF, SAM, SE=None):
@@ -483,13 +462,12 @@ class Secure_Messaging(object):
     def manage_security_environment(self, p1, p2, data):
         """
         This method is used to store, restore or erase Security Environments
-        or to manipualte the various parameters of the current SE.
+        or to manipulate the various parameters of the current SE.
         P1 specifies the operation to perform, p2 is either the SEID for the
         referred SE or the tag of a control reference template
-        """
         
-        """ P1:
-        b8 b7 b6 b5 b4 b3 b2 b1                                  Meaning
+        P1:
+        b8 b7 b6 b5 b4 b3 b2 b1               Meaning
          -  -  -  1  -  -  -  - Secure messaging in command data field
          -  -  1  -  -  -  -  - Secure messaging in response data field
          -  1  -  -  -  -  -  - Computation, decipherment, internal 
@@ -526,6 +504,8 @@ class Secure_Messaging(object):
             self.__erase_SE(p2)
         else:
             raise SwError(SW["ERR_INCORRECTP1P2"])
+        
+        return SW["NORMAL"], ""
 
     def __set_SE(self, p2, data):
         """
