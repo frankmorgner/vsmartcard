@@ -1386,8 +1386,8 @@ static void handle_control (int fd, struct usb_ctrlrequest *setup)
 					"... get string %d lang %04x\n",
 					tmp, index);
 			if (tmp != 0 && index != strings.language) {
-				fprintf (stderr, "wrong language\n");
-				goto stall;
+				fprintf (stderr, "wrong language, returning defaults\n");
+				tmp = 0;
                         }
                         memset (buf, 0, 256);	/* zero all the bytes */
 			result = usb_gadget_get_string (&strings, tmp, buf);
