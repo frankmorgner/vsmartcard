@@ -82,11 +82,13 @@ class SAM(object):
             else:
                 self.cardSecret = cardSecret  
 
-        self.SM_handler = Secure_Messaging(self.mf, self)
+        #Security Environments may be saved and retrieved from/to this dictionary
+        self.saved_SEs = {} 
+        self.current_SE = Security_Environment(self.mf, self)
 
     def set_MF(self, mf):
         self.mf = mf
-        self.SM_handler.set_MF(mf)
+        self.current_SE.set_MF(mf)
        
     def FSencrypt(self, data):
         """
@@ -103,6 +105,45 @@ class SAM(object):
         might not be added in a future version.
         """
         return data
+    
+    def store_SE(self, SEID):
+        """
+        Stores the current Security environment in the secure access module. The
+        SEID is used as a reference to identify the SE.
+        """
+        SEstr = dumps(self.current_SE)
+        self.saved_SEs[SEID] = SEstr
+        return SW["NORMAL"], ""
+    
+    def restore_SE(self, SEID):
+        """
+        Restores a Security Environment from the SAM and replaces the current SE
+        with it 
+        """
+        
+        if (not self.saved_SEs.has_key(SEID)):
+            raise SwError(SW["ERR_REFNOTUSABLE"])
+        else:
+            SEstr = self.saved_SEs[SEID]
+            SE = loads(SEstr)
+            if isinstance(SE, Security_Environment):
+                self.current_SE = SE
+            else:
+                raise SwError(SW["ERR_REFNOTUSABLE"])
+            
+        return SW["NORMAL"], ""
+            
+    
+    def erase_SE(self, SEID):
+        """
+        Erases a Security Environment stored under SEID from the SAM
+        """
+        if (not self.saved_SEs.has_key(SEID)):
+            raise SwError(SW["ERR_REFNOTUSABLE"])
+        else:
+            del self.saved_SEs[SEID]
+        
+        return SW["NORMAL"], ""
     
     def set_asym_algorithm(self, cipher, keytype):
         """
@@ -123,7 +164,7 @@ class SAM(object):
         """
         
         logging.debug("Received PIN: %s" % PIN.strip())
-        PIN = PIN.replace("\0","") #Strip NULL charakters
+        PIN = PIN.replace("\0","") #Strip NULL characters
         
         if p1 != 0x00:
             raise SwError(SW["ERR_INCORRECTP1P2"])
@@ -143,7 +184,7 @@ class SAM(object):
         Change the specified referenced data (e.g. CHV) of the card
         """
         
-        data = data.replace("\0","") #Strip NULL charakters
+        data = data.replace("\0","") #Strip NULL characters
         self.PIN = data
         return SW["NORMAL"], ""    
 
@@ -285,19 +326,19 @@ class SAM(object):
                
     #The following commands define the interface to the Secure Messaging functions
     def generate_public_key_pair(self, p1, p2, data):
-        return self.SM_handler.generate_public_key_pair(p1, p2, data)
+        return self.current_SE.generate_public_key_pair(p1, p2, data)
 
     def parse_SM_CAPDU(self, CAPDU, header_authentication):
-        return self.SM_handler.parse_SM_CAPDU(CAPDU, header_authentication)
+        return self.current_SE.parse_SM_CAPDU(CAPDU, header_authentication)
     
     def protect_result(self, sw, unprotected_result):
-        return self.SM_handler.protect_response(sw, unprotected_result)
+        return self.current_SE.protect_response(sw, unprotected_result)
 
     def perform_security_operation(self, p1, p2, data):
-        return self.SM_handler.perform_security_operation(p1, p2, data)
+        return self.current_SE.perform_security_operation(p1, p2, data)
     
     def manage_security_environment(self, p1, p2, data):
-        return self.SM_handler.manage_security_environment(p1, p2, data)
+        return self.current_SE.manage_security_environment(p1, p2, data)
 
 class PassportSAM(SAM):       
     def __init__(self, mf):
@@ -314,9 +355,9 @@ class PassportSAM(SAM):
         self.KSmac = None
         self.__computeKeys()
         SAM.__init__(self, None, None, mf)
-        self.SM_handler = ePass_SM(mf, None, None)
-        self.SM_handler.current_SE.cct.algorithm = "CC"
-        self.SM_handler.current_SE.ct.algorithm = "DES3-CBC"
+        self.current_SE = ePass_SE(mf, None, None)
+        self.current_SE.cct.algorithm = "CC"
+        self.current_SE.ct.algorithm = "DES3-CBC"
         
     def __computeKeys(self):
         """
@@ -375,11 +416,11 @@ class PassportSAM(SAM):
         self.KSmac = self.derive_key(KSseed, 2)
         #self.ssc = rnd_icc[-4:] + rnd_ifd[-4:]
         #Set the current SE
-        self.SM_handler.current_SE.ct.key = self.KSenc
-        self.SM_handler.current_SE.cct.key = self.KSmac
-        self.SM_handler.ssc = stringtoint(rnd_icc[-4:] + rnd_ifd[-4:])
-        self.SM_handler.current_SE.ct.algorithm = "DES3-CBC"
-        self.SM_handler.current_SE.cct.algorithm = "CC"
+        self.current_SE.ct.key = self.KSenc
+        self.current_SE.cct.key = self.KSmac
+        self.current_SE.ssc = stringtoint(rnd_icc[-4:] + rnd_ifd[-4:])
+        self.current_SE.ct.algorithm = "DES3-CBC"
+        self.current_SE.cct.algorithm = "CC"
         return SW["NORMAL"], Eicc + Micc
         
     def _mac(self, key, data, ssc = None, dopad=True):
@@ -396,10 +437,10 @@ class PassportSAM(SAM):
 class CryptoflexSAM(SAM):
     def __init__(self, mf=None):
         SAM.__init__(self, None, None, mf)
-        self.SM_handler = CryptoflexSM(mf)
+        self.current_SE = CryptoflexSE(mf)
         
     def generate_public_key_pair(self, p1, p2, data):
-        asym_key = self.SM_handler.generate_public_key_pair(p1, p2, data)
+        asym_key = self.current_SE.generate_public_key_pair(p1, p2, data)
         #TODO: Use SE instead (and remove SAM.set_asym_algorithm)
         self.set_asym_algorithm(asym_key, 0x07)
         return SW["NORMAL"], ""
@@ -429,7 +470,10 @@ class CryptoflexSAM(SAM):
     
 class Security_Environment(object):
     
-    def __init__(self):       
+    def __init__(self, MF, SAM):
+        self.mf = MF
+        self.sam = SAM
+        
         self.SEID = None
         self.sm_objects = ""
 
@@ -445,20 +489,6 @@ class Security_Environment(object):
         self.rapdu_sm = False
         self.internal_auth = False
         self.externel_auth = False
-
-class Secure_Messaging(object):
-    
-    def __init__(self, MF, SAM, SE=None):
-        self.mf = MF
-        self.sam = SAM
-        
-        #Security Environments may be saved and retrieved from/to this dictionary
-        self.saved_SEs = {} 
-        
-        if not SE:
-            self.current_SE = Security_Environment()
-        else:
-            self.current_SE = SE
 
     def set_MF(self, mf):
         self.mf = mf
@@ -489,23 +519,23 @@ class Secure_Messaging(object):
         if(cmd == 0x01):
             #Secure messaging in command data field
             if se & 0x01:
-                self.current_SE.capdu_sm = True
+                self.capdu_sm = True
             #Secure messaging in response data field
             if se & 0x02:
-                self.current_SE.rapdu_sm = True
+                self.rapdu_sm = True
             #Computation, decipherment, internal authentication and key agreement
             if se & 0x04: 
-                self.current_SE.internal_auth = True
+                self.internal_auth = True
             #Verification, encipherment, external authentication and key agreement
             if se & 0x08:
-                self.current_SE.external_auth = True
+                self.external_auth = True
             return self.__set_SE(p2, data)
         elif(cmd== 0x02):
-            return self.__store_SE(p2)
+            return self.sam.store_SE(p2)
         elif(cmd == 0x03):
-            return self.__restore_SE(p2)
+            return self.sam.restore_SE(p2)
         elif(cmd == 0x04):
-            return self.__erase_SE(p2)
+            return self.sam.erase_SE(p2)
         else:
             raise SwError(SW["ERR_INCORRECTP1P2"])
         
@@ -520,57 +550,18 @@ class Secure_Messaging(object):
         if not p2 in valid_p2:
             raise SwError(SW["ERR_INCORRECTP1P2"])
         if p2 == 0xA4:
-            return self.current_SE.at.parse_SE_config(data)
+            return self.at.parse_SE_config(data)
         elif p2 == 0xA6:
-            return self.current_SE.kat.parse_SE_config(data)
+            return self.kat.parse_SE_config(data)
         elif p2 == 0xAA:
-            return self.current_SE.ht.parse_SE_config(data)
+            return self.ht.parse_SE_config(data)
         elif p2 == 0xB4:
-            return self.current_SE.cct.parse_SE_config(data)
+            return self.cct.parse_SE_config(data)
         elif p2 == 0xB6:
-            return self.current_SE.dst.parse_SE_config(data)
+            return self.dst.parse_SE_config(data)
         elif p2 == 0xB8:
-            return self.current_SE.ct.parse_SE_config(data)
-    
-    def __store_SE(self, SEID):
-        """
-        Stores the current Security environment in the secure access module. The
-        SEID is used as a reference to identify the SE.
-        """
-        SEstr = dumps(self.current_SE)
-        self.saved_SEs[SEID] = SEstr
-        return SW["NORMAL"], ""
-    
-    def __restore_SE(self, SEID):
-        """
-        Restores a Security Environment from the SAM and replaces the current SE
-        with it 
-        """
-        
-        if (not self.saved_SEs.has_key(SEID)):
-            raise SwError(SW["ERR_REFNOTUSABLE"])
-        else:
-            SEstr = self.saved_SEs[SEID]
-            SE = loads(SEstr)
-            if isinstance(SE, Security_Environment):
-                self.current_SE = SE
-            else:
-                raise SwError(SW["ERR_REFNOTUSABLE"])
-            
-        return SW["NORMAL"], ""
-            
-    
-    def __erase_SE(self, SEID):
-        """
-        Erases a Security Environment stored under SEID from the SAM
-        """
-        if (not self.saved_SEs.has_key(SEID)):
-            raise SwError(SW["ERR_REFNOTUSABLE"])
-        else:
-            del self.saved_SEs[SEID]
-        
-        return SW["NORMAL"], ""
-    
+            return self.ct.parse_SE_config(data)
+       
     def parse_SM_CAPDU(self, CAPDU, header_authentication):
         """
         This methods parses a data field including Secure Messaging objects.
@@ -583,7 +574,7 @@ class Secure_Messaging(object):
         """    
         structure = TLVutils.unpack(CAPDU.data)
         return_data = ["",]
-        expected = self.current_SE.sm_objects
+        expected = self.sm_objects
         
         cla = None
         ins = None
@@ -675,8 +666,7 @@ class Secure_Messaging(object):
                 """
                 padding_indicator = stringtoint(value[0])
                 sw, plain = self.decipher(tag, 0x80, value[1:])
-                plain = vsCrypto.strip_padding(self.current_SE.ct.algorithm,
-                                               plain,
+                plain = vsCrypto.strip_padding(self.ct.algorithm, plain,
                                                padding_indicator)
                 return_data.append(plain)
 
@@ -728,7 +718,7 @@ class Secure_Messaging(object):
         This method protects a response APDU using secure messaging mechanisms
         It returns the protected data and the SW bytes
         """
-        expected = self.current_SE.sm_objects
+        expected = self.sm_objects
         for pos in range(len(expected)):
             tag = expected[pos]
 
@@ -750,15 +740,15 @@ class Secure_Messaging(object):
             return_data += encrypted_tlv 
         
         if sw == SW["NORMAL"]:
-            if self.current_SE.cct.algorithm == None:
+            if self.cct.algorithm == None:
                 raise SwError(SW["CONDITIONSNOTSATISFIED"])
-            elif self.current_SE.cct.algorithm == "CCT":
+            elif self.cct.algorithm == "CCT":
                 tag = SM_Class["CHECKSUM"]
                 to_auth = vsCrypto.append_padding("DES-ECB", return_data)
                 sw, auth = self.compute_cryptographic_checksum(0x8E, 0x80, to_auth)
                 length = len(auth)
                 return_data += TLVutils.pack([(tag, length, auth)])
-            elif self.current_SE.cct.algorithm == "SIGNATURE":
+            elif self.cct.algorithm == "SIGNATURE":
                 tag = SM_Class["DIGITAL_SIGNATURE"]
                 hash = self.hash(0x90, 0x80, return_data)
                 sw, auth = self.compute_digital_signature(0x9E, 0x9A, hash)
@@ -811,13 +801,11 @@ class Secure_Messaging(object):
         """
         if p1 != 0x8E or p2 != 0x80:
             raise SwError(SW["ERR_INCORRECTP1P2"])
-        if self.current_SE.cct.key == None:
+        if self.cct.key == None:
             raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
          
-        checksum = vsCrypto.crypto_checksum(self.current_SE.cct.algorithm, 
-                                               self.current_SE.cct.key, 
-                                               data, 
-                                               self.current_SE.cct.iv)
+        checksum = vsCrypto.crypto_checksum(self.cct.algorithm, self.cct.key, 
+                                            data, self.cct.iv)
         return SW["NORMAL"], checksum
     
     def compute_digital_signature(self, p1, p2, data):
@@ -832,7 +820,7 @@ class Secure_Messaging(object):
         if p1 != 0x9E or not p2 in (0x9A, 0xAC, 0xBC):
             raise SwError(SW["ERR_INCORRECTP1P2"])
 
-        if self.current_SE.dst.key == None:
+        if self.dst.key == None:
             raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
 
         to_sign = ""              
@@ -846,7 +834,7 @@ class Secure_Messaging(object):
         elif p2 == 0xBC: #Data objects to be signed
             pass
         
-        signature = self.current_SE.dst.key.sign(to_sign, "")
+        signature = self.dst.key.sign(to_sign, "")
         return SW["NORMAL"], signature
     
     def hash(self, p1, p2, data):
@@ -857,7 +845,7 @@ class Secure_Messaging(object):
         """        
         if p1 != 0x90 or not p2 in (0x80, 0xA0):
             raise SwError(SW["ERR_INCORRECTP1P2"])
-        algo = self.current_SE.ht.algorithm
+        algo = self.ht.algorithm
         if algo == None:
             raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
         try:
@@ -876,9 +864,9 @@ class Secure_Messaging(object):
         plain = ""
         cct = ""
 
-        algo = self.current_SE.cct.algorithm
-        key = self.current_SE.cct.key
-        iv = self.current_SE.cct.iv
+        algo = self.cct.algorithm
+        key = self.cct.key
+        iv = self.cct.iv
         if algo == None or key == None:
             raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
 
@@ -903,7 +891,7 @@ class Secure_Messaging(object):
         contain a data to sign (tag 0x9A, 0xAC or 0xBC) and a digital signature
         (0x9E)
         """
-        key = self.current_SE.dst.key
+        key = self.dst.key
         to_sign = ""
         signature = ""
 
@@ -942,13 +930,13 @@ class Secure_Messaging(object):
         by the current Security environment.
         Return raw data (no TLV coding).
         """
-        algo = self.current_SE.ct.algorithm
-        key = self.current_SE.ct.key
+        algo = self.ct.algorithm
+        key = self.ct.key
         if key == None or algo == None:
             return SW["ERR_CONDITIONNOTSATISFIED"], ""
         else:
             padded = vsCrypto.append_padding(algo, data)
-            crypted = vsCrypto.encrypt(algo, key, padded, self.current_SE.ct.iv)
+            crypted = vsCrypto.encrypt(algo, key, padded, self.ct.iv)
             return SW["NORMAL"], crypted
 
     def decipher(self, p1, p2, data):
@@ -957,12 +945,12 @@ class Secure_Messaging(object):
         by the current Security environment.
         Return raw data (no TLV coding). Padding is not removed!!!
         """
-        algo = self.current_SE.ct.algorithm
-        key = self.current_SE.ct.key
+        algo = self.ct.algorithm
+        key = self.ct.key
         if key == None or algo == None:
             raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
         else:
-            plain = vsCrypto.decrypt(algo, key, data, self.current_SE.ct.iv)
+            plain = vsCrypto.decrypt(algo, key, data, self.ct.iv)
             return SW["NORMAL"], plain
 
     def generate_public_key_pair(self, p1, p2, data):
@@ -973,16 +961,15 @@ class Secure_Messaging(object):
         from Crypto.Util.randpool import RandomPool
         rnd = RandomPool()
 
-        cipher = self.current_SE.ct.algorithm
+        cipher = self.ct.algorithm
 
         c_class = locals().get(cipher, None)
         if c_class is None: 
             raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
 
         if p1 & 0x01 == 0x00: #Generate key
-            PublicKey = c_class.generate(self.current_SE.dst.keylength,
-                                         rnd.get_bytes)
-            self.current_SE.dst.key = PublicKey
+            PublicKey = c_class.generate(self.dst.keylength, rnd.get_bytes)
+            self.dst.key = PublicKey
         else:
             pass #Read key
 
@@ -1016,9 +1003,9 @@ class Secure_Messaging(object):
             return SW["NORMAL"], ""
 
     #}}}
-class CryptoflexSM(Secure_Messaging):
+class CryptoflexSE(Security_Environment):
     def __init__(self, mf):
-        Secure_Messaging.__init__(self, mf) #Does Cryptoflex need its own SE?
+        Security_Environment.__init__(self, mf)
 
     def generate_public_key_pair(self, p1, p2, data):
         """
@@ -1043,7 +1030,7 @@ class CryptoflexSM(Secure_Messaging):
 
         rnd = RandomPool()
         PublicKey = RSA.generate(keylength, rnd.get_bytes)
-        self.current_SE.dst.key = PublicKey
+        self.dst.key = PublicKey
 
         e_in = struct.unpack("<i", data)
         if e_in[0] != 65537:
@@ -1077,11 +1064,11 @@ class CryptoflexSM(Secure_Messaging):
         data = ef_priv_key.getenc('data')     
         return PublicKey           
 
-class ePass_SM(Secure_Messaging):
+class ePass_SE(Security_Environment):
     
     def __init__(self, MF, SE, ssc=None):
         self.ssc = ssc
-        Secure_Messaging.__init__(self, MF, SE)
+        Security_Environment.__init__(self, MF, SE)
            
     def compute_cryptographic_checksum(self, p1, p2, data):
         """
@@ -1093,11 +1080,8 @@ class ePass_SM(Secure_Messaging):
             raise SwError(SW["ERR_INCORRECTP1P2"])
         
         self.ssc += 1
-        checksum = vsCrypto.crypto_checksum(self.current_SE.cct.algorithm,
-                                               self.current_SE.cct.key,
-                                               data,
-                                               self.current_SE.cct.iv,
-                                               self.ssc)
+        checksum = vsCrypto.crypto_checksum(self.cct.algorithm, self.cct.key,
+                                               data, self.cct.iv, self.ssc)
 
         return SW["NORMAL"], checksum
 
@@ -1130,20 +1114,20 @@ if __name__ == "__main__":
         sw = e.sw
     print "Decryption Status code: %x" % sw
 
-    #SM = Secure_Messaging(None)
+    #SE = Security_Environment(None)
     #testvektor = "foobar"
     #print "Testvektor = %s" % testvektor
-    #sw, hash = SM.hash(0x90,0x80,testvektor)
+    #sw, hash = SE.hash(0x90,0x80,testvektor)
     #print "SW after hashing = %s" % sw
     #print "Hash = %s" % hash
-    #sw, crypted = SM.encipher(0x00, 0x00, testvektor)
+    #sw, crypted = SE.encipher(0x00, 0x00, testvektor)
     #print "SW after encryption = %s" % sw
-    #sw, plain = SM.decipher(0x00, 0x00, crypted)
+    #sw, plain = SE.decipher(0x00, 0x00, crypted)
     #print "SW after encryption = %s" % sw
     #print "Testvektor after en- and deciphering: %s" % plain
-    #sw, pk = SM.generate_public_key_pair(0x02, 0x00, "")
+    #sw, pk = SE.generate_public_key_pair(0x02, 0x00, "")
     #print "SW after keygen = %s" % sw
     #print "Public Key = %s" % pk
-    #CF = CryptoflexSM(None)
+    #CF = CryptoflexSE(None)
     #print CF.generate_public_key_pair(0x00, 0x80, "\x01\x00\x01\x00")
     #print MyCard._get_referenced_key(0x01)
