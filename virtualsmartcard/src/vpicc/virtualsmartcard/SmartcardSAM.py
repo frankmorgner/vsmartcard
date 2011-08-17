@@ -338,6 +338,10 @@ class SAM(object):
         return self.current_SE.manage_security_environment(p1, p2, data)
 
 class PassportSAM(SAM):       
+    """
+    SAM for ICAO ePassport. Implements Basic access control and key derivation
+    for Secure Messaging. 
+    """
     def __init__(self, mf):
         import virtualsmartcard.SmartcardFilesystem as vsFS  
 
