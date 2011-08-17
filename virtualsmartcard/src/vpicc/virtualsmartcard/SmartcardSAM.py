@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2009 Dominik Oepen
+# Copyright (C) 2011 Dominik Oepen
 #
 # This file is part of virtualsmartcard.
 #
@@ -914,6 +914,11 @@ class Security_Environment(object):
             raise SwError(["ERR_SECMESSOBJECTSINCORRECT"])
 
     def verify_certificate(self, p1, p2, data):
+        """
+        Verify a certificate send by the terminal using the internal trust
+        anchors.
+        This method is currently not implemented.
+        """
         if p1 != 0x00 or p2 not in (0x92, 0xAE, 0xBE):
             raise SwError(SW["ERR_INCORRECTP1P2"])
         else:
