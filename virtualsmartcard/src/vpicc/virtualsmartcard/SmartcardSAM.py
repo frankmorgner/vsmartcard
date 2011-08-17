@@ -404,7 +404,7 @@ class PassportSAM(SAM):
         #Extraxt keying material from IFD, generate ICC keying material
         Kifd = plain[16:]
         rnd_ifd = plain[:8]
-        Kicc = inttostring(urandom(16))
+        Kicc = urandom(16)
         #Generate Answer
         data = plain[8:16] + plain[:8] + Kicc
         Eicc = vsCrypto.encrypt("DES3-CBC", self.KEnc, data)
