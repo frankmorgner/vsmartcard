@@ -240,13 +240,13 @@ class File(object): # {{{
                 FID["PATHSELECTION"], FID["RESERVED"]] or filedescriptor>0xFF or
                 lifecycle>0xFF):
             raise SwError(SW["ERR_INCORRECTPARAMETERS"])
-        self.lifecycle=lifecycle
+        self.lifecycle = lifecycle
         self.parent = parent
         if parent:
             if parent.fid == fid:
                 raise SwError(SW["ERR_INCORRECTPARAMETERS"])
-        self.fid=fid
-        self.filedescriptor=filedescriptor
+        self.fid = fid
+        self.filedescriptor = filedescriptor
         self.SAM = SAM
         if simpletlv_data:
             if not isinstance(simpletlv_data, list):
@@ -257,17 +257,17 @@ class File(object): # {{{
                 raise ValueError, "must be a list of (tag, length, value)-tuples"
             self.setdec('bertlv_data', bertlv_data)
 
-    def decrypt(self,path, data):
+    def decrypt(self, path, data):
         if self.SAM == None: #WARNING: Fails silent
             return data
         else:
-            return self.SAM.FSencrypt(path,data)
+            return self.SAM.FSencrypt(path, data)
     
-    def encrypt(self,path, data):
+    def encrypt(self, path, data):
         if self.SAM == None: #WARNING: Fails silent
             return data
         else:
-            return self.SAM.FSdecrypt(path,data)
+            return self.SAM.FSdecrypt(path, data)
 
     def __str__(self):
         """Returns a string of the object using an prettyprint_anything."""
@@ -409,7 +409,7 @@ class DF(File): # {{{
         if dfname:
             if len(dfname)>16:
                 raise SwError(SW["ERR_INCORRECTPARAMETERS"])
-            self.dfname=dfname
+            self.dfname = dfname
         self.content = []
         # TODO: opensc sends the length of data, but what does it limit
         # (bertlv-data/simpletlv-data/number of files in DF, ...)?
@@ -690,9 +690,9 @@ class MF(DF): # {{{
         byte long integer and the response data as binary string.
         """
         P2_FCI  = 0
-        P2_FCP  = 1<<2
-        P2_FMD  = 2<<2
-        P2_NONE = 3<<2
+        P2_FCP  = 1 << 2
+        P2_FMD  = 2 << 2
+        P2_NONE = 3 << 2
         file = self._selectFile(p1, p2, data)
 
         if p2 == P2_NONE:
@@ -1211,7 +1211,7 @@ class MF(DF): # {{{
                 args["maxrecordsize"]  = stringtoint(value[2:])
             if l >= 2:
                 args["datacoding"]     = ord(value[1])
-            if l >=1:
+            if l >= 1:
                 args["filedescriptor"] = ord(value[0])
         def shortfid2args(value, args):
             s = stringtoint(value)
@@ -1240,8 +1240,8 @@ class MF(DF): # {{{
         args = { "parent": None }
         if p1 != 0:
             args["filedescriptor"] = p1
-        if (p2>>3) != 0:
-            args["shortfid"] = p2>>3
+        if (p2 >> 3) != 0:
+            args["shortfid"] = p2 >> 3
         for T, _, tlv_data in fcp_list:
             if T != TAG["FILECONTROLPARAMETERS"] and T != TAG["FILECONTROLINFORMATION"]:
                 raise ValueError
@@ -1313,16 +1313,16 @@ class EF(File): # {{{
         See File for more.
         """
         # exlcude FIDs for DFs
-        if fid == FID["MF"] or datacoding>0xFF:
+        if fid == FID["MF"] or datacoding > 0xFF:
             raise SwError(SW["ERR_INCORRECTPARAMETERS"])
         if shortfid:
             if not (1 <= shortfid and shortfid <= 30):
                 raise SwError(SW["ERR_INCORRECTPARAMETERS"])
-            self.shortfid=shortfid
+            self.shortfid = shortfid
         File.__init__(self, parent, fid, filedescriptor, lifecycle,
                 simpletlv_data,
                 bertlv_data)
-        self.datacoding=datacoding
+        self.datacoding = datacoding
 # }}}
 
 
@@ -1384,29 +1384,29 @@ class TransparentStructureEF(EF): # {{{
         if eraseto == None:
             eraseto = len(data)
 
-        if erasefrom>len(data):
+        if erasefrom > len(data):
             raise SwError(SW["ERR_OFFSETOUTOFFILE"])
-        if erasefrom>eraseto:
+        if erasefrom > eraseto:
             raise SwError(SW["ERR_INCORRECTPARAMETERS"])
 
-        data=data[0:erasefrom] + data[eraseto:len(data)]
+        data = data[0:erasefrom] + data[eraseto:len(data)]
         self.setdec('data', data)
 # }}}
 
 
 class Record(object): # {{{
     data       = make_property("data", "string. The record's data.")
-    identifier = make_property("identifier", "integer with 1<                    = identifier< = 0xfe. The record's identifier.")
+    identifier = make_property("identifier", "integer with 1<= identifier< = 0xfe. The record's identifier.")
     """Class for a Record of an elementary of record structure"""
     def __init__(self, identifier=None, data=""):
         """
         The constructor is supposed to be involved by EF.appendrecord.
         """
         if identifier:
-            if identifier<0x01 or identifier>0xFE:
+            if identifier < 0x01 or identifier > 0xFE:
                 raise SwError(SW["ERR_INCORRECTPARAMETERS"])
-            self.identifier=identifier
-        self.data=data
+            self.identifier = identifier
+        self.data = data
 
     def __str__(self):
         """Returns a string of the object using an prettyprint_anything."""
@@ -1446,11 +1446,11 @@ class RecordStructureEF(EF): # {{{
                 raise SwError(SW["ERR_INCOMPATIBLEWITHFILE"])
         self.setdec('records', records)
         self.resetRecordPointer()
-        self.maxrecordsize=maxrecordsize
+        self.maxrecordsize = maxrecordsize
 
     def resetRecordPointer(self):
         """Resets the record pointer."""
-        self.recordpointer=-1
+        self.recordpointer = -1
 
     def isCyclic(self):
         """Returns True if the EF is of cyclic structure, False otherwise."""
@@ -1538,7 +1538,7 @@ class RecordStructureEF(EF): # {{{
         for i in indexes:
             if (not self.hasSimpleTlv()) or records[i].identifier==id:
                 if result == []:
-                    self.recordpointer=i
+                    self.recordpointer = i
                 result.append(records[i])
 
         if result == []:
@@ -1614,10 +1614,10 @@ class RecordStructureEF(EF): # {{{
         records = self.getenc('records')
         if self.isCyclic():
             records.insert(0, Record(recordidentifier, data))
-            self.recordpointer=0
+            self.recordpointer = 0
         else:
             records.append(Record(recordidentifier, data))
-            self.recordpointer=len(records)-1
+            self.recordpointer = len(records)-1
         self.setdec('records', records)
 
     def eraserecord(self, num_id, reference):
@@ -1701,9 +1701,9 @@ class CryptoflexMF(MF): # {{{
         byte long integer and the response data as binary string.
         """
         P2_FCI  = 0
-        P2_FCP  = 1<<2
-        P2_FMD  = 2<<2
-        P2_NONE = 3<<2
+        P2_FCP  = 1 << 2
+        P2_FMD  = 2 << 2
+        P2_NONE = 3 << 2
         file = self._selectFile(p1, p2, data)
 
         if isinstance(file, EF):
