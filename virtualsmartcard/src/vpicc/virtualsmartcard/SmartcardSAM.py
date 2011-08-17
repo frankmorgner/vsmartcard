@@ -278,8 +278,7 @@ class SAM(object):
         
         length = 8 #Length of the challenge in Byte
         self.last_challenge = urandom(length)
-        logging.debug("Generated challenge: %s" % str(self.last_challenge))
-        self.last_challenge = inttostring(self.last_challenge, length)
+        logging.debug("Generated challenge: %s" % self.last_challenge)
 
         return SW["NORMAL"], self.last_challenge
     
