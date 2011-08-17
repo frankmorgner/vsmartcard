@@ -617,8 +617,6 @@ class Security_Environment(object):
                     ins = value[2:4]
                     p1 = value[4:6]
                     p2 = value[6:8]
-            else:
-                raise SwError(SW["ERR_SECMESSOBJECTSINCORRECT"])
 
             #SM data objects for confidentiality
             if tag in (SM_Class["CRYPTOGRAM_PLAIN_TLV_INCLUDING_SM"],
