@@ -655,7 +655,7 @@ class MF(DF): # {{{
             else:
                 selected = walk(self.currentDF(), data)
         elif p1 == P1_CHILD_DF or p1 == P1_CHILD_EF:
-            selected = self.select('fid', stringtoint(data))
+            selected = self.currentDF().select('fid', stringtoint(data))
             if ((p1 == P1_CHILD_DF and not isinstance(selected, DF)) or
                     (p1 == P1_CHILD_EF and not isinstance(selected, EF))):
                 # Command incompatible with file structure
@@ -1670,7 +1670,7 @@ class CryptoflexMF(MF): # {{{
                 raise SwError(SW["ERR_INCORRECTPARAMETERS"])
             file = DF(**args)
         else:
-            print "unknown type: 0x%x" % ord(data[6])
+            logging.error("unknown type: 0x%x" % ord(data[6]))
             raise SwError(SW["ERR_INCORRECTPARAMETERS"])
 
 
