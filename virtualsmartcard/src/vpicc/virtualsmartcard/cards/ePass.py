@@ -26,7 +26,9 @@ import hashlib, struct
 from os import urandom
 
 class ePass_SE(Security_Environment):
-    
+    """This class implements the Security Environment of the ICAO Passports. It
+    is required in order to use the send sequence counter for secure messaging.
+    """
     def __init__(self, SE, ssc=None):
         self.ssc = ssc
         Security_Environment.__init__(self, SE)
@@ -126,6 +128,8 @@ class PassportSAM(SAM):
         return SW["NORMAL"], Eicc + Micc
         
     def _mac(self, key, data, ssc = None, dopad=True):
+        """ Compute a message authentication code using a given key and an
+        optional send sequence counter."""
         if ssc:
             data = ssc + data
         if dopad:
