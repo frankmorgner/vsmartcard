@@ -3,6 +3,7 @@ CLEANFILES = $(bin_SCRIPTS)
 EXTRA_DIST = vicc.in
 
 vpiccdir = $(pythondir)/virtualsmartcard
+vpicccardsdir = $(vpiccdir)/cards
 
 vpicc_PYTHON = virtualsmartcard/CardGenerator.py \
 	       virtualsmartcard/SEutils.py \
@@ -15,6 +16,10 @@ vpicc_PYTHON = virtualsmartcard/CardGenerator.py \
 	       virtualsmartcard/SWutils.py \
 	       virtualsmartcard/VirtualSmartcard.py \
 	       virtualsmartcard/__init__.py
+
+vpicccards_PYTHON = virtualsmartcard/cards/__init__.py \
+           virtualsmartcard/cards/ePass.py \
+           virtualsmartcard/cards/cryptoflex.py
 
 do_subst = sed -e 's,[@]PYTHON[@],$(PYTHON),g'
 

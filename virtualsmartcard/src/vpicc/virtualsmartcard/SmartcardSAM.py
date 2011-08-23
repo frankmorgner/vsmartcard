@@ -17,14 +17,14 @@
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import struct, hashlib, logging
+import logging
 from pickle import dumps, loads
 from os import urandom
 
 import virtualsmartcard.CryptoUtils as vsCrypto
 from virtualsmartcard.SWutils import SwError, SW
 from virtualsmartcard.utils import inttostring, stringtoint
-from virtualsmartcard.SEutils import Security_Environment, CryptoflexSE, ePass_SE
+from virtualsmartcard.SEutils import Security_Environment
 
 def get_referenced_cipher(p1):
     """
@@ -336,139 +336,7 @@ class SAM(object):
     
     def manage_security_environment(self, p1, p2, data):
         return self.current_SE.manage_security_environment(p1, p2, data)
-
-class PassportSAM(SAM):       
-    """
-    SAM for ICAO ePassport. Implements Basic access control and key derivation
-    for Secure Messaging. 
-    """
-    def __init__(self, mf):
-        import virtualsmartcard.SmartcardFilesystem as vsFS  
-
-        ef_dg1 = vsFS.walk(mf, "\x00\x04\x01\x01")
-        dg1 = ef_dg1.readbinary(5)
-        self.mrz1 = dg1[:43]
-        self.mrz2 = dg1[44:]
-        self.KSeed = None 
-        self.KEnc = None
-        self.KMac = None
-        self.KSenc = None
-        self.KSmac = None
-        self.__computeKeys()
-        SAM.__init__(self, None, None, mf)
-        self.current_SE = ePass_SE(mf, None, None)
-        self.current_SE.cct.algorithm = "CC"
-        self.current_SE.ct.algorithm = "DES3-CBC"
-        
-    def __computeKeys(self):
-        """
-        Computes the keys depending on the machine readable 
-        zone of the passport according to TR-PKI mrtds ICC read-only 
-        access v1.1 annex E.1.
-        """
-
-        MRZ_information = self.mrz2[0:10] + self.mrz2[13:20] + self.mrz2[21:28]
-        H = hashlib.sha1(MRZ_information).digest()
-        self.KSeed = H[:16]
-        self.KEnc = self.derive_key(self.KSeed, 1)
-        self.KMac = self.derive_key(self.KSeed, 2)
-        
-    def derive_key(self, seed, c):
-        """
-        Derive a key according to TR-PKI mrtds ICC read-only access v1.1
-        annex E.1.
-        c is either 1 for encryption or 2 for MAC computation.
-        Returns: Ka + Kb
-        Note: Does not adjust parity. Nobody uses that anyway ..."""
-        D = seed + struct.pack(">i", c)
-        H = hashlib.sha1(D).digest()
-        Ka = H[0:8]
-        Kb = H[8:16]
-        return Ka + Kb
-    
-    def external_authenticate(self, p1, p2, resp_data):
-        """Performs the basic access control protocol as defined in
-        the ICAO MRTD standard"""
-        rnd_icc = self.last_challenge
-        
-        #Receive Mutual Authenticate APDU from terminal
-        #Decrypt data and check MAC
-        Eifd = resp_data[:-8]
-        Mifd = self._mac(self.KMac, Eifd)
-        #Check the MAC
-        if not Mifd == resp_data[-8:]:
-            raise SwError(SW["ERR_SECMESSOBJECTSINCORRECT"])
-        #Decrypt the data
-        plain = vsCrypto.decrypt("DES3-CBC", self.KEnc, resp_data[:-8])
-        #Split decrypted data into the two nonces and 
-        if plain[8:16] != rnd_icc:
-            raise SwError(SW["WARN_NOINFO63"])
-        #Extraxt keying material from IFD, generate ICC keying material
-        Kifd = plain[16:]
-        rnd_ifd = plain[:8]
-        Kicc = urandom(16)
-        #Generate Answer
-        data = plain[8:16] + plain[:8] + Kicc
-        Eicc = vsCrypto.encrypt("DES3-CBC", self.KEnc, data)
-        Micc = self._mac(self.KMac, Eicc)
-        #Derive the final keys
-        KSseed = vsCrypto.operation_on_string(Kicc, Kifd, lambda a, b: a^b)
-        self.KSenc = self.derive_key(KSseed, 1)
-        self.KSmac = self.derive_key(KSseed, 2)
-        #self.ssc = rnd_icc[-4:] + rnd_ifd[-4:]
-        #Set the current SE
-        self.current_SE.ct.key = self.KSenc
-        self.current_SE.cct.key = self.KSmac
-        self.current_SE.ssc = stringtoint(rnd_icc[-4:] + rnd_ifd[-4:])
-        self.current_SE.ct.algorithm = "DES3-CBC"
-        self.current_SE.cct.algorithm = "CC"
-        return SW["NORMAL"], Eicc + Micc
-        
-    def _mac(self, key, data, ssc = None, dopad=True):
-        if ssc:
-            data = ssc + data
-        if dopad:
-            topad = 8 - len(data) % 8
-            data = data + "\x80" + ("\x00" * (topad-1))
-        a = vsCrypto.encrypt("des-cbc", key[:8], data)
-        b = vsCrypto.decrypt("des-ecb", key[8:16], a[-8:])
-        c = vsCrypto.encrypt("des-ecb", key[:8], b)
-        return c
-    
-class CryptoflexSAM(SAM):
-    def __init__(self, mf=None):
-        SAM.__init__(self, None, None, mf)
-        self.current_SE = CryptoflexSE(mf)
-        
-    def generate_public_key_pair(self, p1, p2, data):
-        asym_key = self.current_SE.generate_public_key_pair(p1, p2, data)
-        #TODO: Use SE instead (and remove SAM.set_asym_algorithm)
-        self.set_asym_algorithm(asym_key, 0x07)
-        return SW["NORMAL"], ""
-    
-    def perform_security_operation(self, p1, p2, data):
-        """
-        In the cryptoflex card, this is the verify key command. A key is send
-        to the card in plain text and compared to a key stored in the card.
-        This is used for authentication
-        @param data: Contains the key to be verified
-        @return: SW[NORMAL] in case of success otherwise SW[WARN_NOINFO63] 
-        """
-        return SW["NORMAL"], ""
-        #FIXME
-        #key = self._get_referenced_key(p1,p2)
-        #if key == data:
-        #    return SW["NORMAL"], ""
-        #else:
-        #    return SW["WARN_NOINFO63"], ""
-        
-    def internal_authenticate(self, p1, p2, data):
-        data = data[::-1] #Reverse Byte order
-        sw, data = SAM.internal_authenticate(self, p1, p2, data)
-        if data != "":
-            data = data[::-1]
-        return sw, data
-    
+   
 if __name__ == "__main__":
     """
     Unit test:
