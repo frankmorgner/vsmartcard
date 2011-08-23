@@ -141,7 +141,7 @@ class CryptoflexMF(MF): # {{{
         if data[6] == "\x01":
             args["data"] = chr(0)*stringtoint(data[2:4])
             args["filedescriptor"] = FDB["EFSTRUCTURE_TRANSPARENT"]
-            file = TransparentStructureEF(**args)
+            new_file = TransparentStructureEF(**args)
         elif data[6] == "\x02":
             if len(data)>16:
                 args["maxrecordsize"] = stringtoint(data[16])
@@ -149,23 +149,23 @@ class CryptoflexMF(MF): # {{{
                 # if given a number of records
                 args["maxrecordsize"] = (stringtoint(data[2:4])/p2)
             args["filedescriptor"] = FDB["EFSTRUCTURE_LINEAR_FIXED_NOFURTHERINFO"]
-            file = RecordStructureEF(**args)
+            new_file = RecordStructureEF(**args)
         elif data[6] == "\x03":
             args["filedescriptor"] = FDB["EFSTRUCTURE_LINEAR_VARIABLE_NOFURTHERINFO"]
-            file = RecordStructureEF(**args)
+            new_file = RecordStructureEF(**args)
         elif data[6] == "\x04":
             args["filedescriptor"] = FDB["EFSTRUCTURE_CYCLIC_NOFURTHERINFO"]
-            file = RecordStructureEF(**args)
+            new_file = RecordStructureEF(**args)
         elif data[6] == "\x38":
             if data[12] != "\x03":
                 raise SwError(SW["ERR_INCORRECTPARAMETERS"])
-            file = DF(**args)
+            new_file = DF(**args)
         else:
             logging.error("unknown type: 0x%x" % ord(data[6]))
             raise SwError(SW["ERR_INCORRECTPARAMETERS"])
 
 
-        return [file]
+        return [new_file]
 
     def recordHandlingDecode(self, p1, p2):
         if p2 < 4:
