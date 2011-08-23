@@ -21,7 +21,7 @@ from virtualsmartcard.ConstantDefinitions import MAX_EXTENDED_LE, MAX_SHORT_LE
 from virtualsmartcard.SWutils import SwError, SW
 from virtualsmartcard.SmartcardFilesystem import make_property
 from virtualsmartcard.utils import C_APDU, R_APDU, hexdump, inttostring
-import CardGenerator
+from virtualsmartcard.CardGenerator import CardGenerator
 
 import socket, struct, sys, signal, atexit, smartcard, logging
 
@@ -123,10 +123,19 @@ class Iso7816OS(SmartcardOS): # {{{
     def makeATR(**args): # {{{
         """Calculate Answer to Reset (ATR) and returns the bitstring.
         
-        directConvention -- Bool. Whether to use direct convention or inverse convention.
-        TAi, TBi, TCi    -- (optional) Value between 0 and 0xff. Interface Characters (for meaning see ISO 7816-3). Note that if no transmission protocol is given, it is automatically selected with T=max{j-1|TAj in args OR TBj in args OR TCj in args}.
-        T                -- (optional) Value between 0 and 15. Transmission Protocol. Note that if T is set, TAi/TBi/TCi for i>T are omitted.
-        histChars        -- (optional) Bitstring with 0 <= len(histChars) <= 15. Historical Characters T1 to T15 (for meaning see ISO 7816-4).
+        directConvention -- Bool. Whether to use direct convention or inverse 
+                            convention.
+        TAi, TBi, TCi    -- (optional) Value between 0 and 0xff. Interface
+                            Characters (for meaning see ISO 7816-3). Note that
+                            if no transmission protocol is given, it is 
+                            automatically selected with T=max{j-1|TAj in args 
+                            OR TBj in args OR TCj in args}.
+        T                -- (optional) Value between 0 and 15. Transmission 
+                            Protocol. Note that if T is set, TAi/TBi/TCi for 
+                            i>T are omitted.
+        histChars        -- (optional) Bitstring with 0 <= len(histChars) <= 15.
+                            Historical Characters T1 to T15 (for meaning see
+                            ISO 7816-4).
         
         T0, TDi and TCK are automatically calculated.
         """
@@ -241,6 +250,12 @@ class Iso7816OS(SmartcardOS): # {{{
 
     def execute(self, msg):
         def notImplemented(*argz, **args):
+            """
+            If an application tries to use a function which is not implemented 
+            by the currently emulated smartcard we raise an exception which 
+            should result in an appropriate response APDU being passed to the
+            application.
+            """
             raise SwError(SW["ERR_INSNOTSUPPORTED"])
 
         try:
@@ -271,7 +286,7 @@ class Iso7816OS(SmartcardOS): # {{{
             if (secure_messaging == 0x00):
                 SM_STATUS = "No SM"
             elif (secure_messaging == 0x01):
-                SM_STATUS = "Propietary SM" # Not supported ?
+                SM_STATUS = "Proprietary SM" # Not supported ?
             elif (secure_messaging == 0x02):
                 SM_STATUS = "Standard SM" 
             elif (secure_messaging == 0x03):
@@ -279,7 +294,8 @@ class Iso7816OS(SmartcardOS): # {{{
                 header_authentication = 1
         #If Bit 8,7 == 01 then further industry values are used
         elif (class_byte & 0x0C == 0x0C):
-            #Bit 1 to 4 specify logical channel. 4 is added, value range is from four to nineteen
+            #Bit 1 to 4 specify logical channel. 4 is added, value range is from
+            #four to nineteen
             logical_channel = class_byte & 0x0f
             logical_channel += 4
             #Bit 6 indicates secure messaging
@@ -289,7 +305,7 @@ class Iso7816OS(SmartcardOS): # {{{
                 SM_STATUS = "No SM"            
             elif (secure_messaging == 0x01):
                 SM_STATUS = "Standard SM"
-        #In both cases Bit 5 specifiys command chaining
+        #In both cases Bit 5 specifies command chaining
         command_chaining = class_byte >> 5
         command_chaining &= 0x01
         #}}}
@@ -297,7 +313,7 @@ class Iso7816OS(SmartcardOS): # {{{
         try:             
             if SM_STATUS == "Standard SM":
                 c = self.SAM.parse_SM_CAPDU(c, header_authentication)
-            elif SM_STATUS == "Propietary SM":
+            elif SM_STATUS == "Proprietary SM":
                 raise SwError("ERR_SECMESSNOTSUPPORTED")
             sw, result = self.ins2handler.get(c.ins, notImplemented)(c.p1, c.p2, c.data)
             if SM_STATUS == "Standard SM":
@@ -362,12 +378,20 @@ class CryptoflexOS(Iso7816OS): # {{{
 # }}}
 
 class RelayOS(SmartcardOS): # {{{
-
+    """
+    This class implements relaying of a (physical) smartcard. The RelayOS
+    forwards the command APDUs received from the vpcd to the real smartcard via
+    an actual smartcard reader and sends the responses back to the vpcd.
+    This class can be used to implement relay or MITM attacks.
+    """
     def __init__(self, readernum):
+        """
+        Initialize the connection to the (physical) smartcard via a given reader
+        """
         readers = smartcard.System.listReaders()
         if len(readers) <= readernum:
-            logging.error("Invalid number of reader '%u' (only %u available)"
-                          % (readernum, len(readers)))
+            logging.error("Invalid number of reader '%u' (only %u available)",
+                          readernum, len(readers))
             sys.exit()
         # XXX this is a workaround, see on sourceforge bug #3083254
         # should better use
@@ -386,6 +410,9 @@ class RelayOS(SmartcardOS): # {{{
         atexit.register(self.cleanup)
 
     def cleanup(self):
+        """
+        Close the connection to the physical card
+        """
         try:
             self.session.close()
         except smartcard.Exceptions.CardConnectionException, e:
@@ -468,7 +495,7 @@ class VirtualICC(object): # {{{
     the vpcd, which forwards it to the application.
     """ 
     
-    def __init__(self, filename, type, host, port, lenlen=3, readernum=None):
+    def __init__(self, filename, card_type, host, port, lenlen=3, readernum=None):
         from os.path import exists
         
         logging.basicConfig(level = logging.INFO, 
@@ -476,7 +503,7 @@ class VirtualICC(object): # {{{
                             datefmt = "%d.%m.%Y %H:%M:%S") 
         
         self.filename = None
-        self.cardGenerator = CardGenerator.CardGenerator(type)
+        self.cardGenerator = CardGenerator(card_type)
         
         #If a filename is specified, try to load the card from disk      
         if filename != None:
@@ -489,19 +516,19 @@ class VirtualICC(object): # {{{
         
         MF, SAM = self.cardGenerator.getCard()
         
-        #Generate an OS object of the correct type
-        if type == "iso7816" or type == "ePass":
+        #Generate an OS object of the correct card_type
+        if card_type == "iso7816" or card_type == "ePass":
             self.os = Iso7816OS(MF, SAM)
-        elif type == "cryptoflex":
+        elif card_type == "cryptoflex":
             self.os = CryptoflexOS(MF, SAM)
-        elif type == "relay":
+        elif card_type == "relay":
             self.os = RelayOS(readernum)
         else:
-            logging.warning("Unknown cardtype %s. Will use standard type (ISO 7816)",
-                            type)
-            type = "iso7816"
+            logging.warning("Unknown cardtype %s. Will use standard card_type (ISO 7816)",
+                            card_type)
+            card_type = "iso7816"
             self.os = Iso7816OS(MF, SAM)
-        self.type = type
+        self.type = card_type
             
         #Connect to the VPCD
         try:
@@ -509,12 +536,13 @@ class VirtualICC(object): # {{{
             self.sock.settimeout(None)
         except socket.error, e:
             logging.error("Failed to open socket: %s", str(e))
-            logging.error("Is pcscd running at %s? Is vpcd loaded? Is a firewall blocking port %u?" % (host, port))
+            logging.error("Is pcscd running at %s? Is vpcd loaded? Is a firewall blocking port %u?",
+                          host, port)
             sys.exit()
                        
         self.lenlen = lenlen
 
-        logging.info("Connected to virtual PCD at %s:%u" % (host, port))
+        logging.info("Connected to virtual PCD at %s:%u", host, port)
 
         signal.signal(signal.SIGINT, self.signalHandler)
         atexit.register(self.stop)
@@ -583,11 +611,14 @@ class VirtualICC(object): # {{{
                     logging.warning("unknown control command")
             else:
                 if size != len(msg):
-                    logging.warning("Expected APDU of %u bytes, but received only %u" % (size, len(msg)))
+                    logging.warning("Expected %u bytes, but received only %u",
+                                    size, len(msg))
 
-                logging.info("APDU (%d Bytes):\n%s" % (len(msg), hexdump(msg, short=True)))
+                logging.info("APDU (%d Bytes):\n%s", len(msg),
+                             hexdump(msg, short=True))
                 answer = self.os.execute(msg)
-                logging.info("RESP (%d Bytes):\n%s\n" % (len(answer), hexdump(answer, short=True)))
+                logging.info("RESP (%d Bytes):\n%s\n", len(answer),
+                             hexdump(answer, short=True))
                 self.__sendToVPICC(answer)
 
     def stop(self):
