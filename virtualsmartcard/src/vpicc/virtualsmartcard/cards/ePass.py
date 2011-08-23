@@ -27,9 +27,9 @@ from os import urandom
 
 class ePass_SE(Security_Environment):
     
-    def __init__(self, MF, SE, ssc=None):
+    def __init__(self, SE, ssc=None):
         self.ssc = ssc
-        Security_Environment.__init__(self, MF, SE)
+        Security_Environment.__init__(self, SE)
            
     def compute_cryptographic_checksum(self, p1, p2, data):
         """
@@ -65,7 +65,7 @@ class PassportSAM(SAM):
         self.KSmac = None
         self.__computeKeys()
         SAM.__init__(self, None, None, mf)
-        self.current_SE = ePass_SE(mf, None, None)
+        self.current_SE = ePass_SE(None, None)
         self.current_SE.cct.algorithm = "CC"
         self.current_SE.ct.algorithm = "DES3-CBC"
         

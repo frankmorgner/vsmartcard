@@ -30,7 +30,8 @@ import struct, logging
 
 class CryptoflexSE(Security_Environment):
     def __init__(self, mf):
-        Security_Environment.__init__(self, mf)
+        Security_Environment.__init__(self)
+        self.mf = mf
 
     def generate_public_key_pair(self, p1, p2, data):
         """

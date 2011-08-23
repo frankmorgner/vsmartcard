@@ -16,13 +16,13 @@
 # You should have received a copy of the GNU General Public License along with
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 #
-import TLVutils
-from virtualsmartcard.ConstantDefinitions import CRT_TEMPLATE, ALGO_MAPPING, SM_Class
+from virtualsmartcard.TLVutils import pack, unpack, bertlv_pack
+from virtualsmartcard.ConstantDefinitions import CRT_TEMPLATE, ALGO_MAPPING, \
+    SM_Class
 from virtualsmartcard.utils import inttostring, stringtoint, C_APDU
 from virtualsmartcard.SWutils import SwError, SW
 import virtualsmartcard.CryptoUtils as vsCrypto
 
-import struct, logging
 from time import time
 from random import seed, randint
 
@@ -65,7 +65,7 @@ class ControlReferenceTemplate:
         @param config : a TLV string containing the configuration for the CRT. 
         """
         
-        structure = TLVutils.unpack(config)
+        structure = unpack(config)
         for tlv in structure:
             tag, length, value = tlv    
             if tag == 0x80:
@@ -135,12 +135,13 @@ class ControlReferenceTemplate:
         replace it. Otherwise append tag, length and value to the config string.
         """
         position = 0
-        while self.__config_string[position:position+1] != tag and position < len(self.__config_string):    
-            length = stringtoint(self.__config_string[position+1:position+2])
+        while position < len(self.__config_string) and \
+                self.__config_string[position] != tag:    
+            length = stringtoint(self.__config_string[position+1])
             position += length + 3
 
         if position < len(self.__config_string): #Replace Tag
-            length = stringtoint(self.__config_string[position+1:position+2])
+            length = stringtoint(self.__config_string[position+1])
             self.__config_string = self.__config_string[:position] +\
                                    chr(tag) + inttostring(len(data)) + data +\
                                    self.__config_string[position+2+length:]
@@ -160,7 +161,6 @@ class ControlReferenceTemplate:
 class Security_Environment(object):
     
     def __init__(self, MF, SAM):
-        self.mf = MF
         self.sam = SAM
         
         self.SEID = None
@@ -177,10 +177,7 @@ class Security_Environment(object):
         self.capdu_sm = False
         self.rapdu_sm = False
         self.internal_auth = False
-        self.externel_auth = False
-
-    def set_MF(self, mf):
-        self.mf = mf
+        self.external_auth = False
 
     def manage_security_environment(self, p1, p2, data):
         """
@@ -212,10 +209,10 @@ class Security_Environment(object):
             #Secure messaging in response data field
             if se & 0x02:
                 self.rapdu_sm = True
-            #Computation, decipherment, internal authentication and key agreement
+            #Computation, decryption, internal authentication and key agreement
             if se & 0x04: 
                 self.internal_auth = True
-            #Verification, encipherment, external authentication and key agreement
+            #Verification, encryption, external authentication and key agreement
             if se & 0x08:
                 self.external_auth = True
             return self.__set_SE(p2, data)
@@ -251,17 +248,17 @@ class Security_Environment(object):
         elif p2 == 0xB8:
             return self.ct.parse_SE_config(data)
        
-    def parse_SM_CAPDU(self, CAPDU, header_authentication):
+    def parse_SM_CAPDU(self, CAPDU, authenticate_header):
         """
         This methods parses a data field including Secure Messaging objects.
         SM_header indicates whether or not the header of the message shall be 
         authenticated. It returns an unprotected command APDU
         @param CAPDU: The protected CAPDU to be parsed
-        @param header_authentication: Wether or not the header should be
+        @param authenticate_header: Wether or not the header should be
                included in authentication mechanisms 
         @return: Unprotected command APDU
         """    
-        structure = TLVutils.unpack(CAPDU.data)
+        structure = unpack(CAPDU.data)
         return_data = ["",]
         expected = self.sm_objects
         
@@ -271,7 +268,7 @@ class Security_Environment(object):
         p2 = None
         le = None
         
-        if header_authentication:
+        if authenticate_header:
             to_authenticate = inttostring(CAPDU.cla) + inttostring(CAPDU.ins)+\
                               inttostring(CAPDU.p1) + inttostring(CAPDU.p2)
             to_authenticate = vsCrypto.append_padding("DES-CBC", to_authenticate)
@@ -292,7 +289,7 @@ class Security_Environment(object):
             #FIXME: Need to pack value into a dummy CAPDU
             elif tag in (SM_Class["PLAIN_VALUE_TLV_INCULDING_SM"],
                          SM_Class["PLAIN_VALUE_TLV_INCULDING_SM_ODD"]):
-                return_data.append(self.parse_SM_CAPDU(value, header_authentication)) 
+                return_data.append(self.parse_SM_CAPDU(value, authenticate_header)) 
             #Encapsulated plaintext BER-TLV objects
             elif tag in (SM_Class["PLAIN_VALUE_TLV_NO_SM"],
                          SM_Class["PLAIN_VALUE_TLV_NO_SM_ODD"]):
@@ -311,14 +308,14 @@ class Security_Environment(object):
             #SM data objects for confidentiality
             if tag in (SM_Class["CRYPTOGRAM_PLAIN_TLV_INCLUDING_SM"],
                        SM_Class["CRYPTOGRAM_PLAIN_TLV_INCLUDING_SM_ODD"]):
-                #The Cryptogram includes SM objects. 
+                #The cryptogram includes SM objects. 
                 #We decrypt them and parse the objects.
                 plain = self.decipher(tag, 0x80, value)
                 #TODO: Need Le = length
-                return_data.append(self.parse_SM_CAPDU(plain, header_authentication))
+                return_data.append(self.parse_SM_CAPDU(plain, authenticate_header))
             elif tag in (SM_Class["CRYPTOGRAM_PLAIN_TLV_NO_SM"],
                          SM_Class["CRYPTOGRAM_PLAIN_TLV_NO_SM_ODD"]):
-                #The Cryptogram includes BER-TLV enconded plaintext. 
+                #The cryptogram includes BER-TLV encoded plaintext. 
                 #We decrypt them and return the objects.
                 plain = self.decipher(tag, 0x80, value)
                 return_data.append(plain)
@@ -412,13 +409,13 @@ class Security_Environment(object):
         #    sw = inttostring(sw)
         #    length = len(sw) 
         #    tag = SM_Class["PLAIN_PROCESSING_STATUS"]
-        #    tlv_sw = TLVutils.pack([(tag,length,sw)])
+        #    tlv_sw = pack([(tag,length,sw)])
         #    return_data += tlv_sw
 
         if result != "": # Encrypt the data included in the RAPDU
             sw, encrypted = self.encipher(0x82, 0x80, result)
             encrypted = "\x01" + encrypted
-            encrypted_tlv = TLVutils.pack([(
+            encrypted_tlv = pack([(
                                 SM_Class["CRYPTOGRAM_PADDING_INDICATOR_ODD"],
                                 len(encrypted),
                                 encrypted)])
@@ -429,16 +426,16 @@ class Security_Environment(object):
                 raise SwError(SW["CONDITIONSNOTSATISFIED"])
             elif self.cct.algorithm == "CCT":
                 tag = SM_Class["CHECKSUM"]
-                to_auth = vsCrypto.append_padding("DES-ECB", return_data)
-                sw, auth = self.compute_cryptographic_checksum(0x8E, 0x80, to_auth)
+                padded = vsCrypto.append_padding("DES-ECB", return_data)
+                sw, auth = self.compute_cryptographic_checksum(0x8E, 0x80, padded)
                 length = len(auth)
-                return_data += TLVutils.pack([(tag, length, auth)])
+                return_data += pack([(tag, length, auth)])
             elif self.cct.algorithm == "SIGNATURE":
                 tag = SM_Class["DIGITAL_SIGNATURE"]
                 hash = self.hash(0x90, 0x80, return_data)
                 sw, auth = self.compute_digital_signature(0x9E, 0x9A, hash)
                 length = len(auth)
-                return_data += TLVutils.pack([(tag, length, auth)])
+                return_data += pack([(tag, length, auth)])
         
         return SW["NORMAL"], return_data
 
@@ -513,7 +510,7 @@ class Security_Environment(object):
             to_sign = data
         elif p2 == 0xAC: #Data objects, sign values
             to_sign = ""
-            structure = TLVutils.unpack(data)
+            structure = unpack(data)
             for tag, length, value in structure:
                 to_sign += value
         elif p2 == 0xBC: #Data objects to be signed
@@ -555,7 +552,7 @@ class Security_Environment(object):
         if algo == None or key == None:
             raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
 
-        structure = TLVutils.unpack(data)
+        structure = unpack(data)
         for tag, length, value in structure:
             if tag == 0x80:
                 plain = value
@@ -583,7 +580,7 @@ class Security_Environment(object):
         if key == None:
             raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
 
-        structure = TLVutils.unpack(data)
+        structure = unpack(data)
         for tag, length, value in structure:
             if tag == 0x9E:
                 signature = value
@@ -669,8 +666,8 @@ class Security_Environment(object):
             n = str(PublicKey.__getstate__()['n'])
             e = str(PublicKey.__getstate__()['e'])
             pk = ((0x81, len(n), n), (0x82, len(e), e))
-            result = TLVutils.bertlv_pack(pk)
-            #result = TLVutils.bertlv_pack((0x7F49, len(pk), pk))
+            result = bertlv_pack(pk)
+            #result = bertlv_pack((0x7F49, len(pk), pk))
             #Private key
             d = PublicKey.__getstate__()['d']
         elif cipher == "DSA":

@@ -81,7 +81,7 @@ class SAM(object):
 
         #Security Environments may be saved to/retrieved from this dictionary
         self.saved_SEs = {} 
-        self.current_SE = Security_Environment(self.mf, self)
+        self.current_SE = Security_Environment(self)
 
     def set_MF(self, mf):
         """
@@ -89,7 +89,6 @@ class SAM(object):
         needs a reference to the filesystem in order to store/retrieve keys.
         """
         self.mf = mf
-        self.current_SE.set_MF(mf)
        
     def FSencrypt(self, data):
         """
