@@ -380,10 +380,10 @@ class R_APDU(APDU):
         return self.data + self.sw
     
 if __name__ == "__main__":
-    a = C_APDU(1,2,3,4) # case 1
-    b = C_APDU(1,2,3,4,5) # case 2
-    c = C_APDU((1,2,3), cla=0x23, data="hallo") # case 3
-    d = C_APDU(1,2,3,4,2,4,6,0) # case 4
+    a = C_APDU(1, 2, 3, 4) # case 1
+    b = C_APDU(1, 2, 3, 4, 5) # case 2
+    c = C_APDU((1, 2, 3), cla = 0x23, data = "hallo") # case 3
+    d = C_APDU(1, 2, 3, 4, 2, 4, 6, 0) # case 4
     
     print
     print a
@@ -401,7 +401,7 @@ if __name__ == "__main__":
         print hexdump(i.render())
     
     print
-    e = R_APDU(0x90,0)
+    e = R_APDU(0x90, 0)
     f = R_APDU("foo\x67\x00")
 
     print
@@ -415,7 +415,7 @@ if __name__ == "__main__":
     for i in e, f:
         print hexdump(i.render())
 
-    g = C_APDU(0x00, 0xb0, 0x9c, 0x00, 0x00, 0x00, 0x00) # case 2 extended length
+    g = C_APDU(0x00, 0xb0, 0x9c, 0x00, 0x00, 0x00, 0x00) #case 2 extended length
     
     print
     print g
