@@ -22,9 +22,9 @@
 """
 from pickle import dumps, loads
 import logging
-from virtualsmartcard.ConstantDefinitions import *
+from virtualsmartcard.ConstantDefinitions import DCB, FDB, FID, LCB, REF
 from virtualsmartcard.TLVutils import *
-from virtualsmartcard.SWutils import *
+from virtualsmartcard.SWutils import SW, SwError
 from virtualsmartcard.utils import stringtoint, inttostring
 
 def isEqual(list): # {{{
@@ -100,7 +100,7 @@ def getfile_byrefdataobj(mf, refdataobjs): # {{{
 # }}}
 
 def write(old, newlist, offsets, datacoding, maxsize=None): # {{{
-    """Returns the status bytes and the result of a writeoperation according to
+    """Returns the status bytes and the result of a write operation according to
     the given data coding.
 
     @param old: string of old data
@@ -169,7 +169,7 @@ def get_indexes(items, reference=REF["IDENTIFIER_FIRST"], index_current=0): # {{
     if (reference in [REF["IDENTIFIER_FIRST"],
         REF["IDENTIFIER_LAST"]]
         or index_current == -1):
-        # Read first occurence OR
+        # Read first occurrence OR
         # Read last occurrence OR
         # No current record (and next/previous occurrence)
         indexes = range(0, len(items))
@@ -355,39 +355,39 @@ class File(object): # {{{
                 tlv_data.append(tag, newlength, newvalue)
         self.setdec(attribute, tlv_data)
 
-    def readbinary(*argz, **args):
+    def readbinary(self, *argz, **args):
         """Only a template, will raise an error."""
         raise SwError(SW["ERR_INCOMPATIBLEWITHFILE"])
 
-    def writebinary(*argz, **args):
+    def writebinary(self, *argz, **args):
         """Only a template, will raise an error."""
         raise SwError(SW["ERR_INCOMPATIBLEWITHFILE"])
 
-    def updatebinary(*argz, **args):
+    def updatebinary(self, *argz, **args):
         """Only a template, will raise an error."""
         raise SwError(SW["ERR_INCOMPATIBLEWITHFILE"])
 
-    def erasebinary(*argz, **args):
+    def erasebinary(self, *argz, **args):
         """Only a template, will raise an error."""
         raise SwError(SW["ERR_INCOMPATIBLEWITHFILE"])
 
-    def readrecord(*argz, **args):
+    def readrecord(self, *argz, **args):
         """Only a template, will raise an error."""
         raise SwError(SW["ERR_INCOMPATIBLEWITHFILE"])
 
-    def writerecord(*argz, **args):
+    def writerecord(self, *argz, **args):
         """Only a template, will raise an error."""
         raise SwError(SW["ERR_INCOMPATIBLEWITHFILE"])
 
-    def appendrecord(*argz, **args):
+    def appendrecord(self, *argz, **args):
         """Only a template, will raise an error."""
         raise SwError(SW["ERR_INCOMPATIBLEWITHFILE"])
 
-    def updaterecord(*argz, **args):
+    def updaterecord(self, *argz, **args):
         """Only a template, will raise an error."""
         raise SwError(SW["ERR_INCOMPATIBLEWITHFILE"])
 
-    def select(*argz, **args):
+    def select(self, *argz, **args):
         """Only a template, will raise an error."""
         raise SwError(SW["ERR_INCOMPATIBLEWITHFILE"])
 # }}}
@@ -1630,131 +1630,4 @@ class RecordStructureEF(EF): # {{{
             r.data = ""
             r.identifier = None
         return SW["NORMAL"]
-# }}}
-
-
-
-class CryptoflexMF(MF): # {{{
-
-    @staticmethod
-    def create(p1, p2, data):
-
-        if data[0:2] != "\xff\xff":
-            raise SwError(SW["ERR_INCORRECTPARAMETERS"])
-
-        args = {
-                "parent": None,
-                "filedescriptor": 0,
-                "fid": stringtoint(data[4:6]),
-                }
-        if data[6] == "\x01":
-            args["data"] = chr(0)*stringtoint(data[2:4])
-            args["filedescriptor"] = FDB["EFSTRUCTURE_TRANSPARENT"]
-            file = TransparentStructureEF(**args)
-        elif data[6] == "\x02":
-            if len(data)>16:
-                args["maxrecordsize"] = stringtoint(data[16])
-            elif p2:
-                # if given a number of records
-                args["maxrecordsize"] = (stringtoint(data[2:4])/p2)
-            args["filedescriptor"] = FDB["EFSTRUCTURE_LINEAR_FIXED_NOFURTHERINFO"]
-            file = RecordStructureEF(**args)
-        elif data[6] == "\x03":
-            args["filedescriptor"] = FDB["EFSTRUCTURE_LINEAR_VARIABLE_NOFURTHERINFO"]
-            file = RecordStructureEF(**args)
-        elif data[6] == "\x04":
-            args["filedescriptor"] = FDB["EFSTRUCTURE_CYCLIC_NOFURTHERINFO"]
-            file = RecordStructureEF(**args)
-        elif data[6] == "\x38":
-            if data[12] != "\x03":
-                raise SwError(SW["ERR_INCORRECTPARAMETERS"])
-            file = DF(**args)
-        else:
-            logging.error("unknown type: 0x%x" % ord(data[6]))
-            raise SwError(SW["ERR_INCORRECTPARAMETERS"])
-
-
-        return [file]
-
-    def recordHandlingDecode(self, p1, p2):
-        if p2 < 4:
-            p1 = 0
-
-        return MF.recordHandlingDecode(self, p1, p2)
-
-
-    def dataUnitsDecodePlain(self, p1, p2, data):
-        ef = self.currentEF()
-        # FIXME: Cyberflex Access TM Software Development Kit Release 3C
-        # enforces the following:
-        # offsets = [(p2 << 8) + p1]
-        # but smartcard_login-0.1.1 requires:
-        offsets = [(p1 << 8) + p2]
-
-        datalist = [data]
-        return ef, offsets, datalist
-
-    def selectFile(self, p1, p2, data):
-        """
-        Function for instruction 0xa4. Takes the parameter bytes 'p1', 'p2' as
-        integers and 'data' as binary string. Returns the status bytes as two
-        byte long integer and the response data as binary string.
-        """
-        P2_FCI  = 0
-        P2_FCP  = 1 << 2
-        P2_FMD  = 2 << 2
-        P2_NONE = 3 << 2
-        file = self._selectFile(p1, p2, data)
-
-        if isinstance(file, EF):
-            size = inttostring(min(0xffff, len(file.getenc('data'))), 2) # File size (body only)
-            extra = chr(0) # RFU
-            if isinstance(file, RecordStructureEF) and file.hasFixedRecordSize() and not file.isCyclic():
-                extra += chr(0) + chr(min(file.records, 0xff)) # Length of records
-        elif isinstance(file, DF):
-            size = inttostring(0xffff, 2) # Number of unused EEPROM bytes available in the DF
-            efcount = 0
-            dfcount = 0
-            chv1 = None
-            chv2 = None
-            chv1lifecycle = 0
-            chv2lifecycle = 0
-            for f in self.content:
-                if f.fid == 0x0000:
-                    chv1 = f
-                    chv1lifecycle = f.lifecycle & 1
-                if f.fid == 0x0100:
-                    chv2 = f
-                    chv2lifecycle = f.lifecycle & 1
-                if isinstance(f, EF):
-                    efcount += 1
-                if isinstance(f, DF):
-                    dfcount += 1
-            if chv1:
-                extra = chr(1) # TODO LSB correct?
-            else:
-                extra = chr(0) # TODO LSB correct?
-            extra += chr(efcount)
-            extra += chr(dfcount)
-            extra += chr(0) # TODO Number of PINs and unblock CHV PINs
-            extra += chr(0) # RFU
-            if chv1:
-                extra += chr(0) # TODO Number of remaining CHV1 attempts
-                extra += chr(0) # TODO Number of remaining unblock CHV1 attempts
-                if chv2:
-                    extra += chr(0) # TODO CHV2 key status
-                    extra += chr(0) # TODO CHV2 unblocking key status
-
-        data = inttostring(0, 2) # RFU
-        data += size
-        data += inttostring(file.fid, 2)
-        data += inttostring(file.filedescriptor) # File type
-        data += inttostring(0, 4) # ACs TODO
-        data += chr(file.lifecycle & 1) # File status
-        data += chr(len(extra))
-        data += extra
-
-        self.current = file
-
-        return SW["NORMAL"], data
 # }}}

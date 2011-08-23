@@ -25,7 +25,7 @@ from virtualsmartcard.SmartcardFilesystem import MF, DF, TransparentStructureEF
 from virtualsmartcard.ConstantDefinitions import FDB
 from virtualsmartcard.CryptoUtils import protect_string, read_protected_string
 import virtualsmartcard.SmartcardSAM
-from virtualsmartcard.cards.cryptoflex import CryptoflexSAM
+from virtualsmartcard.cards.cryptoflex import CryptoflexSAM, CryptoflexMF
 from virtualsmartcard.cards.ePass import PassportSAM
 
 # pgp directory
@@ -132,8 +132,6 @@ class CardGenerator(object):
         self.sam = PassportSAM(self.mf)
     
     def __generate_cryptoflex(self):
-        from virtualsmartcard.SmartcardFilesystem import CryptoflexMF
-                       
         self.mf = CryptoflexMF()
         self.mf.append(TransparentStructureEF(parent=self.mf, fid=0x0002,
                        filedescriptor=0x01,
