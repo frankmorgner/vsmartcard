@@ -51,11 +51,10 @@ def get_referenced_cipher(p1):
  
 class SAM(object):
     """
-    This class is used to store the data needed by the SAM
-    It includes the PIN, the master key of the SAM and a
-    hashmap containing all the keys used by the file encryption
-    system. The keys in the hashmap are indexed via the path
-    to the corresponding container.
+    This class is used to store the data needed by the SAM.
+    It includes the PIN, the master key of the SAM and a hashmap containing all 
+    the keys used by the file encryption system. The keys in the hashmap are
+    indexed via the path to the corresponding container.
     """
 
     def __init__(self, PIN, cardNumber, mf=None, cardSecret=None):
@@ -80,11 +79,15 @@ class SAM(object):
             else:
                 self.cardSecret = cardSecret  
 
-        #Security Environments may be saved and retrieved from/to this dictionary
+        #Security Environments may be saved to/retrieved from this dictionary
         self.saved_SEs = {} 
         self.current_SE = Security_Environment(self.mf, self)
 
     def set_MF(self, mf):
+        """
+        Setter function for the internal reference to the Filesystem. The SAM
+        needs a reference to the filesystem in order to store/retrieve keys.
+        """
         self.mf = mf
         self.current_SE.set_MF(mf)
        
@@ -161,7 +164,7 @@ class SAM(object):
         equals zero, block the card until reset with correct PUK
         """
         
-        logging.debug("Received PIN: %s" % PIN.strip())
+        logging.debug("Received PIN: %s", PIN.strip())
         PIN = PIN.replace("\0","") #Strip NULL characters
         
         if p1 != 0x00:
@@ -276,7 +279,7 @@ class SAM(object):
         
         length = 8 #Length of the challenge in Byte
         self.last_challenge = urandom(length)
-        logging.debug("Generated challenge: %s" % self.last_challenge)
+        logging.debug("Generated challenge: %s", self.last_challenge)
 
         return SW["NORMAL"], self.last_challenge
     
@@ -321,14 +324,21 @@ class SAM(object):
         else: 
             raise SwError(SW["ERR_REFNOTUSABLE"])
                
-    #The following commands define the interface to the Secure Messaging functions
+    #The following commands define the Secure Messaging interface
     def generate_public_key_pair(self, p1, p2, data):
         return self.current_SE.generate_public_key_pair(p1, p2, data)
 
     def parse_SM_CAPDU(self, CAPDU, header_authentication):
+        """
+        Parse a command APDU protected by Secure Messaging and return the
+        unprotected command APDU
+        """
         return self.current_SE.parse_SM_CAPDU(CAPDU, header_authentication)
     
     def protect_result(self, sw, unprotected_result):
+        """
+        Protect a plain response APDU by Secure Messaging
+        """
         return self.current_SE.protect_response(sw, unprotected_result)
 
     def perform_security_operation(self, p1, p2, data):
@@ -337,10 +347,8 @@ class SAM(object):
     def manage_security_environment(self, p1, p2, data):
         return self.current_SE.manage_security_environment(p1, p2, data)
    
+#Unit Tests   
 if __name__ == "__main__":
-    """
-    Unit test:
-    """
 
     password = "DUMMYKEYDUMMYKEY"
 
@@ -356,11 +364,11 @@ if __name__ == "__main__":
     sw, challenge = MyCard.get_challenge(0x00, 0x00, "")
     print "Before encryption: " + challenge
     padded = vsCrypto.append_padding("DES3-ECB", challenge)
-    sw, result = MyCard.internal_authenticate(0x00, 0x00, padded)
+    sw, result_data = MyCard.internal_authenticate(0x00, 0x00, padded)
     print "Internal Authenticate status code: %x" % sw
 
     try:
-        sw, res = MyCard.external_authenticate(0x00, 0x00, result)
+        sw, res = MyCard.external_authenticate(0x00, 0x00, result_data)
     except SwError, e:
         print e.message
         sw = e.sw
