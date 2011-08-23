@@ -24,7 +24,7 @@ from virtualsmartcard.utils import inttostring
 from virtualsmartcard.SmartcardFilesystem import MF, DF, TransparentStructureEF
 from virtualsmartcard.ConstantDefinitions import FDB
 from virtualsmartcard.CryptoUtils import protect_string, read_protected_string
-import virtualsmartcard.SmartcardSAM
+from virtualsmartcard.SmartcardSAM import SAM
 from virtualsmartcard.cards.cryptoflex import CryptoflexSAM, CryptoflexMF
 from virtualsmartcard.cards.ePass import PassportSAM
 
@@ -40,6 +40,9 @@ from virtualsmartcard.cards.ePass import PassportSAM
     #fid=3, dfname='\xa0\x00\x00\x03\x08\x00\x00\x10\x00\x01\x00'))  
 
 class CardGenerator(object):
+    """This class is used to generate the SAM and filesystem for the 
+    different supported card types. It is also able used for persistent storage
+    (in encrypted form) of the card on disks. """
     
     def __init__(self, card_type=None, sam=None, mf=None):
         self.type = card_type
@@ -53,7 +56,7 @@ class CardGenerator(object):
         logging.warning("Using default SAM parameters. PIN=%s, Card Nr=%s"
                         & (default_pin, default_cardno))
         #TODO: Use user provided data
-        self.sam = virtualsmartcard.SmartcardSAM.SAM(default_pin, default_cardno)
+        self.sam = SAM(default_pin, default_cardno)
         
         self.mf = MF(filedescriptor=FDB["DF"])
         self.sam.set_MF(self.mf)
@@ -61,7 +64,8 @@ class CardGenerator(object):
     def __generate_ePass(self):
         from PIL import Image
             
-        MRZ = raw_input("Please enter the MRZ as one string: ") #TODO: Sanity checks
+        #TODO: Sanity checks
+        MRZ = raw_input("Please enter the MRZ as one string: ")
 
         readline.set_completer_delims("")
         readline.parse_and_bind("tab: complete")
@@ -132,6 +136,7 @@ class CardGenerator(object):
         self.sam = PassportSAM(self.mf)
     
     def __generate_cryptoflex(self):
+        """Generate the Filesystem and SAM of a cryptoflex card"""
         self.mf = CryptoflexMF()
         self.mf.append(TransparentStructureEF(parent=self.mf, fid=0x0002,
                        filedescriptor=0x01,
