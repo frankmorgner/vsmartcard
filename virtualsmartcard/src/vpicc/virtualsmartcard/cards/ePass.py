@@ -61,8 +61,6 @@ class PassportSAM(SAM):
         self.KSeed = None 
         self.KEnc = None
         self.KMac = None
-        self.KSenc = None
-        self.KSmac = None
         self.__computeKeys()
         SAM.__init__(self, None, None, mf)
         self.current_SE = ePass_SE(None, None)
@@ -120,17 +118,11 @@ class PassportSAM(SAM):
         data = plain[8:16] + plain[:8] + Kicc
         Eicc = vsCrypto.encrypt("DES3-CBC", self.KEnc, data)
         Micc = self._mac(self.KMac, Eicc)
-        #Derive the final keys
+        #Derive the final keys and set the current SE
         KSseed = vsCrypto.operation_on_string(Kicc, Kifd, lambda a, b: a^b)
-        self.KSenc = self.derive_key(KSseed, 1)
-        self.KSmac = self.derive_key(KSseed, 2)
-        #self.ssc = rnd_icc[-4:] + rnd_ifd[-4:]
-        #Set the current SE
-        self.current_SE.ct.key = self.KSenc
-        self.current_SE.cct.key = self.KSmac
+        self.current_SE.ct.key = self.derive_key(KSseed, 1)
+        self.current_SE.cct.key = self.derive_key(KSseed, 2)
         self.current_SE.ssc = stringtoint(rnd_icc[-4:] + rnd_ifd[-4:])
-        self.current_SE.ct.algorithm = "DES3-CBC"
-        self.current_SE.cct.algorithm = "CC"
         return SW["NORMAL"], Eicc + Micc
         
     def _mac(self, key, data, ssc = None, dopad=True):
