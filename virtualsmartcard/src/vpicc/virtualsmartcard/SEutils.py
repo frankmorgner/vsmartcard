@@ -641,9 +641,18 @@ class Security_Environment(object):
             return SW["NORMAL"], plain
 
     def generate_public_key_pair(self, p1, p2, data):
+        """The GENERATE PUBLIC-KEY PAIR command either initiates the generation 
+        and storing of a key pair, i.e., a public key and a private key, in the
+        card, or accesses a key pair previously generated in the card.
+        
+        @param p1:
+        @param p2:'00' (no information provided) or reference of the key to be
+                generated
+        @param data: One or more CRTs associated to the key generation if P1-P2 
+                     different from '0000' 
+
         """
-        Generate a new public-private key pair.
-        """
+        
         from Crypto.PublicKey import RSA, DSA
         from Crypto.Util.randpool import RandomPool
         rnd = RandomPool()
@@ -667,7 +676,6 @@ class Security_Environment(object):
             e = str(PublicKey.__getstate__()['e'])
             pk = ((0x81, len(n), n), (0x82, len(e), e))
             result = bertlv_pack(pk)
-            #result = bertlv_pack((0x7F49, len(pk), pk))
             #Private key
             d = PublicKey.__getstate__()['d']
         elif cipher == "DSA":
@@ -677,14 +685,20 @@ class Security_Environment(object):
             g = str(PublicKey.__getstate__()['g'])
             #Public key
             y = str(PublicKey.__getstate__()['y'])
-            #TODO: Actual encoding
+            pk = ((0x81, len(p), p), (0x82, len(q), q), (0x83, len(g), g), 
+                  (0x84, len(y), y))
             #Private key
             x = str(PublicKey.__getstate__()['x'])
         #Add more algorithms here
-           
+        #elif cipher = "ECDSA":
+        else:
+            raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
+
+        result = bertlv_pack((0x7F49, len(pk), pk))
+        #TODO: Internally store key pair
 
         if p1 & 0x02 == 0x02:
-            return SW["NORMAL"], result
+            #We do not support extended header lists yet
+            raise SwError["ERR_NOTSUPPORTED"]
         else:
-            #FIXME: Where to put the keys?
-            return SW["NORMAL"], ""
+            return SW["NORMAL"], result
