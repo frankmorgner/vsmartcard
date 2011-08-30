@@ -186,7 +186,7 @@ main(int argc, char *argv[])
     SCARDHANDLE hCard;
     LPSTR readers = NULL;
     BYTE sendbuf[16], recvbuf[1024];
-    DWORD ctl, recvlen, protocol;
+    DWORD pace_ctl, modify_ctl, recvlen, protocol;
     time_t t_start, t_end;
     size_t l, pinlen = 0;
     char *pin = NULL;
@@ -275,25 +275,28 @@ main(int argc, char *argv[])
         goto err;
     }
 
-    ctl = 0;
+    pace_ctl = 0;
     for (i = 0; i <= recvlen-PCSC_TLV_ELEMENT_SIZE; i += PCSC_TLV_ELEMENT_SIZE) {
         if (recvbuf[i] == FEATURE_EXECUTE_PACE) {
-            memcpy(&ctl, recvbuf+i+2, 4);
-            break;
+            memcpy(&pace_ctl, recvbuf+i+2, 4);
+        }
+        if (recvbuf[i] == FEATURE_MODIFY_PIN_DIRECT) {
+            memcpy(&modify_ctl, recvbuf+i+2, 4);
         }
     }
-    if (0 == ctl) {
+    if (0 == pace_ctl) {
         printf("Reader does not support PACE\n");
         goto err;
     }
     /* convert to host byte order to use for SCardControl */
-    ctl = ntohl(ctl);
+    pace_ctl = ntohl(pace_ctl);
+    modify_ctl = ntohl(modify_ctl);
 
     recvlen = sizeof(recvbuf);
     sendbuf[0] = 0x01;              /* idxFunction = GetReadersPACECapabilities */
     sendbuf[1] = 0x00;              /* lengthInputData */
     sendbuf[2] = 0x00;              /* lengthInputData */
-    r = SCardControl(hCard, ctl,
+    r = SCardControl(hCard, pace_ctl,
             sendbuf, 3,
             recvbuf, sizeof(recvbuf), &recvlen);
     if (r != SCARD_S_SUCCESS) {
@@ -314,7 +317,7 @@ main(int argc, char *argv[])
     sendbuf[6+pinlen] = 0x00;       /* length certificate description */
     sendbuf[7+pinlen] = 0x00;       /* length certificate description */
     t_start = time(NULL);
-    r = SCardControl(hCard, ctl,
+    r = SCardControl(hCard, pace_ctl,
             sendbuf, 8+pinlen,
             recvbuf, sizeof(recvbuf), &recvlen);
     t_end = time(NULL);
@@ -389,6 +392,20 @@ main(int argc, char *argv[])
         fprintf(stderr, "Could not reconnect\n");
         goto err;
     }
+#endif
+
+#ifdef MODIFY_PIN
+    if (0 == modify_ctl) {
+        printf("Reader does not support MODIFY_PIN_DIRECT\n");
+        goto err;
+    }
+
+	BYTE = bufs2[] = {0x15, 0x05, 0x82, 0x08, 0x00, 0x00, 0x00, 0x06, 0x06,
+		0x01, 0x02, 0x02, 0x09, 0x04, 0x00, 0x01, 0x02, 0x00, 0x00, 0x00, 0x05,
+		0x00, 0x00, 0x00, 0x00, 0x2C, 0x02, 0x03, 0x00};
+	recvlen = sizeof(recvbuf);
+	rv = SCardControl(hCard, modify_ioctl, bufs2,
+			sizeof bufs2, recvbuf, sizeof recvbuf, &recvlen);
 #endif
 
 err:

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Frank Morgner
+ * Copyright (C) 2011 Frank Morgner
  *
  * This file is part of ccid.
  *
@@ -19,6 +19,7 @@
 #include "npa.h"
 #include "sm.h"
 #include "scutil.h"
+#include "sslutil.h"
 #include <libopensc/asn1.h>
 #include <libopensc/log.h>
 #include <libopensc/opensc.h>
@@ -904,15 +905,6 @@ get_psec(sc_card_t *card, const char *pin, size_t length_pin, enum s_type pin_id
     }
 
     return r;
-}
-
-void ssl_error(sc_context_t *ctx) {
-    unsigned long r;
-    ERR_load_crypto_strings();
-    for (r = ERR_get_error(); r; r = ERR_get_error()) {
-        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, ERR_error_string(r, NULL));
-    }
-    ERR_free_strings();
 }
 
 int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,

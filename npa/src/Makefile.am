@@ -2,7 +2,7 @@ EXTRA_DIST = $(shell find $(top_srcdir)/src/opensc -path '*/.svn' -prune -o -typ
 
 AM_CPPFLAGS = -I$(top_srcdir)/src/npa -I$(top_srcdir)/src/opensc/src
 
-libnpa_la_SOURCES = sm.c scutil.c npa.c
+libnpa_la_SOURCES = sm.c scutil.c npa.c sslutil.c
 libnpa_la_LIBADD = $(OPENSSL_LIBS) $(OPENSC_LIBS)
 libnpa_la_CFLAGS = $(OPENSSL_CFLAGS)
 
@@ -16,6 +16,7 @@ bin_PROGRAMS = npa-tool
 lib_LTLIBRARIES = libnpa.la
 
 noinst_HEADERS = \
+		 sslutil.h \
 		 binutil.h
 
 nobase_include_HEADERS = \

@@ -2,7 +2,7 @@ EXTRA_DIST = $(shell find $(top_srcdir)/src/opensc -path '*/.svn' -prune -o -typ
 
 AM_CPPFLAGS = -I$(top_srcdir)/src/opensc/src
 
-ccid_emulator_SOURCES = ccid.c usbstring.c usb.c binutil.c
+ccid_emulator_SOURCES = ccid.c usbstring.c usb.c binutil.c sslutil.c
 ccid_emulator_LDADD =  $(OPENSSL_LIBS) $(PTHREAD_LIBS)
 ccid_emulator_CFLAGS = $(OPENSSL_CFLAGS) $(PTHREAD_CFLAGS)
 
@@ -18,6 +18,7 @@ noinst_HEADERS = \
 		 pcscutil.h \
 		 scutil.h \
 		 ccid.h \
+		 sslutil.h \
 		 usbstring.h
 
 if WITH_CCID

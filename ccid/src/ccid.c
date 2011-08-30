@@ -27,6 +27,7 @@
 #include <string.h>
 
 #include "ccid.h"
+#include "sslutil.h"
 #include "config.h"
 
 #ifdef WITH_PACE
@@ -48,12 +49,14 @@ static sc_context_t *ctx = NULL;
 static sc_card_t *card = NULL;
 static sc_reader_t *reader = NULL;
 
+unsigned int skipfirst = 0;
+
 struct ccid_class_descriptor
 ccid_desc = {
     .bLength                = sizeof ccid_desc,
     .bDescriptorType        = 0x21,
     .bcdCCID                = __constant_cpu_to_le16(0x0110),
-    .bMaxSlotIndex          = 1,
+    .bMaxSlotIndex          = 0,
     .bVoltageSupport        = 0x01,  // 5.0V
     .dwProtocols            = __constant_cpu_to_le32(
                               0x01|  // T=0
@@ -242,7 +245,12 @@ static __u8 get_bStatus(int sc_result)
     int flags;
     __u8 bstatus = 0;
 
-    flags = detect_card_presence();
+	if (skipfirst > 10)
+		flags = detect_card_presence();
+	else {
+		skipfirst += 1;
+		flags = SC_SUCCESS;
+	}
 
     if (flags >= 0) {
         if (sc_result < 0) {
@@ -435,8 +443,8 @@ perform_PC_to_RDR_IccPowerOff(const __u8 *in, size_t inlen, __u8 **out, size_t *
             || request->abRFU2 != 0)
         sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "warning: malformed PC_to_RDR_IccPowerOff");
 
-    sc_reset(card, 1);
-    sc_result = sc_disconnect_card(card);
+    //sc_reset(card, 1);
+    //sc_result = sc_disconnect_card(card);
 
     return get_RDR_to_PC_SlotStatus(request->bSeq, sc_result,
                 out, outlen, NULL, 0);
@@ -689,8 +697,7 @@ write_pin_length(sc_apdu_t *apdu, const struct sc_pin_cmd_pin *pin,
 
     if (!apdu || !apdu->data || !pin || apdu->datalen <= pin->length_offset ||
             !sc_result) {
-        if (sc_result)
-            *sc_result = SC_ERROR_INVALID_ARGUMENTS;
+        *sc_result = SC_ERROR_INVALID_ARGUMENTS;
         return 0;
     }
 
@@ -1112,6 +1119,7 @@ static int
 perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outlen)
 {
     int sc_result;
+	u8 curr_pin_data[0xff], new_pin_data[0xff];
     struct sc_pin_cmd_pin curr_pin, new_pin;
     sc_apdu_t apdu;
     const PC_to_RDR_Secure_t *request = (PC_to_RDR_Secure_t *) in;
@@ -1123,6 +1131,12 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
 
     memset(&curr_pin, 0, sizeof(curr_pin));
     memset(&new_pin, 0, sizeof(new_pin));
+    memset(curr_pin_data, 0, sizeof curr_pin_data);
+    memset(new_pin_data, 0, sizeof new_pin_data);
+	curr_pin.data = curr_pin_data;
+	curr_pin.len = sizeof curr_pin_data;
+	new_pin.data = new_pin_data;
+	new_pin.len = sizeof new_pin_data;
 
 
     if (!in || !out || !outlen)
@@ -1225,6 +1239,12 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
 
     new_pin.min_length = curr_pin.min_length = wPINMaxExtraDigit >> 8;
     new_pin.min_length = curr_pin.max_length = wPINMaxExtraDigit & 0x00ff;
+	if (new_pin.min_length > new_pin.max_length) {
+		/* If maximum length is smaller than minimum length, suppose minimum
+		 * length defines the exact length of the pin. */
+		curr_pin.max_length = curr_pin.min_length;
+		new_pin.max_length = new_pin.min_length;
+	}
     uint8_t system_units = bmFormatString & CCID_PIN_UNITS_BYTES;
     uint8_t pin_offset = (bmFormatString >> 3) & 0xf;
     uint8_t length_offset = bmPINLengthFormat & 0xf;
@@ -1259,6 +1279,7 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
                 0)) {
             sc_result = SC_ERROR_INTERNAL;
             sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Could not read PIN.\n");
+			ssl_error(ctx);
             goto err;
         }
     } else {
@@ -1270,6 +1291,7 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
                         0)) {
                 sc_result = SC_ERROR_INTERNAL;
                 sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Could not read current PIN.\n");
+				ssl_error(ctx);
                 goto err;
             }
         }
@@ -1280,6 +1302,10 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
                     modify->bConfirmPIN & CCID_PIN_CONFIRM_NEW)) {
             sc_result = SC_ERROR_INTERNAL;
             sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Could not read new PIN.\n");
+			sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "min %d max %d confirm %d.\n",
+					new_pin.min_length, new_pin.max_length, modify->bConfirmPIN
+					& CCID_PIN_CONFIRM_NEW);
+			ssl_error(ctx);
             goto err;
         }
     }
@@ -1321,14 +1347,8 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
     sc_mem_clear((u8 *) apdu.data, apdu.datalen);
 
 err:
-    if (curr_pin.data) {
-        sc_mem_clear((u8 *) curr_pin.data, curr_pin.len);
-        free((u8 *) curr_pin.data);
-    }
-    if (new_pin.data) {
-        sc_mem_clear((u8 *) new_pin.data, new_pin.len);
-        free((u8 *) new_pin.data);
-    }
+    sc_mem_clear((u8 *) curr_pin.data, curr_pin.len);
+    sc_mem_clear((u8 *) new_pin.data, new_pin.len);
 
     sc_result = get_RDR_to_PC_DataBlock(request->bSeq, sc_result, out,
             outlen, abDataOut, abDataOutLen);
