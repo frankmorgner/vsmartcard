@@ -112,7 +112,6 @@ def strip_padding(cipherspec, data, padding_class=0x01):
     Strip the padding of decrypted data. Returns data without padding
     """
     
-    #TODO: Sanity check
     if padding_class == 0x01:
         tail = len(data) - 1
         while data[tail] != '\x80':
@@ -120,6 +119,17 @@ def strip_padding(cipherspec, data, padding_class=0x01):
         return data[:tail]
     
 def crypto_checksum(algo, key, data, iv=None, ssc=None):
+    """
+    Compute various types of cryptographic checksums.
+    @param algo: A string specifying the algorithm to use. Currently supported
+                 algorithms are \"MAX\" \"HMAC\" and \"CC\" (Meaning a 
+                 cryptographic checksum as used by the ICAO passports)
+    @param key:  They key used to computed the cryptographic checksum
+    @param data: The data for which to calculate the checksum
+    @iv: Optional. An initialization vector. Only used by the \"MAC\" algorithm
+    @ssc: Optional. A send sequence counter to be prepended to the data. Only
+          used by the \"CC\" algorithm
+    """
     if algo not in ("HMAC", "MAC", "CC"):
         raise ValueError, "Unknown Algorithm %s" % algo
     
