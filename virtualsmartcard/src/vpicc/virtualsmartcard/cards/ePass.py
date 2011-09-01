@@ -104,13 +104,13 @@ class PassportSAM(SAM):
         #Receive Mutual Authenticate APDU from terminal
         #Decrypt data and check MAC
         Eifd = resp_data[:-8]
-        Mifd = self._mac(self.KMac, Eifd)
+	padded_Eifd = vsCrypto.append_padding("DES", Eifd)
+        Mifd = vsCrypto.crypto_checksum("CC", self.KMac, padded_Eifd)
         #Check the MAC
         if not Mifd == resp_data[-8:]:
             raise SwError(SW["ERR_SECMESSOBJECTSINCORRECT"])
         #Decrypt the data
         plain = vsCrypto.decrypt("DES3-CBC", self.KEnc, resp_data[:-8])
-        #Split decrypted data into the two nonces and 
         if plain[8:16] != rnd_icc:
             raise SwError(SW["WARN_NOINFO63"])
         #Extract keying material from IFD, generate ICC keying material
@@ -120,24 +120,11 @@ class PassportSAM(SAM):
         #Generate Answer
         data = plain[8:16] + plain[:8] + Kicc
         Eicc = vsCrypto.encrypt("DES3-CBC", self.KEnc, data)
-        Micc = self._mac(self.KMac, Eicc)
+	padded_Eicc = vsCrypto.append_padding("DES", Eicc)
+        Micc = vsCrypto.crypto_checksum("CC", self.KMac, padded_Eicc)
         #Derive the final keys and set the current SE
         KSseed = vsCrypto.operation_on_string(Kicc, Kifd, lambda a, b: a^b)
         self.current_SE.ct.key = self.derive_key(KSseed, 1)
         self.current_SE.cct.key = self.derive_key(KSseed, 2)
         self.current_SE.ssc = stringtoint(rnd_icc[-4:] + rnd_ifd[-4:])
         return SW["NORMAL"], Eicc + Micc
-        
-    @staticmethod
-    def _mac(key, data, ssc = None, dopad=True):
-        """ Compute a message authentication code using a given key and an
-        optional send sequence counter."""
-        if ssc:
-            data = ssc + data
-        if dopad:
-            topad = 8 - len(data) % 8
-            data = data + "\x80" + ("\x00" * (topad-1))
-        a = vsCrypto.encrypt("des-cbc", key[:8], data)
-        b = vsCrypto.decrypt("des-ecb", key[8:16], a[-8:])
-        c = vsCrypto.encrypt("des-ecb", key[:8], b)
-        return c
