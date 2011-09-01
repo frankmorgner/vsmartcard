@@ -77,12 +77,13 @@ class PassportSAM(SAM):
         """
 
         MRZ_information = self.mrz2[0:10] + self.mrz2[13:20] + self.mrz2[21:28]
-        H = hashlib.sha1(MRZ_information).digest()
+        H = hashlib.sha1(MRZ_information).digest() #pylint: disable=E1101
         self.KSeed = H[:16]
         self.KEnc = self.derive_key(self.KSeed, 1)
         self.KMac = self.derive_key(self.KSeed, 2)
         
-    def derive_key(self, seed, c):
+    @staticmethod
+    def derive_key(seed, c):
         """
         Derive a key according to TR-PKI mrtds ICC read-only access v1.1
         annex E.1.
@@ -90,7 +91,7 @@ class PassportSAM(SAM):
         Returns: Ka + Kb
         Note: Does not adjust parity. Nobody uses that anyway ..."""
         D = seed + struct.pack(">i", c)
-        H = hashlib.sha1(D).digest()
+        H = hashlib.sha1(D).digest() #pylint: disable=E1101
         Ka = H[0:8]
         Kb = H[8:16]
         return Ka + Kb
@@ -127,7 +128,8 @@ class PassportSAM(SAM):
         self.current_SE.ssc = stringtoint(rnd_icc[-4:] + rnd_ifd[-4:])
         return SW["NORMAL"], Eicc + Micc
         
-    def _mac(self, key, data, ssc = None, dopad=True):
+    @staticmethod
+    def _mac(key, data, ssc = None, dopad=True):
         """ Compute a message authentication code using a given key and an
         optional send sequence counter."""
         if ssc:
