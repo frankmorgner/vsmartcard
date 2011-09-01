@@ -48,6 +48,7 @@ class CardGenerator(object):
         self.type = card_type
         self.mf = mf
         self.sam = sam
+        self.password = None
     
     def __generate_iso_card(self):
         default_pin = "1234"
@@ -62,6 +63,10 @@ class CardGenerator(object):
         self.sam.set_MF(self.mf)
            
     def __generate_ePass(self):
+        """Generate the MF and SAM of an ICAO passport. This method is 
+        responsible for generating the filesystem and filling it with content.
+        Therefore it must interact with the user by prompting for the MRZ and
+        optionally for the path to a photo."""
         from PIL import Image
             
         #TODO: Sanity checks
@@ -168,28 +173,28 @@ class CardGenerator(object):
             self.sam = sam
         
     
-    def loadCard(self, filename, password=None):
+    def loadCard(self, filename):
         """Load a card from disk"""
         db = anydbm.open(filename, 'r')
         
-        if password is None:
-            password = getpass.getpass("Please enter your password:")
+        if self.password is None:
+            self.password = getpass.getpass("Please enter your password:")
         
-        serializedMF = read_protected_string(db["mf"], password)
-        serializedSAM = read_protected_string(db["sam"], password)
+        serializedMF = read_protected_string(db["mf"], self.password)
+        serializedSAM = read_protected_string(db["sam"], self.password)
         self.sam = loads(serializedSAM)
         self.mf = loads(serializedMF)
         self.type = db["type"]
             
-    def saveCard(self, filename, password=None):
+    def saveCard(self, filename):
         """Save the currently running card to disk"""
-        if password is None:
+        if self.password is None:
             passwd1 = getpass.getpass("Please enter your password:")
             passwd2 = getpass.getpass("Please retype your password:")
             if (passwd1 != passwd2):
                 raise ValueError, "Passwords did not match. Will now exit"
             else:
-                password = passwd1
+                self.password = passwd1
         
         if self.mf == None or self.sam == None:
             raise ValueError, "Card Generator wasn't set up properly" +\
@@ -197,8 +202,8 @@ class CardGenerator(object):
         
         mf_string = dumps(self.mf)
         sam_string = dumps(self.sam)
-        protectedMF = protect_string(mf_string, password)
-        protectedSAM = protect_string(sam_string, password)
+        protectedMF = protect_string(mf_string, self.password)
+        protectedSAM = protect_string(sam_string, self.password)
         
         db = anydbm.open(filename, 'c')
         db["mf"] = protectedMF
