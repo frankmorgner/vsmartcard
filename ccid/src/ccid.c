@@ -703,7 +703,8 @@ write_pin_length(sc_apdu_t *apdu, const struct sc_pin_cmd_pin *pin,
 
     if (!apdu || !apdu->data || !pin || apdu->datalen <= pin->length_offset ||
             !sc_result) {
-        *sc_result = SC_ERROR_INVALID_ARGUMENTS;
+		if (sc_result)
+			*sc_result = SC_ERROR_INVALID_ARGUMENTS;
         return 0;
     }
 
@@ -1503,6 +1504,8 @@ int ccid_parse_bulkout(const __u8* inbuf, size_t inlen, __u8** outbuf)
 
     if (!inbuf)
         return 0;
+
+	bin_log(ctx, SC_LOG_DEBUG_VERBOSE, "CCID input", inbuf, inlen);
 
     switch (*inbuf) {
         case 0x62: 

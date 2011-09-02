@@ -284,6 +284,7 @@ main(int argc, char *argv[])
             memcpy(&modify_ctl, recvbuf+i+2, 4);
         }
     }
+
     if (0 == pace_ctl) {
         printf("Reader does not support PACE\n");
         goto err;
@@ -292,6 +293,8 @@ main(int argc, char *argv[])
     pace_ctl = ntohl(pace_ctl);
     modify_ctl = ntohl(modify_ctl);
 
+#define TESTPACE 1
+#ifdef TESTPACE
     recvlen = sizeof(recvbuf);
     sendbuf[0] = 0x01;              /* idxFunction = GetReadersPACECapabilities */
     sendbuf[1] = 0x00;              /* lengthInputData */
@@ -338,6 +341,7 @@ main(int argc, char *argv[])
 
     printf("Established PACE channel returned in %.0fs.\n",
             difftime(t_end, t_start));
+#endif
 
 
 #ifdef SIMULATE_TA_CA
@@ -396,17 +400,18 @@ main(int argc, char *argv[])
     }
 #endif
 
+#define MODIFY_PIN 1
 #ifdef MODIFY_PIN
     if (0 == modify_ctl) {
         printf("Reader does not support MODIFY_PIN_DIRECT\n");
         goto err;
     }
 
-	BYTE = bufs2[] = {0x15, 0x05, 0x82, 0x08, 0x00, 0x00, 0x00, 0x06, 0x06,
+	BYTE bufs2[] = {0x15, 0x05, 0x82, 0x08, 0x00, 0x00, 0x00, 0x06, 0x06,
 		0x01, 0x02, 0x02, 0x09, 0x04, 0x00, 0x01, 0x02, 0x00, 0x00, 0x00, 0x05,
 		0x00, 0x00, 0x00, 0x00, 0x2C, 0x02, 0x03, 0x00};
 	recvlen = sizeof(recvbuf);
-	rv = SCardControl(hCard, modify_ioctl, bufs2,
+	r = SCardControl(hCard, modify_ctl, bufs2,
 			sizeof bufs2, recvbuf, sizeof recvbuf, &recvlen);
 #endif
 
