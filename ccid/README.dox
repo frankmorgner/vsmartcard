@@ -30,6 +30,10 @@ http://docs.openmoko.org/trac/ticket/2206). If you also want to switch multiple
 times between gadgetfs and g_ether, another patch is needed (see
 https://docs.openmoko.org/trac/ticket/2240).
 
+If you are using a more recent version of dummy_hcd, you maybe want to check
+out this patch:
+http://comments.gmane.org/gmane.linux.usb.general/47440
+
 
 @subsection o HINTS ON OPENSC
 

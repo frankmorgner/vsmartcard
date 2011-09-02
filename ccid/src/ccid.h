@@ -160,10 +160,6 @@ typedef struct {
     __u8   bNumberMessage;
     __le16 wLangId;
     __u8   bMsgIndex1;
-    __u8   bMsgIndex2;
-    __u8   bMsgIndex3;
-    __u8   bTeoPrologue1;
-    __le16 bTeoPrologue2;
 } __attribute__ ((packed)) abPINDataStucture_Modification_t;
 
 typedef struct {
