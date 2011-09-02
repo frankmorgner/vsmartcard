@@ -695,6 +695,26 @@ get_effective_offset(uint8_t system_units, uint8_t off, size_t *eff_off,
     return 1;
 }
 
+static size_t
+get_datasize_for_pin(const struct sc_pin_cmd_pin *pin, uint8_t length_size)
+{
+    size_t bytes_for_length, bytes_for_pin;
+
+    if (!pin)
+        return 0;
+
+    bytes_for_length = pin->length_offset + (length_size+7)/8;
+    if (pin->encoding == CCID_PIN_ENCODING_BCD)
+        bytes_for_pin = pin->offset + (pin->len+1)/2;
+    else
+        bytes_for_pin = pin->offset + pin->len;
+
+    if (bytes_for_length > bytes_for_pin)
+        return bytes_for_length;
+
+    return bytes_for_pin;
+}
+
 static int
 write_pin_length(sc_apdu_t *apdu, const struct sc_pin_cmd_pin *pin,
         uint8_t system_units, uint8_t length_size, int *sc_result)
@@ -1129,7 +1149,7 @@ static int
 perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outlen)
 {
     int sc_result;
-	u8 curr_pin_data[0xff], new_pin_data[0xff];
+	u8 curr_pin_data[0xff], new_pin_data[0xff], apdu_data[0xf];
     struct sc_pin_cmd_pin curr_pin, new_pin;
     sc_apdu_t apdu;
     const PC_to_RDR_Secure_t *request = (PC_to_RDR_Secure_t *) in;
@@ -1333,9 +1353,6 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
                     modify->bConfirmPIN & CCID_PIN_CONFIRM_NEW)) {
             sc_result = SC_ERROR_INTERNAL;
             sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Could not read new PIN.\n");
-			sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "min %d max %d confirm %d.\n",
-					new_pin.min_length, new_pin.max_length, modify->bConfirmPIN
-					& CCID_PIN_CONFIRM_NEW);
 			ssl_error(ctx);
             goto err;
         }
@@ -1347,30 +1364,70 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
         new_pin.len = strnlen((char *) new_pin.data, new_pin.max_length);
     }
 
-    /* Note: pin.offset and pin.length_offset are relative to the first
-     * databyte */
-    if (verify) {
-        if (!get_effective_offset(system_units, pin_offset, &curr_pin.offset,
-                    &sc_result))
+    if (!apdu.datalen || !apdu.data) {
+        /* Host did not provide any data in the APDU, so we have to assign
+         * something for the pin block */
+        if (verify)
+            apdu.lc = get_datasize_for_pin(&curr_pin, length_size);
+        else {
+            apdu.lc = get_datasize_for_pin(&new_pin, length_size);
+            if (modify->bConfirmPIN & CCID_PIN_INSERT_OLD) {
+                if (get_datasize_for_pin(&curr_pin, length_size) > apdu.lc)
+                    apdu.lc = get_datasize_for_pin(&curr_pin, length_size);
+            }
+        }
+
+        if (apdu.lc > sizeof apdu_data) {
+            sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Not enough memory for PIN block.\n");
+            sc_result = SC_ERROR_INTERNAL;
             goto err;
-    } else {
-        if (modify->bConfirmPIN & CCID_PIN_INSERT_OLD) {
-            curr_pin.offset = modify->bInsertionOffsetOld;
-            new_pin.offset = modify->bInsertionOffsetNew;
-            if (!write_pin(&apdu, &new_pin, blocksize, justify_right, encoding,
-                        &sc_result))
-                goto err;
-        } else {
-            curr_pin.offset = modify->bInsertionOffsetNew;
+        }
+
+        apdu.data = apdu_data;
+        apdu.datalen = apdu.lc;
+
+        switch (apdu.cse) {
+            case SC_APDU_CASE_1:
+                apdu.cse = SC_APDU_CASE_3_SHORT;
+                break;
+            case SC_APDU_CASE_2_SHORT:
+                apdu.cse = SC_APDU_CASE_4_SHORT;
+                break;
+            case SC_APDU_CASE_2_EXT:
+                apdu.cse = SC_APDU_CASE_4_EXT;
+                break;
+            default:
+                /* Don't change APDU Case */
+                break;
         }
     }
-    if (!get_effective_offset(system_units, length_offset,
-                &curr_pin.length_offset, &sc_result)
-            || !write_pin_length(&apdu, &curr_pin, system_units, length_size,
-                &sc_result)
-            || !write_pin(&apdu, &curr_pin, blocksize, justify_right, encoding,
-                &sc_result))
-        goto err;
+
+    /* Note: pin.offset and pin.length_offset are relative to the first
+     * databyte */
+    if (verify || (modify->bConfirmPIN & CCID_PIN_INSERT_OLD)) {
+        if (!get_effective_offset(system_units, pin_offset, &curr_pin.offset,
+                    &sc_result)
+                || !write_pin(&apdu, &curr_pin, blocksize, justify_right, encoding,
+                    &sc_result)
+                || !get_effective_offset(system_units, length_offset,
+                    &curr_pin.length_offset, &sc_result)
+                || !write_pin_length(&apdu, &curr_pin, system_units, length_size,
+                    &sc_result)) {
+            sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Writing current PIN to PIN block failed.\n");
+            goto err;
+        }
+    }
+    if (modify) {
+        if (modify->bInsertionOffsetOld != curr_pin.offset) {
+            sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Inconsistent PIN block proberties.\n");
+            sc_result = SC_ERROR_INVALID_DATA;
+            goto err;
+        }
+        new_pin.offset = modify->bInsertionOffsetNew;
+        if (!write_pin(&apdu, &new_pin, blocksize, justify_right, encoding,
+                    &sc_result))
+            goto err;
+    }
 
     sc_result = get_rapdu(&apdu, &abDataOut, &abDataOutLen);
 
