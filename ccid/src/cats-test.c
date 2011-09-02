@@ -316,6 +316,7 @@ main(int argc, char *argv[])
     memcpy(sendbuf+6, pin, pinlen); /* PIN */
     sendbuf[6+pinlen] = 0x00;       /* length certificate description */
     sendbuf[7+pinlen] = 0x00;       /* length certificate description */
+
     t_start = time(NULL);
     r = SCardControl(hCard, pace_ctl,
             sendbuf, 8+pinlen,
@@ -330,7 +331,8 @@ main(int argc, char *argv[])
 
     r = parse_EstablishPACEChannel_OutputData(recvbuf, recvlen);
     if (r != SCARD_S_SUCCESS) {
-        printb("EstablishPACEChannel", recvbuf, recvlen);
+		printb("EstablishPACEChannel InBuffer\n", sendbuf, 8+pinlen);
+        printb("EstablishPACEChannel OutBuffer\n", recvbuf, recvlen);
         goto err;
     }
 

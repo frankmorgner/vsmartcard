@@ -1524,6 +1524,8 @@ special:
                     if (verbose > 1)
                         fprintf(stderr, "control loop: writing %d bytes... ", result);
                     result = write (fd, outbuf, result);
+					/* TODO outbuf should also be freed on error */
+					free(outbuf);
                     if (result < 0)
                         goto stall;
                     if (verbose > 1)

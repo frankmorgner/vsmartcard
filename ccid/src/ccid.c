@@ -111,11 +111,17 @@ detect_card_presence(void)
 
     if (sc_result == 0
             && card) {
-        sc_disconnect_card(card);
+		/* FIXME recent OpenSC versions throw an error when disconnecting an
+		 * obsolete card handle
+        sc_disconnect_card(card); */
+		card = NULL;
         sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "Card removed");
     }
     if (sc_result & SC_READER_CARD_CHANGED) {
-        sc_disconnect_card(card);
+		/* FIXME recent OpenSC versions throw an error when disconnecting an
+		 * obsolete card handle
+        sc_disconnect_card(card); */
+		card = NULL;
         sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "Card exchanged");
     }
     if (sc_result & SC_READER_CARD_PRESENT
@@ -851,6 +857,9 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
         sc_result = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
     }
+
+	bin_log(ctx, SC_LOG_DEBUG_VERBOSE, "EstablishPACEChannel InBuffer",
+			abData, abDatalen);
 
     if (abDatalen < parsed+1) {
         sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Buffer too small, could not get PinID");
