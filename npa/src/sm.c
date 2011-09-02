@@ -578,6 +578,9 @@ int sm_transmit_apdu(struct sm_ctx *sctx, sc_card_t *card,
     sc_apdu_t sm_apdu;
     u8 rbuf[0xffff], sbuf[0xffff];
 
+    if (!card)
+        return SC_ERROR_INVALID_ARGUMENTS;
+
     sm_apdu.data = sbuf;
     sm_apdu.datalen = sizeof sbuf;
     sm_apdu.resp = rbuf;
