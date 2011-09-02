@@ -1,7 +1,7 @@
 Index: ccid-1.4.4/src/ccid.h
 ===================================================================
---- ccid-1.4.4.orig/src/ccid.h	2011-08-09 12:43:45.364997651 +0200
-+++ ccid-1.4.4/src/ccid.h	2011-08-09 12:44:14.611616565 +0200
+--- ccid-1.4.4.orig/src/ccid.h	2011-05-13 10:56:01.000000000 +0200
++++ ccid-1.4.4/src/ccid.h	2011-09-02 16:07:03.000000000 +0200
 @@ -142,8 +142,10 @@
  #define CCID_CLASS_EXCHANGE_MASK	0x00070000
  
@@ -52,8 +52,8 @@ Index: ccid-1.4.4/src/ccid.h
  #define ISO_DATA_RATES 10753, 14337, 15625, 17204, \
 Index: ccid-1.4.4/src/ccid_ifdhandler.h
 ===================================================================
---- ccid-1.4.4.orig/src/ccid_ifdhandler.h	2011-08-09 12:43:45.373002117 +0200
-+++ ccid-1.4.4/src/ccid_ifdhandler.h	2011-08-09 13:00:19.457796237 +0200
+--- ccid-1.4.4.orig/src/ccid_ifdhandler.h	2010-06-04 14:31:15.000000000 +0200
++++ ccid-1.4.4/src/ccid_ifdhandler.h	2011-09-02 16:07:03.000000000 +0200
 @@ -59,4 +59,9 @@
  CcidDesc *get_ccid_slot(unsigned int reader_index);
  
@@ -66,8 +66,8 @@ Index: ccid-1.4.4/src/ccid_ifdhandler.h
  
 Index: ccid-1.4.4/src/commands.c
 ===================================================================
---- ccid-1.4.4.orig/src/commands.c	2011-08-09 12:43:45.381006510 +0200
-+++ ccid-1.4.4/src/commands.c	2011-08-09 12:46:11.466014831 +0200
+--- ccid-1.4.4.orig/src/commands.c	2011-02-22 23:20:26.000000000 +0100
++++ ccid-1.4.4/src/commands.c	2011-09-02 16:07:03.000000000 +0200
 @@ -75,6 +75,18 @@
  	unsigned int tx_length, unsigned char tx_buffer[], unsigned int *rx_length,
  	unsigned char rx_buffer[]);
@@ -450,8 +450,8 @@ Index: ccid-1.4.4/src/commands.c
  *
 Index: ccid-1.4.4/src/commands.h
 ===================================================================
---- ccid-1.4.4.orig/src/commands.h	2011-08-09 12:43:45.393012512 +0200
-+++ ccid-1.4.4/src/commands.h	2011-08-09 12:44:14.615618285 +0200
+--- ccid-1.4.4.orig/src/commands.h	2010-06-04 14:31:15.000000000 +0200
++++ ccid-1.4.4/src/commands.h	2011-09-02 16:07:03.000000000 +0200
 @@ -37,6 +37,14 @@
  	unsigned char TxBuffer[], unsigned int TxLength,
  	unsigned char RxBuffer[], unsigned int *RxLength);
@@ -469,9 +469,9 @@ Index: ccid-1.4.4/src/commands.h
  	unsigned char RxBuffer[], unsigned int *RxLength);
 Index: ccid-1.4.4/src/ifdhandler.c
 ===================================================================
---- ccid-1.4.4.orig/src/ifdhandler.c	2011-08-09 12:43:45.409020406 +0200
-+++ ccid-1.4.4/src/ifdhandler.c	2011-08-09 12:50:19.537986427 +0200
-@@ -65,6 +65,71 @@
+--- ccid-1.4.4.orig/src/ifdhandler.c	2011-05-11 11:46:00.000000000 +0200
++++ ccid-1.4.4/src/ifdhandler.c	2011-09-02 16:12:56.000000000 +0200
+@@ -65,6 +65,73 @@
  static unsigned int T1_card_timeout(double f, double d, int TC1, int BWI,
  	int CWI, int clock_frequency);
  static int get_IFSC(ATR_t *atr, int *i);
@@ -506,15 +506,17 @@ Index: ccid-1.4.4/src/ifdhandler.c
 +
 +    switch(*TxBuffer) {
 +        case 1:
++			i = RxLength;
 +            r = SecurePINPACECapabilities(reader_index,
 +                    TxBuffer+3, lengthInputData, RxBuffer, &i);
-+            *pdwBytesReturned = i;
++			*pdwBytesReturned = i;
 +            return r;
 +
 +        case 2:
++			i = RxLength;
 +            r = SecurePINPACEVerify(reader_index, TxBuffer+3,
 +                    lengthInputData, RxBuffer, &i);
-+            *pdwBytesReturned = i;
++			*pdwBytesReturned = i;
 +            return r;
 +
 +        default:
@@ -543,7 +545,7 @@ Index: ccid-1.4.4/src/ifdhandler.c
  
  
  EXTERNAL RESPONSECODE IFDHCreateChannelByName(DWORD Lun, LPSTR lpcDevice)
-@@ -1400,6 +1465,17 @@
+@@ -1400,6 +1467,17 @@
  			iBytesReturned += sizeof(PCSC_TLV_STRUCTURE);
  		}
  
@@ -561,7 +563,7 @@ Index: ccid-1.4.4/src/ifdhandler.c
  		/* We can always forward wLcdLayout */
  		pcsc_tlv -> tag = FEATURE_IFD_PIN_PROPERTIES;
  		pcsc_tlv -> length = 0x04; /* always 0x04 */
-@@ -1582,6 +1658,12 @@
+@@ -1582,6 +1660,12 @@
  		}
  	}
  
