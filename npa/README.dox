@@ -5,7 +5,7 @@ German identity card (neuer Personalausweis, nPA). The library also implements
 secure messaging, which could also be used for other cards.
 
 npa is implemented using OpenPACE 0.6 (http://sourceforge.net/projects/openpace/).
-Some fragments of the source code are on the source code of the OpenSC tools.
+Some fragments of the source code are based on the source code of the OpenSC tools.
 
 The included npa-tool has support for Password Authenticated Connection
 Establishment (PACE). npa-tool can be used for PIN management or to encrypt
