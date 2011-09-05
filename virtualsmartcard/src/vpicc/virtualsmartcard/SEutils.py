@@ -36,7 +36,8 @@ class ControlReferenceTemplate:
     def __init__(self, tag, config=""):
         """
         Generates a new CRT
-        @param type: Type of the CRT (HT, AT, KT, CCT, DST, CT-sym, CT-asym) 
+        @param tag: Indicates the type of the CRT (HT, AT, KT, CCT, DST, CT-sym,
+                    CT-asym) 
         @param config: A string containing TLV encoded Security Environment
                        parameters 
         """

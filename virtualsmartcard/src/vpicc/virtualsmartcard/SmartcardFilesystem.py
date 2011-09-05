@@ -17,8 +17,8 @@
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 #
 """
-@todo use bertlv_pack for fdm
-@todo zu lange daten abschneiden und trotzdem tlv laenge beibehalten
+TODO: use bertlv_pack for fdm
+TODO: zu lange daten abschneiden und trotzdem tlv laenge beibehalten
 """
 from pickle import dumps, loads
 import logging

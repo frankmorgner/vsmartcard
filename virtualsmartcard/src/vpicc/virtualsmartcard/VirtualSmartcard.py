@@ -123,19 +123,19 @@ class Iso7816OS(SmartcardOS): # {{{
     def makeATR(**args): # {{{
         """Calculate Answer to Reset (ATR) and returns the bitstring.
         
-        directConvention -- Bool. Whether to use direct convention or inverse 
-                            convention.
-        TAi, TBi, TCi    -- (optional) Value between 0 and 0xff. Interface
+            - directConvention (bool): Whether to use direct convention or 
+                                       inverse convention.
+            - TAi, TBi, TCi (optional): Value between 0 and 0xff. Interface
                             Characters (for meaning see ISO 7816-3). Note that
                             if no transmission protocol is given, it is 
                             automatically selected with T=max{j-1|TAj in args 
                             OR TBj in args OR TCj in args}.
-        T                -- (optional) Value between 0 and 15. Transmission 
-                            Protocol. Note that if T is set, TAi/TBi/TCi for 
-                            i>T are omitted.
-        histChars        -- (optional) Bitstring with 0 <= len(histChars) <= 15.
-                            Historical Characters T1 to T15 (for meaning see
-                            ISO 7816-4).
+            - T (optional): Value between 0 and 15. Transmission Protocol. 
+                            Note that if T is set, TAi/TBi/TCi for i>T are 
+                            omitted.
+            - histChars (optional): Bitstring with 0 <= len(histChars) <= 15.
+                                    Historical Characters T1 to T15 (for meaning 
+                                    see ISO 7816-4).
         
         T0, TDi and TCK are automatically calculated.
         """

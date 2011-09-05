@@ -126,8 +126,8 @@ def crypto_checksum(algo, key, data, iv=None, ssc=None):
                  cryptographic checksum as used by the ICAO passports)
     @param key:  They key used to computed the cryptographic checksum
     @param data: The data for which to calculate the checksum
-    @iv: Optional. An initialization vector. Only used by the \"MAC\" algorithm
-    @ssc: Optional. A send sequence counter to be prepended to the data. Only
+    @param iv: Optional. An initialization vector. Only used by the \"MAC\" algorithm
+    @param ssc: Optional. A send sequence counter to be prepended to the data. Only
           used by the \"CC\" algorithm
     """
     if algo not in ("HMAC", "MAC", "CC"):

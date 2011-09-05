@@ -158,8 +158,8 @@ class APDU(object):
         
         The keyword arguments can then be used to override those values.
         Keywords recognized are: 
-            C_APDU: cla, ins, p1, p2, lc, le, data
-            R_APDU: sw, sw1, sw2, data
+            - C_APDU: cla, ins, p1, p2, lc, le, data
+            - R_APDU: sw, sw1, sw2, data
         """
         
         initbuff = list()
