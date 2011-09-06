@@ -95,7 +95,8 @@ FID["PATHSELECTION"] = 0x3FFF
 FID["RESERVED"]      = 0x3FFF
 # }}}
 
-#SM constants {{{
+#Secure Messaging constants
+#{{{
 SM_Class = {}
 
 #Basic secure messaging objects

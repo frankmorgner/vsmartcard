@@ -263,8 +263,9 @@ class Iso7816OS(SmartcardOS): # {{{
         except ValueError, e:
             logging.warning(str(e))
             return self.formatResult(0, "", SW["ERR_INCORRECTPARAMETERS"], False)
-
-        #Handle Class Byte{{{
+        
+        #Handle Class Byte
+        #{{{
         class_byte = c.cla
         SM_STATUS = None
         logical_channel = 0

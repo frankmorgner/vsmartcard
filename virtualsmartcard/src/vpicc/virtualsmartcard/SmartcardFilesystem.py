@@ -220,7 +220,7 @@ def make_property(prop, doc): # {{{
 # }}}
 
 
-class File(object): # {{{
+class File(object):
     """Template class for a smartcard file."""
     bertlv_data    = make_property("bertlv_data", "list of (tag, length, value)-tuples of BER-TLV coded data objects (encrypted)")
     lifecycle      = make_property("lifecycle", "life cycle byte")
