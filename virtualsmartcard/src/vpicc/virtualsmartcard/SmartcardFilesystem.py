@@ -27,7 +27,7 @@ from virtualsmartcard.TLVutils import *
 from virtualsmartcard.SWutils import SW, SwError
 from virtualsmartcard.utils import stringtoint, inttostring
 
-def isEqual(list): # {{{
+def isEqual(list): 
     """Returns True, if all items are equal, otherwise False"""
     if len(list) > 1:
         for item in list:
@@ -35,9 +35,9 @@ def isEqual(list): # {{{
                 return False
 
     return True
-# }}}
 
-def walk(start, path): # {{{
+
+def walk(start, path): 
     """Walks a path of fids and returns the last file (EF or DF).
 
     start         -- DF, where to look for the first fid
@@ -54,9 +54,9 @@ def walk(start, path): # {{{
         index = index + 2
 
     return start
-# }}}
 
-def getfile_byrefdataobj(mf, refdataobjs): # {{{
+
+def getfile_byrefdataobj(mf, refdataobjs): 
     """Returns a list of files according to the given list of reference data
     objects.
 
@@ -97,9 +97,9 @@ def getfile_byrefdataobj(mf, refdataobjs): # {{{
         result.append(file)
 
     return result
-# }}}
 
-def write(old, newlist, offsets, datacoding, maxsize=None): # {{{
+
+def write(old, newlist, offsets, datacoding, maxsize=None): 
     """Returns the status bytes and the result of a write operation according to
     the given data coding.
 
@@ -153,9 +153,9 @@ def write(old, newlist, offsets, datacoding, maxsize=None): # {{{
         listindex = listindex + 1
 
     return result
-# }}}
 
-def get_indexes(items, reference=REF["IDENTIFIER_FIRST"], index_current=0): # {{{
+
+def get_indexes(items, reference=REF["IDENTIFIER_FIRST"], index_current=0): 
     """
     Returns all indexes of the list, which are specified by 'reference' and by
     the current index 'index_current' (-1 for no current item) in the correct
@@ -186,9 +186,9 @@ def get_indexes(items, reference=REF["IDENTIFIER_FIRST"], index_current=0): # {{
         # Read next occurrence
         indexes = range(index_current + 1, len(items))
     return indexes
-# }}}
 
-def prettyprint_anything(indent, thing): # {{{
+
+def prettyprint_anything(indent, thing): 
     """
     Returns a recursively generated string representation of an object and its
     attributes.
@@ -205,9 +205,9 @@ def prettyprint_anything(indent, thing): # {{{
             for item in newvalue:
                 s = s + "\n" + prettyprint_anything(indent + "  ", item)
     return s
-# }}}
 
-def make_property(prop, doc): # {{{
+
+def make_property(prop, doc): 
     """
     Assigns a property to the calling object. This is used to decorate instance
     variables with docstrings.
@@ -217,7 +217,7 @@ def make_property(prop, doc): # {{{
             lambda self, value: setattr(self, "_"+prop, value),
             lambda self:        delattr(self, "_"+prop),
             doc)
-# }}}
+
 
 
 class File(object):
@@ -390,10 +390,10 @@ class File(object):
     def select(self, *argz, **args):
         """Only a template, will raise an error."""
         raise SwError(SW["ERR_INCOMPATIBLEWITHFILE"])
-# }}}
 
 
-class DF(File): # {{{
+
+class DF(File): 
     """Class for a dedicated file"""
     data    = make_property("data", "unknown")
     content = make_property("content", "list of files of the DF")
@@ -490,10 +490,10 @@ class DF(File): # {{{
     def remove(self, file):
         """Removes 'file' from the content of the DF"""
         self.content.remove(file)
-# }}}
 
 
-class MF(DF): # {{{
+
+class MF(DF): 
     """Class for a master file"""
     current   = make_property("current", "the currently selected file")
     firstSFT  = make_property("firstSFT", "string of length 1. The first software function table from the historical bytes.")
@@ -513,7 +513,7 @@ class MF(DF): # {{{
 
 
     @staticmethod
-    def makeFirstSoftwareFunctionTable(# {{{
+    def makeFirstSoftwareFunctionTable(
             DFSelectionByFullDFName=True, DFSelectionByPartialDFName=True,
             DFSelectionByPath=True, DFSelectionByFID=True,
             DFSelectionByApplication_implicite=True, ShortFIDSupported=True,
@@ -549,16 +549,16 @@ class MF(DF): # {{{
         if RecordIdentifierSupported:
             fsft |= 1
         return fsft
-    # }}}
+    
 
     @staticmethod
-    def makeSecondSoftwareFunctionTable(DCB=DCB["ONETIMEWRITE"]|1): # {{{
+    def makeSecondSoftwareFunctionTable(DCB=DCB["ONETIMEWRITE"]|1): 
         """
         The second software function table from the historical bytes contains
         the data coding byte.
         """
         return DCB
-    # }}}
+    
         
     def currentDF(self):
         """Returns the current DF."""
@@ -1295,10 +1295,10 @@ class MF(DF): # {{{
         # FIXME: free memory of file and remove its content from the security device
 
         return SW["NORMAL"], ""
-# }}}
 
 
-class EF(File): # {{{
+
+class EF(File): 
     """Template class for an elementary file."""
     shortfid   = make_property("shortfid", "integer with 1<=shortfid<=30. Short EF identifier.")
     datacoding = make_property("datacoding", "integer. Data coding byte.")
@@ -1323,10 +1323,10 @@ class EF(File): # {{{
                 simpletlv_data,
                 bertlv_data)
         self.datacoding = datacoding
-# }}}
 
 
-class TransparentStructureEF(EF): # {{{
+
+class TransparentStructureEF(EF): 
     """Class for an elementary file with transparent structure."""
     data = make_property("data", "string (encrypted). The file's data.")
     def __init__(self, parent, fid, filedescriptor=FDB["EFSTRUCTURE_TRANSPARENT"],
@@ -1391,10 +1391,10 @@ class TransparentStructureEF(EF): # {{{
 
         data = data[0:erasefrom] + data[eraseto:len(data)]
         self.setdec('data', data)
-# }}}
 
 
-class Record(object): # {{{
+
+class Record(object): 
     data       = make_property("data", "string. The record's data.")
     identifier = make_property("identifier", "integer with 1<= identifier< = 0xfe. The record's identifier.")
     """Class for a Record of an elementary of record structure"""
@@ -1412,10 +1412,10 @@ class Record(object): # {{{
         """Returns a string of the object using an prettyprint_anything."""
         return prettyprint_anything("", self)
     __repr__ = __str__
-# }}}
 
 
-class RecordStructureEF(EF): # {{{
+
+class RecordStructureEF(EF): 
     """Class for an elementary file with record structure."""
     records       = make_property("records", "list of records (encrypted)")
     maxrecordsize = make_property("maxrecordsize", "integer. maximum length of a record's data.")
@@ -1630,4 +1630,4 @@ class RecordStructureEF(EF): # {{{
             r.data = ""
             r.identifier = None
         return SW["NORMAL"]
-# }}}
+

@@ -19,7 +19,7 @@
 MAX_SHORT_LE = 0xff
 MAX_EXTENDED_LE = 0xffff
 
-# Life cycle status byte {{{
+# Life cycle status byte 
 LCB = {}
 LCB["NOINFORMATION"]  = 0x00
 LCB["CREATION"]       = 0x01
@@ -27,15 +27,15 @@ LCB["INITIALISATION"] = 0x03
 LCB["ACTIVATED"]      = 0x05
 LCB["DEACTIVATED"]    = 0x04
 LCB["TERMINATION"]    = 0x0C
-# }}}
-# Channel security attribute {{{
+
+# Channel security attribute 
 CS = {}
 CS["NOTSHAREABLE"]      = 0x01
 CS["SECURED"]           = 0x02
 CS["USERAUTHENTICATED"] = 0x03
-# }}}
-# Security attribute {{{
-# Security attribute, Access mode byte for DFs/EFs {{{
+
+# Security attribute 
+# Security attribute, Access mode byte for DFs/EFs 
 SA = {}
 SA["AM_DF_DELETESELF"]     = SA["AM_EF_DELETEFILE"]     = 0x40
 SA["AM_DF_TERMINATEDF"]    = SA["AM_EF_TERMINATEFILE"]  = 0x20
@@ -44,8 +44,8 @@ SA["AM_DF_DEACTIVATEFILE"] = SA["AM_EF_DEACTIVATEFILE"] = 0x08
 SA["AM_DF_CREATEDF"]       = SA["AM_EF_WRITEBINARY"]    = 0x04
 SA["AM_DF_CREATEEF"]       = SA["AM_EF_UPDATEBINARY"]   = 0x02
 SA["AM_DF_DELETECHILD"]    = SA["AM_EF_READBINARY"]     = 0x01
-# }}}
-# Security attribute in compact format, Security condition byte {{{
+
+# Security attribute in compact format, Security condition byte 
 SA["CF_SC_NOCONDITION"]                = 0x00
 SA["CF_SC_NEVER"]                      = 0xFF
 SA["__CF_SC_ATLEASTONE"]               = 0x80
@@ -59,9 +59,9 @@ SA["CF_SC_ONE_USERAUTHENTICATION"]     = SA["__CF_SC_ATLEASTONE"]|SA["__CF_SC_US
 SA["CF_SC_ALL_SECUREMESSAGING"]        = SA["__CF_SC_ALLCONDITIONS"]|SA["__CF_SC_SECUREMESSAGING"]
 SA["CF_SC_ALL_EXTERNALAUTHENTICATION"] = SA["__CF_SC_ALLCONDITIONS"]|SA["__CF_SC_EXTERNALAUTHENTICATION"]
 SA["CF_SC_ALL_USERAUTHENTICATION"]     = SA["__CF_SC_ALLCONDITIONS"]|SA["__CF_SC_USERAUTHENTICATION"]
-# }}}
-# }}}
-# Data coding byte {{{
+
+
+# Data coding byte 
 DCB = {}
 DCB["ONETIMEWRITE"]     = 0x00
 DCB["PROPRIETARY"]      = 0x20     # we use it for XOR
@@ -69,8 +69,8 @@ DCB["WRITEOR"]          = 0x40
 DCB["WRITEAND"]         = 0x60
 DCB["BERTLV_FFVALID"]   = 0x10
 DCB["BERTLV_FFINVALID"] = 0x10
-# }}}
-# File descriptor byte {{{
+
+# File descriptor byte 
 FDB = {}
 FDB["NOTSHAREABLEFILE"]                          = 0x00
 FDB["SHAREABLEFILE"]                             = 0x40
@@ -85,18 +85,17 @@ FDB["EFSTRUCTURE_LINEAR_VARIABLE_NOFURTHERINFO"] = 0x04
 FDB["EFSTRUCTURE_LINEAR_VARIABLESIMPLETLV"]      = 0x05
 FDB["EFSTRUCTURE_CYCLIC_NOFURTHERINFO"]          = 0x06
 FDB["EFSTRUCTURE_CYCLIC_SIMPLETLV"]              = 0x07
-# }}}
-# File identifier {{{
+
+# File identifier 
 FID = {}
 FID["EFDIR"]         = 0x2F00
 FID["EFATR"]         = 0x2F00
 FID["MF"]            = 0x3F00
 FID["PATHSELECTION"] = 0x3FFF
 FID["RESERVED"]      = 0x3FFF
-# }}}
+
 
 #Secure Messaging constants
-#{{{
 SM_Class = {}
 
 #Basic secure messaging objects
@@ -213,7 +212,7 @@ ALGO_MAPPING[0x0B] = "CC"
 ALGO_MAPPING[0x0C] = "RSA"
 ALGO_MAPPING[0x0D] = "DSA"
 
-# Recerence control for select command, and record handling commands {{{
+# Recerence control for select command, and record handling commands 
 REF = {
     "IDENTIFIER_FIRST"    : 0x00,
     "IDENTIFIER_LAST"     : 0x01,
@@ -226,4 +225,4 @@ REF = {
     "NUMBER_CONTROL"      : 0x07,
     "REFERENCE_CONTROL"   : 0x07,
         }
-# }}}
+

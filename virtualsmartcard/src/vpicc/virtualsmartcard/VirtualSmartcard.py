@@ -26,7 +26,7 @@ from virtualsmartcard.CardGenerator import CardGenerator
 import socket, struct, sys, signal, atexit, smartcard, logging
 
 
-class SmartcardOS(object): # {{{
+class SmartcardOS(object): 
     """Base class for a smart card OS"""
 
     mf  = make_property("mf",  "master file")
@@ -54,9 +54,9 @@ class SmartcardOS(object): # {{{
         msg -- the APDU as string of characters
         """
         return ""
-# }}}
 
-class Iso7816OS(SmartcardOS): # {{{ 
+
+class Iso7816OS(SmartcardOS):  
     def __init__(self, mf, sam, ins2handler=None, extended_length=False):
         self.mf = mf
         self.SAM = sam
@@ -120,7 +120,7 @@ class Iso7816OS(SmartcardOS): # {{{
         return self.atr
         
     @staticmethod
-    def makeATR(**args): # {{{
+    def makeATR(**args): 
         """Calculate Answer to Reset (ATR) and returns the bitstring.
         
             - directConvention (bool): Whether to use direct convention or 
@@ -203,10 +203,10 @@ class Iso7816OS(SmartcardOS): # {{{
             atr += "%c" % TCK
             
         return atr
-    # }}}
+    
     @staticmethod
     def makeThirdSoftwareFunctionTable(commandChainging=False,
-            extendedLe=False, assignLogicalChannel=0, maximumChannels=0): # {{{ 
+            extendedLe=False, assignLogicalChannel=0, maximumChannels=0):  
         """
         Returns a byte according to the third software function table from the
         historical bytes of the card capabilities.
@@ -225,7 +225,7 @@ class Iso7816OS(SmartcardOS): # {{{
                 raise ValueError
             tsft |= maximumChannels
         return inttostring(tsft)
-# }}} 
+ 
 
     def formatResult(self, le, data, sw, sm):
         self.lastCommandOffcut = data[le:]
@@ -329,9 +329,9 @@ class Iso7816OS(SmartcardOS): # {{{
             answer = self.formatResult(0, result, sw, False)
 
         return answer
-# }}}
+
       
-class CryptoflexOS(Iso7816OS): # {{{ 
+class CryptoflexOS(Iso7816OS):  
     def __init__(self, mf, sam, ins2handler=None, maxle=MAX_SHORT_LE):
         Iso7816OS.__init__(self, mf, sam, ins2handler, maxle)
         self.atr = '\x3B\xE2\x00\x00\x40\x20\x49\x06'
@@ -376,9 +376,9 @@ class CryptoflexOS(Iso7816OS): # {{{
                 r = Iso7816OS.formatResult(self, le, data, sw, False)
 
         return r
-# }}}
 
-class RelayOS(SmartcardOS): # {{{
+
+class RelayOS(SmartcardOS): 
     """
     This class implements relaying of a (physical) smartcard. The RelayOS
     forwards the command APDUs received from the vpcd to the real smartcard via
@@ -471,13 +471,13 @@ class RelayOS(SmartcardOS): # {{{
             rapdu = rapdu + [sw1, sw2]
 
         return "".join([chr(b) for b in rapdu])
-# }}}
+
       
 
 
 # sizeof(int) taken from asizof-package {{{
 _Csizeof_short = len(struct.pack('h', 0))
-# }}}
+
 
 VPCD_CTRL_LEN 	= 1
 
@@ -486,7 +486,7 @@ VPCD_CTRL_ON    = 1
 VPCD_CTRL_RESET = 2
 VPCD_CTRL_ATR	= 4
 
-class VirtualICC(object): # {{{
+class VirtualICC(object): 
     """
     This class is responsible for maintaining the communication of the virtual
     PCD and the emulated smartcard. vpicc and vpcd communicate via a socket.
@@ -627,4 +627,4 @@ class VirtualICC(object): # {{{
         if self.filename != None:
             self.cardGenerator.setCard(self.os.mf, self.os.SAM)
             self.cardGenerator.saveCard(self.filename)
-# }}} 
+ 

@@ -19,7 +19,7 @@
 import string, binascii
 from ConstantDefinitions import MAX_SHORT_LE, MAX_EXTENDED_LE
 
-def stringtoint(str): # {{{
+def stringtoint(str): 
     #i = len(str) - 1
     #int = 0
     #while i >= 0:
@@ -29,9 +29,9 @@ def stringtoint(str): # {{{
     if str:
         return int(str.encode('hex'), 16)
     return 0
-# }}}
 
-def inttostring(i, length=None): # {{{
+
+def inttostring(i, length=None): 
     #str = ""
     #while i > 0:
         #str = chr(i & 0xff) + str
@@ -50,7 +50,7 @@ def inttostring(i, length=None): # {{{
             str = chr(0)*(length-l) + str
 
     return str
-# }}}
+
 
 _myprintable = " " + string.letters + string.digits + string.punctuation
 def hexdump(data, indent = 0, short = False, linelen = 16, offset = 0):

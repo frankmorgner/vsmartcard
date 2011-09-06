@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License along with
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 #
-# Meaning of the interindustry values of SW1-SW2 {{{
+# Meaning of the interindustry values of SW1-SW2
 SW = {
         "NORMAL"                      : 0x9000,
         "NORMAL_REST"                 : 0x6100,
@@ -125,7 +125,6 @@ for i in range(0, 0xff):
     SW_MESSAGES[0x6600 + i] = 'Execution error (Security-related issues)'
     SW_MESSAGES[0x6C00 + i] = 'Checking error (Wrong Le field; %d available data bytes)' % i
 
-# }}}
 
 class SwError(Exception):
     def __init__(self, sw):

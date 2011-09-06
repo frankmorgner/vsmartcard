@@ -49,7 +49,7 @@ TAG["TAG_LIST"]                 = 0x5C
 TAG["HEADER_LIST"]              = 0x5D
 TAG["EXTENDED_HEADER_LIST"]     = 0x4D
 
-def tlv_unpack(data): # {{{
+def tlv_unpack(data): 
     ber_class = (ord(data[0]) & 0xC0) >> 6
     constructed = (ord(data[0]) & 0x20) != 0 ## 0 = primitive, 0x20 = constructed
     tag = ord(data[0]) 
@@ -76,9 +76,9 @@ def tlv_unpack(data): # {{{
     rest = data[length:]
     
     return ber_class, constructed, tag, length, value, rest
-# }}}
 
-def tlv_find_tags(tlv_data, tags, num_results = None): # {{{
+
+def tlv_find_tags(tlv_data, tags, num_results = None): 
     """Find (and return) all instances of tags in the given tlv structure (as
     returned by unpack).  If num_results is specified then at most that many
     results will be returned."""
@@ -99,16 +99,16 @@ def tlv_find_tags(tlv_data, tags, num_results = None): # {{{
     find_recursive(tlv_data)
     
     return results
-# }}}
 
-def tlv_find_tag(tlv_data, tag, num_results = None): # {{{
+
+def tlv_find_tag(tlv_data, tag, num_results = None): 
     """Find (and return) all instances of tag in the given tlv structure (as returned by unpack).
     If num_results is specified then at most that many results will be returned."""
     
     return tlv_find_tags(tlv_data, [tag], num_results)
-# }}}
 
-def pack(tlv_data, recalculate_length = False): # {{{
+
+def pack(tlv_data, recalculate_length = False): 
     result = []
     
     for data in tlv_data:
@@ -143,14 +143,14 @@ def pack(tlv_data, recalculate_length = False): # {{{
         result.append(value)
     
     return "".join(result)
-# }}}
 
-def bertlv_pack(data): # {{{
+
+def bertlv_pack(data): 
     """Packs a bertlv list of 3-tuples (tag, length, newvalue) into a string"""
     return pack(data)
-# }}}
 
-def unpack(data, with_marks = None, offset = 0, include_filler=False): # {{{
+
+def unpack(data, with_marks = None, offset = 0, include_filler=False): 
     result = []
     while len(data) > 0:
         if ord(data[0]) in (0x00, 0xFF):
@@ -185,15 +185,15 @@ def unpack(data, with_marks = None, offset = 0, include_filler=False): # {{{
         offset = stop
     
     return result
-# }}}
 
-def bertlv_unpack(data): # {{{
+
+def bertlv_unpack(data): 
     """Unpacks a bertlv coded string into a list of 3-tuples (tag, length,
     newvalue)."""
     return unpack(data)
-# }}}
 
-def simpletlv_pack(tlv_data, recalculate_length = False): # {{{
+
+def simpletlv_pack(tlv_data, recalculate_length = False): 
     result = ""
 
     for tag, length, value in tlv_data:
@@ -213,9 +213,9 @@ def simpletlv_pack(tlv_data, recalculate_length = False): # {{{
             result += chr(tag) + chr(0xff)+chr(length>>8)+chr(length&0xff) + value
 
     return result
-# }}}
 
-def simpletlv_unpack(data): # {{{
+
+def simpletlv_unpack(data): 
     """Unpacks a simpletlv coded string into a list of 3-tuples (tag, length,
     newvalue)."""
     result = []
@@ -236,25 +236,25 @@ def simpletlv_unpack(data): # {{{
         result.append((tag, length, newvalue))
 
     return result
-# }}}
 
 
-def decodeDiscretionaryDataObjects(tlv_data): # {{{
+
+def decodeDiscretionaryDataObjects(tlv_data): 
     datalist = []
     for (tag, length, newvalue) in (tlv_find_tags(tlv_data,
             [TAG["DISCRETIONARY_DATA"], TAG["DISCRETIONARY_TEMPLATE"]])):
         datalist.append(newvalue)
     return datalist
-# }}}
-def decodeOffsetDataObjects(tlv_data): # {{{
+
+def decodeOffsetDataObjects(tlv_data): 
     offsets = []
     for (tag, length, newvalue) in tlv_find_tag(tlv_data,
             TAG["OFFSET_DATA"]):
         offsets.append(stringtoint(newvalue))
     return offsets
-# }}}
 
-def decodeTagList(tlv_data): # {{{
+
+def decodeTagList(tlv_data): 
     taglist = []
     for (t, l, data) in tlv_find_tag(tlv_data, TAG["TAG_LIST"]):
         while data != "":
@@ -268,9 +268,9 @@ def decodeTagList(tlv_data): # {{{
                 data = data[1:]
             taglist.append((tag, 0))
     return taglist
-# }}}
 
-def decodeHeaderList(tlv_data): # {{{
+
+def decodeHeaderList(tlv_data): 
     headerlist = []
     for (t, l, data) in tlv_find_tag(tlv_data, TAG["HEADER_LIST"]):
         while data != "":
@@ -296,22 +296,22 @@ def decodeHeaderList(tlv_data): # {{{
 
             headerlist.append((tag, length))
     return headerlist
-# }}}
 
-def decodeExtendedHeaderList(tlv_data): # {{{
+
+def decodeExtendedHeaderList(tlv_data): 
     # TODO
     return []
-# }}}
 
-def encodebertlvDatalist(tag, datalist): # {{{ 
+
+def encodebertlvDatalist(tag, datalist):  
     tlvlist = []
     for data in datalist:
         tlvlist.append((tag, len(data), data))
     return bertlv_pack(tlvlist)
-# }}}
-def encodeDiscretionaryDataObjects(datalist): # {{{
+
+def encodeDiscretionaryDataObjects(datalist): 
     return encodebertlvDatalist(TAG["DISCRETIONARY_DATA"], datalist)
-# }}}
-def encodeDataOffsetObjects(datalist): # {{{
+
+def encodeDataOffsetObjects(datalist): 
     return encodebertlvDatalist(TAG["OFFSET_DATA"], datalist)
-# }}}
+
