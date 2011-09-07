@@ -21,13 +21,6 @@
 
 from optparse import OptionParser
 parser = OptionParser()
-parser.add_option("-t", "--type", action="store", type="choice",
-        default='iso7816',
-        choices=['iso7816', 'cryptoflex', 'ePass', 'relay'],
-        help="Type of Smartcard [default: %default]")
-parser.add_option("-r", "--reader", action="store", type="int",
-        default=None,
-        help="Number of reader for relaying")
 parser.add_option("-f", "--file", action="store", type="string",
         default=None,
         help="Load a saved card")
@@ -37,6 +30,13 @@ parser.add_option("-n", "--hostname", action="store", type="string",
 parser.add_option("-p", "--port", action="store", type="int",
         default=35963,
         help="Port of Virtual PCD [default: %default]")
+parser.add_option("-r", "--reader", action="store", type="int",
+        default=None,
+        help="Number of reader for relaying")
+parser.add_option("-t", "--type", action="store", type="choice",
+        default='iso7816',
+        choices=['iso7816', 'cryptoflex', 'ePass', 'relay'],
+        help="Type of Smartcard [default: %default]")
 (options, args) = parser.parse_args()
 
 from virtualsmartcard.VirtualSmartcard import VirtualICC
