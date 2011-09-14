@@ -1394,6 +1394,27 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
                 break;
             case SC_APDU_CASE_2_SHORT:
                 apdu.cse = SC_APDU_CASE_4_SHORT;
+#ifdef BUERGERCLIENT_WORKAROUND
+#ifdef WITH_PACE
+                /* This is an ugly hack to support the current AusweisApp.
+                 *
+                 * AusweisApp predefines a case 2 apdu, that includes a Le.
+                 * Unfortunately the nPA does only accept Reset Retry Counter
+                 * without secured Le (Le is not specified by BSI TR-03110, p.
+                 * 80).
+                 * In addition AusweisApp predefines a short apdu, which is
+                 * also incompatible with nPA. It accepts only extended length
+                 * APDUs.
+                 *
+                 * Therefor we drop the Le and switch to extended length.
+                 */
+
+                /* Note that this is only an approximation to find out if we
+                 * have a nPA */
+                if (sctx.active)
+                    apdu.cse = SC_APDU_CASE_3_EXT;
+#endif
+#endif
                 break;
             case SC_APDU_CASE_2_EXT:
                 apdu.cse = SC_APDU_CASE_4_EXT;
