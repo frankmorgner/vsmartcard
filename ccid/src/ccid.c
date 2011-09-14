@@ -1231,9 +1231,11 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
             bNumberMessage = modify->bNumberMessage;
 			/* bTeoPrologue adds another 3 bytes */
             abPINApdu = (__u8*) modify + sizeof *modify + 3*(sizeof(__u8));
+            apdulen = __le32_to_cpu(request->dwLength) - sizeof *modify - 4*sizeof(__u8);
             if (bNumberMessage != 0x00) {
                 /* bMsgIndex2 is present */
                 abPINApdu++;
+                apdulen--;
                 if (abDatalen < sizeof *modify + 4*(sizeof(__u8))) {
                     sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Not enough data for abPINDataStucture_Modification_t");
                     sc_result = SC_ERROR_INVALID_DATA;
@@ -1243,6 +1245,7 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
                 if (bNumberMessage == 0x03) {
                     /* bMsgIndex3 is present */
                     abPINApdu++;
+                    apdulen--;
                     if (abDatalen < sizeof *modify + 5*(sizeof(__u8))) {
                         sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Not enough data for abPINDataStucture_Modification_t");
                         sc_result = SC_ERROR_INVALID_DATA;
@@ -1250,7 +1253,6 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
                     }
                 }
             }
-            apdulen = __le32_to_cpu(request->dwLength) - sizeof *modify - sizeof(__u8);
             break;
         case 0x10:
 
