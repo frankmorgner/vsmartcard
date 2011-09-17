@@ -55,7 +55,7 @@ class CardGenerator(object):
         default_cardno = "1234567890"
         
         logging.warning("Using default SAM parameters. PIN=%s, Card Nr=%s"
-                        & (default_pin, default_cardno))
+                        % (default_pin, default_cardno))
         #TODO: Use user provided data
         self.sam = SAM(default_pin, default_cardno)
         

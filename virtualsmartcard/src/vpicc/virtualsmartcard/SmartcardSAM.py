@@ -81,7 +81,7 @@ class SAM(object):
 
         #Security Environments may be saved to/retrieved from this dictionary
         self.saved_SEs = {} 
-        self.current_SE = Security_Environment(self)
+        self.current_SE = Security_Environment(self.mf, self)
 
     def set_MF(self, mf):
         """
