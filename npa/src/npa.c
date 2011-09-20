@@ -27,12 +27,11 @@
 #include <openssl/bio.h>
 #include <openssl/buffer.h>
 #include <openssl/cv_cert.h>
+#include <openssl/eac.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>
 #include <openssl/objects.h>
-#include <openssl/eac.h>
 #include <openssl/pace.h>
-#include <openssl/cv_cert.h>
 #include <string.h>
 
 
@@ -157,6 +156,10 @@ struct npa_sm_ctx {
     BIGNUM *ssc;
     /** EAC context */
     EAC_CTX *ctx;
+    /** Certificate Description given on initialization of PACE */
+    unsigned char *certificate_description;
+    /** length of \a certificate_description */
+    size_t certificate_description_length;
 };
 
 static int npa_sm_encrypt(sc_card_t *card, const struct sm_ctx *ctx,
@@ -179,7 +182,8 @@ static int decrement_ssc(struct npa_sm_ctx *eacsmctx);
 static int reset_ssc(struct npa_sm_ctx *eacsmctx);
 
 static struct npa_sm_ctx *
-npa_sm_ctx_create(EAC_CTX *ctx)
+npa_sm_ctx_create(EAC_CTX *ctx, const unsigned char *certificate_description,
+        size_t certificate_description_length)
 {
     struct npa_sm_ctx *out = malloc(sizeof *out);
     if (!out)
@@ -191,6 +195,13 @@ npa_sm_ctx_create(EAC_CTX *ctx)
 
     out->ctx = ctx;
 
+    out->certificate_description = realloc(NULL,
+            certificate_description_length);
+    if (!out->certificate_description)
+        goto err;
+    out->certificate_description_length = certificate_description_length;
+    memcpy(out->certificate_description, certificate_description,
+            certificate_description_length);
 
     return out;
 
@@ -1206,7 +1217,9 @@ int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
     bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "ID PCD", pace_output->id_pcd,
             pace_output->id_pcd_length);
 
-    sctx->priv_data = npa_sm_ctx_create(eac_ctx);
+    sctx->priv_data = npa_sm_ctx_create(eac_ctx,
+            pace_input.certificate_description,
+            pace_input.certificate_description_length);
     if (!sctx->priv_data) {
         r = SC_ERROR_OUT_OF_MEMORY;
         goto err;
@@ -1489,6 +1502,21 @@ static int
 npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
         sc_apdu_t *apdu)
 {
+    if (apdu && apdu->ins == 0x2a && apdu->p1 == 0x00 && apdu->p2 == 0xbe) {
+        /* PSO:Verify Certificate
+         * check certificate description to match given certificate */
+        CVC_CERT *cvc_cert = NULL;
+        struct npa_sm_ctx *eacsmctx = ctx->priv_data;
+
+        cvc_cert = CVC_d2i_CVC_CERT(NULL, &apdu->data, apdu->datalen);
+        if (!eacsmctx || !cvc_cert
+                || !CVC_check_cert(cvc_cert, eacsmctx->certificate_description,
+                    eacsmctx->certificate_description_length)) {
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Certificate Description doesn't match Certificate");
+            SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_VERBOSE, SC_ERROR_INVALID_DATA);
+        }
+    }
+
     SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_NORMAL,
             increment_ssc(ctx->priv_data));
 }
@@ -1509,6 +1537,7 @@ npa_sm_clear_free(const struct sm_ctx *ctx)
         EAC_CTX_clear_free(eacsmctx->ctx);
         if (eacsmctx->ssc)
             BN_clear_free(eacsmctx->ssc);
+        free(eacsmctx->certificate_description);
         free(eacsmctx);
     }
 }

@@ -34,10 +34,7 @@
 #include <npa/npa.h>
 #include <npa/sm.h>
 #include <npa/scutil.h>
-#include <openssl/cv_cert.h>
 
-static char *certificate_description = NULL;
-static size_t certificate_description_length = 0;
 static struct sm_ctx sctx;
 #ifdef BUERGERCLIENT_WORKAROUND
 static char *ef_cardaccess = NULL;
@@ -168,9 +165,6 @@ void ccid_shutdown()
 #ifdef WITH_PACE
     sm_ctx_clear_free(&sctx);
     memset(&sctx, 0, sizeof(sctx));
-    free(certificate_description);
-    certificate_description = NULL;
-    certificate_description_length = 0;
 #ifdef BUERGERCLIENT_WORKAROUND
     free(ef_cardaccess);
     ef_cardaccess = NULL;
@@ -571,26 +565,6 @@ perform_PC_to_RDR_XfrBlock(const u8 *in, size_t inlen, __u8** out, size_t *outle
 		else
 			bin_log(ctx, SC_LOG_DEBUG_VERBOSE, "Invalid APDU", abDataIn,
 					__le32_to_cpu(request->dwLength));
-
-#ifdef WITH_PACE
-        /* Note that this is only an approximation to find out if we
-         * have a nPA */
-        if (sctx.active) {
-            if (apdu.ins == 0x2a && apdu.p1 == 0x00 && apdu.p2 == 0xbe) {
-                /* PSO:Verify Certificate
-                 * check certificate description to match given certificate */
-                CVC_CERT *cvc_cert = NULL;
-
-                cvc_cert = CVC_d2i_CVC_CERT(NULL, &apdu.data, apdu.datalen);
-                if (!cvc_cert
-                    || !CVC_check_cert(cvc_cert, certificate_description,
-                            certificate_description_length)) {
-                    sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Certificate Description doesn't match Certificate");
-                    SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_VERBOSE, SC_ERROR_INVALID_DATA);
-                }
-            }
-        }
-#endif
 	}
 
     sc_result = get_RDR_to_PC_DataBlock(request->bSeq, sc_result,
@@ -894,9 +868,6 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
     __le16 word;
     __le32 dword;
     __u8 *p;
-    BIO *bio_stdout = NULL;
-    CVC_CERTIFICATE_DESCRIPTION *desc = NULL;
-    CVC_CHAT *chat = NULL;
 
     memset(&pace_input, 0, sizeof pace_input);
     memset(&pace_output, 0, sizeof pace_output);
@@ -910,13 +881,6 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
 
 	bin_log(ctx, SC_LOG_DEBUG_VERBOSE, "EstablishPACEChannel InBuffer",
 			abData, abDatalen);
-
-    bio_stdout = BIO_new_fp(stdout, BIO_NOCLOSE);
-    if (!bio_stdout) {
-        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Could not get output buffer");
-        sc_result = SC_ERROR_INTERNAL;
-        goto err;
-    }
 
     if (abDatalen < parsed+1) {
         sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Buffer too small, could not get PinID");
@@ -945,21 +909,6 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
     if (pace_input.chat_length) {
         bin_log(ctx, SC_LOG_DEBUG_VERBOSE, "Card holder authorization template",
                 pace_input.chat, pace_input.chat_length);
-
-        chat = d2i_CVC_CHAT(NULL,
-                &pace_input.chat,
-                pace_input.chat_length);
-        if (!chat) {
-            sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Could not parse CHAT");
-            sc_result = SC_ERROR_INTERNAL;
-            goto err;
-        }
-
-        if (!cvc_chat_print(bio_stdout, chat, 4)) {
-            sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Could not print CHAT");
-            sc_result = SC_ERROR_INTERNAL;
-            goto err;
-        }
     }
 
 
@@ -997,35 +946,10 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
     }
     pace_input.certificate_description = &abData[parsed];
     parsed += pace_input.certificate_description_length;
-    p = realloc(certificate_description,
-            pace_input.certificate_description_length);
-    if (!p) {
-        sc_result = SC_ERROR_OUT_OF_MEMORY;
-        goto err;
-    }
-    certificate_description = p;
-    certificate_description_length = pace_input.certificate_description_length;
-    memcpy(certificate_description, pace_input.certificate_description,
-            pace_input.certificate_description_length);
     if (pace_input.certificate_description_length) {
         bin_log(ctx, SC_LOG_DEBUG_VERBOSE, "Certificate description",
                 pace_input.certificate_description,
                 pace_input.certificate_description_length);
-
-        desc = d2i_CVC_CERTIFICATE_DESCRIPTION(NULL,
-                &pace_input.certificate_description,
-                pace_input.certificate_description_length);
-        if (!desc) {
-            sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Could not parse Certificate Description");
-            sc_result = SC_ERROR_INTERNAL;
-            goto err;
-        }
-
-        if (!certificate_description_print(bio_stdout, desc, 4)) {
-            sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Could not print Certificate Description");
-            sc_result = SC_ERROR_INTERNAL;
-            goto err;
-        }
     }
 
 
@@ -1165,12 +1089,6 @@ err:
     free(pace_output.previous_car);
     free(pace_output.id_icc);
     free(pace_output.id_pcd);
-    if (bio_stdout)
-        BIO_free_all(bio_stdout);
-    if (desc)
-        CVC_CERTIFICATE_DESCRIPTION_free(desc);
-    if (chat)
-        CVC_CHAT_free(chat);
 
     return sc_result;
 }
