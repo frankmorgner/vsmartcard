@@ -34,6 +34,7 @@
 #include <npa/npa.h>
 #include <npa/sm.h>
 #include <npa/scutil.h>
+#include <openssl/cv_cert.h>
 
 static struct sm_ctx sctx;
 #ifdef BUERGERCLIENT_WORKAROUND
@@ -868,6 +869,8 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
     __le16 word;
     __le32 dword;
     __u8 *p;
+    BIO *bio_stdout = NULL;
+    CVC_CERTIFICATE_DESCRIPTION *desc = NULL;
 
     memset(&pace_input, 0, sizeof pace_input);
     memset(&pace_output, 0, sizeof pace_output);
@@ -945,10 +948,27 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
     }
     pace_input.certificate_description = &abData[parsed];
     parsed += pace_input.certificate_description_length;
-    if (pace_input.certificate_description_length)
+    if (pace_input.certificate_description_length) {
         bin_log(ctx, SC_LOG_DEBUG_VERBOSE, "Certificate description",
                 pace_input.certificate_description,
                 pace_input.certificate_description_length);
+
+        desc = d2i_CVC_CERTIFICATE_DESCRIPTION(NULL,
+                &pace_input.certificate_description,
+                pace_input.certificate_description_length);
+        if (!desc) {
+            sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Could not parse Certificate Description");
+            sc_result = SC_ERROR_INTERNAL;
+            goto err;
+        }
+
+        bio_stdout = BIO_new_fp(stdout, BIO_NOCLOSE);
+        if (!bio_stdout || !certificate_description_print(bio_stdout, desc, 4)) {
+            sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Could not print Certificate Description");
+            sc_result = SC_ERROR_INTERNAL;
+            goto err;
+        }
+    }
 
 
 #ifdef BUERGERCLIENT_WORKAROUND
@@ -1087,6 +1107,10 @@ err:
     free(pace_output.previous_car);
     free(pace_output.id_icc);
     free(pace_output.id_pcd);
+    if (bio_stdout)
+        BIO_free_all(bio_stdout);
+    if (desc)
+        CVC_CERTIFICATE_DESCRIPTION_free(desc);
 
     return sc_result;
 }
