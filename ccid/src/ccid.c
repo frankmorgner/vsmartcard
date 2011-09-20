@@ -36,6 +36,8 @@
 #include <npa/scutil.h>
 #include <openssl/cv_cert.h>
 
+static char *certificate_description = NULL;
+static size_t certificate_description_length = 0;
 static struct sm_ctx sctx;
 #ifdef BUERGERCLIENT_WORKAROUND
 static char *ef_cardaccess = NULL;
@@ -166,6 +168,9 @@ void ccid_shutdown()
 #ifdef WITH_PACE
     sm_ctx_clear_free(&sctx);
     memset(&sctx, 0, sizeof(sctx));
+    free(certificate_description);
+    certificate_description = NULL;
+    certificate_description_length = 0;
 #ifdef BUERGERCLIENT_WORKAROUND
     free(ef_cardaccess);
     ef_cardaccess = NULL;
@@ -566,6 +571,26 @@ perform_PC_to_RDR_XfrBlock(const u8 *in, size_t inlen, __u8** out, size_t *outle
 		else
 			bin_log(ctx, SC_LOG_DEBUG_VERBOSE, "Invalid APDU", abDataIn,
 					__le32_to_cpu(request->dwLength));
+
+#ifdef WITH_PACE
+        /* Note that this is only an approximation to find out if we
+         * have a nPA */
+        if (sctx.active) {
+            if (apdu.ins == 0x2a && apdu.p1 == 0x00 && apdu.p2 == 0xbe) {
+                /* PSO:Verify Certificate
+                 * check certificate description to match given certificate */
+                CVC_CERT *cvc_cert = NULL;
+
+                cvc_cert = CVC_d2i_CVC_CERT(NULL, &apdu.data, apdu.datalen);
+                if (!cvc_cert
+                    || !CVC_check_cert(cvc_cert, certificate_description,
+                            certificate_description_length)) {
+                    sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Certificate Description doesn't match Certificate");
+                    SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_VERBOSE, SC_ERROR_INVALID_DATA);
+                }
+            }
+        }
+#endif
 	}
 
     sc_result = get_RDR_to_PC_DataBlock(request->bSeq, sc_result,
@@ -972,6 +997,16 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
     }
     pace_input.certificate_description = &abData[parsed];
     parsed += pace_input.certificate_description_length;
+    p = realloc(certificate_description,
+            pace_input.certificate_description_length);
+    if (!p) {
+        sc_result = SC_ERROR_OUT_OF_MEMORY;
+        goto err;
+    }
+    certificate_description = p;
+    certificate_description_length = pace_input.certificate_description_length;
+    memcpy(certificate_description, pace_input.certificate_description,
+            pace_input.certificate_description_length);
     if (pace_input.certificate_description_length) {
         bin_log(ctx, SC_LOG_DEBUG_VERBOSE, "Certificate description",
                 pace_input.certificate_description,
