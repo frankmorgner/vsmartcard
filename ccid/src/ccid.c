@@ -871,6 +871,7 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
     __u8 *p;
     BIO *bio_stdout = NULL;
     CVC_CERTIFICATE_DESCRIPTION *desc = NULL;
+    CVC_CHAT *chat = NULL;
 
     memset(&pace_input, 0, sizeof pace_input);
     memset(&pace_output, 0, sizeof pace_output);
@@ -884,6 +885,13 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
 
 	bin_log(ctx, SC_LOG_DEBUG_VERBOSE, "EstablishPACEChannel InBuffer",
 			abData, abDatalen);
+
+    bio_stdout = BIO_new_fp(stdout, BIO_NOCLOSE);
+    if (!bio_stdout) {
+        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Could not get output buffer");
+        sc_result = SC_ERROR_INTERNAL;
+        goto err;
+    }
 
     if (abDatalen < parsed+1) {
         sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Buffer too small, could not get PinID");
@@ -909,9 +917,25 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
     }
     pace_input.chat = &abData[parsed];
     parsed += pace_input.chat_length;
-    if (pace_input.chat_length)
+    if (pace_input.chat_length) {
         bin_log(ctx, SC_LOG_DEBUG_VERBOSE, "Card holder authorization template",
                 pace_input.chat, pace_input.chat_length);
+
+        chat = d2i_CVC_CHAT(NULL,
+                &pace_input.chat,
+                pace_input.chat_length);
+        if (!chat) {
+            sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Could not parse CHAT");
+            sc_result = SC_ERROR_INTERNAL;
+            goto err;
+        }
+
+        if (!cvc_chat_print(bio_stdout, chat, 4)) {
+            sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Could not print CHAT");
+            sc_result = SC_ERROR_INTERNAL;
+            goto err;
+        }
+    }
 
 
     if (abDatalen < parsed+1) {
@@ -962,8 +986,7 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
             goto err;
         }
 
-        bio_stdout = BIO_new_fp(stdout, BIO_NOCLOSE);
-        if (!bio_stdout || !certificate_description_print(bio_stdout, desc, 4)) {
+        if (!certificate_description_print(bio_stdout, desc, 4)) {
             sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Could not print Certificate Description");
             sc_result = SC_ERROR_INTERNAL;
             goto err;
@@ -1111,6 +1134,8 @@ err:
         BIO_free_all(bio_stdout);
     if (desc)
         CVC_CERTIFICATE_DESCRIPTION_free(desc);
+    if (chat)
+        CVC_CHAT_free(chat);
 
     return sc_result;
 }
