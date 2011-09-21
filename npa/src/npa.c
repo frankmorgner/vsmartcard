@@ -1498,6 +1498,40 @@ err:
     return r;
 }
 
+static CVC_CERT *
+cert_from_apdudata(const unsigned char *data, size_t len)
+{
+    /* there MUST be a more elegant way to do this... */
+    CVC_CERT *cert;
+    long int asn1datalen;
+    int tag, xclass;
+    const unsigned char *p = data;
+
+    cert = CVC_CERT_new();
+    if (!cert)
+        goto err;
+
+    if (0x80 & ASN1_get_object(&p, &asn1datalen, &tag, &xclass, len)
+            || !d2i_CVC_CERT_BODY(&cert->body, &data, (data-p)+asn1datalen))
+        goto err;
+
+    p += len;
+    if (0x80 & ASN1_get_object(&p, &asn1datalen, &tag, &xclass, len-(data-p))
+            || tag != 0x37)
+        goto err;
+    cert->signature = ASN1_OCTET_STRING_new();
+    if (!cert->signature
+            || !ASN1_OCTET_STRING_set(cert->signature, p, asn1datalen))
+        goto err;
+
+    return cert;
+
+err:
+    if (cert)
+        CVC_CERT_free(cert);
+
+    return NULL;
+}
 static int
 npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
         sc_apdu_t *apdu)
@@ -1505,16 +1539,18 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
     if (apdu && apdu->ins == 0x2a && apdu->p1 == 0x00 && apdu->p2 == 0xbe) {
         /* PSO:Verify Certificate
          * check certificate description to match given certificate */
-        CVC_CERT *cvc_cert = NULL;
         struct npa_sm_ctx *eacsmctx = ctx->priv_data;
+        CVC_CERT *cvc_cert = cert_from_apdudata(apdu->data, apdu->datalen);
 
-        cvc_cert = CVC_d2i_CVC_CERT(NULL, &apdu->data, apdu->datalen);
         if (!eacsmctx || !cvc_cert
                 || !CVC_check_cert(cvc_cert, eacsmctx->certificate_description,
                     eacsmctx->certificate_description_length)) {
             sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Certificate Description doesn't match Certificate");
+            if (cvc_cert)
+                CVC_CERT_free(cvc_cert);
             SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_VERBOSE, SC_ERROR_INVALID_DATA);
         }
+        CVC_CERT_free(cvc_cert);
     }
 
     SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_NORMAL,
