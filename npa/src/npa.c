@@ -944,9 +944,9 @@ int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
     if (pace_input.certificate_description_length &&
             pace_input.certificate_description) {
 
+        const unsigned char *pp = pace_input.certificate_description;
 		if (!d2i_CVC_CERTIFICATE_DESCRIPTION(&desc,
-					&pace_input.certificate_description,
-					pace_input.certificate_description_length)) {
+                    &pp, pace_input.certificate_description_length)) {
 			sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not parse certificate description.");
 			r = SC_ERROR_INTERNAL;
 			goto err;
@@ -963,28 +963,33 @@ int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
 
         printf("Certificate Description\n");
 		switch(certificate_description_print(bio_stdout, desc, 8)) {
-            case -1:
+            case 0:
                 sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not print certificate description.");
                 ssl_error(card->ctx);
                 r = SC_ERROR_INTERNAL;
                 goto err;
-            case 0:
                 break;
             case 1:
+                /* text format */
+                break;
+            case 2:
                 sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Certificate description in "
                         "HTML format can not (yet) be handled.");
                 r = SC_ERROR_NOT_SUPPORTED;
                 goto err;
-            case 2:
+                break;
+            case 3:
                 sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Certificate description in "
                         "PDF format can not (yet) be handled.");
                 r = SC_ERROR_NOT_SUPPORTED;
                 goto err;
+                break;
             default:
                 sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Certificate description in "
-                        "unknown format can not (yet) be handled.");
+                        "unknown format can not be handled.");
                 r = SC_ERROR_NOT_SUPPORTED;
                 goto err;
+                break;
         }
 
         hash_cert_desc = EAC_hash_certificate_description(
@@ -1260,6 +1265,8 @@ err:
         PACE_SEC_clear_free(sec);
     if (bio_stdout)
         BIO_free_all(bio_stdout);
+    if (desc)
+        CVC_CERTIFICATE_DESCRIPTION_free(desc);
 
     if (r < 0) {
         if (eac_ctx)
@@ -1502,8 +1509,8 @@ static CVC_CERT *
 cert_from_apdudata(const unsigned char *data, size_t len)
 {
     /* there MUST be a more elegant way to do this... */
-    CVC_CERT *cert;
-    long int asn1datalen;
+    CVC_CERT *cert = NULL;
+    long int asn1datalen = len;
     int tag, xclass;
     const unsigned char *p = data;
 
@@ -1512,11 +1519,11 @@ cert_from_apdudata(const unsigned char *data, size_t len)
         goto err;
 
     if (0x80 & ASN1_get_object(&p, &asn1datalen, &tag, &xclass, len)
-            || !d2i_CVC_CERT_BODY(&cert->body, &data, (data-p)+asn1datalen))
+            || !d2i_CVC_CERT_BODY(&cert->body, &data, (p-data)+asn1datalen))
         goto err;
 
-    p += len;
-    if (0x80 & ASN1_get_object(&p, &asn1datalen, &tag, &xclass, len-(data-p))
+    p += asn1datalen;
+    if (0x80 & ASN1_get_object(&p, &asn1datalen, &tag, &xclass, len-(p-data))
             || tag != 0x37)
         goto err;
     cert->signature = ASN1_OCTET_STRING_new();
@@ -1529,32 +1536,76 @@ cert_from_apdudata(const unsigned char *data, size_t len)
 err:
     if (cert)
         CVC_CERT_free(cert);
-
-    return NULL;
 }
 static int
 npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
         sc_apdu_t *apdu)
 {
+    int r;
+    CVC_CERT *cvc_cert = NULL;
+
     if (apdu && apdu->ins == 0x2a && apdu->p1 == 0x00 && apdu->p2 == 0xbe) {
         /* PSO:Verify Certificate
          * check certificate description to match given certificate */
         struct npa_sm_ctx *eacsmctx = ctx->priv_data;
-        CVC_CERT *cvc_cert = cert_from_apdudata(apdu->data, apdu->datalen);
+        cvc_cert = cert_from_apdudata(apdu->data, apdu->datalen);
 
-        if (!eacsmctx || !cvc_cert
-                || !CVC_check_cert(cvc_cert, eacsmctx->certificate_description,
-                    eacsmctx->certificate_description_length)) {
-            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Certificate Description doesn't match Certificate");
-            if (cvc_cert)
-                CVC_CERT_free(cvc_cert);
-            SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_VERBOSE, SC_ERROR_INVALID_DATA);
+        if (!eacsmctx || !cvc_cert || !cvc_cert->body) {
+            r = SC_ERROR_INVALID_DATA;
+            goto err;
         }
-        CVC_CERT_free(cvc_cert);
+
+        switch (CVC_get_terminal_type(cvc_cert->body->chat)) {
+            case CVC_CVCA:
+                sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Processing CVCA certificate");
+                break;
+
+            case CVC_DV:
+            case CVC_DocVer:
+                sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Processing DV certificate");
+                break;
+
+            case CVC_Terminal:
+                sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Processing Terminal certificate");
+
+                switch (CVC_check_cert(cvc_cert,
+                        eacsmctx->certificate_description,
+                        eacsmctx->certificate_description_length)) {
+                    case 1:
+                        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
+                                "Certificate Description matches Certificate");
+                        break;
+                    case 0:
+                        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
+                                "Certificate Description doesn't match Certificate");
+                        r = SC_ERROR_INVALID_DATA;
+                        goto err;
+                        break;
+                    default:
+                        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
+                                "Error verifying Certificate Description");
+                        ssl_error(card->ctx);
+                        r = SC_ERROR_INTERNAL;
+                        goto err;
+                        break;
+                }
+                break;
+
+            default:
+                sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Unknown type of certificate");
+                r = SC_ERROR_INVALID_DATA;
+                goto err;
+                break;
+        }
     }
 
-    SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_NORMAL,
-            increment_ssc(ctx->priv_data));
+    r = increment_ssc(ctx->priv_data);
+
+err:
+    if (cvc_cert)
+        CVC_CERT_free(cvc_cert);
+
+    SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_NORMAL, r);
 }
 
 static int
