@@ -46,7 +46,7 @@ typedef struct npa_mse_set_at_cd_st {
     ASN1_OBJECT *cryptographic_mechanism_reference;
     ASN1_INTEGER *key_reference1;
     ASN1_INTEGER *key_reference2;
-    ASN1_OCTET_STRING *auxiliary_data;
+    CVC_DISCRETIONARY_DATA_TEMPLATE *auxiliary_data;
     ASN1_OCTET_STRING *eph_pub_key;
     CVC_CHAT *chat;
 } NPA_MSE_SET_AT_C;
@@ -62,7 +62,7 @@ ASN1_SEQUENCE(NPA_MSE_SET_AT_C) = {
     ASN1_IMP_OPT(NPA_MSE_SET_AT_C, key_reference2, ASN1_INTEGER, 4),
     /* 0x67
      * Auxiliary authenticated data */
-    ASN1_APP_IMP_OPT(NPA_MSE_SET_AT_C, auxiliary_data, ASN1_OCTET_STRING, 7),
+    ASN1_APP_IMP_OPT(NPA_MSE_SET_AT_C, auxiliary_data, CVC_DISCRETIONARY_DATA_TEMPLATE, 7),
     /* 0x91
      * Ephemeral Public Key */
     ASN1_IMP_OPT(NPA_MSE_SET_AT_C, eph_pub_key, ASN1_OCTET_STRING, 0x11),
@@ -157,9 +157,14 @@ struct npa_sm_ctx {
     /** EAC context */
     EAC_CTX *ctx;
     /** Certificate Description given on initialization of PACE */
-    unsigned char *certificate_description;
-    /** length of \a certificate_description */
-    size_t certificate_description_length;
+    BUF_MEM *certificate_description;
+    /** picc's compressed ephemeral public key of PACE */
+    BUF_MEM *id_icc;
+    /** PCD's compressed ephemeral public key of CA */
+    BUF_MEM *eph_pub_key;
+    /** Auxiliary Data */
+    BUF_MEM *auxiliary_data;
+    /** Nonce generated in TA */
     BUF_MEM *nonce;
 };
 
@@ -186,7 +191,9 @@ static int reset_ssc(struct npa_sm_ctx *eacsmctx);
 
 static struct npa_sm_ctx *
 npa_sm_ctx_create(EAC_CTX *ctx, const unsigned char *certificate_description,
-        size_t certificate_description_length)
+        size_t certificate_description_length,
+        const unsigned char *id_icc, size_t id_icc_length
+        )
 {
     struct npa_sm_ctx *out = malloc(sizeof *out);
     if (!out)
@@ -198,14 +205,18 @@ npa_sm_ctx_create(EAC_CTX *ctx, const unsigned char *certificate_description,
 
     out->ctx = ctx;
 
-    out->certificate_description = realloc(NULL,
+    out->certificate_description = BUF_MEM_create_init(certificate_description,
             certificate_description_length);
     if (!out->certificate_description)
         goto err;
-    out->certificate_description_length = certificate_description_length;
-    memcpy(out->certificate_description, certificate_description,
-            certificate_description_length);
+
+    out->id_icc = BUF_MEM_create_init(id_icc, id_icc_length);
+    if (!out->id_icc)
+        goto err;
+
     out->nonce = NULL;
+    out->eph_pub_key = NULL;
+    out->auxiliary_data = NULL;
 
     return out;
 
@@ -1219,7 +1230,9 @@ int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
 
     sctx->priv_data = npa_sm_ctx_create(eac_ctx,
             pace_input.certificate_description,
-            pace_input.certificate_description_length);
+            pace_input.certificate_description_length,
+            pace_output->id_icc,
+            pace_output->id_icc_length);
     if (!sctx->priv_data) {
         r = SC_ERROR_OUT_OF_MEMORY;
         goto err;
@@ -1538,8 +1551,17 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
     int r;
     CVC_CERT *cvc_cert = NULL;
     unsigned char *cert = NULL;
-    int cert_len;
+    int len;
+    BUF_MEM *signature = NULL;
+    unsigned char *sequence = NULL;
+    NPA_MSE_SET_AT_C *msesetat = NULL;
 
+    if (!ctx) {
+        r = SC_ERROR_INVALID_ARGUMENTS;
+        goto err;
+    }
+
+    struct npa_sm_ctx *eacsmctx = ctx->priv_data;
     if (!ctx) {
         r = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
@@ -1547,11 +1569,11 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
 
     if (apdu && apdu->ins == 0x2a && apdu->p1 == 0x00 && apdu->p2 == 0xbe) {
         /* PSO:Verify Certificate
-         * check certificate description to match given certificate */
-        struct npa_sm_ctx *eacsmctx = ctx->priv_data;
+         * check certificate description to match given certificate
+         * TODO take MSE:Set DST (sent before) into account */
         cvc_cert = cert_from_apdudata(apdu->data, apdu->datalen);
 
-        if (!eacsmctx || !cvc_cert || !cvc_cert->body) {
+        if (!cvc_cert || !cvc_cert->body) {
             r = SC_ERROR_INVALID_DATA;
             goto err;
         }
@@ -1569,9 +1591,16 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
             case CVC_Terminal:
                 sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Processing Terminal certificate");
 
+                if (!eacsmctx->certificate_description) {
+                    sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
+                            "Certificate Description missing");
+                    r = SC_ERROR_INVALID_DATA;
+                    goto err;
+                }
+
                 switch (CVC_check_cert(cvc_cert,
-                        eacsmctx->certificate_description,
-                        eacsmctx->certificate_description_length)) {
+                        eacsmctx->certificate_description->data,
+                        eacsmctx->certificate_description->length)) {
                     case 1:
                         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
                                 "Certificate Description matches Certificate");
@@ -1599,9 +1628,9 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
                 break;
         }
 
-        cert_len = i2d_CVC_CERT(cvc_cert, &cert);
-        if (cert_len < 0
-                || !TA_STEP2_import_certificate(eacsmctx->ctx, cert, cert_len)) {
+        len = i2d_CVC_CERT(cvc_cert, &cert);
+        if (len < 0
+                || !TA_STEP2_import_certificate(eacsmctx->ctx, cert, len)) {
             sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
                     "Error importing certificate");
             ssl_error(card->ctx);
@@ -1609,9 +1638,81 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
             goto err;
         }
 
+    } else if (apdu && apdu->ins == 0x22 && apdu->p1 == 0x81 && apdu->p2 == 0xa4) {
+        /* MSE:Set AT
+         * fetch auxiliary data and terminal's compressed ephemeral public key
+         * for CA */
+        len = ASN1_object_size(1, apdu->datalen, V_ASN1_SEQUENCE);
+        sequence = malloc(len);
+        unsigned char *p = sequence;
+        const unsigned char *pp = sequence;
+        ASN1_put_object(&p, 1, apdu->datalen, V_ASN1_SEQUENCE,V_ASN1_UNIVERSAL);
+        memcpy(p, apdu->data, apdu->datalen);
+        if (!d2i_NPA_MSE_SET_AT_C(&msesetat, &pp, len)) {
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not parse MSE:Set AT.");
+            r = SC_ERROR_INTERNAL;
+            goto err;
+        }
+        if (msesetat->auxiliary_data) {
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Saving terminal's auxiliary data");
+            if (eacsmctx->auxiliary_data)
+                BUF_MEM_free(eacsmctx->auxiliary_data);
+            eacsmctx->auxiliary_data = BUF_MEM_new();
+            if (!eacsmctx->auxiliary_data) {
+                r = SC_ERROR_OUT_OF_MEMORY;
+                goto err;
+            }
+            eacsmctx->auxiliary_data->length =
+                i2d_CVC_DISCRETIONARY_DATA_TEMPLATE(msesetat->auxiliary_data,
+                        (unsigned char **) &eacsmctx->auxiliary_data->data);
+            if ((int) eacsmctx->auxiliary_data->length < 0) {
+                r = SC_ERROR_OUT_OF_MEMORY;
+                goto err;
+            }
+            eacsmctx->auxiliary_data->max = eacsmctx->auxiliary_data->length;
+        }
+        if (msesetat->eph_pub_key) {
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Saving terminal's compressed ephemeral public key");
+            if (eacsmctx->eph_pub_key)
+                BUF_MEM_free(eacsmctx->eph_pub_key);
+            eacsmctx->eph_pub_key =
+                BUF_MEM_create_init(msesetat->eph_pub_key->data,
+                        msesetat->eph_pub_key->length);
+            if (!eacsmctx->eph_pub_key) {
+                r = SC_ERROR_OUT_OF_MEMORY;
+                goto err;
+            }
+        }
     } else if (apdu && apdu->ins == 0x82 && apdu->p1 == 0x00 && apdu->p2 == 0x00) {
         /* External Authenticate
-         * TODO check terminal's signature */
+         * check terminal's signature */
+
+        signature = BUF_MEM_create_init(apdu->data, apdu->datalen);
+        if (!signature) {
+            r = SC_ERROR_OUT_OF_MEMORY;
+            goto err;
+        }
+        switch (TA_STEP6_verify(eacsmctx->ctx, eacsmctx->eph_pub_key,
+                    eacsmctx->id_icc, eacsmctx->nonce,
+                    eacsmctx->auxiliary_data, signature)) {
+            case 1:
+                sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
+                        "Verified Terminal's signature");
+                break;
+            case 0:
+                sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
+                        "Terminal's signature not verified");
+                r = SC_ERROR_INVALID_DATA;
+                goto err;
+                break;
+            default:
+                sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
+                        "Error verifying terminal's signature");
+                ssl_error(card->ctx);
+                r = SC_ERROR_INTERNAL;
+                goto err;
+                break;
+        }
     }
 
     r = increment_ssc(ctx->priv_data);
@@ -1619,8 +1720,12 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
 err:
     if (cvc_cert)
         CVC_CERT_free(cvc_cert);
+    if (signature)
+        BUF_MEM_free(signature);
     if (cert)
         OPENSSL_free(cert);
+    if (sequence)
+        free(sequence);
 
     SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_NORMAL, r);
 }
@@ -1669,9 +1774,16 @@ npa_sm_clear_free(const struct sm_ctx *ctx)
         EAC_CTX_clear_free(eacsmctx->ctx);
         if (eacsmctx->ssc)
             BN_clear_free(eacsmctx->ssc);
-        free(eacsmctx->certificate_description);
+        if (eacsmctx->certificate_description)
+            BUF_MEM_free(eacsmctx->certificate_description);
         if (eacsmctx->nonce)
             BUF_MEM_free(eacsmctx->nonce);
+        if (eacsmctx->id_icc)
+            BUF_MEM_free(eacsmctx->id_icc);
+        if (eacsmctx->eph_pub_key)
+            BUF_MEM_free(eacsmctx->eph_pub_key);
+        if (eacsmctx->auxiliary_data)
+            BUF_MEM_free(eacsmctx->auxiliary_data);
         free(eacsmctx);
     }
 }
