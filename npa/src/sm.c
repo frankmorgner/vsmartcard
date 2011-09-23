@@ -609,6 +609,9 @@ int sm_transmit_apdu(struct sm_ctx *sctx, sc_card_t *card,
                 "Could not complete SM specific post transmit routine");
     SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, sm_decrypt(sctx, card, &sm_apdu, apdu),
             "Could not decrypt APDU");
+    if (sctx->finish)
+        SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, sctx->finish(card, sctx, apdu),
+                "Could not complete SM specific post transmit routine");
 
     return SC_SUCCESS;
 }

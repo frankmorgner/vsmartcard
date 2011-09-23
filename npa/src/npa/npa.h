@@ -158,11 +158,6 @@ struct establish_pace_channel_output {
     size_t id_pcd_length;
     /** PCD identifier */
     unsigned char *id_pcd;
-
-    /** Length of \a hash_cert_desc */
-    size_t hash_cert_desc_len;
-    /** Hash of certificate description */
-    unsigned char *hash_cert_desc;
 };
 
 #ifdef BUERGERCLIENT_WORKAROUND

@@ -84,21 +84,18 @@ void _bin_log(sc_context_t *ctx, int type, const char *file, int line,
         const char *func, const char *label, const u8 *data, size_t len,
         FILE *f)
 {
-    /* this is the maximum supported by sc_do_log_va */
-    /* Flawfinder: ignore */
-    char buf[1800];
-
-    if (data)
-        sc_hex_dump(ctx, SC_LOG_DEBUG_NORMAL, data, len, buf, sizeof buf);
-    else
-        buf[0] = 0;
     if (!f) {
+        char buf[1800];
+        if (data)
+            sc_hex_dump(ctx, SC_LOG_DEBUG_NORMAL, data, len, buf, sizeof buf);
+        else
+            buf[0] = 0;
         sc_do_log(ctx, type, file, line, func,
                 "\n%s (%u byte%s):\n%s",
                 label, len, len==1?"":"s", buf);
     } else {
         fprintf(f, "%s (%u byte%s):\n%s",
-                label, len, len==1?"":"s", buf);
+                label, len, len==1?"":"s", sc_dump_hex(data, len));
     }
 }
 

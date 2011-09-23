@@ -160,6 +160,7 @@ struct npa_sm_ctx {
     unsigned char *certificate_description;
     /** length of \a certificate_description */
     size_t certificate_description_length;
+    BUF_MEM *nonce;
 };
 
 static int npa_sm_encrypt(sc_card_t *card, const struct sm_ctx *ctx,
@@ -175,6 +176,8 @@ static int npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
         sc_apdu_t *apdu);
 static int npa_sm_post_transmit(sc_card_t *card, const struct sm_ctx *ctx,
         sc_apdu_t *sm_apdu);
+static int npa_sm_finish(sc_card_t *card, const struct sm_ctx *ctx,
+        sc_apdu_t *apdu);
 static void npa_sm_clear_free(const struct sm_ctx *ctx);
 
 static int increment_ssc(struct npa_sm_ctx *eacsmctx);
@@ -202,6 +205,7 @@ npa_sm_ctx_create(EAC_CTX *ctx, const unsigned char *certificate_description,
     out->certificate_description_length = certificate_description_length;
     memcpy(out->certificate_description, certificate_description,
             certificate_description_length);
+    out->nonce = NULL;
 
     return out;
 
@@ -927,7 +931,7 @@ int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
 	EAC_CTX *eac_ctx = NULL;
 	BUF_MEM *enc_nonce = NULL, *mdata = NULL, *mdata_opp = NULL,
 			*token_opp = NULL, *token = NULL, *pub = NULL, *pub_opp = NULL,
-			*comp_pub = NULL, *comp_pub_opp = NULL, *hash_cert_desc = NULL;
+			*comp_pub = NULL, *comp_pub_opp = NULL;
     PACE_SEC *sec = NULL;
     CVC_CHAT *chat = NULL;
     BIO *bio_stdout = NULL;
@@ -991,25 +995,6 @@ int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
                 goto err;
                 break;
         }
-
-        hash_cert_desc = EAC_hash_certificate_description(
-                pace_input.certificate_description,
-                pace_input.certificate_description_length);
-        if (!hash_cert_desc) {
-            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not hash certificate description.");
-            ssl_error(card->ctx);
-            r = SC_ERROR_INTERNAL;
-            goto err;
-        }
-
-        p = realloc(pace_output->hash_cert_desc, hash_cert_desc->length);
-        if (!p) {
-            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Not enough memory for hash of certificate description.\n");
-            r = SC_ERROR_OUT_OF_MEMORY;
-            goto err;
-        }
-        pace_output->hash_cert_desc = p;
-        pace_output->hash_cert_desc_len = hash_cert_desc->length;
     }
 
     /* show chat in advance to give the user more time to read it...
@@ -1202,7 +1187,8 @@ int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
     p = realloc(pace_output->id_icc, comp_pub_opp->length);
     if (!p) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Not enough memory for ID ICC.\n");
-        return SC_ERROR_OUT_OF_MEMORY;
+        r = SC_ERROR_OUT_OF_MEMORY;
+        goto err;
     }
     pace_output->id_icc = p;
     pace_output->id_icc_length = comp_pub_opp->length;
@@ -1213,7 +1199,8 @@ int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
     p = realloc(pace_output->id_pcd, comp_pub->length);
     if (!p) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Not enough memory for ID PCD.\n");
-        return SC_ERROR_OUT_OF_MEMORY;
+        r = SC_ERROR_OUT_OF_MEMORY;
+        goto err;
     }
     pace_output->id_pcd = p;
     pace_output->id_pcd_length = comp_pub->length;
@@ -1221,6 +1208,14 @@ int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
     memcpy(pace_output->id_pcd, comp_pub->data, comp_pub->length);
     bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "ID PCD", pace_output->id_pcd,
             pace_output->id_pcd_length);
+
+    if(!EAC_CTX_init_ta(eac_ctx, NULL, 0, NULL, 0, pace_output->recent_car,
+                pace_output->recent_car_length)) {
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not initialize TA.\n");
+        ssl_error(card->ctx);
+        r = SC_ERROR_INTERNAL;
+        goto err;
+    }
 
     sctx->priv_data = npa_sm_ctx_create(eac_ctx,
             pace_input.certificate_description,
@@ -1235,6 +1230,7 @@ int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
     sctx->verify_authentication = npa_sm_verify_authentication;
     sctx->pre_transmit = npa_sm_pre_transmit;
     sctx->post_transmit = npa_sm_post_transmit;
+    sctx->finish = npa_sm_finish;
     sctx->clear_free = npa_sm_clear_free;
     sctx->padding_indicator = SM_ISO_PADDING;
     sctx->block_length = EVP_CIPHER_block_size(eac_ctx->key_ctx->cipher);
@@ -1259,8 +1255,6 @@ err:
         BUF_MEM_free(comp_pub_opp);
     if (comp_pub)
         BUF_MEM_free(comp_pub);
-    if (hash_cert_desc)
-        BUF_MEM_free(hash_cert_desc);
     if (sec)
         PACE_SEC_clear_free(sec);
     if (bio_stdout)
@@ -1543,6 +1537,13 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
 {
     int r;
     CVC_CERT *cvc_cert = NULL;
+    unsigned char *cert = NULL;
+    int cert_len;
+
+    if (!ctx) {
+        r = SC_ERROR_INVALID_ARGUMENTS;
+        goto err;
+    }
 
     if (apdu && apdu->ins == 0x2a && apdu->p1 == 0x00 && apdu->p2 == 0xbe) {
         /* PSO:Verify Certificate
@@ -1597,6 +1598,20 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
                 goto err;
                 break;
         }
+
+        cert_len = i2d_CVC_CERT(cvc_cert, &cert);
+        if (cert_len < 0
+                || !TA_STEP2_import_certificate(eacsmctx->ctx, cert, cert_len)) {
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
+                    "Error importing certificate");
+            ssl_error(card->ctx);
+            r = SC_ERROR_INTERNAL;
+            goto err;
+        }
+
+    } else if (apdu && apdu->ins == 0x82 && apdu->p1 == 0x00 && apdu->p2 == 0x00) {
+        /* External Authenticate
+         * TODO check terminal's signature */
     }
 
     r = increment_ssc(ctx->priv_data);
@@ -1604,6 +1619,8 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
 err:
     if (cvc_cert)
         CVC_CERT_free(cvc_cert);
+    if (cert)
+        OPENSSL_free(cert);
 
     SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_NORMAL, r);
 }
@@ -1616,6 +1633,34 @@ npa_sm_post_transmit(sc_card_t *card, const struct sm_ctx *ctx,
             increment_ssc(ctx->priv_data));
 }
 
+static int
+npa_sm_finish(sc_card_t *card, const struct sm_ctx *ctx,
+        sc_apdu_t *apdu)
+{
+    if (!ctx || !ctx->priv_data)
+        SC_FUNC_RETURN(card->ctx,  SC_LOG_DEBUG_NORMAL,
+                SC_ERROR_INVALID_ARGUMENTS);
+
+    if (apdu && apdu->ins == 0x84 && apdu->p1 == 0x00 && apdu->p2 == 0x00 && apdu->le == 8
+            && apdu->sw1 == 0x90 && apdu->sw2 == 0x00 && apdu->resplen == 8) {
+        /* Get Challenge
+         * copy challenge to EAC context */
+        struct npa_sm_ctx *eacsmctx = ctx->priv_data;
+
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Saving MRTD's nonce to later verify Terminal's signature");
+
+        if (eacsmctx->nonce)
+            BUF_MEM_free(eacsmctx->nonce);
+
+        eacsmctx->nonce = BUF_MEM_create_init(apdu->resp, apdu->resplen);
+        if (!eacsmctx->nonce)
+            SC_FUNC_RETURN(card->ctx,  SC_LOG_DEBUG_NORMAL,
+                    SC_ERROR_OUT_OF_MEMORY);
+    }
+
+    SC_FUNC_RETURN(card->ctx,  SC_LOG_DEBUG_NORMAL, 0);
+}
+
 static void
 npa_sm_clear_free(const struct sm_ctx *ctx)
 {
@@ -1625,6 +1670,8 @@ npa_sm_clear_free(const struct sm_ctx *ctx)
         if (eacsmctx->ssc)
             BN_clear_free(eacsmctx->ssc);
         free(eacsmctx->certificate_description);
+        if (eacsmctx->nonce)
+            BUF_MEM_free(eacsmctx->nonce);
         free(eacsmctx);
     }
 }

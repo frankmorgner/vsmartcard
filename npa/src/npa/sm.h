@@ -67,6 +67,9 @@ struct sm_ctx {
     /** Call back function for actions before decryption and decoding of \a sm_apdu */
     int (*post_transmit)(sc_card_t *card, const struct sm_ctx *ctx,
             sc_apdu_t *sm_apdu);
+    /** Call back function for actions after decrypting SM protected APDU */
+    int (*finish)(sc_card_t *card, const struct sm_ctx *ctx,
+            sc_apdu_t *apdu);
 
     /** Clears and frees private data */
     void (*clear_free)(const struct sm_ctx *ctx);
