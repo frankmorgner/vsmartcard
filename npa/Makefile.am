@@ -1,7 +1,7 @@
 ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = src m4
 
-EXTRA_DIST = README.dox libnpa.pc.in Doxyfile.in
+EXTRA_DIST = README.dox libnpa.pc.in Doxyfile.in apdus
 
 do_subst = sed \
 	   -e 's,[@]PACKAGE_NAME[@],$(PACKAGE_NAME),g' \
