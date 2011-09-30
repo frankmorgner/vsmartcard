@@ -20,7 +20,16 @@
 #define _CCID_SSLUTIL_H
 
 #include <libopensc/opensc.h>
+#include <openssl/err.h>
+#include <libopensc/log.h>
 
-void ssl_error(sc_context_t *ctx);
+#define ssl_error(ctx) { \
+    unsigned long _r; \
+    ERR_load_crypto_strings(); \
+    for (_r = ERR_get_error(); _r; _r = ERR_get_error()) { \
+        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, ERR_error_string(_r, NULL)); \
+    } \
+    ERR_free_strings(); \
+}
 
 #endif
