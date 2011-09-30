@@ -94,7 +94,7 @@ void _bin_log(sc_context_t *ctx, int type, const char *file, int line,
                 "\n%s (%u byte%s):\n%s",
                 label, len, len==1?"":"s", buf);
     } else {
-        fprintf(f, "%s (%u byte%s):\n%s",
+        fprintf(f, "%s (%u byte%s):\n%s\n",
                 label, len, len==1?"":"s", sc_dump_hex(data, len));
     }
 }
