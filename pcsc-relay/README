@@ -1,9 +1,11 @@
-Title            : pcsc-relay
-Authors          : Dominik Oepen <oepen@informatik.hu-berlin.de>
-                   Frank Morgner <morgner@informatik.hu-berlin.de>
-Version          : 0.2 2010-12-08
-License          : See file COPYING
-Tested Platforms : Linux 2.6 (Debian, Ubuntu, Om 2008)
+**********
+pcsc-relay
+**********
+
+.. Authors          : Dominik Oepen <oepen@informatik.hu-berlin.de>
+..                    Frank Morgner <morgner@informatik.hu-berlin.de>
+.. License          : See file COPYING
+.. Tested Platforms : Linux 2.6 (Debian, Ubuntu, Om 2008)
 
 Welcome to pcsc-relay. The purpose of pcsc-relay is to forward APDUs from the
 OpenPICC or from a libnfc device to a smart card via the PCSC middleware. You
@@ -11,13 +13,13 @@ can use this program in combination with the virtual smart card to emulate a
 ISO/IEC 14443 smart card. 
 
 
-INSTALLATION
+Installation
 ------------
 
 See file INSTALL.
 
 
-QUESTIONS
+Questions
 ---------
 
 For questions, please use http://sourceforge.net/projects/vsmartcard/support
