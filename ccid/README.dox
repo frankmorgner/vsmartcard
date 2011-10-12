@@ -1,4 +1,6 @@
-/** @mainpage
+*************
+ccid-emulator
+*************
 
 Welcome to ccid-emulator.  The purpose of ccid-emulator is to forward a PCSC
 smartcard reader as a standard USB CCID reader. If the host system is in USB
@@ -12,13 +14,15 @@ ccid-emulator is implemented using GadgetFS. Some fragments of the source code
 are based on the GadgetFS example at http://www.linux-usb.org/gadget/ and on the
 source code of the OpenSC tools.
 
-
-@section i INSTALLATION
+=============
+Installation
+=============
 
 See file INSTALL.
 
-
-@subsection g HINTS ON GADGETFS
+------------------
+Hints of GadgetFS
+------------------
 
 To create an USB Gadget in both USB host and USB client mode, you need to load
 the kernel module gadgetfs. A guide focused on Debian based systems to run and
@@ -34,18 +38,19 @@ If you are using a more recent version of dummy_hcd, you maybe want to check
 out this patch:
 http://comments.gmane.org/gmane.linux.usb.general/47440
 
-
-@subsection o HINTS ON OPENSC
+---------------
+Hints on OpenSC
+---------------
 
 Without libnpa ccid-emulator links against libopensc, which is discouraged and
 hindered since opensc>=0.12. We really need to get rid of this dependency. You
 need the opensc components to be installed (especially libopensc.so). But you
 might need to adjust the opensc library flags:
-./configure \
-    OPENSC_LIBS="-L/path/to/opensc/libdir -lopensc"
+``./configure OPENSC_LIBS="-L/path/to/opensc/libdir -lopensc"``
 
-
-@section u USAGE
+=====
+Usage
+=====
 
 ccid-emulator has various command line options to customize the appearance on
 the USB host. In order to run ccid-emulator GadgetFS must be loaded and mounted.
@@ -57,9 +62,10 @@ cats-test can be used to test the PACE capabilities of a smart card reader with
 PACE support (such as ccid-emulator or any other "Standardleser" CAT-S or
 "Komfortleser" CAT-C) via PC/SC.
 
+=========
+Questions
+=========
 
-@section q QUESTIONS
 For questions, please use http://sourceforge.net/projects/vsmartcard/support
 
-@author Frank Morgner <morgner@informatik.hu-berlin.de>
-*/
+.. @author Frank Morgner <morgner@informatik.hu-berlin.de>
