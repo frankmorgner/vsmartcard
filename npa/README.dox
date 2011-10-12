@@ -1,4 +1,6 @@
-/** @mainpage
+***
+npa
+***
 
 Welcome to npa. The purpose of npa is to offer an easy to use API for the new
 German identity card (neuer Personalausweis, nPA). The library also implements
@@ -11,36 +13,35 @@ The included npa-tool has support for Password Authenticated Connection
 Establishment (PACE). npa-tool can be used for PIN management or to encrypt
 APDUs inside a secure messaging channel established with PACE.
 
-
-@section i INSTALLATION
+============
+Installation
+============
 
 See file INSTALL.
 
-
-@subsection o HINTS ON OPENSC
+---------------
+Hints on OpenSC
+---------------
 
 libnpa links against libopensc, which is discouraged and hindered since
 opensc>=0.12. We really need to get rid of this dependency. You need the opensc
 components to be installed (especially libopensc.so). But you might need to
 adjust the opensc library flags:
-@code
-./configure \
-    OPENSC_LIBS="-L/path/to/opensc/libdir -lopensc"
-@endcode
 
+``./configure OPENSC_LIBS="-L/path/to/opensc/libdir -lopensc"``
 
-@subsection o HINTS ON OPENSSL
+----------------
+Hints on OpenSSL
+----------------
 
 If you have a local build of OpenSSL with OpenPACE, that you want to link
 against use something like the following command:
-@code
-./configure \
-    OPENSSL_CFLAGS="-I/path/to/openssl-1.0.0d_with_openpace-0.6/include" \
-    OPENSSL_LIBS="-L/path/to/openssl-1.0.0d_with_openpace-0.6 -lcrypto"
-@endcode
 
+``./configure OPENSSL_CFLAGS="-I/path/to/openssl-1.0.0d_with_openpace-0.6/include" OPENSSL_LIBS="-L/path/to/openssl-1.0.0d_with_openpace-0.6 -lcrypto"``
 
-@section u USAGE
+=====
+Usage
+=====
 
 When testing PACE with either PIN, CAN, MRZ or PUK run npa-tool. Here you can
 enter APDUs which are to be converted according to the secure messaging
@@ -51,14 +52,14 @@ To pass a secret to npa-tool, the command line parameters or the environment
 variables PIN/CAN/MRZ/PUK/NEWPIN can be used. If none of these options is used,
 npa-tool will show a password prompt.
 
-@subsection l LINKING AGAINST LIBNPA
+----------------------
+Linking against libnpa
+----------------------
 
 If you have a local build of libnpa and OpenPACE, the preferred way to adjust
 libraries and cflags for foreign code is to use pkg-config:
-@code
-./configure \
-    PKG_CONFIG_PATH=/path/to/openssl-1.0.0d_with_openpace-0.6/lib/pkgconfig:/path/to/libnpa/lib/pkgconfig"
-@endcode
+
+``./configure PKG_CONFIG_PATH=/path/to/openssl-1.0.0d_with_openpace-0.6/lib/pkgconfig:/path/to/libnpa/lib/pkgconfig"``
 
 Alternatively you can define libs and cflags by hand:
 @code
@@ -69,9 +70,10 @@ Alternatively you can define libs and cflags by hand:
     LIBNPA_LIBS="-L/path/to/openssl-1.0.0d_with_openpace-0.6 -lcrypto -L/path/to/libnpa-0.1/src/.libs -lnpa"
 @endcode
 
+=========
+Questions
+=========
 
-@section q QUESTIONS
 For questions, please use http://sourceforge.net/projects/vsmartcard/support
 
-@author Frank Morgner <morgner@informatik.hu-berlin.de>
-*/
+.. @author Frank Morgner <morgner@informatik.hu-berlin.de>

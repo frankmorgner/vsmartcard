@@ -16,6 +16,7 @@ Contents:
    :maxdepth: 2
 
    ccid
+   npa
    pcsc-relay
    virtualsmartcard
 
