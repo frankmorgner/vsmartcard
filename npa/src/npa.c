@@ -1598,7 +1598,7 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
                     goto err;
                 }
 
-                switch (CVC_check_cert(cvc_cert,
+                switch (CVC_check_description(cvc_cert,
                         eacsmctx->certificate_description->data,
                         eacsmctx->certificate_description->length)) {
                     case 1:
