@@ -13,7 +13,7 @@ Currently the following projects are part of vsmartcard:
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3 
 
    ccid
    npa

@@ -35,9 +35,11 @@ Hints on OpenSSL
 ----------------
 
 If you have a local build of OpenSSL with OpenPACE, that you want to link
-against use something like the following command:
+against use something like the following command: ::
 
-``./configure OPENSSL_CFLAGS="-I/path/to/openssl-1.0.0d_with_openpace-0.6/include" OPENSSL_LIBS="-L/path/to/openssl-1.0.0d_with_openpace-0.6 -lcrypto"``
+    ./configure \
+        OPENSSL_CFLAGS="-I/path/to/openssl-1.0.0d_with_openpace-0.6/include" \
+        OPENSSL_LIBS="-L/path/to/openssl-1.0.0d_with_openpace-0.6 -lcrypto"``
 
 =====
 Usage
@@ -61,14 +63,13 @@ libraries and cflags for foreign code is to use pkg-config:
 
 ``./configure PKG_CONFIG_PATH=/path/to/openssl-1.0.0d_with_openpace-0.6/lib/pkgconfig:/path/to/libnpa/lib/pkgconfig"``
 
-Alternatively you can define libs and cflags by hand:
-@code
-./configure \
-    OPENSSL_CFLAGS="-I/path/to/openssl-1.0.0d_with_openpace-0.6/include" \
-    LIBNPA_CFLAGS="-I/path/to/openssl-1.0.0d_with_openpace-0.6/include -I/path/to/libnpa-0.1/src" \
-    OPENSSL_LIBS="-L/path/to/openssl-1.0.0d_with_openpace-0.6 -lcrypto" \
-    LIBNPA_LIBS="-L/path/to/openssl-1.0.0d_with_openpace-0.6 -lcrypto -L/path/to/libnpa-0.1/src/.libs -lnpa"
-@endcode
+Alternatively you can define libs and cflags by hand: ::
+
+    ./configure \
+        OPENSSL_CFLAGS="-I/path/to/openssl-1.0.0d_with_openpace-0.6/include" \
+        LIBNPA_CFLAGS="-I/path/to/openssl-1.0.0d_with_openpace-0.6/include -I/path/to/libnpa-0.1/src" \
+        OPENSSL_LIBS="-L/path/to/openssl-1.0.0d_with_openpace-0.6 -lcrypto" \
+        LIBNPA_LIBS="-L/path/to/openssl-1.0.0d_with_openpace-0.6 -lcrypto -L/path/to/libnpa-0.1/src/.libs -lnpa"
 
 =========
 Questions
