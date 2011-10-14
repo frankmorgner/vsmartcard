@@ -6,6 +6,10 @@ INPUT                  = @top_srcdir@/src
 FILE_PATTERNS          = *.c *.h
 EXCLUDE_PATTERNS       = */opensc/*
 RECURSIVE              = YES
+ENABLE_PREPROCESSING   = YES
+MACRO_EXPANSION        = YES
+EXPAND_ONLY_PREDEF     = YES
+PREDEFINED             = __attribute__(x)=
 EXAMPLE_PATH           = @top_srcdir@/src
 GENERATE_HTML          = YES
 GENERATE_TAGFILE       = @builddir@/doc/$(PROJECT).tag
