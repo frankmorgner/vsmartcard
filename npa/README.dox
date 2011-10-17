@@ -36,7 +36,7 @@ Hints on OpenSSL
 
 If you have a local build of OpenSSL with OpenPACE, that you want to link
 against use something like the following command: ::
-
+ 
     ./configure \
         OPENSSL_CFLAGS="-I/path/to/openssl-1.0.0d_with_openpace-0.6/include" \
         OPENSSL_LIBS="-L/path/to/openssl-1.0.0d_with_openpace-0.6 -lcrypto"
@@ -61,7 +61,7 @@ Linking against libnpa
 If you have a local build of libnpa and OpenPACE, the preferred way to adjust
 libraries and cflags for foreign code is to use pkg-config:
 
-``./configure PKG_CONFIG_PATH=/path/to/openssl-1.0.0d_with_openpace-0.6/lib/pkgconfig:/path/to/libnpa/lib/pkgconfig"``
+``./configure PKG_CONFIG_PATH="/path/to/openssl-1.0.0d_with_openpace-0.6/lib/pkgconfig:/path/to/libnpa/lib/pkgconfig"``
 
 Alternatively you can define libs and cflags by hand: ::
 
