@@ -83,6 +83,44 @@ ASN1_SEQUENCE(NPA_MSE_SET_AT_C) = {
 DECLARE_ASN1_FUNCTIONS(NPA_MSE_SET_AT_C)
 IMPLEMENT_ASN1_FUNCTIONS(NPA_MSE_SET_AT_C)
 
+/* Due to limitations of OpenSSL it is not possible to *encode* an optional
+ * item template (such as APDU_DISCRETIONARY_DATA_TEMPLATES). So we need this
+ * second type of mse:set at with non-optional discretionary data templates for
+ * ta.
+ *
+ * See also openssl/crypto/asn1/tasn_dec.c:183
+ */
+typedef struct npa_ta_mse_set_at_cd_st {
+    ASN1_OBJECT *cryptographic_mechanism_reference;
+    ASN1_OCTET_STRING *key_reference1;
+    ASN1_OCTET_STRING *key_reference2;
+    ASN1_OCTET_STRING *eph_pub_key;
+    APDU_DISCRETIONARY_DATA_TEMPLATES *auxiliary_data;
+    CVC_CHAT *chat;
+} NPA_TA_MSE_SET_AT_C;
+ASN1_SEQUENCE(NPA_TA_MSE_SET_AT_C) = {
+    /* 0x80
+     * Cryptographic mechanism reference */
+    ASN1_IMP_OPT(NPA_TA_MSE_SET_AT_C, cryptographic_mechanism_reference, ASN1_OBJECT, 0),
+    /* 0x83
+     * Reference of a public key / secret key */
+    ASN1_IMP_OPT(NPA_TA_MSE_SET_AT_C, key_reference1, ASN1_OCTET_STRING, 3),
+    /* 0x84
+     * Reference of a private key / Reference for computing a session key */
+    ASN1_IMP_OPT(NPA_TA_MSE_SET_AT_C, key_reference2, ASN1_OCTET_STRING, 4),
+    /* 0x91
+     * Ephemeral Public Key */
+    ASN1_IMP_OPT(NPA_TA_MSE_SET_AT_C, eph_pub_key, ASN1_OCTET_STRING, 0x11),
+    /* 0x67
+     * Auxiliary authenticated data */
+    ASN1_SIMPLE(NPA_TA_MSE_SET_AT_C, auxiliary_data, APDU_DISCRETIONARY_DATA_TEMPLATES),
+    /*ASN1_APP_IMP_OPT(NPA_MSE_SET_AT_C, auxiliary_data, ASN1_OCTET_STRING, 7),*/
+    /* Certificate Holder Authorization Template */
+    ASN1_OPT(NPA_TA_MSE_SET_AT_C, chat, CVC_CHAT),
+} ASN1_SEQUENCE_END(NPA_TA_MSE_SET_AT_C)
+DECLARE_ASN1_FUNCTIONS(NPA_TA_MSE_SET_AT_C)
+IMPLEMENT_ASN1_FUNCTIONS(NPA_TA_MSE_SET_AT_C)
+
 
 /*
  * General Authenticate
@@ -1593,7 +1631,7 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
     int len;
     BUF_MEM *signature = NULL;
     unsigned char *sequence = NULL;
-    NPA_MSE_SET_AT_C *msesetat = NULL;
+    NPA_TA_MSE_SET_AT_C *msesetat = NULL;
     const unsigned char *p;
 
     if (!card || !ctx || !apdu || !ctx->priv_data) {
@@ -1697,19 +1735,15 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
             eacsmctx->next_car = NULL;
         }
 
-#if 0
     } else if (apdu->ins == 0x22 && apdu->p1 == 0x81 && apdu->p2 == 0xa4) {
         /* MSE:Set AT
          * fetch auxiliary data and terminal's compressed ephemeral public key
          * for CA */
-        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Parse MSE:Set AT.");
 
         len = add_tag(&sequence, 1, V_ASN1_SEQUENCE, V_ASN1_UNIVERSAL, apdu->data, apdu->datalen);
         p = sequence;
-        bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "sequence", sequence,
-                len);
-        if (len < 0 || !d2i_NPA_MSE_SET_AT_C(&msesetat, &p, len)) {
-            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not parse MSE:Set AT. %d", len);
+        if (len < 0 || !d2i_NPA_TA_MSE_SET_AT_C(&msesetat, &p, len)) {
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not parse MSE:Set AT.");
             ssl_error(card->ctx);
             r = SC_ERROR_INTERNAL;
             goto err;
@@ -1776,9 +1810,6 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
                 break;
         }
     }
-#else
-    }
-#endif
 
     r = increment_ssc(ctx->priv_data);
 
