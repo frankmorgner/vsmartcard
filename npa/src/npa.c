@@ -28,6 +28,7 @@
 #include <openssl/buffer.h>
 #include <openssl/cv_cert.h>
 #include <openssl/eac.h>
+#include <openssl/ta.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>
 #include <openssl/objects.h>
@@ -38,16 +39,25 @@
 #define ASN1_APP_IMP_OPT(stname, field, type, tag) ASN1_EX_TYPE(ASN1_TFLG_IMPTAG|ASN1_TFLG_APPLICATION|ASN1_TFLG_OPTIONAL, tag, stname, field, type)
 #define ASN1_APP_IMP(stname, field, type, tag) ASN1_EX_TYPE(ASN1_TFLG_IMPTAG|ASN1_TFLG_APPLICATION, tag, stname, field, type)
 
+typedef CVC_DISCRETIONARY_DATA_TEMPLATES APDU_DISCRETIONARY_DATA_TEMPLATES;
+DECLARE_ASN1_FUNCTIONS(APDU_DISCRETIONARY_DATA_TEMPLATES)
+ASN1_ITEM_TEMPLATE(APDU_DISCRETIONARY_DATA_TEMPLATES) =
+        ASN1_EX_TEMPLATE_TYPE(ASN1_TFLG_IMPTAG|ASN1_TFLG_APPLICATION, 0x7,
+                APDU_DISCRETIONARY_DATA_TEMPLATES,
+                CVC_DISCRETIONARY_DATA_TEMPLATES)
+ASN1_ITEM_TEMPLATE_END(APDU_DISCRETIONARY_DATA_TEMPLATES)
+IMPLEMENT_ASN1_FUNCTIONS(APDU_DISCRETIONARY_DATA_TEMPLATES)
+
 /*
  * MSE:Set AT
  */
 
 typedef struct npa_mse_set_at_cd_st {
     ASN1_OBJECT *cryptographic_mechanism_reference;
-    ASN1_INTEGER *key_reference1;
-    ASN1_INTEGER *key_reference2;
-    CVC_DISCRETIONARY_DATA_TEMPLATE *auxiliary_data;
+    ASN1_OCTET_STRING *key_reference1;
+    ASN1_OCTET_STRING *key_reference2;
     ASN1_OCTET_STRING *eph_pub_key;
+    APDU_DISCRETIONARY_DATA_TEMPLATES *auxiliary_data;
     CVC_CHAT *chat;
 } NPA_MSE_SET_AT_C;
 ASN1_SEQUENCE(NPA_MSE_SET_AT_C) = {
@@ -56,19 +66,21 @@ ASN1_SEQUENCE(NPA_MSE_SET_AT_C) = {
     ASN1_IMP_OPT(NPA_MSE_SET_AT_C, cryptographic_mechanism_reference, ASN1_OBJECT, 0),
     /* 0x83
      * Reference of a public key / secret key */
-    ASN1_IMP_OPT(NPA_MSE_SET_AT_C, key_reference1, ASN1_INTEGER, 3),
+    ASN1_IMP_OPT(NPA_MSE_SET_AT_C, key_reference1, ASN1_OCTET_STRING, 3),
     /* 0x84
      * Reference of a private key / Reference for computing a session key */
-    ASN1_IMP_OPT(NPA_MSE_SET_AT_C, key_reference2, ASN1_INTEGER, 4),
-    /* 0x67
-     * Auxiliary authenticated data */
-    ASN1_APP_IMP_OPT(NPA_MSE_SET_AT_C, auxiliary_data, CVC_DISCRETIONARY_DATA_TEMPLATE, 7),
+    ASN1_IMP_OPT(NPA_MSE_SET_AT_C, key_reference2, ASN1_OCTET_STRING, 4),
     /* 0x91
      * Ephemeral Public Key */
     ASN1_IMP_OPT(NPA_MSE_SET_AT_C, eph_pub_key, ASN1_OCTET_STRING, 0x11),
+    /* 0x67
+     * Auxiliary authenticated data */
+    ASN1_OPT(NPA_MSE_SET_AT_C, auxiliary_data, APDU_DISCRETIONARY_DATA_TEMPLATES),
+    /*ASN1_APP_IMP_OPT(NPA_MSE_SET_AT_C, auxiliary_data, ASN1_OCTET_STRING, 7),*/
     /* Certificate Holder Authorization Template */
     ASN1_OPT(NPA_MSE_SET_AT_C, chat, CVC_CHAT),
 } ASN1_SEQUENCE_END(NPA_MSE_SET_AT_C)
+DECLARE_ASN1_FUNCTIONS(NPA_MSE_SET_AT_C)
 IMPLEMENT_ASN1_FUNCTIONS(NPA_MSE_SET_AT_C)
 
 
@@ -93,6 +105,7 @@ ASN1_SEQUENCE(NPA_GEN_AUTH_C_BODY) = {
      * Authentication Token */
     ASN1_IMP_OPT(NPA_GEN_AUTH_C_BODY, auth_token, ASN1_OCTET_STRING, 5),
 } ASN1_SEQUENCE_END(NPA_GEN_AUTH_C_BODY)
+DECLARE_ASN1_FUNCTIONS(NPA_GEN_AUTH_C_BODY)
 IMPLEMENT_ASN1_FUNCTIONS(NPA_GEN_AUTH_C_BODY)
 
 typedef NPA_GEN_AUTH_C_BODY NPA_GEN_AUTH_C;
@@ -103,6 +116,7 @@ ASN1_ITEM_TEMPLATE(NPA_GEN_AUTH_C) =
             ASN1_TFLG_IMPTAG|ASN1_TFLG_APPLICATION,
             0x1c, NPA_GEN_AUTH_C, NPA_GEN_AUTH_C_BODY)
 ASN1_ITEM_TEMPLATE_END(NPA_GEN_AUTH_C)
+DECLARE_ASN1_FUNCTIONS(NPA_GEN_AUTH_C)
 IMPLEMENT_ASN1_FUNCTIONS(NPA_GEN_AUTH_C)
 
 /* Protocol Response Data */
@@ -134,6 +148,7 @@ ASN1_SEQUENCE(NPA_GEN_AUTH_R_BODY) = {
      * Previous Certification Authority Reference */
     ASN1_IMP_OPT(NPA_GEN_AUTH_R_BODY, prev_car, ASN1_OCTET_STRING, 8),
 } ASN1_SEQUENCE_END(NPA_GEN_AUTH_R_BODY)
+DECLARE_ASN1_FUNCTIONS(NPA_GEN_AUTH_R_BODY)
 IMPLEMENT_ASN1_FUNCTIONS(NPA_GEN_AUTH_R_BODY)
 
 typedef NPA_GEN_AUTH_R_BODY NPA_GEN_AUTH_R;
@@ -144,6 +159,7 @@ ASN1_ITEM_TEMPLATE(NPA_GEN_AUTH_R) =
             ASN1_TFLG_IMPTAG|ASN1_TFLG_APPLICATION,
             0x1c, NPA_GEN_AUTH_R, NPA_GEN_AUTH_R_BODY)
 ASN1_ITEM_TEMPLATE_END(NPA_GEN_AUTH_R)
+DECLARE_ASN1_FUNCTIONS(NPA_GEN_AUTH_R)
 IMPLEMENT_ASN1_FUNCTIONS(NPA_GEN_AUTH_R)
 
 
@@ -166,6 +182,10 @@ struct npa_sm_ctx {
     BUF_MEM *auxiliary_data;
     /** Nonce generated in TA */
     BUF_MEM *nonce;
+    /** CAR of the card's most recent imported certificate */
+    BUF_MEM *cur_car;
+    /** CHR of the certificate to be imported */
+    BUF_MEM *next_car;
 };
 
 static int npa_sm_encrypt(sc_card_t *card, const struct sm_ctx *ctx,
@@ -192,8 +212,8 @@ static int reset_ssc(struct npa_sm_ctx *eacsmctx);
 static struct npa_sm_ctx *
 npa_sm_ctx_create(EAC_CTX *ctx, const unsigned char *certificate_description,
         size_t certificate_description_length,
-        const unsigned char *id_icc, size_t id_icc_length
-        )
+        const unsigned char *id_icc, size_t id_icc_length,
+        const unsigned char *car, size_t car_length)
 {
     struct npa_sm_ctx *out = malloc(sizeof *out);
     if (!out)
@@ -214,7 +234,12 @@ npa_sm_ctx_create(EAC_CTX *ctx, const unsigned char *certificate_description,
     if (!out->id_icc)
         goto err;
 
+    out->cur_car = BUF_MEM_create_init(car, car_length);
+    if (!out->cur_car)
+        goto err;
+
     out->nonce = NULL;
+    out->next_car = NULL;
     out->eph_pub_key = NULL;
     out->auxiliary_data = NULL;
 
@@ -253,7 +278,7 @@ int get_ef_card_access(sc_card_t *card,
     sc_file_t *file = NULL;
     u8 *p;
 
-    if (!ef_cardaccess || !length_ef_cardaccess) {
+    if (!card || !ef_cardaccess || !length_ef_cardaccess) {
         r = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
     }
@@ -325,11 +350,13 @@ static int npa_mse_set_at(struct sm_ctx *oldnpactx, sc_card_t *card,
     sc_apdu_t apdu;
     unsigned char *d = NULL;
     NPA_MSE_SET_AT_C *data = NULL;
-    int r, tries;
+    int r, tries, class, tag;
+    long length;
+    const unsigned char *p;
 
     memset(&apdu, 0, sizeof apdu);
 
-    if (!sw1 || !sw2) {
+    if (!card || !sw1 || !sw2) {
         r = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
     }
@@ -358,6 +385,7 @@ static int npa_mse_set_at(struct sm_ctx *oldnpactx, sc_card_t *card,
 
     if (!ASN1_INTEGER_set(data->key_reference1, secret_key)) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Error setting key reference 1 of MSE:Set AT data");
+        ssl_error(card->ctx);
         r = SC_ERROR_INTERNAL;
         goto err;
     }
@@ -366,16 +394,17 @@ static int npa_mse_set_at(struct sm_ctx *oldnpactx, sc_card_t *card,
 
 
     r = i2d_NPA_MSE_SET_AT_C(data, &d);
-    if (r < 0) {
+    p = d;
+    if (r < 0
+            || (0x80 & ASN1_get_object(&p, &length, &tag, &class, r))) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Error encoding MSE:Set AT APDU data");
+        ssl_error(card->ctx);
         r = SC_ERROR_INTERNAL;
         goto err;
     }
-    /* The tag/length for the sequence (0x30) is omitted in the command apdu. */
-    /* XXX is there a OpenSSL way to get the value only or even a define for
-     * the tag? */
-    apdu.data = sc_asn1_find_tag(card->ctx, d, r, 0x30, &apdu.datalen);
-    apdu.lc = apdu.datalen;
+    apdu.data = p;
+    apdu.datalen = length;
+    apdu.lc = length;
 
     bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "MSE:Set AT command data", apdu.data, apdu.datalen);
 
@@ -457,6 +486,7 @@ static int npa_gen_auth_1_encrypted_nonce(struct sm_ctx *oldnpactx,
     }
     r = i2d_NPA_GEN_AUTH_C(c_data, &d);
     if (r < 0) {
+        ssl_error(card->ctx);
         r = SC_ERROR_INTERNAL;
         goto err;
     }
@@ -484,6 +514,7 @@ static int npa_gen_auth_1_encrypted_nonce(struct sm_ctx *oldnpactx,
     if (!d2i_NPA_GEN_AUTH_R(&r_data,
                 (const unsigned char **) &apdu.resp, apdu.resplen)) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not parse general authenticate response data.");
+        ssl_error(card->ctx);
         r = SC_ERROR_INTERNAL;
         goto err;
     }
@@ -547,11 +578,13 @@ static int npa_gen_auth_2_map_nonce(struct sm_ctx *oldnpactx,
     if (!c_data->mapping_data
             || !M_ASN1_OCTET_STRING_set(
                 c_data->mapping_data, in, in_len)) {
+        ssl_error(card->ctx);
         r = SC_ERROR_INTERNAL;
         goto err;
     }
     r = i2d_NPA_GEN_AUTH_C(c_data, &d);
     if (r < 0) {
+        ssl_error(card->ctx);
         r = SC_ERROR_INTERNAL;
         goto err;
     }
@@ -579,6 +612,7 @@ static int npa_gen_auth_2_map_nonce(struct sm_ctx *oldnpactx,
     if (!d2i_NPA_GEN_AUTH_R(&r_data,
                 (const unsigned char **) &apdu.resp, apdu.resplen)) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not parse general authenticate response data.");
+        ssl_error(card->ctx);
         r = SC_ERROR_INTERNAL;
         goto err;
     }
@@ -642,11 +676,13 @@ static int npa_gen_auth_3_perform_key_agreement(
     if (!c_data->eph_pub_key
             || !M_ASN1_OCTET_STRING_set(
                 c_data->eph_pub_key, in, in_len)) {
+        ssl_error(card->ctx);
         r = SC_ERROR_INTERNAL;
         goto err;
     }
     r = i2d_NPA_GEN_AUTH_C(c_data, &d);
     if (r < 0) {
+        ssl_error(card->ctx);
         r = SC_ERROR_INTERNAL;
         goto err;
     }
@@ -674,6 +710,7 @@ static int npa_gen_auth_3_perform_key_agreement(
     if (!d2i_NPA_GEN_AUTH_R(&r_data,
                 (const unsigned char **) &apdu.resp, apdu.resplen)) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not parse general authenticate response data.");
+        ssl_error(card->ctx);
         r = SC_ERROR_INTERNAL;
         goto err;
     }
@@ -740,11 +777,13 @@ static int npa_gen_auth_4_mutual_authentication(
     if (!c_data->auth_token
             || !M_ASN1_OCTET_STRING_set(
                 c_data->auth_token, in, in_len)) {
+        ssl_error(card->ctx);
         r = SC_ERROR_INTERNAL;
         goto err;
     }
     r = i2d_NPA_GEN_AUTH_C(c_data, &d);
     if (r < 0) {
+        ssl_error(card->ctx);
         r = SC_ERROR_INTERNAL;
         goto err;
     }
@@ -772,6 +811,7 @@ static int npa_gen_auth_4_mutual_authentication(
     if (!d2i_NPA_GEN_AUTH_R(&r_data,
                 (const unsigned char **) &apdu.resp, apdu.resplen)) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not parse general authenticate response data.");
+        ssl_error(card->ctx);
         r = SC_ERROR_INTERNAL;
         goto err;
     }
@@ -787,7 +827,6 @@ static int npa_gen_auth_4_mutual_authentication(
     }
     p = r_data->auth_token->data;
     l = r_data->auth_token->length;
-    /* XXX CAR sould be returned as result in some way */
     if (r_data->cur_car) {
         bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "Most recent Certificate Authority Reference",
                 r_data->cur_car->data, r_data->cur_car->length);
@@ -948,10 +987,9 @@ int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
     BIO *bio_stdout = NULL;
 	CVC_CERTIFICATE_DESCRIPTION *desc = NULL;
     int r;
+    const unsigned char *pp;
 
-    if (!card)
-        return SC_ERROR_CARD_NOT_PRESENT;
-    if (!pace_output || !sctx)
+    if (!card || !pace_output || !sctx)
         return SC_ERROR_INVALID_ARGUMENTS;
 
     /* show description in advance to give the user more time to read it...
@@ -959,10 +997,11 @@ int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
     if (pace_input.certificate_description_length &&
             pace_input.certificate_description) {
 
-        const unsigned char *pp = pace_input.certificate_description;
+        pp = pace_input.certificate_description;
 		if (!d2i_CVC_CERTIFICATE_DESCRIPTION(&desc,
                     &pp, pace_input.certificate_description_length)) {
 			sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not parse certificate description.");
+            ssl_error(card->ctx);
 			r = SC_ERROR_INTERNAL;
 			goto err;
 		}
@@ -1021,9 +1060,10 @@ int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
             goto err;
         }
 
-        if (!d2i_CVC_CHAT(&chat, (const unsigned char **) &pace_input.chat,
-                    pace_input.chat_length)) {
+        pp = pace_input.chat;
+        if (!d2i_CVC_CHAT(&chat, &pp, pace_input.chat_length)) {
             sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not parse card holder authorization template (CHAT).");
+            ssl_error(card->ctx);
             r = SC_ERROR_INTERNAL;
             goto err;
         }
@@ -1069,7 +1109,8 @@ int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
     }
     enc_nonce = BUF_MEM_new();
     if (!enc_nonce) {
-        r = SC_ERROR_INTERNAL;
+        ssl_error(card->ctx);
+        r = SC_ERROR_OUT_OF_MEMORY;
         goto err;
     }
     r = npa_gen_auth_1_encrypted_nonce(oldnpactx, card, (u8 **) &enc_nonce->data,
@@ -1227,12 +1268,15 @@ int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
         r = SC_ERROR_INTERNAL;
         goto err;
     }
+    eac_ctx->ta_ctx->flags |= TA_FLAG_SKIP_TIMECHECK;
 
     sctx->priv_data = npa_sm_ctx_create(eac_ctx,
             pace_input.certificate_description,
             pace_input.certificate_description_length,
             pace_output->id_icc,
-            pace_output->id_icc_length);
+            pace_output->id_icc_length,
+            pace_output->recent_car,
+            pace_output->recent_car_length);
     if (!sctx->priv_data) {
         r = SC_ERROR_OUT_OF_MEMORY;
         goto err;
@@ -1346,7 +1390,7 @@ npa_sm_encrypt(sc_card_t *card, const struct sm_ctx *ctx,
     u8 *p = NULL;
     int r;
 
-    if (!ctx || !enc || !ctx->priv_data) {
+    if (!card || !ctx || !enc || !ctx->priv_data) {
         r = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
     }
@@ -1390,7 +1434,7 @@ npa_sm_decrypt(sc_card_t *card, const struct sm_ctx *ctx,
     u8 *p = NULL;
     int r;
 
-    if (!ctx || !enc || !ctx->priv_data || !data) {
+    if (!card || !ctx || !enc || !ctx->priv_data || !data) {
         r = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
     }
@@ -1434,7 +1478,7 @@ npa_sm_authenticate(sc_card_t *card, const struct sm_ctx *ctx,
     u8 *p = NULL, *ssc = NULL;
     int r;
 
-    if (!ctx || !ctx->priv_data || !macdata) {
+    if (!card || !ctx || !ctx->priv_data || !macdata) {
         r = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
     }
@@ -1477,7 +1521,7 @@ npa_sm_verify_authentication(sc_card_t *card, const struct sm_ctx *ctx,
     char *p;
     BUF_MEM *my_mac = NULL;
 
-    if (!ctx || !ctx->priv_data) {
+    if (!card || !ctx || !ctx->priv_data) {
         r = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
     }
@@ -1512,38 +1556,33 @@ err:
     return r;
 }
 
-static CVC_CERT *
-cert_from_apdudata(const unsigned char *data, size_t len)
+static int
+add_tag(unsigned char **asn1new, int constructed, int tag,
+        int xclass, const unsigned char *data, size_t len)
 {
-    /* there MUST be a more elegant way to do this... */
-    CVC_CERT *cert = NULL;
-    long int asn1datalen = len;
-    int tag, xclass;
-    const unsigned char *p = data;
+    unsigned char *p;
+    int newlen;
 
-    cert = CVC_CERT_new();
-    if (!cert)
-        goto err;
+    if (!asn1new || !data)
+        return -1;
 
-    if (0x80 & ASN1_get_object(&p, &asn1datalen, &tag, &xclass, len)
-            || !d2i_CVC_CERT_BODY(&cert->body, &data, (p-data)+asn1datalen))
-        goto err;
+    newlen = ASN1_object_size(constructed, len, tag);
+    if (newlen < 0)
+        return newlen;
 
-    p += asn1datalen;
-    if (0x80 & ASN1_get_object(&p, &asn1datalen, &tag, &xclass, len-(p-data))
-            || tag != 0x37)
-        goto err;
-    cert->signature = ASN1_OCTET_STRING_new();
-    if (!cert->signature
-            || !ASN1_OCTET_STRING_set(cert->signature, p, asn1datalen))
-        goto err;
+    p = OPENSSL_realloc(*asn1new, newlen);
+    if (!p)
+        return -1;
+    *asn1new = p;
 
-    return cert;
+    ASN1_put_object(&p, constructed, len, tag, xclass);
+    memcpy(p, data, len);
 
-err:
-    if (cert)
-        CVC_CERT_free(cert);
+    return newlen;
 }
+extern int
+cvc_certificate_extension_print(BIO *bio,
+        CVC_DISCRETIONARY_DATA_TEMPLATE *extension, int indent);
 static int
 npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
         sc_apdu_t *apdu)
@@ -1555,25 +1594,35 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
     BUF_MEM *signature = NULL;
     unsigned char *sequence = NULL;
     NPA_MSE_SET_AT_C *msesetat = NULL;
+    const unsigned char *p;
 
-    if (!ctx) {
+    if (!card || !ctx || !apdu || !ctx->priv_data) {
         r = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
     }
-
     struct npa_sm_ctx *eacsmctx = ctx->priv_data;
-    if (!ctx) {
-        r = SC_ERROR_INVALID_ARGUMENTS;
-        goto err;
-    }
 
-    if (apdu && apdu->ins == 0x2a && apdu->p1 == 0x00 && apdu->p2 == 0xbe) {
+    if (apdu->ins == 0x22 && apdu->p1 == 0x81 && apdu->p2 == 0xbe) {
+        /* MSE:Set DST
+         * setup certificate verification for TA */
+
+        if (!eacsmctx->cur_car || !eacsmctx->cur_car->length != apdu->datalen
+                || memcmp(eacsmctx->cur_car->data, apdu->data, apdu->datalen) != 0) {
+            r = SC_ERROR_INVALID_DATA;
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
+                    "CAR doesn't match the most recent imported certificate");
+            goto err;
+        }
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "CAR matches the most recent imported certificate");
+
+    } else if (apdu->ins == 0x2a && apdu->p1 == 0x00 && apdu->p2 == 0xbe) {
         /* PSO:Verify Certificate
-         * check certificate description to match given certificate
-         * TODO take MSE:Set DST (sent before) into account */
-        cvc_cert = cert_from_apdudata(apdu->data, apdu->datalen);
+         * check certificate description to match given certificate */
 
-        if (!cvc_cert || !cvc_cert->body) {
+        len = add_tag(&cert, 1, 0x21, V_ASN1_APPLICATION, apdu->data, apdu->datalen);
+        p = cert;
+        if (len < 0 || !d2i_CVC_CERT(&cvc_cert, &p, len)
+                || !cvc_cert || !cvc_cert->body) {
             r = SC_ERROR_INVALID_DATA;
             goto err;
         }
@@ -1599,8 +1648,8 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
                 }
 
                 switch (CVC_check_description(cvc_cert,
-                        eacsmctx->certificate_description->data,
-                        eacsmctx->certificate_description->length)) {
+                            eacsmctx->certificate_description->data,
+                            eacsmctx->certificate_description->length)) {
                     case 1:
                         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
                                 "Certificate Description matches Certificate");
@@ -1628,9 +1677,7 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
                 break;
         }
 
-        len = i2d_CVC_CERT(cvc_cert, &cert);
-        if (len < 0
-                || !TA_STEP2_import_certificate(eacsmctx->ctx, cert, len)) {
+        if (!TA_STEP2_import_certificate(eacsmctx->ctx, cert, len)) {
             sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
                     "Error importing certificate");
             ssl_error(card->ctx);
@@ -1638,18 +1685,32 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
             goto err;
         }
 
-    } else if (apdu && apdu->ins == 0x22 && apdu->p1 == 0x81 && apdu->p2 == 0xa4) {
+        if (eacsmctx->next_car)
+            BUF_MEM_free(eacsmctx->next_car);
+        if (cvc_cert->body->certificate_holder_reference) {
+            eacsmctx->next_car = BUF_MEM_create_init(apdu->data, apdu->datalen);
+            if (!eacsmctx->next_car) {
+                r = SC_ERROR_OUT_OF_MEMORY;
+                goto err;
+            }
+        } else {
+            eacsmctx->next_car = NULL;
+        }
+
+#if 0
+    } else if (apdu->ins == 0x22 && apdu->p1 == 0x81 && apdu->p2 == 0xa4) {
         /* MSE:Set AT
          * fetch auxiliary data and terminal's compressed ephemeral public key
          * for CA */
-        len = ASN1_object_size(1, apdu->datalen, V_ASN1_SEQUENCE);
-        sequence = malloc(len);
-        unsigned char *p = sequence;
-        const unsigned char *pp = sequence;
-        ASN1_put_object(&p, 1, apdu->datalen, V_ASN1_SEQUENCE,V_ASN1_UNIVERSAL);
-        memcpy(p, apdu->data, apdu->datalen);
-        if (!d2i_NPA_MSE_SET_AT_C(&msesetat, &pp, len)) {
-            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not parse MSE:Set AT.");
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Parse MSE:Set AT.");
+
+        len = add_tag(&sequence, 1, V_ASN1_SEQUENCE, V_ASN1_UNIVERSAL, apdu->data, apdu->datalen);
+        p = sequence;
+        bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "sequence", sequence,
+                len);
+        if (len < 0 || !d2i_NPA_MSE_SET_AT_C(&msesetat, &p, len)) {
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not parse MSE:Set AT. %d", len);
+            ssl_error(card->ctx);
             r = SC_ERROR_INTERNAL;
             goto err;
         }
@@ -1663,7 +1724,7 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
                 goto err;
             }
             eacsmctx->auxiliary_data->length =
-                i2d_CVC_DISCRETIONARY_DATA_TEMPLATE(msesetat->auxiliary_data,
+                i2d_APDU_DISCRETIONARY_DATA_TEMPLATES(msesetat->auxiliary_data,
                         (unsigned char **) &eacsmctx->auxiliary_data->data);
             if ((int) eacsmctx->auxiliary_data->length < 0) {
                 r = SC_ERROR_OUT_OF_MEMORY;
@@ -1683,7 +1744,8 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
                 goto err;
             }
         }
-    } else if (apdu && apdu->ins == 0x82 && apdu->p1 == 0x00 && apdu->p2 == 0x00) {
+
+    } else if (apdu->ins == 0x82 && apdu->p1 == 0x00 && apdu->p2 == 0x00) {
         /* External Authenticate
          * check terminal's signature */
 
@@ -1714,6 +1776,9 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
                 break;
         }
     }
+#else
+    }
+#endif
 
     r = increment_ssc(ctx->priv_data);
 
@@ -1742,25 +1807,36 @@ static int
 npa_sm_finish(sc_card_t *card, const struct sm_ctx *ctx,
         sc_apdu_t *apdu)
 {
-    if (!ctx || !ctx->priv_data)
+    if (!card || !ctx || !ctx->priv_data || !apdu || !card)
         SC_FUNC_RETURN(card->ctx,  SC_LOG_DEBUG_NORMAL,
                 SC_ERROR_INVALID_ARGUMENTS);
+    struct npa_sm_ctx *eacsmctx = ctx->priv_data;
 
-    if (apdu && apdu->ins == 0x84 && apdu->p1 == 0x00 && apdu->p2 == 0x00 && apdu->le == 8
-            && apdu->sw1 == 0x90 && apdu->sw2 == 0x00 && apdu->resplen == 8) {
-        /* Get Challenge
-         * copy challenge to EAC context */
-        struct npa_sm_ctx *eacsmctx = ctx->priv_data;
+    if (apdu->sw1 == 0x90 && apdu->sw2 == 0x00) {
+        if (apdu->ins == 0x2a && apdu->p1 == 0x00 && apdu->p2 == 0xbe) {
+            /* PSO:Verify Certificate
+             * copy the currently imported certificate's CHR to the current CAR */
 
-        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Saving MRTD's nonce to later verify Terminal's signature");
+            if (eacsmctx->cur_car)
+                BUF_MEM_free(eacsmctx->cur_car);
+            eacsmctx->cur_car = eacsmctx->next_car;
+            eacsmctx->next_car = NULL;
 
-        if (eacsmctx->nonce)
-            BUF_MEM_free(eacsmctx->nonce);
+        } else if (apdu->ins == 0x84 && apdu->p1 == 0x00 && apdu->p2 == 0x00
+                && apdu->le == 8 && apdu->resplen == 8) {
+            /* Get Challenge
+             * copy challenge to EAC context */
 
-        eacsmctx->nonce = BUF_MEM_create_init(apdu->resp, apdu->resplen);
-        if (!eacsmctx->nonce)
-            SC_FUNC_RETURN(card->ctx,  SC_LOG_DEBUG_NORMAL,
-                    SC_ERROR_OUT_OF_MEMORY);
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Saving MRTD's nonce to later verify Terminal's signature");
+
+            if (eacsmctx->nonce)
+                BUF_MEM_free(eacsmctx->nonce);
+
+            eacsmctx->nonce = BUF_MEM_create_init(apdu->resp, apdu->resplen);
+            if (!eacsmctx->nonce)
+                SC_FUNC_RETURN(card->ctx,  SC_LOG_DEBUG_NORMAL,
+                        SC_ERROR_OUT_OF_MEMORY);
+        }
     }
 
     SC_FUNC_RETURN(card->ctx,  SC_LOG_DEBUG_NORMAL, 0);
@@ -1784,6 +1860,10 @@ npa_sm_clear_free(const struct sm_ctx *ctx)
             BUF_MEM_free(eacsmctx->eph_pub_key);
         if (eacsmctx->auxiliary_data)
             BUF_MEM_free(eacsmctx->auxiliary_data);
+        if (eacsmctx->cur_car)
+            BUF_MEM_free(eacsmctx->cur_car);
+        if (eacsmctx->next_car)
+            BUF_MEM_free(eacsmctx->next_car);
         free(eacsmctx);
     }
 }

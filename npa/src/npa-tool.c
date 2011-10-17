@@ -539,7 +539,7 @@ main (int argc, char **argv)
         if (i < 0)
             goto err;
         printf("Established PACE channel with %s.\n",
-                npa_secret_name(pace_input.pin_id));
+                npa_secret_name(pace_input.pin_id), file);
 
         if (dotranslate) {
             FILE *input;
@@ -547,8 +547,10 @@ main (int argc, char **argv)
                 input = stdin;
             else {
                 input = fopen(file, "r");
-                if (!input)
+                if (!input) {
                     perror("Opening file with APDUs");
+                    goto err;
+                }
             }
 
             i = npa_translate_apdus(&sctx, card, input);
