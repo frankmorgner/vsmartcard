@@ -39,15 +39,6 @@
 #define ASN1_APP_IMP_OPT(stname, field, type, tag) ASN1_EX_TYPE(ASN1_TFLG_IMPTAG|ASN1_TFLG_APPLICATION|ASN1_TFLG_OPTIONAL, tag, stname, field, type)
 #define ASN1_APP_IMP(stname, field, type, tag) ASN1_EX_TYPE(ASN1_TFLG_IMPTAG|ASN1_TFLG_APPLICATION, tag, stname, field, type)
 
-typedef CVC_DISCRETIONARY_DATA_TEMPLATES APDU_DISCRETIONARY_DATA_TEMPLATES;
-DECLARE_ASN1_FUNCTIONS(APDU_DISCRETIONARY_DATA_TEMPLATES)
-ASN1_ITEM_TEMPLATE(APDU_DISCRETIONARY_DATA_TEMPLATES) =
-        ASN1_EX_TEMPLATE_TYPE(ASN1_TFLG_IMPTAG|ASN1_TFLG_APPLICATION, 0x7,
-                APDU_DISCRETIONARY_DATA_TEMPLATES,
-                CVC_DISCRETIONARY_DATA_TEMPLATES)
-ASN1_ITEM_TEMPLATE_END(APDU_DISCRETIONARY_DATA_TEMPLATES)
-IMPLEMENT_ASN1_FUNCTIONS(APDU_DISCRETIONARY_DATA_TEMPLATES)
-
 /*
  * MSE:Set AT
  */
@@ -57,7 +48,7 @@ typedef struct npa_mse_set_at_cd_st {
     ASN1_OCTET_STRING *key_reference1;
     ASN1_OCTET_STRING *key_reference2;
     ASN1_OCTET_STRING *eph_pub_key;
-    APDU_DISCRETIONARY_DATA_TEMPLATES *auxiliary_data;
+    CVC_DISCRETIONARY_DATA_TEMPLATES *auxiliary_data;
     CVC_CHAT *chat;
 } NPA_MSE_SET_AT_C;
 ASN1_SEQUENCE(NPA_MSE_SET_AT_C) = {
@@ -75,51 +66,13 @@ ASN1_SEQUENCE(NPA_MSE_SET_AT_C) = {
     ASN1_IMP_OPT(NPA_MSE_SET_AT_C, eph_pub_key, ASN1_OCTET_STRING, 0x11),
     /* 0x67
      * Auxiliary authenticated data */
-    ASN1_OPT(NPA_MSE_SET_AT_C, auxiliary_data, APDU_DISCRETIONARY_DATA_TEMPLATES),
+    ASN1_APP_IMP_OPT(NPA_MSE_SET_AT_C, auxiliary_data, CVC_DISCRETIONARY_DATA_TEMPLATES, 7),
     /*ASN1_APP_IMP_OPT(NPA_MSE_SET_AT_C, auxiliary_data, ASN1_OCTET_STRING, 7),*/
     /* Certificate Holder Authorization Template */
     ASN1_OPT(NPA_MSE_SET_AT_C, chat, CVC_CHAT),
 } ASN1_SEQUENCE_END(NPA_MSE_SET_AT_C)
 DECLARE_ASN1_FUNCTIONS(NPA_MSE_SET_AT_C)
 IMPLEMENT_ASN1_FUNCTIONS(NPA_MSE_SET_AT_C)
-
-/* Due to limitations of OpenSSL it is not possible to *encode* an optional
- * item template (such as APDU_DISCRETIONARY_DATA_TEMPLATES). So we need this
- * second type of mse:set at with non-optional discretionary data templates for
- * ta.
- *
- * See also openssl/crypto/asn1/tasn_dec.c:183
- */
-typedef struct npa_ta_mse_set_at_cd_st {
-    ASN1_OBJECT *cryptographic_mechanism_reference;
-    ASN1_OCTET_STRING *key_reference1;
-    ASN1_OCTET_STRING *key_reference2;
-    ASN1_OCTET_STRING *eph_pub_key;
-    APDU_DISCRETIONARY_DATA_TEMPLATES *auxiliary_data;
-    CVC_CHAT *chat;
-} NPA_TA_MSE_SET_AT_C;
-ASN1_SEQUENCE(NPA_TA_MSE_SET_AT_C) = {
-    /* 0x80
-     * Cryptographic mechanism reference */
-    ASN1_IMP_OPT(NPA_TA_MSE_SET_AT_C, cryptographic_mechanism_reference, ASN1_OBJECT, 0),
-    /* 0x83
-     * Reference of a public key / secret key */
-    ASN1_IMP_OPT(NPA_TA_MSE_SET_AT_C, key_reference1, ASN1_OCTET_STRING, 3),
-    /* 0x84
-     * Reference of a private key / Reference for computing a session key */
-    ASN1_IMP_OPT(NPA_TA_MSE_SET_AT_C, key_reference2, ASN1_OCTET_STRING, 4),
-    /* 0x91
-     * Ephemeral Public Key */
-    ASN1_IMP_OPT(NPA_TA_MSE_SET_AT_C, eph_pub_key, ASN1_OCTET_STRING, 0x11),
-    /* 0x67
-     * Auxiliary authenticated data */
-    ASN1_SIMPLE(NPA_TA_MSE_SET_AT_C, auxiliary_data, APDU_DISCRETIONARY_DATA_TEMPLATES),
-    /*ASN1_APP_IMP_OPT(NPA_MSE_SET_AT_C, auxiliary_data, ASN1_OCTET_STRING, 7),*/
-    /* Certificate Holder Authorization Template */
-    ASN1_OPT(NPA_TA_MSE_SET_AT_C, chat, CVC_CHAT),
-} ASN1_SEQUENCE_END(NPA_TA_MSE_SET_AT_C)
-DECLARE_ASN1_FUNCTIONS(NPA_TA_MSE_SET_AT_C)
-IMPLEMENT_ASN1_FUNCTIONS(NPA_TA_MSE_SET_AT_C)
 
 
 /*
@@ -1628,10 +1581,11 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
     int r;
     CVC_CERT *cvc_cert = NULL;
     unsigned char *cert = NULL;
-    int len;
+    int len,  tag, class;
+    long int llen;
     BUF_MEM *signature = NULL;
-    unsigned char *sequence = NULL;
-    NPA_TA_MSE_SET_AT_C *msesetat = NULL;
+    unsigned char *sequence = NULL, *templates = NULL;
+    NPA_MSE_SET_AT_C *msesetat = NULL;
     const unsigned char *p;
 
     if (!card || !ctx || !apdu || !ctx->priv_data) {
@@ -1742,7 +1696,7 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
 
         len = add_tag(&sequence, 1, V_ASN1_SEQUENCE, V_ASN1_UNIVERSAL, apdu->data, apdu->datalen);
         p = sequence;
-        if (len < 0 || !d2i_NPA_TA_MSE_SET_AT_C(&msesetat, &p, len)) {
+        if (len < 0 || !d2i_NPA_MSE_SET_AT_C(&msesetat, &p, len)) {
             sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not parse MSE:Set AT.");
             ssl_error(card->ctx);
             r = SC_ERROR_INTERNAL;
@@ -1757,9 +1711,27 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
                 r = SC_ERROR_OUT_OF_MEMORY;
                 goto err;
             }
-            eacsmctx->auxiliary_data->length =
-                i2d_APDU_DISCRETIONARY_DATA_TEMPLATES(msesetat->auxiliary_data,
-                        (unsigned char **) &eacsmctx->auxiliary_data->data);
+            /* Note that we can not define CVC_DISCRETIONARY_DATA_TEMPLATES as
+             * item template with the correct tag.  Due to limitations of
+             * OpenSSL it is not possible to *encode* an optional item template
+             * (such as APDU_DISCRETIONARY_DATA_TEMPLATES) in an other item
+             * template (such as NPA_MSE_SET_AT_C). So what we have to do here
+             * is manually adding the correct tag to the saved
+             * CVC_DISCRETIONARY_DATA_TEMPLATES.
+             * See also openssl/crypto/asn1/tasn_dec.c:183
+             */
+            len = i2d_CVC_DISCRETIONARY_DATA_TEMPLATES(msesetat->auxiliary_data, &templates);
+            p = templates;
+            if (len < 0 ||
+                    (0x80 & ASN1_get_object(&p, &llen, &tag, &class, len))) {
+                sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Error encoding auxiliary data.");
+                ssl_error(card->ctx);
+                r = SC_ERROR_INTERNAL;
+                goto err;
+            }
+            eacsmctx->auxiliary_data->length = add_tag(
+                    (unsigned char **) &eacsmctx->auxiliary_data->data, 1,
+                    7, V_ASN1_APPLICATION, p, llen);
             if ((int) eacsmctx->auxiliary_data->length < 0) {
                 r = SC_ERROR_OUT_OF_MEMORY;
                 goto err;
@@ -1822,6 +1794,8 @@ err:
         OPENSSL_free(cert);
     if (sequence)
         free(sequence);
+    if (templates)
+        OPENSSL_free(templates);
 
     SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_NORMAL, r);
 }
