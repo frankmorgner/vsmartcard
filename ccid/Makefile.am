@@ -1,7 +1,7 @@
 ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = src m4 patches
 
-EXTRA_DIST = README.dox Doxyfile.in apdus
+EXTRA_DIST = README.dox apdus
 
 do_subst = sed \
 	   -e 's,[@]PACKAGE_NAME[@],$(PACKAGE_NAME),g' \
@@ -13,13 +13,3 @@ do_subst = sed \
 	   -e 's,[@]includedir[@],$(includedir),g' \
 	   -e 's,[@]VERSION[@],$(VERSION),g' \
 	   -e 's,[@]top_srcdir[@],$(top_srcdir),g'
-
-if DOC_ENABLED
-.PHONY: doc
-doc :
-	$(do_subst) < $(srcdir)/Doxyfile.in > Doxyfile
-	$(DOXYGEN) Doxyfile
-endif
-
-clean-local:
-	rm -rf doc Doxyfile
