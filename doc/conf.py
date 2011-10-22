@@ -215,5 +215,5 @@ man_pages = [
      [u'Dominik Oepen, Frank Morgner'], 1)
 ]
 
-breathe_projects = {"ccid": "doxygen/ccid", "npa": "doxygen/npa"}
-breathe_default_project = "ccid"
+breathe_projects = {"npa": "doxygen/npa"}
+breathe_default_project = "npa"
