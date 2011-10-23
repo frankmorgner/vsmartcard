@@ -1,3 +1,5 @@
+.. highlight:: c
+
 ***
 npa
 ***
@@ -6,7 +8,7 @@ Welcome to npa. The purpose of npa is to offer an easy to use API for the new
 German identity card (neuer Personalausweis, nPA). The library also implements
 secure messaging, which could also be used for other cards.
 
-npa is implemented using OpenPACE 0.6 (http://sourceforge.net/projects/openpace/).
+npa is implemented using `OpenPACE 0.6 <http://sourceforge.net/projects/openpace/>`_.
 Some fragments of the source code are based on the source code of the OpenSC tools.
 
 The included npa-tool has support for Password Authenticated Connection

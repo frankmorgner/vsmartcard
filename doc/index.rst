@@ -13,12 +13,11 @@ Currently the following projects are part of vsmartcard:
 Contents:
 
 .. toctree::
-   :maxdepth: 3 
 
-   ccid
-   npa
-   pcsc-relay
    virtualsmartcard
+   pcsc-relay
+   npa
+   ccid
 
 Download
 ========
