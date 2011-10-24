@@ -1,23 +1,27 @@
 /*
  * Copyright (C) 2010 Frank Morgner
  *
- * This file is part of ccid.
+ * This file is part of npa.
  *
- * ccid is free software: you can redistribute it and/or modify it under the
+ * npa is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation, either version 3 of the License, or (at your option) any later
  * version.
  *
- * ccid is distributed in the hope that it will be useful, but WITHOUT ANY
+ * npa is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
  * details.
  *
  * You should have received a copy of the GNU General Public License along with
- * ccid.  If not, see <http://www.gnu.org/licenses/>.
+ * npa.  If not, see <http://www.gnu.org/licenses/>.
  */
+/*
+*/
 /**
  * @file
+ * @defgroup npa Smart card interface to the German identity card (neuer Personalausweis, nPA)
+ * @{
  */
 #ifndef _CCID_NPA_H
 #define _CCID_NPA_H
@@ -93,6 +97,13 @@ extern "C" {
 /** Minimum length of MRZ */
 #define MAX_MRZ_LEN       128
 
+/**
+ * @brief Names the type of the PACE secret
+ *
+ * @param pin_id type of the PACE secret
+ *
+ * @return Printable string containing the name
+ */
 const char *npa_secret_name(enum s_type pin_id);
 
 
@@ -232,8 +243,8 @@ int npa_reset_retry_counter(struct sm_ctx *ctx, sc_card_t *card,
  *
  * @param[in] ctx            (optional) NPA SM context
  * @param[in] card
- * @param[in] new            (optional) new PIN
- * @param[in] new_len        (optional) length of \a new
+ * @param[in] newp           (optional) new PIN
+ * @param[in] newplen        (optional) length of \a new
  */
 #define npa_change_pin(ctx, card, newp, newplen) \
     npa_reset_retry_counter(ctx, card, PACE_PIN, 1, newp, newplen)
@@ -242,3 +253,4 @@ int npa_reset_retry_counter(struct sm_ctx *ctx, sc_card_t *card,
 }
 #endif
 #endif
+/* @} */

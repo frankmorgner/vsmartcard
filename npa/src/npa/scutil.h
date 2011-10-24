@@ -18,6 +18,8 @@
  */
 /**
  * @file
+ * @addtogroup scutil Wrappers around OpenSC
+ * @{
  */
 #ifndef _CCID_SCUTIL_H
 #define _CCID_SCUTIL_H
@@ -64,6 +66,7 @@ int build_apdu(sc_context_t *ctx, const u8 *buf, size_t len, sc_apdu_t *apdu);
  * @brief Log binary data to a sc context
  * 
  * @param[in] ctx   Context for logging
+ * @param[in] level
  * @param[in] label Label to prepend to the buffer
  * @param[in] data  Binary data
  * @param[in] len   Length of \a data
@@ -89,6 +92,14 @@ void _bin_log(sc_context_t *ctx, int type, const char *file, int line,
         const char *func, const char *label, const u8 *data, size_t len,
         FILE *f);
 
+/**
+ * @brief Prints the available readers to stdout.
+ *
+ * @param verbose
+ *
+ * @return \c SC_SUCCESS or error code if an error occurred
+ */
 int print_avail(int verbose);
 
 #endif
+/* @} */
