@@ -10,3 +10,4 @@ GENERATE_HTML          = YES
 GENERATE_TAGFILE       = @builddir@/doc/$(PROJECT).tag
 GENERATE_XML           = YES
 XML_OUTPUT             = xml
+OPTIMIZE_OUTPUT_FOR_C  = YES
