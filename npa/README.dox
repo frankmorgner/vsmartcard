@@ -80,11 +80,4 @@ Questions
 For questions, please use http://sourceforge.net/projects/vsmartcard/support
 
 
-=========
-API index
-=========
-
-.. doxygenindex::
-   :project: npa
-
 .. @author Frank Morgner <morgner@informatik.hu-berlin.de>

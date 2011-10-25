@@ -18,7 +18,7 @@
  */
 /**
  * @file
- * @defgroup sm Secure Messaging
+ * @defgroup sm Secure Messaging (SM)
  * @{
  */
 #ifndef _CCID_SM_H

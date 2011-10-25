@@ -17,6 +17,7 @@ Contents:
    virtualsmartcard
    pcsc-relay
    npa
+   npaapi
    ccid
 
 Download

@@ -20,7 +20,7 @@
 */
 /**
  * @file
- * @defgroup npa Smart card interface to the German identity card (neuer Personalausweis, nPA)
+ * @defgroup npa Interface to German identity card (neuer Personalausweis, nPA)
  * @{
  */
 #ifndef _CCID_NPA_H
