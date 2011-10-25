@@ -215,6 +215,7 @@ man_pages = [
      [u'Dominik Oepen, Frank Morgner'], 1)
 ]
 
+os.system("make doc -C ../npa/ >/dev/null && touch npaapi.rst")
 breathe_projects = {"npa": "doxygen/npa/xml"}
 breathe_default_project = "npa"
 doxylink = { 'npa' : ('doxygen/npa/npa.tag', '_static/doxygen-npa/'), }
