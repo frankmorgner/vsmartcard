@@ -32,6 +32,7 @@ static int reader_num = -1;
 static const char *newpin = NULL;
 static const char *pin = NULL;
 
+/* SELECT the Master File (MF) */
 const unsigned char apdubuf[] = {0x00, 0xA4, 0x00, 0x0C, 0x02, 0x3F, 0x00};
 
 int
@@ -73,8 +74,8 @@ main (int argc, char **argv)
     /* Now we try to change the PIN. Therefor we need to establish a SM channel
      * with PACE.
      *
-     * You could set your PIN with `pin = “123456”;` or just leave it at NULL
-     * to be asked for it. The same applies to the new PIN newpin. */
+     * You could set your PIN with pin=“123456”; or just leave it at NULL to be
+     * asked for it. The same applies to the new PIN newpin. */
     pace_input.pin_id = PACE_PIN;
     pace_input.pin = pin;
     pace_input.pin_length = pin ? strlen(pin) : 0;
