@@ -21,7 +21,6 @@
  * get a secure channel to the nPA. We use the builtin function npa_change_pin
  * to modify the PIN using the secure channel. Then we transmit an arbitrary
  * APDU encrypted and authenticated to the card using sm_transmit_apdu. */
-#include <libopensc/log.h>
 #include <npa/npa.h>
 #include <npa/scutil.h>
 #include <openssl/pace.h>
@@ -97,11 +96,9 @@ main (int argc, char **argv)
      * Here we are parsing the raw apdu buffer apdubuf to be transformed into
      * an sc_apdu_t. Alternatively you could also set CLA, INS, P1, P2, ... by
      * hand in the sc_apdu_t object. */
-    r = sc_bytes2apdu(card->ctx, apdubuf, sizeof apdubuf, &apdu);
-    if (r < 0) {
-        bin_log(ctx, SC_LOG_DEBUG_NORMAL, "Invalid C-APDU", apdubuf, sizeof apdubuf);
+    r = sc_bytes2apdu(ctx, apdubuf, sizeof apdubuf, &apdu);
+    if (r < 0)
         goto err;
-    }
 
     /* write the response data to buf */
     apdu.resp = buf;
@@ -109,14 +106,11 @@ main (int argc, char **argv)
 
     /* Transmit the APDU with SM */
     r = sm_transmit_apdu(&sctx, card, &apdu);
-    if (r < 0) {
-        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE_TOOL,
-                "Could not send C-APDU: %s", sc_strerror(r));
-        goto err;
-    }
 
 
 err:
+    fprintf(r < 0 ? stderr : stdout, "%s\n", sc_strerror(r));
+
     /* Free up memory and wipe it if necessary (e.g. for keys stored in sm_ctx) */
     sm_ctx_clear_free(&sctx);
     if (pace_output.ef_cardaccess)
