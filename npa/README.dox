@@ -43,6 +43,8 @@ against use something like the following command: ::
         OPENSSL_CFLAGS="-I/path/to/openssl-1.0.0d_with_openpace-0.6/include" \
         OPENSSL_LIBS="-L/path/to/openssl-1.0.0d_with_openpace-0.6 -lcrypto"
 
+.. _npa-usage:
+
 =====
 Usage
 =====

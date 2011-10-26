@@ -10,8 +10,12 @@ npa_tool_SOURCES = npa-tool.c binutil.c
 npa_tool_LDADD = $(OPENSSL_LIBS) $(OPENSC_LIBS) libnpa.la
 npa_tool_CFLAGS = $(OPENSSL_CFLAGS)
 
+example_SOURCES = example.c
+example_LDADD = $(OPENSSL_LIBS) $(OPENSC_LIBS) libnpa.la
+example_CFLAGS = $(OPENSSL_CFLAGS)
 
-bin_PROGRAMS = npa-tool
+
+bin_PROGRAMS = npa-tool example
 
 lib_LTLIBRARIES = libnpa.la
 

@@ -73,39 +73,10 @@ Defines
 Example
 =======
 
-The following example are fragments of the npa-tool, which uses libnpa to acces
-the nPA with and without SM enabled. First set up the environment:
+Note that in order to compile and execute this example you need to correctly
+:ref:`set up your environment <npa-usage>`.
 
-    .. literalinclude:: ../npa/src/npa-tool.c
-        :lines: 49-74,198-212
-
-Connect to a reader and the nPA:
-
-    .. literalinclude:: ../npa/src/npa-tool.c
-        :lines: 331-341
-
-Now we try to change the PIN. Therefor we need to establish a SM channel with
-PACE. You could set your PIN with `pin = "123456"` or just leave it out to be
-asked for it. The same applies to the new PIN `newpin`.
-
-    .. literalinclude:: ../npa/src/npa-tool.c
-        :lines: 484-501
-
-Imagine you want to transmit additional APDUs in the established SM channel.
-Declare the APDU to something like::
-
-    const unsigned char buf[] = {0x00, 0xA4, 0x00, 0x0C, 0x02, 0x3F, 0x00};
-    size_t apdulen = sizeof buf;`
-    sc_apdu_t apdu;
-
-Now parse and transmit the APDU with SM:
-
-    .. literalinclude:: ../npa/src/npa-tool.c
-        :lines: 171-173,175-183,185
-
-Free up memory and wipe it if necessary (e.g. for keys stored in :npa:`sm_ctx`)
-
-    .. literalinclude:: ../npa/src/npa-tool.c
-        :lines: 563-
+.. literalinclude:: ../npa/src/example.c
+    :lines: 20-
 
 .. @author Frank Morgner <morgner@informatik.hu-berlin.de>
