@@ -33,7 +33,14 @@ Secure Messaging (SM)
 The complete documentation can be found `here
 <_static/doxygen-npa/group__sm.html>`_.
 
+-----
+Types
+-----
 .. doxygenstruct:: sm_ctx
+
+---------
+Functions
+---------
 .. doxygenfunction:: sm_transmit_apdu
 .. doxygenfunction:: sm_ctx_clear_free
 
@@ -44,10 +51,21 @@ Interface to German identity card (neuer Personalausweis, nPA)
 The complete documentation can be found `here
 <_static/doxygen-npa/group__npa.html>`_.
 
+-----
+Types
+-----
 .. doxygenstruct:: establish_pace_channel_input
 .. doxygenstruct:: establish_pace_channel_output
+
+---------
+Functions
+---------
 .. doxygenfunction:: EstablishPACEChannel
 .. doxygenfunction:: npa_reset_retry_counter
+
+-------
+Defines
+-------
 .. doxygendefine:: npa_change_pin
 .. doxygendefine:: npa_unblock_pin
 
