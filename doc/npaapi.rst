@@ -1,8 +1,8 @@
 .. highlight:: c
 
-****************
-nPA API Overview
-****************
+********************************
+Programming with the nPA Library
+********************************
 
 The nPA library includes a generic implementation for Secure Messaging (SM),
 which might also be used in conjunction with other cards. It is implemented to
@@ -73,8 +73,8 @@ Defines
 Example
 =======
 
-Note that in order to compile and execute this example you need to correctly
-:ref:`set up your environment <npa-usage>`.
+In order to compile and execute this example you need to correctly :ref:`set up
+your environment <npa-usage>`.
 
 .. literalinclude:: ../npa/src/example.c
     :lines: 20-

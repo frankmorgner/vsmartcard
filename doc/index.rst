@@ -10,15 +10,20 @@ Welcome to vsmartcard. vsmartcard is an umbrella project for various projects co
 
 Currently the following projects are part of vsmartcard: 
 
-Contents:
-
 .. toctree::
 
    virtualsmartcard
    pcsc-relay
    npa
-   npaapi
    ccid
+
+Looking for a feature the included programs do not offer? Want to extend the
+functionality of some library? Apart from requesting a new feature, you can
+have a look at these programming guides and try yourself:
+
+.. toctree::
+
+   npaapi
 
 Download
 ========
