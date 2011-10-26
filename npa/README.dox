@@ -1,5 +1,8 @@
 .. highlight:: c
 
+.. _OpenSC: http://www.opensc-project.org/opensc
+.. _OpenPACE: http://sourceforge.net/projects/openpace/
+
 ***
 npa
 ***
@@ -8,7 +11,7 @@ Welcome to npa. The purpose of npa is to offer an easy to use API for the new
 German identity card (neuer Personalausweis, nPA). The library also implements
 secure messaging, which could also be used for other cards.
 
-npa is implemented using `OpenPACE 0.6 <http://sourceforge.net/projects/openpace/>`_.
+npa is implemented using OpenPACE_.
 Some fragments of the source code are based on the source code of the OpenSC tools.
 
 The included npa-tool has support for Password Authenticated Connection
@@ -19,24 +22,47 @@ APDUs inside a secure messaging channel established with PACE.
 Installation
 ============
 
-See file INSTALL.
+npa uses the GNU Build System to compile and install. If you are unfamiliar
+with it, please have a look at the file INSTALL. If you have a look around and
+can not find it, you are probably working bleeding edge in the repository. Run
+the following command in the npa direcotry to get the missing standard
+auxiliary files::
+    
+    autoreconf -i
+
+npa has the following dependencies:
+- OpenSC_
+- OpenSSL with OpenPACE_
 
 ---------------
 Hints on OpenSC
 ---------------
 
 libnpa links against libopensc, which is discouraged and hindered since
-opensc>=0.12. We really need to get rid of this dependency. You need the opensc
-components to be installed (especially libopensc.so). But you might need to
-adjust the opensc library flags:
+opensc>=0.12. (We really need to get rid of this dependency or integrate better
+into the OpenSC-framework.) You need the OpenSC components to be installed
+(especially libopensc.so). Here is an example of how to get the standard
+installation of OpenSC_::
 
-``./configure OPENSC_LIBS="-L/path/to/opensc/libdir -lopensc"``
+    OPENSC=opensc
+    INSTALL=/tmp/install
+    svn co http://www.opensc-project.org/svn/opensc/trunk $OPENSC
+    cd $OPENSC
+    autoreconf -i
+    ./configure --prefix=$INSTALL
+    make
+    make install
+
+Now libopensc.so should be located in $INSTALL/lib. Here is how to configure
+npa to use it::
+
+    ./configure OPENSC_LIBS="-L$INSTALL/lib -lopensc"
 
 ----------------
 Hints on OpenSSL
 ----------------
 
-If you have a local build of OpenSSL with OpenPACE, that you want to link
+If you have a local build of OpenSSL with OpenPACE_, that you want to link
 against use something like the following command: ::
  
     ./configure \
@@ -62,7 +88,7 @@ npa-tool will show a password prompt.
 Linking against libnpa
 ----------------------
 
-If you have a local build of libnpa and OpenPACE, the preferred way to adjust
+If you have a local build of libnpa and OpenPACE_, the preferred way to adjust
 libraries and cflags for foreign code is to use pkg-config:
 
 ``./configure PKG_CONFIG_PATH="/path/to/openssl-1.0.0d_with_openpace-0.6/lib/pkgconfig:/path/to/libnpa/lib/pkgconfig"``
