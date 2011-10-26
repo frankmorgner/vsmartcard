@@ -16,11 +16,11 @@
  * You should have received a copy of the GNU General Public License along with
  * ccid.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "config.h"
 #include "binutil.h"
-#include "npa.h"
-#include "scutil.h"
+#include "config.h"
 #include <libopensc/log.h>
+#include <npa/npa.h>
+#include <npa/scutil.h>
 #include <openssl/pace.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -198,7 +198,7 @@ int npa_translate_apdus(struct sm_ctx *sctx, sc_card_t *card, FILE *input)
 int
 main (int argc, char **argv)
 {
-    int i, oindex = 0;
+    int r, oindex = 0;
     size_t channeldatalen;
     struct sm_ctx sctx, tmpctx;
     struct establish_pace_channel_input pace_input;
@@ -212,10 +212,10 @@ main (int argc, char **argv)
     memset(&pace_output, 0, sizeof pace_output);
 
     while (1) {
-        i = getopt_long(argc, argv, "hr:i::u::a::z::bC:D:N::RUt::voc:n:", options, &oindex);
-        if (i == -1)
+        r = getopt_long(argc, argv, "hr:i::u::a::z::bC:D:N::RUt::voc:n:", options, &oindex);
+        if (r == -1)
             break;
-        switch (i) {
+        switch (r) {
             case OPT_HELP:
                 print_usage(argv[0] , options, option_help);
                 exit(0);
@@ -328,8 +328,8 @@ main (int argc, char **argv)
         return print_avail(verbose);
     }
 
-    i = initialize(usb_reader_num, cdriver, verbose, &ctx, &reader);
-    if (i < 0) {
+    r = initialize(usb_reader_num, cdriver, verbose, &ctx, &reader);
+    if (r < 0) {
         fprintf(stderr, "Can't initialize reader\n");
         exit(1);
     }
@@ -409,14 +409,14 @@ main (int argc, char **argv)
                     (unsigned int) tv.tv_sec, (unsigned int) tv.tv_usec,
                     npa_secret_name(pace_input.pin_id), pace_input.pin);
 
-            i = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
+            r = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
                     &sctx);
 
             secret--;
-        } while (0 > i && secret > 0);
+        } while (0 > r && secret > 0);
 
         gettimeofday(&tv, NULL);
-        if (0 > i) {
+        if (0 > r) {
             printf("%u,%06u: Tried breaking %s without success.\n",
                     (unsigned int) tv.tv_sec, (unsigned int) tv.tv_usec,
                     npa_secret_name(pace_input.pin_id));
@@ -438,9 +438,9 @@ main (int argc, char **argv)
             pace_input.pin = NULL;
             pace_input.pin_length = 0;
         }
-        i = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
+        r = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
             &tmpctx);
-        if (i < 0)
+        if (r < 0)
             goto err;
         printf("Established PACE channel with CAN.\n");
 
@@ -452,9 +452,9 @@ main (int argc, char **argv)
             pace_input.pin = NULL;
             pace_input.pin_length = 0;
         }
-        i = EstablishPACEChannel(&tmpctx, card, pace_input, &pace_output,
+        r = EstablishPACEChannel(&tmpctx, card, pace_input, &pace_output,
             &sctx);
-        if (i < 0)
+        if (r < 0)
             goto err;
         printf("Established PACE channel with PIN. PIN resumed.\n");
     }
@@ -468,14 +468,14 @@ main (int argc, char **argv)
             pace_input.pin = NULL;
             pace_input.pin_length = 0;
         }
-        i = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
+        r = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
             &sctx);
-        if (i < 0)
+        if (r < 0)
             goto err;
         printf("Established PACE channel with PUK.\n");
 
-        i = npa_unblock_pin(&sctx, card);
-        if (i < 0)
+        r = npa_unblock_pin(&sctx, card);
+        if (r < 0)
             goto err;
         printf("Unblocked PIN.\n");
     }
@@ -489,14 +489,14 @@ main (int argc, char **argv)
             pace_input.pin = NULL;
             pace_input.pin_length = 0;
         }
-        i = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
+        r = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
             &sctx);
-        if (i < 0)
+        if (r < 0)
             goto err;
         printf("Established PACE channel with PIN.\n");
 
-        i = npa_change_pin(&sctx, card, newpin, newpin ? strlen(newpin) : 0);
-        if (i < 0)
+        r = npa_change_pin(&sctx, card, newpin, newpin ? strlen(newpin) : 0);
+        if (r < 0)
             goto err;
         printf("Changed PIN.\n");
     }
@@ -534,9 +534,9 @@ main (int argc, char **argv)
             exit(1);
         }
 
-        i = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
+        r = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
             &sctx);
-        if (i < 0)
+        if (r < 0)
             goto err;
         printf("Established PACE channel with %s.\n",
                 npa_secret_name(pace_input.pin_id), file);
@@ -553,9 +553,9 @@ main (int argc, char **argv)
                 }
             }
 
-            i = npa_translate_apdus(&sctx, card, input);
+            r = npa_translate_apdus(&sctx, card, input);
             fclose(input);
-            if (i < 0)
+            if (r < 0)
                 goto err;
         }
     }
@@ -578,5 +578,5 @@ err:
     sc_disconnect_card(card);
     sc_release_context(ctx);
 
-    return -i;
+    return -r;
 }
