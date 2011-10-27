@@ -46,7 +46,6 @@ LIBS="$saved_LIBS"
 
 
 # --enable-piccdev=DEV
-piccdev_default=
 AC_ARG_ENABLE(piccdev,
               AC_HELP_STRING([--enable-piccdev=DEV],[OpenPICC character device (default: /dev/ttyACM0)]),
               [piccdev="${enableval}"], [piccdev="/dev/ttyACM0"])
@@ -82,6 +81,7 @@ PCSC_CFLAGS:          ${PCSC_CFLAGS}
 PCSC_LIBS:            ${PCSC_LIBS}
 LIBNFC_CFLAGS:        ${LIBNFC_CFLAGS}
 LIBNFC_LIBS:          ${LIBNFC_LIBS}
+OpenPICC device:      ${PICCDEV}
 
 EOF
 
