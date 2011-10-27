@@ -1,4 +1,4 @@
-.. highlight:: c
+.. highlight:: sh
 
 .. _OpenSC: http://www.opensc-project.org/opensc
 .. _OpenPACE: http://sourceforge.net/projects/openpace/
@@ -23,51 +23,66 @@ Installation
 ============
 
 npa uses the GNU Build System to compile and install. If you are unfamiliar
-with it, please have a look at the file INSTALL. If you have a look around and
-can not find it, you are probably working bleeding edge in the repository. Run
-the following command in the npa direcotry to get the missing standard
+with it, please have a look at the file ``INSTALL``. If you have a look around
+and can not find it, you are probably working bleeding edge in the repository.
+Run the following command in the npa direcotry to get the missing standard
 auxiliary files::
     
     autoreconf -i
 
 npa has the following dependencies:
+
 - OpenSC_
 - OpenSSL with OpenPACE_
+
+------------------------------
+Hints on OpenSSL with OpenPACE
+------------------------------
+
+libnpa links against libcrypto, which must be patched with OpenPACE_. Here is
+an example of how to get the standard installation of OpenSSL with OpenPACE_::
+ 
+    PREFIX=/tmp/install
+    OPENPACE=openpace
+    svn co https://openpace.svn.sourceforge.net/svnroot/openpace $OPENPACE
+    cd $OPENPACE
+    make patch_with_openpace
+    cd openssl-*/
+    ./config experimental-pace --prefix=$PREFIX
+    make depend
+    make
+    make install
+
+Building npa with OpenPACE_ is done best using ``pkg-config``.  The file
+``libcrypto.pc`` should be located in ``$INSTALL/lib/pkgconfig``. Here is how
+to configure npa to use it::
+
+    ./configure PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig
 
 ---------------
 Hints on OpenSC
 ---------------
 
-libnpa links against libopensc, which is discouraged and hindered since
-opensc>=0.12. (We really need to get rid of this dependency or integrate better
-into the OpenSC-framework.) You need the OpenSC components to be installed
-(especially libopensc.so). Here is an example of how to get the standard
-installation of OpenSC_::
+libnpa links against libopensc, which is discouraged and hindered since OpenSC
+version >= 0.12. (We really need to get rid of this dependency or integrate
+better into the OpenSC-framework.) You need the OpenSC components to be
+installed (especially ``libopensc.so``). Here is an example of how to get the
+standard installation of OpenSC_::
 
+    PREFIX=/tmp/install
     OPENSC=opensc
-    INSTALL=/tmp/install
     svn co http://www.opensc-project.org/svn/opensc/trunk $OPENSC
     cd $OPENSC
     autoreconf -i
-    ./configure --prefix=$INSTALL
+    # adding PKG_CONFIG_PATH here lets OpenSC use OpenSSL with OpenPACE
+    ./configure --prefix=$PREFIX PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig
     make
     make install
 
-Now libopensc.so should be located in $INSTALL/lib. Here is how to configure
-npa to use it::
+Now ``libopensc.so`` should be located in ``$PREFIX/lib``. Here is how to
+configure npa to use it::
 
-    ./configure OPENSC_LIBS="-L$INSTALL/lib -lopensc"
-
-----------------
-Hints on OpenSSL
-----------------
-
-If you have a local build of OpenSSL with OpenPACE_, that you want to link
-against use something like the following command: ::
- 
-    ./configure \
-        OPENSSL_CFLAGS="-I/path/to/openssl-1.0.0d_with_openpace-0.6/include" \
-        OPENSSL_LIBS="-L/path/to/openssl-1.0.0d_with_openpace-0.6 -lcrypto"
+    ./configure OPENSC_LIBS="-L$PREFIX/lib -lopensc"
 
 .. _npa-usage:
 
@@ -80,6 +95,7 @@ enter APDUs which are to be converted according to the secure messaging
 parameter and to be sent to the card. Herefor insert the APDU in hex (upper or
 lower case) with a colon to separate the bytes or without it. Example APDUs can
 be found in the file apdus.
+
 To pass a secret to npa-tool, the command line parameters or the environment
 variables PIN/CAN/MRZ/PUK/NEWPIN can be used. If none of these options is used,
 npa-tool will show a password prompt.
@@ -88,18 +104,27 @@ npa-tool will show a password prompt.
 Linking against libnpa
 ----------------------
 
-If you have a local build of libnpa and OpenPACE_, the preferred way to adjust
-libraries and cflags for foreign code is to use pkg-config:
+Following the section `Installation`_ above, you have installed OpenSC_,
+OpenPACE_ and npa to ``/tmp/install``. To compile a program using libnpa you
+need to get the header files from OpenSC_ as well.
+Here is how
+to compile an external program with these libraries::
 
-``./configure PKG_CONFIG_PATH="/path/to/openssl-1.0.0d_with_openpace-0.6/lib/pkgconfig:/path/to/libnpa/lib/pkgconfig"``
+    PREFIX=/tmp/install
+    OPENSC=opensc
+    svn co http://www.opensc-project.org/svn/opensc/trunk $OPENSC
+    cc example.c -I$OPENSC/src \
+        $(env PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig \
+            pkg-config --cflags --libs npa)
 
-Alternatively you can define libs and cflags by hand: ::
+Alternatively you can specify libraries and flags by hand::
 
-    ./configure \
-        OPENSSL_CFLAGS="-I/path/to/openssl-1.0.0d_with_openpace-0.6/include" \
-        LIBNPA_CFLAGS="-I/path/to/openssl-1.0.0d_with_openpace-0.6/include -I/path/to/libnpa-0.1/src" \
-        OPENSSL_LIBS="-L/path/to/openssl-1.0.0d_with_openpace-0.6 -lcrypto" \
-        LIBNPA_LIBS="-L/path/to/openssl-1.0.0d_with_openpace-0.6 -lcrypto -L/path/to/libnpa-0.1/src/.libs -lnpa"
+    PREFIX=/tmp/install
+    OPENSC=opensc
+    svn co http://www.opensc-project.org/svn/opensc/trunk $OPENSC
+    cc example.c -I$OPENSC/src \
+        -I$PREFIX/include \
+        -L$PREFIX/lib -lcrypto -lnpa -lopensc"
 
 =========
 Questions
