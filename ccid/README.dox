@@ -1,6 +1,17 @@
+.. highlight:: sh
+
+.. _OpenSC: http://www.opensc-project.org/opensc
+
 *************
 ccid-emulator
 *************
+
+:Author:
+    Frank Morgner <morgner@informatik.hu-berlin.de>
+:License:
+    GPL version 3
+:Tested Platforms:
+    Linux (Debian, Ubuntu, OpenMoko)
 
 Welcome to ccid-emulator.  The purpose of ccid-emulator is to forward a PCSC
 smartcard reader as a standard USB CCID reader. If the host system is in USB
@@ -18,7 +29,18 @@ source code of the OpenSC tools.
 Installation
 =============
 
-See file INSTALL.
+ccid uses the GNU Build System to compile and install. If you are unfamiliar
+with it, please have a look at the file ``INSTALL``. If you have a look around
+and can not find it, you are probably working bleeding edge in the repository.
+Run the following command in the npa direcotry to get the missing standard
+auxiliary files::
+    
+        autoreconf -i
+
+ccid as the following dependencies:
+
+        - OpenSC_
+        - libnpa 
 
 ------------------
 Hints of GadgetFS
@@ -44,9 +66,24 @@ Hints on OpenSC
 
 Without libnpa ccid-emulator links against libopensc, which is discouraged and
 hindered since opensc>=0.12. We really need to get rid of this dependency. You
-need the opensc components to be installed (especially libopensc.so). But you
-might need to adjust the opensc library flags:
-``./configure OPENSC_LIBS="-L/path/to/opensc/libdir -lopensc"``
+need the opensc components to be installed (especially libopensc.so). Here is
+an example of how to get the standard installation of OpenSC_::
+
+    PREFIX=/tmp/install
+    OPENSC=opensc
+    svn co http://www.opensc-project.org/svn/opensc/trunk $OPENSC
+    cd $OPENSC
+    autoreconf -i
+    # adding PKG_CONFIG_PATH here lets OpenSC use OpenSSL with OpenPACE
+    ./configure --prefix=$PREFIX PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig
+    make
+    make install
+
+Now ``libopensc.so`` should be located in ``$PREFIX/lib``. Here is how to
+configure ccid-emulator to use it::
+
+    ./configure OPENSC_LIBS="-L$PREFIX/lib -lopensc"
+
 
 =====
 Usage
@@ -68,4 +105,3 @@ Questions
 
 For questions, please use http://sourceforge.net/projects/vsmartcard/support
 
-.. @author Frank Morgner <morgner@informatik.hu-berlin.de>
