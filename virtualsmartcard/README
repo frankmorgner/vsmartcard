@@ -2,10 +2,11 @@
 Virtual Smartcard Architecture
 ******************************
 
-.. Authors          : Frank Morgner <morgner@informatik.hu-berlin.de>
-..                    Dominik Oepen <oepen@informatik.hu-berlin.de>
-.. License          : See file COPYING
-.. Tested Platforms : Linux 2.6 (Debian, Ubuntu, Om 2008)
+* Authors:
+    * Frank Morgner <morgner@informatik.hu-berlin.de>
+    * Dominik Oepen <oepen@informatik.hu-berlin.de>
+* License: GPL version 3
+* Tested Platforms: Linux 2.6 (Debian, Ubuntu, Om 2008)
 
 Welcome to virtualsmartcard. The purpose of virtualsmartcard is to emulate a
 smart card and make it accessible through PCSC. Currently the virtual smart
@@ -17,13 +18,17 @@ is a driver for pcscd of PCSC-Lite.
 
 By default the virtual smart card communicates with the virtual smart card
 reader through a socket on localhost port 35963. The file utils.py was taken
-from Henryk Plötz's cyberflex-shell.
+from `Henryk Plötz's cyberflex-shell <https://github.com/henryk/cyberflex-shell/>`_.
 
 
 Installation
 ------------
+::
 
-See file INSTALL.
+    autoconf -vsi
+    ./configure
+    make
+    make install
 
 
 Running virtualsmartcard

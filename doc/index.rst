@@ -37,10 +37,5 @@ Contribute
 
 If you want to contribute to the vsmartcard project you're more than welcome. You can file bugs or submit patches using our `bugtracker <https://sourceforge.net/tracker/?group_id=272257>`_. 
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+.. * :ref:`search`
 
