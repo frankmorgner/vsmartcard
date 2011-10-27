@@ -68,8 +68,8 @@ distribution. Windows also ships with a PC/SC middleware in form of the
 Winscard module. Microsoft's developement environment Visual Studio includes
 all necessary data for building pcsc-relay.
 
----------
+=========
 Questions
----------
+=========
 
 For questions, please use http://sourceforge.net/projects/vsmartcard/support
