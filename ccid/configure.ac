@@ -188,5 +188,6 @@ AC_CONFIG_FILES([
                  m4/Makefile
                  patches/Makefile
                  src/Makefile
+                 doc/Makefile
                  ])
 AC_OUTPUT

@@ -1,6 +1,6 @@
 bin_SCRIPTS = vicc
 CLEANFILES = $(bin_SCRIPTS)
-EXTRA_DIST = vicc.in Doxyfile.in
+EXTRA_DIST = vicc.in
 
 vpiccdir = $(pythondir)/virtualsmartcard
 vpicccardsdir = $(vpiccdir)/cards
@@ -26,10 +26,3 @@ do_subst = sed -e 's,[@]PYTHON[@],$(PYTHON),g'
 vicc: vicc.in Makefile
 	$(do_subst) < $(srcdir)/vicc.in > vicc
 	chmod +x vicc
-
-if DOC_ENABLED
-.PHONY: doc
-doc:
-	$(do_subst) Doxyfile.in > Doxyfile
-	$(DOXYGEN) Doxyfile
-endif

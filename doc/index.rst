@@ -12,10 +12,10 @@ Currently the following projects are part of vsmartcard:
 
 .. toctree::
 
-   virtualsmartcard
-   pcsc-relay
-   npa
-   ccid
+   virtualsmartcard/README
+   pcsc-relay/README
+   npa/README
+   ccid/README
 
 Looking for a feature the included programs do not offer? Want to extend the
 functionality of some library? Apart from requesting a new feature, you can
@@ -23,7 +23,7 @@ have a look at these programming guides and try yourself:
 
 .. toctree::
 
-   npaapi
+   npa/api
 
 Download
 ========

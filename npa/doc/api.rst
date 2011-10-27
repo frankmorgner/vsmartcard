@@ -76,7 +76,7 @@ Example
 In order to compile and execute this example you need to correctly :ref:`set up
 your environment <npa-usage>`.
 
-.. literalinclude:: ../npa/src/example.c
+.. literalinclude:: example.c
     :lines: 20-
 
 .. @author Frank Morgner <morgner@informatik.hu-berlin.de>

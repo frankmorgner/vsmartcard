@@ -81,11 +81,13 @@ PCSC_CFLAGS:          ${PCSC_CFLAGS}
 PCSC_LIBS:            ${PCSC_LIBS}
 LIBNFC_CFLAGS:        ${LIBNFC_CFLAGS}
 LIBNFC_LIBS:          ${LIBNFC_LIBS}
-OpenPICC device:      ${PICCDEV}
+
+OpenPICC device:      ${piccdev}
 
 EOF
 
 
 AC_CONFIG_FILES([Makefile
+                 doc/Makefile
                  src/Makefile])
 AC_OUTPUT
