@@ -2,11 +2,14 @@
 Virtual Smartcard Architecture
 ******************************
 
-* Authors:
-    * Frank Morgner <morgner@informatik.hu-berlin.de>
-    * Dominik Oepen <oepen@informatik.hu-berlin.de>
-* License: GPL version 3
-* Tested Platforms: Linux 2.6 (Debian, Ubuntu, Om 2008)
+:Authors:
+    - Frank Morgner <morgner@informatik.hu-berlin.de>
+    - Dominik Oepen <oepen@informatik.hu-berlin.de>
+:License:
+    GPL version 3
+:Tested Platforms:
+    - Linux (Debian, Ubuntu, OpenMoko)
+    - Windows (only virtual smart card, not the virtual reader)
 
 Welcome to virtualsmartcard. The purpose of virtualsmartcard is to emulate a
 smart card and make it accessible through PCSC. Currently the virtual smart
