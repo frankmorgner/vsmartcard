@@ -1,6 +1,9 @@
 .. highlight:: sh
 
 .. _OpenSC: http://www.opensc-project.org/opensc
+.. _GadgetFS: http://www.linux-usb.org/gadget/
+.. _libccid: http://pcsclite.alioth.debian.org/ccid.html
+
 
 *************
 ccid-emulator
@@ -21,9 +24,9 @@ reader to the host system.  ccid-emulator has support for Password
 Authenticated Connection Establishment (PACE) using OpenPACE
 (http://sourceforge.net/projects/openpace/).
 
-ccid-emulator is implemented using GadgetFS. Some fragments of the source code
-are based on the GadgetFS example at http://www.linux-usb.org/gadget/ and on the
-source code of the OpenSC tools.
+ccid-emulator is implemented using GadgetFS_. Some fragments of the source code
+are based on the GadgetFS_ example and on the source code of the OpenSC_ tools.
+
 
 =============
 Installation
@@ -32,33 +35,36 @@ Installation
 ccid uses the GNU Build System to compile and install. If you are unfamiliar
 with it, please have a look at the file ``INSTALL``. If you have a look around
 and can not find it, you are probably working bleeding edge in the repository.
-Run the following command in the npa direcotry to get the missing standard
+Run the following command in the npa directory to get the missing standard
 auxiliary files::
     
-        autoreconf -i
+    autoreconf -i
 
 ccid as the following dependencies:
 
-        - OpenSC_
-        - libnpa 
+- Linux Kernel with GadgetFS_
+- OpenSC_
+- libnpa
 
-------------------
-Hints of GadgetFS
-------------------
+
+-----------------
+Hints on GadgetFS
+-----------------
 
 To create an USB Gadget in both USB host and USB client mode, you need to load
-the kernel module gadgetfs. A guide focused on Debian based systems to run and
-compile gadgetfs, you can find here:
-http://wiki.openmoko.org/wiki/Building_Gadget_USB_Module
+the kernel module ``gadgetfs``. A guide focused on Debian based systems to run
+and compile gadgetfs, you can find `here
+<http://wiki.openmoko.org/wiki/Building_Gadget_USB_Module>`_.
 
-On OpenMoko it is likely that you need to patch your kernel (see
-http://docs.openmoko.org/trac/ticket/2206). If you also want to switch multiple
-times between gadgetfs and g_ether, another patch is needed (see
-https://docs.openmoko.org/trac/ticket/2240).
+On OpenMoko it is likely that you need to `patch your kernel
+<http://docs.openmoko.org/trac/ticket/2206>`_. If you also want to switch
+multiple times between ``gadgetfs`` and ``g_ether``, `another patch is needed
+<http://docs.openmoko.org/trac/ticket/2240)>`_.
 
-If you are using a more recent version of dummy_hcd, you maybe want to check
-out this patch:
-http://comments.gmane.org/gmane.linux.usb.general/47440
+If you are using a more recent version of ``dummy_hcd`` and get an error
+loading the module, you maybe want to check out `this patch
+<http://comments.gmane.org/gmane.linux.usb.general/47440>`_.
+
 
 ---------------
 Hints on OpenSC
@@ -90,14 +96,15 @@ Usage
 =====
 
 ccid-emulator has various command line options to customize the appearance on
-the USB host. In order to run ccid-emulator GadgetFS must be loaded and mounted.
-ccid-emulator is compatible with the unix driver libccid and the windows smart
-card driver. To initialize PACE using the PC/SC API you need to patch libccid
-and pcsc-lite (see directory patches).
+the USB host. In order to run ccid-emulator GadgetFS_ must be loaded and
+mounted.  ccid-emulator is compatible with the unix driver libccid_ and the
+windows smart card driver. To initialize PACE using the PC/SC API you need to
+patch libccid and pcsc-lite (see directory patches).
 
 cats-test can be used to test the PACE capabilities of a smart card reader with
 PACE support (such as ccid-emulator or any other "Standardleser" CAT-S or
 "Komfortleser" CAT-C) via PC/SC.
+
 
 =========
 Questions

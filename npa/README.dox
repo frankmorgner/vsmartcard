@@ -3,10 +3,10 @@
 .. _OpenSC: http://www.opensc-project.org/opensc
 .. _OpenPACE: http://sourceforge.net/projects/openpace/
 
+
 ***
 npa
 ***
-
 
 :Author:
     Frank Morgner <morgner@informatik.hu-berlin.de>
@@ -26,6 +26,7 @@ The included npa-tool has support for Password Authenticated Connection
 Establishment (PACE). npa-tool can be used for PIN management or to encrypt
 APDUs inside a secure messaging channel established with PACE.
 
+
 .. _npa-install:
 
 ============
@@ -35,7 +36,7 @@ Installation
 npa uses the GNU Build System to compile and install. If you are unfamiliar
 with it, please have a look at the file ``INSTALL``. If you have a look around
 and can not find it, you are probably working bleeding edge in the repository.
-Run the following command in the npa direcotry to get the missing standard
+Run the following command in the npa directory to get the missing standard
 auxiliary files::
     
     autoreconf -i
@@ -44,6 +45,7 @@ npa has the following dependencies:
 
 - OpenSC_
 - OpenSSL with OpenPACE_
+
 
 ------------------------------
 Hints on OpenSSL with OpenPACE
@@ -68,6 +70,7 @@ Building npa with OpenPACE_ is done best using ``pkg-config``.  The file
 to configure npa to use it::
 
     ./configure PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig
+
 
 ---------------
 Hints on OpenSC

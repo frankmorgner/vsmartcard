@@ -3,14 +3,18 @@
 .. _libnfc: http://www.libnfc.org/
 .. _PCSC-lite: http://pcsclite.alioth.debian.org/
 
+
 **********
 pcsc-relay
 **********
 
-.. Authors          : Dominik Oepen <oepen@informatik.hu-berlin.de>
-..                    Frank Morgner <morgner@informatik.hu-berlin.de>
-.. License          : See file COPYING
-.. Tested Platforms : Linux 2.6 (Debian, Ubuntu, Om 2008)
+:Authors:
+    - Dominik Oepen <oepen@informatik.hu-berlin.de>
+    - Frank Morgner <morgner@informatik.hu-berlin.de>
+:License:
+    GPL version 3
+:Tested Platforms:
+    Linux (Debian, Ubuntu, OpenMoko)
 
 Welcome to pcsc-relay. The purpose of pcsc-relay is to forward APDUs from the
 OpenPICC or from a libnfc device to a smart card via the PCSC middleware. You
@@ -25,7 +29,7 @@ Installation
 pcsc-relay uses the GNU Build System to compile and install. If you are
 unfamiliar with it, please have a look at the file ``INSTALL``. If you have a
 look around and can not find it, you are probably working bleeding edge in the
-repository.  Run the following command in the pcsc-relay direcotry to get the
+repository.  Run the following command in the pcsc-relay directory to get the
 missing standard auxiliary files::
     
     autoreconf -i
@@ -34,6 +38,7 @@ pcsc-relay has the following dependencies:
 
 - PC/SC middleware
 - libnfc_
+
 
 ---------------
 Hints on libnfc
@@ -57,6 +62,7 @@ configure pcsc-relay to use it::
 
     ./configure PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig
 
+
 -------------------------
 Hints on PC/SC middleware
 -------------------------
@@ -67,6 +73,7 @@ pcsc-relay you will need to install the PCSC-Lite headers from your
 distribution. Windows also ships with a PC/SC middleware in form of the
 Winscard module. Microsoft's developement environment Visual Studio includes
 all necessary data for building pcsc-relay.
+
 
 =========
 Questions
