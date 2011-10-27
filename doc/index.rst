@@ -23,6 +23,7 @@ have a look at these programming guides and try yourself:
 
 .. toctree::
 
+   virtualsmartcard/api
    npa/api
 
 Download

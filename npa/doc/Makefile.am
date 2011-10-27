@@ -16,9 +16,10 @@ EXTRA_DIST = README.rst Doxyfile.in example.c
 
 if DOC_ENABLED
 .PHONY: doc
-doc :
+doc:
 	$(do_subst) < Doxyfile.in > Doxyfile
 	$(DOXYGEN) Doxyfile
+	touch api.rst
 endif
 
 clean-local:
