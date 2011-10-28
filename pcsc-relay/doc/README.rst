@@ -27,7 +27,7 @@ Installation
 ============
 
 pcsc-relay uses the GNU Build System to compile and install. If you are
-unfamiliar with it, please have a look at the file ``INSTALL``. If you have a
+unfamiliar with it, please have a look at the file :file:`INSTALL`. If you have a
 look around and can not find it, you are probably working bleeding edge in the
 repository.  Run the following command in the pcsc-relay directory to get the
 missing standard auxiliary files::
@@ -56,8 +56,8 @@ installation of the latter::
     make
     make install
 
-Building pcsc-relay with libnfc_ is done best using ``pkg-config``.  The file
-``libnfc.pc`` should be located in ``$INSTALL/lib/pkgconfig``. Here is how to
+Building pcsc-relay with libnfc_ is done best using :command:`pkg-config`.  The file
+:file:`libnfc.pc` should be located in ``$INSTALL/lib/pkgconfig``. Here is how to
 configure pcsc-relay to use it::
 
     ./configure PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig

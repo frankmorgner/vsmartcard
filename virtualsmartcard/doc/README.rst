@@ -9,6 +9,9 @@
 .. _cyberflex-shell: https://github.com/henryk/cyberflex-shell
 .. _pyscard: http://pyscard.sourceforge.net/
 
+.. |vpicc| replace:: :abbr:`vpicc (virtual smart card)`
+.. |vpcd| replace:: :abbr:`vpcd (virtual smart card reader)`
+
 
 ******************
 Virtual Smart Card
@@ -21,18 +24,18 @@ Virtual Smart Card
     GPL version 3
 :Tested Platforms:
     - Linux (Debian, Ubuntu, OpenMoko)
-    - Windows (only virtual smart card, not the virtual reader)
+    - Windows (only |vpicc|, not |vpcd|)
 
 Welcome to virtualsmartcard. The purpose of virtualsmartcard is to emulate a
 smart card and make it accessible through PCSC. Currently the virtual smart
 card supports almost all commands of ISO-7816 including secure messaging.
 Besides a plain ISO-7816 smart card it is also possible to emulate a German
 ePass (only basic access control) and a rudimentary Cryptoflex smart card. The
-virtual smart card (vpicc) can be accessed through the virtual smart card
-reader (vpcd) which is a driver for ``pcscd`` of PCSC-Lite_.
+|vpicc| can be accessed through the |vpcd| which is a driver for
+:command:`pcscd` of PCSC-Lite_.
 
 By default the vicc communicates with the vpcd through a socket on localhost
-port 35963. The file ``utils.py`` was taken from Henryk Plötz's
+port 35963. The file :file:`utils.py` was taken from Henryk Plötz's
 cyberflex-shell_.
 
 
@@ -41,14 +44,14 @@ Installation
 ------------
 
 virtualsmartcard uses the GNU Build System to compile and install. If you are
-unfamiliar with it, please have a look at the file ``INSTALL``. If you have a
+unfamiliar with it, please have a look at the file :file:`INSTALL`. If you have a
 look around and can not find it, you are probably working bleeding edge in the
 repository.  Run the following command in the virtualsmartcard directory to get
 the missing standard auxiliary files::
     
     autoreconf -i
 
-Depending on your usage of the vpicc you might or might not need
+Depending on your usage of the |vpicc| you might or might not need
 the following:
 
 - Python_
@@ -57,7 +60,7 @@ the following:
 - PBKDF2_
 - PIP_
 
-The vpcd has the following dependencies:
+The |vpcd| has the following dependencies:
 
 - PCSC-Lite_
 
@@ -66,16 +69,16 @@ The vpcd has the following dependencies:
 Running virtualsmartcard
 ------------------------
 
-First you need to make sure that pcscd loads the vpcd. You might need to run
-``update-reader.conf`` to update pcscd's configuration file. Then ``pcscd -f
--d`` should say something like ``Attempting startup of Virtual PCD``
+First you need to make sure that pcscd loads the |vpcd|. You might need to run
+:command:`update-reader.conf` to update pcscd's configuration file. Then
+:command:`pcscd -f -d` should say something like ``Attempting startup of
+Virtual PCD``
 
-Now you can run ``vicc`` which connects to the virtual reader. The
-command ``vicc --help`` gives an overview about the command line
-options.
+Now you can run :command:`vicc` which connects to the |vpcd|. The command
+:command:`vicc --help` gives an overview about the command line options.
 
-You should now be able to access the vpicc through the system's
-PC/SC API via vpcd/pcscd. You can use the opensc-explorer or pcsc_scan to test
+You should now be able to access the |vpicc| through the system's
+PC/SC API via |vpcd|/pcscd. You can use the opensc-explorer or pcsc_scan to test
 that.
 
 

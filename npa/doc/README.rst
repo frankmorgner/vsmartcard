@@ -4,6 +4,8 @@
 .. _OpenPACE: http://sourceforge.net/projects/openpace/
 
 
+.. _npa:
+
 ***
 npa
 ***
@@ -34,7 +36,7 @@ Installation
 ============
 
 npa uses the GNU Build System to compile and install. If you are unfamiliar
-with it, please have a look at the file ``INSTALL``. If you have a look around
+with it, please have a look at file:`INSTALL`. If you have a look around
 and can not find it, you are probably working bleeding edge in the repository.
 Run the following command in the npa directory to get the missing standard
 auxiliary files::
@@ -65,8 +67,8 @@ an example of how to get the standard installation of OpenSSL with OpenPACE_::
     make
     make install
 
-Building npa with OpenPACE_ is done best using ``pkg-config``.  The file
-``libcrypto.pc`` should be located in ``$INSTALL/lib/pkgconfig``. Here is how
+Building npa with OpenPACE_ is done best using :command:`pkg-config`.  The file
+:file:`libcrypto.pc` should be located in ``$INSTALL/lib/pkgconfig``. Here is how
 to configure npa to use it::
 
     ./configure PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig
@@ -79,7 +81,7 @@ Hints on OpenSC
 libnpa links against libopensc, which is discouraged and hindered since OpenSC
 version >= 0.12. (We really need to get rid of this dependency or integrate
 better into the OpenSC-framework.) You need the OpenSC components to be
-installed (especially ``libopensc.so``). Here is an example of how to get the
+installed (especially :file:`libopensc.so`). Here is an example of how to get the
 standard installation of OpenSC_::
 
     PREFIX=/tmp/install
@@ -92,7 +94,7 @@ standard installation of OpenSC_::
     make
     make install
 
-Now ``libopensc.so`` should be located in ``$PREFIX/lib``. Here is how to
+Now :file:`libopensc.so` should be located in ``$PREFIX/lib``. Here is how to
 configure npa to use it::
 
     ./configure OPENSC_LIBS="-L$PREFIX/lib -lopensc"
@@ -118,7 +120,7 @@ Linking against libnpa
 ----------------------
 
 Following the section `Installation`_ above, you have installed OpenSC_,
-OpenPACE_ and npa to ``/tmp/install``. To compile a program using libnpa you
+OpenPACE_ and npa to :file:`/tmp/install`. To compile a program using libnpa you
 need to get the header files from OpenSC_ as well.
 Here is how
 to compile an external program with these libraries::

@@ -33,7 +33,7 @@ Installation
 =============
 
 ccid uses the GNU Build System to compile and install. If you are unfamiliar
-with it, please have a look at the file ``INSTALL``. If you have a look around
+with it, please have a look at the file :file:`INSTALL`. If you have a look around
 and can not find it, you are probably working bleeding edge in the repository.
 Run the following command in the npa directory to get the missing standard
 auxiliary files::
@@ -44,7 +44,7 @@ ccid as the following dependencies:
 
 - Linux Kernel with GadgetFS_
 - OpenSC_
-- libnpa
+- :ref:`npa` (only if support for PACE is enabled)
 
 
 -----------------
@@ -52,16 +52,16 @@ Hints on GadgetFS
 -----------------
 
 To create an USB Gadget in both USB host and USB client mode, you need to load
-the kernel module ``gadgetfs``. A guide focused on Debian based systems to run
+the kernel module :program:`gadgetfs`. A guide focused on Debian based systems to run
 and compile gadgetfs, you can find `here
 <http://wiki.openmoko.org/wiki/Building_Gadget_USB_Module>`_.
 
 On OpenMoko it is likely that you need to `patch your kernel
 <http://docs.openmoko.org/trac/ticket/2206>`_. If you also want to switch
-multiple times between ``gadgetfs`` and ``g_ether``, `another patch is needed
+multiple times between :program:`gadgetfs` and :program:`g_ether`, `another patch is needed
 <http://docs.openmoko.org/trac/ticket/2240)>`_.
 
-If you are using a more recent version of ``dummy_hcd`` and get an error
+If you are using a more recent version of :program:`dummy_hcd` and get an error
 loading the module, you maybe want to check out `this patch
 <http://comments.gmane.org/gmane.linux.usb.general/47440>`_.
 
@@ -85,7 +85,7 @@ an example of how to get the standard installation of OpenSC_::
     make
     make install
 
-Now ``libopensc.so`` should be located in ``$PREFIX/lib``. Here is how to
+Now :file:`libopensc.so` should be located in ``$PREFIX/lib``. Here is how to
 configure ccid-emulator to use it::
 
     ./configure OPENSC_LIBS="-L$PREFIX/lib -lopensc"
