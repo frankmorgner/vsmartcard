@@ -135,5 +135,6 @@ AC_CONFIG_FILES([Makefile
                  src/vpcd/Makefile
                  src/vpicc/Makefile
                  doc/Makefile
+                 doc/api/Makefile
                  ])
 AC_OUTPUT

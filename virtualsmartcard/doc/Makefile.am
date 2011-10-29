@@ -1,3 +1,5 @@
+SUBDIRS = api
+
 do_subst = sed \
 	   -e 's,[@]PACKAGE_NAME[@],$(PACKAGE_NAME),g' \
 	   -e 's,[@]PACKAGE_VERSION[@],$(PACKAGE_VERSION),g' \
@@ -10,7 +12,9 @@ do_subst = sed \
 	   -e 's,[@]OPENSC_LIBS[@],$(OPENSC_LIBS),g' \
 	   -e 's,[@]top_srcdir[@],$(top_srcdir),g'
 
-EXTRA_DIST = README.rst generate_modules.py api autotools.rst.in
+EXTRA_DIST = README.rst autotools.rst.in
+
+dist_noinst_SCRIPTS = generate_modules.py
 
 .PHONY: doc
 doc:
