@@ -45,10 +45,5 @@ You can download the latest release of vsmartcard `here <https://sourceforge.net
 
 Alternatively you can check out the source code from our `subversion repository <https://sourceforge.net/projects/vsmartcard/develop>`_. 
 
-Contribute
-==========
 
-If you want to contribute to the vsmartcard project you're more than welcome. You can file bugs or submit patches using our `bugtracker <https://sourceforge.net/tracker/?group_id=272257>`_. 
-
-.. * :ref:`search`
-
+.. include:: questions.rst.in
