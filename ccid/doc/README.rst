@@ -25,7 +25,7 @@ Authenticated Connection Establishment (PACE) using OpenPACE
 (http://sourceforge.net/projects/openpace/).
 
 ccid-emulator is implemented using GadgetFS_. Some fragments of the source code
-are based on the GadgetFS_ example and on the source code of the OpenSC_ tools.
+are based on the GadgetFS example and on the source code of the OpenSC_ tools.
 
 
 =============
@@ -47,7 +47,7 @@ Hints on GadgetFS
 
 To create an USB Gadget in both USB host and USB client mode, you need to load
 the kernel module :program:`gadgetfs`. A guide focused on Debian based systems to run
-and compile gadgetfs, you can find `here
+and compile :program:`gadgetfs`, you can find `here
 <http://wiki.openmoko.org/wiki/Building_Gadget_USB_Module>`_.
 
 On OpenMoko it is likely that you need to `patch your kernel
@@ -64,18 +64,18 @@ loading the module, you maybe want to check out `this patch
 Hints on OpenSC
 ---------------
 
-Without libnpa ccid-emulator links against libopensc, which is discouraged and
-hindered since opensc>=0.12. We really need to get rid of this dependency. You
-need the opensc components to be installed (especially libopensc.so). Here is
-an example of how to get the standard installation of OpenSC_::
+Without libnpa ccid-emulator links against libopensc, which is discouraged and hindered since OpenSC
+version >= 0.12. (We really need to get rid of this dependency or integrate
+better into the OpenSC-framework.) You need the OpenSC components to be
+installed (especially :file:`libopensc.so`). Here is an example of how to get the
+standard installation of OpenSC_::
 
     PREFIX=/tmp/install
     OPENSC=opensc
     svn co http://www.opensc-project.org/svn/opensc/trunk $OPENSC
     cd $OPENSC
     autoreconf -i
-    # adding PKG_CONFIG_PATH here lets OpenSC use OpenSSL with OpenPACE
-    ./configure --prefix=$PREFIX PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig
+    ./configure --prefix=$PREFIX
     make
     make install
 
