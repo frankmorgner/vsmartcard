@@ -13,7 +13,7 @@ do_subst = sed \
 	   -e 's,[@]OPENSC_LIBS[@],$(OPENSC_LIBS),g' \
 	   -e 's,[@]top_srcdir[@],$(top_srcdir),g'
 
-EXTRA_DIST = README.rst Doxyfile.in example.c autotools.rst autotools.rst.in questions.rst questions.rst.in
+EXTRA_DIST = README.rst.in README.rst Doxyfile.in example.c autotools.rst autotools.rst.in questions.rst questions.rst.in
 
 .PHONY: doc
 doc:
@@ -22,3 +22,4 @@ doc:
 	touch api.rst
 	$(do_subst) < autotools.rst.in > autotools.rst
 	$(do_subst) < questions.rst.in > questions.rst
+	$(do_subst) < README.rst.in > README.rst

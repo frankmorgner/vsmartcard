@@ -4,9 +4,9 @@
 .. _PCSC-lite: http://pcsclite.alioth.debian.org/
 
 
-**********
-pcsc-relay
-**********
+********************************************************************************
+@PACKAGE_NAME@
+********************************************************************************
 
 :Authors:
     - Dominik Oepen <oepen@informatik.hu-berlin.de>

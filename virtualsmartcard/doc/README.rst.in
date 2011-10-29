@@ -13,9 +13,9 @@
 .. |vpcd| replace:: :abbr:`vpcd (virtual smart card reader)`
 
 
-******************
-Virtual Smart Card
-******************
+********************************************************************************
+@PACKAGE_NAME@
+********************************************************************************
 
 :Authors:
     - Frank Morgner <morgner@informatik.hu-berlin.de>
@@ -26,7 +26,7 @@ Virtual Smart Card
     - Linux (Debian, Ubuntu, OpenMoko)
     - Windows (only |vpicc|, not |vpcd|)
 
-Welcome to virtualsmartcard. The purpose of virtualsmartcard is to emulate a
+Welcome to the @PACKAGE_NAME@. The purpose of the @PACKAGE_NAME@ is to emulate a
 smart card and make it accessible through PCSC. Currently the virtual smart
 card supports almost all commands of ISO-7816 including secure messaging.
 Besides a plain ISO-7816 smart card it is also possible to emulate a German
@@ -55,9 +55,9 @@ The |vpcd| has the following dependencies:
 - PCSC-Lite_
 
 
-========================
-Running virtualsmartcard
-========================
+================================================================================
+Running the @PACKAGE_NAME@
+================================================================================
 
 First you need to make sure that pcscd loads the |vpcd|. You might need to run
 :command:`update-reader.conf` to update pcscd's configuration file. Then

@@ -5,9 +5,9 @@
 .. _libccid: http://pcsclite.alioth.debian.org/ccid.html
 
 
-*************
-ccid-emulator
-*************
+********************************************************************************
+@PACKAGE_NAME@
+********************************************************************************
 
 :Author:
     Frank Morgner <morgner@informatik.hu-berlin.de>
@@ -16,21 +16,21 @@ ccid-emulator
 :Tested Platforms:
     Linux (Debian, Ubuntu, OpenMoko)
 
-Welcome to ccid-emulator.  The purpose of ccid-emulator is to forward a PCSC
+Welcome to the @PACKAGE_NAME@.  The purpose of the @PACKAGE_NAME@ is to forward a PCSC
 smartcard reader as a standard USB CCID reader. If the host system is in USB
-device mode, ccid-emulator forwards the local reader via USB to another
-device. If in USB host mode, ccid-emulator virtually plugges in a USB CCID
-reader to the host system.  ccid-emulator has support for Password
+device mode, the @PACKAGE_NAME@ forwards the local reader via USB to another
+device. If in USB host mode, the @PACKAGE_NAME@ virtually plugges in a USB CCID
+reader to the host system.  the @PACKAGE_NAME@ has support for Password
 Authenticated Connection Establishment (PACE) using OpenPACE
 (http://sourceforge.net/projects/openpace/).
 
-ccid-emulator is implemented using GadgetFS_. Some fragments of the source code
+The @PACKAGE_NAME@ is implemented using GadgetFS_. Some fragments of the source code
 are based on the GadgetFS example and on the source code of the OpenSC_ tools.
 
 
 .. include:: autotools.rst
 
-ccid as the following dependencies:
+The @PACKAGE_NAME@ following dependencies:
 
 - Linux Kernel with GadgetFS_
 - OpenSC_
@@ -60,7 +60,7 @@ loading the module, you maybe want to check out `this patch
 Hints on OpenSC
 ---------------
 
-Without libnpa ccid-emulator links against libopensc, which is discouraged and hindered since OpenSC
+Without :ref:`npa` the @PACKAGE_NAME@ links against libopensc, which is discouraged and hindered since OpenSC
 version >= 0.12. (We really need to get rid of this dependency or integrate
 better into the OpenSC-framework.) You need the OpenSC components to be
 installed (especially :file:`libopensc.so`). Here is an example of how to get the
@@ -76,7 +76,7 @@ standard installation of OpenSC_::
     make install
 
 Now :file:`libopensc.so` should be located in ``$PREFIX/lib``. Here is how to
-configure ccid-emulator to use it::
+configure the @PACKAGE_NAME@ to use it::
 
     ./configure OPENSC_LIBS="-L$PREFIX/lib -lopensc"
 
@@ -85,14 +85,14 @@ configure ccid-emulator to use it::
 Usage
 =====
 
-ccid-emulator has various command line options to customize the appearance on
-the USB host. In order to run ccid-emulator GadgetFS_ must be loaded and
-mounted.  ccid-emulator is compatible with the unix driver libccid_ and the
+The @PACKAGE_NAME@ has various command line options to customize the appearance on
+the USB host. In order to run the @PACKAGE_NAME@ GadgetFS_ must be loaded and
+mounted.  The @PACKAGE_NAME@ is compatible with the unix driver libccid_ and the
 windows smart card driver. To initialize PACE using the PC/SC API you need to
 patch libccid and pcsc-lite (see directory patches).
 
 cats-test can be used to test the PACE capabilities of a smart card reader with
-PACE support (such as ccid-emulator or any other "Standardleser" CAT-S or
+PACE support (such as the @PACKAGE_NAME@ or any other "Standardleser" CAT-S or
 "Komfortleser" CAT-C) via PC/SC.
 
 
