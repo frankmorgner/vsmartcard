@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.63])
-AC_INIT([ccid-emulator], [0.6], [http://sourceforge.net/projects/vsmartcard/support])
+AC_INIT([CCID Emulator], [0.6], [http://sourceforge.net/projects/vsmartcard/support], [ccid-emulator], [http://sourceforge.net/projects/vsmartcard/])
 AC_CONFIG_SRCDIR([src/ccid.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])

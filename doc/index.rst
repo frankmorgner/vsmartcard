@@ -44,6 +44,3 @@ Download
 You can download the latest release of vsmartcard `here <https://sourceforge.net/projects/vsmartcard/files/vsmartcard_2011-05-20.tar.gz/download>`_.
 
 Alternatively you can check out the source code from our `subversion repository <https://sourceforge.net/projects/vsmartcard/develop>`_. 
-
-
-.. include:: questions.rst.in

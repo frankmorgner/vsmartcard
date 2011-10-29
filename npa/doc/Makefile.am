@@ -1,5 +1,8 @@
 do_subst = sed \
 	   -e 's,[@]PACKAGE_NAME[@],$(PACKAGE_NAME),g' \
+	   -e 's,[@]PACKAGE_TARNAME[@],$(PACKAGE_TARNAME),g' \
+	   -e 's,[@]PACKAGE_BUGREPORT[@],$(PACKAGE_BUGREPORT),g' \
+	   -e 's,[@]PACKAGE_URL[@],$(PACKAGE_URL),g' \
 	   -e 's,[@]PACKAGE_VERSION[@],$(PACKAGE_VERSION),g' \
 	   -e 's,[@]builddir[@],$(builddir),g' \
 	   -e 's,[@]prefix[@],$(prefix),g' \
@@ -10,7 +13,7 @@ do_subst = sed \
 	   -e 's,[@]OPENSC_LIBS[@],$(OPENSC_LIBS),g' \
 	   -e 's,[@]top_srcdir[@],$(top_srcdir),g'
 
-EXTRA_DIST = README.rst Doxyfile.in example.c autotools.rst.in questions.rst.in
+EXTRA_DIST = README.rst Doxyfile.in example.c autotools.rst autotools.rst.in questions.rst questions.rst.in
 
 .PHONY: doc
 doc:
@@ -19,6 +22,3 @@ doc:
 	touch api.rst
 	$(do_subst) < autotools.rst.in > autotools.rst
 	$(do_subst) < questions.rst.in > questions.rst
-
-clean-local:
-	rm -f Doxyfile autotools.rst questions.rst
