@@ -35,13 +35,7 @@ APDUs inside a secure messaging channel established with PACE.
 Installation
 ============
 
-npa uses the GNU Build System to compile and install. If you are unfamiliar
-with it, please have a look at file:`INSTALL`. If you have a look around
-and can not find it, you are probably working bleeding edge in the repository.
-Run the following command in the npa directory to get the missing standard
-auxiliary files::
-    
-    autoreconf -i
+.. include:: autotools.rst
 
 npa has the following dependencies:
 

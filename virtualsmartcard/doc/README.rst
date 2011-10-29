@@ -43,13 +43,7 @@ cyberflex-shell_.
 Installation
 ------------
 
-virtualsmartcard uses the GNU Build System to compile and install. If you are
-unfamiliar with it, please have a look at the file :file:`INSTALL`. If you have a
-look around and can not find it, you are probably working bleeding edge in the
-repository.  Run the following command in the virtualsmartcard directory to get
-the missing standard auxiliary files::
-    
-    autoreconf -i
+.. include:: autotools.rst
 
 Depending on your usage of the |vpicc| you might or might not need
 the following:

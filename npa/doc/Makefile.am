@@ -1,5 +1,3 @@
-ACLOCAL_AMFLAGS = -I m4
-
 do_subst = sed \
 	   -e 's,[@]PACKAGE_NAME[@],$(PACKAGE_NAME),g' \
 	   -e 's,[@]PACKAGE_VERSION[@],$(PACKAGE_VERSION),g' \
@@ -12,15 +10,14 @@ do_subst = sed \
 	   -e 's,[@]OPENSC_LIBS[@],$(OPENSC_LIBS),g' \
 	   -e 's,[@]top_srcdir[@],$(top_srcdir),g'
 
-EXTRA_DIST = README.rst Doxyfile.in example.c
+EXTRA_DIST = README.rst Doxyfile.in example.c autotools.rst.in
 
-if DOC_ENABLED
 .PHONY: doc
 doc:
 	$(do_subst) < Doxyfile.in > Doxyfile
 	$(DOXYGEN) Doxyfile
 	touch api.rst
-endif
+	$(do_subst) < autotools.rst.in > autotools.rst
 
 clean-local:
-	rm -f Doxyfile
+	rm -f Doxyfile autotools.rst

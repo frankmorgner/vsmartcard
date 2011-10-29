@@ -32,13 +32,7 @@ are based on the GadgetFS_ example and on the source code of the OpenSC_ tools.
 Installation
 =============
 
-ccid uses the GNU Build System to compile and install. If you are unfamiliar
-with it, please have a look at the file :file:`INSTALL`. If you have a look around
-and can not find it, you are probably working bleeding edge in the repository.
-Run the following command in the npa directory to get the missing standard
-auxiliary files::
-    
-    autoreconf -i
+.. include:: autotools.rst
 
 ccid as the following dependencies:
 

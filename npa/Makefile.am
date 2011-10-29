@@ -21,11 +21,8 @@ win:
 	    ./configure --disable-doc && \
 	    env OPENSSL_VERSION="1" OPENSSL_URL="https://www2.informatik.hu-berlin.de/~morgner/files/openssl-1.tar.gz" EXTRA_OPENSSL_CONFIG="experimental-pace" win32/installer_from_build.sh
 
-if DOC_ENABLED
-.PHONY: doc
 doc :
-	$(MAKE) doc -C doc
-endif
+	$(MAKE) doc -C $(srcdir)/doc
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libnpa.pc

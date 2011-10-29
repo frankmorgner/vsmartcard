@@ -12,7 +12,11 @@
 # serve to show the default.
 
 import sys, os, breathe
-from sphinxcontrib.doxylink import doxylink
+
+os.system("make doc -C npa >/dev/null")
+os.system("make doc -C virtualsmartcard >/dev/null")
+os.system("make doc -C ccid >/dev/null")
+os.system("make doc -C pcsc-relay >/dev/null")
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -215,9 +219,6 @@ man_pages = [
     ('index', 'virtualsmartcardarchitecture', u'Virtual Smartcard Architecture Documentation',
      [u'Dominik Oepen, Frank Morgner'], 1)
 ]
-
-os.system("make doc -C npa >/dev/null")
-os.system("make doc -C virtualsmartcard >/dev/null")
 breathe_projects = {"npa": "npa/xml"}
 breathe_default_project = "npa"
 doxylink = { 'npa' : ('npa/npa.tag', '_static/doxygen-npa/'), }
