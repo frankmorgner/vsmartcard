@@ -15,7 +15,8 @@ example_LDADD = $(OPENSSL_LIBS) $(OPENSC_LIBS) libnpa.la
 example_CFLAGS = $(OPENSSL_CFLAGS)
 
 
-bin_PROGRAMS = npa-tool example
+bin_PROGRAMS = npa-tool
+noinst_PROGRAMS = example
 
 lib_LTLIBRARIES = libnpa.la
 
