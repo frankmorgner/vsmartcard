@@ -22,10 +22,6 @@ can use this program in combination with the virtual smart card to emulate a
 ISO/IEC 14443 smart card. 
 
 
-============
-Installation
-============
-
 .. include:: autotools.rst
 
 pcsc-relay has the following dependencies:
@@ -69,8 +65,4 @@ Winscard module. Microsoft's developement environment Visual Studio includes
 all necessary data for building pcsc-relay.
 
 
-=========
-Questions
-=========
-
-For questions, please use http://sourceforge.net/projects/vsmartcard/support
+.. include:: questions.rst

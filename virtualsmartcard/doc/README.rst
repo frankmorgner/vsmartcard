@@ -39,10 +39,6 @@ port 35963. The file :file:`utils.py` was taken from Henryk Plötz's
 cyberflex-shell_.
 
 
-------------
-Installation
-------------
-
 .. include:: autotools.rst
 
 Depending on your usage of the |vpicc| you might or might not need
@@ -59,9 +55,9 @@ The |vpcd| has the following dependencies:
 - PCSC-Lite_
 
 
-------------------------
+========================
 Running virtualsmartcard
-------------------------
+========================
 
 First you need to make sure that pcscd loads the |vpcd|. You might need to run
 :command:`update-reader.conf` to update pcscd's configuration file. Then
@@ -76,7 +72,4 @@ PC/SC API via |vpcd|/pcscd. You can use the opensc-explorer or pcsc_scan to test
 that.
 
 
-Question
----------
-
-For questions, please use http://sourceforge.net/projects/vsmartcard/support
+.. include:: questions.rst

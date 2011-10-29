@@ -17,6 +17,18 @@ Currently the following projects are part of vsmartcard:
    npa/README
    ccid/README
 
+.. toctree::
+   :hidden:
+
+   virtualsmartcard/autotools
+   pcsc-relay/autotools
+   npa/autotools
+   ccid/autotools
+   virtualsmartcard/questions
+   pcsc-relay/questions
+   npa/questions
+   ccid/questions
+
 Looking for a feature the included programs do not offer? Want to extend the
 functionality of some library? Apart from requesting a new feature, you can
 have a look at these programming guides and try yourself:

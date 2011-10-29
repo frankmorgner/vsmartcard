@@ -28,10 +28,6 @@ ccid-emulator is implemented using GadgetFS_. Some fragments of the source code
 are based on the GadgetFS example and on the source code of the OpenSC_ tools.
 
 
-=============
-Installation
-=============
-
 .. include:: autotools.rst
 
 ccid as the following dependencies:
@@ -100,9 +96,4 @@ PACE support (such as ccid-emulator or any other "Standardleser" CAT-S or
 "Komfortleser" CAT-C) via PC/SC.
 
 
-=========
-Questions
-=========
-
-For questions, please use http://sourceforge.net/projects/vsmartcard/support
-
+.. include:: questions.rst

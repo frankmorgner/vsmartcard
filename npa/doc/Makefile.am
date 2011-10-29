@@ -10,7 +10,7 @@ do_subst = sed \
 	   -e 's,[@]OPENSC_LIBS[@],$(OPENSC_LIBS),g' \
 	   -e 's,[@]top_srcdir[@],$(top_srcdir),g'
 
-EXTRA_DIST = README.rst Doxyfile.in example.c autotools.rst.in
+EXTRA_DIST = README.rst Doxyfile.in example.c autotools.rst.in questions.rst.in
 
 .PHONY: doc
 doc:
@@ -18,6 +18,7 @@ doc:
 	$(DOXYGEN) Doxyfile
 	touch api.rst
 	$(do_subst) < autotools.rst.in > autotools.rst
+	$(do_subst) < questions.rst.in > questions.rst
 
 clean-local:
-	rm -f Doxyfile autotools.rst
+	rm -f Doxyfile autotools.rst questions.rst

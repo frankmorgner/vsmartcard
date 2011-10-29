@@ -31,10 +31,6 @@ APDUs inside a secure messaging channel established with PACE.
 
 .. _npa-install:
 
-============
-Installation
-============
-
 .. include:: autotools.rst
 
 npa has the following dependencies:
@@ -93,6 +89,7 @@ configure npa to use it::
 
     ./configure OPENSC_LIBS="-L$PREFIX/lib -lopensc"
 
+
 .. _npa-usage:
 
 =====
@@ -135,10 +132,5 @@ Alternatively you can specify libraries and flags by hand::
         -I$PREFIX/include \
         -L$PREFIX/lib -lcrypto -lnpa -lopensc"
 
-=========
-Questions
-=========
 
-For questions, please use http://sourceforge.net/projects/vsmartcard/support
-
-
+.. include:: questions.rst

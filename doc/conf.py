@@ -12,6 +12,7 @@
 # serve to show the default.
 
 import sys, os, breathe
+from sphinxcontrib.doxylink import doxylink
 
 os.system("make doc -C npa >/dev/null")
 os.system("make doc -C virtualsmartcard >/dev/null")
