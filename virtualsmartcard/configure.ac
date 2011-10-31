@@ -112,6 +112,7 @@ ${PACKAGE} has been configured with following options:
 
 Version:              ${PACKAGE_VERSION}
 User binaries:        $(eval eval eval echo "${bindir}")
+PC/SC configuration:  $(eval eval eval echo "${sysconfdir}/reader.conf.d")
 Python site-packages: $(eval eval eval echo "${pythondir}")
 Driver directory:     ${serialdropdir}
 
