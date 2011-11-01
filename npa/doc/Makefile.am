@@ -15,11 +15,14 @@ do_subst = sed \
 
 EXTRA_DIST = README.rst.in README.rst Doxyfile.in example.c autotools.rst autotools.rst.in questions.rst questions.rst.in
 
-.PHONY: doc
-doc:
+doc: $(top_srcdir)/src/npa/*.h
 	$(do_subst) < Doxyfile.in > Doxyfile
 	$(DOXYGEN) Doxyfile
 	touch api.rst
 	$(do_subst) < autotools.rst.in > autotools.rst
 	$(do_subst) < questions.rst.in > questions.rst
 	$(do_subst) < README.rst.in > README.rst
+	touch doc
+
+clean-local:
+	rm -f doc README.rst autotools.rst questions.rst Doxyfile

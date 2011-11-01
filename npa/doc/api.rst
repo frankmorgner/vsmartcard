@@ -31,7 +31,7 @@ Secure Messaging (SM)
 =====================
 
 The complete documentation can be found `here
-<_static/doxygen-npa/group__sm.html>`_.
+<_static/doxygen-npa/group__sm.html>`__.
 
 -----
 Types
@@ -49,7 +49,7 @@ Interface to German identity card (neuer Personalausweis, nPA)
 ==============================================================
 
 The complete documentation can be found `here
-<_static/doxygen-npa/group__npa.html>`_.
+<_static/doxygen-npa/group__npa.html>`__.
 
 -----
 Types

@@ -19,9 +19,12 @@ EXTRA_DIST = README.rst.in README.rst autotools.rst.in questions.rst.in autotool
 
 dist_noinst_SCRIPTS = generate_modules.py
 
-.PHONY: doc
-doc:
+doc: $(top_srcdir)/src/vpicc/virtualsmartcard/*.py $(top_srcdir)/src/vpicc/virtualsmartcard/cards/*.py
 	$(do_subst) < autotools.rst.in > autotools.rst
 	$(do_subst) < questions.rst.in > questions.rst
 	$(do_subst) < README.rst.in > README.rst
-	./generate_modules.py $(top_srcdir)/src/vpicc --dest-dir=api --suffix=rst --no-toc -1
+	./generate_modules.py $(top_srcdir)/src/vpicc --dest-dir=api --suffix=rst --no-toc -1 -f
+	touch doc
+
+clean-local:
+	rm -f doc README.rst autotools.rst questions.rst

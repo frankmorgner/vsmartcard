@@ -14,10 +14,10 @@
 import sys, os, breathe
 from sphinxcontrib.doxylink import doxylink
 
-os.system("make doc -C npa >/dev/null")
-os.system("make doc -C virtualsmartcard >/dev/null")
-os.system("make doc -C ccid >/dev/null")
-os.system("make doc -C pcsc-relay >/dev/null")
+os.system("make doc -C npa")
+os.system("make doc -C virtualsmartcard")
+os.system("make doc -C ccid")
+os.system("make doc -C pcsc-relay")
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the

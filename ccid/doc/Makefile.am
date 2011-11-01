@@ -15,8 +15,11 @@ do_subst = sed \
 
 EXTRA_DIST = README.rst.in README.rst autotools.rst autotools.rst.in questions.rst questions.rst.in
 
-.PHONY: doc
 doc:
 	$(do_subst) < autotools.rst.in > autotools.rst
 	$(do_subst) < questions.rst.in > questions.rst
 	$(do_subst) < README.rst.in > README.rst
+	touch doc
+
+clean-local:
+	rm -f doc README.rst autotools.rst questions.rst
