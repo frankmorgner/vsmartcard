@@ -15,6 +15,9 @@
     GPL version 3
 :Tested Platforms:
     Linux (Debian, Ubuntu, OpenMoko)
+:Potential Platforms:
+    - Windows
+    - Unix-like operating systems (Mac OS, Solaris, BSD, ...)
 
 Welcome to pcsc-relay. The purpose of pcsc-relay is to forward APDUs from the
 OpenPICC or from a libnfc device to a smart card via the PCSC middleware. You

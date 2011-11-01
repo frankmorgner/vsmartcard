@@ -16,6 +16,9 @@
     GPL version 3
 :Tested Platforms:
     Linux (Debian, Ubuntu, OpenMoko)
+:Potential Platforms:
+    - Windows
+    - Unix-like operating systems (Mac OS, Solaris, BSD, ...)
 
 Welcome to the @PACKAGE_NAME@. The purpose of the @PACKAGE_NAME@ is to offer an easy to use API for the new
 German identity card (neuer Personalausweis, nPA). The library also implements

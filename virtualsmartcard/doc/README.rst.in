@@ -25,6 +25,8 @@
 :Tested Platforms:
     - Linux (Debian, Ubuntu, OpenMoko)
     - Windows (only |vpicc|, not |vpcd|)
+:Potential Platforms:
+    Unix-like operating systems (Mac OS, Solaris, BSD, ...)
 
 Welcome to the @PACKAGE_NAME@. The purpose of the @PACKAGE_NAME@ is to emulate a
 smart card and make it accessible through PCSC. Currently the virtual smart
@@ -61,8 +63,8 @@ Running the @PACKAGE_NAME@
 
 First you need to make sure that pcscd loads the |vpcd|. You might need to run
 :command:`update-reader.conf` to update pcscd's configuration file. Then
-:command:`pcscd -f -d` should say something like ``Attempting startup of
-Virtual PCD``
+:command:`pcscd -f -d` should say something like "Attempting startup of
+Virtual PCD"
 
 Now you can run :command:`vicc` which connects to the |vpcd|. The command
 :command:`vicc --help` gives an overview about the command line options.
