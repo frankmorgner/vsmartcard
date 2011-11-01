@@ -1,14 +1,11 @@
-.. Virtual Smartcard Architecture documentation master file, created by
-   sphinx-quickstart on Fri Oct  7 11:17:14 2011.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+.. |vsmartcard| replace:: Virtual Smart Card Architecture
 
-Welcome to Virtual Smartcard Architecture's documentation!
+Welcome to the |vsmartcard| documentation!
 ==========================================================
 
-Welcome to vsmartcard. vsmartcard is an umbrella project for various projects concerned with the emulation of different types of smart card readers or smart cards themselves.
+Welcome to the |vsmartcard|. |vsmartcard| is an umbrella project for various projects concerned with the emulation of different types of smart card readers or smart cards themselves.
 
-Currently the following projects are part of vsmartcard: 
+Currently the following projects are part of |vsmartcard|: 
 
 .. toctree::
 
@@ -41,6 +38,6 @@ have a look at these programming guides and try yourself:
 Download
 ========
 
-You can download the latest release of vsmartcard `here <https://sourceforge.net/projects/vsmartcard/files/vsmartcard_2011-05-20.tar.gz/download>`_.
+You can download the latest release of the |vsmartcard| `here <https://sourceforge.net/projects/vsmartcard/files/vsmartcard_2011-05-20.tar.gz/download>`_.
 
 Alternatively you can check out the source code from our `subversion repository <https://sourceforge.net/projects/vsmartcard/develop>`_. 

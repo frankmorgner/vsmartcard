@@ -46,7 +46,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Virtual Smartcard Architecture'
+project = u'Virtual Smart Card Architecture'
 copyright = u'2011, Dominik Oepen, Frank Morgner'
 
 # The version info for the project you're documenting, acts as replacement for
