@@ -874,8 +874,7 @@ class MF(DF):
         Function for instruction 0x0e. Takes the parameter bytes 'p1', 'p2' as
         integers and 'data' as binary string.
         
-        :returns: the status bytes as two byte long integer and the response
-        data as binary string.
+        :returns: the status bytes as two byte long integer and the response data as binary string.
         """
         ef, offsets, datalist = self.dataUnitsDecodePlain(p1, p2, data)
         # If INS = '0E', then, if present, the command data field encodes

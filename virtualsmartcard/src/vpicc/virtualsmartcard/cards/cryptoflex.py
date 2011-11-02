@@ -37,10 +37,13 @@ class CryptoflexSE(Security_Environment):
         """
         In the Cryptoflex card this command only supports RSA keys.
 
-        :param data: Contains the public exponent used for key generation
-        :param p1: The key number. Can be used later to refer to the generated key \
-        :param p2: Used to specify the key length. The mapping is: 0x40 => 256 \
-        Bit, 0x60 => 512 Bit, 0x80 => 1024
+        :param data:
+            Contains the public exponent used for key generation
+        :param p1:
+            The key number. Can be used later to refer to the generated key
+        :param p2:
+            Used to specify the key length. The mapping is: 0x40 => 256 Bit,
+            0x60 => 512 Bit, 0x80 => 1024
         """
         from Crypto.PublicKey import RSA
         from Crypto.Util.randpool import RandomPool

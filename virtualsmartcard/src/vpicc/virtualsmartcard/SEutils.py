@@ -190,18 +190,21 @@ class Security_Environment(object):
         P1 specifies the operation to perform, p2 is either the SEID for the
         referred SE or the tag of a control reference template
         
-        P1:
-        b8 b7 b6 b5 b4 b3 b2 b1               Meaning
-         -  -  -  1  -  -  -  - Secure messaging in command data field
-         -  -  1  -  -  -  -  - Secure messaging in response data field
-         -  1  -  -  -  -  -  - Computation, decipherment, internal 
-                                authentication and key agreement
-        1   -  -  -  -  -  -  - Verification, encipherment, external
-                                authentication and key agreement
-         -  -  -  -  0  0  0 1  SET
-        1  1  1  1  0  0  1  0  STORE
-        1  1  1  1  0  0  1  1  RESTORE
-        1  1  1  1  0  1  0  0  ERASE
+        :param p1:
+            == == == == == == == == ======================================
+            b8 b7 b6 b5 b4 b3 b2 b1               Meaning
+            == == == == == == == == ======================================
+             -  -  -  1  -  -  -  - Secure messaging in command data field
+             -  -  1  -  -  -  -  - Secure messaging in response data field
+             -  1  -  -  -  -  -  - Computation, decipherment, internal 
+                                    authentication and key agreement
+            1   -  -  -  -  -  -  - Verification, encipherment, external
+                                    authentication and key agreement
+             -  -  -  -  0  0  0 1  SET
+            1  1  1  1  0  0  1  0  STORE
+            1  1  1  1  0  0  1  1  RESTORE
+            1  1  1  1  0  1  0  0  ERASE
+            == == == == == == == == ======================================
         """
                
         cmd = p1 & 0x0F
@@ -658,10 +661,8 @@ class Security_Environment(object):
         card, or accesses a key pair previously generated in the card.
         
         :param p1: should be 0x00 (generate new key)
-        :param p2:'00' (no information provided) or reference of the key to be \
-        generated
-        :param data: One or more CRTs associated to the key generation if P1-P2 \
-        different from '0000'
+        :param p2: '00' (no information provided) or reference of the key to be generated
+        :param data: One or more CRTs associated to the key generation if P1-P2 different from '0000'
         """
         
         from Crypto.PublicKey import RSA, DSA
