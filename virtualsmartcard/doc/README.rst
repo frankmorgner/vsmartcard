@@ -1,0 +1,77 @@
+.. highlight:: sh
+
+.. _PBKDF2: https://www.dlitz.net/software/python-pbkdf2/
+.. _PCSC-lite: http://pcsclite.alioth.debian.org/
+.. _PCSC-lite: http://pcsclite.alioth.debian.org/
+.. _PIP: http://www.pythonware.com/products/pil/
+.. _PyCrypto: http://pycrypto.org/
+.. _Python: http://www.python.org/
+.. _cyberflex-shell: https://github.com/henryk/cyberflex-shell
+.. _pyscard: http://pyscard.sourceforge.net/
+
+.. |vpicc| replace:: :abbr:`vpicc (virtual smart card)`
+.. |vpcd| replace:: :abbr:`vpcd (virtual smart card reader)`
+
+
+********************************************************************************
+Virtual Smart Card
+********************************************************************************
+
+:Authors:
+    - Frank Morgner <morgner@informatik.hu-berlin.de>
+    - Dominik Oepen <oepen@informatik.hu-berlin.de>
+:License:
+    GPL version 3
+:Tested Platforms:
+    - Linux (Debian, Ubuntu, OpenMoko)
+    - Windows (only |vpicc|, not |vpcd|)
+:Potential Platforms:
+    Unix-like operating systems (Mac OS, Solaris, BSD, ...)
+
+Welcome to the Virtual Smart Card. The purpose of the Virtual Smart Card is to emulate a
+smart card and make it accessible through PCSC. Currently the virtual smart
+card supports almost all commands of ISO-7816 including secure messaging.
+Besides a plain ISO-7816 smart card it is also possible to emulate a German
+ePass (only basic access control) and a rudimentary Cryptoflex smart card. The
+|vpicc| can be accessed through the |vpcd| which is a driver for
+:command:`pcscd` of PCSC-Lite_.
+
+By default the vicc communicates with the vpcd through a socket on localhost
+port 35963. The file :file:`utils.py` was taken from Henryk Plötz's
+cyberflex-shell_.
+
+
+.. include:: autotools.rst
+
+Depending on your usage of the |vpicc| you might or might not need
+the following:
+
+- Python_
+- pyscard_
+- PyCrypto_
+- PBKDF2_
+- PIP_
+
+The |vpcd| has the following dependencies:
+
+- PCSC-Lite_
+
+
+================================================================================
+Running the Virtual Smart Card
+================================================================================
+
+First you need to make sure that pcscd loads the |vpcd|. You might need to run
+:command:`update-reader.conf` to update pcscd's configuration file. Then
+:command:`pcscd -f -d` should say something like "Attempting startup of
+Virtual PCD"
+
+Now you can run :command:`vicc` which connects to the |vpcd|. The command
+:command:`vicc --help` gives an overview about the command line options.
+
+You should now be able to access the |vpicc| through the system's
+PC/SC API via |vpcd|/pcscd. You can use the opensc-explorer or pcsc_scan to test
+that.
+
+
+.. include:: questions.rst

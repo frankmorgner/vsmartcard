@@ -1,0 +1,71 @@
+.. highlight:: sh
+
+.. _libnfc: http://www.libnfc.org/
+.. _PCSC-lite: http://pcsclite.alioth.debian.org/
+
+
+********************************************************************************
+pcsc-relay
+********************************************************************************
+
+:Authors:
+    - Dominik Oepen <oepen@informatik.hu-berlin.de>
+    - Frank Morgner <morgner@informatik.hu-berlin.de>
+:License:
+    GPL version 3
+:Tested Platforms:
+    Linux (Debian, Ubuntu, OpenMoko)
+:Potential Platforms:
+    - Windows
+    - Unix-like operating systems (Mac OS, Solaris, BSD, ...)
+
+Welcome to pcsc-relay. The purpose of pcsc-relay is to forward APDUs from the
+OpenPICC or from a libnfc device to a smart card via the PCSC middleware. You
+can use this program in combination with the virtual smart card to emulate a
+ISO/IEC 14443 smart card. 
+
+
+.. include:: autotools.rst
+
+pcsc-relay has the following dependencies:
+
+- PC/SC middleware
+- libnfc_
+
+
+---------------
+Hints on libnfc
+---------------
+
+pcsc-relay links against libnfc_. Here is an example of how to get the standard
+installation of the latter::
+ 
+    PREFIX=/tmp/install
+    LIBNFC=libnfc
+    svn co http://libnfc.googlecode.com/svn/trunk $LIBNFC
+    cd $LIBNFC
+    autoreconf -i
+    ./configure --prefix=$PREFIX
+    make
+    make install
+
+Building pcsc-relay with libnfc_ is done best using :command:`pkg-config`.  The file
+:file:`libnfc.pc` should be located in ``$INSTALL/lib/pkgconfig``. Here is how to
+configure pcsc-relay to use it::
+
+    ./configure PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig
+
+
+-------------------------
+Hints on PC/SC middleware
+-------------------------
+
+PC/SC is included by default in most modern operating systems. On Unix-like
+systems (Linux, OS X, Sun OS) it is realized by PCSC-Lite_. To compile
+pcsc-relay you will need to install the PCSC-Lite headers from your
+distribution. Windows also ships with a PC/SC middleware in form of the
+Winscard module. Microsoft's developement environment Visual Studio includes
+all necessary data for building pcsc-relay.
+
+
+.. include:: questions.rst
