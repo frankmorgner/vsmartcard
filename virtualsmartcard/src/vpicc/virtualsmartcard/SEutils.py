@@ -36,10 +36,11 @@ class ControlReferenceTemplate:
     def __init__(self, tag, config=""):
         """
         Generates a new CRT
-        @param tag: Indicates the type of the CRT (HT, AT, KT, CCT, DST, CT-sym,
-                    CT-asym) 
-        @param config: A string containing TLV encoded Security Environment
-                       parameters 
+        
+        :param tag: Indicates the type of the CRT (HT, AT, KT, CCT, DST, CT-sym, \
+        CT-asym) 
+        :param config: A string containing TLV encoded Security Environment \
+        parameters 
         """
         if tag not in (CRT_TEMPLATE["AT"], CRT_TEMPLATE["HT"],
                         CRT_TEMPLATE["KAT"], CRT_TEMPLATE["CCT"],
@@ -63,7 +64,8 @@ class ControlReferenceTemplate:
     def parse_SE_config(self, config):
         """
         Parse a control reference template as given e.g. in an MSE APDU.
-        @param config : a TLV string containing the configuration for the CRT. 
+        
+        :param config : a TLV string containing the configuration for the CRT. 
         """
         
         structure = unpack(config)
@@ -87,7 +89,8 @@ class ControlReferenceTemplate:
         Set the algorithm to be used by this CRT. The algorithms are specified
         in a global dictionary. New cards may add or modify this table in order
         to support new or different algorithms.
-        @param data: reference to an algorithm
+        
+        :param data: reference to an algorithm
         """
         
         if not ALGO_MAPPING.has_key(data):
@@ -254,11 +257,13 @@ class Security_Environment(object):
         This methods parses a data field including Secure Messaging objects.
         SM_header indicates whether or not the header of the message shall be 
         authenticated. It returns an unprotected command APDU
-        @param CAPDU: The protected CAPDU to be parsed
-        @param authenticate_header: Wether or not the header should be
-               included in authentication mechanisms 
-        @return: Unprotected command APDU
-        """    
+        
+        :param CAPDU: The protected CAPDU to be parsed
+        :param authenticate_header: Whether or not the header should be
+            included in authentication mechanisms 
+        :returns: Unprotected command APDU
+        """
+            
         structure = unpack(CAPDU.data)
         return_data = ["",]
         expected = self.sm_objects
@@ -399,7 +404,8 @@ class Security_Environment(object):
     def protect_response(self, sw, result):
         """
         This method protects a response APDU using secure messaging mechanisms
-        It returns the protected data and the SW bytes
+        
+        :returns: the protected data and the SW bytes
         """
         expected = self.sm_objects
         for pos in range(len(expected)):
@@ -495,9 +501,10 @@ class Security_Environment(object):
         """
         Compute a digital signature for the given data.
         Algorithm and key are specified in the current SE
-        @param p1: Must be 0x9E = Secure Messaging class for digital signatures
-        @param p2: Must be one of 0x9A, 0xAC, 0xBC. Indicates what kind of data
-                   is included in the data field.
+        
+        :param p1: Must be 0x9E = Secure Messaging class for digital signatures
+        :param p2: Must be one of 0x9A, 0xAC, 0xBC. Indicates what kind of data
+            is included in the data field.
         """
         
         if p1 != 0x9E or not p2 in (0x9A, 0xAC, 0xBC):
@@ -522,9 +529,10 @@ class Security_Environment(object):
     
     def hash(self, p1, p2, data):
         """
-        Hash the given data using the algorithm specified by the
-        current Security environment.
-        Return raw data (no TLV coding).
+        Hash the given data using the algorithm specified by the current 
+        Security environment.
+        
+        :return: raw data (no TLV coding).
         """        
         if p1 != 0x90 or not p2 in (0x80, 0xA0):
             raise SwError(SW["ERR_INCORRECTP1P2"])
@@ -616,7 +624,8 @@ class Security_Environment(object):
         """
         Encipher data using key, algorithm, IV and Padding specified
         by the current Security environment.
-        Return raw data (no TLV coding).
+        
+        :returns: raw data (no TLV coding).
         """
         algo = self.ct.algorithm
         key = self.ct.key
@@ -631,7 +640,8 @@ class Security_Environment(object):
         """
         Decipher data using key, algorithm, IV and Padding specified
         by the current Security environment.
-        Return raw data (no TLV coding). Padding is not removed!!!
+        
+        :returns: raw data (no TLV coding). Padding is not removed!!!
         """
         algo = self.ct.algorithm
         key = self.ct.key
@@ -642,16 +652,16 @@ class Security_Environment(object):
             return SW["NORMAL"], plain
 
     def generate_public_key_pair(self, p1, p2, data):
-        """The GENERATE PUBLIC-KEY PAIR command either initiates the generation 
+        """
+        The GENERATE PUBLIC-KEY PAIR command either initiates the generation 
         and storing of a key pair, i.e., a public key and a private key, in the
         card, or accesses a key pair previously generated in the card.
         
-        @param p1:
-        @param p2:'00' (no information provided) or reference of the key to be
-                generated
-        @param data: One or more CRTs associated to the key generation if P1-P2 
-                     different from '0000' 
-
+        :param p1: should be 0x00 (generate new key)
+        :param p2:'00' (no information provided) or reference of the key to be \
+        generated
+        :param data: One or more CRTs associated to the key generation if P1-P2 \
+        different from '0000'
         """
         
         from Crypto.PublicKey import RSA, DSA

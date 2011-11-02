@@ -103,13 +103,12 @@ def write(old, newlist, offsets, datacoding, maxsize=None):
     """Returns the status bytes and the result of a write operation according to
     the given data coding.
 
-    @param old: string of old data
-    @param newlist: a list of new data string
-    @param offsets: a list of offsets, each for one new data strings
-    @param datacoding: DCB["ONETIMEWRITE"] (replace) or DCB["WRITEOR"] (logical or)
-                  or DCB["WRITEAND"] (logical and) or DCB["PROPRIETARY"]
-                  (logical xor)
-    @param maxsize: the maximum number of bytes in the result
+    :param old: string of old data
+    :param newlist: a list of new data string
+    :param offsets: a list of offsets, each for one new data strings
+    :param datacoding: DCB["ONETIMEWRITE"] (replace) or DCB["WRITEOR"] (logical or)
+        or DCB["WRITEAND"] (logical and) or DCB["PROPRIETARY"] (logical xor)
+    :param maxsize: the maximum number of bytes in the result
     """
     result    = old
     listindex = 0
@@ -686,8 +685,10 @@ class MF(DF):
     def selectFile(self, p1, p2, data):
         """
         Function for instruction 0xa4. Takes the parameter bytes 'p1', 'p2' as
-        integers and 'data' as binary string. Returns the status bytes as two
-        byte long integer and the response data as binary string.
+        integers and 'data' as binary string. 
+        
+        :returns: the status bytes as two byte long integer and the response
+            data as binary string.
         """
         P2_FCI  = 0
         P2_FCP  = 1 << 2
@@ -716,8 +717,9 @@ class MF(DF):
         """
         Decodes 'p1', 'p2' and 'data' from a data unit command (i. e.
         read/write/update/search/erase binary) with *odd* instruction code.
-        Returns the specified TransparentStructureEF, a list of offsets and a
-        list of data strings.
+        
+        :returns: the specified TransparentStructureEF, a list of offsets and a
+            list of data strings.
         """
         if p1 >> 7:
             # If bit 1 of INS is set to 0 and bit 8 of P1 to 1, then bits 7
@@ -741,8 +743,9 @@ class MF(DF):
         """
         Decodes 'p1', 'p2' and 'data' from a data unit command (i. e.
         read/write/update/search/erase binary) with *even* instruction code.
-        Returns the specified TransparentStructureEF, a list of offsets and a
-        list of data strings.
+        
+        :returns the specified TransparentStructureEF, a list of offsets and a
+            list of data strings.
         """
         # If bit 1 of INS is set to 1, then P1-P2 shall identify an EF. If
         # the first eleven bits of P1-P2 are set to 0 and if bits 5 to 1 of
@@ -769,8 +772,10 @@ class MF(DF):
     def readBinaryPlain(self, p1, p2, data):
         """
         Function for instruction 0xb0. Takes the parameter bytes 'p1', 'p2' as
-        integers and 'data' as binary string. Returns the status bytes as two
-        byte long integer and the response data as binary string.
+        integers and 'data' as binary string. 
+        
+        :returns: the status bytes as two byte long integer and the response
+            data as binary string.
         """
         ef, offsets, datalist = self.dataUnitsDecodePlain(p1, p2, data)
         result = ef.readbinary(offsets[0])
@@ -780,8 +785,10 @@ class MF(DF):
     def readBinaryEncapsulated(self, p1, p2, data):
         """
         Function for instruction 0xb1. Takes the parameter bytes 'p1', 'p2' as
-        integers and 'data' as binary string. Returns the status bytes as two
-        byte long integer and the response data as binary string.
+        integers and 'data' as binary string.
+        
+        :returns: the status bytes as two byte long integer and the response
+            data as binary string.
         """
         ef, offsets, datalist = self.dataUnitsDecodeEncapsulated(p1, p2, data)
         result = ef.readbinary(offsets[0])
@@ -793,8 +800,10 @@ class MF(DF):
     def writeBinaryPlain(self, p1, p2, data):
         """
         Function for instruction 0xd0. Takes the parameter bytes 'p1', 'p2' as
-        integers and 'data' as binary string. Returns the status bytes as two
-        byte long integer and the response data as binary string.
+        integers and 'data' as binary string.
+        
+        :returns: the status bytes as two byte long integer and the response
+            data as binary string.
         """
         ef, offsets, datalist = self.dataUnitsDecodePlain(p1, p2, data)
         ef.writebinary(offsets, datalist)
@@ -815,8 +824,10 @@ class MF(DF):
     def updateBinaryPlain(self, p1, p2, data):
         """
         Function for instruction 0xd6. Takes the parameter bytes 'p1', 'p2' as
-        integers and 'data' as binary string. Returns the status bytes as two
-        byte long integer and the response data as binary string.
+        integers and 'data' as binary string.
+        
+        :returns: the status bytes as two byte long integer and the response
+            data as binary string.
         """
         ef, offsets, datalist = self.dataUnitsDecodePlain(p1, p2, data)
         ef.updatebinary(offsets, datalist)
@@ -826,8 +837,10 @@ class MF(DF):
     def updateBinaryEncapsulated(self, p1, p2, data):
         """
         Function for instruction 0xd7. Takes the parameter bytes 'p1', 'p2' as
-        integers and 'data' as binary string. Returns the status bytes as two
-        byte long integer and the response data as binary string.
+        integers and 'data' as binary string.
+        
+        :returns: the status bytes as two byte long integer and the response
+            data as binary string.
         """
         ef, offsets, datalist = self.dataUnitsDecodeEncapsulated(p1, p2, data)
         ef.updatebinary(offsets, datalist)
@@ -859,8 +872,10 @@ class MF(DF):
     def eraseBinaryPlain(self, p1, p2, data):
         """
         Function for instruction 0x0e. Takes the parameter bytes 'p1', 'p2' as
-        integers and 'data' as binary string. Returns the status bytes as two
-        byte long integer and the response data as binary string.
+        integers and 'data' as binary string.
+        
+        :returns: the status bytes as two byte long integer and the response
+        data as binary string.
         """
         ef, offsets, datalist = self.dataUnitsDecodePlain(p1, p2, data)
         # If INS = '0E', then, if present, the command data field encodes
@@ -881,8 +896,10 @@ class MF(DF):
     def eraseBinaryEncapsulated(self, p1, p2, data):
         """
         Function for instruction 0x0f. Takes the parameter bytes 'p1', 'p2' as
-        integers and 'data' as binary string. Returns the status bytes as two
-        byte long integer and the response data as binary string.
+        integers and 'data' as binary string.
+        
+        :returns: the status bytes as two byte long integer and the response
+            data as binary string.
         """
         ef, offsets, datalist = self.dataUnitsDecodeEncapsulated(p1, p2, data)
         # If INS = '0F', then, if present, the command data field shall
@@ -909,10 +926,11 @@ class MF(DF):
     def recordHandlingDecode(self, p1, p2):
         """
         Decodes 'p1' and 'p2' from a record handling command (i. e.
-        read/write/update/append/search/erase record). Returns the specified
-        RecordStructureEF, the number or identifier of the record and a
-        reference, that specifies which record to select (i. e. the last 3 bits
-        of 'p1').
+        read/write/update/append/search/erase record).
+        
+        :returns: the specified RecordStructureEF, the number or identifier of
+            the record and a reference, that specifies which record to select 
+            (i. e. the last 3 bits of 'p1').
         """
         if p1 == 0xff:
             # RFU
@@ -938,8 +956,10 @@ class MF(DF):
     def readRecordPlain(self, p1, p2, data):
         """
         Function for instruction 0xb2. Takes the parameter bytes 'p1', 'p2' as
-        integers and 'data' as binary string. Returns the status bytes as two
-        byte long integer and the response data as binary string.
+        integers and 'data' as binary string.
+        
+        :returns: the status bytes as two byte long integer and the response
+            data as binary string.
         """
         ef, num_id, reference = self.recordHandlingDecode(p1, p2)
         result = ef.readrecord(0, num_id, reference)
@@ -953,8 +973,10 @@ class MF(DF):
     def readRecordEncapsulated(self, p1, p2, data):
         """
         Function for instruction 0xb3. Takes the parameter bytes 'p1', 'p2' as
-        integers and 'data' as binary string. Returns the status bytes as two
-        byte long integer and the response data as binary string.
+        integers and 'data' as binary string.
+        
+        :returns: the status bytes as two byte long integer and the response
+            data as binary string.
         """
         ef, num_id, reference = self.recordHandlingDecode(p1, p2)
         result = ef.readrecord(0, num_id, reference)
@@ -964,8 +986,10 @@ class MF(DF):
     def writeRecord(self, p1, p2, data):
         """
         Function for instruction 0xd2. Takes the parameter bytes 'p1', 'p2' as
-        integers and 'data' as binary string. Returns the status bytes as two
-        byte long integer and the response data as binary string.
+        integers and 'data' as binary string.
+        
+        :returns: the status bytes as two byte long integer and the response
+            data as binary string.
         """
         ef, num_id, reference = self.recordHandlingDecode(p1, p2)
         if reference not in [ REF["IDENTIFIER_FIRST"], REF["IDENTIFIER_LAST"],
@@ -980,8 +1004,10 @@ class MF(DF):
     def updateRecordPlain(self, p1, p2, data):
         """
         Function for instruction 0xdc. Takes the parameter bytes 'p1', 'p2' as
-        integers and 'data' as binary string. Returns the status bytes as two
-        byte long integer and the response data as binary string.
+        integers and 'data' as binary string.
+        
+        :returns: the status bytes as two byte long integer and the response
+            data as binary string.
         """
         ef, num_id, reference = self.recordHandlingDecode(p1, p2)
         if reference not in [ REF["IDENTIFIER_FIRST"], REF["IDENTIFIER_LAST"],
@@ -996,8 +1022,10 @@ class MF(DF):
     def updateRecordEncapsulated(self, p1, p2, data):
         """
         Function for instruction 0xdd. Takes the parameter bytes 'p1', 'p2' as
-        integers and 'data' as binary string. Returns the status bytes as two
-        byte long integer and the response data as binary string.
+        integers and 'data' as binary string.
+        
+        :returns: the status bytes as two byte long integer and the response
+            data as binary string.
         """
         ef, num_id, reference = self.recordHandlingDecode(p1, p2)
 
@@ -1033,8 +1061,10 @@ class MF(DF):
     def appendRecord(self, p1, p2, data):
         """
         Function for instruction 0xe2. Takes the parameter bytes 'p1', 'p2' as
-        integers and 'data' as binary string. Returns the status bytes as two
-        byte long integer and the response data as binary string.
+        integers and 'data' as binary string. 
+        
+        :returns: the status bytes as two byte long integer and the response
+            data as binary string.
         """
         if p1 != 0 or (p2 & REF["REFERENCE_CONTROL"]) != 0:
             raise SwError(SW["ERR_INCORRECTP1P2"])
@@ -1046,8 +1076,10 @@ class MF(DF):
     def eraseRecord(self, p1, p2, data):
         """
         Function for instruction 0x0c. Takes the parameter bytes 'p1', 'p2' as
-        integers and 'data' as binary string. Returns the status bytes as two
-        byte long integer and the response data as binary string.
+        integers and 'data' as binary string.
+        
+        :returns: the status bytes as two byte long integer and the response
+            data as binary string.
         """
         ef, num_id, reference = self.recordHandlingDecode(p1, p2)
         if reference not in [
@@ -1062,9 +1094,11 @@ class MF(DF):
     def dataObjectHandlingDecodePlain(self, p1, p2, data):
         """
         Decodes 'p1', 'p2' and 'data' from a data object handling command (i.
-        e. get/put data) with *even* instruction code. Returns the specified
-        file, True if the following list regards SIMPLE-TLV data objects False
-        otherwise and a list of (tag, length, value)-tuples.
+        e. get/put data) with *even* instruction code.
+        
+        :returns: the specified file, True if the following list regards
+            SIMPLE-TLV data objects False otherwise and a list of
+            (tag, length, value)-tuples.
         """
         if self.current == None:
             raise SwError(SW["ERR_NOCURRENTEF"])
@@ -1109,9 +1143,11 @@ class MF(DF):
     def dataObjectHandlingDecodeEncapsulated(self, p1, p2, data):
         """
         Decodes 'p1', 'p2' and 'data' from a data object handling command (i.
-        e. get/put data) with *odd* instruction code. Returns the specified
-        file, True if the following list regards SIMPLE-TLV data objects False
-        otherwise and a list of (tag, length, value)-tuples.
+        e. get/put data) with *odd* instruction code.
+        
+        :returns: the specified file, True if the following list regards 
+            SIMPLE-TLV data objects False otherwise and a list of
+            (tag, length, value)-tuples.
         """
         # If bit 1 of INS is set to 1, then P1-P2 shall identify a file.
         tlv_data = bertlv_unpack(data)
@@ -1147,8 +1183,10 @@ class MF(DF):
     def getDataPlain(self, p1, p2, data):
         """
         Function for instruction 0xca. Takes the parameter bytes 'p1', 'p2' as
-        integers and 'data' as binary string. Returns the status bytes as two
-        byte long integer and the response data as binary string.
+        integers and 'data' as binary string.
+        
+        :returns: the status bytes as two byte long integer and the response
+            data as binary string.
         """
         file, isSimpleTlv, tlvlist = self.dataObjectHandlingDecodePlain(p1, p2, data)
         # TODO oversized answers
@@ -1160,8 +1198,10 @@ class MF(DF):
     def getDataEncapsulated(self, p1, p2, data):
         """
         Function for instruction 0xcb. Takes the parameter bytes 'p1', 'p2' as
-        integers and 'data' as binary string. Returns the status bytes as two
-        byte long integer and the response data as binary string.
+        integers and 'data' as binary string.
+        
+        :returns: the status bytes as two byte long integer and the response
+            data as binary string.
         """
         file, tlv_data = self.dataObjectHandlingDecodeEncapsulated(p1, p2, data)
         # TODO oversized answers
@@ -1176,8 +1216,10 @@ class MF(DF):
     def putDataPlain(self, p1, p2, data):
         """
         Function for instruction 0xda. Takes the parameter bytes 'p1', 'p2' as
-        integers and 'data' as binary string. Returns the status bytes as two
-        byte long integer and the response data as binary string.
+        integers and 'data' as binary string.
+        
+        :returns: the status bytes as two byte long integer and the response
+            data as binary string.
         """
         file, isSimpleTlv, tlvlist = self.dataObjectHandlingDecodePlain(p1, p2, data)
         file.putdata(isSimpleTlv, tlvlist)
@@ -1187,8 +1229,10 @@ class MF(DF):
     def putDataEncapsulated(self, p1, p2, data):
         """
         Function for instruction 0xdb. Takes the parameter bytes 'p1', 'p2' as
-        integers and 'data' as binary string. Returns the status bytes as two
-        byte long integer and the response data as binary string.
+        integers and 'data' as binary string.
+        
+        :returns: the status bytes as two byte long integer and the response
+            data as binary string.
         """
         file, tlvlist = self.dataObjectHandlingDecodeEncapsulated(p1, p2, data)
         file.putdata(False, tlvlist)
@@ -1270,8 +1314,10 @@ class MF(DF):
     def createFile(self, p1, p2, data):
         """
         Function for instruction 0xe0. Takes the parameter bytes 'p1', 'p2' as
-        integers and 'data' as binary string. Returns the status bytes as two
-        byte long integer and the response data as binary string.
+        integers and 'data' as binary string.
+        
+        :returns: the status bytes as two byte long integer and the response
+            data as binary string.
         """
         df = self.currentDF()
         if df == None:
@@ -1287,8 +1333,10 @@ class MF(DF):
     def deleteFile(self, p1, p2, data):
         """
         Function for instruction 0xe4. Takes the parameter bytes 'p1', 'p2' as
-        integers and 'data' as binary string. Returns the status bytes as two
-        byte long integer and the response data as binary string.
+        integers and 'data' as binary string.
+        
+        :returns: the status bytes as two byte long integer and the response
+            data as binary string.
         """
         file = self._selectFile(p1, p2, data)
         file.parent.content.remove(file)
@@ -1356,9 +1404,9 @@ class TransparentStructureEF(EF):
         Writes pieces of data to the specified offsets honoring the given
         coding byte.
 
-        offsets    -- list of integers. Offsets.
-        datalist   -- list of strings. Data pieces.
-        datacoding -- the data coding byte to use for writing
+        :param offsets: list of integers. Offsets.
+        :param datalist: list of strings. Data pieces.
+        :param datacoding: the data coding byte to use for writing
         """
         data = self.getenc('data')
         if datacoding:
@@ -1430,8 +1478,8 @@ class RecordStructureEF(EF):
         which kind of record structured file you want to create (i. e.
         linear/cyclic or variable/fixed EF). The record pointer is reset.
 
-        records       -- list of Records
-        maxrecordsize -- integer. maximum length of a record's data.
+        :param records: list of Records
+        :para, maxrecordsize: integer. maximum length of a record's data.
 
         See EF for more.
         """
@@ -1495,8 +1543,9 @@ class RecordStructureEF(EF):
         """
         Returns a list of records. Is to be involved by __getRecords.
 
-        number    -- The requested record's number
-        reference -- Specifies which record to select (usually the last 3 bits of 'p1' of a record handling command)
+        :param number: The requested record's number
+        :param reference: Specifies which record to select (usually the last 3 
+            bits of 'p1' of a record handling command)
         """
         result  = []
         records = self.getenc('records')
@@ -1528,8 +1577,9 @@ class RecordStructureEF(EF):
         Returns a list of records and sets the recordpointer to the first
         record, that matched. Is to be involved by __getRecords.
 
-        id        -- The requested record's identifier
-        reference -- Specifies which record to select (usually the last 3 bits of 'p1' of a record handling command)
+        :param id: The requested record's identifier
+        :param reference: Specifies which record to select (usually the last 3
+            bits of 'p1' of a record handling command)
         """
         result  = []
         records = self.getenc('records')

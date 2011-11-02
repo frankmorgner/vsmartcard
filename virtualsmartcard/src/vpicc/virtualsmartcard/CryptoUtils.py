@@ -121,15 +121,19 @@ def strip_padding(cipherspec, data, padding_class=0x01):
 def crypto_checksum(algo, key, data, iv=None, ssc=None):
     """
     Compute various types of cryptographic checksums.
-    @param algo: A string specifying the algorithm to use. Currently supported
-                 algorithms are \"MAX\" \"HMAC\" and \"CC\" (Meaning a 
-                 cryptographic checksum as used by the ICAO passports)
-    @param key:  They key used to computed the cryptographic checksum
-    @param data: The data for which to calculate the checksum
-    @param iv: Optional. An initialization vector. Only used by the \"MAC\" algorithm
-    @param ssc: Optional. A send sequence counter to be prepended to the data. Only
-          used by the \"CC\" algorithm
+    
+    :param algo: A string specifying the algorithm to use. Currently supported \
+    algorithms are \"MAX\" \"HMAC\" and \"CC\" (Meaning a cryptographic checksum \
+    as used by the ICAO passports)
+    :param key:  They key used to computed the cryptographic checksum
+    :param data: The data for which to calculate the checksum
+    :param iv: Optional. An initialization vector. Only used by the \"MAC\" \
+    algorithm
+    :param ssc: Optional. A send sequence counter to be prepended to the data. \
+    Only used by the \"CC\" algorithm
+    
     """
+    
     if algo not in ("HMAC", "MAC", "CC"):
         raise ValueError, "Unknown Algorithm %s" % algo
     
@@ -254,7 +258,7 @@ def read_protected_string(string, password, cipherspec=None):
 ## * Cyberflex specific methods                                      *
 ## *******************************************************************
 def calculate_MAC(session_key, message, iv=CYBERFLEX_IV):
-    """"
+    """
     Cyberflex MAC is the last Block of the input encrypted with DES3-CBC
     """
     

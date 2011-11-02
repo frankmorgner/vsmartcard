@@ -147,8 +147,8 @@ class SAM(object):
     
     def set_asym_algorithm(self, cipher, keytype):
         """
-        @param cipher: Public/private key object from used for encryption   
-        @param keytype: Type of the public key (e.g. RSA, DSA) 
+        :param cipher: Public/private key object from used for encryption   
+        :param keytype: Type of the public key (e.g. RSA, DSA) 
         """
         if not keytype in range(0x07, 0x08):
             raise SwError(SW["ERR_INCORRECTP1P2"])
@@ -289,8 +289,9 @@ class SAM(object):
         """
         This method returns the key specified by the p2 parameter. The key may be
         stored on the cards filesystem.
-		@param p1: Specifies the algorithm to use. Needed to know the keylength.
-        @param p2: Specifies a reference to the key to be used for encryption
+		
+		:param p1: Specifies the algorithm to use. Needed to know the keylength.
+        :param p2: Specifies a reference to the key to be used for encryption
         		
         Meaning of p2:
         b8 b7 b6 b5 b4 b3 b2 b1  | Meaning

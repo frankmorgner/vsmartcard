@@ -37,10 +37,10 @@ class CryptoflexSE(Security_Environment):
         """
         In the Cryptoflex card this command only supports RSA keys.
 
-        @param data: Contains the public exponent used for key generation
-        @param p1: The keynumber. Can be used later to refer to the generated key
-        @param p2: Used to specify the keylength.
-                  The mapping is: 0x40 => 256 Bit, 0x60 => 512 Bit, 0x80 => 1024
+        :param data: Contains the public exponent used for key generation
+        :param p1: The key number. Can be used later to refer to the generated key \
+        :param p2: Used to specify the key length. The mapping is: 0x40 => 256 \
+        Bit, 0x60 => 512 Bit, 0x80 => 1024
         """
         from Crypto.PublicKey import RSA
         from Crypto.Util.randpool import RandomPool
@@ -107,9 +107,11 @@ class CryptoflexSAM(SAM):
         In the cryptoflex card, this is the verify key command. A key is send
         to the card in plain text and compared to a key stored in the card.
         This is used for authentication
-        @param data: Contains the key to be verified
-        @return: SW[NORMAL] in case of success otherwise SW[WARN_NOINFO63] 
+        
+        :param data: Contains the key to be verified
+        :returns: SW[NORMAL] in case of success otherwise SW[WARN_NOINFO63] 
         """
+        
         return SW["NORMAL"], ""
         #FIXME
         #key = self._get_referenced_key(p1,p2)
