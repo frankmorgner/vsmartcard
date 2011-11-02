@@ -37,10 +37,10 @@ class ControlReferenceTemplate:
         """
         Generates a new CRT
         
-        :param tag: Indicates the type of the CRT (HT, AT, KT, CCT, DST, CT-sym, \
-        CT-asym) 
-        :param config: A string containing TLV encoded Security Environment \
-        parameters 
+        :param tag: Indicates the type of the CRT (HT, AT, KT, CCT, DST, CT-sym,
+            CT-asym) 
+        :param config: A string containing TLV encoded Security Environment
+            parameters 
         """
         if tag not in (CRT_TEMPLATE["AT"], CRT_TEMPLATE["HT"],
                         CRT_TEMPLATE["KAT"], CRT_TEMPLATE["CCT"],
@@ -65,7 +65,7 @@ class ControlReferenceTemplate:
         """
         Parse a control reference template as given e.g. in an MSE APDU.
         
-        :param config : a TLV string containing the configuration for the CRT. 
+        :param config: a TLV string containing the configuration for the CRT. 
         """
         
         structure = unpack(config)

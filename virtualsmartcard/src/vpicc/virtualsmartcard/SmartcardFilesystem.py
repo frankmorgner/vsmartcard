@@ -16,10 +16,10 @@
 # You should have received a copy of the GNU General Public License along with
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 #
-"""
-TODO: use bertlv_pack for fdm
-TODO: zu lange daten abschneiden und trotzdem tlv laenge beibehalten
-"""
+
+#TODO: use bertlv_pack for fdm
+#TODO: zu lange daten abschneiden und trotzdem tlv laenge beibehalten
+
 from pickle import dumps, loads
 import logging
 from virtualsmartcard.ConstantDefinitions import DCB, FDB, FID, LCB, REF
