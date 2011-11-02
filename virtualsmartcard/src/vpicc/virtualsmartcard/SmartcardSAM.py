@@ -291,15 +291,18 @@ class SAM(object):
         stored on the cards filesystem.
 		
 		:param p1: Specifies the algorithm to use. Needed to know the keylength.
-        :param p2: Specifies a reference to the key to be used for encryption
+        :param p2:
+        
+            Specifies a reference to the key to be used for encryption
         		
-        Meaning of p2:
-        b8 b7 b6 b5 b4 b3 b2 b1  | Meaning
-        0  0  0  0  0  0  0  0   | No information is given
-        0  -- -- -- -- -- -- --  | Global reference data(e.g. MF specific key)
-        1  -- -- -- -- -- -- --  | Specific reference data(e.g. DF specific key)
-        -- -- -- x  x  x  x  x   | Number of the secret
-        Any other value          | RFU
+            b8 b7 b6 b5 b4 b3 b2 b1 Meaning
+            == == == == == == == == =============================================
+            0  0  0  0  0  0  0  0  No information is given
+            0  -  -  -  -  -  -  -  Global reference data(e.g. MF specific key)
+            1  -  -  -  -  -  -  -  Specific reference data(e.g. DF specific key)
+            -  -  -  x  x  x  x  x  Number of the secret
+            == == == == == == == == =============================================
+            Any other value         RFU
         """
         
         key = None

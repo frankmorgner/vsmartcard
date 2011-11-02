@@ -40,8 +40,8 @@ def isEqual(list):
 def walk(start, path): 
     """Walks a path of fids and returns the last file (EF or DF).
 
-    start         -- DF, where to look for the first fid
-    path          -- a string of fids
+    :param start: DF, where to look for the first fid
+    :param path:  a string of fids
     """
     if len(path) % 2 != 0:
         raise SwError(SW["ERR_INCORRECTPARAMETERS"])
@@ -60,8 +60,8 @@ def getfile_byrefdataobj(mf, refdataobjs):
     """Returns a list of files according to the given list of reference data
     objects.
 
-    mf          -- the MF
-    refdataobjs -- a list of 3-tuples (tag, length, newvalue)"""
+    param mf:          the MF
+    param refdataobjs: a list of 3-tuples (tag, length, newvalue)"""
 
     result = [None]
     for tag, length, newvalue in refdataobjs:
@@ -520,15 +520,6 @@ class MF(DF):
         """
         Returns a byte according to the first software function table from the
         historical bytes of the card capabilities.
-
-        DFSelectionByFullDFName            -- Bool (True).
-        DFSelectionByPartialDFName         -- Bool (True).
-        DFSelectionByPath                  -- Bool (True).
-        DFSelectionByFID                   -- Bool (True).
-        DFSelectionByApplication_implicite -- Bool (True).
-        ShortFIDSupported                  -- Bool (True).
-        RecordNumberSupported              -- Bool (True).
-        RecordIdentifierSupported          -- Bool (True).
         """
         fsft = 0
         if DFSelectionByFullDFName:
@@ -1530,8 +1521,8 @@ class RecordStructureEF(EF):
         """
         Returns a list of records.
 
-        num_id    -- The requested record's number or identifier
-        reference -- Specifies which record to select (usually the last 3 bits of 'p1' of a record handling command)
+        :param num_id:    The requested record's number or identifier
+        :param reference: Specifies which record to select (usually the last 3 bits of 'p1' of a record handling command)
         """
         if (reference >> 2) == 1:
             return self.__getRecordsByNumber(num_id, reference)

@@ -51,7 +51,7 @@ class SmartcardOS(object):
     def execute(self, msg):
         """Returns response to the given APDU as string of characters
         
-        msg -- the APDU as string of characters
+        :param msg: the APDU as string of characters
         """
         return ""
 

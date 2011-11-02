@@ -191,20 +191,23 @@ class Security_Environment(object):
         referred SE or the tag of a control reference template
         
         :param p1:
-            == == == == == == == == ======================================
+            Bitmask according to this table
+
+            == == == == == == == == =======================================
             b8 b7 b6 b5 b4 b3 b2 b1               Meaning
-            == == == == == == == == ======================================
-             -  -  -  1  -  -  -  - Secure messaging in command data field
-             -  -  1  -  -  -  -  - Secure messaging in response data field
-             -  1  -  -  -  -  -  - Computation, decipherment, internal 
+            == == == == == == == == =======================================
+            -  -  -  1  -  -  -  -  Secure messaging in command data field
+            -  -  1  -  -  -  -  -  Secure messaging in response data field
+            -  1  -  -  -  -  -  -  Computation, decipherment, internal 
                                     authentication and key agreement
-            1   -  -  -  -  -  -  - Verification, encipherment, external
+            1  -  -  -  -  -  -  -  Verification, encipherment, external
                                     authentication and key agreement
-             -  -  -  -  0  0  0 1  SET
+            -  -  -  -  0  0  0  1  SET
             1  1  1  1  0  0  1  0  STORE
             1  1  1  1  0  0  1  1  RESTORE
             1  1  1  1  0  1  0  0  ERASE
-            == == == == == == == == ======================================
+            == == == == == == == == =======================================
+
         """
                
         cmd = p1 & 0x0F

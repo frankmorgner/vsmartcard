@@ -122,15 +122,17 @@ def crypto_checksum(algo, key, data, iv=None, ssc=None):
     """
     Compute various types of cryptographic checksums.
     
-    :param algo: A string specifying the algorithm to use. Currently supported \
-    algorithms are \"MAX\" \"HMAC\" and \"CC\" (Meaning a cryptographic checksum \
-    as used by the ICAO passports)
+    :param algo:
+        A string specifying the algorithm to use. Currently supported
+        algorithms are \"MAX\" \"HMAC\" and \"CC\" (Meaning a cryptographic
+        checksum as used by the ICAO passports)
     :param key:  They key used to computed the cryptographic checksum
     :param data: The data for which to calculate the checksum
-    :param iv: Optional. An initialization vector. Only used by the \"MAC\" \
-    algorithm
-    :param ssc: Optional. A send sequence counter to be prepended to the data. \
-    Only used by the \"CC\" algorithm
+    :param iv:
+        Optional. An initialization vector. Only used by the \"MAC\" algorithm
+    :param ssc:
+        Optional. A send sequence counter to be prepended to the data.
+        Only used by the \"CC\" algorithm
     
     """
     
