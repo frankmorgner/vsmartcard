@@ -287,14 +287,13 @@ class SAM(object):
       
     def _get_referenced_key(self, p1, p2):
         """
-        This method returns the key specified by the p2 parameter. The key may be
-        stored on the cards filesystem.
-		
-		:param p1: Specifies the algorithm to use. Needed to know the keylength.
-        :param p2:
-        
-            Specifies a reference to the key to be used for encryption
-        		
+        This method returns the key specified by the p2 parameter. The key may
+        be stored on the cards filesystem.
+
+        :param p1: Specifies the algorithm to use. Needed to know the keylength.
+        :param p2: Specifies a reference to the key to be used for encryption
+
+            == == == == == == == == =============================================
             b8 b7 b6 b5 b4 b3 b2 b1 Meaning
             == == == == == == == == =============================================
             0  0  0  0  0  0  0  0  No information is given
@@ -302,7 +301,8 @@ class SAM(object):
             1  -  -  -  -  -  -  -  Specific reference data(e.g. DF specific key)
             -  -  -  x  x  x  x  x  Number of the secret
             == == == == == == == == =============================================
-            Any other value         RFU
+
+            Any other value RFU
         """
         
         key = None
