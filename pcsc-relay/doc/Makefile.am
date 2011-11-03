@@ -15,7 +15,7 @@ do_subst = sed \
 
 EXTRA_DIST = README.rst.in README.rst autotools.rst.in questions.rst.in autotools.rst questions.rst
 
-doc:
+doc: *.in
 	$(do_subst) < autotools.rst.in > autotools.rst
 	$(do_subst) < questions.rst.in > questions.rst
 	$(do_subst) < README.rst.in > README.rst
