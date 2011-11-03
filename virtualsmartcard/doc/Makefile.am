@@ -19,7 +19,7 @@ EXTRA_DIST = README.rst.in README.rst autotools.rst.in questions.rst.in autotool
 
 dist_noinst_SCRIPTS = generate_modules.py
 
-doc: $(top_srcdir)/src/vpicc/virtualsmartcard/*.py $(top_srcdir)/src/vpicc/virtualsmartcard/cards/*.py
+doc: $(top_srcdir)/src/vpicc/virtualsmartcard/*.py $(top_srcdir)/src/vpicc/virtualsmartcard/cards/*.py generate_modules.py
 	$(do_subst) < autotools.rst.in > autotools.rst
 	$(do_subst) < questions.rst.in > questions.rst
 	$(do_subst) < README.rst.in > README.rst
