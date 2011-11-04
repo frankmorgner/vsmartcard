@@ -73,6 +73,42 @@ static LONG parse_EstablishPACEChannel_OutputData(
     switch (result) {
         case 0x00000000:
             break;
+        case 0xD0000001:
+            fprintf(stderr, "Längen im Input sind inkonsistent\n");
+            return SCARD_F_COMM_ERROR;
+        case 0xD0000002:
+            fprintf(stderr, "Unerwartete Daten im Input\n");
+            return SCARD_F_COMM_ERROR;
+        case 0xD0000003:
+            fprintf(stderr, "Unerwartete Kombination von Daten im Input\n");
+            return SCARD_F_COMM_ERROR;
+        case 0xE0000001:
+            fprintf(stderr, "Syntaxfehler im Aufbau der TLV-Antwortdaten\n");
+            return SCARD_F_COMM_ERROR;
+        case 0xE0000002:
+            fprintf(stderr, "Unerwartete/fehlende Objekte in den TLV-Antwortdaten\n");
+            return SCARD_F_COMM_ERROR;
+        case 0xE0000003:
+            fprintf(stderr, "Der Kartenleser kennt die PIN-ID nicht.\n");
+            return SCARD_F_COMM_ERROR;
+        case 0xE0000006:
+            fprintf(stderr, "Fehlerhaftes PACE-Token\n");
+            return SCARD_F_COMM_ERROR;
+        case 0xE0000007:
+            fprintf(stderr, "Zertifikatskette für Terminalauthentisierung kann nicht gebildet werden\n");
+            return SCARD_F_COMM_ERROR;
+        case 0xE0000008:
+            fprintf(stderr, "Unerwartete Datenstruktur in Rückgabe der Chipauthentisierung\n");
+            return SCARD_F_COMM_ERROR;
+        case 0xE0000009:
+            fprintf(stderr, "Passive Authentisierung fehlgeschlagen\n");
+            return SCARD_F_COMM_ERROR;
+        case 0xE000000A:
+            fprintf(stderr, "Fehlerhaftes Chipauthentisierung-Token\n");
+            return SCARD_F_COMM_ERROR;
+        case 0xF0100001:
+            fprintf(stderr, "Kommunikationsabbruch mit Karte.\n");
+            return SCARD_F_COMM_ERROR;
         default:
             fprintf(stderr, "Reader reported some error.\n");
             return SCARD_F_COMM_ERROR;
@@ -178,6 +214,15 @@ printusageexit(FILE *f, const char *s, int e)
     exit(e);
 }
 
+/* Signature Terminal with
+ * - "Generate electronic signature"
+ * - "Generate qualified electronic signature"
+ */
+unsigned char st_chat[] = {
+    0x7f, 0x4c, 0x0e, 0x06, 0x09, 0x04, 0x00, 0x7f, 0x00, 0x07, 0x03, 0x01,
+    0x02, 0x03, 0x53, 0x01, 0x03,
+};
+
 int
 main(int argc, char *argv[])
 {
@@ -188,10 +233,11 @@ main(int argc, char *argv[])
     BYTE sendbuf[16], recvbuf[1024];
     DWORD pace_ctl, modify_ctl, recvlen, protocol;
     time_t t_start, t_end;
-    size_t l, pinlen = 0;
+    size_t l, pinlen = 0, chatlen = 0;
     char *pin = NULL;
     unsigned int readernum = 0, i;
     unsigned char secret_type = 0x03;
+    unsigned char *chat = NULL;
 
 
     if (argc > 1) {
@@ -201,6 +247,11 @@ main(int argc, char *argv[])
             if (sscanf(argv[2], "%hhu", &secret_type) != 1) {
                 fprintf(stderr, "Could not get type of secret\n");
                 exit(2);
+            }
+            if (secret_type == 2) {
+                /* CAN */
+                chat = st_chat;
+                chatlen = sizeof st_chat;
             }
         }
         if (argc > 3) {
@@ -310,19 +361,21 @@ main(int argc, char *argv[])
 
 
     recvlen = sizeof(recvbuf);
-    sendbuf[0] = 0x02;              /* idxFunction = EstabishPACEChannel */
-    sendbuf[1] = (5+pinlen)&0xff;   /* lengthInputData */
-    sendbuf[2] = (5+pinlen)>>8;     /* lengthInputData */
+    sendbuf[0] = 0x02;                          /* idxFunction = EstabishPACEChannel */
+    sendbuf[1] = (5+pinlen+chatlen)&0xff;   /* lengthInputData */
+    sendbuf[2] = (5+pinlen+chatlen)>>8;     /* lengthInputData */
     sendbuf[3] = secret_type;
-    sendbuf[4] = 0x00;              /* length CHAT */
-    sendbuf[5] = pinlen;            /* length PIN */
-    memcpy(sendbuf+6, pin, pinlen); /* PIN */
-    sendbuf[6+pinlen] = 0x00;       /* length certificate description */
-    sendbuf[7+pinlen] = 0x00;       /* length certificate description */
+    sendbuf[4] = chatlen;                   /* length CHAT */
+    memcpy(sendbuf+5, chat, chatlen);       /* CHAT */
+    sendbuf[5+chatlen] = pinlen;            /* length PIN */
+    memcpy(sendbuf+6+chatlen, pin, pinlen); /* PIN */
+    sendbuf[6+pinlen+chatlen] = 0x00;       /* length certificate description */
+    sendbuf[7+pinlen+chatlen] = 0x00;       /* length certificate description */
 
+    printb("EstablishPACEChannel InBuffer\n", sendbuf, 8+pinlen+chatlen);
     t_start = time(NULL);
     r = SCardControl(hCard, pace_ctl,
-            sendbuf, 8+pinlen,
+            sendbuf, 8+pinlen+chatlen,
             recvbuf, sizeof(recvbuf), &recvlen);
     t_end = time(NULL);
     if (r != SCARD_S_SUCCESS) {
@@ -334,7 +387,6 @@ main(int argc, char *argv[])
 
     r = parse_EstablishPACEChannel_OutputData(recvbuf, recvlen);
     if (r != SCARD_S_SUCCESS) {
-		printb("EstablishPACEChannel InBuffer\n", sendbuf, 8+pinlen);
         printb("EstablishPACEChannel OutBuffer\n", recvbuf, recvlen);
         goto err;
     }
