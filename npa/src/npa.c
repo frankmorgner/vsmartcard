@@ -1613,7 +1613,7 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
 
         len = add_tag(&cert, 1, 0x21, V_ASN1_APPLICATION, apdu->data, apdu->datalen);
         p = cert;
-        if (len < 0 || !d2i_CVC_CERT(&cvc_cert, &p, len)
+        if (len < 0 || !CVC_d2i_CVC_CERT(&cvc_cert, &p, len)
                 || !cvc_cert || !cvc_cert->body) {
             r = SC_ERROR_INVALID_DATA;
             goto err;
