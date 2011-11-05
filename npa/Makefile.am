@@ -32,15 +32,15 @@ restore_la = find "$(srcdir)/src/opensc/win32/build/image" -name '*.la' | while 
 			 mv "$${f}.tmp" "$${f}"; \
 			 done
 
-win-opensc:
+src/opensc/win32/build/image/opensc/lib/libopensc.la:
 	cd $(top_srcdir)/src/opensc && \
 		./bootstrap && \
 		./configure --disable-doc && \
 		EXTRA_OPENSC_CONFIG="`$(do_export)`" OPENSSL_VERSION="1.0.0e" OPENSSL_URL="https://www2.informatik.hu-berlin.de/~morgner/files/openssl-1.0.0e.tar.gz" EXTRA_OPENSSL_CONFIG="experimental-pace" win32/installer_from_build.sh
 
-win:
+src/opensc/win32/build/image/opensc/lib/libnpa.la: src/opensc/win32/build/image/opensc/lib/libopensc.la
 	$(fixup_la)
-	./configure \
+	export ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes; ./configure \
 		--sbindir=/bin \
 		--prefix=/ \
 		--host=i586-mingw32msvc \
@@ -51,6 +51,10 @@ win:
 		OPENSC_LIBS="-L$(shell pwd)/src/opensc/win32/build/image/opensc/lib -lopensc"
 	make install DESTDIR=$(shell pwd)/src/opensc/win32/build/image/opensc
 	$(restore_la)
+
+win-opensc: src/opensc/win32/build/image/opensc/lib/libopensc.la
+
+win: src/opensc/win32/build/image/opensc/lib/libnpa.la
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libnpa.pc
