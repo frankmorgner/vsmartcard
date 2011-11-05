@@ -41,18 +41,6 @@ int initialize(int reader_id, const char *cdriver, int verbose,
         sc_context_t **ctx, sc_reader_t **reader);
 
 /** 
- * @brief Parse an APDU buffer
- * 
- * @param[in]      ctx  sc context
- * @param[in]      buf  Buffer of APDU
- * @param[in]      len  Length of \a buf
- * @param [in,out] apdu Where to write the initialized APDU
- * 
- * @return \c SC_SUCCESS or error code if an error occurred
- */
-int build_apdu(sc_context_t *ctx, const u8 *buf, size_t len, sc_apdu_t *apdu);
-
-/** 
  * @brief Print binary data to a file stream
  * 
  * @param[in] file  File for printing

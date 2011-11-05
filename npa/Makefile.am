@@ -16,10 +16,13 @@ do_subst = sed \
 	   -e 's,[@]top_srcdir[@],$(top_srcdir),g'
 
 win:
-	cd $(top_srcdir)/src/opensc && \
-	    ./bootstrap && \
-	    ./configure --disable-doc && \
-	    env OPENSSL_VERSION="1" OPENSSL_URL="https://www2.informatik.hu-berlin.de/~morgner/files/openssl-1.tar.gz" EXTRA_OPENSSL_CONFIG="experimental-pace" win32/installer_from_build.sh
+	make clean
+	env CHOST=i586-mingw32msvc CBUILD=i686-pc-linux-gnu ./configure \
+		--sbindir=/bin \
+		OPENSSL_CFLAGS="-I`pwd`/src/opensc/win32/build/image/opensc/include" \
+		OPENSSL_LIBS="-L`pwd`/src/opensc/win32/build/image/opensc/lib -lcrypto" \
+		OPENSC_LIBS="-L`pwd`/src/opensc/win32/build/image/opensc/lib -lopensc"
+	make install DESTDIR=`pwd`/src/opensc/win32/build/image/opensc
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libnpa.pc
