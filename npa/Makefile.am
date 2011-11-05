@@ -46,10 +46,10 @@ win:
 		--host=i586-mingw32msvc \
 		--build=i686-pc-linux-gnu \
 		--program-prefix='' \
-		OPENSSL_CFLAGS="-I$(srcdir)/src/opensc/win32/build/image/opensc/include" \
-		OPENSSL_LIBS="-L$(srcdir)/src/opensc/win32/build/image/opensc/lib -lcrypto -lws2_32 -lgdi32 -lcrypt32" \
-		OPENSC_LIBS="-L$(srcdir)/src/opensc/win32/build/image/opensc/lib -lopensc"
-	make install DESTDIR=$(srcdir)/src/opensc/win32/build/image/opensc
+		OPENSSL_CFLAGS="-I$(shell pwd)/src/opensc/win32/build/image/opensc/include" \
+		OPENSSL_LIBS="-L$(shell pwd)/src/opensc/win32/build/image/opensc/lib -lcrypto -lws2_32 -lgdi32 -lcrypt32" \
+		OPENSC_LIBS="-L$(shell pwd)/src/opensc/win32/build/image/opensc/lib -lopensc"
+	make install DESTDIR=$(shell pwd)/src/opensc/win32/build/image/opensc
 	$(restore_la)
 
 pkgconfigdir = $(libdir)/pkgconfig
