@@ -16,9 +16,12 @@ do_subst = sed \
 	   -e 's,[@]top_srcdir[@],$(top_srcdir),g'
 
 win:
-	make clean
-	env CHOST=i586-mingw32msvc CBUILD=i686-pc-linux-gnu ./configure \
-		--sbindir=/bin \
+	cd $(top_srcdir)/src/opensc && \
+		./bootstrap && \
+		./configure --disable-doc && \
+		env OPENSSL_VERSION="1.0.0e" OPENSSL_URL="https://www2.informatik.hu-berlin.de/~morgner/files/openssl-1.0.0e.tar.gz" EXTRA_OPENSSL_CONFIG="experimental-pace" win32/installer_from_build.sh
+	env CHOST=i586-mingw32msvc CBUILD=i686-pc-linux-gnu \
+		./configure --sbindir=/bin \
 		OPENSSL_CFLAGS="-I`pwd`/src/opensc/win32/build/image/opensc/include" \
 		OPENSSL_LIBS="-L`pwd`/src/opensc/win32/build/image/opensc/lib -lcrypto" \
 		OPENSC_LIBS="-L`pwd`/src/opensc/win32/build/image/opensc/lib -lopensc"
