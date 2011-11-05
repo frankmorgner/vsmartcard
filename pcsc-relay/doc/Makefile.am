@@ -22,4 +22,4 @@ doc: *.in
 	touch doc
 
 clean-local:
-	rm -f doc README.rst autotools.rst questions.rst
+	rm -f doc

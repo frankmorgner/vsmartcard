@@ -27,4 +27,4 @@ doc: $(top_srcdir)/src/vpicc/virtualsmartcard/*.py $(top_srcdir)/src/vpicc/virtu
 	touch doc
 
 clean-local:
-	rm -f doc README.rst autotools.rst questions.rst
+	rm -f doc

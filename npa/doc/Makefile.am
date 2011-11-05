@@ -1,3 +1,5 @@
+DOXYGEN ?= doxygen
+
 do_subst = sed \
 	   -e 's,[@]PACKAGE_NAME[@],$(PACKAGE_NAME),g' \
 	   -e 's,[@]PACKAGE_TARNAME[@],$(PACKAGE_TARNAME),g' \
@@ -25,4 +27,4 @@ doc: $(top_srcdir)/src/npa/*.h *.in
 	touch doc
 
 clean-local:
-	rm -f doc README.rst autotools.rst questions.rst Doxyfile
+	rm -f doc Doxyfile

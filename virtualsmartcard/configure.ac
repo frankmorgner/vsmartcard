@@ -53,17 +53,6 @@ if test "${serialdropdir}" = false ; then
 	fi
 fi
 
-# Documentation (default: no)
-AC_ARG_ENABLE([doc],AS_HELP_STRING([--enable-doc],[Enable documentation generation.]),[enable_doc=$enableval],[enable_doc="no"])
-if test x"$enable_doc" = "xyes"
-then
-    AC_PATH_PROG([DOXYGEN], [doxygen])
-    if test x$DOXYGEN = x
-    then
-        AC_MSG_ERROR([doxygen is mandatory.])
-    fi
-fi
-AM_CONDITIONAL(DOC_ENABLED, [test x"$enable_doc" = xyes])
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h stdint.h stdlib.h string.h sys/socket.h sys/time.h unistd.h])
