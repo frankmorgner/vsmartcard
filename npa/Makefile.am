@@ -19,7 +19,7 @@ do_subst = sed \
 			#-e 's,libopensc.exports,,g' \
 		   	#< src/libopensc/Makefile.am \
 			#> src/libopensc/Makefile.am
-do_export = cp $(shell pwd)/Makefile.am.opensc src/libopensc/Makefile.am
+do_export = cp $(abs_top_srcdir)/Makefile.am.opensc src/libopensc/Makefile.am
 
 fixup_la = find "$(srcdir)/src/opensc/win32/build/image" -name '*.la' | while read f; do \
 		   top="$$(dirname "$$(dirname "$$(echo "$${f}")")" | sed 's\#//\#/\#g')" \
@@ -46,10 +46,10 @@ src/opensc/win32/build/image/opensc/lib/libnpa.la: src/opensc/win32/build/image/
 		--host=i586-mingw32msvc \
 		--build=i686-pc-linux-gnu \
 		--program-prefix='' \
-		OPENSSL_CFLAGS="-I$(shell pwd)/src/opensc/win32/build/image/opensc/include" \
-		OPENSSL_LIBS="-L$(shell pwd)/src/opensc/win32/build/image/opensc/lib -lcrypto -lws2_32 -lgdi32 -lcrypt32" \
-		OPENSC_LIBS="-L$(shell pwd)/src/opensc/win32/build/image/opensc/lib -lopensc"
-	make install DESTDIR=$(shell pwd)/src/opensc/win32/build/image/opensc
+		OPENSSL_CFLAGS="-I$(abs_top_srcdir)/src/opensc/win32/build/image/opensc/include" \
+		OPENSSL_LIBS="-L$(abs_top_srcdir)/src/opensc/win32/build/image/opensc/lib -lcrypto -lws2_32 -lgdi32 -lcrypt32" \
+		OPENSC_LIBS="-L$(abs_top_srcdir)/src/opensc/win32/build/image/opensc/lib -lopensc"
+	make install DESTDIR=$(top_srcdir)/src/opensc/win32/build/image/opensc
 	$(restore_la)
 
 win-opensc: src/opensc/win32/build/image/opensc/lib/libopensc.la
