@@ -30,7 +30,7 @@ win:
 		--program-prefix='' \
 		OPENSSL_CFLAGS="-I`pwd`/src/opensc/win32/build/image/opensc/include" \
 		OPENSSL_LIBS="-L`pwd`/src/opensc/win32/build/image/opensc/lib -lcrypto" \
-		OPENSC_LIBS="-L`pwd`/src/opensc/win32/build/image/opensc/lib -lopensc"
+		OPENSC_LIBS="`pwd`/src/opensc/win32/build/image/opensc/lib/libopensc.a"
 	make install DESTDIR=`pwd`/src/opensc/win32/build/image/opensc
 
 pkgconfigdir = $(libdir)/pkgconfig
