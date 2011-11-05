@@ -109,9 +109,13 @@ mounted.  The CCID Emulator is compatible with the unix driver libccid_ and the
 windows smart card driver. To initialize PACE using the PC/SC API you need to
 patch libccid and pcsc-lite (see directory patches).
 
+.. program-output:: sh -c 'cd /home/fm/work/vsmartcard/ccid/src && ./ccid-emulator --help'
+
 cats-test can be used to test the PACE capabilities of a smart card reader with
 PACE support (such as the CCID Emulator or any other "Standardleser" CAT-S or
 "Komfortleser" CAT-C) via PC/SC.
+
+.. program-output:: sh -c 'cd /home/fm/work/vsmartcard/ccid/src && ./cats-test'
 
 
 .. include:: questions.rst

@@ -73,5 +73,7 @@ You should now be able to access the |vpicc| through the system's
 PC/SC API via |vpcd|/pcscd. You can use the opensc-explorer or pcsc_scan to test
 that.
 
+.. program-output:: /home/fm/work/vsmartcard/virtualsmartcard/src/vpicc/vicc --help
+
 
 .. include:: questions.rst

@@ -8,13 +8,23 @@ AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE
 
+dnl Add libtool support.
+ifdef(
+	[LT_INIT],
+	[
+		LT_INIT([win32-dll])
+	],
+	[
+		AC_LIBTOOL_WIN32_DLL
+		AC_PROG_LIBTOOL
+	]
+)
+
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_LN_S
-AC_PROG_LIBTOOL
-LT_INIT
 AM_PROG_CC_C_O
 PKG_PROG_PKG_CONFIG
 

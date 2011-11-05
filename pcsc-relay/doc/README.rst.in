@@ -32,6 +32,8 @@ pcsc-relay has the following dependencies:
 - PC/SC middleware
 - libnfc_
 
+.. program-output:: sh -c 'cd @abs_top_srcdir@/src && ./pcsc-relay --help'
+
 
 ---------------
 Hints on libnfc

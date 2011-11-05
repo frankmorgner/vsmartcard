@@ -109,6 +109,8 @@ To pass a secret to npa-tool, the command line parameters or the environment
 variables PIN/CAN/MRZ/PUK/NEWPIN can be used. If none of these options is used,
 npa-tool will show a password prompt.
 
+.. program-output:: sh -c 'cd /home/fm/work/vsmartcard/npa/src && ./npa-tool --help'
+
 ----------------------
 Linking against libnpa
 ----------------------

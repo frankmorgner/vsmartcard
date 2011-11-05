@@ -11,6 +11,7 @@ do_subst = sed \
 	   -e 's,[@]includedir[@],$(includedir),g' \
 	   -e 's,[@]VERSION[@],$(VERSION),g' \
 	   -e 's,[@]OPENSC_LIBS[@],$(OPENSC_LIBS),g' \
+	   -e 's,[@]abs_top_srcdir[@],$(abs_top_srcdir),g' \
 	   -e 's,[@]top_srcdir[@],$(top_srcdir),g'
 
 EXTRA_DIST = README.rst.in README.rst autotools.rst.in questions.rst.in autotools.rst questions.rst
