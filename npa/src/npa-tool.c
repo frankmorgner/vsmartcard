@@ -343,8 +343,8 @@ main (int argc, char **argv)
     if (dobreak) {
         /* The biggest buffer sprintf could write with "%llu" */
         char secretbuf[strlen("18446744073709551615")+1];
-        unsigned long long secret = 0;
-        unsigned long long maxsecret = 0;
+        uint64_t secret = 0;
+        uint64_t maxsecret = 0;
 
         if (usepin) {
             pace_input.pin_id = PACE_PIN;
