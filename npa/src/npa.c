@@ -216,18 +216,25 @@ npa_sm_ctx_create(EAC_CTX *ctx, const unsigned char *certificate_description,
 
     out->ctx = ctx;
 
-    out->certificate_description = BUF_MEM_create_init(certificate_description,
-            certificate_description_length);
-    if (!out->certificate_description)
-        goto err;
+    if (certificate_description && certificate_description_length) {
+        out->certificate_description =
+            BUF_MEM_create_init(certificate_description,
+                    certificate_description_length);
+        if (!out->certificate_description)
+            goto err;
+    } else
+        out->certificate_description = NULL;
 
     out->id_icc = BUF_MEM_create_init(id_icc, id_icc_length);
     if (!out->id_icc)
         goto err;
 
-    out->cur_car = BUF_MEM_create_init(car, car_length);
-    if (!out->cur_car)
-        goto err;
+    if (car && car_length) {
+        out->cur_car = BUF_MEM_create_init(car, car_length);
+        if (!out->cur_car)
+            goto err;
+    } else
+        out->cur_car = NULL;
 
     out->nonce = NULL;
     out->next_car = NULL;
