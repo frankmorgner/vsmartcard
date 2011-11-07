@@ -344,10 +344,12 @@ main (int argc, char **argv)
         /* The biggest buffer sprintf could write with "%llu" */
         char secretbuf[strlen("18446744073709551615")+1];
         unsigned long long secret = 0;
+        unsigned long long maxsecret = 0;
 
         if (usepin) {
             pace_input.pin_id = PACE_PIN;
             pace_input.pin_length = 6;
+            maxsecret = 999999;
             if (pin) {
                 if (sscanf(pin, "%llu", &secret) != 1) {
                     fprintf(stderr, "%s is not an unsigned long long.\n",
@@ -364,6 +366,7 @@ main (int argc, char **argv)
         } else if (usecan) {
             pace_input.pin_id = PACE_CAN;
             pace_input.pin_length = 6;
+            maxsecret = 999999;
             if (can) {
                 if (sscanf(can, "%llu", &secret) != 1) {
                     fprintf(stderr, "%s is not an unsigned long long.\n",
@@ -380,6 +383,7 @@ main (int argc, char **argv)
         } else if (usepuk) {
             pace_input.pin_id = PACE_PUK;
             pace_input.pin_length = 10;
+            maxsecret = 9999999999;
             if (puk) {
                 if (sscanf(puk, "%llu", &secret) != 1) {
                     fprintf(stderr, "%s is not an unsigned long long.\n",
@@ -412,8 +416,8 @@ main (int argc, char **argv)
             r = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
                     &sctx);
 
-            secret--;
-        } while (0 > r && secret > 0);
+            secret++;
+        } while (0 > r && secret <= maxsecret);
 
         gettimeofday(&tv, NULL);
         if (0 > r) {
