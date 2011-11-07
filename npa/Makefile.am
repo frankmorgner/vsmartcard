@@ -49,7 +49,7 @@ src/opensc/win32/build/image/opensc/lib/libnpa.la: src/opensc/win32/build/image/
 		OPENSSL_CFLAGS="-I$(abs_top_srcdir)/src/opensc/win32/build/image/opensc/include" \
 		OPENSSL_LIBS="-L$(abs_top_srcdir)/src/opensc/win32/build/image/opensc/lib -lcrypto -lws2_32 -lgdi32 -lcrypt32" \
 		OPENSC_LIBS="-L$(abs_top_srcdir)/src/opensc/win32/build/image/opensc/lib -lopensc"
-	make install DESTDIR=$(top_srcdir)/src/opensc/win32/build/image/opensc
+	make install DESTDIR=$(abs_top_srcdir)/src/opensc/win32/build/image/opensc
 	$(restore_la)
 
 win-opensc: src/opensc/win32/build/image/opensc/lib/libopensc.la
