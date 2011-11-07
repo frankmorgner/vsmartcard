@@ -19,26 +19,28 @@ do_subst = sed \
 			#-e 's,libopensc.exports,,g' \
 		   	#< src/libopensc/Makefile.am \
 			#> src/libopensc/Makefile.am
-do_export = cp $(abs_top_srcdir)/Makefile.am.opensc src/libopensc/Makefile.am
+do_export = cp $(abs_srcdir)/Makefile.am.opensc src/libopensc/Makefile.am
 
-fixup_la = find "$(srcdir)/src/opensc/win32/build/image" -name '*.la' | while read f; do \
+opensc_img = $(abs_srcdir)/src/opensc/win32/build/image/opensc
+
+fixup_la = find "$(opensc_img)" -name '*.la' | while read f; do \
 		   top="$$(dirname "$$(dirname "$$(echo "$${f}")")" | sed 's\#//\#/\#g')" \
 		   sed 's\#//\#'"$${top}"'/\#g' "$${f}" > "$${f}.tmp"; \
 		   mv "$${f}.tmp" "$${f}"; \
 		   done
-restore_la = find "$(srcdir)/src/opensc/win32/build/image" -name '*.la' | while read f; do \
-			 x="$$(echo "$(srcdir)/src/opensc/win32/build/image" | sed 's\#/$$\#\#')" \
+restore_la = find "$(opensc_img)" -name '*.la' | while read f; do \
+			 x="$$(echo "$(opensc_img)" | sed 's\#/$$\#\#')" \
 			 sed 's\#'"$${x}"'/[^/]*/lib\#//lib\#g' "$${f}" > "$${f}.tmp"; \
 			 mv "$${f}.tmp" "$${f}"; \
 			 done
 
-src/opensc/win32/build/image/opensc/lib/libopensc.la:
+$(opensc_img)/lib/libopensc.la:
 	cd $(top_srcdir)/src/opensc && \
 		./bootstrap && \
 		./configure --disable-doc && \
 		EXTRA_OPENSC_CONFIG="`$(do_export)`" OPENSSL_VERSION="1.0.0e" OPENSSL_URL="https://www2.informatik.hu-berlin.de/~morgner/files/openssl-1.0.0e.tar.gz" EXTRA_OPENSSL_CONFIG="experimental-pace" win32/installer_from_build.sh
 
-src/opensc/win32/build/image/opensc/lib/libnpa.la: src/opensc/win32/build/image/opensc/lib/libopensc.la
+$(opensc_img)/lib/libnpa.la: $(opensc_img)/lib/libopensc.la
 	$(fixup_la)
 	export ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes; ./configure \
 		--sbindir=/bin \
@@ -46,15 +48,15 @@ src/opensc/win32/build/image/opensc/lib/libnpa.la: src/opensc/win32/build/image/
 		--host=i586-mingw32msvc \
 		--build=i686-pc-linux-gnu \
 		--program-prefix='' \
-		OPENSSL_CFLAGS="-I$(abs_top_srcdir)/src/opensc/win32/build/image/opensc/include" \
-		OPENSSL_LIBS="-L$(abs_top_srcdir)/src/opensc/win32/build/image/opensc/lib -lcrypto -lws2_32 -lgdi32 -lcrypt32" \
-		OPENSC_LIBS="-L$(abs_top_srcdir)/src/opensc/win32/build/image/opensc/lib -lopensc"
-	make install DESTDIR=$(abs_top_srcdir)/src/opensc/win32/build/image/opensc
+		PKG_CONFIG_PATH="$(opensc_img)/lib/pkgconfig" \
+		PKG_CONFIG_SYSROOT_DIR="$(opensc_img)" \
+		OPENSC_LIBS="-L$(opensc_img)/lib -lopensc"
+	make install DESTDIR="$(opensc_img)"
 	$(restore_la)
 
-win-opensc: src/opensc/win32/build/image/opensc/lib/libopensc.la
+win-opensc: $(opensc_img)/lib/libopensc.la
 
-win: src/opensc/win32/build/image/opensc/lib/libnpa.la
+win: $(opensc_img)/lib/libnpa.la
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libnpa.pc
