@@ -343,8 +343,8 @@ main (int argc, char **argv)
     if (dobreak) {
         /* The biggest buffer sprintf could write with "%llu" */
         char secretbuf[strlen("18446744073709551615")+1];
-        uint64_t secret = 0;
-        uint64_t maxsecret = 0;
+        unsigned long long secret = 0;
+        unsigned long long maxsecret = 0;
 
         if (usepin) {
             pace_input.pin_id = PACE_PIN;
@@ -383,7 +383,7 @@ main (int argc, char **argv)
         } else if (usepuk) {
             pace_input.pin_id = PACE_PUK;
             pace_input.pin_length = 10;
-            maxsecret = 9999999999;
+            maxsecret = 9999999999LLU;
             if (puk) {
                 if (sscanf(puk, "%llu", &secret) != 1) {
                     fprintf(stderr, "%s is not an unsigned long long.\n",

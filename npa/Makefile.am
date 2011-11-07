@@ -21,7 +21,8 @@ do_subst = sed \
 			#> src/libopensc/Makefile.am
 do_export = cp $(abs_srcdir)/Makefile.am.opensc src/libopensc/Makefile.am
 
-opensc_img = $(abs_srcdir)/src/opensc/win32/build/image/opensc
+opensc_img = $(abs_srcdir)/src/opensc/win32/build/image
+opensc_root = $(opensc_img)/opensc
 
 fixup_la = find "$(opensc_img)" -name '*.la' | while read f; do \
 		   top="$$(dirname "$$(dirname "$$(echo "$${f}")")" | sed 's\#//\#/\#g')" \
@@ -34,29 +35,29 @@ restore_la = find "$(opensc_img)" -name '*.la' | while read f; do \
 			 mv "$${f}.tmp" "$${f}"; \
 			 done
 
-$(opensc_img)/lib/libopensc.la:
+$(opensc_root)/lib/libopensc.la:
 	cd $(top_srcdir)/src/opensc && \
 		./bootstrap && \
 		./configure --disable-doc && \
 		EXTRA_OPENSC_CONFIG="`$(do_export)`" OPENSSL_VERSION="1.0.0e" OPENSSL_URL="https://www2.informatik.hu-berlin.de/~morgner/files/openssl-1.0.0e.tar.gz" EXTRA_OPENSSL_CONFIG="experimental-pace" win32/installer_from_build.sh
 
-$(opensc_img)/lib/libnpa.la: $(opensc_img)/lib/libopensc.la
+$(opensc_root)/lib/libnpa.la: $(opensc_root)/lib/libopensc.la
 	$(fixup_la)
 	export ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes; ./configure \
 		--sbindir=/bin \
 		--prefix=/ \
 		--host=i586-mingw32msvc \
-		--build=i686-pc-linux-gnu \
+		--build=$(shell gcc -dumpmachine) \
 		--program-prefix='' \
-		PKG_CONFIG_PATH="$(opensc_img)/lib/pkgconfig" \
-		PKG_CONFIG_SYSROOT_DIR="$(opensc_img)" \
-		OPENSC_LIBS="-L$(opensc_img)/lib -lopensc"
-	make install DESTDIR="$(opensc_img)"
+		PKG_CONFIG_PATH="$(opensc_root)/lib/pkgconfig" \
+		PKG_CONFIG_SYSROOT_DIR="$(opensc_root)" \
+		OPENSC_LIBS="-L$(opensc_root)/lib -lopensc"
+	make install DESTDIR="$(opensc_root)"
 	$(restore_la)
 
-win-opensc: $(opensc_img)/lib/libopensc.la
+win-opensc: $(opensc_root)/lib/libopensc.la
 
-win: $(opensc_img)/lib/libnpa.la
+win: $(opensc_root)/lib/libnpa.la
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libnpa.pc
