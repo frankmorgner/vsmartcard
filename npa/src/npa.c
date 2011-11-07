@@ -1252,8 +1252,9 @@ int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
     bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "ID PCD", pace_output->id_pcd,
             pace_output->id_pcd_length);
 
-    if(!EAC_CTX_init_ta(eac_ctx, NULL, 0, NULL, 0, pace_output->recent_car,
-                pace_output->recent_car_length)) {
+    if(pace_output->recent_car && pace_output->recent_car_length
+            && !EAC_CTX_init_ta(eac_ctx, NULL, 0, NULL, 0,
+                pace_output->recent_car, pace_output->recent_car_length)) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not initialize TA.\n");
         ssl_error(card->ctx);
         r = SC_ERROR_INTERNAL;
@@ -1317,7 +1318,7 @@ err:
             npa_sm_clear_free(sctx->priv_data);
     }
 
-    return r;
+    SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_NORMAL, r);
 }
 
 static const char *MRZ_name = "MRZ";
