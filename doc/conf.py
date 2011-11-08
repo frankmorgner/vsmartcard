@@ -19,6 +19,10 @@ os.system("make doc -C virtualsmartcard")
 os.system("make doc -C ccid")
 os.system("make doc -C pcsc-relay")
 
+os.environ['PATH'] += os.pathsep + os.path.abspath('../npa/src')
+os.environ['PATH'] += os.pathsep + os.path.abspath('../pcsc-relay/src')
+os.environ['PATH'] += os.pathsep + os.path.abspath('../virtualsmartcard/src/vpicc')
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.

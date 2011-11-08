@@ -109,13 +109,13 @@ mounted.  The @PACKAGE_NAME@ is compatible with the unix driver libccid_ and the
 windows smart card driver. To initialize PACE using the PC/SC API you need to
 patch libccid and pcsc-lite (see directory patches).
 
-.. program-output:: sh -c 'cd @abs_top_srcdir@/src && ./ccid-emulator --help'
+.. program-output:: ccid-emulator --help
 
 cats-test can be used to test the PACE capabilities of a smart card reader with
 PACE support (such as the @PACKAGE_NAME@ or any other "Standardleser" CAT-S or
 "Komfortleser" CAT-C) via PC/SC.
 
-.. program-output:: sh -c 'cd @abs_top_srcdir@/src && ./cats-test'
+.. program-output:: cats-test
 
 
 .. include:: questions.rst
