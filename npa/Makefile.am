@@ -51,13 +51,30 @@ $(opensc_root)/lib/libnpa.la: $(opensc_root)/lib/libopensc.la
 		--program-prefix='' \
 		PKG_CONFIG_PATH="$(opensc_root)/lib/pkgconfig" \
 		PKG_CONFIG_SYSROOT_DIR="$(opensc_root)" \
-		OPENSC_LIBS="-L$(opensc_root)/lib -lopensc"
-	make install DESTDIR="$(opensc_root)"
+		OPENSC_LIBS="-L$(opensc_root)/lib -lopensc" || ($(restore_la) && false)
+	make install DESTDIR="$(opensc_root)" || ($(restore_la) && false)
 	$(restore_la)
 
 win-opensc: $(opensc_root)/lib/libopensc.la
 
 win: $(opensc_root)/lib/libnpa.la
+	mkdir -p npa-win32
+	for i in \
+		$(opensc_root)/bin/*npa*.dll \
+		$(opensc_root)/bin/*opensc*.dll \
+		$(opensc_root)/bin/*eay*.dll \
+		$(opensc_root)/bin/*ltdl*.dll \
+		$(opensc_root)/bin/*zlib*.dll \
+		$(opensc_root)/bin/npa-tool.exe \
+		; do cp $${i} npa-win32; done
+	mkdir -p npa-win32/include
+	for i in \
+		$(opensc_root)/include/openssl \
+		$(opensc_root)/include/npa \
+		; do cp -r $${i} npa-win32/include; done
+	mkdir -p npa-win32/include/libopensc
+	cp $(srcdir)/src/opensc/src/libopensc/*.h npa-win32/include/libopensc
+	rm -f npa-win32/*pkcs* npa-win32/include/libopensc/*internal*.h
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libnpa.pc
