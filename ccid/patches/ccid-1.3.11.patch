@@ -1,7 +1,7 @@
 Index: ccid-1.3.11/src/ccid.h
 ===================================================================
 --- ccid-1.3.11.orig/src/ccid.h	2009-06-30 21:42:38.000000000 +0200
-+++ ccid-1.3.11/src/ccid.h	2010-09-28 09:31:55.822260851 +0200
++++ ccid-1.3.11/src/ccid.h	2011-11-28 15:47:16.230511000 +0100
 @@ -137,8 +137,10 @@
  #define CCID_CLASS_EXCHANGE_MASK	0x00070000
  
@@ -53,11 +53,14 @@ Index: ccid-1.3.11/src/ccid.h
 Index: ccid-1.3.11/src/ccid_ifdhandler.h
 ===================================================================
 --- ccid-1.3.11.orig/src/ccid_ifdhandler.h	2009-06-30 21:42:38.000000000 +0200
-+++ ccid-1.3.11/src/ccid_ifdhandler.h	2010-09-28 09:31:55.822260851 +0200
-@@ -38,6 +38,8 @@
++++ ccid-1.3.11/src/ccid_ifdhandler.h	2011-11-28 15:53:02.574510999 +0100
+@@ -38,6 +38,11 @@
  #define IOCTL_FEATURE_IFD_PIN_PROPERTIES \
  	SCARD_CTL_CODE(FEATURE_IFD_PIN_PROPERTIES + CLASS2_IOCTL_MAGIC)
  #endif
++#ifndef FEATURE_EXECUTE_PACE
++#define FEATURE_EXECUTE_PACE 0x20
++#endif
 +#define IOCTL_FEATURE_EXECUTE_PACE \
 +	SCARD_CTL_CODE(FEATURE_EXECUTE_PACE + CLASS2_IOCTL_MAGIC)
  
@@ -66,7 +69,7 @@ Index: ccid-1.3.11/src/ccid_ifdhandler.h
 Index: ccid-1.3.11/src/commands.c
 ===================================================================
 --- ccid-1.3.11.orig/src/commands.c	2009-06-12 15:06:22.000000000 +0200
-+++ ccid-1.3.11/src/commands.c	2010-09-28 11:03:32.786258812 +0200
++++ ccid-1.3.11/src/commands.c	2011-11-28 15:47:16.234511000 +0100
 @@ -68,7 +68,19 @@
  	unsigned int tx_length, unsigned char tx_buffer[], unsigned int *rx_length,
  	unsigned char rx_buffer[]);
@@ -448,7 +451,7 @@ Index: ccid-1.3.11/src/commands.c
 Index: ccid-1.3.11/src/commands.h
 ===================================================================
 --- ccid-1.3.11.orig/src/commands.h	2009-01-07 00:14:35.000000000 +0100
-+++ ccid-1.3.11/src/commands.h	2010-09-28 09:31:55.826261505 +0200
++++ ccid-1.3.11/src/commands.h	2011-11-28 15:47:16.234511000 +0100
 @@ -37,6 +37,14 @@
  	unsigned char TxBuffer[], unsigned int TxLength,
  	unsigned char RxBuffer[], unsigned int *RxLength);
@@ -467,7 +470,7 @@ Index: ccid-1.3.11/src/commands.h
 Index: ccid-1.3.11/src/defs.h
 ===================================================================
 --- ccid-1.3.11.orig/src/defs.h	2009-07-01 14:28:01.000000000 +0200
-+++ ccid-1.3.11/src/defs.h	2010-09-28 09:31:55.826261505 +0200
++++ ccid-1.3.11/src/defs.h	2011-11-28 15:47:16.234511000 +0100
 @@ -66,16 +66,10 @@
  /* Flag set when a power down is requested */
  #define MASK_POWERFLAGS_PDWN 0x02
@@ -492,7 +495,7 @@ Index: ccid-1.3.11/src/defs.h
 Index: ccid-1.3.11/src/ifdhandler.c
 ===================================================================
 --- ccid-1.3.11.orig/src/ifdhandler.c	2009-07-28 22:57:07.000000000 +0200
-+++ ccid-1.3.11/src/ifdhandler.c	2010-09-28 09:31:55.826261505 +0200
++++ ccid-1.3.11/src/ifdhandler.c	2011-11-28 15:47:16.234511000 +0100
 @@ -68,6 +68,71 @@
  	int clock_frequency);
  static unsigned int T1_card_timeout(double f, double d, int TC1, int BWI,
