@@ -54,7 +54,7 @@ an example of how to get the standard installation of OpenSSL with OpenPACE_::
     svn co https://openpace.svn.sourceforge.net/svnroot/openpace $OPENPACE
     cd $OPENPACE
     make patch_with_openpace
-    cd openssl-*/
+    cd openpace
     ./config experimental-pace --prefix=$PREFIX
     make depend
     make
