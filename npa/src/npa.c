@@ -1627,7 +1627,7 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
             goto err;
         }
 
-        switch (CVC_get_terminal_type(cvc_cert->body->chat)) {
+        switch (CVC_get_role(cvc_cert->body->chat)) {
             case CVC_CVCA:
                 sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Processing CVCA certificate");
                 break;
