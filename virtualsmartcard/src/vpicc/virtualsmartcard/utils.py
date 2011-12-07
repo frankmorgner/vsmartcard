@@ -251,7 +251,6 @@ class C_APDU(APDU):
     
     def parse(self, apdu):
         "Parse a full command APDU and assign the values to our object, overwriting whatever there was."
-        print apdu 
         apdu = map( lambda a: (isinstance(a, str) and (ord(a),) or (a,))[0], apdu)
         apdu = apdu + [0] * max(4-len(apdu), 0)
         
