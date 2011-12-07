@@ -330,6 +330,76 @@ class Iso7816OS(SmartcardOS):
 
         return answer
 
+
+class nPAOS(Iso7816OS):
+    def __init__(self, mf, sam):
+        # ugly hack to parse MSE:SET AT
+        # This should better be integrated in the secuirty environment
+        ins2handler = {
+                0x0c: mf.eraseRecord,
+                0x0e: mf.eraseBinaryPlain,
+                0x0f: mf.eraseBinaryEncapsulated,
+                0x22: self.manage_security_environment,
+                0xa0: mf.searchBinaryPlain,
+                0xa1: mf.searchBinaryEncapsulated,
+                0xa4: mf.selectFile,
+                0xb0: mf.readBinaryPlain,
+                0xb1: mf.readBinaryEncapsulated,
+                0xb2: mf.readRecordPlain,
+                0xb3: mf.readRecordEncapsulated,
+                0xc0: self.getResponse,
+                0xca: mf.getDataPlain,
+                0xcb: mf.getDataEncapsulated,
+                0xd0: mf.writeBinaryPlain,
+                0xd1: mf.writeBinaryEncapsulated,
+                0xd2: mf.writeRecord,
+                0xd6: mf.updateBinaryPlain,
+                0xd7: mf.updateBinaryEncapsulated,
+                0xda: mf.putDataPlain,
+                0xdb: mf.putDataEncapsulated,
+                0xdc: mf.updateRecordPlain,
+                0xdd: mf.updateRecordEncapsulated,
+                0xe0: mf.createFile,
+                0xe2: mf.appendRecord,
+                0xe4: mf.deleteFile,
+                }
+        Iso7816OS.__init__(self, mf, sam, ins2handler, MAX_EXTENDED_LE)
+        # TODO
+        self.atr = '\x3B\x8A\x80\x01\x80\x31\xF8\x73\xF7\x41\xE0\x82\x90\x00\x75'
+
+    def manage_security_environment(self, p1, p2, data):
+        from TLVutils import bertlv_pack, bertlv_unpack
+        if (p1, p2) == (0xc1, 0xa4):
+            # PACE
+            tlv_data = bertlv_unpack(data)
+            for tag, length, value in tlv_data:
+                if tag == 0x80:
+                    mechanism = value
+                    #print "mechanism %r"% mechanism
+                elif tag == 0x83:
+                    ref_public_key = value
+                    #print "ref_public_key %r"% ref_public_key
+                elif tag == 0x84:
+                    ref_private_key = value
+                    #print "ref_private_key %r"% ref_private_key
+                elif tag == 0x67:
+                    auxiliary_data = value
+                    #print "auxiliary_data %r"% auxiliary_data
+                elif tag == 0x7f4c:
+                    from chat import CHAT
+                    chat = CHAT(bertlv_pack([[tag, length, value]]))
+                    print(chat)
+            raise SwError(SW["ERR_INSNOTSUPPORTED"])
+
+        elif (p1, p2) == (0x41, 0xa4):
+            # CA/RI
+            raise SwError(SW["ERR_INSNOTSUPPORTED"])
+        elif (p1, p2) == (0x81, 0xa4):
+            # TA
+            raise SwError(SW["ERR_INSNOTSUPPORTED"])
+        else:
+            raise SwError(SW["ERR_INCORRECTP1P2"])
+
       
 class CryptoflexOS(Iso7816OS):  
     def __init__(self, mf, sam, ins2handler=None, maxle=MAX_SHORT_LE):
@@ -520,6 +590,8 @@ class VirtualICC(object):
         #Generate an OS object of the correct card_type
         if card_type == "iso7816" or card_type == "ePass":
             self.os = Iso7816OS(MF, SAM)
+        elif card_type == "nPA":
+            self.os = nPAOS(MF, SAM)
         elif card_type == "cryptoflex":
             self.os = CryptoflexOS(MF, SAM)
         elif card_type == "relay":

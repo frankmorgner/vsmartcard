@@ -35,7 +35,7 @@ parser.add_option("-r", "--reader", action="store", type="int",
         help="Number of reader for relaying")
 parser.add_option("-t", "--type", action="store", type="choice",
         default='iso7816',
-        choices=['iso7816', 'cryptoflex', 'ePass', 'relay'],
+        choices=['iso7816', 'cryptoflex', 'ePass', 'nPA', 'relay'],
         help="Type of Smartcard [default: %default]")
 (options, args) = parser.parse_args()
 

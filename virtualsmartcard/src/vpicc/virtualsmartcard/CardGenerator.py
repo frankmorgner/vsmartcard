@@ -140,6 +140,14 @@ class CardGenerator(object):
         self.mf = mf
         self.sam = PassportSAM(self.mf)
     
+    def __generate_nPA(self):
+        from virtualsmartcard.SmartcardSAM import SAM
+        
+        card_access =  "\x31\x81\xb3\x30\x0d\x06\x08\x04\x00\x7f\x00\x07\x02\x02\x02\x02\x01\x02\x30\x12\x06\x0a\x04\x00\x7f\x00\x07\x02\x02\x03\x02\x02\x02\x01\x02\x02\x01\x41\x30\x12\x06\x0a\x04\x00\x7f\x00\x07\x02\x02\x03\x02\x02\x02\x01\x02\x02\x01\x45\x30\x12\x06\x0a\x04\x00\x7f\x00\x07\x02\x02\x04\x02\x02\x02\x01\x02\x02\x01\x0d\x30\x1c\x06\x09\x04\x00\x7f\x00\x07\x02\x02\x03\x02\x30\x0c\x06\x07\x04\x00\x7f\x00\x07\x01\x02\x02\x01\x0d\x02\x01\x41\x30\x1c\x06\x09\x04\x00\x7f\x00\x07\x02\x02\x03\x02\x30\x0c\x06\x07\x04\x00\x7f\x00\x07\x01\x02\x02\x01\x0d\x02\x01\x45\x30\x2a\x06\x08\x04\x00\x7f\x00\x07\x02\x02\x06\x16\x1e\x68\x74\x74\x70\x3a\x2f\x2f\x62\x73\x69\x2e\x62\x75\x6e\x64\x2e\x64\x65\x2f\x63\x69\x66\x2f\x6e\x70\x61\x2e\x78\x6d\x6c"
+
+        self.mf = MF()
+        self.mf.append(TransparentStructureEF(parent=self.mf, fid=0x011c, shortfid=0x1c, data=card_access))
+
     def __generate_cryptoflex(self):
         """Generate the Filesystem and SAM of a cryptoflex card"""
         self.mf = CryptoflexMF()
@@ -156,6 +164,8 @@ class CardGenerator(object):
             self.__generate_ePass()
         elif self.type == 'cryptoflex':
             self.__generate_cryptoflex()
+        elif self.type == 'nPA':
+            self.__generate_nPA()
         else:
             return (None, None)
     
@@ -218,7 +228,7 @@ if __name__ == "__main__":
     parser = OptionParser()
     parser.add_option("-t", "--type", action="store", type="choice",
             default='iso7816',
-            choices=['iso7816', 'cryptoflex', 'ePass'],
+            choices=['iso7816', 'cryptoflex', 'ePass', 'nPA'],
             help="Type of Smartcard [default: %default]")
     parser.add_option("-f", "--file", action="store", type="string",
             dest="filename", default=None,
