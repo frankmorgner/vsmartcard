@@ -7,7 +7,7 @@
 .. _npa:
 
 ********************************************************************************
-nPA smart card library
+nPA Smart Card Library
 ********************************************************************************
 
 :Author:
@@ -20,11 +20,11 @@ nPA smart card library
     - Windows
     - Unix-like operating systems (Mac OS, Solaris, BSD, ...)
 
-Welcome to the nPA smart card library. The purpose of the nPA smart card library is to offer an easy to use API for the new
+Welcome to the nPA Smart Card Library. The purpose of the nPA Smart Card Library is to offer an easy to use API for the new
 German identity card (neuer Personalausweis, nPA). The library also implements
 secure messaging, which could also be used for other cards.
 
-The nPA smart card library is implemented using OpenPACE_.
+The nPA Smart Card Library is implemented using OpenPACE_.
 Some fragments of the source code are based on the source code of the OpenSC tools.
 
 The included npa-tool has support for Password Authenticated Connection
@@ -36,7 +36,7 @@ APDUs inside a secure messaging channel established with PACE.
 
 .. include:: autotools.rst
 
-The nPA smart card library has the following dependencies:
+The nPA Smart Card Library has the following dependencies:
 
 - OpenSC_
 - OpenSSL with OpenPACE_
@@ -54,15 +54,15 @@ an example of how to get the standard installation of OpenSSL with OpenPACE_::
     svn co https://openpace.svn.sourceforge.net/svnroot/openpace $OPENPACE
     cd $OPENPACE
     make patch_with_openpace
-    cd openssl-*/
+    cd openpace
     ./config experimental-pace --prefix=$PREFIX
     make depend
     make
     make install
 
-Building the nPA smart card library with OpenPACE_ is done best using :command:`pkg-config`.  The file
+Building the nPA Smart Card Library with OpenPACE_ is done best using :command:`pkg-config`.  The file
 :file:`libcrypto.pc` should be located in ``$INSTALL/lib/pkgconfig``. Here is how
-to configure the nPA smart card library to use it::
+to configure the nPA Smart Card Library to use it::
 
     ./configure PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig
 
@@ -88,7 +88,7 @@ standard installation of OpenSC_::
     make install
 
 Now :file:`libopensc.so` should be located in ``$PREFIX/lib``. Here is how to
-configure the nPA smart card library to use it::
+configure the nPA Smart Card Library to use it::
 
     ./configure OPENSC_LIBS="-L$PREFIX/lib -lopensc"
 
@@ -116,7 +116,7 @@ Linking against libnpa
 ----------------------
 
 Following the section `Installation`_ above, you have installed OpenSC_,
-OpenPACE_ and the nPA smart card library to :file:`/tmp/install`. To compile a program using libnpa you
+OpenPACE_ and the nPA Smart Card Library to :file:`/tmp/install`. To compile a program using libnpa you
 need to get the header files from OpenSC_ as well.
 Here is how
 to compile an external program with these libraries::
