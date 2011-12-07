@@ -1,8 +1,9 @@
-VPCD_LIB = libvpcd.$(DYN_LIB_EXT)
+VPCD_LIB = $(LIB_PREFIX)vpcd.$(DYN_LIB_EXT)
 
 lib_LTLIBRARIES = libvpcd.la
 libvpcd_la_SOURCES = ifd-vpcd.c vpcd.c
 libvpcd_la_LIBADD = $(PCSC_LIBS)
+libvpcd_la_LDFLAGS = -no-undefined
 libvpcd_la_CFLAGS = $(PCSC_CFLAGS)
 
 noinst_HEADERS = vpcd.h

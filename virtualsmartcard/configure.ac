@@ -7,7 +7,18 @@ AC_CONFIG_SRCDIR([src/vpcd/ifd-vpcd.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE
-LT_INIT
+
+dnl Add libtool support.
+ifdef(
+	[LT_INIT],
+	[
+		LT_INIT([win32-dll])
+	],
+	[
+		AC_LIBTOOL_WIN32_DLL
+		AC_PROG_LIBTOOL
+	]
+)
 
 # Checks for programs.
 AC_PROG_CC
@@ -68,31 +79,43 @@ AC_CHECK_FUNCS([memset select socket])
 # Select OS specific versions of source files.
 AC_SUBST(BUNDLE_HOST)
 AC_SUBST(DYN_LIB_EXT)
+AC_SUBST(LIB_PREFIX)
 AC_SUBST(serialdropdir)
 case "$host" in
 *-*-darwin*)
 	BUNDLE_HOST="MacOS"
 	DYN_LIB_EXT="dylib"
+	LIB_PREFIX="lib"
 	;;
 *-*-freebsd*)
 	BUNDLE_HOST="FreeBSD"
 	DYN_LIB_EXT="so"
+	LIB_PREFIX="lib"
 	;;
 *-*-openbsd*)
 	BUNDLE_HOST="OpenBSD"
 	DYN_LIB_EXT="so.0.0"
+	LIB_PREFIX="lib"
 	;;
 *-*-solaris*)
 	BUNDLE_HOST="Solaris"
 	DYN_LIB_EXT="so"
+	LIB_PREFIX="lib"
 	;;
 *-*-dragonfly*)
 	BUNDLE_HOST="DragonFly"
 	DYN_LIB_EXT="so"
+	LIB_PREFIX="lib"
+	;;
+*-*-cygwin*)
+	BUNDLE_HOST="Cygwin"
+	DYN_LIB_EXT="dll"
+	LIB_PREFIX="cyg"
 	;;
 *)
 	BUNDLE_HOST="Linux"
 	DYN_LIB_EXT="so"
+	LIB_PREFIX="lib"
 esac
 
 cat << EOF
@@ -116,6 +139,7 @@ Libraries:            ${LIBS}
 PCSC_CFLAGS:          ${PCSC_CFLAGS}
 PCSC_LIBS:            ${PCSC_LIBS}
 BUNDLE_HOST:          ${BUNDLE_HOST}
+LIB_PREFIX:           ${LIB_PREFIX}
 DYN_LIB_EXT:          ${DYN_LIB_EXT}
 
 EOF
