@@ -75,7 +75,8 @@ def format_heading(level, text):
 
 def format_directive(module, package=None):
     """Create the automodule directive and add the options."""
-    directive = '.. automodule:: %s\n' % makename(package, module)
+    directive  = '.. inheritance-diagram:: %s\n' % makename(package, module)
+    directive += '.. automodule:: %s\n' % makename(package, module)
     for option in OPTIONS:
         directive += '    :%s:\n' % option
     return directive

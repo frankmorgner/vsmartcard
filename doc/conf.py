@@ -35,7 +35,7 @@ needs_sphinx = '1.1'
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ["breathe", "sphinxcontrib.doxylink", "sphinx.ext.autosummary", "sphinxcontrib.programoutput"]
+extensions = ["breathe", "sphinxcontrib.doxylink", "sphinx.ext.autosummary", "sphinxcontrib.programoutput", "sphinx.ext.inheritance_diagram"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -224,6 +224,8 @@ man_pages = [
     ('index', 'virtualsmartcardarchitecture', u'Virtual Smartcard Architecture Documentation',
      [u'Dominik Oepen, Frank Morgner'], 1)
 ]
+
 breathe_projects = {"npa": "npa/xml"}
 breathe_default_project = "npa"
+
 doxylink = { 'npa' : ('npa/npa.tag', '_static/doxygen-npa/'), }
