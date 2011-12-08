@@ -148,7 +148,7 @@ class CardGenerator(object):
 
         self.mf = MF()
         self.mf.append(TransparentStructureEF(parent=self.mf, fid=0x011c, shortfid=0x1c, data=card_access))
-        self.sam = nPA_SAM()
+        self.sam = nPA_SAM(self.mf)
 
     def __generate_cryptoflex(self):
         """Generate the Filesystem and SAM of a cryptoflex card"""

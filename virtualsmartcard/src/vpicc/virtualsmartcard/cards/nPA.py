@@ -26,7 +26,7 @@ import hashlib, struct
 from os import urandom
 from chat import CHAT
 
-class nPA__AT_CRT(ControlReferenceTemplate):
+class nPA_AT_CRT(ControlReferenceTemplate):
     def __init__(self):
         ControlReferenceTemplate(CRT_TEMPLATE["AT"])
 
