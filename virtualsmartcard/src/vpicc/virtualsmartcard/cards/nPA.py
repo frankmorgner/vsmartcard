@@ -24,12 +24,13 @@ from virtualsmartcard.TLVutils import unpack, bertlv_pack
 
 import hashlib, struct
 from os import urandom
+from chat import CHAT
 
 class nPA__AT_CRT(ControlReferenceTemplate):
     def __init__(self):
         ControlReferenceTemplate(CRT_TEMPLATE["AT"])
 
-    def parse_SE_config(self, config)
+    def parse_SE_config(self, config):
         try:
             ControlReferenceTemplate.parse_SE_config(self, config)
         except SwError, e:
@@ -37,8 +38,8 @@ class nPA__AT_CRT(ControlReferenceTemplate):
             for tlv in structure:
                 tag, length, value = structure
                 if tag == 0x7f4c:
-                    chat = CHAT(bertlv_pack([tlv])
-                    print chat
+                    chat = CHAT(bertlv_pack([[tag, length, value]]))
+                    print(chat)
                 elif tag == 0x67:
                     auxiliary_data = value
                 else:
