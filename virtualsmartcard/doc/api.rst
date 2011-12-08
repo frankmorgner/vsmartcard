@@ -42,13 +42,16 @@ ISO 7816. But as for most complex software you need to know where you need to
 hook into. Here we only want to give an overview to the design, the complete
 details can be found in section `Documentation to Virtual Smart Card`_
 
-Back to the cryptoflex example. :class:`VirtualICC` provides the connection to
-the virtual smart card reader. It fetches an |APDU| and other requests from the
-|vpcd|. In :class:`VirtualICC` an |APDU| is only a buffer that is forwarded to
-the smart card OS. First we modify :class:`VirtualICC` to recognize a new type
-``"cryptoflex"`` and to load :class:`CryptoflexOS`. The :class:`CardGenerator`
-is used to create a file system and a |SAM| specific to the cryptoflex (we come
-back to this later).
+Back to the cryptoflex example.
+:class:`virtualsmartcard.VirtualSmartcard.VirtualICC` provides the connection
+to the virtual smart card reader. It fetches an |APDU| and other requests from
+the |vpcd|. In :class:`virtualsmartcard.VirtualSmartcard.VirtualICC` an |APDU|
+is only a buffer that is forwarded to the smart card OS. First we modify
+:class:`virtualsmartcard.VirtualSmartcard.VirtualICC` to recognize a new type
+``"cryptoflex"`` and to load
+:class:`virtualsmartcard.VirtualSmartcard.CryptoflexOS`. The
+:class:`virtualsmartcard.CardGenerator` is used to create a file system and a
+|SAM| specific to the cryptoflex (we come back to this later).
 
 .. literalinclude:: virtualsmartcard/VirtualSmartcard.py
     :pyobject: VirtualICC.__init__
@@ -56,22 +59,25 @@ back to this later).
 
 Responses from our cryptoflex card look the same as for the 7816 card. But when
 a command was successfull (or not) there is a little difference in what is
-returned. So we need to edit :class:`CryptoflexOS.formatResult`, which is
+returned. So we need to edit
+:class:`virtualsmartcard.VirtualSmartcard.CryptoflexOS.formatResult`, which is
 called to encode the |SWs| and the resulting data.
 
 .. literalinclude:: virtualsmartcard/VirtualSmartcard.py
     :pyobject: CryptoflexOS.formatResult
 
 Note that this also requires some insight knowledge about how
-:class:`Iso7816OS` works (see `below <Documentation to Virtual Smart Card>`_).
+:class:`virtualsmartcard.Iso7816OS` works (see `below <Documentation to Virtual
+Smart Card>`_).
 
 The previously created |SAM| handles keys, encryption, secure messaging and so
 on (we will not go into more details here). The file system creates, selects
 and reads contents of files or directories. File handling for our cryptoflex
 card is similar to ISO 7816, but the meaning of P1, P2 and the |APDU| data is
 completely different when creating a file on the smart card. So we derive
-:class:`CryptoflexMF` from :class:`MF` and modify :class:`CryptoflexMF.create`
-to our needs.
+:class:`virtualsmartcard.cards.cryptoflex.CryptoflexMF` from
+:class:`virtualsmartcard.SmartcardFilesystem.MF` and modify
+:class:`virtualsmartcard.cards.cryptoflex.CryptoflexMF.create` to our needs.
 
 .. literalinclude:: virtualsmartcard/cards/cryptoflex.py
     :pyobject: CryptoflexMF.create
