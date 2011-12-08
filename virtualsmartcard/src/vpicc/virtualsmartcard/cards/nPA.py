@@ -28,7 +28,7 @@ from chat import CHAT
 
 class nPA_AT_CRT(ControlReferenceTemplate):
     def __init__(self):
-        ControlReferenceTemplate(CRT_TEMPLATE["AT"])
+        ControlReferenceTemplate.__init__(self, CRT_TEMPLATE["AT"])
 
     def parse_SE_config(self, config):
         try:
@@ -36,7 +36,7 @@ class nPA_AT_CRT(ControlReferenceTemplate):
         except SwError, e:
             structure = unpack(config)
             for tlv in structure:
-                tag, length, value = structure
+                tag, length, value = tlv
                 if tag == 0x7f4c:
                     chat = CHAT(bertlv_pack([[tag, length, value]]))
                     print(chat)
@@ -44,6 +44,8 @@ class nPA_AT_CRT(ControlReferenceTemplate):
                     auxiliary_data = value
                 else:
                     raise SwError(SW["ERR_REFNOTUSABLE"])
+
+        return 0x9000 , ""
 
 class nPA_SAM(SAM):       
     """
