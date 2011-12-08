@@ -3,7 +3,7 @@ SUBDIRS = src m4 doc
 
 EXTRA_DIST = libnpa.pc.in apdus
 
-do_subst = sed \
+do_subst = $(SED) \
 	   -e 's,[@]PACKAGE_NAME[@],$(PACKAGE_NAME),g' \
 	   -e 's,[@]PACKAGE_VERSION[@],$(PACKAGE_VERSION),g' \
 	   -e 's,[@]builddir[@],$(builddir),g' \
@@ -25,13 +25,13 @@ opensc_img = $(abs_srcdir)/src/opensc/win32/build/image
 opensc_root = $(opensc_img)/opensc
 
 fixup_la = find "$(opensc_img)" -name '*.la' | while read f; do \
-		   top="$$(dirname "$$(dirname "$$(echo "$${f}")")" | sed 's\#//\#/\#g')" \
-		   sed 's\#//\#'"$${top}"'/\#g' "$${f}" > "$${f}.tmp"; \
+		   top="$$(dirname "$$(dirname "$$(echo "$${f}")")" | $(SED) 's\#//\#/\#g')" \
+		   $(SED) 's\#//\#'"$${top}"'/\#g' "$${f}" > "$${f}.tmp"; \
 		   mv "$${f}.tmp" "$${f}"; \
 		   done
 restore_la = find "$(opensc_img)" -name '*.la' | while read f; do \
-			 x="$$(echo "$(opensc_img)" | sed 's\#/$$\#\#')" \
-			 sed 's\#'"$${x}"'/[^/]*/lib\#//lib\#g' "$${f}" > "$${f}.tmp"; \
+			 x="$$(echo "$(opensc_img)" | $(SED) 's\#/$$\#\#')" \
+			 $(SED) 's\#'"$${x}"'/[^/]*/lib\#//lib\#g' "$${f}" > "$${f}.tmp"; \
 			 mv "$${f}.tmp" "$${f}"; \
 			 done
 

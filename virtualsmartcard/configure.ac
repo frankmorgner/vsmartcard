@@ -23,10 +23,11 @@ ifdef(
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_INSTALL
-AC_PROG_LN_S
 AC_PROG_LIBTOOL
-AM_PROG_CC_C_O
+AC_PROG_LN_S
+AC_PROG_SED
 AM_PATH_PYTHON
+AM_PROG_CC_C_O
 PKG_PROG_PKG_CONFIG
 
 # If you need to see the details, just run make V=1.
