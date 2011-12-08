@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2011 Dominik Oepen
+# Copyright (C) 2011 Dominik Oepen, Frank Morgner
 # 
 # This file is part of virtualsmartcard.
 # 
@@ -22,10 +22,6 @@ from virtualsmartcard.SWutils import SwError, SW
 from virtualsmartcard.ConstantDefinitions import CRT_TEMPLATE
 from virtualsmartcard.TLVutils import unpack, bertlv_pack
 
-import hashlib, struct
-from os import urandom
-from chat import CHAT
-
 class nPA_AT_CRT(ControlReferenceTemplate):
     def __init__(self):
         ControlReferenceTemplate.__init__(self, CRT_TEMPLATE["AT"])
@@ -38,6 +34,7 @@ class nPA_AT_CRT(ControlReferenceTemplate):
             for tlv in structure:
                 tag, length, value = tlv
                 if tag == 0x7f4c:
+                    from chat import CHAT
                     chat = CHAT(bertlv_pack([[tag, length, value]]))
                     print(chat)
                 elif tag == 0x67:
