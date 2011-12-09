@@ -393,24 +393,26 @@ class RelayOS(SmartcardOS):
     """
     This class implements relaying of a (physical) smartcard. The RelayOS
     forwards the command APDUs received from the vpcd to the real smartcard via
-    an actual smartcard reader and sends the responses back to the vpcd.
-    This class can be used to implement relay or MITM attacks.
+    an actual smart card reader and sends the responses back to the vpcd.
+    This class can be used to implement relay or MitM attacks.
     """
     def __init__(self, readernum):
         """
-        Initialize the connection to the (physical) smartcard via a given reader
+        Initialize the connection to the (physical) smart card via a given reader
         """
+
+        # See which readers are available
         readers = smartcard.System.listReaders()
         if len(readers) <= readernum:
             logging.error("Invalid number of reader '%u' (only %u available)",
                           readernum, len(readers))
             sys.exit()
+
+        # Connect to the reader and its card
         # XXX this is a workaround, see on sourceforge bug #3083254
         # should better use
         # self.reader = smartcard.System.readers()[readernum]
         self.reader = readers[readernum]
-        # set exit to True if you want to terminate relaying
-        self.exit = False
         try:
             self.session = smartcard.Session(self.reader)
         except smartcard.Exceptions.CardConnectionException, e:
@@ -431,10 +433,13 @@ class RelayOS(SmartcardOS):
             logging.warning("Error disconnecting from card: %s", e.message)
 
     def getATR(self):
+        # when powerDown has been called, fetching the ATR will throw an error.
+        # In this case we must try to reconnect (and then get the ATR).
         try:
             atr = self.session.getATR()
         except smartcard.Exceptions.CardConnectionException, e:
             try:
+                # Try to reconnect to the card
                 self.session.close()
                 self.session = smartcard.Session(self.reader)
                 atr = self.session.getATR()
@@ -445,6 +450,10 @@ class RelayOS(SmartcardOS):
         return "".join([chr(b) for b in atr])
         
     def powerUp(self):
+        # When powerUp is called multiple times the session is valid (and the
+        # card is implicitly powered) we can check for an ATR. But when
+        # powerDown has been called, the session gets lost. In this case we
+        # must try to reconnect (and power the card).
         try:
             self.session.getATR()
         except smartcard.Exceptions.CardConnectionException, e:
@@ -455,6 +464,8 @@ class RelayOS(SmartcardOS):
                 sys.exit()
 
     def powerDown(self):
+        # There is no power down in the session context so we simply
+        # disconnect, which should implicitly power down the card.
         try:
             self.session.close()
         except smartcard.Exceptions.CardConnectionException, e:
@@ -462,10 +473,8 @@ class RelayOS(SmartcardOS):
             sys.exit()
 
     def execute(self, msg):
-        #apdu = [].append(ord(b) for b in msg)
-        apdu = []
-        for b in msg:
-            apdu.append(ord(b))
+        # sendCommandAPDU() expects a list of APDU bytes
+        apdu = list(bytes(msg))
 
         try:
             rapdu, sw1, sw2 = self.session.sendCommandAPDU(apdu)
@@ -481,6 +490,7 @@ class RelayOS(SmartcardOS):
         else:
             rapdu = rapdu + [sw1, sw2]
 
+        # return the response APDU as string
         return "".join([chr(b) for b in rapdu])
 
 
