@@ -39,6 +39,15 @@ class nPA_AT_CRT(ControlReferenceTemplate):
                     print(chat)
                 elif tag == 0x67:
                     auxiliary_data = value
+                elif tag == 0x80:
+                    # handled by ControlReferenceTemplate.parse_SE_config
+                    pass
+                elif tag == 0x83:
+                    # handled by ControlReferenceTemplate.parse_SE_config
+                    pass
+                elif tag == 0x84:
+                    # handled by ControlReferenceTemplate.parse_SE_config
+                    pass
                 elif tag == 0x91:
                     eph_key = value
                     # TODO handle security environment
