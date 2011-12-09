@@ -306,7 +306,7 @@ int get_ef_card_access(sc_card_t *card,
         r = sc_read_binary(card, *length_ef_cardaccess,
                 *ef_cardaccess + *length_ef_cardaccess, read, 0);
 
-        if (r > 0 && r != read) {
+        if (r >= 0 && r != read) {
             *length_ef_cardaccess += r;
             break;
         }
