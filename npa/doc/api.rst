@@ -78,5 +78,3 @@ your environment <npa-usage>`.
 
 .. literalinclude:: example.c
     :lines: 20-
-
-.. @author Frank Morgner <morgner@informatik.hu-berlin.de>

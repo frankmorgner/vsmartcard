@@ -32,8 +32,6 @@ Establishment (PACE). npa-tool can be used for PIN management or to encrypt
 APDUs inside a secure messaging channel established with PACE.
 
 
-.. _npa-install:
-
 .. include:: autotools.rst
 
 The nPA Smart Card Library has the following dependencies:
