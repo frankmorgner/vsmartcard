@@ -39,7 +39,7 @@ OPTIONS = ['members',
            'inherited-members',
            'show-inheritance',
            'private-members',
-           'special-members',
+           #'special-members',
           ]
 
 INIT = '__init__.py'

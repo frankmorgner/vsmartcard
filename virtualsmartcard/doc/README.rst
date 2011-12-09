@@ -24,7 +24,7 @@ Virtual Smart Card
     GPL version 3
 :Tested Platforms:
     - Linux (Debian, Ubuntu, OpenMoko)
-    - Windows (|vpicc| natively, |vpcd| via Cygwin)
+    - Windows (|vpicc| natively, |vpcd| only via Cygwin)
 :Potential Platforms:
     Unix-like operating systems (Mac OS, Solaris, BSD, ...)
 
