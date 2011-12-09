@@ -227,20 +227,31 @@ class Iso7816OS(SmartcardOS):
         return inttostring(tsft)
  
 
-    def formatResult(self, le, data, sw, sm):
-        self.lastCommandOffcut = data[le:]
-        l = len(self.lastCommandOffcut)
-        if l == 0:
-            self.lastCommandSW = SW["NORMAL"]
+    def formatResult(self, seekable, le, data, sw, sm):
+        if not seekable:
+            self.lastCommandOffcut = data[le:]
+            l = len(self.lastCommandOffcut)
+            if l == 0:
+                self.lastCommandSW = SW["NORMAL"]
+            else:
+                self.lastCommandSW = sw
+                sw = SW["NORMAL_REST"] + min(0xff, l)
         else:
-            self.lastCommandSW = sw
-            sw = SW["NORMAL_REST"] + min(0xff, l)
+            if le > len(data):
+                sw = SW["WARN_EOFBEFORENEREAD"]
 
         result = data[:le]
         if sm:
             sw, result = self.SAM.protect_result(sw, result)
 
         return R_APDU(result, inttostring(sw)).render()
+
+    @staticmethod
+    def seekable(ins):
+        if ins in [0xb0, 0xb1, 0xd0, 0xd1, 0xd6, 0xd7, 0xa0, 0xa1, 0xb2, 0xb3, 0xdc, 0xdd ]:
+            return True
+        else:
+            return False
 
     def getResponse(self, p1, p2, data):
         if not (p1 == 0 and p2 == 0):
@@ -262,7 +273,7 @@ class Iso7816OS(SmartcardOS):
             c = C_APDU(msg)
         except ValueError, e:
             logging.warning(str(e))
-            return self.formatResult(0, "", SW["ERR_INCORRECTPARAMETERS"], False)
+            return self.formatResult(False, 0, "", SW["ERR_INCORRECTPARAMETERS"], False)
         
         #Handle Class Byte
         #{{{
@@ -318,15 +329,15 @@ class Iso7816OS(SmartcardOS):
                 raise SwError("ERR_SECMESSNOTSUPPORTED")
             sw, result = self.ins2handler.get(c.ins, notImplemented)(c.p1, c.p2, c.data)
             if SM_STATUS == "Standard SM":
-                answer = self.formatResult(c.effective_Le, result, sw, True)
+                answer = self.formatResult(Iso7816OS.seekable(c.ins), c.effective_Le, result, sw, True)
             else:
-                answer = self.formatResult(c.effective_Le, result, sw, False)
+                answer = self.formatResult(Iso7816OS.seekable(c.ins), c.effective_Le, result, sw, False)
         except SwError, e:
             logging.info(e.message)
             #traceback.print_exception(*sys.exc_info())
             sw = e.sw
             result = ""
-            answer = self.formatResult(0, result, sw, False)
+            answer = self.formatResult(False, 0, result, sw, False)
 
         return answer
 
@@ -344,7 +355,7 @@ class CryptoflexOS(Iso7816OS):
             c = C_APDU(msg)
         except ValueError, e:
             logging.debug("Failed to parse APDU %s", msg)
-            return self.formatResult(0, 0, "", SW["ERR_INCORRECTPARAMETERS"])
+            return self.formatResult(False, 0, 0, "", SW["ERR_INCORRECTPARAMETERS"])
 
         try:
             sw, result = self.ins2handler.get(c.ins, notImplemented)(c.p1, c.p2, c.data)
@@ -373,7 +384,7 @@ class CryptoflexOS(Iso7816OS):
                 r = R_APDU(inttostring(SW["NORMAL_REST"] +\
                     min(0xff, len(data)))).render()
             else:
-                r = Iso7816OS.formatResult(self, le, data, sw, False)
+                r = Iso7816OS.formatResult(self, Iso7816OS.seekable(ins), le, data, sw, False)
 
         return r
 
@@ -472,7 +483,22 @@ class RelayOS(SmartcardOS):
 
         return "".join([chr(b) for b in rapdu])
 
-      
+
+class NPAOS(Iso7816OS):
+    def formatResult(self, seekable, le, data, sw, sm):
+        if seekable:
+            # when le = 0 then we want to have 0x9000. here we only have the
+            # effective le, which is either MAX_EXTENDED_LE or MAX_SHORT_LE,
+            # depending on the APDU. Note that the following distinguisher has
+            # one false positives
+            if le > len(data) and le != MAX_EXTENDED_LE and le != MAX_SHORT_LE:
+                sw = SW["WARN_EOFBEFORENEREAD"]
+
+        result = data[:le]
+        if sm:
+            sw, result = self.SAM.protect_result(sw, result)
+
+        return R_APDU(result, inttostring(sw)).render()
 
 
 # sizeof(int) taken from asizof-package {{{
@@ -521,7 +547,7 @@ class VirtualICC(object):
         if card_type == "iso7816" or card_type == "ePass":
             self.os = Iso7816OS(MF, SAM)
         elif card_type == "nPA":
-            self.os = Iso7816OS(MF, SAM)
+            self.os = NPAOS(MF, SAM)
             self.os.atr = '\x3B\x8A\x80\x01\x80\x31\xF8\x73\xF7\x41\xE0\x82\x90\x00\x75'
         elif card_type == "cryptoflex":
             self.os = CryptoflexOS(MF, SAM)

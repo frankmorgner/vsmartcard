@@ -1384,7 +1384,7 @@ class TransparentStructureEF(EF):
         """Returns the string of decrypted data beginning at 'offset'."""
         data = self.getenc('data')
 
-        if offset > len(data):
+        if offset + 1 > len(data):
             raise SwError(SW["ERR_OFFSETOUTOFFILE"])
 
         return data[offset:]
