@@ -24,6 +24,13 @@ OpenPICC or from a libnfc device to a smart card via the PCSC middleware. You
 can use this program in combination with the virtual smart card to emulate a
 ISO/IEC 14443 smart card. 
 
+.. note::
+    This software can actually be used in a relay attack allowing full access
+    to the card... `We discussed the impact especially on the German identity
+    card
+    <http://media.ccc.de/browse/congress/2010/27c3-4297-de-die_gesamte_technik_ist_sicher.html>`_,
+    but it generally concerns *all NFC smart cards*.
+
 
 .. include:: autotools.rst
 

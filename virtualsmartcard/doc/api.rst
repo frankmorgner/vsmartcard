@@ -13,6 +13,8 @@ Creating a Virtual Smart Card
 virtually any program to the virtual smart card reader, as long as you respect
 the following protocol:
 
+.. _vpcd-commands:
+
 ============= ==================== ============= =============
 |vpcd|                             |vpicc|
 ---------------------------------- ---------------------------
@@ -29,9 +31,22 @@ The communication is initiated by |vpcd|. First the length of the data (in
 network byte order, i.e. little endian) is sent followed by the data itself.
 
 
-=======================================
+===================================
+Documentation to Virtual Smart Card
+===================================
+
+.. toctree::
+
+   api/virtualsmartcard
+
+
+========
+Examples
+========
+
+---------------------------------------
 Implementing a ISO 7816 like Smart Card
-=======================================
+---------------------------------------
 
 |vpicc| includes an emulation of a card acting according to ISO 7816. This
 includes all standard commands for file management and secure messaging.
@@ -40,7 +55,7 @@ Let's assume we want to create a cryptoflex card, that acts mostly according to
 ISO 7816. In this example we only want to add little things that differ from
 ISO 7816. But as for most complex software you need to know where you need to
 hook into. Here we only want to give an overview to the design, the complete
-details can be found in section `Documentation to Virtual Smart Card`_
+details can be found in section `Documentation to Virtual Smart Card`_.
 
 Back to the cryptoflex example.
 :class:`virtualsmartcard.VirtualSmartcard.VirtualICC` provides the connection
@@ -67,8 +82,8 @@ called to encode the |SWs| and the resulting data.
     :pyobject: CryptoflexOS.formatResult
 
 Note that this also requires some insight knowledge about how
-:class:`virtualsmartcard.Iso7816OS` works (see `below <Documentation to Virtual
-Smart Card>`_).
+:class:`virtualsmartcard.VirtualSmartcard.Iso7816OS` works (see `above
+<Documentation to Virtual Smart Card>`_).
 
 The previously created |SAM| handles keys, encryption, secure messaging and so
 on (we will not go into more details here). The file system creates, selects
@@ -89,10 +104,29 @@ read some documentation or even source code to find out where it's best to do
 your modifications...
 
 
-===================================
-Documentation to Virtual Smart Card
-===================================
+----------------------------------
+Implementing an Other Type of Card
+----------------------------------
 
-.. toctree::
+If you have a card entirely different to ISO 7816, you surely want to avoid all
+magic that is done while parsing a buffer (an |APDU|). As example we will
+connect to an other smart card using PC/SC and forward it to |vpcd|. 
 
-   api/virtualsmartcard
+.. note::
+    This software can actually be used in a relay attack allowing full access
+    to the card... `We discussed the impact especially on the German identity
+    card
+    <http://media.ccc.de/browse/congress/2010/27c3-4297-de-die_gesamte_technik_ist_sicher.html>`_,
+    but it generally concerns *all smart cards*.
+
+As before with the cryptoflex card, we let
+:class:`virtualsmartcard.VirtualSmartcard.VirtualICC` recognize the new type
+``"relay"``. :class:`virtualsmartcard.VirtualSmartcard.RelayOS` overwrites all
+main functions from the template
+:class:`virtualsmartcard.VirtualSmartcard.SmartcardOS`. Its functions correspond
+to the :ref:`commands sent by vpcd <vpcd-commands>`. If you know how to use
+`pyscard <http://pyscard.sourceforge.net/>`_ then the rest is pretty straight
+forward, but see yourself...
+
+.. literalinclude:: virtualsmartcard/VirtualSmartcard.py
+    :pyobject: RelayOS
