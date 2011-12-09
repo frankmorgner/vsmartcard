@@ -39,6 +39,18 @@ class nPA_AT_CRT(ControlReferenceTemplate):
                     print(chat)
                 elif tag == 0x67:
                     auxiliary_data = value
+                elif tag == 0x80:
+                    mechanism = value
+                    # TODO handle security environment
+                elif tag == 0x83:
+                    pub_key = value
+                    # TODO handle security environment
+                elif tag == 0x84:
+                    priv_key = value
+                    # TODO handle security environment
+                elif tag == 0x91:
+                    eph_key = value
+                    # TODO handle security environment
                 else:
                     raise SwError(SW["ERR_REFNOTUSABLE"])
 
