@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Frank Morgner
+ * Copyright (C) 2011 Frank Morgner
  *
  * This file is part of pcsc-relay.
  *
@@ -27,6 +27,12 @@ struct lnfc_data {
     byte_t abtCapdu[4+1+0xff+1];
     size_t szCapduLen;
     nfc_device_t *pndTarget;
+};
+
+
+static struct timeval transmit_timeout = {
+    1, /* seconds */
+    0, /* microseconds */
 };
 
 
@@ -181,7 +187,7 @@ static int lnfc_receive_capdu(driver_data_t *driver_data,
 
 
     // Receive external reader command through target
-    if (!nfc_target_receive_bytes(data->pndTarget, data->abtCapdu, &data->szCapduLen)) {
+    if (!nfc_target_receive_bytes(data->pndTarget, data->abtCapdu, &data->szCapduLen, &transmit_timeout)) {
         ERROR ("nfc_target_receive_bytes: %s\n", nfc_strerror(data->pndTarget));
         return 0;
     }
@@ -209,7 +215,7 @@ static int lnfc_send_rapdu(driver_data_t *driver_data,
         return 0;
 
 
-    if (!nfc_target_send_bytes(data->pndTarget, rapdu, len)) {
+    if (!nfc_target_send_bytes(data->pndTarget, rapdu, len, &transmit_timeout)) {
         ERROR ("nfc_target_send_bytes: %s\n", nfc_strerror(data->pndTarget));
         return 0;
     }

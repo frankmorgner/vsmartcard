@@ -21,9 +21,9 @@ PKG_CHECK_EXISTS([libpcsclite],
                  [PKG_CHECK_MODULES([PCSC], [libpcsclite])],
                  [AC_MSG_WARN([libpcsclite not found by pkg-config])])
 # Checks for libraries.
-PKG_CHECK_EXISTS([libnfc >= 1.3.9],
-                 [PKG_CHECK_MODULES([LIBNFC], [libnfc >= 1.3.9])],
-                 [AC_MSG_WARN([libnfc >= 1.3.9 not found by pkg-config])])
+PKG_CHECK_EXISTS([libnfc >= 1.5.1],
+                 [PKG_CHECK_MODULES([LIBNFC], [libnfc >= 1.5.1])],
+                 [AC_MSG_WARN([libnfc >= 1.5.1 not found by pkg-config])])
 
 
 saved_CPPFLAGS="$CPPFLAGS"
@@ -37,10 +37,10 @@ AC_MSG_CHECKING([for SCardEstablishContext])
 AC_TRY_LINK_FUNC(SCardEstablishContext, [ AC_MSG_RESULT([yes]) ],
         [ AC_MSG_ERROR([libpcsclite not found, use ./configure PCSC_LIBS=...]) ])
 AC_CHECK_HEADERS(nfc/nfc.h,,
-        [ AC_MSG_ERROR([nfc/nfc.h not found, install libnfc >= 1.3.9 or use ./configure LIBNFC_CFLAGS=...]) ])
+        [ AC_MSG_ERROR([nfc/nfc.h not found, install libnfc >= 5.1.9 or use ./configure LIBNFC_CFLAGS=...]) ])
 AC_MSG_CHECKING([for nfc_initiator_select_passive_target])
 AC_TRY_LINK_FUNC(nfc_initiator_select_passive_target, [ AC_MSG_RESULT([yes]) ],
-        [ AC_MSG_ERROR([libnfc >= 1.3.9 not found, use ./configure LIBNFC_LIBS=...]) ])
+        [ AC_MSG_ERROR([libnfc >= 1.5.1 not found, use ./configure LIBNFC_LIBS=...]) ])
 CPPFLAGS="$saved_CPPFLAGS"
 LIBS="$saved_LIBS"
 
