@@ -42,17 +42,17 @@ def get_cipher(cipherspec, key, iv = None):
     cipherparts = cipherspec.split("-")
     
     if len(cipherparts) > 2:
-        raise ValueError, 'cipherspec must be of the form "cipher-mode" or "cipher"'
+        raise ValueError('cipherspec must be of the form "cipher-mode" or "cipher"')
     elif len(cipherparts) == 1:
         cipherparts[1] = "ecb"
     
     c_class = globals().get(cipherparts[0].upper(), None)
     if c_class is None: 
-        raise ValueError, "Cipher '%s' not known, must be one of %s" % (cipherparts[0], ", ".join([e.lower() for e in dir() if e.isupper()]))
+        raise ValueError("Cipher '%s' not known, must be one of %s" % (cipherparts[0], ", ".join([e.lower() for e in dir() if e.isupper()])))
     
     mode = getattr(c_class, "MODE_" + cipherparts[1].upper(), None)
     if mode is None:
-        raise ValueError, "Mode '%s' not known, must be one of %s" % (cipherparts[1], ", ".join([e.split("_")[1].lower() for e in dir(c_class) if e.startswith("MODE_")]))
+        raise ValueError("Mode '%s' not known, must be one of %s" % (cipherparts[1], ", ".join([e.split("_")[1].lower() for e in dir(c_class) if e.startswith("MODE_")])))
     
     cipher = None
     if iv is None:
@@ -66,7 +66,7 @@ def get_cipher_keylen(cipherspec):
     cipherparts = cipherspec.split("-")
     
     if len(cipherparts) > 2:
-        raise ValueError, 'cipherspec must be of the form "cipher-mode" or "cipher"'
+        raise ValueError('cipherspec must be of the form "cipher-mode" or "cipher"')
 
     cipher = cipherparts[0].upper()
     #cipher = globals().get(cipherparts[0].upper(), None)
@@ -78,13 +78,13 @@ def get_cipher_keylen(cipherspec):
     elif cipher == "DES3":
         return 16
     else:
-        raise ValueError, "Unsupported Encryption Algorithm: " + cipher
+        raise ValueError("Unsupported Encryption Algorithm: " + cipher)
 
 def get_cipher_blocklen(cipherspec):
     cipherparts = cipherspec.split("-")
     
     if len(cipherparts) > 2:
-        raise ValueError, 'cipherspec must be of the form "cipher-mode" or "cipher"'
+        raise ValueError('cipherspec must be of the form "cipher-mode" or "cipher"')
 
     cipher = globals().get(cipherparts[0].upper(), None)
     return cipher.block_size
@@ -137,7 +137,7 @@ def crypto_checksum(algo, key, data, iv=None, ssc=None):
     """
     
     if algo not in ("HMAC", "MAC", "CC"):
-        raise ValueError, "Unknown Algorithm %s" % algo
+        raise ValueError("Unknown Algorithm %s" % algo)
     
     if algo == "MAC":
         checksum = calculate_MAC(key, data, iv)
@@ -189,7 +189,7 @@ def hash(hashmethod, data):
    
 def operation_on_string(string1, string2, op):
     if len(string1) != len(string2):
-        raise ValueError, "string1 and string2 must be of equal length"
+        raise ValueError("string1 and string2 must be of equal length")
     result = []
     for i in range(len(string1)):
         result.append(chr(op(ord(string1[i]), ord(string2[i]))))
@@ -236,7 +236,7 @@ def read_protected_string(string, password, cipherspec=None):
         salt = string[7:match.end() - 1]
         hmac = string[len(string) - hmac_length:]
     else:
-        raise ValueError, "Wrong string format"
+        raise ValueError("Wrong string format")
     
     #Derive key
     pbk = crypt(password, salt)
@@ -247,7 +247,7 @@ def read_protected_string(string, password, cipherspec=None):
     checksum = crypto_checksum("HMAC", key, crypted)
     if checksum != hmac:
         logging.error("Found HMAC %s expected %s" % (str(hmac), str(checksum)))
-        raise ValueError, "Failed to authenticate data. Wrong password?"
+        raise ValueError("Failed to authenticate data. Wrong password?")
     
     #Decrypt data
     if cipherspec == None:

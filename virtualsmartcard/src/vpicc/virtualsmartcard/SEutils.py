@@ -45,7 +45,7 @@ class ControlReferenceTemplate:
         if tag not in (CRT_TEMPLATE["AT"], CRT_TEMPLATE["HT"],
                         CRT_TEMPLATE["KAT"], CRT_TEMPLATE["CCT"],
                         CRT_TEMPLATE["DST"], CRT_TEMPLATE["CT"]):
-            raise ValueError, "Unknown control reference tag."
+            raise ValueError("Unknown control reference tag.")
         else:
             self.type = tag
 

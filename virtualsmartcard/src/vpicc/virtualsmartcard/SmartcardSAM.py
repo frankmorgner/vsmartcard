@@ -74,8 +74,8 @@ class SAM(object):
             self.cardSecret = urandom(keylen)
         else:
             if len(cardSecret) != keylen:
-                raise ValueError, "cardSecret has the wrong key length for: " +\
-                    get_referenced_cipher(self.cipher)
+                raise ValueError("cardSecret has the wrong key length for: " +\
+                    get_referenced_cipher(self.cipher))
             else:
                 self.cardSecret = cardSecret  
 
@@ -357,25 +357,25 @@ if __name__ == "__main__":
 
     MyCard = SAM("1234", "1234567890")
     try:
-        print MyCard.verify(0x00, 0x00, "5678")
-    except SwError, e:
-        print e.message
+        print(MyCard.verify(0x00, 0x00, "5678"))
+    except SwError as e:
+        print(e.message)
 
-    print "Counter = " + str(MyCard.counter)
-    print MyCard.verify(0x00,  0x00, "1234")
-    print "Counter = " + str(MyCard.counter)
+    print("Counter = " + str(MyCard.counter))
+    print(MyCard.verify(0x00,  0x00, "1234"))
+    print("Counter = " + str(MyCard.counter))
     sw, challenge = MyCard.get_challenge(0x00, 0x00, "")
-    print "Before encryption: " + challenge
+    print("Before encryption: " + challenge)
     padded = vsCrypto.append_padding("DES3-ECB", challenge)
     sw, result_data = MyCard.internal_authenticate(0x00, 0x00, padded)
-    print "Internal Authenticate status code: %x" % sw
+    print("Internal Authenticate status code: %x" % sw)
 
     try:
         sw, res = MyCard.external_authenticate(0x00, 0x00, result_data)
-    except SwError, e:
-        print e.message
+    except SwError as e:
+        print(e.message)
         sw = e.sw
-    print "Decryption Status code: %x" % sw
+    print("Decryption Status code: %x" % sw)
 
     #SE = Security_Environment(None)
     #testvektor = "foobar"

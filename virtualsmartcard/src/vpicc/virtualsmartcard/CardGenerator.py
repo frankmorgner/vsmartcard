@@ -204,13 +204,13 @@ class CardGenerator(object):
             passwd1 = getpass.getpass("Please enter your password:")
             passwd2 = getpass.getpass("Please retype your password:")
             if (passwd1 != passwd2):
-                raise ValueError, "Passwords did not match. Will now exit"
+                raise ValueError("Passwords did not match. Will now exit")
             else:
                 self.password = passwd1
         
         if self.mf == None or self.sam == None:
-            raise ValueError, "Card Generator wasn't set up properly" +\
-                 "(missing MF or SAM)."
+            raise ValueError("Card Generator wasn't set up properly" +\
+                 "(missing MF or SAM).")
         
         mf_string = dumps(self.mf)
         sam_string = dumps(self.sam)

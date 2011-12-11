@@ -249,11 +249,11 @@ class File(object):
         self.SAM = SAM
         if simpletlv_data:
             if not isinstance(simpletlv_data, list):
-                raise ValueError, "must be a list of (tag, length, value)-tuples"
+                raise TypeError("must be a list of (tag, length, value)-tuples")
             self.setdec('simpletlv_data', simpletlv_data)
         if bertlv_data:
             if not isinstance(bertlv_data, list):
-                raise ValueError, "must be a list of (tag, length, value)-tuples"
+                raise TypeError("must be a list of (tag, length, value)-tuples")
             self.setdec('bertlv_data', bertlv_data)
 
     def decrypt(self, path, data):
@@ -1474,7 +1474,7 @@ class RecordStructureEF(EF):
         See EF for more.
         """
         if not isinstance(records, list):
-            raise TypeError, "must be a list of Records"
+            raise TypeError("must be a list of Records")
         EF.__init__(self, parent, fid, filedescriptor, lifecycle,
                 simpletlv_data, bertlv_data,
                 datacoding, shortfid)

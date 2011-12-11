@@ -271,7 +271,7 @@ class Iso7816OS(SmartcardOS):
 
         try:
             c = C_APDU(msg)
-        except ValueError, e:
+        except ValueError as e:
             logging.warning(str(e))
             return self.formatResult(False, 0, "", SW["ERR_INCORRECTPARAMETERS"], False)
         
@@ -332,7 +332,7 @@ class Iso7816OS(SmartcardOS):
                 answer = self.formatResult(Iso7816OS.seekable(c.ins), c.effective_Le, result, sw, True)
             else:
                 answer = self.formatResult(Iso7816OS.seekable(c.ins), c.effective_Le, result, sw, False)
-        except SwError, e:
+        except SwError as e:
             logging.info(e.message)
             #traceback.print_exception(*sys.exc_info())
             sw = e.sw
@@ -353,14 +353,14 @@ class CryptoflexOS(Iso7816OS):
 
         try:
             c = C_APDU(msg)
-        except ValueError, e:
+        except ValueError as e:
             logging.debug("Failed to parse APDU %s", msg)
             return self.formatResult(False, 0, 0, "", SW["ERR_INCORRECTPARAMETERS"])
 
         try:
             sw, result = self.ins2handler.get(c.ins, notImplemented)(c.p1, c.p2, c.data)
             #print type(result)
-        except SwError, e:
+        except SwError as e:
             logging.info(e.message)
             #traceback.print_exception(*sys.exc_info())
             sw = e.sw
@@ -415,7 +415,7 @@ class RelayOS(SmartcardOS):
         self.reader = readers[readernum]
         try:
             self.session = smartcard.Session(self.reader)
-        except smartcard.Exceptions.CardConnectionException, e:
+        except smartcard.Exceptions.CardConnectionException as e:
             logging.error("Error connecting to card: %s", e.message)
             sys.exit()
 
@@ -429,7 +429,7 @@ class RelayOS(SmartcardOS):
         """
         try:
             self.session.close()
-        except smartcard.Exceptions.CardConnectionException, e:
+        except smartcard.Exceptions.CardConnectionException as e:
             logging.warning("Error disconnecting from card: %s", e.message)
 
     def getATR(self):
@@ -437,13 +437,13 @@ class RelayOS(SmartcardOS):
         # In this case we must try to reconnect (and then get the ATR).
         try:
             atr = self.session.getATR()
-        except smartcard.Exceptions.CardConnectionException, e:
+        except smartcard.Exceptions.CardConnectionException as e:
             try:
                 # Try to reconnect to the card
                 self.session.close()
                 self.session = smartcard.Session(self.reader)
                 atr = self.session.getATR()
-            except smartcard.Exceptions.CardConnectionException, e:
+            except smartcard.Exceptions.CardConnectionException as e:
                 logging.error("Error getting ATR: %s", e.message)
                 sys.exit()
 
@@ -456,10 +456,10 @@ class RelayOS(SmartcardOS):
         # must try to reconnect (and power the card).
         try:
             self.session.getATR()
-        except smartcard.Exceptions.CardConnectionException, e:
+        except smartcard.Exceptions.CardConnectionException as e:
             try:
                 self.session = smartcard.Session(self.reader)
-            except smartcard.Exceptions.CardConnectionException, e:
+            except smartcard.Exceptions.CardConnectionException as e:
                 logging.error("Error connecting to card: %s", e.message)
                 sys.exit()
 
@@ -468,7 +468,7 @@ class RelayOS(SmartcardOS):
         # disconnect, which should implicitly power down the card.
         try:
             self.session.close()
-        except smartcard.Exceptions.CardConnectionException, e:
+        except smartcard.Exceptions.CardConnectionException as e:
             logging.error("Error disconnecting from card: %s", str(e))
             sys.exit()
 
@@ -478,7 +478,7 @@ class RelayOS(SmartcardOS):
 
         try:
             rapdu, sw1, sw2 = self.session.sendCommandAPDU(apdu)
-        except smartcard.Exceptions.CardConnectionException, e:
+        except smartcard.Exceptions.CardConnectionException as e:
             logging.error("Error transmitting APDU: %s", str(e))
             sys.exit()
 
@@ -574,7 +574,7 @@ class VirtualICC(object):
         try:
             self.sock = self.connectToPort(host, port)
             self.sock.settimeout(None)
-        except socket.error, e:
+        except socket.error as e:
             logging.error("Failed to open socket: %s", str(e))
             logging.error("Is pcscd running at %s? Is vpcd loaded? Is a firewall blocking port %u?",
                           host, port)

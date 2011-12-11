@@ -45,7 +45,7 @@ def inttostring(i, length=None):
     if length:
         l = len(str)
         if l > length:
-            raise ValueError, "i too big for the specified stringlength"
+            raise ValueError("i too big for the specified stringlength")
         else:
             str = chr(0)*(length-l) + str
 
@@ -122,10 +122,10 @@ def parse_status(data):
         lifecycle = ord(segment[1+lgth])
         privileges = ord(segment[1+lgth+1])
         
-        print "aid length:       %i (%x)" % (lgth, lgth)
-        print "aid:              %s" % hexdump(aid, indent = 18, short=True)
-        print "life cycle state: %x (%s)" % (lifecycle, LIFE_CYCLES.get(lifecycle, "unknown or invalid state"))
-        print "privileges:       %x (%s)\n" % (privileges, parse_privileges(privileges))
+        print("aid length:       %i (%x)" % (lgth, lgth))
+        print("aid:              %s" % hexdump(aid, indent = 18, short=True))
+        print("life cycle state: %x (%s)" % (lifecycle, LIFE_CYCLES.get(lifecycle, "unknown or invalid state")))
+        print("privileges:       %x (%s)\n" % (privileges, parse_privileges(privileges)))
 
     pos = 0
     while pos < len(data):
@@ -185,7 +185,7 @@ class APDU(object):
                 if t == str:
                     initbuff[index] = ord(value)
                 elif t != int:
-                    raise TypeError, "APDU must consist of ints or one-byte strings, not %s (index %s)" % (t, index)
+                    raise TypeError("APDU must consist of ints or one-byte strings, not %s (index %s)" % (t, index))
             
             self.parse( initbuff )
         
@@ -201,7 +201,7 @@ class APDU(object):
         elif isinstance(value, list):
             self._data = "".join([chr(int(e)) for e in value])
         else:
-            raise ValueError, "'data' attribute can only be a str or a list of int, not %s" % type(value)
+            raise ValueError("'data' attribute can only be a str or a list of int, not %s" % type(value))
         self.Lc = len(value)
     def _deldata(self):
         del self._data; self.data = ""
@@ -216,7 +216,7 @@ class APDU(object):
         elif isinstance(value, str):
             setattr(self, "_"+name, ord(value))
         else:
-            raise ValueError, "'%s' attribute can only be a byte, that is: int or str, not %s" % (name, type(value))
+            raise ValueError("'%s' attribute can only be a byte, that is: int or str, not %s" % (name, type(value)))
 
     def _format_parts(self, fields):
         "utility function to be used in __str__ and __repr__"
@@ -271,7 +271,7 @@ class C_APDU(APDU):
                     self.Le = (apdu[-2]<<8) + apdu[-1]
                     self.data = apdu[7:-3]
                 else:
-                    raise ValueError, "Invalid Lc value. Is %s, should be %s or %s" % (self.Lc,
+                    raise ValueError("Invalid Lc value. Is %s, should be %s or %s" % (self.Lc,)
                         7 + self.Lc, 7 + self.Lc + 3)
         else:                                           # short apdu
             if len(apdu) == 5:                          # case 2 short apdu
@@ -285,8 +285,8 @@ class C_APDU(APDU):
                     self.data = apdu[5:-1]
                     self.Le = apdu[-1]
                 else:
-                    raise ValueError, "Invalid Lc value. Is %s, should be %s or %s" % (self.Lc,
-                        5 + self.Lc, 5 + self.Lc + 1)
+                    raise ValueError("Invalid Lc value. Is %s, should be %s or %s" % (self.Lc,
+                        5 + self.Lc, 5 + self.Lc + 1))
     
     CLA = _make_byte_property("CLA"); cla = CLA
     INS = _make_byte_property("INS"); ins = INS
@@ -355,7 +355,7 @@ class R_APDU(APDU):
     def _getsw(self):        return chr(self.SW1) + chr(self.SW2)
     def _setsw(self, value):
         if len(value) != 2:
-            raise ValueError, "SW must be exactly two bytes"
+            raise ValueError("SW must be exactly two bytes")
         self.SW1 = value[0]
         self.SW2 = value[1]
     
@@ -385,39 +385,39 @@ if __name__ == "__main__":
     c = C_APDU((1, 2, 3), cla = 0x23, data = "hallo") # case 3
     d = C_APDU(1, 2, 3, 4, 2, 4, 6, 0) # case 4
     
-    print
-    print a
-    print b
-    print c
-    print d
-    print
-    print repr(a)
-    print repr(b)
-    print repr(c)
-    print repr(d)
+    print()
+    print(a)
+    print(b)
+    print(c)
+    print(d)
+    print()
+    print(repr(a))
+    print(repr(b))
+    print(repr(c))
+    print(repr(d))
     
-    print
+    print()
     for i in a, b, c, d:
-        print hexdump(i.render())
+        print(hexdump(i.render()))
     
-    print
+    print()
     e = R_APDU(0x90, 0)
     f = R_APDU("foo\x67\x00")
 
-    print
-    print e
-    print f
-    print
-    print repr(e)
-    print repr(f)
+    print()
+    print(e)
+    print(f)
+    print()
+    print(repr(e))
+    print(repr(f))
 
-    print
+    print()
     for i in e, f:
-        print hexdump(i.render())
+        print(hexdump(i.render()))
 
     g = C_APDU(0x00, 0xb0, 0x9c, 0x00, 0x00, 0x00, 0x00) #case 2 extended length
     
-    print
-    print g
-    print repr(g)
-    print hexdump(g.render()) 
+    print()
+    print(g)
+    print(repr(g))
+    print(hexdump(g.render()))

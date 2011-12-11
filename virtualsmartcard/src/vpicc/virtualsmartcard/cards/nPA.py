@@ -29,7 +29,7 @@ class nPA_AT_CRT(ControlReferenceTemplate):
     def parse_SE_config(self, config):
         try:
             ControlReferenceTemplate.parse_SE_config(self, config)
-        except SwError, e:
+        except SwError as e:
             structure = unpack(config)
             for tlv in structure:
                 tag, length, value = tlv
