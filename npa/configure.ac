@@ -37,9 +37,9 @@ PKG_CHECK_EXISTS([libopensc],
                  [AC_MSG_WARN([libopensc >= 0.12.1 not found by pkg-config])])
 test -z "$OPENSC_LIBS" && OPENSC_LIBS="-lopensc"
 
-PKG_CHECK_EXISTS([libssl],
-                 [PKG_CHECK_MODULES([OPENSSL], [libssl])],
-                 [AC_MSG_WARN([libssl not found by pkg-config])])
+PKG_CHECK_EXISTS([libcrypto],
+                 [PKG_CHECK_MODULES([OPENSSL], [libcrypto])],
+                 [AC_MSG_WARN([libcrypto not found by pkg-config])])
 
 saved_CPPFLAGS="$CPPFLAGS"
 saved_LIBS="$LIBS"
