@@ -334,7 +334,8 @@ class Iso7816OS(SmartcardOS):
                 answer = self.formatResult(Iso7816OS.seekable(c.ins), c.effective_Le, result, sw, False)
         except SwError as e:
             logging.info(e.message)
-            #traceback.print_exception(*sys.exc_info())
+            import traceback
+            traceback.print_exception(*sys.exc_info())
             sw = e.sw
             result = ""
             answer = self.formatResult(False, 0, result, sw, False)
@@ -495,12 +496,16 @@ class RelayOS(SmartcardOS):
 
 
 class NPAOS(Iso7816OS):
+    def __init__(self, mf, sam, ins2handler=None, maxle=MAX_EXTENDED_LE):
+        Iso7816OS.__init__(self, mf, sam, ins2handler, maxle)
+        self.ins2handler[0x86] = self.SAM.general_authenticate
+
     def formatResult(self, seekable, le, data, sw, sm):
         if seekable:
             # when le = 0 then we want to have 0x9000. here we only have the
             # effective le, which is either MAX_EXTENDED_LE or MAX_SHORT_LE,
             # depending on the APDU. Note that the following distinguisher has
-            # one false positives
+            # one false positive
             if le > len(data) and le != MAX_EXTENDED_LE and le != MAX_SHORT_LE:
                 sw = SW["WARN_EOFBEFORENEREAD"]
 
@@ -513,6 +518,7 @@ class NPAOS(Iso7816OS):
 
 # sizeof(int) taken from asizof-package {{{
 _Csizeof_short = len(struct.pack('h', 0))
+# }}}
 
 
 VPCD_CTRL_LEN 	= 1

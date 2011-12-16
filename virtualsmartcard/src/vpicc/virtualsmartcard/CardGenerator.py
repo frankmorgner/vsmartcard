@@ -148,7 +148,8 @@ class CardGenerator(object):
         ALGO_MAPPING["\x04\x00\x7f\x00\x07\x02\x02\x04\x02\x02"] = "PACE"
         self.mf = MF()
         self.mf.append(TransparentStructureEF(parent=self.mf, fid=0x011c, shortfid=0x1c, data=card_access))
-        self.sam = nPA_SAM(self.mf)
+        self.sam = nPA_SAM(pin="pin", can="can", mrz="mrz", puk="puk", mf=self.mf)
+        self.sam.card_access = card_access
 
     def __generate_cryptoflex(self):
         """Generate the Filesystem and SAM of a cryptoflex card"""
