@@ -65,12 +65,6 @@ class nPA_SAM(SAM):
         self.eac_step = 0
         self.eac_ctx = None
         self.sec = None
-        self.step2handler = {
-                0: self.__eac_pace_step1,
-                1: self.__eac_pace_step2,
-                2: self.__eac_pace_step3,
-                3: self.__eac_pace_step4,
-        }
         self.pin = pin
         self.can = can
         self.mrz = mrz
@@ -83,7 +77,16 @@ class nPA_SAM(SAM):
         if (p1, p2) != (0x00, 0x00):
             raise SwError(SW["ERR_INCORRECTPARAMETERS"])
 
-        return self.step2handler.get(self.eac_step, notImplemented)(data)
+        if (self.eac_step == 0):
+            return self.__eac_pace_step1(data)
+        elif (self.eac_step == 1):
+            return self.__eac_pace_step2(data)
+        elif (self.eac_step == 2):
+            return self.__eac_pace_step3(data)
+        elif (self.eac_step == 3):
+            return self.__eac_pace_step4(data)
+
+        raise SwError(SW["ERR_INCORRECTPARAMETERS"])
 
     def __eac_abort(self):
         pace.EAC_CTX_clear_free(self.eac_ctx)
@@ -187,5 +190,7 @@ class nPA_SAM(SAM):
                 raise SwError(SW["ERR_INCORRECTPARAMETERS"])
 
         self.eac_step += 1
+
+        # TODO activate SM
 
         return 0x9000, nPA_SAM.__pack_general_authenticate([[0x86, len(my_token), my_token]])
