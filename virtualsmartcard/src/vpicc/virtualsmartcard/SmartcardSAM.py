@@ -57,7 +57,7 @@ class SAM(object):
     indexed via the path to the corresponding container.
     """
 
-    def __init__(self, PIN, cardNumber, mf=None, cardSecret=None):
+    def __init__(self, PIN, cardNumber, mf=None, cardSecret=None, default_se=Security_Environment):
 
         self.PIN = PIN
         self.mf = mf
@@ -81,7 +81,8 @@ class SAM(object):
 
         #Security Environments may be saved to/retrieved from this dictionary
         self.saved_SEs = {} 
-        self.current_SE = Security_Environment(self.mf, self)
+        self.default_se = default_se
+        self.current_SE = default_se(self.mf, self)
 
     def set_MF(self, mf):
         """
@@ -126,7 +127,7 @@ class SAM(object):
         else:
             SEstr = self.saved_SEs[SEID]
             SE = loads(SEstr)
-            if isinstance(SE, Security_Environment):
+            if isinstance(SE, self.default_se):
                 self.current_SE = SE
             else:
                 raise SwError(SW["ERR_REFNOTUSABLE"])

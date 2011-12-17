@@ -29,9 +29,11 @@ class ePass_SE(Security_Environment):
     """This class implements the Security Environment of the ICAO Passports. It
     is required in order to use the send sequence counter for secure messaging.
     """
-    def __init__(self, SE, ssc=None):
+    def __init__(self, MF, SAM, ssc=None):
+        Security_Environment.__init__(self, MF, SAM)
         self.ssc = ssc
-        Security_Environment.__init__(self, SE)
+        self.cct.algorithm = "CC"
+        self.ct.algorithm = "DES3-CBC"
            
     def compute_cryptographic_checksum(self, p1, p2, data):
         """
@@ -55,6 +57,8 @@ class PassportSAM(SAM):
     def __init__(self, mf):
         import virtualsmartcard.SmartcardFilesystem as vsFS  
 
+        SAM.__init__(self, None, None, mf, default_se = ePass_SE)
+
         ef_dg1 = vsFS.walk(mf, "\x00\x04\x01\x01")
         dg1 = ef_dg1.readbinary(5)
         self.mrz1 = dg1[:43]
@@ -63,11 +67,7 @@ class PassportSAM(SAM):
         self.KEnc = None
         self.KMac = None
         self.__computeKeys()
-        SAM.__init__(self, None, None, mf)
-        self.current_SE = ePass_SE(None, None)
-        self.current_SE.cct.algorithm = "CC"
-        self.current_SE.ct.algorithm = "DES3-CBC"
-        
+
     def __computeKeys(self):
         """
         Computes the keys depending on the machine readable 

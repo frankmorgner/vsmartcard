@@ -29,9 +29,8 @@ from virtualsmartcard.ConstantDefinitions import FDB
 import struct, logging
 
 class CryptoflexSE(Security_Environment):
-    def __init__(self, mf):
-        Security_Environment.__init__(self)
-        self.mf = mf
+    def __init__(self, MF, SAM):
+        Security_Environment.__init__(self, MF, SAM)
 
     def generate_public_key_pair(self, p1, p2, data):
         """
@@ -96,8 +95,8 @@ class CryptoflexSE(Security_Environment):
 
 class CryptoflexSAM(SAM):
     def __init__(self, mf=None):
-        SAM.__init__(self, None, None, mf)
-        self.current_SE = CryptoflexSE(mf)
+        SAM.__init__(self, None, None, mf, default_se=CryptoflexSE)
+        self.current_SE = self.default_se(self.mf, self)
         
     def generate_public_key_pair(self, p1, p2, data):
         asym_key = self.current_SE.generate_public_key_pair(p1, p2, data)
