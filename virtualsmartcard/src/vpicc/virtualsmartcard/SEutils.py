@@ -166,6 +166,7 @@ class Security_Environment(object):
     
     def __init__(self, MF, SAM):
         self.sam = SAM
+        self.mf = MF
         
         self.SEID = None
         self.sm_objects = ""
