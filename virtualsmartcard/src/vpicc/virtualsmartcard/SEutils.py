@@ -226,7 +226,7 @@ class Security_Environment(object):
             #Verification, encryption, external authentication and key agreement
             if se & 0x08:
                 self.external_auth = True
-            return self.__set_SE(p2, data)
+            return self._set_SE(p2, data)
         elif(cmd== 0x02):
             return self.sam.store_SE(p2)
         elif(cmd == 0x03):
@@ -237,15 +237,12 @@ class Security_Environment(object):
             raise SwError(SW["ERR_INCORRECTP1P2"])
         
 
-    def __set_SE(self, p2, data):
+    def _set_SE(self, p2, data):
         """
         Manipulate the current Security Environment. P2 is the tag of a
         control reference template, data contains control reference objects
         """
         
-        valid_p2 = (0xA4, 0xA6, 0xB4, 0xB6, 0xB8)
-        if not p2 in valid_p2:
-            raise SwError(SW["ERR_INCORRECTP1P2"])
         if p2 == 0xA4:
             return self.at.parse_SE_config(data)
         elif p2 == 0xA6:
@@ -258,6 +255,8 @@ class Security_Environment(object):
             return self.dst.parse_SE_config(data)
         elif p2 == 0xB8:
             return self.ct.parse_SE_config(data)
+
+        raise SwError(SW["ERR_INCORRECTP1P2"])
        
     def parse_SM_CAPDU(self, CAPDU, authenticate_header):
         """
