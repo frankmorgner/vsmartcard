@@ -41,13 +41,12 @@ class nPA_AT_CRT(ControlReferenceTemplate):
                     chat = CHAT(bertlv_pack([[tag, length, value]]))
                     print(chat)
                 elif tag == 0x67:
-                    auxiliary_data = value
+                    self.auxiliary_data = value
                 elif tag == 0x80 or tag == 0x84 or tag == 0x83:
                     # handled by ControlReferenceTemplate.parse_SE_config
                     pass
                 elif tag == 0x91:
-                    eph_key = value
-                    # TODO handle security environment
+                    self.eph_pub_key = value
                 else:
                     raise SwError(SW["ERR_REFNOTUSABLE"])
 
@@ -81,7 +80,7 @@ class nPA_SE(Security_Environment):
             if self.eac_step != 4:
                 SwError(SW["ERR_AUTHBLOCKED"])
         elif self.at.algorithm == "CA":
-            if self.eac_step != 7:
+            if self.eac_step != 5:
                 SwError(SW["ERR_AUTHBLOCKED"])
 
         return sw, resp
@@ -90,14 +89,16 @@ class nPA_SE(Security_Environment):
         if (p1, p2) != (0x00, 0x00):
             raise SwError(SW["ERR_INCORRECTPARAMETERS"])
 
-        if (self.eac_step == 0):
+        if   self.eac_step == 0 and self.at.algorithm == "PACE":
             return self.__eac_pace_step1(data)
-        elif (self.eac_step == 1):
+        elif self.eac_step == 1 and self.at.algorithm == "PACE":
             return self.__eac_pace_step2(data)
-        elif (self.eac_step == 2):
+        elif self.eac_step == 2 and self.at.algorithm == "PACE":
             return self.__eac_pace_step3(data)
-        elif (self.eac_step == 3):
+        elif self.eac_step == 3 and self.at.algorithm == "PACE":
             return self.__eac_pace_step4(data)
+        elif self.eac_step == 5 and self.at.algorithm == "CA":
+            return self.__eac_ca(data)
 
         raise SwError(SW["ERR_INCORRECTPARAMETERS"])
 
@@ -126,8 +127,7 @@ class nPA_SE(Security_Environment):
 
     def __eac_pace_step1(self, data):
         tlv_data = nPA_SE.__unpack_general_authenticate(data)
-        if self.at.algorithm != "PACE" or tlv_data != []:
-            print 'value %r' % tlv_data
+        if  tlv_data != []:
             raise SwError(SW["WARN_NOINFO63"])
 
         self.__eac_abort()
@@ -169,8 +169,6 @@ class nPA_SE(Security_Environment):
 
     def __eac_pace_step2(self, data):
         tlv_data = nPA_SE.__unpack_general_authenticate(data)
-        if self.at.algorithm != "PACE":
-            raise SwError(SW["WARN_NOINFO63"])
 
         pubkey = pace.buf2string(pace.PACE_STEP3A_generate_mapping_data(self.eac_ctx))
 
@@ -186,8 +184,6 @@ class nPA_SE(Security_Environment):
 
     def __eac_pace_step3(self, data):
         tlv_data = nPA_SE.__unpack_general_authenticate(data)
-        if self.at.algorithm != "PACE":
-            raise SwError(SW["WARN_NOINFO63"])
 
         my_epp_pubkey = pace.buf2string(pace.PACE_STEP3B_generate_ephemeral_key(self.eac_ctx))
 
@@ -204,9 +200,6 @@ class nPA_SE(Security_Environment):
 
     def __eac_pace_step4(self, data):
         tlv_data = nPA_SE.__unpack_general_authenticate(data)
-        if self.at.algorithm != "PACE":
-            raise SwError(SW["WARN_NOINFO63"])
-
         pace.PACE_STEP3C_derive_keys(self.eac_ctx)
         my_token = pace.buf2string(pace.PACE_STEP3D_compute_authentication_token(self.eac_ctx, self.pace_opp_pub_key))
         token = ""
@@ -237,12 +230,59 @@ class nPA_SE(Security_Environment):
 
         return 0x9000, nPA_SE.__pack_general_authenticate([[0x86, len(my_token), my_token]])
 
+    def __eac_ca(self, data):
+        tlv_data = nPA_SE.__unpack_general_authenticate(data)
+
+        pubkey = ""
+        for tag, length, value in tlv_data:
+            if tag == 0x80:
+                pubkey = value
+            else:
+                raise SwError(SW["ERR_INCORRECTPARAMETERS"])
+
+        pace.CA_STEP4_compute_shared_secret(self.eac_ctx,
+                pace.get_buf(pubkey))
+
+        nonce, token = pace.CA_STEP5_derive_keys(self.eac_ctx,
+                pace.get_buf(pubkey))
+
+        # TODO activate SM
+
+        return 0x9000, nPA_SE.__pack_general_authenticate([[0x81,
+            len(nonce), nonce], [0x82, len(token), token]])
+
     def verify_certificate(se, p1, p2, data):
         if (p1, p2) != (0x00, 0xbe):
             raise SwError(SW["ERR_INCORRECTPARAMETERS"])
 
-        cert = CHAT(bertlv_pack([[0x7f, len(data), data]]))
-        pace.TA_STEP2_import_certificate(self.eac_ctx, pace.get_buf(cert))
+        cert = bertlv_pack([[0x7f, len(data), data]])
+        if 1 != pace.TA_STEP2_import_certificate(self.eac_ctx, pace.get_buf(cert)):
+            raise SwError(SW["ERR_NOINFO69"]) 
+
+    def external_authenticate(self, p1, p2, data):
+        """
+        Authenticate the terminal to the card. Check whether Terminal correctly
+        encrypted the given challenge or not
+        """
+        if self.at.algorithm == "TA":
+            if self.last_challenge is None:
+                raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
+
+            pace.EAC_CTX_init_ta(self.eac_ctx, "", 0, self.dst.keyref,
+                    len(self.dst.keyref), "", 0)
+
+            if 1 != pace.TA_STEP6_verify(self.eac_ctx,
+                    pace.get_buf(self.at.eph_pub_key), id_picc,
+                    pace.get_buf(self.last_challenge),
+                    pace.get_buf(self.auxiliary_data), pace.get_buf(data)):
+                raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
+
+            self.eac_step += 1
+
+            return 0x9000, ""
+
+        raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
+
 
 class nPA_SAM(SAM):
 

@@ -499,6 +499,7 @@ class NPAOS(Iso7816OS):
     def __init__(self, mf, sam, ins2handler=None, maxle=MAX_EXTENDED_LE):
         Iso7816OS.__init__(self, mf, sam, ins2handler, maxle)
         self.ins2handler[0x86] = self.SAM.general_authenticate
+        self.atr = '\x3B\x8A\x80\x01\x80\x31\xF8\x73\xF7\x41\xE0\x82\x90\x00\x75'
 
     def formatResult(self, seekable, le, data, sw, sm):
         if seekable:
@@ -564,7 +565,6 @@ class VirtualICC(object):
             self.os = Iso7816OS(MF, SAM)
         elif card_type == "nPA":
             self.os = NPAOS(MF, SAM)
-            self.os.atr = '\x3B\x8A\x80\x01\x80\x31\xF8\x73\xF7\x41\xE0\x82\x90\x00\x75'
         elif card_type == "cryptoflex":
             self.os = CryptoflexOS(MF, SAM)
         elif card_type == "relay":
