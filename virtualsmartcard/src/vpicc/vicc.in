@@ -26,17 +26,17 @@ parser.add_argument("-f", "--file", action="store", type=str,
         help="Load a saved card")
 parser.add_argument("-n", "--hostname", action="store", type=str,
         default='localhost',
-        help="Address of Virtual PCD [default: %default]")
+        help="Address of Virtual PCD [default: %(default)s]")
 parser.add_argument("-p", "--port", action="store", type=int,
         default=35963,
-        help="Port of Virtual PCD [default: %default]")
+        help="Port of Virtual PCD [default: %(default)s]")
 parser.add_argument("-r", "--reader", action="store", type=int,
         default=None,
         help="Number of reader for relaying")
 parser.add_argument("-t", "--type", action="store",
         default='iso7816',
         choices=['iso7816', 'cryptoflex', 'ePass', 'nPA', 'relay'],
-        help="Type of Smartcard [default: %default]")
+        help="Type of Smartcard [default: %(default)s]")
 args = parser.parse_args()
 
 from virtualsmartcard.VirtualSmartcard import VirtualICC
