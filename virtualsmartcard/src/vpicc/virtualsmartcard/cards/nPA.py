@@ -256,7 +256,7 @@ class nPA_SE(Security_Environment):
             raise SwError(SW["ERR_INCORRECTPARAMETERS"])
 
         cert = bertlv_pack([[0x7f, len(data), data]])
-        if 1 != pace.TA_STEP2_import_certificate(self.eac_ctx, pace.get_buf(cert)):
+        if 1 != pace.TA_STEP2_import_certificate(self.eac_ctx, cert):
             raise SwError(SW["ERR_NOINFO69"]) 
 
     def external_authenticate(self, p1, p2, data):
@@ -273,7 +273,6 @@ class nPA_SE(Security_Environment):
 
             if 1 != pace.TA_STEP6_verify(self.eac_ctx,
                     pace.get_buf(self.at.eph_pub_key), id_picc,
-                    pace.get_buf(self.last_challenge),
                     pace.get_buf(self.auxiliary_data), pace.get_buf(data)):
                 raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
 
