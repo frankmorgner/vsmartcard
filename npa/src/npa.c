@@ -1473,7 +1473,7 @@ static int
 npa_sm_authenticate(sc_card_t *card, const struct sm_ctx *ctx,
         const u8 *data, size_t datalen, u8 **macdata)
 {
-    BUF_MEM *macbuf = NULL;
+    BUF_MEM *inbuf = NULL, *macbuf = NULL;
     u8 *p = NULL, *ssc = NULL;
     int r;
 
@@ -1483,7 +1483,11 @@ npa_sm_authenticate(sc_card_t *card, const struct sm_ctx *ctx,
     }
     struct npa_sm_ctx *eacsmctx = ctx->priv_data;
 
-	macbuf = EAC_authenticate(eacsmctx->ctx, eacsmctx->ssc, data, datalen);
+    inbuf = BUF_MEM_create_init(data, datalen);
+    if (!inbuf)
+        goto err;
+
+	macbuf = EAC_authenticate(eacsmctx->ctx, eacsmctx->ssc, inbuf);
     if (!macbuf) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
                 "Could not compute message authentication code (MAC).");
@@ -1503,6 +1507,8 @@ npa_sm_authenticate(sc_card_t *card, const struct sm_ctx *ctx,
     r = macbuf->length;
 
 err:
+    if (inbuf)
+        BUF_MEM_free(inbuf);
     if (macbuf)
         BUF_MEM_free(macbuf);
     if (ssc)
@@ -1518,7 +1524,7 @@ npa_sm_verify_authentication(sc_card_t *card, const struct sm_ctx *ctx,
 {
     int r;
     char *p;
-    BUF_MEM *my_mac = NULL;
+    BUF_MEM *inbuf = NULL, *my_mac = NULL;
 
     if (!card || !ctx || !ctx->priv_data) {
         r = SC_ERROR_INVALID_ARGUMENTS;
@@ -1526,8 +1532,11 @@ npa_sm_verify_authentication(sc_card_t *card, const struct sm_ctx *ctx,
     }
     struct npa_sm_ctx *eacsmctx = ctx->priv_data;
 
-	my_mac = EAC_authenticate(eacsmctx->ctx, eacsmctx->ssc, macdata,
-			macdatalen);
+    inbuf = BUF_MEM_create_init(macdata, macdatalen);
+    if (!inbuf)
+        goto err;
+
+	my_mac = EAC_authenticate(eacsmctx->ctx, eacsmctx->ssc, inbuf); 
     if (!my_mac) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
                 "Could not compute message authentication code (MAC) for verification.");
@@ -1549,6 +1558,8 @@ npa_sm_verify_authentication(sc_card_t *card, const struct sm_ctx *ctx,
     r = SC_SUCCESS;
 
 err:
+    if (inbuf)
+        BUF_MEM_free(inbuf);
     if (my_mac)
         BUF_MEM_free(my_mac);
 
@@ -1769,8 +1780,7 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
             goto err;
         }
         switch (TA_STEP6_verify(eacsmctx->ctx, eacsmctx->eph_pub_key,
-                    eacsmctx->id_icc, eacsmctx->nonce,
-                    eacsmctx->auxiliary_data, signature)) {
+                    eacsmctx->id_icc, eacsmctx->auxiliary_data, signature)) {
             case 1:
                 sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
                         "Verified Terminal's signature");
