@@ -70,6 +70,7 @@ class nPA_SE(Security_Environment):
         self.eac_step = 0
         self.sec = None
         self.eac_ctx = None
+        self.ssc = 0
 
     def _set_SE(self, p2, data):
         sw, resp = Security_Environment._set_SE(self, p2, data)
@@ -210,6 +211,7 @@ class nPA_SE(Security_Environment):
                 raise SwError(SW["ERR_INCORRECTPARAMETERS"])
 
         if 1 != pace.PACE_STEP3D_verify_authentication_token(self.eac_ctx, pace.get_buf(token)):
+            pace.print_ossl_err()
             raise SwError(SW["WARN_NOINFO63"])
 
         if self.at.keyref == '\x02':
@@ -226,7 +228,9 @@ class nPA_SE(Security_Environment):
 
         self.eac_step += 1
 
-        # TODO activate SM
+        self.ssc = 0
+
+        pace.EAC_CTX_set_encryption_ctx(self.eac_ctx, pace.EAC_ID_PACE)
 
         return 0x9000, nPA_SE.__pack_general_authenticate([[0x86, len(my_token), my_token]])
 
@@ -257,6 +261,7 @@ class nPA_SE(Security_Environment):
 
         cert = bertlv_pack([[0x7f, len(data), data]])
         if 1 != pace.TA_STEP2_import_certificate(self.eac_ctx, cert):
+            pace.print_ossl_err()
             raise SwError(SW["ERR_NOINFO69"]) 
 
     def external_authenticate(self, p1, p2, data):
@@ -274,6 +279,7 @@ class nPA_SE(Security_Environment):
             if 1 != pace.TA_STEP6_verify(self.eac_ctx,
                     pace.get_buf(self.at.eph_pub_key), id_picc,
                     pace.get_buf(self.auxiliary_data), pace.get_buf(data)):
+                pace.print_ossl_err()
                 raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
 
             self.eac_step += 1
@@ -281,6 +287,34 @@ class nPA_SE(Security_Environment):
             return 0x9000, ""
 
         raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
+
+    def compute_cryptographic_checksum(self, p1, p2, data):
+        checksum = pace.EAC_authenticate(self.eac_ctx, self.ssc, data)
+        if not checksum:
+            pace.print_ossl_err()
+            raise SwError(SW["ERR_NOINFO69"]) 
+
+        return 0x9000, checksum
+
+    def encipher(self, p1, p2, data):
+        self.ssc += 1
+
+        cipher = pace.EAC_encrypt(self.eac_ctx, self.ssc, data)
+        if not cipher:
+            pace.print_ossl_err()
+            raise SwError(SW["ERR_NOINFO69"]) 
+
+        return 0x9000, cipher
+
+    def decipher(self, p1, p2, data):
+        self.ssc += 1
+
+        plain = pace.EAC_decrypt(self.eac_ctx, self.ssc, data)
+        if not plain:
+            pace.print_ossl_err()
+            raise SwError(SW["ERR_NOINFO69"]) 
+
+        return 0x9000, plain
 
 
 class nPA_SAM(SAM):
