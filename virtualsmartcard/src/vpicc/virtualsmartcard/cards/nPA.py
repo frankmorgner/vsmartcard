@@ -69,10 +69,12 @@ class nPA_SE(Security_Environment):
         self.at = nPA_AT_CRT() 
         #This breaks support for 3DES
         self.cct.blocklength = 16
+        self.cct.algorithm = "CC"
         self.eac_step = 0
         self.sec = None
         self.eac_ctx = None
         self.ssc = 0
+        self.ca = "DECVCAeID00102"
 
     def _set_SE(self, p2, data):
         sw, resp = Security_Environment._set_SE(self, p2, data)
@@ -92,6 +94,7 @@ class nPA_SE(Security_Environment):
         if (p1, p2) != (0x00, 0x00):
             raise SwError(SW["ERR_INCORRECTPARAMETERS"])
 
+        print "performing PACE step", self.eac_step
         if   self.eac_step == 0 and self.at.algorithm == "PACE":
             return self.__eac_pace_step1(data)
         elif self.eac_step == 1 and self.at.algorithm == "PACE":
@@ -234,7 +237,8 @@ class nPA_SE(Security_Environment):
 
         pace.EAC_CTX_set_encryption_ctx(self.eac_ctx, pace.EAC_ID_PACE)
 
-        return 0x9000, nPA_SE.__pack_general_authenticate([[0x86, len(my_token), my_token]])
+        return 0x9000, nPA_SE.__pack_general_authenticate([[0x86, len(my_token), my_token],
+            [0x87, len(self.ca), self.ca]])
 
     def __eac_ca(self, data):
         tlv_data = nPA_SE.__unpack_general_authenticate(data)
