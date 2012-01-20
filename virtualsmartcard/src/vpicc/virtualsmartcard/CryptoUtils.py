@@ -89,13 +89,12 @@ def get_cipher_blocklen(cipherspec):
     cipher = globals().get(cipherparts[0].upper(), None)
     return cipher.block_size
 
-def append_padding(cipherspec, data, padding_class=0x01):
+def append_padding(blocklen, data, padding_class=0x01):
     """Append padding to the data. 
     Length of padding depends on length of data and the block size of the
     specified encryption algorithm.
     Different types of padding may be selected via the padding_class parameter
     """
-    blocklen = get_cipher_blocklen(cipherspec)
 
     if padding_class == 0x01: #ISO padding
         last_block_length = len(data) % blocklen

@@ -56,6 +56,7 @@ class ControlReferenceTemplate:
         self.DFref = None
         self.keylength = None
         self.algorithm = None
+        self.blocklength = None
         self.usage_qualifier = None
         if config != "":
             self.parse_SE_config(config)
@@ -283,7 +284,7 @@ class Security_Environment(object):
         if authenticate_header:
             to_authenticate = inttostring(CAPDU.cla) + inttostring(CAPDU.ins)+\
                               inttostring(CAPDU.p1) + inttostring(CAPDU.p2)
-            to_authenticate = vsCrypto.append_padding("DES-CBC", to_authenticate)
+            to_authenticate = vsCrypto.append_padding(self.cct.blocklength, to_authenticate)
         else:
             to_authenticate = ""
 
@@ -366,7 +367,7 @@ class Security_Environment(object):
 
             #SM data objects for authentication 
             if tag == SM_Class["CHECKSUM"]:
-                auth = vsCrypto.append_padding("DES-CBC", to_authenticate)
+                auth = vsCrypto.append_padding(self.cct.algorithm, to_authenticate)
                 sw, checksum = self.compute_cryptographic_checksum(0x8E,
                                                                    0x80,
                                                                    auth)
@@ -437,9 +438,9 @@ class Security_Environment(object):
         if sw == SW["NORMAL"]:
             if self.cct.algorithm == None:
                 raise SwError(SW["CONDITIONSNOTSATISFIED"])
-            elif self.cct.algorithm == "CCT":
+            elif self.cct.algorithm == "CC":
                 tag = SM_Class["CHECKSUM"]
-                padded = vsCrypto.append_padding("DES-ECB", return_data)
+                padded = vsCrypto.append_padding(self.cct.blocklength, return_data)
                 sw, auth = self.compute_cryptographic_checksum(0x8E, 0x80, padded)
                 length = len(auth)
                 return_data += pack([(tag, length, auth)])
@@ -638,7 +639,7 @@ class Security_Environment(object):
         if key == None or algo == None:
             return SW["ERR_CONDITIONNOTSATISFIED"], ""
         else:
-            padded = vsCrypto.append_padding(algo, data)
+            padded = vsCrypto.append_padding(vsCrypto.get_cipher_blocklen(algo), data)
             crypted = vsCrypto.encrypt(algo, key, padded, self.ct.iv)
             return SW["NORMAL"], crypted
 

@@ -33,6 +33,7 @@ class ePass_SE(Security_Environment):
         Security_Environment.__init__(self, MF, SAM)
         self.ssc = ssc
         self.cct.algorithm = "CC"
+        self.cct.blocklength = 8
         self.ct.algorithm = "DES3-CBC"
            
     def compute_cryptographic_checksum(self, p1, p2, data):

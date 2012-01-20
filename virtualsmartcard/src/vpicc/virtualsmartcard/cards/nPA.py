@@ -67,6 +67,8 @@ class nPA_SE(Security_Environment):
     def __init__(self, MF, SAM):
         Security_Environment.__init__(self, MF, SAM)
         self.at = nPA_AT_CRT() 
+        #This breaks support for 3DES
+        self.cct.blocklength = 16
         self.eac_step = 0
         self.sec = None
         self.eac_ctx = None
