@@ -361,7 +361,7 @@ class Security_Environment(object):
                 """
                 padding_indicator = stringtoint(value[0])
                 sw, plain = self.decipher(tag, 0x80, value[1:])
-                plain = vsCrypto.strip_padding(self.ct.algorithm, plain,
+                plain = vsCrypto.strip_padding(self.ct.blocklength, plain,
                                                padding_indicator)
                 return_data.append(plain)
 

@@ -106,7 +106,7 @@ def append_padding(blocklen, data, padding_class=0x01):
 
     return data + padding
 
-def strip_padding(cipherspec, data, padding_class=0x01):
+def strip_padding(blocklen, data, padding_class=0x01):
     """
     Strip the padding of decrypted data. Returns data without padding
     """
@@ -214,7 +214,8 @@ def protect_string(string, password, cipherspec=None):
         cipherspec = "AES-CBC"
     else:
         pass #TODO: Sanity check for cipher
-    paddedString = append_padding(cipherspec, string)                
+    blocklength = get_cipher_blocklen(cipherspec)
+    paddedString = append_padding(blocklength, string)                
     cryptedString = cipher(True, cipherspec, key, paddedString)
     hmac = crypto_checksum("HMAC", key, cryptedString)
     protectedString = "$p5k2$$" + salt + "$" + cryptedString + hmac
@@ -253,7 +254,7 @@ def read_protected_string(string, password, cipherspec=None):
         cipherspec = "AES-CBC"
     decrypted = cipher(False, cipherspec, key, crypted)
         
-    return strip_padding(cipherspec, decrypted)  
+    return strip_padding(get_cipher_blocklen(cipherspec), decrypted)
 
 ## *******************************************************************
 ## * Cyberflex specific methods                                      *
@@ -264,7 +265,7 @@ def calculate_MAC(session_key, message, iv=CYBERFLEX_IV):
     """
     
     cipher = DES3.new(session_key, DES3.MODE_CBC, iv)
-    padded = append_padding("DES3", message, 0x01)
+    padded = append_padding(8, message, 0x01)
     block_count = len(padded) / cipher.block_size
     crypted = cipher.encrypt(padded)
    
@@ -606,14 +607,14 @@ def test_pbkdf2():
     
 if __name__ == "__main__":
     too_short = binascii.a2b_hex("".join("89 45 19 BF".split()))
-    padded = append_padding("DES3-ECB", too_short)
+    padded = append_padding(8, too_short)
     print "Padded data: " + hexdump(padded)
-    unpadded = strip_padding("DES3-ECB", padded)
+    unpadded = strip_padding(8, padded)
     print "Without padding: " + hexdump(unpadded)
     
     teststring = "DEADBEEFistatsyksdvhwohfwoehcowc8hw8rogfq8whv75tsgohsav8wress"
-    foo = append_padding("AES", teststring)
-    assert(strip_padding("AES", foo) == teststring)
+    foo = append_padding(16, teststring)
+    assert(strip_padding(16, foo) == teststring)
 
     testpass = "SomeRandomPassphrase"
     protectedString = protect_string(teststring, testpass)

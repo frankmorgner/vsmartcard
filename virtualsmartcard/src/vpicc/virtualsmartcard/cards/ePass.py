@@ -104,7 +104,7 @@ class PassportSAM(SAM):
         #Receive Mutual Authenticate APDU from terminal
         #Decrypt data and check MAC
         Eifd = resp_data[:-8]
-        padded_Eifd = vsCrypto.append_padding("DES", Eifd)
+        padded_Eifd = vsCrypto.append_padding(self.current_se.cct.blocklength, Eifd)
         Mifd = vsCrypto.crypto_checksum("CC", self.KMac, padded_Eifd)
         #Check the MAC
         if not Mifd == resp_data[-8:]:
@@ -120,7 +120,7 @@ class PassportSAM(SAM):
         #Generate Answer
         data = plain[8:16] + plain[:8] + Kicc
         Eicc = vsCrypto.encrypt("DES3-CBC", self.KEnc, data)
-        padded_Eicc = vsCrypto.append_padding("DES", Eicc)
+        padded_Eicc = vsCrypto.append_padding(self.current_se.cct.blocklength, Eicc)
         Micc = vsCrypto.crypto_checksum("CC", self.KMac, padded_Eicc)
         #Derive the final keys and set the current SE
         KSseed = vsCrypto.operation_on_string(Kicc, Kifd, lambda a, b: a^b)
