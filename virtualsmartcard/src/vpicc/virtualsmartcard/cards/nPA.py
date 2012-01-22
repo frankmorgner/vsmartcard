@@ -19,15 +19,43 @@
 from virtualsmartcard.SmartcardSAM import SAM
 from virtualsmartcard.SEutils import ControlReferenceTemplate, Security_Environment
 from virtualsmartcard.SWutils import SwError, SW
-from virtualsmartcard.ConstantDefinitions import CRT_TEMPLATE
+from virtualsmartcard.ConstantDefinitions import CRT_TEMPLATE, SM_Class
 from virtualsmartcard.TLVutils import unpack, bertlv_pack
 from virtualsmartcard.SmartcardFilesystem import make_property
+from virtualsmartcard.utils import inttostring
+import virtualsmartcard.CryptoUtils as vsCrypto
 from chat import CHAT
 import pace
 
 class nPA_AT_CRT(ControlReferenceTemplate):
+
+    PACE_MRZ = 0x01
+    PACE_CAN = 0x02
+    PACE_PIN = 0x03
+    PACE_PUK = 0x04
+
     def __init__(self):
         ControlReferenceTemplate.__init__(self, CRT_TEMPLATE["AT"])
+
+    def keyref_is_mrz(self):
+        if self.keyref == '%c'% self.PACE_MRZ:
+            return True
+        return False
+
+    def keyref_is_can(self):
+        if self.keyref == '%c'% self.PACE_CAN:
+            return True
+        return False
+
+    def keyref_is_pin(self):
+        if self.keyref == '%c'% self.PACE_PIN:
+            return True
+        return False
+
+    def keyref_is_puk(self):
+        if self.keyref == '%c'% self.PACE_PUK:
+            return True
+        return False
 
     def parse_SE_config(self, config):
         r = 0x9000
@@ -51,18 +79,23 @@ class nPA_AT_CRT(ControlReferenceTemplate):
                     raise SwError(SW["ERR_REFNOTUSABLE"])
 
         structure = unpack(config)
+
+        pin_ref_str = '%c'% self.PACE_PIN
         for tlv in structure:
-            if [0x83, len('\x03'), '\x03'] == tlv:
+            if [0x83, len(pin_ref_str), pin_ref_str] == tlv:
                 if self.sam.counter <= 0:
                     r = 0x63c0
                 elif self.sam.counter == 1:
                     r = 0x63c1
                 elif self.sam.counter == 2:
                     r = 0x63c2
+
         return r, ""
 
 class nPA_SE(Security_Environment):
     # TODO call __eac_abort whenever an error occurred
+
+    eac_step = make_property("eac_step", "next step to performed for EAC")
 
     def __init__(self, MF, SAM):
         Security_Environment.__init__(self, MF, SAM)
@@ -94,7 +127,7 @@ class nPA_SE(Security_Environment):
         if (p1, p2) != (0x00, 0x00):
             raise SwError(SW["ERR_INCORRECTPARAMETERS"])
 
-        print "performing PACE step", self.eac_step
+        print "performing PACE step", self.eac_step + 1
         if   self.eac_step == 0 and self.at.algorithm == "PACE":
             return self.__eac_pace_step1(data)
         elif self.eac_step == 1 and self.at.algorithm == "PACE":
@@ -139,11 +172,11 @@ class nPA_SE(Security_Environment):
         self.__eac_abort()
 
         self.eac_ctx = pace.EAC_CTX_new()
-        if self.at.keyref == '\x01':
+        if self.at.keyref_is_mrz():
             self.sec = pace.PACE_SEC_new(self.sam.mrz, pace.PACE_MRZ)
-        elif self.at.keyref == '\x02':
+        elif self.at.keyref_is_can():
             self.sec = pace.PACE_SEC_new(self.sam.can, pace.PACE_CAN)
-        elif self.at.keyref == '\x03':
+        elif self.at.keyref_is_pin():
             if self.sam.counter <= 0:
                 print "Must use PUK to unblock"
                 raise SwError(SW["WARN_NOINFO63"])
@@ -154,7 +187,7 @@ class nPA_SE(Security_Environment):
             self.sam.counter -= 1
             if self.sam.counter <= 1:
                 self.sam.active = False
-        elif self.at.keyref == '\x04':
+        elif self.at.keyref_is_puk():
             if self.sam.counter_puk <= 0:
                 raise SwError(SW["WARN_NOINFO63"])
             self.sec = pace.PACE_SEC_new(self.sam.puk, pace.PACE_PUK)
@@ -219,17 +252,17 @@ class nPA_SE(Security_Environment):
             pace.print_ossl_err()
             raise SwError(SW["WARN_NOINFO63"])
 
-        if self.at.keyref == '\x02':
+        if self.at.keyref_is_can():
             if (self.sam.counter == 1):
                 self.sam.active = True
                 print "PIN resumed"
-        elif self.at.keyref == '\x04':
+        elif self.at.keyref_is_pin():
+            self.sam.active = True
+            self.sam.counter = 3
+        elif self.at.keyref_is_puk():
             self.sam.active = True
             self.sam.counter = 3
             print "PIN unblocked"
-        elif self.at.keyref == '\x03':
-            self.sam.active = True
-            self.sam.counter = 3
 
         self.eac_step += 1
 
@@ -303,8 +336,6 @@ class nPA_SE(Security_Environment):
         return 0x9000, checksum
 
     def encipher(self, p1, p2, data):
-        self.ssc += 1
-
         cipher = pace.EAC_encrypt(self.eac_ctx, self.ssc, data)
         if not cipher:
             pace.print_ossl_err()
@@ -313,8 +344,6 @@ class nPA_SE(Security_Environment):
         return 0x9000, cipher
 
     def decipher(self, p1, p2, data):
-        self.ssc += 1
-
         plain = pace.EAC_decrypt(self.eac_ctx, self.ssc, data)
         if not plain:
             pace.print_ossl_err()
@@ -322,10 +351,50 @@ class nPA_SE(Security_Environment):
 
         return 0x9000, plain
 
+    def protect_response(self, sw, result):
+        """
+        This method protects a response APDU using secure messaging mechanisms
+        
+        :returns: the protected data and the SW bytes
+        """
+
+        return_data = ""
+
+        if result != "":
+            # Encrypt the data included in the RAPDU
+            sw, encrypted = self.encipher(0x82, 0x80, result)
+            encrypted = "\x01" + encrypted
+            encrypted_tlv = bertlv_pack([(
+                                SM_Class["CRYPTOGRAM_PADDING_INDICATOR_ODD"],
+                                len(encrypted),
+                                encrypted)])
+            return_data += encrypted_tlv 
+
+        sw_str = inttostring(sw)
+        length = len(sw_str) 
+        tag = SM_Class["PLAIN_PROCESSING_STATUS"]
+        tlv_sw = bertlv_pack([(tag, length, sw_str)])
+        return_data += tlv_sw
+        
+        if self.cct.algorithm == None:
+            raise SwError(SW["CONDITIONSNOTSATISFIED"])
+        elif self.cct.algorithm == "CC":
+            tag = SM_Class["CHECKSUM"]
+            padded = vsCrypto.append_padding(self.cct.blocklength, return_data)
+            sw, auth = self.compute_cryptographic_checksum(0x8E, 0x80, padded)
+            length = len(auth)
+            return_data += bertlv_pack([(tag, length, auth)])
+        elif self.cct.algorithm == "SIGNATURE":
+            tag = SM_Class["DIGITAL_SIGNATURE"]
+            hash = self.hash(0x90, 0x80, return_data)
+            sw, auth = self.compute_digital_signature(0x9E, 0x9A, hash)
+            length = len(auth)
+            return_data += bertlv_pack([(tag, length, auth)])
+        
+        return sw, return_data
+
 
 class nPA_SAM(SAM):
-
-    eac_step = make_property("eac_step", "next step to performed for EAC")
 
     def __init__(self, pin, can, mrz, puk, mf, default_se = nPA_SE):
         SAM.__init__(self, pin, None, mf)
@@ -338,3 +407,56 @@ class nPA_SAM(SAM):
 
     def general_authenticate(self, p1, p2, data):
         return self.current_SE.general_authenticate(p1, p2, data)
+
+    def reset_retry_counter(self, p1, p2, data):
+        # check if PACE was successful
+        if self.current_SE.eac_step < 4:
+            raise SwError(SW["ERR_SECSTATUS"]) 
+
+        # TODO check CAN and PIN for the correct character set
+        if p1 == 0x02:
+            # change secret
+            if p2 == self.current_SE.at.PACE_CAN:
+                self.can = data
+                print "Changed CAN to %r" % self.can
+            elif p2 == self.current_SE.at.PACE_PIN:
+                # TODO allow terminals to change the PIN with permission "CAN allowed"
+                if not self.current_SE.at.keyref_is_pin():
+                    raise SwError(SW["ERR_CONDITIONNOTSATISFIED"]) 
+                self.PIN = data
+                print "Changed PIN to %r" % self.PIN
+            else:
+                raise SwError(SW["ERR_DATANOTFOUND"])
+        elif p1 == 0x03:
+            # resume/unblock secret
+            if p2 == self.current_SE.at.PACE_CAN:
+                # CAN has no counter
+                pass
+            elif p2 == self.current_SE.at.PACE_PIN:
+                if self.current_SE.at.keyref_is_can():
+                    self.active = True
+                    print "Resumed PIN"
+                elif self.current_SE.at.keyref_is_pin():
+                    # PACE was successful with PIN, nothing to do resume/unblock
+                    pass
+                elif self.current_SE.at.keyref_is_puk():
+                    # TODO unblock PIN for signature
+                    print "Unblocked PIN"
+                    self.active = True
+                    self.counter = 3
+                else:
+                    raise SwError(SW["ERR_CONDITIONNOTSATISFIED"]) 
+            else:
+                raise SwError(SW["ERR_DATANOTFOUND"])
+        else:
+            raise SwError(SW["ERR_INCORRECTP1P2"])
+
+        return 0x9000, ""
+
+    def parse_SM_CAPDU(self, CAPDU, header_authentication):
+        self.current_SE.ssc += 1
+        return SAM.parse_SM_CAPDU(self, CAPDU, header_authentication)
+
+    def protect_result(self, sw, unprotected_result):
+        self.current_SE.ssc += 1
+        return SAM.protect_result(self, sw, unprotected_result)

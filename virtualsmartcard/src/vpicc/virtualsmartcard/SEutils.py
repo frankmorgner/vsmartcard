@@ -367,7 +367,7 @@ class Security_Environment(object):
 
             #SM data objects for authentication 
             if tag == SM_Class["CHECKSUM"]:
-                auth = vsCrypto.append_padding(self.cct.algorithm, to_authenticate)
+                auth = vsCrypto.append_padding(self.cct.blocklength, to_authenticate)
                 sw, checksum = self.compute_cryptographic_checksum(0x8E,
                                                                    0x80,
                                                                    auth)
