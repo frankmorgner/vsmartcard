@@ -22,7 +22,7 @@ from virtualsmartcard.SWutils import SwError, SW
 from virtualsmartcard.ConstantDefinitions import CRT_TEMPLATE, SM_Class
 from virtualsmartcard.TLVutils import unpack, bertlv_pack
 from virtualsmartcard.SmartcardFilesystem import make_property
-from virtualsmartcard.utils import inttostring
+from virtualsmartcard.utils import inttostring, hexdump
 import virtualsmartcard.CryptoUtils as vsCrypto
 from chat import CHAT
 import pace
@@ -74,6 +74,7 @@ class nPA_AT_CRT(ControlReferenceTemplate):
                     # handled by ControlReferenceTemplate.parse_SE_config
                     pass
                 elif tag == 0x91:
+                    #print "saving eph_pub_key"
                     self.eph_pub_key = value
                 else:
                     raise SwError(SW["ERR_REFNOTUSABLE"])
@@ -198,6 +199,7 @@ class nPA_SE(Security_Environment):
         ef_card_access = self.mf.select('fid', 0x011c)
         ef_card_access_data = ef_card_access.getenc('data')
         pace.EAC_CTX_init_ef_cardaccess(ef_card_access_data, self.eac_ctx)
+        pace.EAC_CTX_init_ca(self.eac_ctx, pace.id_CA_DH_AES_CBC_CMAC_128, 13, None, None)
 
         nonce = pace.buf2string(pace.PACE_STEP1_enc_nonce(self.eac_ctx, self.sec))
         resp = nPA_SE.__pack_general_authenticate([[0x80, len(nonce), nonce]])
@@ -224,7 +226,11 @@ class nPA_SE(Security_Environment):
     def __eac_pace_step3(self, data):
         tlv_data = nPA_SE.__unpack_general_authenticate(data)
 
-        my_epp_pubkey = pace.buf2string(pace.PACE_STEP3B_generate_ephemeral_key(self.eac_ctx))
+        self.my_pace_eph_pubkey = pace.PACE_STEP3B_generate_ephemeral_key(self.eac_ctx)
+        if not self.my_pace_eph_pubkey:
+            pace.print_ossl_err()
+            raise SwError(SW["WARN_NOINFO63"])
+        eph_pubkey = pace.buf2string(self.my_pace_eph_pubkey)
 
         for tag, length, value in tlv_data:
             if tag == 0x83:
@@ -235,7 +241,7 @@ class nPA_SE(Security_Environment):
 
         self.eac_step += 1
 
-        return 0x9000, nPA_SE.__pack_general_authenticate([[0x84, len(my_epp_pubkey), my_epp_pubkey]])
+        return 0x9000, nPA_SE.__pack_general_authenticate([[0x84, len(eph_pubkey), eph_pubkey]])
 
     def __eac_pace_step4(self, data):
         tlv_data = nPA_SE.__unpack_general_authenticate(data)
@@ -265,10 +271,12 @@ class nPA_SE(Security_Environment):
             print "PIN unblocked"
 
         self.eac_step += 1
+        self.at.algorithm = "TA"
 
         self.ssc = 0
 
         pace.EAC_CTX_set_encryption_ctx(self.eac_ctx, pace.EAC_ID_PACE)
+        pace.EAC_CTX_init_ta(self.eac_ctx, None, None, self.ca)
 
         return 0x9000, nPA_SE.__pack_general_authenticate([[0x86, len(my_token), my_token],
             [0x87, len(self.ca), self.ca]])
@@ -298,26 +306,46 @@ class nPA_SE(Security_Environment):
         if (p1, p2) != (0x00, 0xbe):
             raise SwError(SW["ERR_INCORRECTPARAMETERS"])
 
-        cert = bertlv_pack([[0x7f, len(data), data]])
+        cert = bertlv_pack([[0x7f21, len(data), data]])
         if 1 != pace.TA_STEP2_import_certificate(self.eac_ctx, cert):
             pace.print_ossl_err()
             raise SwError(SW["ERR_NOINFO69"]) 
+
+        return 0x9000, ""
 
     def external_authenticate(self, p1, p2, data):
         """
         Authenticate the terminal to the card. Check whether Terminal correctly
         encrypted the given challenge or not
         """
-        if self.at.algorithm == "TA":
-            if self.last_challenge is None:
+        if self.dst.keyref: # TODO check if this is the correct CAR
+            if self.sam.last_challenge is None:
                 raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
 
-            pace.EAC_CTX_init_ta(self.eac_ctx, "", 0, self.dst.keyref,
-                    len(self.dst.keyref), "", 0)
+            id_picc = pace.EAC_Comp(self.eac_ctx, pace.EAC_ID_PACE, self.my_pace_eph_pubkey)
+
+            # FIXME auxiliary_data might be from an older run of PACE
+            if hasattr(self, "auxiliary_data"):
+                auxiliary_data = pace.get_buf(self.auxiliary_data)
+            else:
+                auxiliary_data = None
+
+            #print "at.eph_pub_key"
+            #print hexdump(self.at.eph_pub_key)
+            #print "my_pace_eph_pubkey"
+            #print hexdump(pace.buf2string(self.my_pace_eph_pubkey))
+            #print "data"
+            #print hexdump(data)
+            #if self.auxiliary_data:
+                #print "auxiliary_data"
+                #print hexdump(self.auxiliary_data)
+            #else:
+                #print "auxiliary_data"
+                #print "None"
 
             if 1 != pace.TA_STEP6_verify(self.eac_ctx,
                     pace.get_buf(self.at.eph_pub_key), id_picc,
-                    pace.get_buf(self.auxiliary_data), pace.get_buf(data)):
+                    auxiliary_data, pace.get_buf(data)):
                 pace.print_ossl_err()
                 raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
 
@@ -336,7 +364,8 @@ class nPA_SE(Security_Environment):
         return 0x9000, checksum
 
     def encipher(self, p1, p2, data):
-        cipher = pace.EAC_encrypt(self.eac_ctx, self.ssc, data)
+        padded = vsCrypto.append_padding(self.cct.blocklength, data)
+        cipher = pace.EAC_encrypt(self.eac_ctx, self.ssc, padded)
         if not cipher:
             pace.print_ossl_err()
             raise SwError(SW["ERR_NOINFO69"]) 
@@ -452,6 +481,24 @@ class nPA_SAM(SAM):
             raise SwError(SW["ERR_INCORRECTP1P2"])
 
         return 0x9000, ""
+
+    def external_authenticate(self, p1, p2, data):
+        return self.current_SE.external_authenticate(p1, p2, data)
+
+    def get_challenge(self, p1, p2, data):
+        if self.current_SE.eac_step == 4:
+            # TA
+            if (p1 != 0x00 or p2 != 0x00):
+                raise SwError(SW["ERR_INCORRECTP1P2"])
+        
+            self.last_challenge = pace.buf2string(pace.TA_STEP4_get_nonce(self.current_SE.eac_ctx))
+            if not self.last_challenge:
+                pace.print_ossl_err()
+                raise SwError(SW["ERR_NOINFO69"])
+        else:
+            SAM.get_challenge(self, p1, p2, data)
+
+        return SW["NORMAL"], self.last_challenge
 
     def parse_SM_CAPDU(self, CAPDU, header_authentication):
         self.current_SE.ssc += 1
