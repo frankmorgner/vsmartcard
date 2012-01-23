@@ -120,7 +120,7 @@ class PassportSAM(SAM):
         #Generate Answer
         data = plain[8:16] + plain[:8] + Kicc
         Eicc = vsCrypto.encrypt("DES3-CBC", self.KEnc, data)
-        padded_Eicc = vsCrypto.append_padding(self.current_se.cct.blocklength, Eicc)
+        padded_Eicc = vsCrypto.append_padding(self.current_SE.cct.blocklength, Eicc)
         Micc = vsCrypto.crypto_checksum("CC", self.KMac, padded_Eicc)
         #Derive the final keys and set the current SE
         KSseed = vsCrypto.operation_on_string(Kicc, Kifd, lambda a, b: a^b)
