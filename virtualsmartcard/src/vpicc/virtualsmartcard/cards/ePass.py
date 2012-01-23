@@ -104,7 +104,7 @@ class PassportSAM(SAM):
         #Receive Mutual Authenticate APDU from terminal
         #Decrypt data and check MAC
         Eifd = resp_data[:-8]
-        padded_Eifd = vsCrypto.append_padding(self.current_se.cct.blocklength, Eifd)
+        padded_Eifd = vsCrypto.append_padding(self.current_SE.cct.blocklength, Eifd)
         Mifd = vsCrypto.crypto_checksum("CC", self.KMac, padded_Eifd)
         #Check the MAC
         if not Mifd == resp_data[-8:]:
