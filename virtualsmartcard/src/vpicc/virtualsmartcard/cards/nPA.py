@@ -294,7 +294,7 @@ class nPA_SE(Security_Environment):
         return 0x9000, nPA_SE.__pack_general_authenticate([[0x81,
             len(nonce), nonce], [0x82, len(token), token]])
 
-    def verify_certificate(se, p1, p2, data):
+    def verify_certificate(self, p1, p2, data):
         if (p1, p2) != (0x00, 0xbe):
             raise SwError(SW["ERR_INCORRECTPARAMETERS"])
 
