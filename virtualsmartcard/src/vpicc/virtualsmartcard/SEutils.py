@@ -290,7 +290,7 @@ class Security_Environment(object):
             tag, length, value = tlv
             
             if tag % 2 == 1: #Include object in checksum calculation
-                to_authenticate += inttostring(tag) + inttostring(length) + value
+                to_authenticate += bertlv_pack([[tag, length, value]])
             
             #SM data objects for encapsulating plain values
             if tag in (SM_Class["PLAIN_VALUE_NO_TLV"],
@@ -392,8 +392,9 @@ class Security_Environment(object):
             p2 = CAPDU.p2
         if le == None:
             le = CAPDU.le
-        if expected != "":
-            raise SwError(SW["ERR_SECMESSOBJECTSMISSING"])
+        # FIXME
+        #if expected != "":
+            #raise SwError(SW["ERR_SECMESSOBJECTSMISSING"])
         
         c = C_APDU(cla=cla, ins=ins, p1=p1, p2=p2, le=le, data="".join(return_data))
         return c
