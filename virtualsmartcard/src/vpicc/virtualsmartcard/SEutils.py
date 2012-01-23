@@ -170,7 +170,6 @@ class Security_Environment(object):
         self.mf = MF
         
         self.SEID = None
-        self.sm_objects = ""
 
         #Control Reference Tables
         self.at = ControlReferenceTemplate(CRT_TEMPLATE["AT"])
@@ -273,7 +272,6 @@ class Security_Environment(object):
             
         structure = unpack(CAPDU.data)
         return_data = ["",]
-        expected = self.sm_objects
         
         cla = None
         ins = None
@@ -383,14 +381,6 @@ class Security_Environment(object):
                 if hash != value:
                     raise SwError(SW["ERR_SECMESSOBJECTSINCORRECT"])
                 
-            #Check if we just parsed a expected SM Object:
-            pos = 0
-            while (pos < len (expected)):
-                if expected[pos] == tag:
-                    expected = expected[:pos-1] + expected[pos:]
-                    break
-                pos += 1
-                
         #Form unprotected CAPDU
         if cla == None:
             cla = CAPDU.cla
@@ -414,9 +404,6 @@ class Security_Environment(object):
         
         :returns: the protected data and the SW bytes
         """
-        expected = self.sm_objects
-        for pos in range(len(expected)):
-            tag = expected[pos]
 
         return_data = ""
         #if sw == SW["NORMAL"]:
