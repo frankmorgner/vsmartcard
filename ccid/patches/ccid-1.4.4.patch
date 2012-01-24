@@ -353,7 +353,7 @@ Index: ccid-1.4.4/src/commands.c
 +	unsigned char RxBuffer[], unsigned int *RxLength,
 +        unsigned char bPINOperation)
 +{
-+    unsigned char cmd[1024];
++    unsigned char cmd[CMD_BUF_SIZE];
 +    unsigned int length;
 +    _ccid_descriptor *ccid_descriptor = get_ccid_descriptor(reader_index);
 +    status_t res;
