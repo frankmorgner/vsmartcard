@@ -582,5 +582,8 @@ err:
     sc_disconnect_card(card);
     sc_release_context(ctx);
 
+    if (r < 0)
+        fprintf(stderr, "Error: %s\n", sc_strerror(r));
+
     return -r;
 }
