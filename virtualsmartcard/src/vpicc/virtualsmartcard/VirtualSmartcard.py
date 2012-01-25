@@ -274,6 +274,8 @@ class Iso7816OS(SmartcardOS):
         except ValueError as e:
             logging.warning(str(e))
             return self.formatResult(False, 0, "", SW["ERR_INCORRECTPARAMETERS"], False)
+
+        logging.info("Parsed APDU:\n%s", str(c))
         
         #Handle Class Byte
         #{{{
@@ -325,6 +327,7 @@ class Iso7816OS(SmartcardOS):
         try:             
             if SM_STATUS == "Standard SM":
                 c = self.SAM.parse_SM_CAPDU(c, header_authentication)
+                logging.info("Decrypted APDU:\n%s", str(c))
             elif SM_STATUS == "Proprietary SM":
                 raise SwError("ERR_SECMESSNOTSUPPORTED")
             sw, result = self.ins2handler.get(c.ins, notImplemented)(c.p1, c.p2, c.data)
@@ -661,11 +664,9 @@ class VirtualICC(object):
                     logging.warning("Expected %u bytes, but received only %u",
                                     size, len(msg))
 
-                logging.info("APDU (%d Bytes):\n%s", len(msg),
-                             hexdump(msg, short=True))
                 answer = self.os.execute(msg)
-                logging.info("RESP (%d Bytes):\n%s\n", len(answer),
-                             hexdump(answer, short=True))
+                logging.info("Response APDU (%d Bytes):\n%s\n", len(answer),
+                             hexdump(answer))
                 self.__sendToVPICC(answer)
 
     def stop(self):

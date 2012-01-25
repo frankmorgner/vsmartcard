@@ -128,7 +128,6 @@ class nPA_SE(Security_Environment):
         if (p1, p2) != (0x00, 0x00):
             raise SwError(SW["ERR_INCORRECTPARAMETERS"])
 
-        print "performing PACE step", self.eac_step + 1
         if   self.eac_step == 0 and self.at.algorithm == "PACE":
             return self.__eac_pace_step1(data)
         elif self.eac_step == 1 and self.at.algorithm == "PACE":
@@ -258,6 +257,8 @@ class nPA_SE(Security_Environment):
             pace.print_ossl_err()
             raise SwError(SW["WARN_NOINFO63"])
 
+        print "Established PACE channel"
+
         if self.at.keyref_is_can():
             if (self.sam.counter == 1):
                 self.sam.active = True
@@ -330,24 +331,13 @@ class nPA_SE(Security_Environment):
             else:
                 auxiliary_data = None
 
-            #print "at.eph_pub_key"
-            #print hexdump(self.at.eph_pub_key)
-            #print "my_pace_eph_pubkey"
-            #print hexdump(pace.buf2string(self.my_pace_eph_pubkey))
-            #print "data"
-            #print hexdump(data)
-            #if self.auxiliary_data:
-                #print "auxiliary_data"
-                #print hexdump(self.auxiliary_data)
-            #else:
-                #print "auxiliary_data"
-                #print "None"
-
             if 1 != pace.TA_STEP6_verify(self.eac_ctx,
                     pace.get_buf(self.at.eph_pub_key), id_picc,
                     auxiliary_data, pace.get_buf(data)):
                 pace.print_ossl_err()
                 raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
+
+            print "Terminal's signature verified"
 
             self.eac_step += 1
 
