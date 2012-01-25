@@ -36,6 +36,7 @@
 #include <npa/scutil.h>
 
 static struct sm_ctx sctx;
+#undef BUERGERCLIENT_WORKAROUND
 #ifdef BUERGERCLIENT_WORKAROUND
 static char *ef_cardaccess = NULL;
 static size_t ef_cardaccess_length = 0;
@@ -133,6 +134,18 @@ detect_card_presence(void)
 }
 
 
+void sm_stop() {
+#ifdef WITH_PACE
+    sm_ctx_clear_free(&sctx);
+    memset(&sctx, 0, sizeof(sctx));
+#ifdef BUERGERCLIENT_WORKAROUND
+    free(ef_cardaccess);
+    ef_cardaccess = NULL;
+    ef_cardaccess_length = 0;
+#endif
+#endif
+}
+
 int ccid_initialize(int reader_id, const char *cdriver, int verbose)
 {
     int i;
@@ -143,11 +156,7 @@ int ccid_initialize(int reader_id, const char *cdriver, int verbose)
 
 #ifdef WITH_PACE
     memset(&sctx, 0, sizeof(sctx));
-#ifdef BUERGERCLIENT_WORKAROUND
-    free(ef_cardaccess);
-    ef_cardaccess = NULL;
-    ef_cardaccess_length = 0;
-#endif
+    sm_stop();
 #endif
 
     return SC_SUCCESS;
@@ -162,15 +171,7 @@ void ccid_shutdown()
     if (ctx)
         sc_release_context(ctx);
 
-#ifdef WITH_PACE
-    sm_ctx_clear_free(&sctx);
-    memset(&sctx, 0, sizeof(sctx));
-#ifdef BUERGERCLIENT_WORKAROUND
-    free(ef_cardaccess);
-    ef_cardaccess = NULL;
-    ef_cardaccess_length = 0;
-#endif
-#endif
+    sm_stop();
 }
 
 static int get_rapdu(sc_apdu_t *apdu, __u8 **buf, size_t *resplen)
@@ -409,6 +410,7 @@ perform_PC_to_RDR_IccPowerOn(const __u8 *in, size_t inlen, __u8 **out, size_t *o
         sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "Card is already powered on.");
         sc_result = SC_SUCCESS;
     } else {
+        sm_stop();
         sc_result = sc_connect_card(reader, &card);
 #ifdef BUERGERCLIENT_WORKAROUND
         if (sc_result >= 0) {
@@ -871,7 +873,6 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
 
     memset(&pace_input, 0, sizeof pace_input);
     memset(&pace_output, 0, sizeof pace_output);
-    pace_input.tr_version = EAC_TR_VERSION_2_02;
 
 
     if (!abDataOut || !abDataOutLen) {
@@ -959,7 +960,7 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
 #endif
 
     sc_result = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
-            &sctx);
+            &sctx, EAC_TR_VERSION_2_02);
     if (sc_result < 0)
         goto err;
 
@@ -1098,34 +1099,21 @@ perform_PC_to_RDR_Secure_GetReadersPACECapabilities(__u8 **abDataOut,
         size_t *abDataOutLen)
 {
     int sc_result;
-    __u8 *result;
+    u8 *BitMap;
 
     if (!abDataOut || !abDataOutLen)
         return SC_ERROR_INVALID_ARGUMENTS;
 
-#ifdef BUERGERCLIENT_WORKAROUND
-    result = realloc(*abDataOut, 1);
-#else
-    result = realloc(*abDataOut, 2);
-#endif
-    if (!result)
+    BitMap = realloc(*abDataOut, sizeof *BitMap);
+    if (!BitMap)
         return SC_ERROR_OUT_OF_MEMORY;
-    *abDataOut = result;
+    *abDataOut = BitMap;
 
-#ifndef BUERGERCLIENT_WORKAROUND
-    *result = 1;
-    result++;
-
-#endif
-    sc_result = GetReadersPACECapabilities(result);
+    sc_result = GetReadersPACECapabilities(BitMap);
     if (sc_result < 0)
         return sc_result;
 
-#ifdef BUERGERCLIENT_WORKAROUND
-    *abDataOutLen = 1;
-#else
-    *abDataOutLee = 2;
-#endif
+    *abDataOutLen = sizeof *BitMap;
 
     return SC_SUCCESS;
 }

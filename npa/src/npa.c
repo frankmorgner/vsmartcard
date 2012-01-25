@@ -973,7 +973,7 @@ get_psec(sc_card_t *card, const char *pin, size_t length_pin, enum s_type pin_id
 int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
         struct establish_pace_channel_input pace_input,
         struct establish_pace_channel_output *pace_output,
-        struct sm_ctx *sctx)
+        struct sm_ctx *sctx, enum eac_tr_version tr_version)
 {
     u8 *p = NULL;
 	EAC_CTX *eac_ctx = NULL;
@@ -1075,222 +1075,226 @@ int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
         }
     }
 
-    if (!pace_output->ef_cardaccess_length || !pace_output->ef_cardaccess) {
-        r = get_ef_card_access(card, &pace_output->ef_cardaccess,
-                &pace_output->ef_cardaccess_length);
-        if (r < 0) {
-            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not get EF.CardAccess.");
+    if (card->reader->capabilities & SC_READER_CAP_PACE) {
+        r = sc_perform_pace(card, &pace_input, pace_output);
+    } else {
+        if (!pace_output->ef_cardaccess_length || !pace_output->ef_cardaccess) {
+            r = get_ef_card_access(card, &pace_output->ef_cardaccess,
+                    &pace_output->ef_cardaccess_length);
+            if (r < 0) {
+                sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not get EF.CardAccess.");
+                goto err;
+            }
+        }
+        bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "EF.CardAccess", pace_output->ef_cardaccess,
+                pace_output->ef_cardaccess_length);
+
+        eac_ctx = EAC_CTX_new();
+        if (!eac_ctx
+                || !EAC_CTX_init_ef_cardaccess(pace_output->ef_cardaccess,
+                    pace_output->ef_cardaccess_length, eac_ctx)) {
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not parse EF.CardAccess.");
+            ssl_error(card->ctx);
+            r = SC_ERROR_INTERNAL;
             goto err;
         }
-    }
-    bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "EF.CardAccess", pace_output->ef_cardaccess,
-            pace_output->ef_cardaccess_length);
 
-	eac_ctx = EAC_CTX_new();
-    if (!eac_ctx
-			|| !EAC_CTX_init_ef_cardaccess(pace_output->ef_cardaccess,
-				pace_output->ef_cardaccess_length, eac_ctx)) {
-		sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not parse EF.CardAccess.");
-        ssl_error(card->ctx);
-        r = SC_ERROR_INTERNAL;
-        goto err;
-    }
+        eac_ctx->tr_version = tr_version;
 
-    eac_ctx->tr_version = pace_input.tr_version;
+        r = npa_mse_set_at(oldnpactx, card, eac_ctx->pace_ctx->protocol, pace_input.pin_id,
+                chat, &pace_output->mse_set_at_sw1, &pace_output->mse_set_at_sw2);
+        if (r < 0) {
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not select protocol proberties "
+                    "(MSE: Set AT failed).");
+            goto err;
+        }
+        enc_nonce = BUF_MEM_new();
+        if (!enc_nonce) {
+            ssl_error(card->ctx);
+            r = SC_ERROR_OUT_OF_MEMORY;
+            goto err;
+        }
+        r = npa_gen_auth_1_encrypted_nonce(oldnpactx, card, (u8 **) &enc_nonce->data,
+                &enc_nonce->length);
+        if (r < 0) {
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not get encrypted nonce from card "
+                    "(General Authenticate step 1 failed).");
+            goto err;
+        }
+        bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "Encrypted nonce from MRTD", (u8 *)enc_nonce->data, enc_nonce->length);
+        enc_nonce->max = enc_nonce->length;
 
-    r = npa_mse_set_at(oldnpactx, card, eac_ctx->pace_ctx->protocol, pace_input.pin_id,
-            chat, &pace_output->mse_set_at_sw1, &pace_output->mse_set_at_sw2);
-    if (r < 0) {
-        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not select protocol proberties "
-                "(MSE: Set AT failed).");
-        goto err;
-    }
-    enc_nonce = BUF_MEM_new();
-    if (!enc_nonce) {
-        ssl_error(card->ctx);
-        r = SC_ERROR_OUT_OF_MEMORY;
-        goto err;
-    }
-    r = npa_gen_auth_1_encrypted_nonce(oldnpactx, card, (u8 **) &enc_nonce->data,
-            &enc_nonce->length);
-    if (r < 0) {
-        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not get encrypted nonce from card "
-                "(General Authenticate step 1 failed).");
-        goto err;
-    }
-    bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "Encrypted nonce from MRTD", (u8 *)enc_nonce->data, enc_nonce->length);
-    enc_nonce->max = enc_nonce->length;
+        sec = get_psec(card, (char *) pace_input.pin, pace_input.pin_length,
+                pace_input.pin_id);
+        if (!sec) {
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not encode PACE secret.");
+            ssl_error(card->ctx);
+            r = SC_ERROR_INTERNAL;
+            goto err;
+        }
 
-    sec = get_psec(card, (char *) pace_input.pin, pace_input.pin_length,
-            pace_input.pin_id);
-    if (!sec) {
-        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not encode PACE secret.");
-        ssl_error(card->ctx);
-        r = SC_ERROR_INTERNAL;
-        goto err;
-    }
+        if (!PACE_STEP2_dec_nonce(eac_ctx, sec, enc_nonce)) {
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not decrypt MRTD's nonce.");
+            ssl_error(card->ctx);
+            r = SC_ERROR_INTERNAL;
+            goto err;
+        }
 
-    if (!PACE_STEP2_dec_nonce(eac_ctx, sec, enc_nonce)) {
-        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not decrypt MRTD's nonce.");
-        ssl_error(card->ctx);
-        r = SC_ERROR_INTERNAL;
-        goto err;
-    }
+        mdata_opp = BUF_MEM_new();
+        mdata = PACE_STEP3A_generate_mapping_data(eac_ctx);
+        if (!mdata || !mdata_opp) {
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not generate mapping data.");
+            ssl_error(card->ctx);
+            r = SC_ERROR_INTERNAL;
+            goto err;
+        }
+        r = npa_gen_auth_2_map_nonce(oldnpactx, card, (u8 *) mdata->data, mdata->length,
+                (u8 **) &mdata_opp->data, &mdata_opp->length);
+        if (r < 0) {
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not exchange mapping data with card "
+                    "(General Authenticate step 2 failed).");
+            goto err;
+        }
+        mdata_opp->max = mdata_opp->length;
+        bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "Mapping data from MRTD", (u8 *) mdata_opp->data, mdata_opp->length);
 
-    mdata_opp = BUF_MEM_new();
-    mdata = PACE_STEP3A_generate_mapping_data(eac_ctx);
-    if (!mdata || !mdata_opp) {
-        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not generate mapping data.");
-        ssl_error(card->ctx);
-        r = SC_ERROR_INTERNAL;
-        goto err;
-    }
-    r = npa_gen_auth_2_map_nonce(oldnpactx, card, (u8 *) mdata->data, mdata->length,
-            (u8 **) &mdata_opp->data, &mdata_opp->length);
-    if (r < 0) {
-        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not exchange mapping data with card "
-                "(General Authenticate step 2 failed).");
-        goto err;
-    }
-    mdata_opp->max = mdata_opp->length;
-    bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "Mapping data from MRTD", (u8 *) mdata_opp->data, mdata_opp->length);
+        if (!PACE_STEP3A_map_generator(eac_ctx, mdata_opp)) {
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not map generator.");
+            ssl_error(card->ctx);
+            r = SC_ERROR_INTERNAL;
+            goto err;
+        }
 
-    if (!PACE_STEP3A_map_generator(eac_ctx, mdata_opp)) {
-        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not map generator.");
-        ssl_error(card->ctx);
-        r = SC_ERROR_INTERNAL;
-        goto err;
-    }
+        pub = PACE_STEP3B_generate_ephemeral_key(eac_ctx);
+        pub_opp = BUF_MEM_new();
+        if (!pub || !pub_opp) {
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not generate ephemeral domain parameter or "
+                    "ephemeral key pair.");
+            ssl_error(card->ctx);
+            r = SC_ERROR_INTERNAL;
+            goto err;
+        }
+        r = npa_gen_auth_3_perform_key_agreement(oldnpactx, card, (u8 *) pub->data, pub->length,
+                (u8 **) &pub_opp->data, &pub_opp->length);
+        if (r < 0) {
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not exchange ephemeral public key with card "
+                    "(General Authenticate step 3 failed).");
+            goto err;
+        }
+        pub_opp->max = pub_opp->length;
+        bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "Ephemeral public key from MRTD", (u8 *) pub_opp->data, pub_opp->length);
 
-    pub = PACE_STEP3B_generate_ephemeral_key(eac_ctx);
-    pub_opp = BUF_MEM_new();
-    if (!pub || !pub_opp) {
-        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not generate ephemeral domain parameter or "
-                "ephemeral key pair.");
-        ssl_error(card->ctx);
-        r = SC_ERROR_INTERNAL;
-        goto err;
-    }
-    r = npa_gen_auth_3_perform_key_agreement(oldnpactx, card, (u8 *) pub->data, pub->length,
-            (u8 **) &pub_opp->data, &pub_opp->length);
-    if (r < 0) {
-        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not exchange ephemeral public key with card "
-                "(General Authenticate step 3 failed).");
-        goto err;
-    }
-    pub_opp->max = pub_opp->length;
-    bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "Ephemeral public key from MRTD", (u8 *) pub_opp->data, pub_opp->length);
 
-    
-    if (!PACE_STEP3B_compute_shared_secret(eac_ctx, pub_opp)
-			|| !PACE_STEP3C_derive_keys(eac_ctx)) {
-        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not compute ephemeral shared secret or "
-                "derive keys for encryption and authentication.");
-        ssl_error(card->ctx);
-        r = SC_ERROR_INTERNAL;
-        goto err;
-    }
-    token = PACE_STEP3D_compute_authentication_token(eac_ctx, pub_opp);
-    token_opp = BUF_MEM_new();
-    if (!token || !token_opp) {
-        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not compute authentication token.");
-        ssl_error(card->ctx);
-        r = SC_ERROR_INTERNAL;
-        goto err;
-    }
-    r = npa_gen_auth_4_mutual_authentication(oldnpactx, card, (u8 *) token->data, token->length,
-            (u8 **) &token_opp->data, &token_opp->length,
-            &pace_output->recent_car, &pace_output->recent_car_length,
-            &pace_output->previous_car, &pace_output->previous_car_length);
+        if (!PACE_STEP3B_compute_shared_secret(eac_ctx, pub_opp)
+                || !PACE_STEP3C_derive_keys(eac_ctx)) {
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not compute ephemeral shared secret or "
+                    "derive keys for encryption and authentication.");
+            ssl_error(card->ctx);
+            r = SC_ERROR_INTERNAL;
+            goto err;
+        }
+        token = PACE_STEP3D_compute_authentication_token(eac_ctx, pub_opp);
+        token_opp = BUF_MEM_new();
+        if (!token || !token_opp) {
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not compute authentication token.");
+            ssl_error(card->ctx);
+            r = SC_ERROR_INTERNAL;
+            goto err;
+        }
+        r = npa_gen_auth_4_mutual_authentication(oldnpactx, card, (u8 *) token->data, token->length,
+                (u8 **) &token_opp->data, &token_opp->length,
+                &pace_output->recent_car, &pace_output->recent_car_length,
+                &pace_output->previous_car, &pace_output->previous_car_length);
 
-    if (r < 0) {
-        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not exchange authentication token with card "
-                "(General Authenticate step 4 failed).");
-        goto err;
-    }
-    token_opp->max = token_opp->length;
+        if (r < 0) {
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not exchange authentication token with card "
+                    "(General Authenticate step 4 failed).");
+            goto err;
+        }
+        token_opp->max = token_opp->length;
 
-    if (!PACE_STEP3D_verify_authentication_token(eac_ctx, token_opp)) {
-        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not verify authentication token.");
-        ssl_error(card->ctx);
-        r = SC_ERROR_INTERNAL;
-        goto err;
-    }
+        if (!PACE_STEP3D_verify_authentication_token(eac_ctx, token_opp)) {
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not verify authentication token.");
+            ssl_error(card->ctx);
+            r = SC_ERROR_INTERNAL;
+            goto err;
+        }
 
-    /* Initialize secure channel */
-    if (!EAC_CTX_set_encryption_ctx(eac_ctx, EAC_ID_PACE)) {
-        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not initialize encryption.");
-        ssl_error(card->ctx);
-        r = SC_ERROR_INTERNAL;
-        goto err;
-    }
+        /* Initialize secure channel */
+        if (!EAC_CTX_set_encryption_ctx(eac_ctx, EAC_ID_PACE)) {
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not initialize encryption.");
+            ssl_error(card->ctx);
+            r = SC_ERROR_INTERNAL;
+            goto err;
+        }
 
-    /* Identifier for ICC and PCD */
-    comp_pub = EAC_Comp(eac_ctx, EAC_ID_PACE, pub);
-    comp_pub_opp = EAC_Comp(eac_ctx, EAC_ID_PACE, pub_opp);
-    if (!comp_pub || !comp_pub_opp) {
-        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not compress public keys for identification.");
-        ssl_error(card->ctx);
-        r = SC_ERROR_INTERNAL;
-        goto err;
-    }
-    p = realloc(pace_output->id_icc, comp_pub_opp->length);
-    if (!p) {
-        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Not enough memory for ID ICC.\n");
-        r = SC_ERROR_OUT_OF_MEMORY;
-        goto err;
-    }
-    pace_output->id_icc = p;
-    pace_output->id_icc_length = comp_pub_opp->length;
-    /* Flawfinder: ignore */
-    memcpy(pace_output->id_icc, comp_pub_opp->data, comp_pub_opp->length);
-    bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "ID ICC", pace_output->id_icc,
-            pace_output->id_icc_length);
-    p = realloc(pace_output->id_pcd, comp_pub->length);
-    if (!p) {
-        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Not enough memory for ID PCD.\n");
-        r = SC_ERROR_OUT_OF_MEMORY;
-        goto err;
-    }
-    pace_output->id_pcd = p;
-    pace_output->id_pcd_length = comp_pub->length;
-    /* Flawfinder: ignore */
-    memcpy(pace_output->id_pcd, comp_pub->data, comp_pub->length);
-    bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "ID PCD", pace_output->id_pcd,
-            pace_output->id_pcd_length);
+        /* Identifier for ICC and PCD */
+        comp_pub = EAC_Comp(eac_ctx, EAC_ID_PACE, pub);
+        comp_pub_opp = EAC_Comp(eac_ctx, EAC_ID_PACE, pub_opp);
+        if (!comp_pub || !comp_pub_opp) {
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not compress public keys for identification.");
+            ssl_error(card->ctx);
+            r = SC_ERROR_INTERNAL;
+            goto err;
+        }
+        p = realloc(pace_output->id_icc, comp_pub_opp->length);
+        if (!p) {
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Not enough memory for ID ICC.\n");
+            r = SC_ERROR_OUT_OF_MEMORY;
+            goto err;
+        }
+        pace_output->id_icc = p;
+        pace_output->id_icc_length = comp_pub_opp->length;
+        /* Flawfinder: ignore */
+        memcpy(pace_output->id_icc, comp_pub_opp->data, comp_pub_opp->length);
+        bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "ID ICC", pace_output->id_icc,
+                pace_output->id_icc_length);
+        p = realloc(pace_output->id_pcd, comp_pub->length);
+        if (!p) {
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Not enough memory for ID PCD.\n");
+            r = SC_ERROR_OUT_OF_MEMORY;
+            goto err;
+        }
+        pace_output->id_pcd = p;
+        pace_output->id_pcd_length = comp_pub->length;
+        /* Flawfinder: ignore */
+        memcpy(pace_output->id_pcd, comp_pub->data, comp_pub->length);
+        bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "ID PCD", pace_output->id_pcd,
+                pace_output->id_pcd_length);
 
-    if(pace_output->recent_car && pace_output->recent_car_length
-            && !EAC_CTX_init_ta(eac_ctx, NULL, 0, NULL, 0,
-                pace_output->recent_car, pace_output->recent_car_length)) {
-        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not initialize TA.\n");
-        ssl_error(card->ctx);
-        r = SC_ERROR_INTERNAL;
-        goto err;
-    }
-    eac_ctx->ta_ctx->flags |= TA_FLAG_SKIP_TIMECHECK;
+        if(pace_output->recent_car && pace_output->recent_car_length
+                && !EAC_CTX_init_ta(eac_ctx, NULL, 0, NULL, 0,
+                    pace_output->recent_car, pace_output->recent_car_length)) {
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not initialize TA.\n");
+            ssl_error(card->ctx);
+            r = SC_ERROR_INTERNAL;
+            goto err;
+        }
+        eac_ctx->ta_ctx->flags |= TA_FLAG_SKIP_TIMECHECK;
 
-    sctx->priv_data = npa_sm_ctx_create(eac_ctx,
-            pace_input.certificate_description,
-            pace_input.certificate_description_length,
-            pace_output->id_icc,
-            pace_output->id_icc_length,
-            pace_output->recent_car,
-            pace_output->recent_car_length);
-    if (!sctx->priv_data) {
-        r = SC_ERROR_OUT_OF_MEMORY;
-        goto err;
+        sctx->priv_data = npa_sm_ctx_create(eac_ctx,
+                pace_input.certificate_description,
+                pace_input.certificate_description_length,
+                pace_output->id_icc,
+                pace_output->id_icc_length,
+                pace_output->recent_car,
+                pace_output->recent_car_length);
+        if (!sctx->priv_data) {
+            r = SC_ERROR_OUT_OF_MEMORY;
+            goto err;
+        }
+        sctx->authenticate = npa_sm_authenticate;
+        sctx->encrypt = npa_sm_encrypt;
+        sctx->decrypt = npa_sm_decrypt;
+        sctx->verify_authentication = npa_sm_verify_authentication;
+        sctx->pre_transmit = npa_sm_pre_transmit;
+        sctx->post_transmit = npa_sm_post_transmit;
+        sctx->finish = npa_sm_finish;
+        sctx->clear_free = npa_sm_clear_free;
+        sctx->padding_indicator = SM_ISO_PADDING;
+        sctx->block_length = EVP_CIPHER_block_size(eac_ctx->key_ctx->cipher);
+        sctx->active = 1;
     }
-    sctx->authenticate = npa_sm_authenticate;
-    sctx->encrypt = npa_sm_encrypt;
-    sctx->decrypt = npa_sm_decrypt;
-    sctx->verify_authentication = npa_sm_verify_authentication;
-    sctx->pre_transmit = npa_sm_pre_transmit;
-    sctx->post_transmit = npa_sm_post_transmit;
-    sctx->finish = npa_sm_finish;
-    sctx->clear_free = npa_sm_clear_free;
-    sctx->padding_indicator = SM_ISO_PADDING;
-    sctx->block_length = EVP_CIPHER_block_size(eac_ctx->key_ctx->cipher);
-    sctx->active = 1;
 
 err:
     if (enc_nonce)

@@ -198,7 +198,7 @@ int npa_translate_apdus(struct sm_ctx *sctx, sc_card_t *card, FILE *input)
 int
 main (int argc, char **argv)
 {
-    int r, oindex = 0;
+    int r, oindex = 0, tr_version = EAC_TR_VERSION_2_02;
     size_t channeldatalen;
     struct sm_ctx sctx, tmpctx;
     struct establish_pace_channel_input pace_input;
@@ -299,7 +299,7 @@ main (int argc, char **argv)
                 }
                 break;
             case OPT_TRVERSION:
-                if (sscanf(optarg, "%d", (int *) &pace_input.tr_version) != 1) {
+                if (sscanf(optarg, "%d", (int *) &tr_version) != 1) {
                     parse_error(argv[0], options, option_help, optarg, oindex);
                     exit(2);
                 }
@@ -414,7 +414,7 @@ main (int argc, char **argv)
                     npa_secret_name(pace_input.pin_id), pace_input.pin);
 
             r = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
-                    &sctx);
+                    &sctx, tr_version);
 
             secret++;
         } while (0 > r && secret <= maxsecret);
@@ -443,7 +443,7 @@ main (int argc, char **argv)
             pace_input.pin_length = 0;
         }
         r = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
-            &tmpctx);
+            &tmpctx, tr_version);
         if (r < 0)
             goto err;
         printf("Established PACE channel with CAN.\n");
@@ -457,7 +457,7 @@ main (int argc, char **argv)
             pace_input.pin_length = 0;
         }
         r = EstablishPACEChannel(&tmpctx, card, pace_input, &pace_output,
-            &sctx);
+            &sctx, tr_version);
         if (r < 0)
             goto err;
         printf("Established PACE channel with PIN. PIN resumed.\n");
@@ -473,7 +473,7 @@ main (int argc, char **argv)
             pace_input.pin_length = 0;
         }
         r = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
-            &sctx);
+            &sctx, tr_version);
         if (r < 0)
             goto err;
         printf("Established PACE channel with PUK.\n");
@@ -494,7 +494,7 @@ main (int argc, char **argv)
             pace_input.pin_length = 0;
         }
         r = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
-            &sctx);
+            &sctx, tr_version);
         if (r < 0)
             goto err;
         printf("Established PACE channel with PIN.\n");
@@ -539,7 +539,7 @@ main (int argc, char **argv)
         }
 
         r = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
-            &sctx);
+            &sctx, tr_version);
         if (r < 0)
             goto err;
         printf("Established PACE channel with %s.\n",

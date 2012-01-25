@@ -23,7 +23,6 @@
  * APDU encrypted and authenticated to the card using sm_transmit_apdu. */
 #include <npa/npa.h>
 #include <npa/scutil.h>
-#include <openssl/pace.h>
 #include <string.h>
 
 static int reader_num = -1;
@@ -80,7 +79,7 @@ main (int argc, char **argv)
     pace_input.pin_length = pin ? strlen(pin) : 0;
 
     r = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
-            &sctx);
+            &sctx, EAC_TR_VERSION_2_02);
     if (r < 0)
         goto err;
     printf("Established PACE channel with PIN.\n");

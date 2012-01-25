@@ -28,7 +28,6 @@
 
 #include <npa/sm.h>
 #include <libopensc/opensc.h>
-#include <openssl/bn.h>
 #include <openssl/eac.h>
 #include <openssl/pace.h>
 
@@ -107,70 +106,6 @@ extern "C" {
 const char *npa_secret_name(enum s_type pin_id);
 
 
-/** 
- * Input data for EstablishPACEChannel()
- */
-struct establish_pace_channel_input {
-    /** Version of TR-03110 to use with PACE */
-    enum eac_tr_version tr_version;
-
-    /** Type of secret (CAN, MRZ, PIN or PUK). You may use <tt>enum s_type</tt> from \c <openssl/pace.h> */
-    unsigned char pin_id;
-
-    /** Length of \a chat */
-    size_t chat_length;
-    /** Card holder authorization template */
-    const unsigned char *chat;
-
-    /** Length of \a pin */
-    size_t pin_length;
-    /** Secret */
-    const unsigned char *pin;
-
-    /** Length of \a certificate_description */
-    size_t certificate_description_length;
-    /** Certificate description */
-    const unsigned char *certificate_description;
-};
-
-/** 
- * Output data for EstablishPACEChannel()
- */
-struct establish_pace_channel_output {
-    /** PACE result (TR-03119) */
-    unsigned int result;
-
-    /** MSE: Set AT status byte */
-    unsigned char mse_set_at_sw1;
-    /** MSE: Set AT status byte */
-    unsigned char mse_set_at_sw2;
-
-    /** Length of \a ef_cardaccess */
-    size_t ef_cardaccess_length;
-    /** EF.CardAccess */
-    unsigned char *ef_cardaccess;
-
-    /** Length of \a recent_car */
-    size_t recent_car_length;
-    /** Most recent certificate authority reference */
-    unsigned char *recent_car;
-
-    /** Length of \a previous_car */
-    size_t previous_car_length;
-    /** Previous certificate authority reference */
-    unsigned char *previous_car;
-
-    /** Length of \a id_icc */
-    size_t id_icc_length;
-    /** ICC identifier */
-    unsigned char *id_icc;
-
-    /** Length of \a id_pcd */
-    size_t id_pcd_length;
-    /** PCD identifier */
-    unsigned char *id_pcd;
-};
-
 #ifdef BUERGERCLIENT_WORKAROUND
 int get_ef_card_access(sc_card_t *card,
         u8 **ef_cardaccess, size_t *length_ef_cardaccess);
@@ -203,13 +138,14 @@ int GetReadersPACECapabilities(u8 *bitmap);
  * @param[in]     pace_input
  * @param[in,out] pace_output
  * @param[out]    sctx
+ * @param[in]     tr_version Version of TR-03110 to use with PACE
  * 
  * @return \c SC_SUCCESS or error code if an error occurred
  */
 int EstablishPACEChannel(struct sm_ctx *oldpacectx, sc_card_t *card,
         struct establish_pace_channel_input pace_input,
         struct establish_pace_channel_output *pace_output,
-        struct sm_ctx *sctx);
+        struct sm_ctx *sctx, enum eac_tr_version tr_version);
 
 /** 
  * @brief Sends a reset retry counter APDU

@@ -102,38 +102,6 @@ AM_COND_IF(WITH_PACE, [AC_DEFINE(BUERGERCLIENT_WORKAROUND, 1, [Always get EF.Car
 #AM_COND_IF(WITH_PACE, [AC_DEFINE(MODIFY_PIN, 1, [Change the PIN after authentication.])])
 
 
-# --disable-cats
-AC_ARG_ENABLE(cats,
-              AS_HELP_STRING([--enable-cats], [Disable tool for CAT-S and CAT-C (pinpad readers with PACE support)]),
-              [enable_cats="${enableval}"], [enable_cats=no])
-if test "x$enable_cats" != xno ; then
-    PKG_CHECK_EXISTS([libpcsclite > 1.4.102],
-                     [PKG_CHECK_MODULES([PCSC], [libpcsclite > 1.4.102])],
-                     [AC_MSG_WARN([libpcsclite > 1.4.102 not found by pkg-config])])
-
-    saved_CPPFLAGS="$CPPFLAGS"
-    saved_LIBS="$LIBS"
-    CPPFLAGS="$CPPFLAGS $PCSC_CFLAGS"
-    LIBS="$LDFLAGS $PCSC_LIBS"
-
-    AC_CHECK_HEADERS(winscard.h, [], [ AC_MSG_ERROR([winscard.h not found, install PC/SC Lite or similar or use ./configure PCSC_CFLAGS=...]) ])
-    AC_CHECK_HEADERS(reader.h, [AC_DEFINE(HAVE_READER_H, 1, [use reader.h from PC/SC Lite])], [])
-    AC_CHECK_HEADERS(pcsclite.h, [AC_DEFINE(HAVE_PCSCLITE_H, 1, [use pcsclite.h from PC/SC Lite])], [])
-    AC_CHECK_DECL(FEATURE_EXECUTE_PACE, [],
-                    [AC_MSG_WARN([libpcsclite > 1.4.102 patched with pcsclite_trunk.patch not found]) ],
-                    [#include <reader.h>])
-    AC_MSG_CHECKING([for SCardEstablishContext])
-    AC_TRY_LINK_FUNC(SCardEstablishContext, [ AC_MSG_RESULT([yes]) ],
-        [ AC_MSG_ERROR([libpcsclite > 1.4.102 not found, use ./configure PCSC_LIBS=...]) ])
-
-    CPPFLAGS="$saved_CPPFLAGS"
-    LIBS="$saved_LIBS"
-
-    enable_cats=yes
-fi
-AM_CONDITIONAL(WITH_CATS, test "x${enable_cats}" != "xno")
-
-
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h memory.h stdint.h stdlib.h string.h sys/ioctl.h unistd.h])
 
@@ -174,12 +142,9 @@ OPENSSL_CFLAGS:       ${OPENSSL_CFLAGS}
 OPENSSL_LIBS:         ${OPENSSL_LIBS}
 LIBPACE_CFLAGS:       ${LIBPACE_CFLAGS}
 LIBPACE_LIBS:         ${LIBPACE_LIBS}
-PCSC_CFLAGS:          ${PCSC_CFLAGS}
-PCSC_LIBS:            ${PCSC_LIBS}
 
 CCID emulator:        ${enable_ccid}
 PACE support:         ${enable_pace}
-CAT-S/CAT-C Tool:     ${enable_cats}
 
 EOF
 

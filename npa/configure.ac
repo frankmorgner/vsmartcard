@@ -45,9 +45,9 @@ saved_CPPFLAGS="$CPPFLAGS"
 saved_LIBS="$LIBS"
 CPPFLAGS="$CPPFLAGS $OPENSSL_CFLAGS"
 LIBS="$LDFLAGS $OPENSC_LIBS $OPENSSL_LIBS"
-AC_MSG_CHECKING([for sc_bytes2apdu])
-AC_TRY_LINK_FUNC(sc_bytes2apdu, [ AC_MSG_RESULT([yes]) ],
-        [ AC_MSG_ERROR([libopensc >= 0.12.1 not found, use ./configure OPENSC_LIBS=...]) ])
+AC_MSG_CHECKING([for sc_perform_pace])
+AC_TRY_LINK_FUNC(sc_perform_pace, [ AC_MSG_RESULT([yes]) ],
+        [ AC_MSG_ERROR([libopensc with PACE (https://github.com/frankmorgner/OpenSC) not found, use ./configure OPENSC_LIBS=...]) ])
 
 AC_CHECK_HEADERS(openssl/evp.h, [], [ AC_MSG_ERROR([openssl/evp.h not found, install OpenSSL or use ./configure OPENSSL_CFLAGS=...]) ])
 AC_MSG_CHECKING([for EVP_read_pw_string_min])
