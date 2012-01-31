@@ -140,8 +140,8 @@ PTHREAD_LIBS:         ${PTHREAD_LIBS}
 OPENSC_LIBS:          ${OPENSC_LIBS}
 OPENSSL_CFLAGS:       ${OPENSSL_CFLAGS}
 OPENSSL_LIBS:         ${OPENSSL_LIBS}
-LIBPACE_CFLAGS:       ${LIBPACE_CFLAGS}
-LIBPACE_LIBS:         ${LIBPACE_LIBS}
+LIBNPA_CFLAGS:        ${LIBNPA_CFLAGS}
+LIBNPA_LIBS:          ${LIBNPA_LIBS}
 
 CCID emulator:        ${enable_ccid}
 PACE support:         ${enable_pace}
