@@ -314,7 +314,7 @@ class nPA_SE(Security_Environment):
 
         print "Imported Certificate"
 
-        return 0x9000, ""
+        return ""
 
     def external_authenticate(self, p1, p2, data):
         """
@@ -350,7 +350,7 @@ class nPA_SE(Security_Environment):
             pace.print_ossl_err()
             raise SwError(SW["ERR_NOINFO69"]) 
 
-        return 0x9000, checksum
+        return checksum
 
     def encipher(self, p1, p2, data):
         padded = vsCrypto.append_padding(self.cct.blocklength, data)
@@ -359,7 +359,7 @@ class nPA_SE(Security_Environment):
             pace.print_ossl_err()
             raise SwError(SW["ERR_NOINFO69"]) 
 
-        return 0x9000, cipher
+        return cipher
 
     def decipher(self, p1, p2, data):
         plain = pace.EAC_decrypt(self.eac_ctx, self.ssc, data)
@@ -367,7 +367,7 @@ class nPA_SE(Security_Environment):
             pace.print_ossl_err()
             raise SwError(SW["ERR_NOINFO69"]) 
 
-        return 0x9000, plain
+        return plain
 
     def protect_response(self, sw, result):
         """
@@ -380,7 +380,7 @@ class nPA_SE(Security_Environment):
 
         if result != "":
             # Encrypt the data included in the RAPDU
-            sw, encrypted = self.encipher(0x82, 0x80, result)
+            encrypted = self.encipher(0x82, 0x80, result)
             encrypted = "\x01" + encrypted
             encrypted_tlv = bertlv_pack([(
                                 SM_Class["CRYPTOGRAM_PADDING_INDICATOR_ODD"],
@@ -399,13 +399,13 @@ class nPA_SE(Security_Environment):
         elif self.cct.algorithm == "CC":
             tag = SM_Class["CHECKSUM"]
             padded = vsCrypto.append_padding(self.cct.blocklength, return_data)
-            sw, auth = self.compute_cryptographic_checksum(0x8E, 0x80, padded)
+            auth = self.compute_cryptographic_checksum(0x8E, 0x80, padded)
             length = len(auth)
             return_data += bertlv_pack([(tag, length, auth)])
         elif self.cct.algorithm == "SIGNATURE":
             tag = SM_Class["DIGITAL_SIGNATURE"]
             hash = self.hash(0x90, 0x80, return_data)
-            sw, auth = self.compute_digital_signature(0x9E, 0x9A, hash)
+            auth = self.compute_digital_signature(0x9E, 0x9A, hash)
             length = len(auth)
             return_data += bertlv_pack([(tag, length, auth)])
         

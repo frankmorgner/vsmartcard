@@ -48,7 +48,7 @@ class ePass_SE(Security_Environment):
         checksum = vsCrypto.crypto_checksum(self.cct.algorithm, self.cct.key,
                                                data, self.cct.iv, self.ssc)
 
-        return SW["NORMAL"], checksum
+        return checksum
 
 class PassportSAM(SAM):       
     """

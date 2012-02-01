@@ -358,7 +358,7 @@ class Security_Environment(object):
             '80' to '8E' Proprietary
                 """
                 padding_indicator = stringtoint(value[0])
-                sw, plain = self.decipher(tag, 0x80, value[1:])
+                plain = self.decipher(tag, 0x80, value[1:])
                 plain = vsCrypto.strip_padding(self.ct.blocklength, plain,
                                                padding_indicator)
                 return_data.append(plain)
@@ -366,18 +366,18 @@ class Security_Environment(object):
             #SM data objects for authentication 
             if tag == SM_Class["CHECKSUM"]:
                 auth = vsCrypto.append_padding(self.cct.blocklength, to_authenticate)
-                sw, checksum = self.compute_cryptographic_checksum(0x8E,
+                checksum = self.compute_cryptographic_checksum(0x8E,
                                                                    0x80,
                                                                    auth)
                 if checksum != value:
                     raise SwError(SW["ERR_SECMESSOBJECTSINCORRECT"])
             elif tag == SM_Class["DIGITAL_SIGNATURE"]:
                 auth = to_authenticate #FIXME: Need padding?
-                sw, signature = self.compute_digital_signature(0x9E, 0x9A, auth)
+                signature = self.compute_digital_signature(0x9E, 0x9A, auth)
                 if signature != value:
                     raise SwError(SW["ERR_SECMESSOBJECTSINCORRECT"])
             elif tag in (SM_Class["HASH_CODE"], SM_Class["HASH_CODE_ODD"]):
-                sw, hash = self.hash(p1, p2, to_authenticate)
+                hash = self.hash(p1, p2, to_authenticate)
                 if hash != value:
                     raise SwError(SW["ERR_SECMESSOBJECTSINCORRECT"])
                 
@@ -415,7 +415,7 @@ class Security_Environment(object):
         #    return_data += tlv_sw
 
         if result != "": # Encrypt the data included in the RAPDU
-            sw, encrypted = self.encipher(0x82, 0x80, result)
+            encrypted = self.encipher(0x82, 0x80, result)
             encrypted = "\x01" + encrypted
             encrypted_tlv = pack([(
                                 SM_Class["CRYPTOGRAM_PADDING_INDICATOR_ODD"],
@@ -429,17 +429,17 @@ class Security_Environment(object):
             elif self.cct.algorithm == "CC":
                 tag = SM_Class["CHECKSUM"]
                 padded = vsCrypto.append_padding(self.cct.blocklength, return_data)
-                sw, auth = self.compute_cryptographic_checksum(0x8E, 0x80, padded)
+                auth = self.compute_cryptographic_checksum(0x8E, 0x80, padded)
                 length = len(auth)
                 return_data += pack([(tag, length, auth)])
             elif self.cct.algorithm == "SIGNATURE":
                 tag = SM_Class["DIGITAL_SIGNATURE"]
                 hash = self.hash(0x90, 0x80, return_data)
-                sw, auth = self.compute_digital_signature(0x9E, 0x9A, hash)
+                auth = self.compute_digital_signature(0x9E, 0x9A, hash)
                 length = len(auth)
                 return_data += pack([(tag, length, auth)])
         
-        return SW["NORMAL"], return_data
+        return sw, return_data
 
     #The following commands implement ISO 7816-8 {{{
     def perform_security_operation(self, p1, p2, data):
@@ -458,24 +458,24 @@ class Security_Environment(object):
             raise SwError(SW["INCORRECTP1P2"])
        
         if((p2 in (0x80, 0xA0)) and (p1 == 0x90)):
-            sw, response_data = self.hash(p1, p2, data)
+            response_data = self.hash(p1, p2, data)
         elif(p2 in (0x9A, 0xAC, 0xBC) and p1 == 0x9E):
-            sw, response_data = self.compute_digital_signature(p1, p2, data)
+            response_data = self.compute_digital_signature(p1, p2, data)
         elif(p2 == 0xA2 and p1 == 0x00):
-            sw, response_data = self.verify_cryptographic_checksum(p1, p2, data)
+            response_data = self.verify_cryptographic_checksum(p1, p2, data)
         elif(p2 == 0xA8 and p1 == 0x00):
-            sw, response_data = self.verify_digital_signature(p1, p2, data)
+            response_data = self.verify_digital_signature(p1, p2, data)
         elif(p2 in (0x92, 0xAE, 0xBE) and p1 == 0x00):
-            sw, response_data = self.verify_certificate(p1, p2, data)
+            response_data = self.verify_certificate(p1, p2, data)
         elif (p2 == 0x80 and p1 in (0x82, 0x84, 0x86)):
-            sw, response_data = self.encipher(p1, p2, data)
+            response_data = self.encipher(p1, p2, data)
         elif (p2 in (0x82, 0x84, 0x86) and p1 == 0x80):
-            sw, response_data = self.decipher(p1, p2, data)
+            response_data = self.decipher(p1, p2, data)
         
         if p1 == 0x00:
             assert response_data == ""
         
-        return sw, response_data
+        return SW["NORMAL"], response_data
         
     
     def compute_cryptographic_checksum(self, p1, p2, data):
@@ -490,7 +490,7 @@ class Security_Environment(object):
          
         checksum = vsCrypto.crypto_checksum(self.cct.algorithm, self.cct.key, 
                                             data, self.cct.iv)
-        return SW["NORMAL"], checksum
+        return checksum
     
     def compute_digital_signature(self, p1, p2, data):
         """
@@ -520,7 +520,7 @@ class Security_Environment(object):
             pass
         
         signature = self.dst.key.sign(to_sign, "")
-        return SW["NORMAL"], signature
+        return signature
     
     def hash(self, p1, p2, data):
         """
@@ -539,7 +539,7 @@ class Security_Environment(object):
         except ValueError:
             raise SwError(SW["ERR_EXECUTION"])
 
-        return SW["NORMAL"], hash
+        return hash
 
     def verify_cryptographic_checksum(self, p1, p2, data):
         """
@@ -567,7 +567,7 @@ class Security_Environment(object):
         else:
             my_cct = vsCrypto.crypto_checksum(algo, key, plain, iv)
             if my_cct == cct:
-                return SW["NORMAL"], ""
+                return ""
             else:
                 raise SwError["ERR_SECMESSOBJECTSINCORRECT"]
 
@@ -600,7 +600,7 @@ class Security_Environment(object):
 
         my_signature = key.sign(value)
         if my_signature == signature:
-            return SW["NORMAL"], ""
+            return ""
         else:
             raise SwError(["ERR_SECMESSOBJECTSINCORRECT"])
 
@@ -613,7 +613,7 @@ class Security_Environment(object):
         if p1 != 0x00 or p2 not in (0x92, 0xAE, 0xBE):
             raise SwError(SW["ERR_INCORRECTP1P2"])
         else:
-            raise NotImplementedError
+            raise SwError(SW["ERR_NOTSUPPORTED"])
 
     def encipher(self, p1, p2, data):
         """
@@ -625,11 +625,11 @@ class Security_Environment(object):
         algo = self.ct.algorithm
         key = self.ct.key
         if key == None or algo == None:
-            return SW["ERR_CONDITIONNOTSATISFIED"], ""
+            raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
         else:
             padded = vsCrypto.append_padding(vsCrypto.get_cipher_blocklen(algo), data)
             crypted = vsCrypto.encrypt(algo, key, padded, self.ct.iv)
-            return SW["NORMAL"], crypted
+            return crypted
 
     def decipher(self, p1, p2, data):
         """
@@ -644,7 +644,7 @@ class Security_Environment(object):
             raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
         else:
             plain = vsCrypto.decrypt(algo, key, data, self.ct.iv)
-            return SW["NORMAL"], plain
+            return plain
 
     def generate_public_key_pair(self, p1, p2, data):
         """
