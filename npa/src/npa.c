@@ -171,8 +171,6 @@ struct npa_sm_ctx {
     BUF_MEM *eph_pub_key;
     /** Auxiliary Data */
     BUF_MEM *auxiliary_data;
-    /** Nonce generated in TA */
-    BUF_MEM *nonce;
     /** CAR of the card's most recent imported certificate */
     BUF_MEM *cur_car;
     /** CHR of the certificate to be imported */
@@ -236,7 +234,6 @@ npa_sm_ctx_create(EAC_CTX *ctx, const unsigned char *certificate_description,
     } else
         out->cur_car = NULL;
 
-    out->nonce = NULL;
     out->next_car = NULL;
     out->eph_pub_key = NULL;
     out->auxiliary_data = NULL;
@@ -1856,13 +1853,14 @@ npa_sm_finish(sc_card_t *card, const struct sm_ctx *ctx,
 
             sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Saving MRTD's nonce to later verify Terminal's signature");
 
-            if (eacsmctx->nonce)
-                BUF_MEM_free(eacsmctx->nonce);
+            BUF_MEM *nonce = BUF_MEM_create_init(apdu->resp, apdu->resplen);
+            int r = TA_STEP4_set_nonce(eacsmctx->ctx, nonce);
+            BUF_MEM_free(nonce);
 
-            eacsmctx->nonce = BUF_MEM_create_init(apdu->resp, apdu->resplen);
-            if (!eacsmctx->nonce)
-                SC_FUNC_RETURN(card->ctx,  SC_LOG_DEBUG_NORMAL,
-                        SC_ERROR_OUT_OF_MEMORY);
+            if (!r) {
+                ssl_error(card->ctx);
+                SC_FUNC_RETURN(card->ctx,  SC_LOG_DEBUG_NORMAL, SC_ERROR_INTERNAL);
+            }
         }
     }
 
@@ -1879,8 +1877,6 @@ npa_sm_clear_free(const struct sm_ctx *ctx)
             BN_clear_free(eacsmctx->ssc);
         if (eacsmctx->certificate_description)
             BUF_MEM_free(eacsmctx->certificate_description);
-        if (eacsmctx->nonce)
-            BUF_MEM_free(eacsmctx->nonce);
         if (eacsmctx->id_icc)
             BUF_MEM_free(eacsmctx->id_icc);
         if (eacsmctx->eph_pub_key)
