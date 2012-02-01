@@ -171,10 +171,6 @@ struct npa_sm_ctx {
     BUF_MEM *eph_pub_key;
     /** Auxiliary Data */
     BUF_MEM *auxiliary_data;
-    /** CAR of the card's most recent imported certificate */
-    BUF_MEM *cur_car;
-    /** CHR of the certificate to be imported */
-    BUF_MEM *next_car;
 };
 
 static int npa_sm_encrypt(sc_card_t *card, const struct sm_ctx *ctx,
@@ -201,8 +197,7 @@ static int reset_ssc(struct npa_sm_ctx *eacsmctx);
 static struct npa_sm_ctx *
 npa_sm_ctx_create(EAC_CTX *ctx, const unsigned char *certificate_description,
         size_t certificate_description_length,
-        const unsigned char *id_icc, size_t id_icc_length,
-        const unsigned char *car, size_t car_length)
+        const unsigned char *id_icc, size_t id_icc_length)
 {
     struct npa_sm_ctx *out = malloc(sizeof *out);
     if (!out)
@@ -227,14 +222,6 @@ npa_sm_ctx_create(EAC_CTX *ctx, const unsigned char *certificate_description,
     if (!out->id_icc)
         goto err;
 
-    if (car && car_length) {
-        out->cur_car = BUF_MEM_create_init(car, car_length);
-        if (!out->cur_car)
-            goto err;
-    } else
-        out->cur_car = NULL;
-
-    out->next_car = NULL;
     out->eph_pub_key = NULL;
     out->auxiliary_data = NULL;
 
@@ -1268,9 +1255,7 @@ int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
                 pace_input.certificate_description,
                 pace_input.certificate_description_length,
                 pace_output->id_icc,
-                pace_output->id_icc_length,
-                pace_output->recent_car,
-                pace_output->recent_car_length);
+                pace_output->id_icc_length);
         if (!sctx->priv_data) {
             r = SC_ERROR_OUT_OF_MEMORY;
             goto err;
@@ -1609,20 +1594,7 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
     }
     struct npa_sm_ctx *eacsmctx = ctx->priv_data;
 
-    if (apdu->ins == 0x22 && apdu->p1 == 0x81 && apdu->p2 == 0xbe) {
-        /* MSE:Set DST
-         * setup certificate verification for TA */
-
-        if (!eacsmctx->cur_car || !eacsmctx->cur_car->length != apdu->datalen
-                || memcmp(eacsmctx->cur_car->data, apdu->data, apdu->datalen) != 0) {
-            r = SC_ERROR_INVALID_DATA;
-            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
-                    "CAR doesn't match the most recent imported certificate");
-            goto err;
-        }
-        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "CAR matches the most recent imported certificate");
-
-    } else if (apdu->ins == 0x2a && apdu->p1 == 0x00 && apdu->p2 == 0xbe) {
+    if (apdu->ins == 0x2a && apdu->p1 == 0x00 && apdu->p2 == 0xbe) {
         /* PSO:Verify Certificate
          * check certificate description to match given certificate */
 
@@ -1690,18 +1662,6 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
             ssl_error(card->ctx);
             r = SC_ERROR_INTERNAL;
             goto err;
-        }
-
-        if (eacsmctx->next_car)
-            BUF_MEM_free(eacsmctx->next_car);
-        if (cvc_cert->body->certificate_holder_reference) {
-            eacsmctx->next_car = BUF_MEM_create_init(apdu->data, apdu->datalen);
-            if (!eacsmctx->next_car) {
-                r = SC_ERROR_OUT_OF_MEMORY;
-                goto err;
-            }
-        } else {
-            eacsmctx->next_car = NULL;
         }
 
     } else if (apdu->ins == 0x22 && apdu->p1 == 0x81 && apdu->p2 == 0xa4) {
@@ -1832,16 +1792,7 @@ npa_sm_finish(sc_card_t *card, const struct sm_ctx *ctx,
     struct npa_sm_ctx *eacsmctx = ctx->priv_data;
 
     if (apdu->sw1 == 0x90 && apdu->sw2 == 0x00) {
-        if (apdu->ins == 0x2a && apdu->p1 == 0x00 && apdu->p2 == 0xbe) {
-            /* PSO:Verify Certificate
-             * copy the currently imported certificate's CHR to the current CAR */
-
-            if (eacsmctx->cur_car)
-                BUF_MEM_free(eacsmctx->cur_car);
-            eacsmctx->cur_car = eacsmctx->next_car;
-            eacsmctx->next_car = NULL;
-
-        } else if (apdu->ins == 0x84 && apdu->p1 == 0x00 && apdu->p2 == 0x00
+        if (apdu->ins == 0x84 && apdu->p1 == 0x00 && apdu->p2 == 0x00
                 && apdu->le == 8 && apdu->resplen == 8) {
             /* Get Challenge
              * copy challenge to EAC context */
@@ -1850,7 +1801,8 @@ npa_sm_finish(sc_card_t *card, const struct sm_ctx *ctx,
 
             BUF_MEM *nonce = BUF_MEM_create_init(apdu->resp, apdu->resplen);
             int r = TA_STEP4_set_nonce(eacsmctx->ctx, nonce);
-            BUF_MEM_free(nonce);
+            if (nonce)
+                BUF_MEM_free(nonce);
 
             if (!r) {
                 ssl_error(card->ctx);
@@ -1878,10 +1830,6 @@ npa_sm_clear_free(const struct sm_ctx *ctx)
             BUF_MEM_free(eacsmctx->eph_pub_key);
         if (eacsmctx->auxiliary_data)
             BUF_MEM_free(eacsmctx->auxiliary_data);
-        if (eacsmctx->cur_car)
-            BUF_MEM_free(eacsmctx->cur_car);
-        if (eacsmctx->next_car)
-            BUF_MEM_free(eacsmctx->next_car);
         free(eacsmctx);
     }
 }
