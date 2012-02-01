@@ -1811,7 +1811,7 @@ npa_sm_finish(sc_card_t *card, const struct sm_ctx *ctx,
         }
     }
 
-    SC_FUNC_RETURN(card->ctx,  SC_LOG_DEBUG_NORMAL, 0);
+    SC_FUNC_RETURN(card->ctx,  SC_LOG_DEBUG_NORMAL, SC_SUCCESS);
 }
 
 static void
