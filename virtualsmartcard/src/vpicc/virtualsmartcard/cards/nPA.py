@@ -69,7 +69,7 @@ class nPA_AT_CRT(ControlReferenceTemplate):
                     chat = CHAT(bertlv_pack([[tag, length, value]]))
                     print(chat)
                 elif tag == 0x67:
-                    self.auxiliary_data = value
+                    self.auxiliary_data = bertlv_pack([[tag, length, value]])
                 elif tag == 0x80 or tag == 0x84 or tag == 0x83:
                     # handled by ControlReferenceTemplate.parse_SE_config
                     pass
@@ -312,6 +312,8 @@ class nPA_SE(Security_Environment):
             pace.print_ossl_err()
             raise SwError(SW["ERR_NOINFO69"]) 
 
+        print "Imported Certificate"
+
         return 0x9000, ""
 
     def external_authenticate(self, p1, p2, data):
@@ -320,14 +322,11 @@ class nPA_SE(Security_Environment):
         encrypted the given challenge or not
         """
         if self.dst.keyref: # TODO check if this is the correct CAR
-            if self.sam.last_challenge is None:
-                raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
-
             id_picc = pace.EAC_Comp(self.eac_ctx, pace.EAC_ID_PACE, self.my_pace_eph_pubkey)
 
             # FIXME auxiliary_data might be from an older run of PACE
-            if hasattr(self, "auxiliary_data"):
-                auxiliary_data = pace.get_buf(self.auxiliary_data)
+            if hasattr(self.at, "auxiliary_data"):
+                auxiliary_data = pace.get_buf(self.at.auxiliary_data)
             else:
                 auxiliary_data = None
 
