@@ -1263,7 +1263,6 @@ int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
             r = SC_ERROR_INTERNAL;
             goto err;
         }
-        eac_ctx->ta_ctx->flags |= TA_FLAG_SKIP_TIMECHECK;
 
         sctx->priv_data = npa_sm_ctx_create(eac_ctx,
                 pace_input.certificate_description,
