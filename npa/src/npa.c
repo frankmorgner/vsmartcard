@@ -1571,9 +1571,6 @@ add_tag(unsigned char **asn1new, int constructed, int tag,
 
     return newlen;
 }
-extern int
-cvc_certificate_extension_print(BIO *bio,
-        CVC_DISCRETIONARY_DATA_TEMPLATE *extension, int indent);
 static int
 npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
         sc_apdu_t *apdu)
