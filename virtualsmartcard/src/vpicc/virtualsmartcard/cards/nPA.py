@@ -198,7 +198,7 @@ class nPA_SE(Security_Environment):
         ef_card_access = self.mf.select('fid', 0x011c)
         ef_card_access_data = ef_card_access.getenc('data')
         pace.EAC_CTX_init_ef_cardaccess(ef_card_access_data, self.eac_ctx)
-        pace.EAC_CTX_init_ca(self.eac_ctx, pace.id_CA_DH_AES_CBC_CMAC_128, 13, None, None)
+        pace.EAC_CTX_init_ca(self.eac_ctx, pace.id_CA_ECDH_AES_CBC_CMAC_128, 13, None, None)
 
         nonce = pace.buf2string(pace.PACE_STEP1_enc_nonce(self.eac_ctx, self.sec))
         resp = nPA_SE.__pack_general_authenticate([[0x80, len(nonce), nonce]])
@@ -292,11 +292,12 @@ class nPA_SE(Security_Environment):
             else:
                 raise SwError(SW["ERR_INCORRECTPARAMETERS"])
 
-        pace.CA_STEP4_compute_shared_secret(self.eac_ctx,
-                pace.get_buf(pubkey))
+        if pace.CA_STEP4_compute_shared_secret(self.eac_ctx,
+                pace.get_buf(pubkey)) != 1:
+            pace.print_ossl_err()
+            raise SwError(SW["ERR_NOINFO69"]) 
 
-        nonce, token = pace.CA_STEP5_derive_keys(self.eac_ctx,
-                pace.get_buf(pubkey))
+        nonce, token = pace.CA_STEP5_derive_keys(self.eac_ctx, pubkey)
 
         # TODO activate SM
 
