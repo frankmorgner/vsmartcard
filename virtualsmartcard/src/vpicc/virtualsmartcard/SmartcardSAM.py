@@ -23,7 +23,7 @@ from os import urandom
 
 import virtualsmartcard.CryptoUtils as vsCrypto
 from virtualsmartcard.SWutils import SwError, SW
-from virtualsmartcard.utils import inttostring, stringtoint
+from virtualsmartcard.utils import inttostring, stringtoint, hexdump
 from virtualsmartcard.SEutils import Security_Environment
 
 def get_referenced_cipher(p1):
@@ -343,6 +343,7 @@ class SAM(object):
         """
         Protect a plain response APDU by Secure Messaging
         """
+        logging.info("Unprotected Response Data:\n"+hexdump(unprotected_result))
         return self.current_SE.protect_response(sw, unprotected_result)
 
     def perform_security_operation(self, p1, p2, data):
