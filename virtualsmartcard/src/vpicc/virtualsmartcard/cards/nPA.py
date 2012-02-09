@@ -200,6 +200,11 @@ class nPA_SE(Security_Environment):
         pace.EAC_CTX_init_ef_cardaccess(ef_card_access_data, self.eac_ctx)
         pace.EAC_CTX_init_ca(self.eac_ctx, pace.id_CA_ECDH_AES_CBC_CMAC_128, 13, None, None)
 
+        # we don't have a good CA key, so we simply generate an ephemeral one
+        if not pace.TA_STEP3_generate_ephemeral_key(self.eac_ctx):
+            pace.print_ossl_err()
+            raise SwError(SW["WARN_NOINFO63"])
+
         nonce = pace.buf2string(pace.PACE_STEP1_enc_nonce(self.eac_ctx, self.sec))
         resp = nPA_SE.__pack_general_authenticate([[0x80, len(nonce), nonce]])
 
@@ -292,12 +297,13 @@ class nPA_SE(Security_Environment):
             else:
                 raise SwError(SW["ERR_INCORRECTPARAMETERS"])
 
-        if pace.CA_STEP4_compute_shared_secret(self.eac_ctx,
-                pace.get_buf(pubkey)) != 1:
+        if pace.CA_STEP4_compute_shared_secret(self.eac_ctx, pubkey) != 1:
             pace.print_ossl_err()
             raise SwError(SW["ERR_NOINFO69"]) 
 
         nonce, token = pace.CA_STEP5_derive_keys(self.eac_ctx, pubkey)
+
+        print "Generated Nonce and Authentication Token for CA"
 
         # TODO activate SM
 
