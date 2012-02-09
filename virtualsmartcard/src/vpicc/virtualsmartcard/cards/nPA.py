@@ -201,9 +201,14 @@ class nPA_SE(Security_Environment):
         pace.EAC_CTX_init_ca(self.eac_ctx, pace.id_CA_ECDH_AES_CBC_CMAC_128, 13, None, None)
 
         # we don't have a good CA key, so we simply generate an ephemeral one
-        if not pace.TA_STEP3_generate_ephemeral_key(self.eac_ctx):
+        pubkey = pace.buf2string(pace.TA_STEP3_generate_ephemeral_key(self.eac_ctx))
+        if not pubkey:
             pace.print_ossl_err()
             raise SwError(SW["WARN_NOINFO63"])
+        ef_card_security = self.mf.select('fid', 0x011d)
+        ef_card_security_data = ef_card_security.getenc('data')
+        ef_card_security_data = ef_card_security_data[:61+4+239+2+2] + pubkey + ef_card_security_data[61+4+239+2+2+len(pubkey):]
+        ef_card_security.setdec('data', ef_card_security_data)
 
         nonce = pace.buf2string(pace.PACE_STEP1_enc_nonce(self.eac_ctx, self.sec))
         resp = nPA_SE.__pack_general_authenticate([[0x80, len(nonce), nonce]])
