@@ -202,17 +202,25 @@ class nPA_SE(Security_Environment):
 
         # we don't have a good CA key, so we simply generate an ephemeral one
         comp_pubkey = pace.buf2string(pace.TA_STEP3_generate_ephemeral_key(self.eac_ctx))
-        if not comp_pubkey:
+        pubkey = pace.CA_STEP2_get_eph_pubkey(self.eac_ctx)
+        if not comp_pubkey or not pubkey:
             pace.print_ossl_err()
             raise SwError(SW["WARN_NOINFO63"])
-        #pubkey = pace.some_function_to_get_the_complete_public_point_for_ca_including_prefixed_04(self.eac_ctx)
-        #ef_card_security = self.mf.select('fid', 0x011d)
-        #ef_card_security_data = ef_card_security.getenc('data')
-        #ef_card_security_data = ef_card_security_data[:61+4+239+2+2-1] + pubkey + ef_card_security_data[61+4+239+2+2-1+len(pubkey):]
-        #ef_card_security.setdec('data', ef_card_security_data)
+
+        # save public key in EF.CardSecurity (and invalidate the signature)
+        ef_card_security = self.mf.select('fid', 0x011d)
+        ef_card_security_data = ef_card_security.getenc('data')
+        ef_card_security_data = ef_card_security_data[:61+4+239+2+1] + pubkey + ef_card_security_data[61+4+239+2+1+len(pubkey):]
+        ef_card_security.setdec('data', ef_card_security_data)
+
+        #print 'pubkey'
+        #print hexdump(pubkey)
+        #f=open('test', 'w')
+        #f.write(ef_card_security_data)
+        #f.close()
 
         nonce = pace.PACE_STEP1_enc_nonce(self.eac_ctx, self.sec)
-        print hexdump(nonce)
+
         resp = nPA_SE.__pack_general_authenticate([[0x80, len(nonce), nonce]])
 
         self.eac_step += 1
