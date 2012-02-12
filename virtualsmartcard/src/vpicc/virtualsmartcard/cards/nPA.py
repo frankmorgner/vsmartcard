@@ -210,9 +210,6 @@ class nPA_SE(Security_Environment):
         ef_card_security_data = ef_card_security_data[:61+4+239+2+2] + pubkey + ef_card_security_data[61+4+239+2+2+len(pubkey):]
         ef_card_security.setdec('data', ef_card_security_data)
 
-        nonce = pace.buf2string(pace.PACE_STEP1_enc_nonce(self.eac_ctx, self.sec))
-        resp = nPA_SE.__pack_general_authenticate([[0x80, len(nonce), nonce]])
-
         self.eac_step += 1
 
         return 0x9000, resp
@@ -220,11 +217,11 @@ class nPA_SE(Security_Environment):
     def __eac_pace_step2(self, data):
         tlv_data = nPA_SE.__unpack_general_authenticate(data)
 
-        pubkey = pace.buf2string(pace.PACE_STEP3A_generate_mapping_data(self.eac_ctx))
+        pubkey = pace.PACE_STEP3A_generate_mapping_data(self.eac_ctx)
 
         for tag, length, value in tlv_data:
             if tag == 0x81:
-                pace.PACE_STEP3A_map_generator(self.eac_ctx, pace.get_buf(value))
+                pace.PACE_STEP3A_map_generator(self.eac_ctx, value)
             else:
                 raise SwError(SW["ERR_INCORRECTPARAMETERS"])
 
@@ -239,11 +236,11 @@ class nPA_SE(Security_Environment):
         if not self.my_pace_eph_pubkey:
             pace.print_ossl_err()
             raise SwError(SW["WARN_NOINFO63"])
-        eph_pubkey = pace.buf2string(self.my_pace_eph_pubkey)
+        eph_pubkey = self.my_pace_eph_pubkey
 
         for tag, length, value in tlv_data:
             if tag == 0x83:
-                self.pace_opp_pub_key = pace.get_buf(value)
+                self.pace_opp_pub_key = value
                 pace.PACE_STEP3B_compute_shared_secret(self.eac_ctx, self.pace_opp_pub_key)
             else:
                 raise SwError(SW["ERR_INCORRECTPARAMETERS"])
@@ -255,7 +252,7 @@ class nPA_SE(Security_Environment):
     def __eac_pace_step4(self, data):
         tlv_data = nPA_SE.__unpack_general_authenticate(data)
         pace.PACE_STEP3C_derive_keys(self.eac_ctx)
-        my_token = pace.buf2string(pace.PACE_STEP3D_compute_authentication_token(self.eac_ctx, self.pace_opp_pub_key))
+        my_token = pace.PACE_STEP3D_compute_authentication_token(self.eac_ctx, self.pace_opp_pub_key)
         token = ""
         for tag, length, value in tlv_data:
             if tag == 0x85:
@@ -263,7 +260,7 @@ class nPA_SE(Security_Environment):
             else:
                 raise SwError(SW["ERR_INCORRECTPARAMETERS"])
 
-        if 1 != pace.PACE_STEP3D_verify_authentication_token(self.eac_ctx, pace.get_buf(token)):
+        if 1 != pace.PACE_STEP3D_verify_authentication_token(self.eac_ctx, token):
             pace.print_ossl_err()
             raise SwError(SW["WARN_NOINFO63"])
 
@@ -343,7 +340,7 @@ class nPA_SE(Security_Environment):
                 auxiliary_data = None
 
             if 1 != pace.TA_STEP6_verify(self.eac_ctx,
-                    pace.get_buf(self.at.eph_pub_key), id_picc,
+                    pace.get_buf(self.at.eph_pub_key), pace.get_buf(id_picc),
                     auxiliary_data, pace.get_buf(data)):
                 pace.print_ossl_err()
                 raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
