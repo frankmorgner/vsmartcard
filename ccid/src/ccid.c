@@ -36,11 +36,6 @@
 #include <npa/scutil.h>
 
 static struct sm_ctx sctx;
-#undef BUERGERCLIENT_WORKAROUND
-#ifdef BUERGERCLIENT_WORKAROUND
-static char *ef_cardaccess = NULL;
-static size_t ef_cardaccess_length = 0;
-#endif
 
 #else
 #include "scutil.h"
@@ -138,11 +133,6 @@ void sm_stop() {
 #ifdef WITH_PACE
     sm_ctx_clear_free(&sctx);
     memset(&sctx, 0, sizeof(sctx));
-#ifdef BUERGERCLIENT_WORKAROUND
-    free(ef_cardaccess);
-    ef_cardaccess = NULL;
-    ef_cardaccess_length = 0;
-#endif
 #endif
 }
 
@@ -412,14 +402,7 @@ perform_PC_to_RDR_IccPowerOn(const __u8 *in, size_t inlen, __u8 **out, size_t *o
     } else {
         sm_stop();
         sc_result = sc_connect_card(reader, &card);
-#ifdef BUERGERCLIENT_WORKAROUND
-        if (sc_result >= 0) {
-            if (get_ef_card_access(card,
-                        (u8 **) &ef_cardaccess, &ef_cardaccess_length) < 0) {
-                sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Could not get EF.CardAccess.");
-            }
-        }
-#endif
+        card->caps |= SC_CARD_CAP_APDU_EXT;
     }
 
     if (sc_result >= 0) {
@@ -954,11 +937,6 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
     }
 
 
-#ifdef BUERGERCLIENT_WORKAROUND
-    pace_output.ef_cardaccess_length = ef_cardaccess_length;
-    pace_output.ef_cardaccess = ef_cardaccess;
-#endif
-
     sc_result = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
             &sctx, EAC_TR_VERSION_2_02);
     if (sc_result < 0)
@@ -1080,12 +1058,7 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
     sc_result = SC_SUCCESS;
 
 err:
-#ifdef BUERGERCLIENT_WORKAROUND
-    ef_cardaccess = pace_output.ef_cardaccess;
-    ef_cardaccess_length = pace_output.ef_cardaccess_length;
-#else
     free(pace_output.ef_cardaccess);
-#endif
     free(pace_output.recent_car);
     free(pace_output.previous_car);
     free(pace_output.id_icc);
@@ -1384,7 +1357,6 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
                 break;
             case SC_APDU_CASE_2_SHORT:
                 apdu.cse = SC_APDU_CASE_4_SHORT;
-#ifdef BUERGERCLIENT_WORKAROUND
 #ifdef WITH_PACE
                 /* This is an ugly hack to support the current AusweisApp.
                  *
@@ -1403,7 +1375,6 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
                  * have a nPA */
                 if (sctx.active)
                     apdu.cse = SC_APDU_CASE_3_EXT;
-#endif
 #endif
                 break;
             case SC_APDU_CASE_2_EXT:
