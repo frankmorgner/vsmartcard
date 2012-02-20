@@ -1055,7 +1055,7 @@ int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
         }
     }
 
-    if (card->reader->capabilities & SC_READER_CAP_PACE) {
+    if (card->reader->capabilities & SC_READER_CAP_PACE_GENERIC) {
         r = sc_perform_pace(card, &pace_input, pace_output);
     } else {
         if (!pace_output->ef_cardaccess_length || !pace_output->ef_cardaccess) {
