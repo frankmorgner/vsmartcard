@@ -19,14 +19,13 @@ EXTRA_OECONF = "--enable-pcsc=yes LIBS=-ldl \
                 --with-pcsc-provider=${libdir}/libpcsclite.so.1 \
                "
 
-#FIXME
-FILES_${PN} += "${libdir}/pkcs11-spy.so \
-                ${libdir}/opensc-pkcs11.so \
-                ${libdir}/onepin-opensc-pkcs11.so \
-                ${libdir}/pkcs11/pkcs11-spy.so \
-                ${libdir}/pkcs11/opensc-pkcs11.so \
-                ${libdir}/pkcs11/onepin-opensc-pkcs11.so \
-                "
+FILES_${PN}-dev += "${libdir}/pkcs11-spy.so \
+                    ${libdir}/opensc-pkcs11.so \
+                    ${libdir}/onepin-opensc-pkcs11.so \
+                    ${libdir}/pkcs11/pkcs11-spy.so \
+                    ${libdir}/pkcs11/opensc-pkcs11.so \
+                    ${libdir}/pkcs11/onepin-opensc-pkcs11.so \
+                   "
 FILES_${PN}-dbg += "${libdir}/pkcs11/.debug"
 
 SRC_URI[md5sum] = "62fe8d3ed1864556c1970d7c23d8d58e"
