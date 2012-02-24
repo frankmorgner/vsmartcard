@@ -5,11 +5,6 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=7fbc338309ac38fefcd64b04bb903e34"
 
 DEPENDS = "pcsc-lite openssl"
 
-#LEAD_SONAME = "libopensc"
-
-#LIBS += "-ldl"
-CFLAGS += "-I${incdir}"
-
 SRC_URI = "git://github.com/frankmorgner/OpenSC.git;"
 SRCREV  = "d818628bf9c62c750710649b0b234bc71eec4ee9"
 PV      = "0.12+gitr${SRCPV}"
