@@ -1,23 +1,24 @@
 DESCRIPTION = "A set of libraries and utilities to work with smart cards"
 HOMEPAGE = "http://www.opensc-project.org/opensc"
-LICENSE = "LGPL"
+LICENSE = "LGPL-2.1"
 LIC_FILES_CHKSUM = "file://COPYING;md5=7fbc338309ac38fefcd64b04bb903e34"
 
 DEPENDS = "pcsc-lite openssl"
 
-LEAD_SONAME = "libopensc"
+#LEAD_SONAME = "libopensc"
 
-LIBS += "-ldl"
+#LIBS += "-ldl"
+CFLAGS += "-I${incdir}"
 
 SRC_URI = "git://github.com/frankmorgner/OpenSC.git;"
 SRCREV  = "d818628bf9c62c750710649b0b234bc71eec4ee9"
+PV      = "0.12+gitr${SRCPV}"
 S       = "${WORKDIR}/git"
 
 inherit autotools pkgconfig
 
-EXTRA_OECONF = "--enable-pcsc=yes LIBS=-ldl \
-                --with-pcsc-provider=${libdir}/libpcsclite.so.1 \
-               "
+
+EXTRA_OECONF = "--enable-pcsc=yes"
 
 FILES_${PN}-dev += "${libdir}/pkcs11-spy.so \
                     ${libdir}/opensc-pkcs11.so \
