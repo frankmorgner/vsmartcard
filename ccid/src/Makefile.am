@@ -1,5 +1,5 @@
 EXTRA_DIST  = $(shell find $(top_srcdir)/src/opensc -path '*/.svn' -prune -o -type f -a -name '*.h' -print)
-EXTRA_DIST += $(shell find $(top_srcdir)/src/opensc-npa -path '*/.svn' -prune -o -type f -a -name '*.h' -print)
+EXTRA_DIST += $(shell find -L $(top_srcdir)/src/opensc-npa -path '*/.git' -prune -o -type f -a -name '*.h' -print)
 
 ccid_emulator_SOURCES = ccid.c usbstring.c usb.c binutil.c sslutil.c
 ccid_emulator_LDADD =  $(OPENSSL_LIBS) $(PTHREAD_LIBS)
