@@ -6,6 +6,7 @@ do_subst = sed \
 	   -e 's,[@]PACKAGE_BUGREPORT[@],$(PACKAGE_BUGREPORT),g' \
 	   -e 's,[@]PACKAGE_URL[@],$(PACKAGE_URL),g' \
 	   -e 's,[@]PACKAGE_VERSION[@],$(PACKAGE_VERSION),g' \
+	   -e 's,[@]RECOMMENDED_CONF_OPTS[@], --sysconfdir=/etc,g' \
 	   -e 's,[@]builddir[@],$(builddir),g' \
 	   -e 's,[@]prefix[@],$(prefix),g' \
 	   -e 's,[@]exec_prefix[@],$(exec_prefix),g' \

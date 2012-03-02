@@ -15,6 +15,6 @@ get the missing standard auxiliary files::
 To configure (:command:`configure --help` lists possible options), build and
 install the Virtual Smart Card now do the following::
     
-    ./configure
+    ./configure --sysconfdir=/etc
     make
     make install

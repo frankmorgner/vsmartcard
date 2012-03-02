@@ -15,6 +15,6 @@ get the missing standard auxiliary files::
 To configure (:command:`configure --help` lists possible options), build and
 install the @PACKAGE_NAME@ now do the following::
     
-    ./configure
+    ./configure@RECOMMENDED_CONF_OPTS@
     make
     make install
