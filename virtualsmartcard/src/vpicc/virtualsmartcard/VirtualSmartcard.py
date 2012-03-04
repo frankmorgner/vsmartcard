@@ -329,7 +329,7 @@ class Iso7816OS(SmartcardOS):
                 c = self.SAM.parse_SM_CAPDU(c, header_authentication)
                 logging.info("Decrypted APDU:\n%s", str(c))
             elif SM_STATUS == "Proprietary SM":
-                raise SwError("ERR_SECMESSNOTSUPPORTED")
+                raise SwError(SW["ERR_SECMESSNOTSUPPORTED"])
             sw, result = self.ins2handler.get(c.ins, notImplemented)(c.p1, c.p2, c.data)
             if SM_STATUS == "Standard SM":
                 answer = self.formatResult(Iso7816OS.seekable(c.ins), c.effective_Le, result, sw, True)
