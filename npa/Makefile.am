@@ -39,7 +39,7 @@ $(opensc_root)/lib/libopensc.la:
 	cd $(top_srcdir)/src/opensc && \
 		./bootstrap && \
 		./configure --disable-doc && \
-		EXTRA_OPENSC_CONFIG="`$(do_export)`" OPENSSL_VERSION="1.0.0e" OPENSSL_URL="https://www2.informatik.hu-berlin.de/~morgner/files/openssl-1.0.0e.tar.gz" EXTRA_OPENSSL_CONFIG="experimental-pace" win32/installer_from_build.sh
+		EXTRA_OPENSC_CONFIG="`$(do_export)`" ZLIB_VERSION="1.2.6" OPENSSL_VERSION="1.0.1_with_openpace-0.7" OPENSSL_URL="https://www2.informatik.hu-berlin.de/~morgner/openssl-1.0.1_with_openpace-0.7.tar.gz" EXTRA_OPENSSL_CONFIG="experimental-pace" win32/installer_from_build.sh
 
 $(opensc_root)/lib/libnpa.la: $(opensc_root)/lib/libopensc.la
 	$(fixup_la)
