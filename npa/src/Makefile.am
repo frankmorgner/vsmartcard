@@ -6,6 +6,9 @@ libnpa_la_SOURCES = sm.c scutil.c npa.c sslutil.c
 libnpa_la_LIBADD = $(OPENSSL_LIBS) $(OPENSC_LIBS)
 libnpa_la_CFLAGS = $(OPENSSL_CFLAGS)
 libnpa_la_LDFLAGS = -no-undefined
+if WIN32
+libnpa_la_LIBADD += -lws2_32
+endif
 
 npa_tool_SOURCES = npa-tool.c binutil.c
 npa_tool_LDADD = $(OPENSSL_LIBS) $(OPENSC_LIBS) libnpa.la

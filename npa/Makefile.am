@@ -52,7 +52,6 @@ $(opensc_root)/lib/libnpa.la: $(opensc_root)/lib/libopensc.la
 		--host=i586-mingw32msvc \
 		--build=$(shell gcc -dumpmachine) \
 		--program-prefix='' \
-		LIBS="-lws2_32" \
 		PKG_CONFIG_PATH="$(opensc_root)/lib/pkgconfig" \
 		PKG_CONFIG_SYSROOT_DIR="$(opensc_root)" \
 		OPENSC_LIBS="-L$(opensc_root)/lib -lopensc" || ($(restore_la) && false)
