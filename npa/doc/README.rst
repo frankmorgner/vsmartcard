@@ -1,7 +1,7 @@
 .. highlight:: sh
 
-.. _OpenSC: http://www.opensc-project.org/opensc
-.. _OpenPACE: http://sourceforge.net/projects/openpace/
+.. _OpenSC with PACE: http://github.com/frankmorgner/OpenSC
+.. _OpenPACE: http://openpace.sourceforge.net
 
 
 .. _npa:
@@ -15,10 +15,10 @@ nPA Smart Card Library
 :License:
     GPL version 3
 :Tested Platforms:
-    Linux (Debian, Ubuntu, OpenMoko)
-:Potential Platforms:
+    - Linux (Debian, Ubuntu, OpenMoko)
     - Windows
-    - Unix-like operating systems (Mac OS, Solaris, BSD, ...)
+:Potential Platforms:
+    Unix-like operating systems (Mac OS, Solaris, BSD, ...)
 
 Welcome to the nPA Smart Card Library. The purpose of the nPA Smart Card Library is to offer an easy to use API for the new
 German identity card (neuer Personalausweis, nPA). The library also implements
@@ -38,7 +38,7 @@ APDUs inside a secure messaging channel established with PACE.
 
 The nPA Smart Card Library has the following dependencies:
 
-- OpenSC_
+- `OpenSC with PACE`_
 - OpenSSL with OpenPACE_
 
 
@@ -46,8 +46,9 @@ The nPA Smart Card Library has the following dependencies:
 Hints on OpenSSL with OpenPACE
 ------------------------------
 
-libnpa links against libcrypto, which must be patched with OpenPACE_. Here is
-an example of how to get the standard installation of OpenSSL with OpenPACE_::
+The nPA Smart Card Library links against OpenSSL, which must be patched with OpenPACE_.
+Here is an example of how to get the standard installation of OpenSSL with
+OpenPACE_::
  
     PREFIX=/tmp/install
     OPENPACE=openpace
@@ -71,15 +72,15 @@ to configure the nPA Smart Card Library to use it::
 Hints on OpenSC
 ---------------
 
-libnpa links against libopensc, which is discouraged and hindered since OpenSC
-version >= 0.12. (We really need to get rid of this dependency or integrate
-better into the OpenSC-framework.) You need the OpenSC components to be
-installed (especially :file:`libopensc.so`). Here is an example of how to get the
-standard installation of OpenSC_::
+The nPA Smart Card Library links against OpenSC, which is discouraged and hindered
+since OpenSC version >= 0.12. However, I extended OpenSC to support smart card
+readers with PACE capabilities. You need the OpenSC components to be installed
+(especially :file:`libopensc.so`). Here is an example of how to get the
+standard installation of `OpenSC with PACE`_::
 
     PREFIX=/tmp/install
     OPENSC=opensc
-    svn co http://www.opensc-project.org/svn/opensc/trunk $OPENSC
+    git clone git://github.com/frankmorgner/OpenSC.git $OPENSC
     cd $OPENSC
     autoreconf -i
     # adding PKG_CONFIG_PATH here lets OpenSC use OpenSSL with OpenPACE
@@ -115,15 +116,15 @@ npa-tool will show a password prompt.
 Linking against libnpa
 ----------------------
 
-Following the section `Installation`_ above, you have installed OpenSC_,
-OpenPACE_ and the nPA Smart Card Library to :file:`/tmp/install`. To compile a program using libnpa you
-need to get the header files from OpenSC_ as well.
-Here is how
-to compile an external program with these libraries::
+Following the section `Installation`_ above, you have installed `OpenSC with
+PACE`_, OpenPACE_ and the nPA Smart Card Library to :file:`/tmp/install`. To compile a
+program using nPA Smart Card Library you need to get the header files from `OpenSC with
+PACE`_ as well.  Here is how to compile an external program with these
+libraries::
 
     PREFIX=/tmp/install
     OPENSC=opensc
-    svn co http://www.opensc-project.org/svn/opensc/trunk $OPENSC
+    git clone git://github.com/frankmorgner/OpenSC.git $OPENSC
     cc example.c -I$OPENSC/src \
         $(env PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig \
             pkg-config --cflags --libs npa)
@@ -132,7 +133,7 @@ Alternatively you can specify libraries and flags by hand::
 
     PREFIX=/tmp/install
     OPENSC=opensc
-    svn co http://www.opensc-project.org/svn/opensc/trunk $OPENSC
+    git clone git://github.com/frankmorgner/OpenSC.git $OPENSC
     cc example.c -I$OPENSC/src \
         -I$PREFIX/include \
         -L$PREFIX/lib -lcrypto -lnpa -lopensc"
