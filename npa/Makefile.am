@@ -15,10 +15,6 @@ do_subst = $(SED) \
 	   -e 's,[@]OPENSC_LIBS[@],$(OPENSC_LIBS),g' \
 	   -e 's,[@]top_srcdir[@],$(top_srcdir),g'
 
-#do_export = sed -e 's,-export-symbols "[$$](srcdir)/libopensc.exports",,g' \
-			#-e 's,libopensc.exports,,g' \
-		   	#< src/libopensc/Makefile.am \
-			#> src/libopensc/Makefile.am
 do_export = cp $(abs_srcdir)/Makefile.am.opensc src/libopensc/Makefile.am
 
 opensc_img = $(abs_srcdir)/src/opensc/win32/build/image
@@ -39,7 +35,14 @@ $(opensc_root)/lib/libopensc.la:
 	cd $(top_srcdir)/src/opensc && \
 		./bootstrap && \
 		./configure --disable-doc && \
-		EXTRA_OPENSC_CONFIG="`$(do_export)`" ZLIB_VERSION="1.2.6" OPENSSL_VERSION="1.0.1_with_openpace-0.7" OPENSSL_URL="https://www2.informatik.hu-berlin.de/~morgner/openssl-1.0.1_with_openpace-0.7.tar.gz" EXTRA_OPENSSL_CONFIG="experimental-pace" win32/installer_from_build.sh
+		EXTRA_OPENSC_CONFIG="`$(do_export)`" \
+		ZLIB_VERSION="1.2.6" \
+		OPENSC_VERSION="0.12.3-pre1" \
+		OPENSC_URL="http://www2.informatik.hu-berlin.de/~morgner/opensc-0.12.3-pre1.tar.gz" \
+		OPENSSL_VERSION="1.0.1_with_openpace-0.7" \
+		OPENSSL_URL="http://www2.informatik.hu-berlin.de/~morgner/openssl-1.0.1_with_openpace-0.7.tar.gz" \
+		EXTRA_OPENSSL_CONFIG="experimental-pace" \
+		win32/installer_from_build.sh
 
 $(opensc_root)/lib/libnpa.la: $(opensc_root)/lib/libopensc.la
 	$(fixup_la)
@@ -49,6 +52,7 @@ $(opensc_root)/lib/libnpa.la: $(opensc_root)/lib/libopensc.la
 		--host=i586-mingw32msvc \
 		--build=$(shell gcc -dumpmachine) \
 		--program-prefix='' \
+		LIBS="-lws2_32" \
 		PKG_CONFIG_PATH="$(opensc_root)/lib/pkgconfig" \
 		PKG_CONFIG_SYSROOT_DIR="$(opensc_root)" \
 		OPENSC_LIBS="-L$(opensc_root)/lib -lopensc" || ($(restore_la) && false)
@@ -58,7 +62,7 @@ $(opensc_root)/lib/libnpa.la: $(opensc_root)/lib/libopensc.la
 win-opensc: $(opensc_root)/lib/libopensc.la
 
 win: $(opensc_root)/lib/libnpa.la
-	mkdir -p npa-win32
+	mkdir -p $(PACKAGE_TARNAME)-$(PACKAGE_VERSION)_win32
 	for i in \
 		$(opensc_root)/bin/*npa*.dll \
 		$(opensc_root)/bin/*opensc*.dll \
@@ -66,15 +70,15 @@ win: $(opensc_root)/lib/libnpa.la
 		$(opensc_root)/bin/*ltdl*.dll \
 		$(opensc_root)/bin/*zlib*.dll \
 		$(opensc_root)/bin/npa-tool.exe \
-		; do cp $${i} npa-win32; done
-	mkdir -p npa-win32/include
+		; do cp $${i} $(PACKAGE_TARNAME)-$(PACKAGE_VERSION)_win32; done
+	mkdir -p $(PACKAGE_TARNAME)-$(PACKAGE_VERSION)_win32/include
 	for i in \
 		$(opensc_root)/include/openssl \
 		$(opensc_root)/include/npa \
-		; do cp -r $${i} npa-win32/include; done
-	mkdir -p npa-win32/include/libopensc
-	cp $(srcdir)/src/opensc/src/libopensc/*.h npa-win32/include/libopensc
-	rm -f npa-win32/*pkcs* npa-win32/include/libopensc/*internal*.h
+		; do cp -r $${i} $(PACKAGE_TARNAME)-$(PACKAGE_VERSION)_win32/include; done
+	mkdir -p $(PACKAGE_TARNAME)-$(PACKAGE_VERSION)_win32/include/libopensc
+	cp $(srcdir)/src/opensc/src/libopensc/*.h $(PACKAGE_TARNAME)-$(PACKAGE_VERSION)_win32/include/libopensc
+	rm -f $(PACKAGE_TARNAME)-$(PACKAGE_VERSION)_win32/*pkcs* $(PACKAGE_TARNAME)-$(PACKAGE_VERSION)_win32/include/libopensc/*internal*.h
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libnpa.pc
