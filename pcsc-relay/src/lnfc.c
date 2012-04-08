@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Frank Morgner
+ * Copyright (C) 2012 Frank Morgner
  *
  * This file is part of pcsc-relay.
  *
@@ -24,16 +24,15 @@
 
 struct lnfc_data {
     /* PN53X only supports short APDUs */
-    byte_t abtCapdu[4+1+0xff+1];
-    size_t szCapduLen;
-    nfc_device_t *pndTarget;
+    uint8_t abtCapdu[4+1+0xff+1];
+    int iCapduLen;
+    nfc_device *pndTarget;
 };
 
 
-static struct timeval transmit_timeout = {
-    1, /* seconds */
-    0, /* microseconds */
-};
+/* Wait 5 seconds for (R-)APDUs, which is the maximum frame waiting time
+ * according to 14443-4 */
+#define TRANSMIT_TIMEOUT 5000
 
 
 static size_t get_historical_bytes(unsigned char *atr, size_t atrlen,
@@ -109,7 +108,7 @@ static int lnfc_connect(driver_data_t **driver_data)
 {
     struct lnfc_data *data;
     /* data derived from German (test) identity card issued 2010 */
-    nfc_target_t ntEmulatedTarget = {
+    nfc_target ntEmulatedTarget = {
         .nti.nai.abtAtqa = {0x00, 0x08},
         .nti.nai.btSak = 0x20,
         .nti.nai.szUidLen = 4,
@@ -141,19 +140,20 @@ static int lnfc_connect(driver_data_t **driver_data)
     *driver_data = data;
 
 
-    data->pndTarget = nfc_connect (NULL);
+    data->pndTarget = nfc_open(NULL, NULL);
     if (data->pndTarget == NULL) {
         ERROR("Error connecting to NFC emulator device\n");
         return 0;
     }
 
     if (verbose >= 0)
-        printf("Connected to %s\n", nfc_device_name(data->pndTarget));
+        printf("Connected to %s\n", nfc_device_get_name(data->pndTarget));
 
     DEBUG("Waiting for a command that is not part of the anti-collision...\n");
-    if (!nfc_target_init (data->pndTarget, &ntEmulatedTarget, data->abtCapdu, &data->szCapduLen)) {
+    data->iCapduLen = nfc_target_init(data->pndTarget, &ntEmulatedTarget, data->abtCapdu, sizeof data->abtCapdu, 0);
+    if (data->iCapduLen < 0) {
         ERROR("nfc_target_init: %s\n", nfc_strerror(data->pndTarget));
-        nfc_disconnect (data->pndTarget);
+        nfc_close (data->pndTarget);
         return 0;
     }
     DEBUG("Initialized NFC emulator\n");
@@ -168,7 +168,7 @@ static int lnfc_disconnect(driver_data_t *driver_data)
 
 
     if (data) {
-        nfc_disconnect (data->pndTarget);
+        nfc_close(data->pndTarget);
         free(data);
     }
 
@@ -187,20 +187,21 @@ static int lnfc_receive_capdu(driver_data_t *driver_data,
 
 
     // Receive external reader command through target
-    if (!nfc_target_receive_bytes(data->pndTarget, data->abtCapdu, &data->szCapduLen, &transmit_timeout)) {
+    data->iCapduLen = nfc_target_receive_bytes(data->pndTarget, data->abtCapdu, sizeof data->abtCapdu, TRANSMIT_TIMEOUT);
+    if (data->iCapduLen < 0) {
         ERROR ("nfc_target_receive_bytes: %s\n", nfc_strerror(data->pndTarget));
         return 0;
     }
 
 
-    p = realloc(*capdu, data->szCapduLen);
+    p = realloc(*capdu, data->iCapduLen);
     if (!p) {
         ERROR("Error allocating memory for C-APDU\n");
         return 0;
     }
-    memcpy(p, data->abtCapdu, data->szCapduLen);
+    memcpy(p, data->abtCapdu, data->iCapduLen);
     *capdu = p;
-    *len = data->szCapduLen;
+    *len = data->iCapduLen;
 
 
     return 1;
@@ -210,15 +211,19 @@ static int lnfc_send_rapdu(driver_data_t *driver_data,
         const unsigned char *rapdu, size_t len)
 {
     struct lnfc_data *data = driver_data;
+    int r;
 
     if (!data || !rapdu)
         return 0;
 
 
-    if (!nfc_target_send_bytes(data->pndTarget, rapdu, len, &transmit_timeout)) {
+    r = nfc_target_send_bytes(data->pndTarget, rapdu, len, TRANSMIT_TIMEOUT);
+    if (r < 0) {
         ERROR ("nfc_target_send_bytes: %s\n", nfc_strerror(data->pndTarget));
         return 0;
     }
+    if (r < len)
+        INFO ("Transmitted %d less bytes than desired: %s\n", len-r, nfc_strerror(data->pndTarget));
 
 
     return 1;
