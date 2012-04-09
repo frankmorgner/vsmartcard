@@ -4,7 +4,7 @@
 Installation
 =============
 
-The CCID Emulator uses the GNU Build System to compile and install. If you are
+The USB CCID Emulator uses the GNU Build System to compile and install. If you are
 unfamiliar with it, please have a look at :file:`INSTALL`. If you have a look
 around and can not find it, you are probably working bleeding edge in the
 repository.  Run the following command in :file:`ccid-emulator` to
@@ -13,7 +13,7 @@ get the missing standard auxiliary files::
     autoreconf -i
 
 To configure (:command:`configure --help` lists possible options), build and
-install the CCID Emulator now do the following::
+install the USB CCID Emulator now do the following::
     
     ./configure
     make
