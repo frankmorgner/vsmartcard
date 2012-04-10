@@ -37,8 +37,6 @@ $(opensc_root)/lib/libopensc.la:
 		./configure --disable-doc && \
 		EXTRA_OPENSC_CONFIG="`$(do_export)`" \
 		ZLIB_VERSION="1.2.6" \
-		OPENSC_VERSION="0.12.3-pre1" \
-		OPENSC_URL="http://www2.informatik.hu-berlin.de/~morgner/opensc-0.12.3-pre1.tar.gz" \
 		OPENSSL_VERSION="1.0.1_with_openpace-0.7" \
 		OPENSSL_URL="http://www2.informatik.hu-berlin.de/~morgner/openssl-1.0.1_with_openpace-0.7.tar.gz" \
 		EXTRA_OPENSSL_CONFIG="experimental-pace" \
@@ -52,6 +50,7 @@ $(opensc_root)/lib/libnpa.la: $(opensc_root)/lib/libopensc.la
 		--host=i586-mingw32msvc \
 		--build=$(shell gcc -dumpmachine) \
 		--program-prefix='' \
+		LIBS="-lws2_32" \
 		PKG_CONFIG_PATH="$(opensc_root)/lib/pkgconfig" \
 		PKG_CONFIG_SYSROOT_DIR="$(opensc_root)" \
 		OPENSC_LIBS="-L$(opensc_root)/lib -lopensc" || ($(restore_la) && false)
