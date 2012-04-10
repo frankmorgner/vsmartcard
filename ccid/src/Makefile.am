@@ -11,7 +11,9 @@ BUILT_SOURCES = cmdline.h cmdline.c
 EXTRA_DIST  = ccid-emulator.ggo ccid-emulator.ggo.in
 EXTRA_DIST += $(shell find $(top_srcdir)/src/opensc -path '*/.svn' -prune -o -type f -a -name '*.h' -print)
 EXTRA_DIST += $(shell find -L $(top_srcdir)/src/opensc-npa -path '*/.git' -prune -o -type f -a -name '*.h' -print)
-DISTCLEANFILES = $(BUILT_SOURCES) ccid-emulator.ggo
+MAINTAINERCLEANFILES = $(BUILT_SOURCES) ccid-emulator.ggo $(dist_man1_MANS)
+
+dist_man1_MANS		= ccid-emulator.1
 
 ccid_emulator_SOURCES = ccid.c usbstring.c usb.c sslutil.c $(BUILT_SOURCES)
 ccid_emulator_LDADD =  $(OPENSSL_LIBS) $(PTHREAD_LIBS)
@@ -21,10 +23,17 @@ ccid_emulator_CFLAGS = $(OPENSSL_CFLAGS) $(PTHREAD_CFLAGS)
 ccid-emulator.c: $(BUILT_SOURCES)
 
 $(BUILT_SOURCES): ccid-emulator.ggo
-	gengetopt --output-dir=$(srcdir) < $<
+	$(GENGETOPT) --output-dir=$(srcdir) < $<
 
 ccid-emulator.ggo: ccid-emulator.ggo.in
 	$(do_subst) < $< > $(srcdir)/$@
+
+
+ccid-emulator.1:
+	$(HELP2MAN) \
+		--output=$@ \
+		--version-string='$(PACKAGE) $(VERSION)' \
+		$(srcdir)/ccid-emulator
 
 
 bin_PROGRAMS =

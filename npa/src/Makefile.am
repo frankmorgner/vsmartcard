@@ -10,7 +10,9 @@ BUILT_SOURCES = cmdline.h cmdline.c
 
 EXTRA_DIST  = npa-tool.ggo npa-tool.ggo.in
 EXTRA_DIST += $(shell find -L $(top_srcdir)/src/opensc -path '*/.git' -prune -o -type f -a -name '*.h' -print)
-DISTCLEANFILES = $(BUILT_SOURCES) npa-tool.ggo
+MAINTAINERCLEANFILES = $(BUILT_SOURCES) npa-tool.ggo $(dist_man1_MANS)
+
+dist_man1_MANS		= npa-tool.1
 
 AM_CPPFLAGS = -I$(top_srcdir)/src/npa -I$(top_srcdir)/src/opensc/src
 
@@ -31,10 +33,16 @@ example_CFLAGS = $(OPENSSL_CFLAGS)
 npa-tool.c: $(BUILT_SOURCES)
 
 $(BUILT_SOURCES): npa-tool.ggo
-	gengetopt --output-dir=$(srcdir) < $<
+	$(GENGETOPT) --output-dir=$(srcdir) < $<
 
 npa-tool.ggo: npa-tool.ggo.in
 	$(do_subst) < $< > $(srcdir)/$@
+
+
+npa-tool.1:
+	$(HELP2MAN) \
+		--output=$@ \
+		$(srcdir)/npa-tool
 
 
 bin_PROGRAMS = npa-tool

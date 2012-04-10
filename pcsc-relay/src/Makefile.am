@@ -10,6 +10,17 @@ BUILT_SOURCES = cmdline.h cmdline.c
 
 EXTRA_DIST  = pcsc-relay.ggo pcsc-relay.ggo.in
 EXTRA_DIST += picc.py
+MAINTAINERCLEANFILES = $(BUILT_SOURCES) npa-tool.ggo $(dist_man1_MANS)
+
+dist_man1_MANS		= pcsc-relay.1
+
+
+pcsc-relay.1:
+	$(HELP2MAN) \
+		--output=$@ \
+		--version-string='$(PACKAGE) $(VERSION)' \
+		$(srcdir)/pcsc-relay
+
 
 bin_PROGRAMS = pcsc-relay
 bin_SCRIPTS = picc.py
@@ -23,7 +34,7 @@ noinst_HEADERS = pcscutil.h pcsc-relay.h
 pcsc-relay.c: $(BUILT_SOURCES)
 
 $(BUILT_SOURCES): pcsc-relay.ggo
-	gengetopt --output-dir=$(srcdir) < $<
+	$(GENGETOPT) --output-dir=$(srcdir) < $<
 
 pcsc-relay.ggo: pcsc-relay.ggo.in
 	$(do_subst) < $< > $(srcdir)/$@

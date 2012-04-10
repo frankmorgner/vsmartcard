@@ -1,4 +1,3 @@
-package "npa-tool"
 purpose "Access the German electronic identity card (neuer Personalausweis, nPA)"
 
 option "info"           i
