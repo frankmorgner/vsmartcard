@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Frank Morgner
+ * Copyright (C) 2010-2012 Frank Morgner <morgner@informatik.hu-berlin.de>
  *
  * This file is part of npa.
  *
@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License along with
  * npa.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "binutil.h"
+#include "cmdline.h"
 #include "config.h"
 #include <libopensc/log.h>
 #include <npa/npa.h>
@@ -46,89 +46,17 @@ static ssize_t getline(char **lineptr, size_t *n, FILE *stream)
 }
 #endif
 
-static int verbose    = 0;
-static int doinfo     = 0;
-static u8  dobreak = 0;
-static u8  dochangepin = 0;
-static u8  doresumepin = 0;
-static u8  dounblock = 0;
-static u8  dotranslate = 0;
 static const char *newpin = NULL;
-static int usb_reader_num = -1;
 static const char *pin = NULL;
-static u8 usepin = 0;
 static const char *puk = NULL;
-static u8 usepuk = 0;
 static const char *can = NULL;
-static u8 usecan = 0;
 static const char *mrz = NULL;
-static u8 usemrz = 0;
 static u8 chat[0xff];
 static u8 desc[0xffff];
-static const char *cdriver = NULL;
-static char *file = NULL;
 
 static sc_context_t *ctx = NULL;
 static sc_card_t *card = NULL;
 static sc_reader_t *reader;
-
-#define OPT_HELP        'h'
-#define OPT_READER      'r'
-#define OPT_PIN         'i'
-#define OPT_PUK         'u'
-#define OPT_CAN         'a'
-#define OPT_MRZ         'z'
-#define OPT_BREAK       'b'
-#define OPT_CHAT        'C'
-#define OPT_CERTDESC    'D'
-#define OPT_CHANGE_PIN  'N'
-#define OPT_RESUME_PIN  'R'
-#define OPT_UNBLOCK_PIN 'U'
-#define OPT_TRANSLATE   't'
-#define OPT_VERBOSE     'v'
-#define OPT_INFO        'o'
-#define OPT_CARD        'c'
-#define OPT_TRVERSION   'n'
-
-static const struct option options[] = {
-    { "help", no_argument, NULL, OPT_HELP },
-    { "reader",	required_argument, NULL, OPT_READER },
-    { "card-driver", required_argument, NULL, OPT_CARD },
-    { "pin", optional_argument, NULL, OPT_PIN },
-    { "puk", optional_argument, NULL, OPT_PUK },
-    { "can", optional_argument, NULL, OPT_CAN },
-    { "mrz", optional_argument, NULL, OPT_MRZ },
-    { "break", no_argument, NULL, OPT_BREAK },
-    { "chat", required_argument, NULL, OPT_CHAT },
-    { "cert-desc", required_argument, NULL, OPT_CERTDESC },
-    { "new-pin", optional_argument, NULL, OPT_CHANGE_PIN },
-    { "resume-pin", no_argument, NULL, OPT_RESUME_PIN },
-    { "unblock-pin", no_argument, NULL, OPT_UNBLOCK_PIN },
-    { "translate", optional_argument, NULL, OPT_TRANSLATE },
-    { "tr-03110v20", required_argument, NULL, OPT_TRVERSION },
-    { "verbose", no_argument, NULL, OPT_VERBOSE },
-    { "info", no_argument, NULL, OPT_INFO },
-    { NULL, 0, NULL, 0 }
-};
-static const char *option_help[] = {
-    "Print help and exit",
-    "Number of reader to use          (default: auto-detect)",
-    "Which card driver to use         (default: auto-detect)",
-    "Run PACE with (transport) PIN",
-    "Run PACE with PUK",
-    "Run PACE with CAN",
-    "Run PACE with MRZ (insert MRZ without newlines)",
-    "Brute force the secret (only for PIN, CAN, PUK)",
-    "Card holder authorization template to use (hex string)",
-    "Certificate description to use (hex string)",
-    "Install a new PIN",
-    "Resume PIN (uses CAN to activate last retry)",
-    "Unblock PIN (uses PUK to activate three more retries)",
-    "APDUs to send through SM channel (default: stdin)",
-    "Version of TR-03110 (default: 2, for v2.02 and later)",
-    "Use (several times) to be more verbose",
-    "Print version, available readers and drivers.",
-};
 
 int npa_translate_apdus(struct sm_ctx *sctx, sc_card_t *card, FILE *input)
 {
@@ -206,129 +134,57 @@ main (int argc, char **argv)
     struct timeval tv;
     size_t outlen;
 
+    struct gengetopt_args_info cmdline;
+
     memset(&sctx, 0, sizeof sctx);
     memset(&tmpctx, 0, sizeof tmpctx);
     memset(&pace_input, 0, sizeof pace_input);
     memset(&pace_output, 0, sizeof pace_output);
 
-    while (1) {
-        r = getopt_long(argc, argv, "hr:i::u::a::z::bC:D:N::RUt::voc:n:", options, &oindex);
-        if (r == -1)
-            break;
-        switch (r) {
-            case OPT_HELP:
-                print_usage(argv[0] , options, option_help);
-                exit(0);
-                break;
-            case OPT_READER:
-                if (sscanf(optarg, "%d", &usb_reader_num) != 1) {
-                    parse_error(argv[0], options, option_help, optarg, oindex);
-                    exit(2);
-                }
-                break;
-            case OPT_CARD:
-                cdriver = optarg;
-                break;
-            case OPT_VERBOSE:
-                verbose++;
-                break;
-            case OPT_INFO:
-                doinfo = 1;
-                break;
-            case OPT_PUK:
-                usepuk = 1;
-                puk = optarg;
-                if (!puk)
-                    pin = getenv("PUK");
-                break;
-            case OPT_PIN:
-                usepin = 1;
-                pin = optarg;
-                if (!pin)
-                    pin = getenv("PIN");
-                break;
-            case OPT_CAN:
-                usecan = 1;
-                can = optarg;
-                if (!can)
-                    can = getenv("CAN");
-                break;
-            case OPT_MRZ:
-                usemrz = 1;
-                mrz = optarg;
-                if (!mrz)
-                    can = getenv("MRZ");
-                break;
-            case OPT_BREAK:
-                dobreak = 1;
-                break;
-            case OPT_CHAT:
-                pace_input.chat = chat;
-                pace_input.chat_length = sizeof chat;
-                if (sc_hex_to_bin(optarg, (u8 *) pace_input.chat,
-                            &pace_input.chat_length) < 0) {
-                    parse_error(argv[0], options, option_help, optarg, oindex);
-                    exit(2);
-                }
-                break;
-            case OPT_CERTDESC:
-                pace_input.certificate_description = desc;
-                pace_input.certificate_description_length = sizeof desc;
-                if (sc_hex_to_bin(optarg, (u8 *) pace_input.certificate_description,
-                            &pace_input.certificate_description_length) < 0) {
-                    parse_error(argv[0], options, option_help, optarg, oindex);
-                    exit(2);
-                }
-                break;
-            case OPT_CHANGE_PIN:
-                dochangepin = 1;
-                newpin = optarg;
-                if (!newpin)
-                    pin = getenv("NEWPIN");
-                break;
-            case OPT_RESUME_PIN:
-                doresumepin = 1;
-                break;
-            case OPT_UNBLOCK_PIN:
-                dounblock = 1;
-                break;
-            case OPT_TRANSLATE:
-                dotranslate = 1;
-                if (optarg) {
-                    file = optarg;
-                }
-                break;
-            case OPT_TRVERSION:
-                if (sscanf(optarg, "%d", (int *) &tr_version) != 1) {
-                    parse_error(argv[0], options, option_help, optarg, oindex);
-                    exit(2);
-                }
-                break;
-            case '?':
-                /* fall through */
-            default:
-                exit(1);
-                break;
-        }
-    }
 
-    if (optind < argc) {
-        fprintf (stderr, "Unknown argument%s:", optind+1 == argc ? "" : "s");
-        while (optind < argc) {
-            fprintf(stderr, " \"%s\"", argv[optind++]);
-            fprintf(stderr, "%c", optind == argc ? '\n' : ',');
-        }
+    /* Parse command line */
+    if (cmdline_parser (argc, argv, &cmdline) != 0)
         exit(1);
+    if (cmdline.env_flag) {
+        can = getenv("CAN");
+        mrz = getenv("MRZ");
+        pin = getenv("PIN");
+        puk = getenv("PUK");
+        newpin = getenv("NEWPIN");
     }
-
-
-    if (doinfo) {
-        fprintf(stderr, "%s %s  written by Frank Morgner.\n\n" ,
-                argv[0], VERSION);
-        return print_avail(verbose);
+    can = cmdline.can_arg;
+    mrz = cmdline.mrz_arg;
+    pin = cmdline.pin_arg;
+    puk = cmdline.puk_arg;
+    newpin = cmdline.new_pin_arg;
+    if (cmdline.chat_given) {
+        pace_input.chat = chat;
+        pace_input.chat_length = sizeof chat;
+        if (sc_hex_to_bin(cmdline.chat_arg, (u8 *) pace_input.chat,
+                    &pace_input.chat_length) < 0) {
+            fprintf(stderr, "Could not parse CHAT.\n");
+            exit(2);
+        }
     }
+    if (cmdline.cert_desc_given) {
+        pace_input.certificate_description = desc;
+        pace_input.certificate_description_length = sizeof desc;
+        if (sc_hex_to_bin(cmdline.cert_desc_arg,
+                    (u8 *) pace_input.certificate_description,
+                    &pace_input.certificate_description_length) < 0) {
+            fprintf(stderr, "Could not parse certificate description.\n");
+            exit(2);
+        }
+    }
+    if (cmdline.tr_03110v201_flag)
+        tr_version = EAC_TR_VERSION_2_01;
 
-    r = initialize(usb_reader_num, cdriver, verbose, &ctx, &reader);
+
+    if (cmdline.info_flag)
+        return print_avail(cmdline.verbose_given);
+
+
+    r = initialize(cmdline.reader_arg, NULL, cmdline.verbose_given, &ctx, &reader);
     if (r < 0) {
         fprintf(stderr, "Can't initialize reader\n");
         exit(1);
@@ -340,13 +196,13 @@ main (int argc, char **argv)
         exit(1);
     }
 
-    if (dobreak) {
+    if (cmdline.break_flag) {
         /* The biggest buffer sprintf could write with "%llu" */
         char secretbuf[strlen("18446744073709551615")+1];
         unsigned long long secret = 0;
         unsigned long long maxsecret = 0;
 
-        if (usepin) {
+        if (cmdline.pin_given) {
             pace_input.pin_id = PACE_PIN;
             pace_input.pin_length = 6;
             maxsecret = 999999;
@@ -363,7 +219,7 @@ main (int argc, char **argv)
                     exit(2);
                 }
             }
-        } else if (usecan) {
+        } else if (cmdline.can_given) {
             pace_input.pin_id = PACE_CAN;
             pace_input.pin_length = 6;
             maxsecret = 999999;
@@ -380,7 +236,7 @@ main (int argc, char **argv)
                     exit(2);
                 }
             }
-        } else if (usepuk) {
+        } else if (cmdline.puk_given) {
             pace_input.pin_id = PACE_PUK;
             pace_input.pin_length = 10;
             maxsecret = 9999999999LLU;
@@ -433,7 +289,7 @@ main (int argc, char **argv)
         }
     }
 
-    if (doresumepin) {
+    if (cmdline.resume_flag) {
         pace_input.pin_id = PACE_CAN;
         if (can) {
             pace_input.pin = can;
@@ -463,7 +319,7 @@ main (int argc, char **argv)
         printf("Established PACE channel with PIN. PIN resumed.\n");
     }
 
-    if (dounblock) {
+    if (cmdline.unblock_flag) {
         pace_input.pin_id = PACE_PUK;
         if (puk) {
             pace_input.pin = puk;
@@ -484,7 +340,7 @@ main (int argc, char **argv)
         printf("Unblocked PIN.\n");
     }
 
-    if (dochangepin) {
+    if (cmdline.new_pin_given) {
         pace_input.pin_id = PACE_PIN;
         if (pin) {
             pace_input.pin = pin;
@@ -505,28 +361,30 @@ main (int argc, char **argv)
         printf("Changed PIN.\n");
     }
 
-    if (dotranslate || (!doresumepin && !dochangepin && !dounblock && !dobreak)) {
+    if (cmdline.translate_given
+            || (!cmdline.resume_flag && !cmdline.new_pin_given
+                && !cmdline.unblock_flag && !cmdline.break_given)) {
         pace_input.pin = NULL;
         pace_input.pin_length = 0;
-        if (usepin) {
+        if (cmdline.pin_given) {
             pace_input.pin_id = PACE_PIN;
             if (pin) {
                 pace_input.pin = pin;
                 pace_input.pin_length = strlen(pin);
             }
-        } else if (usecan) {
+        } else if (cmdline.can_given) {
             pace_input.pin_id = PACE_CAN;
             if (can) {
                 pace_input.pin = can;
                 pace_input.pin_length = strlen(can);
             }
-        } else if (usemrz) {
+        } else if (cmdline.mrz_given) {
             pace_input.pin_id = PACE_MRZ;
             if (mrz) {
                 pace_input.pin = mrz;
                 pace_input.pin_length = strlen(mrz);
             }
-        } else if (usepuk) {
+        } else if (cmdline.puk_given) {
             pace_input.pin_id = PACE_PUK;
             if (puk) {
                 pace_input.pin = puk;
@@ -543,14 +401,14 @@ main (int argc, char **argv)
         if (r < 0)
             goto err;
         printf("Established PACE channel with %s.\n",
-                npa_secret_name(pace_input.pin_id), file);
+                npa_secret_name(pace_input.pin_id), cmdline.translate_arg);
 
-        if (dotranslate) {
+        if (cmdline.translate_given) {
             FILE *input;
-            if (!file || strncmp(file, "stdin", strlen("stdin")) == 0)
+            if (strncmp(cmdline.translate_arg, "stdin", strlen("stdin")) == 0)
                 input = stdin;
             else {
-                input = fopen(file, "r");
+                input = fopen(cmdline.translate_arg, "r");
                 if (!input) {
                     perror("Opening file with APDUs");
                     goto err;

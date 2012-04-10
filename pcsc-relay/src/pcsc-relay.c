@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2010 Dominik Oepen, Frank Morgner
+ * Copyright (C) 2009 by Dominik Oepen <oepen@informatik.hu-berlin.de>.
+ * Copyright (C) 2010-2012 by Frank Morgner <morgner@informatik.hu-berlin.de>.
  *
  * This file is part of pcsc-relay.
  *
@@ -29,35 +30,13 @@
 #include <string.h>
 #include <errno.h>
 
-#include "binutil.h"
-#include "config.h"
+#include "cmdline.h"
 #include "pcsc-relay.h"
 #include "pcscutil.h"
 
-#define OPT_HELP        'h'
-#define OPT_READER      'r'
-#define OPT_VERBOSE     'v'
-#define OPT_FOREGROUND  'f'
-#define OPT_EMULATOR    'e'
-static const struct option options[] = {
-    { "help", no_argument, NULL, OPT_HELP },
-    { "reader",	required_argument, NULL, OPT_READER },
-    { "foreground", no_argument, NULL, OPT_FOREGROUND },
-    { "emulator", required_argument, NULL, OPT_EMULATOR },
-    { "verbose", no_argument, NULL, OPT_VERBOSE },
-    { NULL, 0, NULL, 0 }
-};
-static const char *option_help[] = {
-    "Print help and exit",
-    "Number of reader to use (default: 0)",
-    "Stay in foreground",
-    "NFC emulator backend    (openpicc [default], libnfc)",
-    "Use (several times) to be more verbose",
-};
 static int doinfo = 0;
 static int dodaemon = 1;
 int verbose = 0;
-static unsigned int readernum = 0;
 static struct rf_driver *driver = &driver_openpicc;
 static driver_data_t *driver_data = NULL;
 
@@ -137,63 +116,21 @@ int main (int argc, char **argv)
     DWORD ctl, protocol;
 
     struct sigaction new_sig, old_sig;
+    struct gengetopt_args_info args_info;
 
 
-    while (1) {
-        i = getopt_long(argc, argv, "hr:fe:v", options, &oindex);
-        if (i == -1)
+    /* Parse command line */
+    if (cmdline_parser (argc, argv, &args_info) != 0)
+        exit(1) ;
+    switch (args_info.emulator_arg) {
+        case emulator_arg_openpicc:
+            driver = &driver_openpicc;
             break;
-        switch (i) {
-            case OPT_HELP:
-                print_usage(argv[0] , options, option_help);
-                exit(0);
-                break;
-            case OPT_READER:
-                if (sscanf(optarg, "%u", &readernum) != 1) {
-                    parse_error(argv[0], options, option_help, optarg, oindex);
-                    exit(2);
-                }
-                break;
-            case OPT_VERBOSE:
-                verbose++;
-                dodaemon = 0;
-                break;
-            case OPT_FOREGROUND:
-                dodaemon = 0;
-                break;
-            case OPT_EMULATOR:
-                if (strncmp(optarg, "openpicc", strlen("openpicc")) == 0)
-                    driver = &driver_openpicc;
-                else
-                    if (strncmp(optarg, "libnfc", strlen("libnfc")) == 0)
-                        driver = &driver_libnfc;
-                    else {
-                        parse_error(argv[0], options, option_help, optarg, oindex);
-                        exit(2);
-                    }
-                break;
-            case '?':
-                /* fall through */
-            default:
-                exit(1);
-                break;
-        }
-    }
-
-    if (optind < argc) {
-        fprintf (stderr, "Unknown argument%s:", optind+1 == argc ? "" : "s");
-        while (optind < argc) {
-            fprintf(stderr, " \"%s\"", argv[optind++]);
-            fprintf(stderr, "%c", optind == argc ? '\n' : ',');
-        }
-        exit(1);
-    }
-
-
-    if (doinfo) {
-        fprintf(stderr, "%s  written by Frank Morgner.\n" ,
-                PACKAGE_STRING);
-        return 0;
+        case emulator_arg_libnfc:
+            driver = &driver_libnfc;
+            break;
+        default:
+            exit(2);
     }
 
 
@@ -214,13 +151,13 @@ int main (int argc, char **argv)
 
 
     /* connect to reader and card */
-    r = pcsc_connect(readernum, SCARD_SHARE_EXCLUSIVE, SCARD_PROTOCOL_ANY,
+    r = pcsc_connect(args_info.reader_arg, SCARD_SHARE_EXCLUSIVE, SCARD_PROTOCOL_ANY,
             &hContext, &readers, &hCard, &protocol);
     if (r != SCARD_S_SUCCESS)
         goto err;
 
 
-    if (dodaemon) {
+    if (!args_info.foreground_flag) {
         INFO("Forking to background...\n");
         verbose = -1;
         daemonize();

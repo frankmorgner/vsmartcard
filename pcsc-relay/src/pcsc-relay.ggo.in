@@ -1,0 +1,24 @@
+purpose     "Emulate a contact-less smart card"
+description "Using an contact-less interface (currently OpenPICC or libnfc) @PACKAGE@ receives command APDUs which are forwared to an existing smart card via PC/SC. @PACKAGE@ sends the response APDU back to the contact-less interface."
+
+option "reader"     r
+    "Number of the PC/SC reader to use (-1 for autodetect)"
+    int default="-1"
+    optional
+option "emulator"   e
+    "Contact-less emulator backend"
+    values="openpicc","libnfc" default="openpicc"
+    enum
+    optional
+option "foreground" f
+    "Stay in foreground"
+    flag off
+option "verbose"    v
+    "Use (several times) to be more verbose"
+    multiple
+    optional
+
+text "
+Report bugs to @PACKAGE_BUGREPORT@
+
+Written by Frank Morgner <morgner@informatik.hu-berlin.de> and Dominik Oepen <oepen@informatik.hu-berlin.de>"

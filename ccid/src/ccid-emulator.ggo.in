@@ -1,0 +1,51 @@
+package "npa-tool"
+purpose "Access the German electronic identity card (neuer Personalausweis, nPA)"
+
+option "info"           i
+    "Print available readers and drivers."
+    flag off
+option "reader"         r
+    "Number of the PC/SC reader to use (-1 for autodetect)"
+    int
+    default="-1"
+    optional
+option "gadgetfs"       -
+    "Directory where GadgetFS is mounted"
+    string
+    typestr="FILENAME"
+    default="/dev/gadget"
+    optional
+option "verbose"    v
+    "Use (several times) to be more verbose"
+    multiple
+    optional
+
+section "Changing the appearance on the Universal Serial Bus"
+option "product"        p
+    "USB product ID"
+    int
+    default="0x3010"
+    optional
+option "vendor"         e
+    "USB vendor ID"
+    int
+    default="0x0D46"
+    optional
+option "serial"         -
+    "USB serial number"
+    string
+    default="random"
+    optional
+option "interface"      -
+    "USB serial number"
+    string
+    default="notification status"
+    optional
+option "interrupt"      -
+    "Add interrupt pipe for CCID"
+    flag off
+
+text "
+Report bugs to @PACKAGE_BUGREPORT@
+
+Written by Frank Morgner <morgner@informatik.hu-berlin.de>"

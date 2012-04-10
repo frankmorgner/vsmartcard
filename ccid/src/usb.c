@@ -1,20 +1,20 @@
 /*
- * Copyright (C) 2009 Frank Morgner
+ * Copyright (C) 2009-2012 Frank Morgner <morgner@informatik.hu-berlin.de>
  *
- * This file is part of ccid.
+ * This file is part of ccid-emulator.
  *
- * ccid is free software: you can redistribute it and/or modify it under the
- * terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version.
+ * ccid-emulator is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option)
+ * any later version.
  *
- * ccid is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
- * details.
+ * ccid-emulator is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
  *
  * You should have received a copy of the GNU General Public License along with
- * ccid.  If not, see <http://www.gnu.org/licenses/>.
+ * ccid-emulator.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <errno.h>
 #include <fcntl.h>
@@ -37,17 +37,16 @@
 #include <linux/usb/ch9.h>
 //#include <usb.h>
 //
-#include <getopt.h>
 
 #ifdef	AIO
 /* this aio code works with libaio-0.3.106 */
 #include <libaio.h>
 #endif
 
+#include "ccid.h"
+#include "cmdline.h"
 #include "config.h"
 #include "usbstring.h"
-#include "ccid.h"
-#include "binutil.h"
 
 #define DRIVER_VENDOR_NUM	0x0D46		/* KOBIL Systems */
 #define DRIVER_PRODUCT_NUM	0x3010		/* KOBIL Class 3 Reader */
@@ -55,56 +54,9 @@ static int vendorid   = DRIVER_VENDOR_NUM;
 static int productid  = DRIVER_PRODUCT_NUM;
 static int verbose    = 0;
 static int debug      = 0;
-static int dohid      = 0;
 static int doint      = 0;
-static int doinfo     = 0;
-static const char *doserial = NULL;
 static const char *doiintf = NULL;
-static int usb_reader_num = -1;
-static const char *cdriver = NULL;
 static const char *gadgetfs = "/dev/gadget";
-
-#define OPT_HELP        'h'
-#define OPT_INTERRUPT   'n'
-#define OPT_READER      'r'
-#define OPT_SERIAL      's'
-#define OPT_IINTERFACE  'i'
-#define OPT_PRODUCT     'p'
-#define OPT_VENDOR      'e'
-#define OPT_VERBOSE     'v'
-#define OPT_INFO        'o'
-#define OPT_CARD        'c'
-#define OPT_GADGETFS    'g'
-
-static const struct option options[] = {
-    /*{ "hid", no_argument, &dohid, 1 },*/
-    { "help",        no_argument,       NULL, OPT_HELP },
-    { "reader",      required_argument, NULL, OPT_READER },
-    { "card-driver", required_argument, NULL, OPT_CARD },
-    { "serial",      required_argument, NULL, OPT_SERIAL },
-    { "interface",   required_argument, NULL, OPT_IINTERFACE },
-    { "product",     required_argument, NULL, OPT_PRODUCT },
-    { "vendor",      required_argument, NULL, OPT_VENDOR },
-    { "interrupt",   no_argument,       NULL, OPT_INTERRUPT },
-    { "verbose",     no_argument,       NULL, OPT_VERBOSE },
-    { "info",        no_argument,       NULL, OPT_INFO },
-    { "gadgetfs",    required_argument, NULL, OPT_GADGETFS },
-    { NULL,          0,                 NULL, 0 }
-};
-static const char *option_help[] = {
-    /*"Emulate HID device",*/
-    "Print help and exit",
-    "Number of reader    (default: auto-detect)",
-    "Card driver to use  (default: auto-detect)",
-    "USB serial number   (default: random)",
-    "USB iInterface      (default: notification status)",
-    "USB product ID      (default: 0x3010)",
-    "USB vendor ID       (default: 0x0D46)",
-    "Add interrupt pipe for CCID",
-    "Use (several times) to be more verbose",
-    "Print version, available readers and drivers",
-    "Directory where GadgetFS is mounted",
-};
 
 /* NOTE:  these IDs don't imply endpoint numbering; host side drivers
  * should use endpoint descriptors, or perhaps bcdDevice, to configure
@@ -122,7 +74,6 @@ extern struct ccid_class_descriptor ccid_desc;
 #define	STRINGID_SERIAL		3
 #define	STRINGID_CONFIG		4
 #define	STRINGID_INTERFACE	5
-#define	STRINGID_HID_INTERFACE	6
 
 static struct usb_device_descriptor
 device_desc = {
@@ -172,14 +123,6 @@ source_sink_intf = {
     .bInterfaceProtocol = 0,
     .iInterface         = STRINGID_INTERFACE,
 };
-static struct hid_class_descriptor
-hid_desc = {
-    .bLength         = sizeof hid_desc,
-    .bDescriptorType = 0x21,
-    .bcdHID          = __constant_cpu_to_le16(0x101),
-    .bCountryCode    = 0,
-    .bNumDescriptors = 0,
-};
 
 /* Full speed configurations are used for full-speed only devices as
  * well as dual-speed ones (the only kind with high speed support).
@@ -214,16 +157,6 @@ fs_sink_desc = {
 
 static struct usb_endpoint_descriptor
 fs_status_desc = {
-	.bLength =		USB_DT_ENDPOINT_SIZE,
-	.bDescriptorType =	USB_DT_ENDPOINT,
-
-	.bmAttributes =		USB_ENDPOINT_XFER_INT,
-	.wMaxPacketSize =	__constant_cpu_to_le16 (STATUS_MAXPACKET),
-	.bInterval =		(1 << LOG2_STATUS_POLL_MSEC),
-};
-
-static struct usb_endpoint_descriptor
-fs_hid_status_desc = {
 	.bLength =		USB_DT_ENDPOINT_SIZE,
 	.bDescriptorType =	USB_DT_ENDPOINT,
 
@@ -273,16 +206,6 @@ hs_status_desc = {
 	.bInterval =		LOG2_STATUS_POLL_MSEC + 3,
 };
 
-static struct usb_endpoint_descriptor
-hs_hid_status_desc = {
-	.bLength =		USB_DT_ENDPOINT_SIZE,
-	.bDescriptorType =	USB_DT_ENDPOINT,
-
-	.bmAttributes =		USB_ENDPOINT_XFER_INT,
-	.wMaxPacketSize =	__constant_cpu_to_le16 (STATUS_MAXPACKET),
-	.bInterval =		LOG2_STATUS_POLL_MSEC + 3,
-};
-
 static const struct usb_endpoint_descriptor *hs_eps [] = {
 	&hs_source_desc,
 	&hs_sink_desc,
@@ -308,7 +231,6 @@ static struct usb_string stringtab [] = {
 	{ STRINGID_CONFIG,        "PACE support disabled",           },
 #endif
 	{ STRINGID_INTERFACE,     interrupt_on_string,               },
-	{ STRINGID_HID_INTERFACE, "Human Device Interface Gadget",   },
 };
 
 static struct usb_gadget_strings strings = {
@@ -324,7 +246,7 @@ static struct usb_gadget_strings strings = {
 
 static int	HIGHSPEED;
 static char	*DEVNAME;
-static char	*EP_IN_NAME, *EP_OUT_NAME, *EP_STATUS_NAME, *EP_HID_STATUS_NAME;
+static char	*EP_IN_NAME, *EP_OUT_NAME, *EP_STATUS_NAME;
 
 /* gadgetfs currently has no chunking (or O_DIRECT/zerocopy) support
  * to turn big requests into lots of smaller ones; so this is "small".
@@ -362,14 +284,6 @@ static int autoconfig ()
 			= USB_DIR_IN | 11;
 		EP_STATUS_NAME = "ep-f";
 
-                if (dohid) {
-                    // TODO EP_HID_STATUS_NAME?
-                    EP_HID_STATUS_NAME = "ep-e";
-                    fs_hid_status_desc.bEndpointAddress
-                        = hs_hid_status_desc.bEndpointAddress
-                        = USB_DIR_IN | 10;
-                }
-
 	/* Intel PXA 2xx processor, full speed only */
 	} else if (stat (DEVNAME = "pxa2xx_udc", &statb) == 0) {
 		HIGHSPEED = 0;
@@ -387,10 +301,6 @@ static int autoconfig ()
 		fs_status_desc.bEndpointAddress = USB_DIR_IN | 11;
 		EP_STATUS_NAME = "ep11in-bulk";
 
-                if (dohid) {
-                    EP_HID_STATUS_NAME = "ep12in-bulk";
-                    fs_hid_status_desc.bEndpointAddress = USB_DIR_IN | 12;
-                }
 #if 0
 	/* AMD au1x00 processor, full speed only */
 	} else if (stat (DEVNAME = "au1x00_udc", &statb) == 0) {
@@ -431,19 +341,10 @@ static int autoconfig ()
 		fs_sink_desc.bEndpointAddress = USB_DIR_OUT | 1;
 		EP_OUT_NAME = "ep1-bulk";
 
-                if (dohid) {
-                    source_sink_intf.bNumEndpoints = 2;
-                    // USB Wake up signaling not supported
-                    ccid_desc.dwFeatures &= ~__constant_cpu_to_le32(0x100000);
+        source_sink_intf.bNumEndpoints = 3;
 
-                    EP_HID_STATUS_NAME = "ep3-bulk";
-                    fs_hid_status_desc.bEndpointAddress = USB_DIR_IN | 3;
-                } else {
-                    source_sink_intf.bNumEndpoints = 3;
-
-                    EP_STATUS_NAME = "ep3-bulk";
-                    fs_status_desc.bEndpointAddress = USB_DIR_IN | 3;
-                }
+        EP_STATUS_NAME = "ep3-bulk";
+        fs_status_desc.bEndpointAddress = USB_DIR_IN | 3;
 
         /* Samsung S3C24xx series, full speed only */
 	} else if (stat (DEVNAME = "s3c2410_udc", &statb) == 0) {
@@ -459,11 +360,6 @@ static int autoconfig ()
 		fs_status_desc.bEndpointAddress = USB_DIR_IN | 3;
 		EP_STATUS_NAME = "ep3-bulk";
 
-                if (dohid) {
-                    EP_HID_STATUS_NAME = "ep4-bulk";
-                    fs_hid_status_desc.bEndpointAddress = USB_DIR_IN | 4;
-                }
-
 	/* Renesas SH77xx processors, full speed only */
 	} else if (stat (DEVNAME = "sh_udc", &statb) == 0) {
 		HIGHSPEED = 0;
@@ -478,11 +374,6 @@ static int autoconfig ()
 		fs_status_desc.bEndpointAddress = USB_DIR_IN | 3;
 		EP_STATUS_NAME = "ep3in-bulk";
 
-                if (dohid) {
-                    EP_HID_STATUS_NAME = "ep4in-bulk";
-                    fs_hid_status_desc.bEndpointAddress = USB_DIR_IN | 4;
-                }
-
 	/* OMAP 1610 and newer devices, full speed only, fifo mode 0 or 3 */
 	} else if (stat (DEVNAME = "omap_udc", &statb) == 0) {
 		HIGHSPEED = 0;
@@ -496,11 +387,6 @@ static int autoconfig ()
 		source_sink_intf.bNumEndpoints = 3;
 		fs_status_desc.bEndpointAddress = USB_DIR_IN | 3;
 		EP_STATUS_NAME = "ep3in-int";
-
-                if (dohid) {
-                    EP_HID_STATUS_NAME = "ep4in-bulk";
-                    fs_hid_status_desc.bEndpointAddress = USB_DIR_IN | 4;
-                }
 
 	/* Something based on Mentor USB Highspeed Dual-Role Controller */
 	} else if (stat (DEVNAME = "musb_hdrc", &statb) == 0) {
@@ -535,11 +421,6 @@ static int autoconfig ()
 		fs_status_desc.bEndpointAddress = USB_DIR_IN | 3;
 		EP_STATUS_NAME = "ep3-int";
 
-                if (dohid) {
-                    EP_HID_STATUS_NAME = "ep4";
-                    fs_hid_status_desc.bEndpointAddress = USB_DIR_IN | 4;
-                }
-
 	/* Sharp LH740x processors, full speed only */
 	} else if (stat (DEVNAME = "lh740x_udc", &statb) == 0) {
 		HIGHSPEED = 0;
@@ -550,19 +431,10 @@ static int autoconfig ()
 		fs_sink_desc.bEndpointAddress = USB_DIR_OUT | 2;
 		EP_OUT_NAME = "ep2out-bulk";
 
-                if (dohid) {
-                    source_sink_intf.bNumEndpoints = 2;
-                    // USB Wake up signaling not supported
-                    ccid_desc.dwFeatures &= ~__constant_cpu_to_le32(0x100000);
+        source_sink_intf.bNumEndpoints = 3;
 
-                    fs_hid_status_desc.bEndpointAddress = USB_DIR_IN | 3;
-                    EP_HID_STATUS_NAME = "ep3in-int";
-                } else {
-                    source_sink_intf.bNumEndpoints = 3;
-
-                    fs_status_desc.bEndpointAddress = USB_DIR_IN | 3;
-                    EP_STATUS_NAME = "ep3in-int";
-                }
+        fs_status_desc.bEndpointAddress = USB_DIR_IN | 3;
+        EP_STATUS_NAME = "ep3in-int";
 
 	/* Atmel AT32AP700x processors, high/full speed */
 	} else if (stat (DEVNAME = "atmel_usba_udc", &statb) == 0) {
@@ -578,23 +450,12 @@ static int autoconfig ()
 			= USB_DIR_OUT | 2;
 		EP_OUT_NAME = "ep2out-bulk";
 
-                if (dohid) {
-                    source_sink_intf.bNumEndpoints = 2;
-                    // USB Wake up signaling not supported
-                    ccid_desc.dwFeatures &= ~__constant_cpu_to_le32(0x100000);
+        source_sink_intf.bNumEndpoints = 3;
 
-                    fs_hid_status_desc.bEndpointAddress
-                        = hs_hid_status_desc.bEndpointAddress
-                        = USB_DIR_IN | 3;
-                    EP_HID_STATUS_NAME = "ep3in-int";
-                } else {
-                    source_sink_intf.bNumEndpoints = 3;
-
-                    fs_status_desc.bEndpointAddress
-                        = hs_status_desc.bEndpointAddress
-                        = USB_DIR_IN | 3;
-                    EP_STATUS_NAME = "ep3in-int";
-                }
+        fs_status_desc.bEndpointAddress
+            = hs_status_desc.bEndpointAddress
+            = USB_DIR_IN | 3;
+        EP_STATUS_NAME = "ep3in-int";
 
 	} else {
 		DEVNAME = 0;
@@ -874,12 +735,10 @@ static int iso_autoconfig ()
 static pthread_t	ep0;
 
 static pthread_t	ccid_thread;
-static pthread_t	hidthread;
 static pthread_t	interrupt_thread;
 static int		source_fd = -1;
 static int		sink_fd = -1;
 static int		status_fd = -1;
-static int		hidstatus_fd = -1;
 
 // FIXME no result i/o yet
 
@@ -966,8 +825,6 @@ ep_config (char *name, const char *label,
 	ep_config(name,__FUNCTION__, &fs_sink_desc, &hs_sink_desc)
 #define status_open(name) \
 	ep_config(name,__FUNCTION__, &fs_status_desc, &hs_status_desc)
-#define hidstatus_open(name) \
-	ep_config(name,__FUNCTION__, &fs_hid_status_desc, &hs_hid_status_desc)
 
 static void *interrupt (void *param)
 {
@@ -1087,59 +944,6 @@ error:
     pthread_exit(0);
 }
 
-static void *hid (void *param)
-{
-    char	**names      = (char **) param;
-    char	*status_name = names[0];
-    int		result = 0;
-
-    hidstatus_fd = hidstatus_open (status_name);
-    if (hidstatus_fd < 0) {
-        if (verbose > 1)
-            perror("hidstatus_fd");
-        goto error;
-    }
-    pthread_cleanup_push (close_fd, &hidstatus_fd);
-
-    __u8 *outbuf = NULL;
-    pthread_cleanup_push (free, outbuf);
-    size_t bufsize = 512;
-    __u8 *inbuf = malloc(bufsize);
-    pthread_cleanup_push (free, inbuf);
-    if (inbuf == NULL) {
-        if (verbose > 1)
-            perror("malloc");
-        goto error;
-    }
-
-    do {
-
-        /* original LinuxThreads cancelation didn't work right
-         * so test for it explicitly.
-         */
-        pthread_testcancel ();
-
-    } while (result >= 0);
-
-    if (errno != ESHUTDOWN || result < 0) {
-        perror ("hid loop aborted");
-        pthread_cancel(ep0);
-    }
-
-    pthread_cleanup_pop (1);
-    pthread_cleanup_pop (1);
-    pthread_cleanup_pop (1);
-
-    fflush (stdout);
-    fflush (stderr);
-
-    return 0;
-
-error:
-    pthread_cancel(ep0);
-    pthread_exit(0);
-}
-
 static void start_io (void)
 {
     //int tmp;
@@ -1187,19 +991,6 @@ static void start_io (void)
 		perror ("can't create ccid thread");
 		goto cleanup;
 	}
-        static char * hidnames[1];
-        hidnames[0] = EP_HID_STATUS_NAME;
-        if (dohid) {
-            config.bNumInterfaces = 2;
-            if (pthread_create (&hidthread, NULL, hid, (void *)
-                        hidnames) != 0) {
-                perror ("can't create hid thread");
-                goto cleanup;
-            }
-        } else {
-            if (verbose)
-                fprintf (stderr, "HID disabled.\n");
-        }
         if (doint) {
             static char * interruptnames[1];
             interruptnames[0] = EP_STATUS_NAME;
@@ -1236,13 +1027,6 @@ static void stop_io ()
         ccid_thread = ep0;
         fprintf (stderr, "cancled ccid\n");
     }
-    if (!pthread_equal (hidthread, ep0)) {
-        pthread_cancel (hidthread);
-        if (pthread_join (hidthread, 0) != 0)
-            perror ("can't join hid thread");
-        hidthread = ep0;
-        fprintf (stderr, "cancled hid\n");
-    }
     if (!pthread_equal (interrupt_thread, ep0)) {
         pthread_cancel (interrupt_thread);
         if (pthread_join (interrupt_thread, 0) != 0)
@@ -1255,7 +1039,7 @@ static void stop_io ()
 /*-------------------------------------------------------------------------*/
 
 static char *
-build_config (char *cp, const struct usb_endpoint_descriptor **ep, const struct usb_endpoint_descriptor *hid_ep)
+build_config (char *cp, const struct usb_endpoint_descriptor **ep)
 {
     struct usb_config_descriptor *c;
     int i;
@@ -1275,28 +1059,6 @@ build_config (char *cp, const struct usb_endpoint_descriptor **ep, const struct 
     for (i = 0; i < source_sink_intf.bNumEndpoints; i++) {
         memcpy (cp, ep [i], USB_DT_ENDPOINT_SIZE);
         cp += USB_DT_ENDPOINT_SIZE;
-    }
-
-    if (dohid) {
-        struct usb_interface_descriptor hid_intf = {
-            .bLength         = sizeof hid_intf,
-            .bDescriptorType = USB_DT_INTERFACE,
-            .bInterfaceNumber = 1,
-
-            .bInterfaceClass = USB_CLASS_HID,
-            .iInterface      = STRINGID_HID_INTERFACE,
-            .bNumEndpoints   = 1,
-        };
-        memcpy (cp, &hid_intf, sizeof hid_intf);
-        cp += sizeof hid_intf;
-        // Append vendor class specification
-        memcpy (cp, &hid_desc, sizeof hid_desc);
-        cp += sizeof hid_desc;
-
-        for (i = 0; i < hid_intf.bNumEndpoints; i++) {
-            memcpy (cp, &(hid_ep [i]), USB_DT_ENDPOINT_SIZE);
-            cp += USB_DT_ENDPOINT_SIZE;
-        }
     }
 
     c->wTotalLength = __cpu_to_le16 (cp - (char *) c);
@@ -1331,9 +1093,9 @@ static int init_device (void)
 	cp += 4;
 
 	/* write full then high speed configs */
-	cp = build_config (cp, fs_eps, &fs_hid_status_desc);
+	cp = build_config (cp, fs_eps);
 	if (HIGHSPEED)
-		cp = build_config (cp, hs_eps, &hs_hid_status_desc);
+		cp = build_config (cp, hs_eps);
 
         device_desc.idVendor = __cpu_to_le16 (vendorid);
         device_desc.idProduct = __cpu_to_le16 (productid);
@@ -1432,7 +1194,7 @@ static void handle_control (int fd, struct usb_ctrlrequest *setup)
 		 */
 		switch (value) {
 		case CONFIG_VALUE:
-                        if ( source_fd >= 0 || sink_fd >= 0 || status_fd >= 0 || hidstatus_fd >= 0 )
+                        if ( source_fd >= 0 || sink_fd >= 0 || status_fd >= 0)
                             stop_io ();
                         start_io ();
 			break;
@@ -1493,12 +1255,6 @@ static void handle_control (int fd, struct usb_ctrlrequest *setup)
                     if (ioctl (status_fd, GADGETFS_CLEAR_HALT) < 0) {
                         result = errno;
                         perror ("reset status fd");
-                    }
-                }
-                if (hidstatus_fd > 0) {
-                    if (ioctl (hidstatus_fd, GADGETFS_CLEAR_HALT) < 0) {
-                        result = errno;
-                        perror ("reset hidstatus fd");
                     }
                 }
 		/* FIXME eventually reset the result endpoint too */
@@ -1606,7 +1362,7 @@ static void *ep0_thread (void *param)
 	time_t			now, last;
 	struct pollfd		ep0_poll;
 
-	interrupt_thread = ccid_thread = hidthread = ep0 = pthread_self ();
+	interrupt_thread = ccid_thread = ep0 = pthread_self ();
 	pthread_cleanup_push (stop_io, NULL);
 	pthread_cleanup_push (close_fd, param);
 
@@ -1734,85 +1490,24 @@ main (int argc, char **argv)
     int fd, c, i;
     int oindex = 0;
 
-    while (1) {
-        c = getopt_long(argc, argv, "hnr:s:i:p:e:voc:g:", options, &oindex);
-        if (c == -1)
-            break;
-        switch (c) {
-            case OPT_HELP:
-                print_usage(argv[0] , options, option_help);
-                exit(0);
-                break;
-            case OPT_READER:
-                errno = 0;
-                usb_reader_num = strtol(optarg, NULL, 10);
-                if (errno) {
-                    parse_error(argv[0], options, option_help, optarg, oindex);
-                    exit(2);
-                }
-                break;
-            case OPT_SERIAL:
-                doserial = optarg;
-                break;
-            case OPT_IINTERFACE:
-                doiintf = optarg;
-                break;
-            case OPT_PRODUCT:
-                errno = 0;
-                productid = strtol(optarg, NULL, 16);
-                if (errno) {
-                    parse_error(argv[0], options, option_help, optarg, oindex);
-                    exit(2);
-                }
-                break;
-            case OPT_VENDOR:
-                errno = 0;
-                vendorid = strtol(optarg, NULL, 16);
-                if (errno) {
-                    parse_error(argv[0], options, option_help, optarg, oindex);
-                    exit(2);
-                }
-                break;
-            case OPT_CARD:
-                cdriver = optarg;
-                break;
-            case OPT_VERBOSE:
-                verbose++;
-                break;
-            case OPT_INFO:
-                doinfo++;
-                break;
-            case OPT_INTERRUPT:
-                doint++;
-                break;
-            case OPT_GADGETFS:
-                gadgetfs = optarg;
-                break;
-            case '?':
-                /* fall through */
-            default:
-                exit(1);
-                break;
-        }
-    }
+    struct gengetopt_args_info cmdline;
 
-    if (optind < argc) {
-        fprintf (stderr, "Unknown argument%s:", optind+1 == argc ? "" : "s");
-        while (optind < argc) {
-            fprintf(stderr, " \"%s\"", argv[optind++]);
-            fprintf(stderr, "%c", optind == argc ? '\n' : ',');
-        }
+
+    /* Parse command line */
+    if (cmdline_parser (argc, argv, &cmdline) != 0)
         exit(1);
-    }
+    doiintf = cmdline.interface_arg;
+    productid = cmdline.product_arg;
+    vendorid = cmdline.vendor_arg;
+    verbose = cmdline.verbose_given;
+    doint = cmdline.interrupt_flag;
+    gadgetfs = cmdline.gadgetfs_arg;
 
 
-    if (doinfo) {
-        fprintf(stderr, "%s %s  written by Frank Morgner.\n\n" ,
-                argv[0], VERSION);
+    if (cmdline.info_flag)
         return print_avail(verbose);
-    }
 
-    if (ccid_initialize(usb_reader_num, cdriver, verbose) < 0) {
+    if (ccid_initialize(cmdline.reader_arg, NULL, verbose) < 0) {
         fprintf (stderr, "Can't initialize ccid\n");
         return 1;
     }
@@ -1822,14 +1517,7 @@ main (int argc, char **argv)
         return 1;
     }
 
-    if (doserial) {
-        for (i=0; i<sizeof stringtab/sizeof(struct usb_string); i++) {
-            if (stringtab[i].id == STRINGID_SERIAL) {
-                stringtab[i].s = doserial;
-                break;
-            }
-        }
-    } else {
+    if (strncmp(cmdline.serial_arg, "random", strlen("random")) == 0) {
         /* random initial serial number */
         srand ((int) time (0));
         for (i = 0; i < sizeof serial - 1; ) {
@@ -1837,10 +1525,18 @@ main (int argc, char **argv)
             if ((('a' <= c && c <= 'z') || ('0' <= c && c <= '9')))
                 serial [i++] = c;
         }
+        if (verbose)
+            fprintf (stderr, "serial=\"%s\"\n", serial);
+    } else {
+        for (i=0; i<sizeof stringtab/sizeof(struct usb_string); i++) {
+            if (stringtab[i].id == STRINGID_SERIAL) {
+                stringtab[i].s = cmdline.serial_arg;
+                break;
+            }
+        }
+        if (verbose)
+            fprintf (stderr, "serial=\"%s\"\n", cmdline.serial_arg);
     }
-
-    if (verbose)
-        fprintf (stderr, "serial=\"%s\"\n", doserial ? doserial : serial);
 
     if (doiintf) {
         for (i=0; i<sizeof stringtab/sizeof(struct usb_string); i++) {
