@@ -39,7 +39,6 @@ ccid-emulator.1:
 bin_PROGRAMS =
 
 noinst_HEADERS = \
-		 pcscutil.h \
 		 scutil.h \
 		 ccid.h \
 		 sslutil.h \
