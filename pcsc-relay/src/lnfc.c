@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Frank Morgner
+ * Copyright (C) 2010-2012 Frank Morgner <morgner@informatik.hu-berlin.de>.
  *
  * This file is part of pcsc-relay.
  *
@@ -142,7 +142,7 @@ static int lnfc_connect(driver_data_t **driver_data)
 
     data->pndTarget = nfc_open(NULL, NULL);
     if (data->pndTarget == NULL) {
-        ERROR("Error connecting to NFC emulator device\n");
+        RELAY_ERROR("Error connecting to NFC emulator device\n");
         return 0;
     }
 
@@ -152,7 +152,7 @@ static int lnfc_connect(driver_data_t **driver_data)
     DEBUG("Waiting for a command that is not part of the anti-collision...\n");
     data->iCapduLen = nfc_target_init(data->pndTarget, &ntEmulatedTarget, data->abtCapdu, sizeof data->abtCapdu, 0);
     if (data->iCapduLen < 0) {
-        ERROR("nfc_target_init: %s\n", nfc_strerror(data->pndTarget));
+        RELAY_ERROR("nfc_target_init: %s\n", nfc_strerror(data->pndTarget));
         nfc_close (data->pndTarget);
         return 0;
     }
@@ -189,14 +189,14 @@ static int lnfc_receive_capdu(driver_data_t *driver_data,
     // Receive external reader command through target
     data->iCapduLen = nfc_target_receive_bytes(data->pndTarget, data->abtCapdu, sizeof data->abtCapdu, TRANSMIT_TIMEOUT);
     if (data->iCapduLen < 0) {
-        ERROR ("nfc_target_receive_bytes: %s\n", nfc_strerror(data->pndTarget));
+        RELAY_ERROR ("nfc_target_receive_bytes: %s\n", nfc_strerror(data->pndTarget));
         return 0;
     }
 
 
     p = realloc(*capdu, data->iCapduLen);
     if (!p) {
-        ERROR("Error allocating memory for C-APDU\n");
+        RELAY_ERROR("Error allocating memory for C-APDU\n");
         return 0;
     }
     memcpy(p, data->abtCapdu, data->iCapduLen);
@@ -219,7 +219,7 @@ static int lnfc_send_rapdu(driver_data_t *driver_data,
 
     r = nfc_target_send_bytes(data->pndTarget, rapdu, len, TRANSMIT_TIMEOUT);
     if (r < 0) {
-        ERROR ("nfc_target_send_bytes: %s\n", nfc_strerror(data->pndTarget));
+        RELAY_ERROR ("nfc_target_send_bytes: %s\n", nfc_strerror(data->pndTarget));
         return 0;
     }
     if (r < len)

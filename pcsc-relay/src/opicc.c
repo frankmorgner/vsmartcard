@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Frank Morgner
+ * Copyright (C) 2010-2012 Frank Morgner <morgner@informatik.hu-berlin.de>.
  *
  * This file is part of pcsc-relay.
  *
@@ -16,14 +16,15 @@
  * You should have received a copy of the GNU General Public License along with
  * pcsc-relay.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <errno.h>
+#include "config.h"
+#include "pcsc-relay.h"
 #include <stdio.h>
+
+#if HAVE_TCGETATTR
+#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 #include <termios.h>
-
-#include "config.h"
-#include "pcsc-relay.h"
 
 
 struct picc_data {
@@ -53,7 +54,7 @@ int picc_encode_rapdu(const unsigned char *inbuf, size_t inlen,
     length = 5+inlen*3+1;
     p = realloc(*outbuf, length);
     if (!p) {
-        ERROR("Error allocating memory for encoded R-APDU\n");
+        RELAY_ERROR("Error allocating memory for encoded R-APDU\n");
         return 0;
     }
     *outbuf = p;
@@ -102,7 +103,7 @@ int picc_decode_apdu(const char *inbuf, size_t inlen,
 
     p = realloc(*outbuf, length);
     if (!p) {
-        ERROR("Error allocating memory for decoded C-APDU\n");
+        RELAY_ERROR("Error allocating memory for decoded C-APDU\n");
         return 0;
     }
     *outbuf = p;
@@ -111,7 +112,7 @@ int picc_decode_apdu(const char *inbuf, size_t inlen,
     while(inbuf+inlen > end && length > pos) {
         b = strtoul(end, &end, 16);
         if (b > 0xff) {
-            ERROR("Error decoding C-APDU\n");
+            RELAY_ERROR("Error decoding C-APDU\n");
             return 0;
         }
 
@@ -141,7 +142,7 @@ void un_braindead_ify_device(int fd)
     cfsetospeed (&options, B115200);
 
     if (tcsetattr (fd, TCSANOW, &options))
-        ERROR("Can't set device attributes");
+        RELAY_ERROR("Can't set device attributes");
 }
 
 
@@ -164,7 +165,7 @@ static int picc_connect(driver_data_t **driver_data)
 
     data->fd = fopen(PICCDEV, "a+"); /*O_NOCTTY ?*/
     if (!data->fd) {
-        ERROR("Error opening %s: %s\n", PICCDEV, strerror(errno));
+        RELAY_ERROR("Error opening %s: %s\n", PICCDEV, strerror(errno));
         return 0;
     }
     un_braindead_ify_device(fileno(data->fd));
@@ -207,7 +208,7 @@ static int picc_receive_capdu(driver_data_t *driver_data,
     linelen = getline(&data->line, &data->linemax, data->fd);
     if (linelen <= 0) {
         if (linelen < 0) {
-            ERROR("Error reading from %s: %s\n", PICCDEV, strerror(errno));
+            RELAY_ERROR("Error reading from %s: %s\n", PICCDEV, strerror(errno));
             return 0;
         }
         if (linelen == 0) {
@@ -216,7 +217,7 @@ static int picc_receive_capdu(driver_data_t *driver_data,
         }
     }
     if (fflush(data->fd) != 0)
-        ERROR("Warning, fflush failed: %s\n", strerror(errno));
+        RELAY_ERROR("Warning, fflush failed: %s\n", strerror(errno));
 
     DEBUG(data->line);
 
@@ -244,17 +245,34 @@ static int picc_send_rapdu(driver_data_t *driver_data,
     DEBUG("INF: Writing R-APDU\r\n%s\r\n", data->e_rapdu);
 
     if (fprintf(data->fd,"%s\r\n", data->e_rapdu) < 0) {
-        ERROR("Error writing to %s: %s\n", PICCDEV, strerror(errno));
+        RELAY_ERROR("Error writing to %s: %s\n", PICCDEV, strerror(errno));
         return 0;
     }
     if (fflush(data->fd) != 0)
-        ERROR("Warning, fflush failed: %s\n", strerror(errno));
+        RELAY_ERROR("Warning, fflush failed: %s\n", strerror(errno));
 
 
     return 1;
 }
 
 
+#else
+/* If tcgetattr() is not available, OpenPICC backend will not be supported. I
+ * don't want to hassle with any workarounds. */
+#define OPICCERR RELAY_ERROR("OpenPICC backend currently not supported on your system.\n")
+static int picc_send_rapdu(driver_data_t *driver_data,
+        const unsigned char *rapdu, size_t len)
+{ OPICCERR; return 0; }
+static int picc_receive_capdu(driver_data_t *driver_data,
+        unsigned char **capdu, size_t *len)
+{ OPICCERR; return 0; }
+static int picc_disconnect(driver_data_t *driver_data)
+{ OPICCERR; return 0; }
+static int picc_connect(driver_data_t **driver_data)
+{ OPICCERR; return 0; }
+
+
+#endif
 struct rf_driver driver_openpicc = {
     .connect = picc_connect,
     .disconnect = picc_disconnect,

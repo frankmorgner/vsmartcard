@@ -34,6 +34,10 @@
 #include "pcsc-relay.h"
 #include "pcscutil.h"
 
+#ifndef MAX_BUFFER_SIZE
+#define MAX_BUFFER_SIZE         264 /**< Maximum Tx/Rx Buffer for short APDU */
+#endif
+
 static int doinfo = 0;
 static int dodaemon = 1;
 int verbose = 0;
@@ -51,13 +55,14 @@ static void cleanup_exit(int signo);
 static void cleanup(void);
 
 
+#if HAVE_WORKING_FORK
 void daemonize(void) {
     pid_t pid, sid;
 
     /* Fork and continue as child process */
     pid = fork();
     if (pid < 0) {
-        ERROR("fork: %s\n", strerror(errno));
+        RELAY_ERROR("fork: %s\n", strerror(errno));
         goto err;
     }
     if (pid > 0) /* Exit the parent */
@@ -68,14 +73,14 @@ void daemonize(void) {
     /* Create new session and set the process group ID */
     sid = setsid();
     if (sid < 0) {
-        ERROR("setsid: %s\n", strerror(errno));
+        RELAY_ERROR("setsid: %s\n", strerror(errno));
         goto err;
     }
 
     /* Change the current working directory.  This prevents the current
      * directory from being locked; hence not being able to remove it. */
     if (chdir("/") < 0) {
-        ERROR("chdir: %s\n", strerror(errno));
+        RELAY_ERROR("chdir: %s\n", strerror(errno));
         goto err;
     }
 
@@ -90,6 +95,15 @@ err:
     fprintf(stderr, "Failed to start the daemon. Exiting.\n");
     exit(1);
 }
+
+
+#else
+/* If fork() is not available, daemon mode will not be supported. I don't want
+ * to hassle with any workarounds. */
+void daemonize(void)
+{ RELAY_ERROR("Daemon mode currently not supported on your system.\n"); exit(1); }
+#endif
+
 
 void cleanup_exit(int signo){
     cleanup();
@@ -115,7 +129,6 @@ int main (int argc, char **argv)
     LONG r = SCARD_S_SUCCESS;
     DWORD ctl, protocol;
 
-    struct sigaction new_sig, old_sig;
     struct gengetopt_args_info args_info;
 
 
@@ -134,15 +147,19 @@ int main (int argc, char **argv)
     }
 
 
+#if HAVE_SIGACTION
+    struct sigaction new_sig, old_sig;
+
     /* Register signal handlers */
     new_sig.sa_handler = cleanup_exit;
     sigemptyset(&new_sig.sa_mask);
     new_sig.sa_flags = SA_RESTART;
     if ((sigaction(SIGINT, &new_sig, &old_sig) < 0)
             || (sigaction(SIGTERM, &new_sig, &old_sig) < 0)) {
-        ERROR("sigaction: %s\n", strerror(errno));
+        RELAY_ERROR("sigaction: %s\n", strerror(errno));
         goto err;
     }
+#endif
 
 
     /* Open the device */
@@ -195,7 +212,7 @@ err:
     cleanup();
 
     if (r != SCARD_S_SUCCESS) {
-        ERROR(pcsc_stringify_error(r));
+        RELAY_ERROR(stringify_error(r));
         exit(1);
     }
 

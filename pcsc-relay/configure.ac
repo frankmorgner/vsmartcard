@@ -29,22 +29,22 @@ PKG_CHECK_EXISTS([libnfc >= 1.6],
 
 
 saved_CPPFLAGS="$CPPFLAGS"
-saved_LIBS="$LIBS"
 CPPFLAGS="$CPPFLAGS $PCSC_CFLAGS $LIBNFC_CFLAGS"
-LIBS="$LDFLAGS $PCSC_LIBS $LIBNFC_LIBS"
 AC_CHECK_HEADERS(winscard.h, [], [ AC_MSG_ERROR([winscard.h not found, install PC/SC Lite or similar or use ./configure PCSC_CFLAGS=...]) ])
 AC_CHECK_HEADERS(reader.h, [AC_DEFINE(HAVE_READER_H, 1, [use reader.h from PC/SC Lite])], [])
 AC_CHECK_HEADERS(pcsclite.h, [AC_DEFINE(HAVE_PCSCLITE_H, 1, [use pcsclite.h from PC/SC Lite])], [])
-AC_MSG_CHECKING([for SCardEstablishContext])
-AC_TRY_LINK_FUNC(SCardEstablishContext, [ AC_MSG_RESULT([yes]) ],
-        [ AC_MSG_ERROR([libpcsclite not found, use ./configure PCSC_LIBS=...]) ])
 AC_CHECK_HEADERS(nfc/nfc.h,,
         [ AC_MSG_ERROR([nfc/nfc.h not found, install libnfc >= 5.1.9 or use ./configure LIBNFC_CFLAGS=...]) ])
 AC_MSG_CHECKING([for nfc_initiator_select_passive_target])
-AC_TRY_LINK_FUNC(nfc_initiator_select_passive_target, [ AC_MSG_RESULT([yes]) ],
-        [ AC_MSG_ERROR([libnfc >= 1.6 not found, use ./configure LIBNFC_LIBS=...]) ])
 CPPFLAGS="$saved_CPPFLAGS"
-LIBS="$saved_LIBS"
+#saved_LIBS="$LIBS"
+#LIBS="$LIBS $PCSC_LIBS $LIBNFC_LIBS"
+#AC_MSG_CHECKING([for SCardEstablishContext])
+#AC_TRY_LINK_FUNC(SCardEstablishContext, [ AC_MSG_RESULT([yes]) ],
+        #[ AC_MSG_ERROR([libpcsclite not found, use ./configure PCSC_LIBS=...]) ])
+#AC_TRY_LINK_FUNC(nfc_initiator_select_passive_target, [ AC_MSG_RESULT([yes]) ],
+        #[ AC_MSG_ERROR([libnfc >= 1.6 not found, use ./configure LIBNFC_LIBS=...]) ])
+#LIBS="$saved_LIBS"
 
 
 # --enable-piccdev=DEV
@@ -60,6 +60,8 @@ AC_CHECK_HEADERS([fcntl.h stdint.h stdlib.h string.h unistd.h])
 AC_TYPE_SIZE_T
 
 # Checks for library functions.
+AC_CHECK_FUNCS([sigaction tcgetattr])
+AC_FUNC_FORK
 AC_FUNC_MALLOC
 
 

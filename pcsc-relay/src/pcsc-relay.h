@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Frank Morgner
+ * Copyright (C) 2010-2012 Frank Morgner <morgner@informatik.hu-berlin.de>.
  *
  * This file is part of pcsc-relay.
  *
@@ -21,6 +21,9 @@
  */
 #ifndef _PCSC_RELAY_H
 #define _PCSC_RELAY_H
+
+
+#include <stdio.h>
 
 
 #ifdef __cplusplus
@@ -50,7 +53,7 @@ extern struct rf_driver driver_libnfc;
 #define INFO(...) \
     {if (verbose >= LEVEL_INFO) \
         printf (__VA_ARGS__);}
-#define ERROR(...) \
+#define RELAY_ERROR(...) \
     { \
         if (verbose >= LEVEL_DEBUG) fprintf (stderr, "%s:%u\t", __FILE__, __LINE__); \
         if (verbose >= 0) fprintf (stderr, __VA_ARGS__); \
