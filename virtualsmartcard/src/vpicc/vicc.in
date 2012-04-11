@@ -52,6 +52,7 @@ parser.add_argument("-P", "--port",
         type=int,
         default=35963,
         help="port of the vpcd (default: %(default)s)")
+parser.add_argument('--version', action='version', version='%(prog)s @PACKAGE_VERSION@')
 
 relay = parser.add_argument_group('options for relaying a local smart card')
 relay.add_argument("-r", "--reader",
