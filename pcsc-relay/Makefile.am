@@ -43,4 +43,5 @@ win: src/pcsc-relay.exe
 	cp $(LIBUSB_DLL) $(WIN32_DIR)/libusb0.dll
 
 dist-hook:
-	svn2cl --group-by-day --reparagraph --separate-daylogs --include-actions --include-rev
+	test -d .svn && \
+		svn2cl --group-by-day --reparagraph --separate-daylogs --include-actions --include-rev || true
