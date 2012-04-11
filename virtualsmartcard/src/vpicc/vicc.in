@@ -29,12 +29,9 @@ The @PACKAGE_NAME@ emulates different types of smart cards.
 
 The emulator connects to the virtual smart card reader reader (vpcd). Smart
 card applications can access the @PACKAGE_NAME@ through the vpcd via PC/SC.
-
-Report bugs to @PACKAGE_BUGREPORT@
 ''',
         epilog='''
-Written by Frank Morgner <morgner@informatik.hu-berlin.de> and Dominik Oepen
-<oepen@informatik.hu-berlin.de>
+Report bugs to @PACKAGE_BUGREPORT@
 ''')
 
 parser.add_argument("-t", "--type",
