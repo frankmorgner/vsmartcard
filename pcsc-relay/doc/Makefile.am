@@ -1,4 +1,4 @@
-do_subst = sed \
+do_subst = $(SED) \
 	   -e 's,[@]PACKAGE[@],$(PACKAGE),g' \
 	   -e 's,[@]PACKAGE_NAME[@],$(PACKAGE_NAME),g' \
 	   -e 's,[@]PACKAGE_TARNAME[@],$(PACKAGE_TARNAME),g' \

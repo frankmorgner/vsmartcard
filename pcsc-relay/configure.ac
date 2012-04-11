@@ -11,6 +11,7 @@ AM_INIT_AUTOMAKE
 AC_PROG_CC
 AM_PROG_CC_C_O
 AM_PATH_PYTHON
+AC_PROG_SED
 PKG_PROG_PKG_CONFIG
 AC_PATH_PROG(HELP2MAN, help2man, false // No help2man //)
 AC_PATH_PROG(GENGETOPT, gengetopt, false // No gengetopt //)

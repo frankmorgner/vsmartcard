@@ -16,6 +16,7 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_LIBTOOL
 AM_PROG_CC_C_O
+AC_PROG_SED
 PKG_PROG_PKG_CONFIG
 AC_PATH_PROG(HELP2MAN, help2man, false // No help2man //)
 AC_PATH_PROG(GENGETOPT, gengetopt, false // No gengetopt //)
