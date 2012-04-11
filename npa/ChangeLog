@@ -1,60 +1,472 @@
-2011-05-20 08:55  frankmorgner
+2012-04-11  frankmorgner
 
-	* README.dox: updated documentation
+	* [r756] configure.ac, doc/Makefile.am: using macro for doxygen
 
-2011-05-20 08:44  frankmorgner
+	* [r755] doc/Makefile.am, src/Makefile.am: use macro for sed im
+	  makefiles
 
-	* src/npa.c, src/sm.c: - sm.c: added test for available memory
-	  - npa.c: removed obsolete comments
+	* [r747] doc/api.rst: fixed cross reference to doxygen
+	  documentation
 
-2011-05-20 08:23  frankmorgner
+	* [r744] doc/Doxyfile.in, doc/Makefile.am, doc/api.rst: fixed name
+	  of doxygen generated tag file
 
-	* src/npa.c: fixed segfault on cleanup
+	* [r743] doc/README.rst, doc/README.rst.in: updated documentation
 
-2011-05-18 11:41  frankmorgner
+2012-04-10  frankmorgner
 
-	* src/npa.c: fixed usage of PACE_SEC_clear_free
+	* [r739] configure.ac, src/Makefile.am: use help2man to generate
+	  minimal man pages
 
-2011-05-17 19:04  frankmorgner
+	* [r738] Makefile.am, src/Makefile.am: re-enabled clumsy include of
+	  libws2_32
+	  
+	  When recognition of windows build at compile time is done, this
+	  should be disabled again.
 
-	* configure.ac, src/npa.c, src/npa/npa.h: adapted to openpace 0.6
+	* [r737] src/Makefile.am, src/binutil.c[DEL], src/binutil.h[DEL],
+	  src/npa-tool.c, src/npa-tool.ggo.in: switched to command line
+	  handling with gengetopt
 
-2011-02-08 14:01  frankmorgner
+2012-04-09  frankmorgner
 
-	* ChangeLog, configure.ac: released 0.2
+	* [r734] configure.ac: more readable information via autoconf
 
-2011-02-07 12:15  frankmorgner
+2012-04-05  frankmorgner
 
-	* Makefile.am:
+	* [r732] Makefile.am, src/Makefile.am: moved include of ws2_32 to
+	  the appropriate place
 
-2011-02-06 20:26  frankmorgner
+	* [r731] doc/README.rst, doc/README.rst.in: updated links and info
+	  for installation
 
-	* configure.ac, src/npa-tool.c, src/npa.c: added compatibility to
-	  mingw
+	* [r730] Makefile.am, Makefile.am.opensc: fixed cross compiling for
+	  windows
 
-2011-02-05 22:06  frankmorgner
+2012-04-04  frankmorgner
 
-	* src/npa.c, src/sm.c: avoiding problems due to uninitialized
-	  values
+	* [r729] Makefile.am: updated windows build variables
 
-2011-02-05 15:11  frankmorgner
+2012-03-02  frankmorgner
 
-	* src/sm.c: - windows dependant include
+	* [r727] doc/Makefile.am, doc/README.rst: added recommended
+	  configure options to documentation
 
-2011-02-03 22:09  frankmorgner
+2012-02-26  frankmorgner
 
-	* src/Makefile.am, src/npa-tool.c, src/npa.c, src/npa/npa.h,
+	* [r724] src/Makefile.am: follow symbolic links when searching for
+	  openscs header files
+
+2012-02-20  frankmorgner
+
+	* [r719] src/npa.c: adapted to changes of
+	  https://github.com/frankmorgner/OpenSC
+
+2012-02-03  frankmorgner
+
+	* [r710] src/npa.c: removed unused declaration
+
+2012-02-01  frankmorgner
+
+	* [r709] src/npa.c: return SC_SUCCESS instead of 0
+
+	* [r708] src/npa.c: removed handling of CAR and CHR, this is done
+	  in TA by OpenPACE
+
+	* [r707] src/npa.c: enable time check for imported certificates
+
+	* [r706] src/npa.c: removed card driver hack. use a better opensc
+	  instead (see https://github.com/frankmorgner/OpenSC)
+
+	* [r705] src/npa.c: adapted to openpace
+
+2012-01-29  frankmorgner
+
+	* [r698] configure.ac: include shell code for cloning opensc with
+	  pace
+
+2012-01-25  frankmorgner
+
+	* [r697] src/npa-tool.c: always print a message in case of an error
+
+	* [r696] Makefile.am.opensc, configure.ac, src, src/example.c,
+	  src/npa-tool.c, src/npa.c, src/npa/npa.h: using patched OpenSC
+	  enabled with PACE to use the reader's capabilities
+	  
+	  sourcecode can be fetched from here
+	  https://github.com/frankmorgner/OpenSC
+
+2012-01-18  oepen
+
+	* [r680] src/npa.c: Adjusted libnpa to API changes in OpenPACE
+
+2011-12-14  frankmorgner
+
+	* [r668] configure.ac: use libcrypto instead of libssl
+
+2011-12-09  frankmorgner
+
+	* [r664] doc/README.rst, doc/api.rst: small fixes
+
+	* [r660] src/npa.c:
+
+2011-12-08  frankmorgner
+
+	* [r651] Makefile.am, configure.ac: autoconf macros for sed, ln and
+	  mkdir
+
+2011-12-07  frankmorgner
+
+	* [r646] doc/README.rst, doc/autotools.rst: adapted to openpace
+
+	* [r644] doc/README.rst.in: adapted to openpace
+
+	* [r641] src/npa.c: adapted to openpace
+
+2011-12-01  frankmorgner
+
+	* [r637] Makefile.am, configure.ac: minor fixes
+
+2011-11-08  frankmorgner
+
+	* [r636] src/Makefile.am: added no-undefined for building a dll
+
+	* [r635] doc/README.rst, doc/README.rst.in: not using static path
+	  for program-output. instead setting the correct envirnment in
+	  conf.py.
+
+2011-11-07  frankmorgner
+
+	* [r634] Makefile.am, configure.ac, src/npa-tool.c: - using
+	  unsigned long long for constant max value of puk - fixed fixup_la
+	  - guessing building machine
+
+	* [r633] Makefile.am: using pkg-config for cross compile build
+
+	* [r632] configure.ac, src/npa-tool.c: using 64 bits for value of
+	  puk
+
+	* [r631] src/npa-tool.c: break secrets from bottom to top
+
+	* [r630] src/npa.c: car and certificate description are now
+	  optional for npa_ctx_create
+
+	* [r629] src/npa.c: omitting initialize for ta for unauthenticated
+	  terminals
+
+	* [r628] Makefile.am: install requires absolute path
+
+2011-11-05  frankmorgner
+
+	* [r627] configure.ac, doc/Makefile.am, doc/README.rst,
+	  doc/README.rst.in: included help output from programs in
+	  documentation
+
+	* [r626] Makefile.am: replaced pwd with abs_top_src_dir
+
+	* [r625] configure.ac, doc/Makefile.am: cleaned up build of
+	  documentation
+
+	* [r624] Makefile.am: workaround to undefined reference to
+	  rpl_malloc. cross compiling works now
+
+	* [r623] Makefile.am: using absolute include/library directories
+
+	* [r622] Makefile.am: added fixes for la files
+
+	* [r621] Makefile.am, Makefile.am.opensc: modifying opensc to get
+	  all library functions exported
+
+	* [r620] Makefile.am: library fixup
+
+	* [r619] src/npa.c: fixed reference to cvc_cert function
+
+	* [r618] Makefile.am: library fixup
+
+	* [r617] Makefile.am: work on cross compile build
+
+	* [r616] Makefile.am: work on cross compile build
+
+	* [r615] Makefile.am, src/npa/scutil.h: work on cross compile build
+
+2011-11-03  frankmorgner
+
+	* [r613] doc/Makefile.am: - update on ccid documentation -
+	  rebuilding documentation when any *.in file changes
+
+2011-11-02  frankmorgner
+
+	* [r606] doc/README.rst, doc/autotools.rst, doc/questions.rst:
+	  added autogenerated files for easier development checkout
+
+2011-11-01  frankmorgner
+
+	* [r605] doc/Makefile.am, doc/api.rst: only refresh documentation
+	  if needed
+
+	* [r604] doc/README.rst.in: added potential platforms to
+	  documentation
+
+2011-10-29  frankmorgner
+
+	* [r599] doc/Makefile.am, doc/README.rst[DEL],
+	  doc/README.rst.in[CPY]: more autotool magic
+
+	* [r597] Makefile.am, configure.ac, doc/Makefile.am: - more
+	  autotool magic in documentation files - including substituted
+	  documentation files with distributed files
+
+	* [r595] doc/Makefile.am, doc/README.rst, doc/questions.rst.in: -
+	  worked around warnings of sphinx - using generic file for
+	  questions for all subprojects
+
+	* [r593] src/Makefile.am: correctly include example
+
+	* [r591] Makefile.am, doc/Makefile.am, doc/README.rst,
+	  doc/autotools.rst.in: using generic autotools description for all
+	  subprojects
+
+2011-10-28  frankmorgner
+
+	* [r590] doc/README.rst: added more markup
+
+2011-10-27  frankmorgner
+
+	* [r588] doc/Makefile.am: automagically generate documentation of
+	  virtualsmartcard
+
+	* [r587] Doxyfile.in[DEL], Makefile.am, README, README.dox[DEL],
+	  configure.ac, doc, doc/Doxyfile.in[CPY], doc/Makefile.am,
+	  doc/README.rst[CPY], doc/api.rst[CPY], doc/example.c: using a
+	  dedicated folder for documentation in each subproject
+
+	* [r586] README.dox: documentation
+
+2011-10-27  oepen
+
+	* [r585] README.dox: -Better install instructions for ccid-emulator
+	  -Added metadata to documentation
+
+2011-10-27  frankmorgner
+
+	* [r578] README.dox: copy and paste friendly installation guide
+
+2011-10-26  frankmorgner
+
+	* [r577] README.dox: more detailed install instructions
+
+	* [r576] src/example.c: minor simplifications
+
+	* [r574] src/example.c:
+
+	* [r573] README.dox, src/Makefile.am, src/example.c,
+	  src/npa-tool.c: including a simple example program mainly for
+	  documentation
+
+	* [r572] src/npa-tool.c: include npa.h as global resource
+
+2011-10-25  frankmorgner
+
+	* [r568] Doxyfile.in: automatically update doxygen documentation if
+	  possible
+
+	* [r567] Doxyfile.in, README.dox, src/npa/npa.h, src/npa/sm.h:
+	  Compromise with documentation: Include the most important parts
+	  of libnpa with breathe and reference the details with doxylink to
+	  external doxygen pages
+
+2011-10-24  frankmorgner
+
+	* [r566] Doxyfile.in:
+
+	* [r565] src/npa/npa.h, src/npa/scutil.h, src/npa/sm.h:
+	  documentation: grouping and other things
+
+2011-10-23  frankmorgner
+
+	* [r564] README.dox:
+
+2011-10-22  frankmorgner
+
+	* [r562] Doxyfile.in: document only public interface
+
+2011-10-18  frankmorgner
+
+	* [r560] src/npa.c: added workaround to avoid potentially
+	  conflicting types of mse:set at's
+
+2011-10-17  frankmorgner
+
+	* [r559] src/npa.c: - found OpenSSL's limitation to not use
+	  optional item templates in other item templates. this caused
+	  errors on parsing mse:set at during ta - checking terminal's
+	  signature now seems stable, so it is enabled by default
+
+2011-10-17  oepen
+
+	* [r558] README.dox: Fixed a typo
+
+2011-10-17  frankmorgner
+
+	* [r557] Doxyfile.in: documenting only interface to the outside
+	  world
+
+	* [r556] src/npa-tool.c, src/npa.c: - added support for verifying
+	  terminal's signature including auxiliary data (experimental,
+	  currently disabled) - debugging openssl where possible/needed -
+	  using openssl instead of opensc for asn1
+
+2011-10-14  oepen
+
+	* [r554] README.dox: -Added Virtual Smartcard logo to documentation
+	  -Changed theme
+
+2011-10-13  oepen
+
+	* [r552] README.dox: Added npa documentation to breathe
+
+	* [r549] Doxyfile.in, src/npa.c: -Converted CVC_check_cert function
+	  call to CVC_check_description -Removed README.dox from Doxygen
+	  input -Excluded opensc from the documentation -Enabled generation
+	  of XML documentation (for sphinx)
+
+	* [r548] README.dox: Fixed highlighting of configure commands in
+	  npa documentation
+
+2011-10-12  oepen
+
+	* [r546] README.dox: Converted npa documentation to
+	  reStructuredText (mostly)
+
+2011-09-30  frankmorgner
+
+	* [r542] src/scutil.c: fixed error on using stdout as debug log
+
+	* [r541] src/sslutil.h: implemented ssl_error as macro
+
+	* [r540] src/sslutil.c: implemented ssl_error as macro
+
+2011-09-26  frankmorgner
+
+	* [r539] Makefile.am, apdus[CPY]: - moved example apdus to npa-tool
+
+2011-09-23  frankmorgner
+
+	* [r538] src/npa.c: - fixed type of auxiliary data in c-apdu -
+	  parsing mse:set for ta - check terminals signature for ta
+
+	* [r537] src/npa-tool.c, src/npa.c, src/npa/npa.h, src/npa/sm.h,
+	  src/scutil.c, src/sm.c: - checking description against the
+	  certificate is now done internally in libnpa, removed hash of
+	  certificate description from pace output - importing terminal
+	  certificates to verify terminals signature - fixed hex dump
+	  without sc_context
+
+2011-09-22  frankmorgner
+
+	* [r536] src/npa.c: - fixed corruption of certificate description -
+	  adjusted output parsing from certificate_description_print -
+	  fixed check for certificate description in terminal certificate
+
+2011-09-21  frankmorgner
+
+	* [r535] src/npa.c: generating cv certificate from apdu data to
+	  perform check against certificate description
+
+2011-09-20  frankmorgner
+
+	* [r534] src/npa.c: handling certificate description and chat in
+	  libnpa instead of ccid-emulator
+
+2011-09-05  oepen
+
+	* [r523] README.dox: Fixed grammar error
+
+2011-09-02  frankmorgner
+
+	* [r522] src/sm.c: added error checking
+
+2011-08-30  frankmorgner
+
+	* [r511] src/Makefile.am, src/npa.c, src/sslutil.c, src/sslutil.h:
+	  - added openssl debug code to ccid emulator - fixed some bugs due
+	  to changes in recent opensc version - added support for changing
+	  pin via standard leser
+
+2011-07-28  oepen
+
+	* [r443] src/npa-tool.c: Fixed some compiler warnings
+
+2011-07-26  frankmorgner
+
+	* [r438] src/npa.c: adjusted to changes of OpenPACE
+
+2011-07-25  frankmorgner
+
+	* [r433] configure.ac, src/npa-tool.c, src/scutil.c: switched to
+	  opensc 0.12.1, where build_apdu has been accepted as
+	  sc_bytes2apdu
+
+2011-07-23  frankmorgner
+
+	* [r427] configure.ac: silent build rules
+
+2011-05-20  frankmorgner
+
+	* [r425] configure.ac: released 0.3
+
+	* [r424] ChangeLog: updated changelog
+
+	* [r423] src, src/npa.c: fixed memory leaks
+
+	* [r422] README.dox: updated documentation
+
+	* [r421] src/npa.c, src/sm.c: - sm.c: added test for available
+	  memory - npa.c: removed obsolete comments
+
+	* [r420] src/npa.c: fixed segfault on cleanup
+
+2011-05-18  frankmorgner
+
+	* [r419] src/npa.c: fixed usage of PACE_SEC_clear_free
+
+2011-05-17  frankmorgner
+
+	* [r418] configure.ac, src/npa.c, src/npa/npa.h: adapted to
+	  openpace 0.6
+
+2011-02-08  frankmorgner
+
+	* [r410] ChangeLog, configure.ac: released 0.2
+
+2011-02-07  frankmorgner
+
+	* [r409] Makefile.am:
+
+2011-02-06  frankmorgner
+
+	* [r408] configure.ac, src/npa-tool.c, src/npa.c: added
+	  compatibility to mingw
+
+2011-02-05  frankmorgner
+
+	* [r407] src/npa.c, src/sm.c: avoiding problems due to
+	  uninitialized values
+
+	* [r406] src/sm.c: - windows dependant include
+
+2011-02-03  frankmorgner
+
+	* [r405] src/Makefile.am, src/npa-tool.c, src/npa.c, src/npa/npa.h,
 	  src/npa/npa_lib.h[DEL], src/npa/sm.h, src/npa_lib.c[DEL],
-	  src/sm.c: - not exporting npa internal stuff anymore
-	  - added sm_ctx_clear_free
+	  src/sm.c: - not exporting npa internal stuff anymore - added
+	  sm_ctx_clear_free
 
-2011-02-02 19:06  frankmorgner
+2011-02-02  frankmorgner
 
-	* src/Makefile.am: building clean distribution file
+	* [r404] src/Makefile.am: building clean distribution file
 
-2011-02-02 18:49  frankmorgner
-
-	* Makefile.am, README.dox, configure.ac, libnpa.pc.in[CPY],
+	* [r403] Makefile.am, README.dox, configure.ac, libnpa.pc.in[CPY],
 	  libpace.pc.in[DEL], src/Makefile.am, src/npa[CPY],
 	  src/npa-tool.c[CPY], src/npa.c[CPY], src/npa/npa.h[CPY],
 	  src/npa/npa_lib.h[CPY], src/npa/pace.h[DEL],
@@ -62,1170 +474,906 @@
 	  src/pace-tool.c[DEL], src/pace.c[DEL], src/pace_lib.c[DEL],
 	  src/scutil.c: renamed libpace to libnpa
 
-2011-02-01 13:47  oepen
+2011-02-01  oepen
 
-	* configure.ac: Shut up autotools
+	* [r400] configure.ac: Shut up autotools
 
-2011-02-01 10:41  frankmorgner
+2011-02-01  frankmorgner
 
-	* src/pace-tool.c: cleaned up time management. might not work for
-	  systems where time_t is not an integer.
+	* [r396] src/pace-tool.c: cleaned up time management. might not
+	  work for systems where time_t is not an integer.
 
-2011-01-31 19:46  frankmorgner
+2011-01-31  frankmorgner
 
-	* src/pace-tool.c: - fixed description of version parameter
+	* [r395] src/pace-tool.c: - fixed description of version parameter
 
-2011-01-31 11:51  frankmorgner
-
-	* Makefile.am, README.dox, configure.ac, libpace.pc.in, src,
+	* [r394] Makefile.am, README.dox, configure.ac, libpace.pc.in, src,
 	  src/Makefile.am, src/pace-tool.c: linking against opensc now as
 	  shared library
 
-2011-01-16 23:34  frankmorgner
+2011-01-16  frankmorgner
 
-	* src/Makefile.am, src/pace.c: - fixed memory corruption when
-	  getting ef.cardaccess
-	  - minor changes in build process with libopensc
+	* [r391] src/Makefile.am, src/pace.c: - fixed memory corruption
+	  when getting ef.cardaccess - minor changes in build process with
+	  libopensc
 
-2011-01-16 01:21  frankmorgner
+	* [r390] Makefile.am, src/Makefile.am: optimized makefile-targets
 
-	* Makefile.am, src/Makefile.am: optimized makefile-targets
+2011-01-15  frankmorgner
 
-2011-01-15 10:43  frankmorgner
+	* [r389] README.dox, configure.ac, libpace.pc.in, src/Makefile.am:
+	  - added customization via OPENSC_CONFIGURE - changed information
+	  regarding opensc - fixed pkg-config file
 
-	* README.dox, configure.ac, libpace.pc.in, src/Makefile.am: - added
-	  customization via OPENSC_CONFIGURE
-	  - changed information regarding opensc
-	  - fixed pkg-config file
+	* [r388] src/scutil.c: added more error messages
 
-2011-01-15 00:36  frankmorgner
+2011-01-14  frankmorgner
 
-	* src/scutil.c: added more error messages
+	* [r385] Makefile.am, configure.ac, src/Makefile.am,
+	  src/pace-tool.c, src/pace.c, src/pace/pace.h, src/pace/scutil.h,
+	  src/pace/sm.h, src/scutil.c, src/sm.c: switched to opensc.0.12.0.
+	  note that this has some issues when linking against both libnpa
+	  and the opensc libraries at the same time. readme information
+	  would be usefull for this...
 
-2011-01-14 14:24  frankmorgner
+2010-12-17  frankmorgner
 
-	* Makefile.am, configure.ac, src/Makefile.am, src/pace-tool.c,
-	  src/pace.c, src/pace/pace.h, src/pace/scutil.h, src/pace/sm.h,
-	  src/scutil.c, src/sm.c: switched to opensc.0.12.0. note that this
-	  has some issues when linking against both libnpa and the opensc
-	  libraries at the same time. readme information would be usefull
-	  for this...
+	* [r384] src/pace-tool.c: fix error when breaking a secret where
+	  all digits are 9
 
-2010-12-17 10:46  frankmorgner
+2010-12-12  frankmorgner
 
-	* src/pace-tool.c: fix error when breaking a secret where all
-	  digits are 9
+	* [r380] src/pace-tool.c: removed byteorder.h from includes, not
+	  needed. thanks Dennis
 
-2010-12-12 12:15  frankmorgner
+2010-12-11  frankmorgner
 
-	* src/pace-tool.c: removed byteorder.h from includes, not needed.
-	  thanks Dennis
+	* [r378] README.dox: - updated information
 
-2010-12-11 01:38  frankmorgner
+2010-12-08  frankmorgner
 
-	* README.dox: - updated information
+	* [r374] ChangeLog, m4/Makefile.am: releasing 0.1
 
-2010-12-08 14:44  frankmorgner
-
-	* ChangeLog, m4/Makefile.am: releasing 0.1
-
-2010-12-08 13:16  frankmorgner
-
-	* src/pace-tool.c, src/pace.c, src/pace/pace.h: added input
+	* [r373] src/pace-tool.c, src/pace.c, src/pace/pace.h: added input
 	  parameter for version of 03110
 
-2010-12-08 12:01  frankmorgner
+	* [r369] src/pace.c: adapted to the latest changes of OpenPACE
 
-	* src/pace.c: adapted to the latest changes of OpenPACE
+2010-12-07  frankmorgner
 
-2010-12-07 20:07  frankmorgner
+	* [r368] README.dox: updated information
 
-	* README.dox: updated information
+	* [r366] configure.ac: linking against libopensc not easily
+	  possible. we need to remove this dependancy
 
-2010-12-07 15:48  frankmorgner
+2010-11-14  frankmorgner
 
-	* configure.ac: linking against libopensc not easily possible. we
-	  need to remove this dependancy
-
-2010-11-14 20:34  frankmorgner
-
-	* .[CPY], Makefile.am, apdus[DEL], configure.ac,
+	* [r359] .[CPY], Makefile.am, apdus[DEL], configure.ac,
 	  m4/acx_pthread.m4[DEL], patches[DEL], src/Makefile.am,
 	  src/binutil.c, src/binutil.h, src/cats-test.c[DEL],
 	  src/ccid.c[DEL], src/ccid.h[DEL], src/pcscutil.c[DEL],
 	  src/pcscutil.h[DEL], src/usb.c[DEL], src/usbstring.c[DEL],
 	  src/usbstring.h[DEL]: extracted libpace from ccid
 
-2010-10-28 10:00  frankmorgner
+2010-10-28  frankmorgner
 
-	* updated support information
+	* [r347] updated support information
 
-2010-10-28 09:10  frankmorgner
+	* [r346] - fixed: pace-tool dumped wrong apdu buffer - updated
+	  documentation on opensc
 
-	* - fixed: pace-tool dumped wrong apdu buffer
-	  - updated documentation on opensc
+2010-10-27  frankmorgner
 
-2010-10-27 19:05  frankmorgner
+	* [r345] - cleaned (debug) output - fixed error in interactive mode
+	  of pace-tool
 
-	* - cleaned (debug) output
-	  - fixed error in interactive mode of pace-tool
+	* [r344] pace card supports extended lengths. note that we really
+	  need a card driver which covers that
 
-2010-10-27 14:50  frankmorgner
+	* [r343] plaintext apdus to be sent via SM can now be read from a
+	  file
 
-	* pace card supports extended lengths. note that we really need a
-	  card driver which covers that
+2010-10-26  frankmorgner
 
-2010-10-27 12:11  frankmorgner
+	* [r341] unified usage of sizeof. found some potential memory
+	  corruptions with that.
 
-	* plaintext apdus to be sent via SM can now be read from a file
+	* [r340] - fixed memory corruption on card initialization - fixed
+	  compilation warning
 
-2010-10-26 18:41  frankmorgner
+2010-10-22  frankmorgner
 
-	* unified usage of sizeof. found some potential memory corruptions
-	  with that.
+	* [r339] added workaround for ausweisapp
 
-2010-10-26 13:47  frankmorgner
+2010-10-21  frankmorgner
 
-	* - fixed memory corruption on card initialization
-	  - fixed compilation warning
+	* [r338] fixed formating of ReadersPACECapabilities result. errors
+	  were due to changes of r284
 
-2010-10-22 08:31  frankmorgner
+	* [r337] - enable extended length apdu for all cards that have an
+	  ef.cardaccess - set the bit for esign by default (for testing
+	  only)
 
-	* added workaround for ausweisapp
+2010-10-15  frankmorgner
 
-2010-10-21 18:54  frankmorgner
+	* [r334] - moved OpenSC-related functions to scutil - added
+	  make-target for flawfinder (to be used with vim)
 
-	* fixed formating of ReadersPACECapabilities result. errors were
-	  due to changes of r284
+2010-10-14  frankmorgner
 
-2010-10-21 12:45  frankmorgner
+	* [r331] added command line option for gadgetfs mountpoint
 
-	* - enable extended length apdu for all cards that have an
-	  ef.cardaccess
-	  - set the bit for esign by default (for testing only)
+2010-10-13  frankmorgner
 
-2010-10-15 16:59  frankmorgner
-
-	* - moved OpenSC-related functions to scutil
-	  - added make-target for flawfinder (to be used with vim)
-
-2010-10-14 05:00  frankmorgner
-
-	* added command line option for gadgetfs mountpoint
-
-2010-10-13 20:10  frankmorgner
-
-	* switched from automake to sed for substitution of automake
+	* [r330] switched from automake to sed for substitution of automake
 	  variables
 
-2010-10-11 12:02  frankmorgner
+2010-10-11  frankmorgner
 
-	* added argument checking
+	* [r317] added argument checking
 
-2010-10-11 11:56  frankmorgner
+	* [r316] reviewed files with flawfinder
 
-	* reviewed files with flawfinder
+2010-10-07  frankmorgner
 
-2010-10-07 10:41  frankmorgner
+	* [r300] - cats-test and picc_to_pcsc are using the same pcsc
+	  abstraction. this reduces the code to maintain - partial rewrite
+	  of picc_to_pcsc to reduce memory leaks and add fault tolerancy
 
-	* - cats-test and picc_to_pcsc are using the same pcsc abstraction.
-	  this reduces the code to maintain
-	  - partial rewrite of picc_to_pcsc to reduce memory leaks and add
-	  fault tolerancy
+2010-10-06  frankmorgner
 
-2010-10-06 20:01  frankmorgner
+	* [r299] prepare to merge with pcsc_to_picc
 
-	* prepare to merge with pcsc_to_picc
+2010-10-04  frankmorgner
 
-2010-10-04 20:05  frankmorgner
+	* [r297] added missing files
 
-	* added missing files
+	* [r296] using strtol instead of sscanf
 
-2010-10-04 13:54  frankmorgner
+	* [r295] - added command line parameter for USB iInterface, use it
+	  to fool AusweisApp - fixed population of event notification
+	  status - dont initialize serial number, when given in input
 
-	* using strtol instead of sscanf
+	* [r294] added README as link to doxygen file
 
-2010-10-04 12:04  frankmorgner
+	* [r293] only using doxygen description as readme
 
-	* - added command line parameter for USB iInterface, use it to fool
-	  AusweisApp
-	  - fixed population of event notification status
-	  - dont initialize serial number, when given in input
+2010-10-02  frankmorgner
 
-2010-10-04 05:53  frankmorgner
+	* [r292] changed to a more simplistic generation of documentation
 
-	* added README as link to doxygen file
+2010-10-01  frankmorgner
 
-2010-10-04 05:52  frankmorgner
+	* [r291] added documentation
 
-	* only using doxygen description as readme
+2010-09-30  frankmorgner
 
-2010-10-02 20:35  frankmorgner
+	* [r290] sending description about the running configuration via
+	  usb descriptor
 
-	* changed to a more simplistic generation of documentation
+	* [r289] added documentation
 
-2010-10-01 20:46  frankmorgner
+2010-09-29  frankmorgner
 
-	* added documentation
+	* [r288] added documentation
 
-2010-09-30 20:45  frankmorgner
+	* [r287] adapted to the latest changes of OpenPACE
 
-	* sending description about the running configuration via usb
-	  descriptor
+2010-09-28  frankmorgner
 
-2010-09-30 11:16  frankmorgner
+	* [r286] postpone patch update for higher versions of ccid
 
-	* added documentation
+	* [r285] forgot writeback to RxBuffer in ccid driver
 
-2010-09-29 21:01  frankmorgner
+2010-09-27  frankmorgner
 
-	* added documentation
-
-2010-09-29 12:57  frankmorgner
-
-	* adapted to the latest changes of OpenPACE
-
-2010-09-28 09:11  frankmorgner
-
-	* postpone patch update for higher versions of ccid
-
-2010-09-28 09:10  frankmorgner
-
-	* forgot writeback to RxBuffer in ccid driver
-
-2010-09-27 20:48  frankmorgner
-
-	* added support for dynamic pace result generation to be
+	* [r284] added support for dynamic pace result generation to be
 	  transmitted to the pc/sc client. note that other ccid patches are
 	  not up to date
 
-2010-09-27 10:58  frankmorgner
+	* [r283] corrected indent and title of CHAT and certificate
+	  description
 
-	* corrected indent and title of CHAT and certificate description
+	* [r282] added support for printing and transmitting chat
 
-2010-09-27 09:04  frankmorgner
+	* [r281] print certificate description
 
-	* added support for printing and transmitting chat
+	* [r280] working on support for certificate description
 
-2010-09-27 08:35  frankmorgner
+2010-09-25  frankmorgner
 
-	* print certificate description
+	* [r279] deactivate emulators sm context, when host sends sm
+	  protected apdus
 
-2010-09-27 05:18  frankmorgner
+2010-09-24  frankmorgner
 
-	* working on support for certificate description
+	* [r278] - finished simulation of ta/ca - fixed parsing case 4
+	  extended apdu
 
-2010-09-25 05:20  frankmorgner
+	* [r277] - fixed pace input parameters of cats-tool - fixed apdu of
+	  simulation of ta/ca (cats-tool) - fixed padding removal (sm)
 
-	* deactivate emulators sm context, when host sends sm protected
-	  apdus
+	* [r276] - updated patch to pcsclite trunk - changed default ccid
+	  command buffer size to support sending extended apdus in a single
+	  transmit (only for ccid-1.3.11 necessary)
 
-2010-09-24 14:07  frankmorgner
+2010-09-23  frankmorgner
 
-	* - finished simulation of ta/ca
-	  - fixed parsing case 4 extended apdu
+	* [r275] - added le/lc to apdu debugging - fixed byte order problem
+	  for PC_to_RDR_XfrBlock - cats-tool: added simulation of part of
+	  TA/CA
 
-2010-09-24 12:22  frankmorgner
+	* [r274] - fixed compiling errors - adjusted secure messaging to
+	  support extended length apdus - card has to support extended
+	  length, this is hardcoded at the moment, but should better be
+	  done in the appropriate card driver
 
-	* - fixed pace input parameters of cats-tool
-	  - fixed apdu of simulation of ta/ca (cats-tool)
-	  - fixed padding removal (sm)
+	* [r273] added debugging of invalid apdus
 
-2010-09-24 07:42  frankmorgner
+	* [r272] adatpted to the latest changes of OpenPACE.
+	  EstablishPACEChannel now fully functional
 
-	* - updated patch to pcsclite trunk
-	  - changed default ccid command buffer size to support sending
-	  extended apdus in a single transmit (only for ccid-1.3.11
-	  necessary)
+2010-09-21  frankmorgner
 
-2010-09-23 19:36  frankmorgner
+	* [r271] - fixed receive length - added simulation of
+	  buergerclient/ausweisapp
 
-	* - added le/lc to apdu debugging
-	  - fixed byte order problem for PC_to_RDR_XfrBlock
-	  - cats-tool: added simulation of part of TA/CA
+2010-09-20  frankmorgner
 
-2010-09-23 12:56  frankmorgner
+	* [r270] - removed unnecessary checks of NULL pointer before using
+	  free() - fixed memory leak for buergerclient workaround
 
-	* - fixed compiling errors
-	  - adjusted secure messaging to support extended length apdus
-	  - card has to support extended length, this is hardcoded at the
-	  moment, but should better be done in the appropriate card driver
+2010-09-19  frankmorgner
 
-2010-09-23 11:12  frankmorgner
+	* [r269] fixed case 2 extended apdu parsing
 
-	* added debugging of invalid apdus
+2010-09-18  frankmorgner
 
-2010-09-23 09:03  frankmorgner
+	* [r268] - extended length fully functional. fixed last problems
+	  with lengths and ccid descriptor.
 
-	* adatpted to the latest changes of OpenPACE. EstablishPACEChannel
-	  now fully functional
+2010-09-16  frankmorgner
 
-2010-09-21 08:17  frankmorgner
+	* [r267] bugfix: case 2 extended length apdu are now recognized
 
-	* - fixed receive length
-	  - added simulation of buergerclient/ausweisapp
+2010-09-15  frankmorgner
 
-2010-09-20 20:01  frankmorgner
+	* [r266] - Added capabilities to parse and send extended length
+	  APDUs. This does not work proberly with libccid, so it is
+	  disabled at the moment - unpower card only on
+	  PC_to_RDR_IccPowerOff
 
-	* - removed unnecessary checks of NULL pointer before using free()
-	  - fixed memory leak for buergerclient workaround
+	* [r265] reset the card before disconnecting to unpower and reset
+	  the secure messaging status
 
-2010-09-19 12:00  frankmorgner
+2010-09-14  frankmorgner
 
-	* fixed case 2 extended apdu parsing
+	* [r264] - some unneded functions are no longer available in header
+	  files - cleaned memory leaks in pace-tool and ccid-emulator
 
-2010-09-18 12:42  frankmorgner
+	* [r263] - fixed wrong PCSC-PACE-data - fixed command line parsing
 
-	* - extended length fully functional. fixed last problems with
-	  lengths and ccid descriptor.
+2010-09-13  frankmorgner
 
-2010-09-16 10:08  frankmorgner
+	* [r262] added support for unambiguous PACE-channel selection
+	  (ID.icc and ID.pcd)
 
-	* bugfix: case 2 extended length apdu are now recognized
-
-2010-09-15 21:14  frankmorgner
-
-	* - Added capabilities to parse and send extended length APDUs.
-	  This does not
-	  work proberly with libccid, so it is disabled at the moment
-	  - unpower card only on PC_to_RDR_IccPowerOff
-
-2010-09-15 09:49  frankmorgner
-
-	* reset the card before disconnecting to unpower and reset the
-	  secure messaging status
-
-2010-09-14 20:37  frankmorgner
-
-	* - some unneded functions are no longer available in header files
-	  - cleaned memory leaks in pace-tool and ccid-emulator
-
-2010-09-14 16:07  frankmorgner
-
-	* - fixed wrong PCSC-PACE-data
-	  - fixed command line parsing
-
-2010-09-13 14:11  frankmorgner
-
-	* added support for unambiguous PACE-channel selection (ID.icc and
-	  ID.pcd)
-
-2010-09-13 09:24  frankmorgner
-
-	* fixed memory corruption for too long _RDR_to_PC_DataBlock
+	* [r261] fixed memory corruption for too long _RDR_to_PC_DataBlock
 	  packages
 
-2010-09-09 10:04  frankmorgner
+2010-09-09  frankmorgner
 
-	* bugfix: wrong format strings
+	* [r260] bugfix: wrong format strings
 
-2010-09-01 05:49  frankmorgner
+2010-09-01  frankmorgner
 
-	* - renamed ccid-test to cats-tool, since it is suitable for all
-	  readers of type cat-s and cat-b
-	  - cats-tool takes PIN as input parameter
+	* [r259] - renamed ccid-test to cats-tool, since it is suitable for
+	  all readers of type cat-s and cat-b - cats-tool takes PIN as
+	  input parameter
 
-2010-08-31 10:54  frankmorgner
+2010-08-31  frankmorgner
 
-	* - bugfix: pace output data now parsed correctly
-	  - added time measurement
+	* [r258] - bugfix: pace output data now parsed correctly - added
+	  time measurement
 
-2010-08-31 10:26  frankmorgner
+	* [r257] removed PCSC_TLV_STRUCTURE since its the attributes are
+	  not always packed
 
-	* removed PCSC_TLV_STRUCTURE since its the attributes are not
-	  always packed
+	* [r256] - bugfix: now converting pace io control to host byte
+	  order - now parsing pace output data - use pcsclite-capabilities,
+	  if possible
 
-2010-08-31 09:09  frankmorgner
+2010-08-30  frankmorgner
 
-	* - bugfix: now converting pace io control to host byte order
-	  - now parsing pace output data
-	  - use pcsclite-capabilities, if possible
+	* [r255] including reader.h, if possible
 
-2010-08-30 19:39  frankmorgner
+	* [r254] added compatibility with windows
 
-	* including reader.h, if possible
+2010-08-25  frankmorgner
 
-2010-08-30 13:18  frankmorgner
+	* [r253] added missing file
 
-	* added compatibility with windows
+	* [r252] added pace-tool can now break can, pin, puk with brute
+	  force
 
-2010-08-25 17:13  frankmorgner
+2010-08-24  frankmorgner
 
-	* added missing file
+	* [r251] added workaround for current buergerclient to read
+	  efcardaccess
 
-2010-08-25 13:25  frankmorgner
+2010-07-15  frankmorgner
 
-	* added pace-tool can now break can, pin, puk with brute force
+	* [r223] - made establishpacechannel output independant from any
+	  byte order conversion. little endian handling is done by the
+	  ccid-part. - pacelib exports PACE-functionality.
 
-2010-08-24 08:31  frankmorgner
+2010-07-12  frankmorgner
 
-	* added workaround for current buergerclient to read efcardaccess
+	* [r217] - usb.c: fixed signal handling - ccid.c: revised
+	  construction of RDR_to_PC_*-packages to make the code more
+	  readable
 
-2010-07-15 18:53  frankmorgner
+	* [r215] - made establishpacechannel output independant from any
+	  byte order conversion. little endian handling is done by the
+	  ccid-part.
 
-	* - made establishpacechannel output independant from any byte
-	  order conversion.
-	  little endian handling is done by the ccid-part.
-	  - pacelib exports PACE-functionality.
+	* [r211] bugfix: transform pace output buffer on usb from little
+	  endian to host byte order
 
-2010-07-12 22:54  frankmorgner
+	* [r210] - fixed parse errors
 
-	* - usb.c: fixed signal handling
-	  - ccid.c: revised construction of RDR_to_PC_*-packages to make
-	  the code more readable
+	* [r209] - pace debug output of libccid is shown by default in
+	  pcscd's log - made establishpacechannel input independant from
+	  any byte order conversion. little endian handling is done by the
+	  ccid-part.
 
-2010-07-12 21:27  frankmorgner
+2010-07-07  frankmorgner
 
-	* - made establishpacechannel output independant from any byte
-	  order conversion.
-	  little endian handling is done by the ccid-part.
+	* [r202] - added support for IDicc - fixed parse error of pace
+	  output buffer
 
-2010-07-12 12:18  frankmorgner
+	* [r201] - added parsing of PACE data - bugfix: PACE output data
+	  had to be wrapped again
 
-	* bugfix: transform pace output buffer on usb from little endian to
-	  host byte order
+2010-07-05  frankmorgner
 
-2010-07-12 11:28  frankmorgner
+	* [r195] bugfix: PACE response data was not copied to application
 
-	* - fixed parse errors
+2010-07-04  frankmorgner
 
-2010-07-12 09:58  frankmorgner
+	* [r194] printing received buffers
 
-	* - pace debug output of libccid is shown by default in pcscd's log
-	  - made establishpacechannel input independant from any byte order
-	  conversion.
-	  little endian handling is done by the ccid-part.
+	* [r193] bugfix: get the whole PACE response data
 
-2010-07-07 16:38  frankmorgner
-
-	* - added support for IDicc
-	  - fixed parse error of pace output buffer
-
-2010-07-07 10:31  frankmorgner
-
-	* - added parsing of PACE data
-	  - bugfix: PACE output data had to be wrapped again
-
-2010-07-05 15:07  frankmorgner
-
-	* bugfix: PACE response data was not copied to application
-
-2010-07-04 21:00  frankmorgner
-
-	* printing received buffers
-
-2010-07-04 18:06  frankmorgner
-
-	* bugfix: get the whole PACE response data
-
-2010-07-04 11:35  frankmorgner
-
-	* - added information how many bytes were actually transmitted via
-	  usb
-	  - split general authenticate into multiple functions, one for
-	  every step of
-	  PACE.
-	  - including recent and previous car in output buffer of
-	  EstablishPACEChannel
-	  - ccid-emulator initiates EstablishPACEChannel always with a new
+	* [r192] - added information how many bytes were actually
+	  transmitted via usb - split general authenticate into multiple
+	  functions, one for every step of PACE. - including recent and
+	  previous car in output buffer of EstablishPACEChannel -
+	  ccid-emulator initiates EstablishPACEChannel always with a new
 	  sm_ctx
 
-2010-07-02 21:03  frankmorgner
+2010-07-02  frankmorgner
 
-	* added ef.cardaccess and statusbytes to response of
+	* [r191] added ef.cardaccess and statusbytes to response of
 	  establishpacechannel
 
-2010-07-02 20:26  frankmorgner
+	* [r190] fixed wrong text of prompt for secret
 
-	* fixed wrong text of prompt for secret
+2010-07-01  frankmorgner
 
-2010-07-01 11:12  frankmorgner
+	* [r184] really releasing 0.3
 
-	* really releasing 0.3
+	* [r182] fixed missing Makefile to include patche
 
-2010-07-01 10:59  frankmorgner
+	* [r181] added patches to distribution file
 
-	* fixed missing Makefile to include patche
+	* [r180] releasing 0.3
 
-2010-07-01 10:56  frankmorgner
+	* [r179] - fixed unblock pin, it is now successfully tested
 
-	* added patches to distribution file
+2010-06-25  frankmorgner
 
-2010-07-01 10:11  frankmorgner
+	* [r170] - Replaced references to sc_get_pin* with its OpenSSL
+	  counter parts (untested) - UI functionality and maybe more is no
+	  longer shipped in opensc>=0.12. This and the fact that linking
+	  against libopensc in general is discouraged might be a reason to
+	  abandon opensc in future releases.
 
-	* releasing 0.3
+2010-06-23  oepen
 
-2010-07-01 10:09  frankmorgner
+	* [r169] -Fixed patches so bitbake can apply them -Added patches to
+	  bitbake recipes
 
-	* - fixed unblock pin, it is now successfully tested
+2010-06-23  frankmorgner
 
-2010-06-25 21:31  frankmorgner
+	* [r168] - better (or at least some) signal handling - always
+	  checking the existance of a card, when requested
 
-	* - Replaced references to sc_get_pin* with its OpenSSL counter
-	  parts (untested)
-	  - UI functionality and maybe more is no longer shipped in
-	  opensc>=0.12. This
-	  and the fact that linking against libopensc in general is
-	  discouraged might
-	  be a reason to abandon opensc in future releases.
+2010-06-22  frankmorgner
 
-2010-06-23 15:04  oepen
+	* [r166] - restructured handling of interrupt thread to kill the
+	  thread along with all the others - fixed error on input parameter
+	  parsing when interrupt is activated - completed interrupt
+	  signaling for new/removed cards
 
-	* -Fixed patches so bitbake can apply them
-	  -Added patches to bitbake recipes
+	* [r162] forcing empty parameter list with function(void) instead
+	  of unspecified parameter list with function()
 
-2010-06-23 12:20  frankmorgner
+2010-06-21  frankmorgner
 
-	* - better (or at least some) signal handling
-	  - always checking the existance of a card, when requested
+	* [r161] - made debugging of openssl errors human readable -
+	  removed debugging of return values, added human readable messages
+	  instead
 
-2010-06-22 21:29  frankmorgner
+2010-06-20  frankmorgner
 
-	* - restructured handling of interrupt thread to kill the thread
-	  along with all
-	  the others
-	  - fixed error on input parameter parsing when interrupt is
-	  activated
-	  - completed interrupt signaling for new/removed cards
+	* [r160] added patches for newer versions of ccid and pcsc-lite
 
-2010-06-22 09:45  frankmorgner
+	* [r159] added patches for distribution packages of ccid and
+	  pcsc-lite
 
-	* forcing empty parameter list with function(void) instead of
-	  unspecified parameter list with function()
+2010-06-19  frankmorgner
 
-2010-06-21 16:17  frankmorgner
+	* [r157] - pace-tool: fixed length of input buffer for
+	  EstablishPACEChannel - added debug messages to pace.c
 
-	* - made debugging of openssl errors human readable
-	  - removed debugging of return values, added human readable
-	  messages instead
+	* [r156] - added patch to distribution package - changed
+	  debug_sc_result to be a define. this now gets the line of code
+	  correct - added checking for input length to functions that parse
+	  the bulkin buffer - fixed segfault for GetReadersPACECapabilities
+	  when no card is inserted - added length checking of input for
+	  EstablishPACEChannel - ccid-test: fixed pbSendBufferEstablish -
+	  pcsclite_trunk.patch: - fixed parsing of
+	  lengthCertificateDescription - fixed wrong bPINOperation for pace
+	  capabilities and execute pace
 
-2010-06-20 20:15  frankmorgner
+2010-06-18  frankmorgner
 
-	* added patches for newer versions of ccid and pcsc-lite
+	* [r155] - renamed Special PIN Verification/Capabilities to PACE
+	  Verification/Capabilities - fixed PIN PACE support in ccid
+	  descriptor - using uint16_t instead of WORD in PACE structures -
+	  fixed lengthInputData to host byteorder - fixed parsing input
+	  buffer of SCardControl with FEATURE_EXECUTE_PACE - parsing input
+	  buffer for PACE verification and adjusting the byteorder - added
+	  30s timeout to for PACE verification - triggering PACE via PC/SC
+	  now works although quite unstable
 
-2010-06-20 19:52  frankmorgner
+	* [r154] - ccid-emulator: propagating PACE capabilities to ccid
+	  descriptor of - ccid-test: IOCTL_FEATURE_IFD_PIN_PROPERTIES is
+	  currently hardcoded and should be replaced by the value from
+	  GET_FEATURE_REQUEST - pcsclite_trunk.patch: fixed propagation of
+	  data from SCardControl to SecurePINSpecialVerify and
+	  SecurePINSpecialCapabilities
 
-	* added patches for distribution packages of ccid and pcsc-lite
+2010-06-17  frankmorgner
 
-2010-06-19 18:27  frankmorgner
+	* [r153] added ccid-test to evaluate the PACE features of
+	  ccid-emulator (untested)
 
-	* - pace-tool: fixed length of input buffer for
-	  EstablishPACEChannel
-	  - added debug messages to pace.c
+2010-06-16  frankmorgner
 
-2010-06-19 16:19  frankmorgner
+	* [r152] added PACE features to ccid-emulator (untested)
 
-	* - added patch to distribution package
-	  - changed debug_sc_result to be a define. this now gets the line
-	  of code correct
-	  - added checking for input length to functions that parse the
-	  bulkin buffer
-	  - fixed segfault for GetReadersPACECapabilities when no card is
-	  inserted
-	  - added length checking of input for EstablishPACEChannel
-	  - ccid-test: fixed pbSendBufferEstablish
-	  - pcsclite_trunk.patch:
-	  - fixed parsing of lengthCertificateDescription
-	  - fixed wrong bPINOperation for pace capabilities and execute
-	  pace
+2010-06-10  frankmorgner
 
-2010-06-18 21:20  frankmorgner
+	* [r146] - implemented passing a CHAT to the card. - note that the
+	  type PACE_CHAT should be integrated into OpenPACE - added
+	  parameters for passing CHAT and certificate description to
+	  pace-tool
 
-	* - renamed Special PIN Verification/Capabilities to PACE
-	  Verification/Capabilities
-	  - fixed PIN PACE support in ccid descriptor
-	  - using uint16_t instead of WORD in PACE structures
-	  - fixed lengthInputData to host byteorder
-	  - fixed parsing input buffer of SCardControl with
-	  FEATURE_EXECUTE_PACE
-	  - parsing input buffer for PACE verification and adjusting the
-	  byteorder
-	  - added 30s timeout to for PACE verification
-	  - triggering PACE via PC/SC now works although quite unstable
+2010-06-09  frankmorgner
 
-2010-06-18 16:27  frankmorgner
+	* [r143] renamed ccid to ccid-emulator to avoid conflicts with
+	  libccid
 
-	* - ccid-emulator: propagating PACE capabilities to ccid descriptor
-	  of
-	  - ccid-test: IOCTL_FEATURE_IFD_PIN_PROPERTIES is currently
-	  hardcoded and should
-	  be replaced by the value from GET_FEATURE_REQUEST
-	  - pcsclite_trunk.patch: fixed propagation of data from
-	  SCardControl to
-	  SecurePINSpecialVerify and SecurePINSpecialCapabilities
+	* [r141] added missing files for distribution packages
 
-2010-06-17 20:54  frankmorgner
+2010-06-05  frankmorgner
 
-	* added ccid-test to evaluate the PACE features of ccid-emulator
-	  (untested)
+	* [r132] updated checksums, install files for recipes. updated log
+	  files for 0.6.1
 
-2010-06-16 21:06  frankmorgner
+	* [r131] - dropped pace_transmit_apdu in favour of a solution with
+	  sm_transmit_apdu. post_transmit and pre_transmit can be used to
+	  perform actions before encrypting/decrypting a sm apdu (such as
+	  incrementing the ssc for pace). - fixed ssc problems. encrypted
+	  communication with more than one apdu (e.g. resuming the pin) is
+	  now working. - fixed uninitialized pointer in sm_decrypt
 
-	* added PACE features to ccid-emulator (untested)
+2010-06-04  frankmorgner
 
-2010-06-10 11:14  frankmorgner
+	* [r130] fixed uninitialized pointer which caused segfault on
+	  decryption.
 
-	* - implemented passing a CHAT to the card.
-	  - note that the type PACE_CHAT should be integrated into OpenPACE
-	  - added parameters for passing CHAT and certificate description
-	  to pace-tool
+	* [r129] fixed segfault if ef.cardaccess is not readable
 
-2010-06-09 15:45  frankmorgner
+2010-06-03  frankmorgner
 
-	* renamed ccid to ccid-emulator to avoid conflicts with libccid
+	* [r128] added error messages
 
-2010-06-09 15:28  frankmorgner
+	* [r127] bugfix for conversion of hex to binary for interactive
+	  mode
 
-	* added missing files for distribution packages
+2010-06-02  frankmorgner
 
-2010-06-05 22:10  frankmorgner
+	* [r125] added information about the environment variables used
 
-	* updated checksums, install files for recipes. updated log files
-	  for 0.6.1
+	* [r124] pace-tool can now read secrets from environment variables
 
-2010-06-05 14:34  frankmorgner
+	* [r123] made pin puk can or mrz an optional command line argument
 
-	* - dropped pace_transmit_apdu in favour of a solution with
-	  sm_transmit_apdu.
-	  post_transmit and pre_transmit can be used to perform actions
-	  before
-	  encrypting/decrypting a sm apdu (such as incrementing the ssc for
-	  pace).
-	  - fixed ssc problems. encrypted communication with more than one
-	  apdu (e.g.
-	  resuming the pin) is now working.
-	  - fixed uninitialized pointer in sm_decrypt
+	* [r122] fixed precision of time measurement
 
-2010-06-04 21:34  frankmorgner
+	* [r121] added time measurement for a PACE run
 
-	* fixed uninitialized pointer which caused segfault on decryption.
+2010-06-01  frankmorgner
 
-2010-06-04 19:05  frankmorgner
+	* [r119] establish pace channel and exit, when no further
+	  commandline option is given
 
-	* fixed segfault if ef.cardaccess is not readable
+	* [r118] - added switch to enable apdu translating (disabled by
+	  default)
 
-2010-06-03 22:17  frankmorgner
+2010-05-26  frankmorgner
 
-	* added error messages
+	* [r111] removed some messages, when less verbose. fixed little
+	  endian problem when parsing input buffer of EstablishPACEChannel.
 
-2010-06-03 21:34  frankmorgner
+2010-05-20  frankmorgner
 
-	* bugfix for conversion of hex to binary for interactive mode
+	* [r110] fixed class byte generation for sm apdu
 
-2010-06-02 13:16  frankmorgner
+	* [r109] - sm_transmit_apdu doesn't check SWs anymore - not
+	  throwing error for sw=63XX in mse:set at
 
-	* added information about the environment variables used
+	* [r108] - using short apdus for mse:set at and generic
+	  authenticate. to make it work with the sm implementation - added
+	  parameter oldpacectx to EstablishPACEChannel to allow a a new
+	  PACE connection inside an exitsting PACE connection (the output
+	  buffer of the latter connection must be provided since it stores
+	  the ef.cardaccess) - added functionality to ask for the secret in
+	  pace_reset_retry_counter - added macro pace_change_pin - SWs were
+	  stored at the wrong place of the output buffer from
+	  EstablishPACEChannel, fixed. - split up functionality of
+	  pace_test into multiple functions - added new command line option
+	  to pace-tool to resume the pin. resuming the pin is not working,
+	  yet.
 
-2010-06-02 11:39  frankmorgner
+2010-05-18  oepen
 
-	* pace-tool can now read secrets from environment variables
+	* [r107] Changed EXPLICIT tagging of CHAT and auxiliary
+	  authenticated data to IMPLICIT tagging
 
-2010-06-02 11:20  frankmorgner
+2010-05-16  frankmorgner
 
-	* made pin puk can or mrz an optional command line argument
+	* [r106] - Added handling for output buffer of
+	  EstablishPACEChannel, but CARs are still missing - Handed over
+	  code for handling of IV and SSC for PACE to OpenPACE
 
-2010-06-02 10:50  frankmorgner
+2010-05-08  frankmorgner
 
-	* fixed precision of time measurement
+	* [r101] added maintainer
 
-2010-06-02 10:43  frankmorgner
+	* [r100] moved bin_log to scutil
 
-	* added time measurement for a PACE run
+	* [r99] updated informations about pace-tool
 
-2010-06-01 17:44  frankmorgner
+2010-05-07  frankmorgner
 
-	* establish pace channel and exit, when no further commandline
-	  option is given
+	* [r98] corrected configure output
 
-2010-06-01 14:52  frankmorgner
+	* [r96] removed unmodified file
 
-	* - added switch to enable apdu translating (disabled by default)
+	* [r95] added _essential_ missing file
 
-2010-05-26 20:32  frankmorgner
+	* [r94] added missing file
 
-	* removed some messages, when less verbose. fixed little endian
-	  problem when parsing input buffer of EstablishPACEChannel.
+	* [r93] fixed include in pace.c. switched to autotools
 
-2010-05-20 19:26  frankmorgner
+2010-05-05  frankmorgner
 
-	* fixed class byte generation for sm apdu
+	* [r92] split up utils into stuff for program and sc handling
 
-2010-05-20 18:26  frankmorgner
+2010-05-04  frankmorgner
 
-	* - sm_transmit_apdu doesn't check SWs anymore
-	  - not throwing error for sw=63XX in mse:set at
+	* [r91] cleaned up pace.c and moved test_pace to pace-tool.c
 
-2010-05-20 08:17  frankmorgner
+	* [r90] openpace is now a hard dependancy for pace-tool. ccid does
+	  not yet depend on pace, since the USB interface to pace is not
+	  yet defined.
 
-	* - using short apdus for mse:set at and generic authenticate. to
-	  make it work with the sm implementation
-	  - added parameter oldpacectx to EstablishPACEChannel to allow a a
-	  new PACE connection inside an exitsting PACE connection (the
-	  output buffer of the latter connection must be provided since it
-	  stores the ef.cardaccess)
-	  - added functionality to ask for the secret in
-	  pace_reset_retry_counter
-	  - added macro pace_change_pin
-	  - SWs were stored at the wrong place of the output buffer from
-	  EstablishPACEChannel, fixed.
-	  - split up functionality of pace_test into multiple functions
-	  - added new command line option to pace-tool to resume the pin.
-	  resuming the pin is not working, yet.
-
-2010-05-18 11:39  oepen
-
-	* Changed EXPLICIT tagging of CHAT and auxiliary authenticated data
-	  to IMPLICIT tagging
-
-2010-05-16 18:53  frankmorgner
-
-	* - Added handling for output buffer of EstablishPACEChannel, but
-	  CARs are still missing
-	  - Handed over code for handling of IV and SSC for PACE to
-	  OpenPACE
-
-2010-05-08 18:36  frankmorgner
-
-	* added maintainer
-
-2010-05-08 14:44  frankmorgner
-
-	* moved bin_log to scutil
-
-2010-05-08 07:19  frankmorgner
-
-	* updated informations about pace-tool
-
-2010-05-07 21:27  frankmorgner
-
-	* corrected configure output
-
-2010-05-07 19:03  frankmorgner
-
-	* removed unmodified file
-
-2010-05-07 18:02  frankmorgner
-
-	* added _essential_ missing file
-
-2010-05-07 14:30  frankmorgner
-
-	* added missing file
-
-2010-05-07 11:50  frankmorgner
-
-	* fixed include in pace.c. switched to autotools
-
-2010-05-05 14:38  frankmorgner
-
-	* split up utils into stuff for program and sc handling
-
-2010-05-04 21:01  frankmorgner
-
-	* cleaned up pace.c and moved test_pace to pace-tool.c
-
-2010-05-04 20:16  frankmorgner
-
-	* openpace is now a hard dependancy for pace-tool. ccid does not
-	  yet depend on pace, since the USB interface to pace is not yet
-	  defined.
-
-2010-05-04 20:03  frankmorgner
-
-	* cleaned up command line options of pace-tool and made it
+	* [r89] cleaned up command line options of pace-tool and made it
 	  independant from ccid
 
-2010-05-04 08:07  frankmorgner
+	* [r88] bugfix: initializing apdu in pace_gen_auth. bin_log now
+	  checks input data.
 
-	* bugfix: initializing apdu in pace_gen_auth. bin_log now checks
-	  input data.
+	* [r87] changed length of read binary apdu to support acr 122
 
-2010-05-04 07:57  frankmorgner
+2010-05-03  frankmorgner
 
-	* changed length of read binary apdu to support acr 122
+	* [r86] put static pace functionality into the new program
+	  pace-tool
 
-2010-05-03 19:52  frankmorgner
+	* [r85] the number of remaining retries is a warning from the card,
+	  not a fatal error
 
-	* put static pace functionality into the new program pace-tool
+2010-04-29  frankmorgner
 
-2010-05-03 13:46  frankmorgner
+	* [r84] using proper type for getline result
 
-	* the number of remaining retries is a warning from the card, not a
-	  fatal error
+2010-04-28  frankmorgner
 
-2010-04-29 07:33  frankmorgner
+	* [r83] added support for changing CAN and PIN for PACE
 
-	* using proper type for getline result
+2010-04-27  frankmorgner
 
-2010-04-28 13:14  frankmorgner
+	* [r82] updated instructions
 
-	* added support for changing CAN and PIN for PACE
+	* [r81] - sm will yield error when the class byte indicates a sm
+	  apdu and pace will simply transmit the apdu without
+	  encrypting/authenticating it. - fixed building process when
+	  compiling without pace
 
-2010-04-27 20:02  frankmorgner
+2010-04-19  frankmorgner
 
-	* updated instructions
+	* [r80] added option to select card driver. beautified usage
+	  dialog.
 
-2010-04-27 20:00  frankmorgner
+2010-04-16  frankmorgner
 
-	* - sm will yield error when the class byte indicates a sm apdu and
-	  pace will
-	  simply transmit the apdu without encrypting/authenticating it.
-	  - fixed building process when compiling without pace
+	* [r79] improved build process
 
-2010-04-19 18:12  frankmorgner
+	* [r78] improved option parsing
 
-	* added option to select card driver. beautified usage dialog.
+	* [r77] added option to scan for available readers
 
-2010-04-16 20:37  frankmorgner
+2010-04-15  frankmorgner
 
-	* improved build process
+	* [r76] added header file for pace library functions
 
-2010-04-16 18:18  frankmorgner
-
-	* improved option parsing
-
-2010-04-16 14:08  frankmorgner
-
-	* added option to scan for available readers
-
-2010-04-15 20:03  frankmorgner
-
-	* added header file for pace library functions
-
-2010-04-15 18:37  frankmorgner
-
-	* - added information about opensc
-	  - using sc_transmit_apdu instead of my_transmit_apdu. fixing the
-	  opensc error
-	  is the better solution than implementing it twice (see
+	* [r75] - added information about opensc - using sc_transmit_apdu
+	  instead of my_transmit_apdu. fixing the opensc error is the
+	  better solution than implementing it twice (see
 	  http://www.opensc-project.org/opensc/ticket/209)
 
-2010-04-15 07:41  frankmorgner
+	* [r74] updated information
 
-	* updated information
+	* [r73] - Fixed error when testing pace without card - Testing pace
+	  allows now to choose the type of the secret (mrz, pin, can, puk).
+	  The secret can be given as commandline option or interactively. -
+	  Cleaned prompt for getting the password - Fixed error when
+	  inserting an empty password - When PACE is successfully finished,
+	  APDUs for testing can be given interactively
 
-2010-04-15 07:37  frankmorgner
+2010-04-13  frankmorgner
 
-	* - Fixed error when testing pace without card
-	  - Testing pace allows now to choose the type of the secret (mrz,
-	  pin, can, puk).
-	  The secret can be given as commandline option or interactively.
-	  - Cleaned prompt for getting the password
-	  - Fixed error when inserting an empty password
-	  - When PACE is successfully finished, APDUs for testing can be
-	  given
-	  interactively
+	* [r72] - completed mac verification. sm with pace is now fully
+	  functional. - made pace_test more fault tolerant.
 
-2010-04-13 21:06  frankmorgner
+2010-04-12  frankmorgner
 
-	* - completed mac verification. sm with pace is now fully
-	  functional.
-	  - made pace_test more fault tolerant.
+	* [r71] - decryption of sm apdu now working. verification of mac
+	  still missing.
 
-2010-04-12 21:22  frankmorgner
+	* [r70] fixed various memory leaks and potential segfaults
 
-	* - decryption of sm apdu now working. verification of mac still
-	  missing.
+	* [r69] - protocol nid in pace_sm_ctx is not needed any longer due
+	  to the changes of OpenPACE
 
-2010-04-12 19:54  frankmorgner
+	* [r68] bugfixes: - sm.c: fixed mac data padding, when sending sm
+	  apdu without data. - pace.c: for iv calculation ecb is used
+	  instead of cbc - pace.c: fixed ssc incrementation
 
-	* fixed various memory leaks and potential segfaults
-
-2010-04-12 14:26  frankmorgner
-
-	* - protocol nid in pace_sm_ctx is not needed any longer due to the
-	  changes of OpenPACE
-
-2010-04-12 14:04  frankmorgner
-
-	* bugfixes:
-	  - sm.c: fixed mac data padding, when sending sm apdu without
-	  data.
-	  - pace.c: for iv calculation ecb is used instead of cbc
-	  - pace.c: fixed ssc incrementation
-
-2010-04-12 12:09  frankmorgner
-
-	* - trying new apdu to reset retry counter in pace_test
-	  - added pace wrapper for sm_transmit_apdu which automatically
+	* [r67] - trying new apdu to reset retry counter in pace_test -
+	  added pace wrapper for sm_transmit_apdu which automatically
 	  increments the ssc
 
-2010-04-12 10:31  frankmorgner
+	* [r66] added missing include
 
-	* added missing include
+	* [r65] added code for reading cardsecurity
 
-2010-04-12 07:34  frankmorgner
+	* [r64] - reverted changes from last commit
 
-	* added code for reading cardsecurity
+	* [r63] - added more debugging - bugfix: header of sm apdu is
+	  authenticated instead of the original apdu
 
-2010-04-12 07:23  frankmorgner
+2010-04-11  frankmorgner
 
-	* - reverted changes from last commit
+	* [r62] bugfix: fetching unhandled error in update_iv
 
-2010-04-12 07:18  frankmorgner
+	* [r61] made bin_log more verbose
 
-	* - added more debugging
-	  - bugfix: header of sm apdu is authenticated instead of the
-	  original apdu
-
-2010-04-11 21:06  frankmorgner
-
-	* bugfix: fetching unhandled error in update_iv
-
-2010-04-11 20:49  frankmorgner
-
-	* made bin_log more verbose
-
-2010-04-11 20:31  frankmorgner
-
-	* Bugfixes:
-	  - ssc is a BIGNUM, since its size can be up to 16 bytes (not 16
-	  bits as before)
-	  - protected le is now encoded as octet string (not as unsigned
-	  integer anymore)
-	  - sc_format_asn1_entry was fet with wrong pointers (lebuf instead
-	  of *lebuf
-	  and formatted_data instead of *formatted_data
+	* [r60] Bugfixes: - ssc is a BIGNUM, since its size can be up to 16
+	  bytes (not 16 bits as before) - protected le is now encoded as
+	  octet string (not as unsigned integer anymore) -
+	  sc_format_asn1_entry was fet with wrong pointers (lebuf instead
+	  of *lebuf and formatted_data instead of *formatted_data
 	  
 	  Added some debug output.
 
-2010-04-10 20:39  frankmorgner
+2010-04-10  frankmorgner
 
-	* made sm code independant from openssl
+	* [r59] made sm code independant from openssl
 
-2010-04-10 18:16  frankmorgner
+	* [r58] - pace.c: removed unused variable ssc - pace.c: bugfix:
+	  don't increment ssc when resetting it. - sm.c/.h: wrote wrapper
+	  sm_transmit_apdu - sm.c: removed sm error handling, should be
+	  done by sc_check_sw - sm.c/ccid.c/pace.c: added qualifier
+	  "static" to local functions
 
-	* - pace.c: removed unused variable ssc
-	  - pace.c: bugfix: don't increment ssc when resetting it.
-	  - sm.c/.h: wrote wrapper sm_transmit_apdu
-	  - sm.c: removed sm error handling, should be done by sc_check_sw
-	  - sm.c/ccid.c/pace.c: added qualifier "static" to local functions
+	* [r57] added sw checking for sm
 
-2010-04-10 17:00  frankmorgner
+	* [r56] added missing return buffer for select of CardSecurity
 
-	* added sw checking for sm
+	* [r55] - sm.c (sm_encrypt) fixed header of sm apdu - pace.c
+	  (EstablishPACEChannel) Fixed initialisation of
+	  authentication_ctx. (pace_test) Fixed usage of SC_TEST_RET and
+	  initialisation of select apdu for EF.CardSecurity.
 
-2010-04-10 15:12  frankmorgner
+2010-04-09  frankmorgner
 
-	* added missing return buffer for select of CardSecurity
+	* [r54] - Work in progress: Almost finished (hopefully) flexible sm
+	  implementation (untested). struct sm_ctx needs external cipher
+	  and authentication implementations. Here only routines for
+	  encryption/decryption/authentication with PACE are given.
 
-2010-04-10 14:53  frankmorgner
+2010-04-01  frankmorgner
 
-	* - sm.c (sm_encrypt) fixed header of sm apdu
-	  - pace.c (EstablishPACEChannel) Fixed initialisation of
-	  authentication_ctx.
-	  (pace_test) Fixed usage of SC_TEST_RET and initialisation of
-	  select apdu for
-	  EF.CardSecurity.
+	* [r53] integrated SM into pace
 
-2010-04-09 20:36  frankmorgner
+2010-03-31  frankmorgner
 
-	* - Work in progress: Almost finished (hopefully) flexible sm
-	  implementation
-	  (untested). struct sm_ctx needs external cipher and
-	  authentication
-	  implementations. Here only routines for
-	  encryption/decryption/authentication
-	  with PACE are given.
+	* [r52] - added untested function to decrypt sm - function cipher
+	  now always disables automatic padding
 
-2010-04-01 05:52  frankmorgner
+2010-03-29  frankmorgner
 
-	* integrated SM into pace
+	* [r51] - Added an untested SM implementation, currently only with
+	  encryption - Added utils from OpenPACE
 
-2010-03-31 21:58  frankmorgner
+2010-03-22  frankmorgner
 
-	* - added untested function to decrypt sm
-	  - function cipher now always disables automatic padding
+	* [r50] adapted latest changes of OpenPACE
 
-2010-03-29 19:53  frankmorgner
+2010-03-15  frankmorgner
 
-	* - Added an untested SM implementation, currently only with
-	  encryption
-	  - Added utils from OpenPACE
-
-2010-03-22 14:42  frankmorgner
-
-	* adapted latest changes of OpenPACE
-
-2010-03-15 18:34  frankmorgner
-
-	* bugfix: corrected types of fields from ASN1_INTEGER to
+	* [r49] bugfix: corrected types of fields from ASN1_INTEGER to
 	  ASN1_OCTET_STRING
 
-2010-03-15 15:01  frankmorgner
+	* [r48] - adopted the latest changes of OpenPACE - bugfix: created
+	  receive buffer before sending general authenticate apdus - added
+	  more debug output
 
-	* - adopted the latest changes of OpenPACE
-	  - bugfix: created receive buffer before sending general
-	  authenticate apdus
-	  - added more debug output
+2010-03-10  frankmorgner
 
-2010-03-10 09:14  frankmorgner
+	* [r47] bugfix
 
-	* bugfix
+2010-03-09  frankmorgner
 
-2010-03-09 19:30  frankmorgner
+	* [r46] using specifications from TR-03110 2.01 as default (as done
+	  by test cards)
 
-	* using specifications from TR-03110 2.01 as default (as done by
-	  test
-	  cards)
+	* [r45] bugfix: building with apdu.c apdu.h
 
-2010-03-09 07:01  frankmorgner
+2010-03-08  frankmorgner
 
-	* bugfix: building with apdu.c apdu.h
+	* [r44] - bugfix: general authenticate response data is now
+	  encapsulated in a dynamic data object - added more debug messages
+	  - bugfix: get_ef_card_access didn't fetch the whole file -
+	  bugfix: set mse set at apdu type to case 3 - bugfix: only send
+	  the plain value (without tag/length) of the PACE_MSE_SET_AT
+	  object - bugfix: fixed general authenticate cla byte and set apdu
+	  type to case 4 - sanity checks in sc_transmit_apdu forbid the
+	  required apdu format of general authenticate so it had to be
+	  reimplemented in my_transmit_apdu. apdu.c/apdu.h are mainly
+	  copied from opensc.
 
-2010-03-08 22:16  frankmorgner
+2010-03-05  frankmorgner
 
-	* - bugfix: general authenticate response data is now encapsulated
-	  in a
-	  dynamic data object
-	  - added more debug messages
-	  - bugfix: get_ef_card_access didn't fetch the whole file
-	  - bugfix: set mse set at apdu type to case 3
-	  - bugfix: only send the plain value (without tag/length) of the
-	  PACE_MSE_SET_AT object
-	  - bugfix: fixed general authenticate cla byte and set apdu type
-	  to
-	  case 4
-	  - sanity checks in sc_transmit_apdu forbid the required apdu
-	  format of
-	  general authenticate so it had to be reimplemented in
-	  my_transmit_apdu. apdu.c/apdu.h are mainly copied from opensc.
+	* [r43] - fixed includes - fixed return value from pace_test if
+	  NO_PACE is defined
 
-2010-03-05 22:35  frankmorgner
+	* [r42] - pace-testing is not done in threads anymore, program
+	  exits when test is finished - bugfix in debug_ossl - more generic
+	  aproach to select EF.CardAccess - EF.CardAccess is read
+	  sequencially, to get a correct send sequence counter
 
-	* - fixed includes
-	  - fixed return value from pace_test if NO_PACE is defined
+2010-03-01  frankmorgner
 
-2010-03-05 09:53  frankmorgner
-
-	* - pace-testing is not done in threads anymore, program exits when
-	  test is finished
-	  - bugfix in debug_ossl
-	  - more generic aproach to select EF.CardAccess
-	  - EF.CardAccess is read sequencially, to get a correct send
-	  sequence counter
-
-2010-03-01 16:22  frankmorgner
-
-	* - bugfix: moved ASN.1 declaration of PACE-APDUs to pace.c
-	  - added commandline-option to test PACE currently with hard coded
+	* [r41] - bugfix: moved ASN.1 declaration of PACE-APDUs to pace.c -
+	  added commandline-option to test PACE currently with hard coded
 	  secret etc.
 
-2010-02-28 18:58  frankmorgner
+2010-02-28  frankmorgner
 
-	* Added support for Password Authenticated Connection Establishment
-	  (PACE) using
-	  OpenPACE (http://sourceforge.net/projects/openpace/). Since it is
-	  currently
-	  untested, it is disabled by default.
+	* [r40] Added support for Password Authenticated Connection
+	  Establishment (PACE) using OpenPACE
+	  (http://sourceforge.net/projects/openpace/). Since it is
+	  currently untested, it is disabled by default.
 
-2010-01-31 15:57  frankmorgner
+2010-01-31  frankmorgner
 
-	* - implemented option parsing with getopt_long
+	* [r37] - implemented option parsing with getopt_long
 
-2010-01-31 01:47  frankmorgner
+	* [r36] - Some minor code improvements: catch and fix some rare
+	  errors, taking more usage of opensc debugging methods, removed
+	  not needed variables and code fragments
 
-	* - Some minor code improvements: catch and fix some rare errors,
-	  taking more
-	  usage of opensc debugging methods, removed not needed variables
-	  and code
-	  fragments
+2010-01-30  frankmorgner
 
-2010-01-30 11:52  frankmorgner
+	* [r34] - fixed segmentation fault, ccid running stable now again
 
-	* - fixed segmentation fault, ccid running stable now again
-
-2010-01-30 02:43  frankmorgner
-
-	* - switched to opensc's debugging function in log.h
-	  - a segmentation fault of unknown origin crashes ccid after too
-	  many
+	* [r33] - switched to opensc's debugging function in log.h - a
+	  segmentation fault of unknown origin crashes ccid after too many
 	  operations. last stable version is revision 29.
 
-2010-01-30 00:04  frankmorgner
-
-	* - created detect_card_presence to avoid limitations of
+	* [r32] - created detect_card_presence to avoid limitations of
 	  sc_detect_card_presence
 
-2010-01-29 18:04  frankmorgner
+2010-01-29  frankmorgner
 
-	* - added functions for simplified debugging
-	  - changed functions to pass pointers instead of structs and using
-	  realloc
-	  instead of malloc to reduce memory overhead/usage
-	  - changed functions to return opensc-errors to pass
-	  printout-debugging to the
-	  top level
-	  - included functionality of get_RDR_to_PC_Parameters in
-	  perform_PC_to_RDR_GetParamters
+	* [r31] - added functions for simplified debugging - changed
+	  functions to pass pointers instead of structs and using realloc
+	  instead of malloc to reduce memory overhead/usage - changed
+	  functions to return opensc-errors to pass printout-debugging to
+	  the top level - included functionality of
+	  get_RDR_to_PC_Parameters in perform_PC_to_RDR_GetParamters
 
-2010-01-24 07:13  frankmorgner
+2010-01-24  frankmorgner
 
-	* added support for bNumberMessage
+	* [r29] added support for bNumberMessage
 
-2010-01-23 22:45  frankmorgner
+2010-01-23  frankmorgner
 
-	* added support for flags in bConfirmPIN
+	* [r28] added support for flags in bConfirmPIN
 
-2010-01-23 22:10  frankmorgner
+	* [r27] added support for pin modification
 
-	* added support for pin modification
+	* [r26] - added defines for pin modification - debugging apdu and
+	  rapdu there where they are created - splitted pin block
+	  operations into several functions
 
-2010-01-23 21:37  frankmorgner
+2010-01-21  frankmorgner
 
-	* - added defines for pin modification
-	  - debugging apdu and rapdu there where they are created
-	  - splitted pin block operations into several functions
+	* [r23] - switched from libpcsc to libopensc. This brings some new
+	  features: - Support for 4 slots per reader - abstraction of user
+	  interface - interactive pin verification - BCD encoding of PIN -
+	  Support for new readers (OpenCT) - automatically skip to a reader
+	  with a card - added defines - changed interface of
+	  ccid_initialize
 
-2010-01-21 21:48  frankmorgner
+2010-01-14  frankmorgner
 
-	* - switched from libpcsc to libopensc. This brings some new
-	  features:
-	  - Support for 4 slots per reader
-	  - abstraction of user interface
-	  - interactive pin verification
-	  - BCD encoding of PIN
-	  - Support for new readers (OpenCT)
-	  - automatically skip to a reader with a card
-	  - added defines
-	  - changed interface of ccid_initialize
+	* [r22] changed naming
 
-2010-01-14 22:29  frankmorgner
+	* [r21] removed not needed iso-identifier
 
-	* changed naming
+	* [r20] code split into multiple files, added include guards
 
-2010-01-14 20:28  frankmorgner
+2010-01-12  frankmorgner
 
-	* removed not needed iso-identifier
+	* [r17] perform_PC_to_RDR_Secure works, read actual PIN is still
+	  missing
 
-2010-01-14 19:20  frankmorgner
+2010-01-10  frankmorgner
 
-	* code split into multiple files, added include guards
+	* [r16] added support for pinpad. doesn't work atm, somehow
+	  abPINApdu is wrong.
 
-2010-01-12 10:06  frankmorgner
+2010-01-05  frankmorgner
 
-	* perform_PC_to_RDR_Secure works, read actual PIN is still missing
+	* [r11] changed vendorid/productid, added new structures for future
+	  PIN support.
 
-2010-01-10 23:09  frankmorgner
+2010-01-04  frankmorgner
 
-	* added support for pinpad. doesn't work atm, somehow abPINApdu is
-	  wrong.
+	* [r8] Cleaned up warnings.
 
-2010-01-05 18:44  frankmorgner
+	* [r6] Separated bitbake recipes. vscarchitecture.bb simply
+	  collects the other recipes now.
 
-	* changed vendorid/productid, added new structures for future PIN
-	  support.
+2009-08-06  schertz123456
 
-2010-01-04 20:38  frankmorgner
-
-	* Cleaned up warnings.
-
-2010-01-04 19:48  frankmorgner
-
-	* Separated bitbake recipes. vscarchitecture.bb simply collects the
-	  other recipes now.
-
-2009-08-06 20:25  schertz123456
-
-	* Initial commit.
+	* [r1] Initial commit.
 
