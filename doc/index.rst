@@ -3,7 +3,14 @@
 Welcome to the |vsmartcard| documentation!
 ==========================================================
 
-Welcome to the |vsmartcard|. |vsmartcard| is an umbrella project for various projects concerned with the emulation of different types of smart card readers or smart cards themselves.
+Welcome to the |vsmartcard|. |vsmartcard| is an umbrella project for various
+projects concerned with the emulation of different types of smart card readers
+or smart cards themselves.
+
+.. image:: _static/vsmartcard.jpeg
+    :alt: |vsmartcard| connects different aspects of smart card handling
+    :scale: 50%
+    :align: center
 
 Currently the following projects are part of |vsmartcard|: 
 
@@ -20,10 +27,37 @@ functionality of some library? Apart from requesting a new feature, you can
 have a look at these programming guides and try yourself:
 
 .. toctree::
-   :titlesonly:
+   :maxdepth: 1
 
    virtualsmartcard/api
    npa/api
+
+
+Example Use Cases
+-----------------
+
+Mobile Phone with Virtual Smartcard connected via NFC
+*****************************************************
+
+.. image:: _static/nfc-emulator.jpeg
+    :alt: Overview
+    :width: 320px
+
+.. image:: _static/nfc-emulator-arch.jpeg
+    :alt: Architecture
+    :width: 320px
+
+Mobile Phone with Virtual Smartcard connected via USB
+*****************************************************
+
+.. image:: _static/usb-emulator.jpeg
+    :alt: Overview
+    :width: 320px
+
+.. image:: _static/usb-emulator-arch.jpeg
+    :alt: Architecture
+    :width: 320px
+
 
 Download
 ========
