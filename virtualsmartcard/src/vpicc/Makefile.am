@@ -22,8 +22,11 @@ vpicccards_PYTHON = virtualsmartcard/cards/__init__.py \
            virtualsmartcard/cards/nPA.py \
            virtualsmartcard/cards/cryptoflex.py
 
-do_subst = $(SED) -e 's,[@]PYTHON[@],$(PYTHON),g'
+do_subst = $(SED) \
+		   -e 's,[@]PYTHON[@],$(PYTHON),g' \
+		   -e 's,[@]PACKAGE_BUGREPORT[@],$(PACKAGE_BUGREPORT),g' \
+		   -e 's,[@]PACKAGE_NAME[@],$(PACKAGE_NAME),g'
 
-vicc: vicc.in Makefile
-	$(do_subst) < $(srcdir)/vicc.in > vicc
-	chmod +x vicc
+$(builddir)/vicc: vicc.in Makefile
+	$(do_subst) < $(srcdir)/vicc.in > $(builddir)/vicc
+	chmod +x $(builddir)/vicc

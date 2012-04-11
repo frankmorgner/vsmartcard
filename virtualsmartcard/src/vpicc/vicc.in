@@ -1,7 +1,7 @@
 #! @PYTHON@
 #
-#
-# Copyright (C) 2011 Frank Morgner, Dominik Oepen
+# Copyright (C) 2010-2012 Frank Morgner <morgner@informatik.hu-berlin.de>
+# Copyright (C) 2010 Dominik Oepen <oepen@informatik.hu-berlin.de>
 # 
 # This file is part of virtualsmartcard.
 # 
@@ -20,23 +20,49 @@
 #
 
 import argparse
-parser = argparse.ArgumentParser('Virtual Smart Card')
-parser.add_argument("-f", "--file", action="store", type=str,
-        default=None,
-        help="Load a saved card")
-parser.add_argument("-n", "--hostname", action="store", type=str,
-        default='localhost',
-        help="Address of Virtual PCD [default: %(default)s]")
-parser.add_argument("-p", "--port", action="store", type=int,
-        default=35963,
-        help="Port of Virtual PCD [default: %(default)s]")
-parser.add_argument("-r", "--reader", action="store", type=int,
-        default=None,
-        help="Number of reader for relaying")
-parser.add_argument("-t", "--type", action="store",
-        default='iso7816',
+
+
+parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        description='''
+The @PACKAGE_NAME@ emulates different types of smart cards.
+
+The emulator connects to the virtual smart card reader reader (vpcd). Smart
+card applications can access the @PACKAGE_NAME@ through the vpcd via PC/SC.
+
+Report bugs to @PACKAGE_BUGREPORT@
+''',
+        epilog='''
+Written by Frank Morgner <morgner@informatik.hu-berlin.de> and Dominik Oepen
+<oepen@informatik.hu-berlin.de>
+''')
+
+parser.add_argument("-t", "--type",
+        action="store",
         choices=['iso7816', 'cryptoflex', 'ePass', 'nPA', 'relay'],
-        help="Type of Smartcard [default: %(default)s]")
+        default='iso7816',
+        help="Type of smart card to emulate")
+parser.add_argument("-f", "--file",
+        action="store",
+        type=argparse.FileType('r'),
+        help="load a saved smart card image")
+parser.add_argument("-H", "--hostname",
+        action="store",
+        type=str,
+        default='localhost',
+        help="address of the vpcd")
+parser.add_argument("-P", "--port",
+        action="store",
+        type=int,
+        default=35963,
+        help="port of the vpcd")
+
+relay = parser.add_argument_group('options for relaying a local smart card')
+relay.add_argument("-r", "--reader",
+        action="store",
+        type=int,
+        help="number of the reader which contains the smart card to be relayed.")
+
 args = parser.parse_args()
 
 from virtualsmartcard.VirtualSmartcard import VirtualICC
