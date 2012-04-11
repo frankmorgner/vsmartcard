@@ -23,7 +23,7 @@ Access Control (EAC) with Terminal Authentication (TA) and Chit Authenitcation
 (CA).
 
 Please consider the following overview to the API as incomplete. The `Doxygen
-documentation <_static/doxygen-npa/modules.html>`_ should be used as programmer's
+documentation <../_static/doxygen-npa/modules.html>`_ should be used as programmer's
 reference since it is more detailed.
 
 =====================
@@ -31,7 +31,7 @@ Secure Messaging (SM)
 =====================
 
 The complete documentation can be found `here
-<_static/doxygen-npa/group__sm.html>`__.
+<../_static/doxygen-npa/group__sm.html>`__.
 
 -----
 Types
@@ -49,7 +49,7 @@ Interface to German identity card (neuer Personalausweis, nPA)
 ==============================================================
 
 The complete documentation can be found `here
-<_static/doxygen-npa/group__npa.html>`__.
+<../_static/doxygen-npa/group__npa.html>`__.
 
 ---------
 Functions
