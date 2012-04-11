@@ -29,6 +29,7 @@ AC_PROG_SED
 AM_PATH_PYTHON
 AM_PROG_CC_C_O
 PKG_PROG_PKG_CONFIG
+AC_PATH_PROG(HELP2MAN, help2man, false // No help2man //)
 
 # If you need to see the details, just run make V=1.
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])

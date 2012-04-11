@@ -1,6 +1,9 @@
 bin_SCRIPTS = vicc
 CLEANFILES = $(bin_SCRIPTS)
 EXTRA_DIST = vicc.in
+MAINTAINERCLEANFILES = $(dist_man1_MANS)
+
+dist_man1_MANS		= vicc.1
 
 vpiccdir = $(pythondir)/virtualsmartcard
 vpicccardsdir = $(vpiccdir)/cards
@@ -31,3 +34,9 @@ do_subst = $(SED) \
 $(builddir)/vicc: vicc.in Makefile
 	$(do_subst) < $(srcdir)/vicc.in > $(builddir)/vicc
 	chmod +x $(builddir)/vicc
+
+$(builddir)/vicc.1:
+	$(HELP2MAN) \
+		--no-discard-stderr \
+		--output=$@ \
+		$(srcdir)/vicc
