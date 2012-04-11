@@ -25,9 +25,6 @@ from virtualsmartcard.SmartcardFilesystem import MF, DF, TransparentStructureEF
 from virtualsmartcard.ConstantDefinitions import FDB, ALGO_MAPPING
 from virtualsmartcard.CryptoUtils import protect_string, read_protected_string
 from virtualsmartcard.SmartcardSAM import SAM
-from virtualsmartcard.cards.cryptoflex import CryptoflexSAM, CryptoflexMF
-from virtualsmartcard.cards.ePass import PassportSAM
-from virtualsmartcard.cards.nPA import nPA_SAM
 
 # pgp directory
 #self.mf.append(DF(parent=self.mf,
@@ -69,6 +66,7 @@ class CardGenerator(object):
         Therefore it must interact with the user by prompting for the MRZ and
         optionally for the path to a photo."""
         from PIL import Image
+        from virtualsmartcard.cards.ePass import PassportSAM
             
         #TODO: Sanity checks
         MRZ = raw_input("Please enter the MRZ as one string: ")
@@ -142,8 +140,7 @@ class CardGenerator(object):
         self.sam = PassportSAM(self.mf)
     
     def __generate_nPA(self):
-        from virtualsmartcard.SmartcardSAM import SAM
-        
+        from virtualsmartcard.cards.nPA import nPA_SAM
         ALGO_MAPPING["\x04\x00\x7f\x00\x07\x02\x02\x04\x02\x02"] = "PACE"
         ALGO_MAPPING["\x04\x00\x7f\x00\x07\x02\x02\x03\x02\x02"] = "CA"
 
@@ -158,6 +155,7 @@ class CardGenerator(object):
 
     def __generate_cryptoflex(self):
         """Generate the Filesystem and SAM of a cryptoflex card"""
+        from virtualsmartcard.cards.cryptoflex import CryptoflexMF, CryptoflexSAM
         self.mf = CryptoflexMF()
         self.mf.append(TransparentStructureEF(parent=self.mf, fid=0x0002,
                        filedescriptor=0x01,
