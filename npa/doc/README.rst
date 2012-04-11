@@ -1,7 +1,12 @@
 .. highlight:: sh
 
+.. _OpenSC: http://www.opensc-project.org
 .. _OpenSC with PACE: http://github.com/frankmorgner/OpenSC
+.. _OpenSSL: http://www.openssl.org
 .. _OpenPACE: http://openpace.sourceforge.net
+
+.. |PACE| replace:: :abbr:`PACE (Password Authenticated Connection Establishment)`
+.. |npa-tool| replace:: :command:`npa-tool`
 
 
 .. _npa:
@@ -15,21 +20,18 @@ nPA Smart Card Library
 :License:
     GPL version 3
 :Tested Platforms:
-    - Linux (Debian, Ubuntu, OpenMoko)
     - Windows
+    - Linux (Debian, Ubuntu, OpenMoko)
 :Potential Platforms:
     Unix-like operating systems (Mac OS, Solaris, BSD, ...)
 
-Welcome to the nPA Smart Card Library. The purpose of the nPA Smart Card Library is to offer an easy to use API for the new
-German identity card (neuer Personalausweis, nPA). The library also implements
-secure messaging, which could also be used for other cards.
+The nPA Smart Card Library offers an easy to use API for the new German identity card
+(neuer Personalausweis, nPA). The library also implements secure messaging,
+which could also be used for other cards. The included |npa-tool| can
+be used for PIN management or to send APDUs inside a secure channel.
 
-The nPA Smart Card Library is implemented using OpenPACE_.
-Some fragments of the source code are based on the source code of the OpenSC tools.
-
-The included npa-tool has support for Password Authenticated Connection
-Establishment (PACE). npa-tool can be used for PIN management or to encrypt
-APDUs inside a secure messaging channel established with PACE.
+The nPA Smart Card Library is implemented using OpenPACE_.  Some fragments of the
+source code are based on the source code of the OpenSC_ tools.
 
 
 .. _npa-install:
@@ -39,15 +41,15 @@ APDUs inside a secure messaging channel established with PACE.
 The nPA Smart Card Library has the following dependencies:
 
 - `OpenSC with PACE`_
-- OpenSSL with OpenPACE_
+- OpenSSL_ with OpenPACE_
 
 
 ------------------------------
 Hints on OpenSSL with OpenPACE
 ------------------------------
 
-The nPA Smart Card Library links against OpenSSL, which must be patched with OpenPACE_.
-Here is an example of how to get the standard installation of OpenSSL with
+The nPA Smart Card Library links against OpenSSL_, which must be patched with
+OpenPACE_.  Here is an example of how to get the standard installation of
 OpenPACE_::
  
     PREFIX=/tmp/install
@@ -61,9 +63,10 @@ OpenPACE_::
     make
     make install
 
-Building the nPA Smart Card Library with OpenPACE_ is done best using :command:`pkg-config`.  The file
-:file:`libcrypto.pc` should be located in ``$INSTALL/lib/pkgconfig``. Here is how
-to configure the nPA Smart Card Library to use it::
+Building the nPA Smart Card Library with OpenPACE_ is done best using
+:command:`pkg-config`.  The file :file:`libcrypto.pc` should be located in
+``$INSTALL/lib/pkgconfig``. Here is how to configure the nPA Smart Card Library to use
+it::
 
     ./configure PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig
 
@@ -100,15 +103,15 @@ configure the nPA Smart Card Library to use it::
 Usage
 =====
 
-When testing PACE with either PIN, CAN, MRZ or PUK run npa-tool. Here you can
-enter APDUs which are to be converted according to the secure messaging
-parameter and to be sent to the card. Herefor insert the APDU in hex (upper or
-lower case) with a colon to separate the bytes or without it. Example APDUs can
-be found in the file apdus.
+To pass a secret to |npa-tool| for |PACE|, command line parameters or
+environment variables can be used. If the smart card reader supports |PACE|,
+the PIN pad is used. If none of these options is applies, npa-tool will show a
+password prompt.
 
-To pass a secret to npa-tool, the command line parameters or the environment
-variables PIN/CAN/MRZ/PUK/NEWPIN can be used. If none of these options is used,
-npa-tool will show a password prompt.
+|npa-tool| can send arbitrary APDUs to the nPA in the secure channel.  APDUs
+are entered interactively or through a file.  APDUs are formatted in hex (upper
+or lower case) with an optional colon to separate the bytes. Example APDUs can
+be found in :file:`apdus`.
 
 .. program-output:: npa-tool --help
 

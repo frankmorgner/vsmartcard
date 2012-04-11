@@ -11,7 +11,10 @@
 
 .. |vpicc| replace:: :abbr:`vpicc (virtual smart card)`
 .. |vpcd| replace:: :abbr:`vpcd (virtual smart card reader)`
+.. |EAC| replace:: :abbr:`EAC (Extended Access Control)`
+.. |PACE| replace:: :abbr:`PACE (Password Authenticated Connection Establishment)`
 
+.. _vicc:
 
 ********************************************************************************
 @PACKAGE_NAME@
@@ -28,17 +31,25 @@
 :Potential Platforms:
     Unix-like operating systems (Mac OS, Solaris, BSD, ...)
 
-Welcome to the @PACKAGE_NAME@. The purpose of the @PACKAGE_NAME@ is to emulate a
-smart card and make it accessible through PCSC. Currently the virtual smart
-card supports almost all commands of ISO-7816 including secure messaging.
-Besides a plain ISO-7816 smart card it is also possible to emulate a German
-ePass (only basic access control) and a rudimentary Cryptoflex smart card. The
-|vpicc| can be accessed through the |vpcd| which is a driver for
-:command:`pcscd` of PCSC-Lite_.
+@PACKAGE_NAME@ emulates a smart card and makes it accessible through PC/SC.
+Currently the @PACKAGE_NAME@ supports the following types of smart cards:
 
-By default the vicc communicates with the vpcd through a socket on localhost
-port 35963. The file :file:`utils.py` was taken from Henryk Plötz's
-cyberflex-shell_.
+- Generic ISO-7816 smart card including secure messaging
+- German electronic identity card (nPA) with |EAC| including |PACE|
+- German electronic passport (ePass) with basic access control
+- Cryptoflex smart card (incomplete)
+      
+The |vpcd| is a smart card driver for PCSC-Lite_. It allows
+smart card applications to access the |vpicc| through the PC/SC API.  By
+default |vpicc| communicates with |vpcd| through a socket on localhost port
+35963. But the |vpicc| does not need to run on the same machine as the |vpcd|,
+they can connect over the internet for example.
+
+Although the @PACKAGE_NAME@ is a software emulator, you can use
+:ref:`pcsc-relay` to make it accessible to an external contact-less smart card
+reader.
+
+The file :file:`utils.py` was taken from Henryk Plötz's cyberflex-shell_.
 
 
 .. include:: autotools.rst
@@ -52,28 +63,26 @@ the following:
 - PBKDF2_
 - PIP_
 
-The |vpcd| has the following dependencies:
-
-- PCSC-Lite_
+The |vpcd| depends on PCSC-Lite_.
 
 
 ================================================================================
 Running the @PACKAGE_NAME@
 ================================================================================
 
-First you need to make sure that pcscd loads the |vpcd|. You might need to run
-:command:`update-reader.conf` to update pcscd's configuration file. Then
-:command:`pcscd -f -d` should say something like "Attempting startup of
+First you need to make sure that :command:`pcscd` loads the |vpcd|. You might
+need to run :command:`update-reader.conf` to update its configuration file.
+Then :command:`pcscd -f -d` should say something like "Attempting startup of
 Virtual PCD"
 
 Now you can run :command:`vicc` which connects to the |vpcd|. The command
 :command:`vicc --help` gives an overview about the command line options.
 
-You should now be able to access the |vpicc| through the system's
-PC/SC API via |vpcd|/pcscd. You can use the opensc-explorer or pcsc_scan to test
-that.
-
 .. program-output:: vicc --help
+
+You should now be able to access the |vpicc| through the PC/SC API via
+|vpcd|/pcscd. You can use the :command:`opensc-explorer` or
+:command:`pcsc_scan` for testing.
 
 
 .. include:: questions.rst

@@ -8,29 +8,31 @@ Welcome to the |vsmartcard|. |vsmartcard| is an umbrella project for various pro
 Currently the following projects are part of |vsmartcard|: 
 
 .. toctree::
+   :titlesonly:
 
    virtualsmartcard/README
    pcsc-relay/README
-   npa/README
    ccid/README
+   npa/README
 
 .. toctree::
    :hidden:
 
-   virtualsmartcard/autotools
-   pcsc-relay/autotools
-   npa/autotools
    ccid/autotools
-   virtualsmartcard/questions
-   pcsc-relay/questions
-   npa/questions
    ccid/questions
+   npa/autotools
+   npa/questions
+   pcsc-relay/autotools
+   pcsc-relay/questions
+   virtualsmartcard/autotools
+   virtualsmartcard/questions
 
 Looking for a feature the included programs do not offer? Want to extend the
 functionality of some library? Apart from requesting a new feature, you can
 have a look at these programming guides and try yourself:
 
 .. toctree::
+   :titlesonly:
 
    virtualsmartcard/api
    npa/api

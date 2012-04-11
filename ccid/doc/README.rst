@@ -5,6 +5,8 @@
 .. _libccid: http://pcsclite.alioth.debian.org/ccid.html
 
 .. |npa| replace:: :ref:`npa`
+.. |PACE| replace:: :abbr:`PACE (Password Authenticated Connection Establishment)`
+.. |win| replace:: 
 
 
 ********************************************************************************
@@ -18,28 +20,37 @@ USB CCID Emulator
 :Tested Platforms:
     Linux (Debian, Ubuntu, OpenMoko)
 
-Welcome to the USB CCID Emulator.  The purpose of the USB CCID Emulator is to forward
-a PC/SC smartcard reader as a standard USB CCID reader. If the machine running
-the USB CCID Emulator is in USB device mode, a local reader is forwareded via USB
-to another machine. If in USB host mode, a USB CCID reader is virtually plugged
-into the machine running the USB CCID Emulator. Applications on Windows and
-Unix-like systems can access the USB CCID Emulator through PC/SC as if it were a
-real smart card reader.
+The USB CCID Emulator forwards a locally present PC/SC smart card reader as a
+standard USB CCID reader. USB CCID Emulator can be used as trusted intermediary
+enabling secure PIN entry and PIN modification. In combination with the |npa|
+also |PACE| can be performed by the emulator.
 
-The USB CCID Emulator accesses a smart card through a local reader. Simple
-commands such as transmitting an APDU (``SCardTransmit`` and accordingly
-``PC_to_RDR_XfrBlock``) are directly forwarded to the local reader/smart card.
-USB CCID Emulator can perform secure PIN verification and modification
-(``FEATURE_VERIFY_PIN_DIRECT`` or ``FEATURE_MODIFY_PIN_DIRECT`` and accordingly
-``PC_to_RDR_Secure``). Moreover the USB CCID Emulator has support the for Password
-Authenticated Connection Establishment (PACE) using |npa|
-(``FEATURE_EXECUTE_PACE``). Thus USB CCID Emulator can be used with the German
-identity card ("neuer Personalausweis", nPA) similar to a "Standardleser"
-(CAT-S) or "Komfortleser" (CAT-K).
+If the machine running :command:`ccid-emulator` is in USB device mode, a local
+reader is forwareded via USB to another machine. If in USB host mode, the USB
+CCID reader will locally be present.
+
+Applications on Windows and Unix-like systems can access the USB CCID Emulator
+through PC/SC as if it was a real smart card reader. No installation of a smart
+card driver is required since USB CCID drivers are usually shipped with the
+modern OS. [#f1]_
+
+Here is a subset of USB CCID commands supported by the USB CCID Emulator with
+their PC/SC counterpart:
+
+================================== ============================================================
+USB CCID                           PC/SC
+================================== ============================================================
+``PC_to_RDR_XfrBlock``             ``SCardTransmit``
+``PC_to_RDR_Secure``               ``FEATURE_VERIFY_PIN_DIRECT``, ``FEATURE_MODIFY_PIN_DIRECT``
+``PC_to_RDR_Secure`` (proprietary) ``FEATURE_EXECUTE_PACE``
+================================== ============================================================
 
 The USB CCID Emulator is implemented using GadgetFS_. Some fragments of the source
 code are based on the GadgetFS example and on the source code of the OpenSC_
 tools.
+
+
+.. [#f1] Note that the heavily outdated `Windows USB CCID driver <http://msdn.microsoft.com/en-us/windows/hardware/gg487509>`_ does not support secure PIN entry or PIN modification. USB CCID Emulator comes with a patch for libccid_ to support |PACE|, because it is not yet standardised in USB CCID. However, the traditional commands can be used without restriction.
 
 
 .. include:: autotools.rst
@@ -48,7 +59,7 @@ Running the USB CCID Emulator has the following dependencies:
 
 - Linux Kernel with GadgetFS_
 - OpenSC_
-- |npa| (only if support for PACE is enabled)
+- |npa| (only if support for |PACE| is enabled)
 
 Whereas using the USB CCID Emulator on the host system as smart card reader only
 needs a usable PC/SC middleware with USB CCID driver. This is the case for most
@@ -60,14 +71,14 @@ Hints on GadgetFS
 -----------------
 
 To create a USB Gadget in both USB host and USB client mode, you need to load
-the kernel module :program:`gadgetfs`. A guide focused on Debian based systems to run
-and compile :program:`gadgetfs`, you can find `here
+the kernel module :program:`gadgetfs`. A guide focused on Debian based systems
+to run and compile GadgetFS_, you can find `here
 <http://wiki.openmoko.org/wiki/Building_Gadget_USB_Module>`_.
 
 On OpenMoko it is likely that you need to `patch your kernel
 <http://docs.openmoko.org/trac/ticket/2206>`_. If you also want to switch
-multiple times between :program:`gadgetfs` and :program:`g_ether`, `another patch is needed
-<http://docs.openmoko.org/trac/ticket/2240)>`_.
+multiple times between :program:`gadgetfs` and :program:`g_ether`, `another
+patch is needed <http://docs.openmoko.org/trac/ticket/2240)>`_.
 
 If you are using a more recent version of :program:`dummy_hcd` and get an error
 loading the module, you maybe want to check out `this patch
@@ -78,11 +89,10 @@ loading the module, you maybe want to check out `this patch
 Hints on OpenSC
 ---------------
 
-Without the |npa| the USB CCID Emulator links against libopensc, which is
-discouraged and hindered since OpenSC version >= 0.12. (We really need to get
-rid of this dependency or integrate better into the OpenSC-framework.) You need
-the OpenSC components to be installed (especially :file:`libopensc.so`). Here
-is an example of how to get the standard installation of OpenSC_::
+Without the |npa| the USB CCID Emulator links against OpenSC, which is discouraged
+and hindered since OpenSC version >= 0.12. You need the OpenSC components to be
+installed (especially :file:`libopensc.so`). Here is an example of how to get
+the standard installation of OpenSC_ without |PACE|::
 
     PREFIX=/tmp/install
     OPENSC=opensc
@@ -103,19 +113,14 @@ configure the USB CCID Emulator to use it::
 Usage
 =====
 
-The USB CCID Emulator has various command line options to customize the appearance on
-the USB host. In order to run the USB CCID Emulator GadgetFS_ must be loaded and
-mounted.  The USB CCID Emulator is compatible with the unix driver libccid_ and the
-windows smart card driver. To initialize PACE using the PC/SC API you need to
-patch libccid and pcsc-lite (see directory patches).
+The USB CCID Emulator has various command line options to customize the appearance
+on the USB host. In order to run the USB CCID Emulator GadgetFS_ must be loaded
+and mounted.  The USB CCID Emulator is compatible with the unix driver libccid_
+and the `Windows USB CCID driver
+<http://msdn.microsoft.com/en-us/windows/hardware/gg487509>`_. To initialize
+|PACE| using the PC/SC API you need to patch libccid_ (see :file:`patches`).
 
 .. program-output:: ccid-emulator --help
-
-cats-test can be used to test the PACE capabilities of a smart card reader with
-PACE support (such as the USB CCID Emulator or any other "Standardleser" CAT-S or
-"Komfortleser" CAT-C) via PC/SC.
-
-.. program-output:: cats-test
 
 
 .. include:: questions.rst
