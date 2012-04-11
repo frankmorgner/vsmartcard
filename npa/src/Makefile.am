@@ -9,7 +9,7 @@ do_subst = $(SED) \
 BUILT_SOURCES = cmdline.h cmdline.c
 
 EXTRA_DIST  = npa-tool.ggo npa-tool.ggo.in
-EXTRA_DIST += $(shell find -L $(top_srcdir)/src/opensc -path '*/.git' -prune -o -type f -a -name '*.h' -print)
+EXTRA_DIST += $(shell find -L $(top_srcdir)/src/opensc/src -path '*/.git' -prune -o -type f -a -name '*.h' -print)
 MAINTAINERCLEANFILES = $(BUILT_SOURCES) npa-tool.ggo $(dist_man1_MANS)
 
 dist_man1_MANS		= npa-tool.1

@@ -9,8 +9,8 @@ do_subst = $(SED) \
 BUILT_SOURCES = cmdline.h cmdline.c
 
 EXTRA_DIST  = ccid-emulator.ggo ccid-emulator.ggo.in
-EXTRA_DIST += $(shell find $(top_srcdir)/src/opensc -path '*/.svn' -prune -o -type f -a -name '*.h' -print)
-EXTRA_DIST += $(shell find -L $(top_srcdir)/src/opensc-npa -path '*/.git' -prune -o -type f -a -name '*.h' -print)
+EXTRA_DIST += $(shell find $(top_srcdir)/src/opensc/src -path '*/.svn' -prune -o -type f -a -name '*.h' -print)
+EXTRA_DIST += $(shell find -L $(top_srcdir)/src/opensc-npa/src -path '*/.git' -prune -o -type f -a -name '*.h' -print)
 MAINTAINERCLEANFILES = $(BUILT_SOURCES) ccid-emulator.ggo $(dist_man1_MANS)
 
 dist_man1_MANS		= ccid-emulator.1
