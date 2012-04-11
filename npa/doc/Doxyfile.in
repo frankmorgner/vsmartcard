@@ -1,7 +1,7 @@
 FILE_PATTERNS          = *.h
 GENERATE_HTML          = YES
 GENERATE_LATEX         = NO
-GENERATE_TAGFILE       = @builddir@/@PACKAGE_NAME@.tag
+GENERATE_TAGFILE       = @builddir@/@PACKAGE@.tag
 GENERATE_XML           = YES
 INPUT                  = @top_srcdir@/src/npa
 OPTIMIZE_OUTPUT_FOR_C  = YES

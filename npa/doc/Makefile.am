@@ -1,6 +1,7 @@
 DOXYGEN ?= doxygen
 
 do_subst = sed \
+	   -e 's,[@]PACKAGE[@],$(PACKAGE),g' \
 	   -e 's,[@]PACKAGE_NAME[@],$(PACKAGE_NAME),g' \
 	   -e 's,[@]PACKAGE_TARNAME[@],$(PACKAGE_TARNAME),g' \
 	   -e 's,[@]PACKAGE_BUGREPORT[@],$(PACKAGE_BUGREPORT),g' \

@@ -51,12 +51,6 @@ Interface to German identity card (neuer Personalausweis, nPA)
 The complete documentation can be found `here
 <_static/doxygen-npa/group__npa.html>`__.
 
------
-Types
------
-.. doxygenstruct:: establish_pace_channel_input
-.. doxygenstruct:: establish_pace_channel_output
-
 ---------
 Functions
 ---------
