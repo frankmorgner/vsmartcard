@@ -1,73 +1,560 @@
-2011-02-08 21:31  frankmorgner
+2012-04-11  frankmorgner
 
-	* ChangeLog, configure.ac: released 0.3
+	* [r755] doc/Makefile.am: use macro for sed im makefiles
 
-2011-02-01 13:53  oepen
+	* [r754] configure.ac, src/vpicc/Makefile.am: generate man page for
+	  vicc
 
-	* src/vpcd/ifd-vpcd.c: Reverting bad commit
+	* [r753] src/vpicc/Makefile.am, src/vpicc/vicc.in: added version
+	  info
 
-2011-02-01 13:47  oepen
+	* [r752] src/vpicc/vicc.in: formatting defaults by hand to avoid
+	  default: None
 
-	* src/vpcd/ifd-vpcd.c: Shut up autotools
+	* [r751] src/vpicc/vicc.in: dont mention authors in help
+	  
+	  The argument formatter removes linebreaks and paragraphs, so we
+	  have to reduce the amount of information shown.
 
-2011-01-25 12:53  frankmorgner
+	* [r750] src/vpicc/Makefile.am, src/vpicc/vicc.in: improved vicc
+	  help
 
-	* src/vpicc/virtualsmartcard/CardGenerator.py,
+	* [r749] src/vpicc/virtualsmartcard/CardGenerator.py: load card
+	  specific modules only when needed
+
+	* [r743] doc/README.rst, doc/README.rst.in: updated documentation
+
+2012-04-09  frankmorgner
+
+	* [r734] configure.ac: more readable information via autoconf
+
+2012-03-04  frankmorgner
+
+	* [r728] src/vpicc/virtualsmartcard/VirtualSmartcard.py: fixed
+	  throwing SwError
+	  
+	  thanks, Ben.
+
+2012-03-02  frankmorgner
+
+	* [r727] doc/Makefile.am, doc/autotools.rst: added recommended
+	  configure options to documentation
+
+2012-02-12  frankmorgner
+
+	* [r717] src/vpicc/virtualsmartcard/cards/nPA.py: fixed
+	  manipulation of EF.CardSecurity with CA public key
+
+	* [r716] src/vpicc/virtualsmartcard/cards/nPA.py: removed
+	  manipulation of ef_card_security since this would require the
+	  complete public point instead of the compressed public point
+
+	* [r715] src/vpicc/virtualsmartcard/cards/nPA.py: adapted to pypace
+
+2012-02-09  frankmorgner
+
+	* [r714] src/vpicc/virtualsmartcard/cards/nPA.py: modifying ef
+	  cardsecurity to contain the chips public key (but a wrong
+	  signature)
+
+	* [r713] src/vpicc/virtualsmartcard/SmartcardSAM.py: debug
+	  unprotected result
+
+	* [r712] src/vpicc/virtualsmartcard/cards/nPA.py: fixed CA, which
+	  is now successfully tested
+
+2012-02-08  frankmorgner
+
+	* [r711] src/vpicc/virtualsmartcard/cards/nPA.py: - fixed CA OID -
+	  applied pypace interface for ca
+
+2012-02-01  frankmorgner
+
+	* [r704] src/vpicc/virtualsmartcard/CardGenerator.py: mapping ca
+	  oid to the correct algorithm
+
+	* [r703] src/vpicc/virtualsmartcard/SEutils.py,
+	  src/vpicc/virtualsmartcard/cards/ePass.py,
+	  src/vpicc/virtualsmartcard/cards/nPA.py: Subroutines to
+	  parse_SM_CAPDU, protect_response and perform_security_operation
+	  only return the resulting string and no longer status bytes
+	  
+	  This prevents overwriting of the statusbytes when applying SM.
+	  Errors should be returned via `raise SwError`
+
+	* [r702] src/vpicc/virtualsmartcard/cards/nPA.py: fixed import of
+	  auxiliary data for TA. Terminals signature can be verified now
+
+	* [r701] src/vpicc/virtualsmartcard/CardGenerator.py: more
+	  convenient values for pin and can
+
+2012-01-31  frankmorgner
+
+	* [r699] src/vpicc/virtualsmartcard/CardGenerator.py: added ef card
+	  security
+
+2012-01-25  frankmorgner
+
+	* [r695] src/vpicc/virtualsmartcard/VirtualSmartcard.py,
+	  src/vpicc/virtualsmartcard/cards/nPA.py: better debug output
+
+2012-01-23  frankmorgner
+
+	* [r692] src/vpicc/virtualsmartcard/cards/nPA.py: fixed import of
+	  CV certificates. Terminal's signature is currently wrongly
+	  checked (as 'invalid').
+
+	* [r691] src/vpicc/virtualsmartcard/utils.py: fixed parsing of
+	  extended length apdu with Le = max
+
+2012-01-23  oepen
+
+	* [r690] src/vpicc/virtualsmartcard/cards/ePass.py: Fixed a typo
+
+	* [r689] src/vpicc/virtualsmartcard/cards/ePass.py: Fixed a typo
+
+2012-01-23  frankmorgner
+
+	* [r688] src/vpicc/virtualsmartcard/cards/nPA.py: fixed typo
+
+	* [r687] src/vpicc/virtualsmartcard/SEutils.py: fixed calculation
+	  of bertlv coded data for authentication
+
+2012-01-23  oepen
+
+	* [r686] src/vpicc/virtualsmartcard/SEutils.py: Removed broken code
+
+2012-01-22  frankmorgner
+
+	* [r685] src/vpicc/virtualsmartcard/SEutils.py,
+	  src/vpicc/virtualsmartcard/VirtualSmartcard.py,
+	  src/vpicc/virtualsmartcard/cards/nPA.py: nPA's SM now
+	  successfully tested
+	  
+	  - fixed SEutils to use new input data to append_padding - added
+	  defines to reference nPA's secrets (as keyref) - fixed send
+	  sequence counter handling in nPA - added protect_response to nPA
+	  to authenticate the status bytes - implemented reset retry
+	  counter for nPA
+
+2012-01-20  frankmorgner
+
+	* [r684] src/vpicc/virtualsmartcard/cards/nPA.py: include most
+	  recent ca in response successfull PACE
+
+2012-01-20  oepen
+
+	* [r683] src/vpicc/virtualsmartcard/CryptoUtils.py,
+	  src/vpicc/virtualsmartcard/SEutils.py,
+	  src/vpicc/virtualsmartcard/cards/ePass.py: -Propagate changes to
+	  append_padding to all files -Adjust strip_padding to match
+	  append_padding
+
+	* [r682] src/vpicc/virtualsmartcard/CryptoUtils.py,
+	  src/vpicc/virtualsmartcard/SEutils.py,
+	  src/vpicc/virtualsmartcard/cards/ePass.py,
+	  src/vpicc/virtualsmartcard/cards/nPA.py: Use the blocklength of
+	  the actual cipher to append padding (instead of hardcoded DES-CBC
+	  blocklength)
+
+2012-01-19  frankmorgner
+
+	* [r681] src/vpicc/virtualsmartcard/cards/nPA.py: added SM.
+	  currently untested due to bug in OpenPACE or pyPACE
+
+2012-01-04  oepen
+
+	* [r679] src/vpicc/virtualsmartcard/cards/nPA.py: Adapted TA steps
+	  to pypace
+
+2011-12-19  frankmorgner
+
+	* [r678] src/vpicc/vicc.in: fixed help strings
+
+	* [r677] src/vpicc/vicc.in: switched to argparse
+
+	* [r676] src/vpicc/virtualsmartcard/CardGenerator.py,
+	  src/vpicc/virtualsmartcard/VirtualSmartcard.py,
+	  src/vpicc/virtualsmartcard/cards/nPA.py: added support for TA and
+	  CA (currently untested)
+
+	* [r675] src/vpicc/virtualsmartcard/SEutils.py,
+	  src/vpicc/virtualsmartcard/cards/nPA.py: added PIN management for
+	  nPA
+
+2011-12-17  frankmorgner
+
+	* [r674] src/vpicc/virtualsmartcard/SEutils.py,
+	  src/vpicc/virtualsmartcard/cards/nPA.py: - added dedicated nPA_SE
+	  - saving mf in Security_Environment
+
+	* [r673] src/vpicc/virtualsmartcard/SmartcardSAM.py,
+	  src/vpicc/virtualsmartcard/cards/cryptoflex.py,
+	  src/vpicc/virtualsmartcard/cards/ePass.py,
+	  src/vpicc/virtualsmartcard/cards/nPA.py: introducing a default SE
+	  for all cards
+
+	* [r672] src/vpicc/virtualsmartcard/cards/nPA.py: using if/else
+	  instead of a dedicated handler for eac steps
+
+2011-12-16  frankmorgner
+
+	* [r671] src/vpicc/virtualsmartcard/CardGenerator.py,
+	  src/vpicc/virtualsmartcard/VirtualSmartcard.py,
+	  src/vpicc/virtualsmartcard/cards/nPA.py: added PACE support for
+	  nPA emulator
+
+2011-12-15  frankmorgner
+
+	* [r670] src/vpicc/virtualsmartcard/utils.py: bugfix
+
+	* [r669] src/vpcd/Makefile.am: fixed missing bracket
+
+2011-12-11  oepen
+
+	* [r667] src/vpicc/virtualsmartcard/CardGenerator.py,
+	  src/vpicc/virtualsmartcard/CryptoUtils.py,
+	  src/vpicc/virtualsmartcard/SEutils.py,
 	  src/vpicc/virtualsmartcard/SmartcardFilesystem.py,
-	  src/vpicc/virtualsmartcard/SmartcardSAM.py: fixed generation of
-	  ePass file system (fixes 3164830)
+	  src/vpicc/virtualsmartcard/SmartcardSAM.py,
+	  src/vpicc/virtualsmartcard/VirtualSmartcard.py,
+	  src/vpicc/virtualsmartcard/cards/nPA.py,
+	  src/vpicc/virtualsmartcard/utils.py: Partial conversion to python
+	  3
 
-2011-01-24 15:30  frankmorgner
+2011-12-09  frankmorgner
 
-	* src/vpicc/virtualsmartcard/SmartcardFilesystem.py: fixed path
-	  walking (fixes 3164775)
+	* [r666] src/vpicc/virtualsmartcard/VirtualSmartcard.py:
+	  documentation
 
-2010-12-13 08:51  frankmorgner
+2011-12-09  oepen
 
-	* README: update information
+	* [r665] src/vpicc/virtualsmartcard/cards/nPA.py:
 
-2010-12-08 12:27  frankmorgner
+2011-12-09  frankmorgner
 
-	* ChangeLog, configure.ac: releasing 0.3
+	* [r663] doc/api.rst: documentation
 
-2010-10-26 20:21  frankmorgner
+	* [r662] src/vpicc/virtualsmartcard/SmartcardFilesystem.py,
+	  src/vpicc/virtualsmartcard/VirtualSmartcard.py: - fixed sw when
+	  reading until end of file - let npa emulator act like real npa
+	  (until general authenticate occurrs)
 
-	* src/vpcd/vpcd.c: unified usage of sizeof.
+	* [r661] src/vpicc/virtualsmartcard/cards/nPA.py: dont throw an
+	  error on mse:set at. using source code, which was priviously
+	  deleted.
 
-2010-10-15 20:15  frankmorgner
+	* [r659] doc/README.rst, doc/README.rst.in,
+	  doc/generate_modules.py: dont document special members
 
-	* README, configure.ac, src/vpcd/Makefile.am, src/vpcd/ifd-vpcd.c,
-	  src/vpcd/ifd.c: - renamed ifd.c to ifd-vpcd.c to have more
-	  readable logging in pcscd
-	  - updated support information
+2011-12-09  oepen
 
-2010-10-13 19:18  frankmorgner
+	* [r658] src/vpicc/virtualsmartcard/cards/nPA.py: Remove dummy code
+	  for tags which are already handled by the ISO code
 
-	* configure.ac, src/vpcd/Makefile.am, src/vpcd/reader.conf.in,
-	  src/vpicc/Makefile.am, src/vpicc/vicc.in,
-	  src/vpicc/virtualsmartcard.in: - switched from perl to sed for
-	  substitution of autoconf variables
-	  - changed from generating reader.conf to vpcd in
-	  /etc/reader.conf.d
+2011-12-09  frankmorgner
 
-2010-10-13 16:21  frankmorgner
+	* [r656] src/vpicc/virtualsmartcard/cards/nPA.py: dont throw an
+	  error on mse:set at. using source code, which was priviously
+	  deleted.
 
-	* src/vpicc/SmartcardSAM.py, src/vpicc/vicc.in: added missing file,
-	  deleted unused file
+2011-12-08  frankmorgner
 
-2010-10-13 07:46  frankmorgner
+	* [r655] doc/api.rst: generate the correct links to class
+	  documentation
 
-	* src/vpicc/virtualsmartcard/SmartcardSAM.py: merged with changes
-	  of r320
+	* [r654] doc/api.rst, doc/virtualsmartcard: documentation
 
-2010-10-13 07:40  frankmorgner
+	* [r653] doc/generate_modules.py: include inheritance graphs
 
-	* src/vpicc/CardGenerator.py, src/vpicc/ConstantDefinitions.py,
-	  src/vpicc/CryptoUtils.py, src/vpicc/Makefile.am,
-	  src/vpicc/SEutils.py, src/vpicc/SWutils.py,
-	  src/vpicc/SmartcardFilesystem.py, src/vpicc/TLVutils.py,
-	  src/vpicc/VirtualSmartcard.py, src/vpicc/utils.py,
-	  src/vpicc/virtualsmartcard,
+	* [r652] src/vpicc/virtualsmartcard/cards/nPA.py: import chat as
+	  late as possible to not confuse generation of documentation
+
+	* [r651] configure.ac, src/vpcd/Makefile.am, src/vpicc/Makefile.am:
+	  autoconf macros for sed, ln and mkdir
+
+2011-12-08  oepen
+
+	* [r650] src/vpicc/virtualsmartcard/CardGenerator.py,
+	  src/vpicc/virtualsmartcard/cards/nPA.py: Bugfixes: nPA emulator
+	  is now working
+
+	* [r649] src/vpicc/virtualsmartcard/CardGenerator.py,
+	  src/vpicc/virtualsmartcard/cards/nPA.py: Bugfixes
+
+	* [r648] src/vpicc/virtualsmartcard/cards/nPA.py: Bugfixes
+
+	* [r647] src/vpicc/Makefile.am,
+	  src/vpicc/virtualsmartcard/CardGenerator.py,
+	  src/vpicc/virtualsmartcard/VirtualSmartcard.py,
+	  src/vpicc/virtualsmartcard/cards/nPA.py: Do not overide the OS
+	  but only the SAM and parts of the SE for nPA emulation
+
+2011-12-07  frankmorgner
+
+	* [r645] doc/api.rst: added network format vpcd<->vpicc
+
+	* [r643] src/vpicc/vicc.in,
+	  src/vpicc/virtualsmartcard/CardGenerator.py,
+	  src/vpicc/virtualsmartcard/VirtualSmartcard.py: minimal nPA
+	  emulation. use it to fetch and print a chat. uses pypace
+
+	* [r642] src/vpicc/virtualsmartcard/utils.py: removed debug message
+
+	* [r640] doc/README.rst: updated documentation
+
+	* [r639] configure.ac, src/vpcd/Makefile.am: added Cygwin as
+	  supported platform
+
+2011-11-08  frankmorgner
+
+	* [r635] doc/README.rst, doc/README.rst.in: not using static path
+	  for program-output. instead setting the correct envirnment in
+	  conf.py.
+
+2011-11-05  frankmorgner
+
+	* [r627] doc/Makefile.am, doc/README.rst, doc/README.rst.in:
+	  included help output from programs in documentation
+
+	* [r625] configure.ac, doc/Makefile.am: cleaned up build of
+	  documentation
+
+2011-11-03  frankmorgner
+
+	* [r613] doc/Makefile.am: - update on ccid documentation -
+	  rebuilding documentation when any *.in file changes
+
+	* [r612] src/vpicc/virtualsmartcard/SmartcardSAM.py,
+	  src/vpicc/virtualsmartcard/utils.py: removed warnings from sphinx
+
+	* [r611] doc/Makefile.am, doc/generate_modules.py: switched to
+	  sphinx 1.1 to document special and private members
+
+2011-11-02  frankmorgner
+
+	* [r610] src/vpicc/virtualsmartcard/CryptoUtils.py,
+	  src/vpicc/virtualsmartcard/SEutils.py,
+	  src/vpicc/virtualsmartcard/SmartcardFilesystem.py,
+	  src/vpicc/virtualsmartcard/SmartcardSAM.py,
+	  src/vpicc/virtualsmartcard/VirtualSmartcard.py: sphinx formatting
+	  for documentation
+
+2011-11-02  oepen
+
+	* [r609] src/vpicc/virtualsmartcard/SEutils.py,
+	  src/vpicc/virtualsmartcard/SmartcardFilesystem.py: Minor fixes to
+	  sphinx markup
+
+2011-11-02  frankmorgner
+
+	* [r608] src/vpicc/virtualsmartcard/SEutils.py,
+	  src/vpicc/virtualsmartcard/SmartcardFilesystem.py,
+	  src/vpicc/virtualsmartcard/cards/cryptoflex.py: removed warnings
+	  by sphinx due to invalid formatting
+
+2011-11-02  oepen
+
+	* [r607] src/vpicc/virtualsmartcard/CryptoUtils.py,
+	  src/vpicc/virtualsmartcard/SEutils.py,
+	  src/vpicc/virtualsmartcard/SmartcardFilesystem.py,
+	  src/vpicc/virtualsmartcard/SmartcardSAM.py,
+	  src/vpicc/virtualsmartcard/cards/cryptoflex.py: Converting
+	  docstrings to sphinx syntax
+
+2011-11-02  frankmorgner
+
+	* [r606] doc/README.rst, doc/autotools.rst, doc/questions.rst:
+	  added autogenerated files for easier development checkout
+
+2011-11-01  frankmorgner
+
+	* [r605] doc/Makefile.am: only refresh documentation if needed
+
+	* [r604] doc/README.rst.in: added potential platforms to
+	  documentation
+
+2011-10-31  frankmorgner
+
+	* [r600] configure.ac: print pcsc conf dir
+
+2011-10-29  frankmorgner
+
+	* [r599] doc/Makefile.am, doc/README.rst[DEL],
+	  doc/README.rst.in[CPY]: more autotool magic
+
+	* [r597] Makefile.am, configure.ac, doc/Makefile.am: - more
+	  autotool magic in documentation files - including substituted
+	  documentation files with distributed files
+
+	* [r595] doc/Makefile.am, doc/README.rst, doc/questions.rst.in: -
+	  worked around warnings of sphinx - using generic file for
+	  questions for all subprojects
+
+	* [r592] configure.ac, doc/Makefile.am, doc/api/Makefile.am:
+	  correctly include api and generate_modules.py
+
+	* [r591] Makefile.am, doc/Makefile.am, doc/README.rst,
+	  doc/autotools.rst.in: using generic autotools description for all
+	  subprojects
+
+2011-10-28  frankmorgner
+
+	* [r590] doc/README.rst: added more markup
+
+2011-10-27  frankmorgner
+
+	* [r589] doc/Makefile.am, doc/generate_modules.py: using an other
+	  version of generate_modules.py that structures the modules
+	  slightly better
+
+	* [r588] Makefile.am, doc/Makefile.am, doc/api, doc/api.rst,
+	  doc/generate_modules.py: automagically generate documentation of
+	  virtualsmartcard
+
+	* [r587] Makefile.am, README, configure.ac, doc, doc/Makefile.am,
+	  doc/README.rst[CPY], src/vpicc/Makefile.am: using a dedicated
+	  folder for documentation in each subproject
+
+	* [r586] README: documentation
+
+	* [r584] README:
+
+	* [r583] README: better rendering of basic information
+
+2011-10-27  oepen
+
+	* [r582] README: -Remove references to indices from index.rst -Add
+	  some meta information to virtualsmartcard docs -Add link to
+	  cyberflex-shell
+
+2011-10-12  oepen
+
+	* [r545] README: Converted most of the documentation to
+	  reStructuredText in order to be able to sphinx for documentation
+
+2011-09-17  frankmorgner
+
+	* [r530] src/vpicc/virtualsmartcard/CardGenerator.py,
+	  src/vpicc/virtualsmartcard/SmartcardSAM.py: fixed problems on
+	  initialization
+
+2011-09-07  oepen
+
+	* [r527] src/vpicc/vicc.in: Lexically sorted the optparse options
+
+2011-09-06  oepen
+
+	* [r526] src/vpicc/virtualsmartcard/ConstantDefinitions.py,
+	  src/vpicc/virtualsmartcard/SWutils.py,
+	  src/vpicc/virtualsmartcard/SmartcardFilesystem.py,
+	  src/vpicc/virtualsmartcard/TLVutils.py,
+	  src/vpicc/virtualsmartcard/VirtualSmartcard.py,
+	  src/vpicc/virtualsmartcard/utils.py: Removed vim folding markers
+
+	* [r525] configure.ac, src/vpicc/Makefile.am,
+	  src/vpicc/virtualsmartcard/ConstantDefinitions.py,
+	  src/vpicc/virtualsmartcard/SmartcardFilesystem.py,
+	  src/vpicc/virtualsmartcard/VirtualSmartcard.py: Added
+	  documentation generation to build process
+
+2011-09-05  oepen
+
+	* [r524] src/vpicc/virtualsmartcard/CryptoUtils.py,
+	  src/vpicc/virtualsmartcard/SEutils.py,
+	  src/vpicc/virtualsmartcard/SmartcardFilesystem.py,
+	  src/vpicc/virtualsmartcard/VirtualSmartcard.py,
+	  src/vpicc/virtualsmartcard/utils.py: Fixed the documentation.
+	  epydoc still fails to build html files
+
+2011-09-01  oepen
+
+	* [r516] src/vpicc/virtualsmartcard/cards/ePass.py: -Fixed
+	  indention -Improved a comment
+
+	* [r515] src/vpicc/virtualsmartcard/cards/ePass.py: Removed
+	  duplicate code
+
+	* [r514] src/vpicc/virtualsmartcard/CryptoUtils.py: Added some
+	  documentation
+
+	* [r513] src/vpicc/virtualsmartcard/cards/ePass.py: Make pylint
+	  happy
+
+	* [r512] src/vpicc/virtualsmartcard/CardGenerator.py: - Remember
+	  the password when loading a card from disk and reuse it when
+	  saving the card. - Added a bit of documentation
+
+2011-08-24  oepen
+
+	* [r510] src/vpicc/virtualsmartcard/SEutils.py: Slight improvements
+	  to generate_public_key. Unfortunately the function is still
+	  broken
+
+2011-08-23  oepen
+
+	* [r509] src/vpicc/virtualsmartcard/CardGenerator.py: More cleanup
+
+	* [r508] src/vpicc/virtualsmartcard/CryptoUtils.py,
+	  src/vpicc/virtualsmartcard/cards/cryptoflex.py: Cleanup
+
+	* [r507] src/vpicc/virtualsmartcard/cards/ePass.py: Added
+	  documentation
+
+	* [r506] src/vpicc/virtualsmartcard/cards/ePass.py: Reduced overlap
+	  between ePass_SE and PassportSAM
+
+	* [r505] src/vpicc/virtualsmartcard/VirtualSmartcard.py: Code
+	  cleanup
+
+	* [r504] src/vpicc/virtualsmartcard/VirtualSmartcard.py,
+	  src/vpicc/virtualsmartcard/utils.py: -Added some documentation
+	  -Partially fixed format string usage in the logger
+
+	* [r503] src/vpicc/virtualsmartcard/SEutils.py,
+	  src/vpicc/virtualsmartcard/SmartcardSAM.py,
+	  src/vpicc/virtualsmartcard/cards/cryptoflex.py,
+	  src/vpicc/virtualsmartcard/cards/ePass.py: - Removed MF reference
+	  from Security Environment (only needed for cryptoflex card) -
+	  General code cleanup
+
+	* [r502] src/vpicc/virtualsmartcard/SmartcardSAM.py: Code cleanup
+
+	* [r501] src/vpicc/virtualsmartcard/CardGenerator.py,
+	  src/vpicc/virtualsmartcard/SmartcardFilesystem.py,
+	  src/vpicc/virtualsmartcard/cards/cryptoflex.py: - Move
+	  CryptoflexMF to cards.cryptoflex - A little bit of code cleanup
+	  in SmartcardFilesystem.py
+
+	* [r500] src/vpicc/virtualsmartcard/CardGenerator.py: Fixed broken
+	  imports
+
+	* [r499] src/vpicc/Makefile.am,
+	  src/vpicc/virtualsmartcard/CardGenerator.py,
+	  src/vpicc/virtualsmartcard/SEutils.py,
+	  src/vpicc/virtualsmartcard/SmartcardSAM.py,
+	  src/vpicc/virtualsmartcard/cards,
+	  src/vpicc/virtualsmartcard/cards/__init__.py,
+	  src/vpicc/virtualsmartcard/cards/cryptoflex.py,
+	  src/vpicc/virtualsmartcard/cards/ePass.py: Refactoring: Moving
+	  card specific stuff to separate package
+
+2011-08-17  oepen
+
+	* [r498] src/vpicc/virtualsmartcard/SmartcardSAM.py: Added a bit of
+	  documentation
+
+	* [r497] src/vpicc/virtualsmartcard/SEutils.py,
+	  src/vpicc/virtualsmartcard/SmartcardSAM.py: Moved
+	  Security_Environment code to the SEutils file
+
+	* [r496] src/vpicc/virtualsmartcard/SmartcardFilesystem.py: Code
+	  cleanup
+
+	* [r495] src/vpicc/virtualsmartcard/SmartcardFilesystem.py:
+	  -Bugfix: Selection from current DF -Replaced print by logging
+
+	* [r494] src/vpicc/vicc.in,
 	  src/vpicc/virtualsmartcard/CardGenerator.py,
 	  src/vpicc/virtualsmartcard/ConstantDefinitions.py,
 	  src/vpicc/virtualsmartcard/CryptoUtils.py,
@@ -76,286 +563,554 @@
 	  src/vpicc/virtualsmartcard/SmartcardFilesystem.py,
 	  src/vpicc/virtualsmartcard/SmartcardSAM.py,
 	  src/vpicc/virtualsmartcard/TLVutils.py,
+	  src/vpicc/virtualsmartcard/VirtualSmartcard.py: -Updated
+	  copyright date -Added a little bit of documentation
+
+	* [r493] src/vpicc/virtualsmartcard/SmartcardSAM.py: Removed
+	  incorrect sanity check
+
+	* [r492] src/vpicc/virtualsmartcard/SmartcardSAM.py: Removed
+	  incorrect sanity check
+
+	* [r491] src/vpicc/virtualsmartcard/SmartcardSAM.py: Fixed
+	  urandom() usage
+
+	* [r490] src/vpicc/virtualsmartcard/SmartcardSAM.py: Fixed
+	  urandom() usage
+
+	* [r489] src/vpicc/virtualsmartcard/SmartcardSAM.py: Refactoring:
+	  Merged Secure_Messaging and Security_Environment classes
+
+2011-08-08  oepen
+
+	* [r487] src/vpicc/virtualsmartcard/SmartcardSAM.py: Fixed some
+	  typos
+
+	* [r486] src/vpicc/virtualsmartcard/SEutils.py,
+	  src/vpicc/virtualsmartcard/SmartcardSAM.py: Fix storage and
+	  retrieval of Security Environments
+
+	* [r485] src/vpicc/virtualsmartcard/SEutils.py,
+	  src/vpicc/virtualsmartcard/SmartcardSAM.py: Removed duplicate
+	  method
+
+	* [r484] src/vpicc/virtualsmartcard/SmartcardSAM.py: Forgot to
+	  return SW[NORMAL] in case an MSE command actually succeeds :-)
+
+	* [r483] src/vpicc/virtualsmartcard/SEutils.py: The __replace_tag
+	  function was completely broken. It is now somewhat fixed, but
+	  should still be replaced by a more elegant solution.
+
+	* [r482] src/vpicc/virtualsmartcard/SEutils.py: Added some
+	  documentation
+
+2011-08-08  frankmorgner
+
+	* [r480] src/vpcd/vpcd.c: reusing socket on reconnect
+
+2011-08-05  oepen
+
+	* [r479] src/vpicc/virtualsmartcard/SmartcardSAM.py: Added a SAM
+	  reference to the Secure_Messaging class in order to resolve an
+	  error. The classes in SmartcardSAM are way too entangled and
+	  definitively need to be refactored.
+
+2011-08-02  frankmorgner
+
+	* [r478] src/vpicc/virtualsmartcard/SmartcardFilesystem.py:
+	  checking attribute existance before referencing it
+
+	* [r477] src/vpicc/virtualsmartcard/TLVutils.py: fixed bogus import
+
+2011-08-01  oepen
+
+	* [r475] src/vpicc/virtualsmartcard/CryptoUtils.py,
+	  src/vpicc/virtualsmartcard/SmartcardSAM.py: Bugfixes: Fixed
+	  import error and incorrect method call
+
+	* [r474] src/vpicc/virtualsmartcard/CryptoUtils.py,
+	  src/vpicc/virtualsmartcard/TLVutils.py: Bugfixes: Wrong number of
+	  arguments for function call and missing import
+
+	* [r473] src/vpicc/virtualsmartcard/CardGenerator.py,
+	  src/vpicc/virtualsmartcard/CryptoUtils.py,
+	  src/vpicc/virtualsmartcard/SmartcardFilesystem.py,
+	  src/vpicc/virtualsmartcard/SmartcardSAM.py,
+	  src/vpicc/virtualsmartcard/VirtualSmartcard.py: Replaced print
+	  calls by actual logging
+
+	* [r472] src/vpicc/virtualsmartcard/SmartcardFilesystem.py: Bugfix:
+	  Missing self. before reference to content dictionary
+
+2011-07-30  oepen
+
+	* [r471] src/vpicc/virtualsmartcard/SmartcardSAM.py,
+	  src/vpicc/virtualsmartcard/VirtualSmartcard.py: Better exception
+	  handling
+
+	* [r470] src/vpicc/virtualsmartcard/VirtualSmartcard.py: Code style
+	  improvements
+
+2011-07-29  oepen
+
+	* [r469] src/vpicc/virtualsmartcard/CardGenerator.py: Code style
+	  improvements
+
+	* [r468] src/vpicc/virtualsmartcard/CardGenerator.py: Code style
+	  improvements
+
+	* [r467] src/vpicc/virtualsmartcard/CardGenerator.py: Code style
+	  improvements
+
+	* [r466] src/vpicc/virtualsmartcard/SmartcardSAM.py: Merged
+	  CardContainer class with SAM.
+	  
+	  Since part of the CardContainer functionallity was removed and
+	  the seperation between both classes seemed kind of random,
+	  CardContainer was ditched in favor of SAM.
+
+	* [r465] src/vpicc/virtualsmartcard/SmartcardSAM.py: Code style
+	  improvements
+
+	* [r464] src/vpicc/virtualsmartcard/SmartcardSAM.py: Removed
+	  remaining call to CardContainer.getKey
+
+	* [r463] src/vpicc/virtualsmartcard/CryptoUtils.py,
+	  src/vpicc/virtualsmartcard/SmartcardSAM.py: Removed in-memory
+	  encryption of data. We didn't use it and it was probably buggy
+	  anyway, so this is a good opportunity to get rid of some awkard
+	  code. In memory encryption might be properly implemented lateron
+	  using the SAM.FSencrypt and SAM.FSdecrypt functions, but I doubt
+	  it's worth the trouble.
+
+	* [r462] src/vpicc/virtualsmartcard/CryptoUtils.py: Code style
+	  improvements
+
+	* [r461] src/vpicc/virtualsmartcard/SEutils.py: Bugfixing and code
+	  style improvements
+
+	* [r460] src/vpicc/virtualsmartcard/SEutils.py,
+	  src/vpicc/virtualsmartcard/SmartcardSAM.py: -Bugfix: Added
+	  missing import in PassportSAM -Bugfix: Fixed constant names in
+	  SEutils
+
+	* [r459] src/vpicc/virtualsmartcard/SmartcardSAM.py: Removing
+	  unused functions
+
+	* [r458] src/vpicc/virtualsmartcard/SmartcardSAM.py: Removing
+	  unused functions
+
+	* [r457] src/vpicc/virtualsmartcard/SmartcardSAM.py: Removing
+	  unused functions
+
+	* [r456] src/vpicc/virtualsmartcard/CryptoUtils.py: Added
+	  convenience functions
+
+	* [r455] src/vpicc/virtualsmartcard/ConstantDefinitions.py,
+	  src/vpicc/virtualsmartcard/SmartcardSAM.py: Code style
+	  improvements
+
+	* [r454] src/vpicc/virtualsmartcard/SmartcardSAM.py: Code style
+	  improvements
+
+	* [r453] src/vpicc/virtualsmartcard/SmartcardSAM.py: Code style
+	  improvements and bugfixing in mutual_authenticate
+
+	* [r452] src/vpicc/virtualsmartcard/SmartcardSAM.py: Code style
+	  improvements
+
+	* [r451] src/vpicc/virtualsmartcard/SmartcardSAM.py: Code style
+	  improvements
+
+	* [r450] src/vpicc/virtualsmartcard/SmartcardSAM.py: Code style
+	  improvements
+
+	* [r449] src/vpicc/virtualsmartcard/SmartcardSAM.py: Bug hunting
+	  and beautifying with pylint
+
+	* [r448] src/vpicc/virtualsmartcard/SmartcardSAM.py: -Bugfix: Fixed
+	  incorrect indention -Bugfix: Do not default to MD5 hashing
+
+	* [r447] src/vpicc/virtualsmartcard/SmartcardSAM.py: Bugfix:
+	  adapted changed signature of the Security_Environment constructor
+
+	* [r446] src/vpicc/virtualsmartcard/SmartcardSAM.py: Even though
+	  there may be different Keys to protect CAPDUs and RAPDUs there is
+	  only one Security Environment. Therefore, I merged the CAPDU_SE
+	  and RAPDU_SE into current_SE. Works with the ePass Emulation,
+	  still need to test it with the cryptoflex card.
+
+	* [r445] src/vpicc/virtualsmartcard/SEutils.py,
+	  src/vpicc/virtualsmartcard/SmartcardSAM.py: SmartcardSAM: Fixed
+	  syntax errors SEutils: Now replying with error RAPDU when we do
+	  not support a referenced algorithm
+
+	* [r444] src/vpicc/virtualsmartcard/SEutils.py,
+	  src/vpicc/virtualsmartcard/SmartcardSAM.py: Various Bugfixes with
+	  regard to parsing a MSE:SetAT. The whole SE and SAM system should
+	  really be rewritten.
+
+2011-07-26  oepen
+
+	* [r439] src/vpicc/virtualsmartcard/ConstantDefinitions.py,
+	  src/vpicc/virtualsmartcard/TLVutils.py,
 	  src/vpicc/virtualsmartcard/VirtualSmartcard.py,
+	  src/vpicc/virtualsmartcard/utils.py: -Moved MAX_LE defines to
+	  ConstantDefinitions -Added a parameter to control whether or not
+	  an ISO card supports extended length APDUs -Correctly indicating
+	  extended length support in the ATR
+
+	* [r437] src/vpicc/virtualsmartcard/utils.py: Imported minor bugfix
+	  from upstream
+
+	* [r436] src/vpicc/virtualsmartcard/utils.py: -Removed unused code
+	  from utils.py -Added a unit test for case 2 extended length APDUs
+
+	* [r435] src/vpicc/virtualsmartcard/VirtualSmartcard.py: -Bugfix:
+	  The Le of the Command APDU was used when sending out an error
+	  R_APDU -Enhancement: Using correct effective Le for R_APDUs
+
+2011-07-25  oepen
+
+	* [r434] src/vpicc/virtualsmartcard/utils.py: -Bugfix: Erroneously
+	  set Lc and not Le for case 2 APDUs -Added new property
+	  effective_Le
+
+	* [r430] src/vpicc/virtualsmartcard/CardGenerator.py: Fixed typo
+
+	* [r429] src/vpicc/virtualsmartcard/utils.py: Preliminary extended
+	  length APDU support
+
+	* [r428] src/vpicc/virtualsmartcard/VirtualSmartcard.py: Bugfix:
+	  wrong parameters were set in a call for formatResult
+
+2011-07-23  frankmorgner
+
+	* [r427] configure.ac: silent build rules
+
+	* [r426] src/vpcd/ifd-vpcd.c: clearification on requirements for
+	  compliance to IFDHandler API version 3
+
+2011-02-09  frankmorgner
+
+	* [r416] ChangeLog, configure.ac: released 0.4, which was
+	  mistakenly tagged 0.3
+
+2011-02-08  frankmorgner
+
+	* [r412] ChangeLog, configure.ac: released 0.3
+
+2011-02-01  oepen
+
+	* [r401] src/vpcd/ifd-vpcd.c: Reverting bad commit
+
+	* [r400] src/vpcd/ifd-vpcd.c: Shut up autotools
+
+2011-01-25  frankmorgner
+
+	* [r393] src/vpicc/virtualsmartcard/CardGenerator.py,
+	  src/vpicc/virtualsmartcard/SmartcardFilesystem.py,
+	  src/vpicc/virtualsmartcard/SmartcardSAM.py: fixed generation of
+	  ePass file system (fixes 3164830)
+
+2011-01-24  frankmorgner
+
+	* [r392] src/vpicc/virtualsmartcard/SmartcardFilesystem.py: fixed
+	  path walking (fixes 3164775)
+
+2010-12-13  frankmorgner
+
+	* [r382] README: update information
+
+2010-12-08  frankmorgner
+
+	* [r372] ChangeLog, configure.ac: releasing 0.3
+
+2010-10-26  frankmorgner
+
+	* [r342] src/vpcd/vpcd.c: unified usage of sizeof.
+
+2010-10-15  frankmorgner
+
+	* [r336] README, configure.ac, src/vpcd/Makefile.am,
+	  src/vpcd/ifd-vpcd.c[CPY], src/vpcd/ifd.c[DEL]: - renamed ifd.c to
+	  ifd-vpcd.c to have more readable logging in pcscd - updated
+	  support information
+
+2010-10-13  frankmorgner
+
+	* [r329] configure.ac, src/vpcd/Makefile.am,
+	  src/vpcd/reader.conf.in, src/vpicc/Makefile.am,
+	  src/vpicc/vicc.in, src/vpicc/virtualsmartcard.in[DEL]: - switched
+	  from perl to sed for substitution of autoconf variables - changed
+	  from generating reader.conf to vpcd in /etc/reader.conf.d
+
+	* [r328] src/vpicc/SmartcardSAM.py[DEL], src/vpicc/vicc.in: added
+	  missing file, deleted unused file
+
+	* [r326] src/vpicc/virtualsmartcard/SmartcardSAM.py: merged with
+	  changes of r320
+
+	* [r325] src/vpicc/CardGenerator.py[DEL],
+	  src/vpicc/ConstantDefinitions.py[DEL],
+	  src/vpicc/CryptoUtils.py[DEL], src/vpicc/Makefile.am,
+	  src/vpicc/SEutils.py[DEL], src/vpicc/SWutils.py[DEL],
+	  src/vpicc/SmartcardFilesystem.py[DEL],
+	  src/vpicc/TLVutils.py[DEL], src/vpicc/VirtualSmartcard.py[DEL],
+	  src/vpicc/utils.py[DEL], src/vpicc/virtualsmartcard,
+	  src/vpicc/virtualsmartcard/CardGenerator.py[CPY],
+	  src/vpicc/virtualsmartcard/ConstantDefinitions.py[CPY],
+	  src/vpicc/virtualsmartcard/CryptoUtils.py[CPY],
+	  src/vpicc/virtualsmartcard/SEutils.py[CPY],
+	  src/vpicc/virtualsmartcard/SWutils.py[CPY],
+	  src/vpicc/virtualsmartcard/SmartcardFilesystem.py[CPY],
+	  src/vpicc/virtualsmartcard/SmartcardSAM.py[CPY],
+	  src/vpicc/virtualsmartcard/TLVutils.py[CPY],
+	  src/vpicc/virtualsmartcard/VirtualSmartcard.py[CPY],
 	  src/vpicc/virtualsmartcard/__init__.py,
-	  src/vpicc/virtualsmartcard/utils.py: grouped virtual smartcard
-	  objects in virtualsmartcard package
+	  src/vpicc/virtualsmartcard/utils.py[CPY]: grouped virtual
+	  smartcard objects in virtualsmartcard package
 
-2010-10-12 12:33  frankmorgner
+2010-10-12  frankmorgner
 
-	* src/vpicc/VirtualSmartcard.py: added inconsistency check for the
-	  received apdu
+	* [r324] src/vpicc/VirtualSmartcard.py: added inconsistency check
+	  for the received apdu
 
-2010-10-12 12:24  frankmorgner
+	* [r323] src/vpicc/VirtualSmartcard.py: let vicc recognize shutdown
+	  of vpcd
 
-	* src/vpicc/VirtualSmartcard.py: let vicc recognize shutdown of
-	  vpcd
+2010-10-11  frankmorgner
 
-2010-10-11 18:43  frankmorgner
+	* [r322] src/vpcd/ifd.c: added workaround for bug 312754 of
+	  pcsc-lite
 
-	* src/vpcd/ifd.c: added workaround for bug 312754 of pcsc-lite
+	* [r321] src/vpicc/VirtualSmartcard.py: RelayOS: removed card
+	  observer (thread). a removed card is now handled by exceptions.
 
-2010-10-11 17:30  frankmorgner
+2010-10-11  oepen
 
-	* src/vpicc/VirtualSmartcard.py: RelayOS: removed card observer
-	  (thread). a removed card is now handled by exceptions.
+	* [r320] src/vpicc/SmartcardSAM.py: -pycrypto should now only be
+	  imported if an instance of the SAM class is created -Removed
+	  deprecated unit tests -fixed some bugs caused by incorrect naming
 
-2010-10-11 15:53  oepen
+2010-10-11  frankmorgner
 
-	* src/vpicc/SmartcardSAM.py: -pycrypto should now only be imported
-	  if an instance of the SAM class is created
-	  -Removed deprecated unit tests
-	  -fixed some bugs caused by incorrect naming
+	* [r319] src/vpicc/VirtualSmartcard.py: added status message
 
-2010-10-11 12:35  frankmorgner
+	* [r318] src/vpcd/vpcd.c, src/vpicc/VirtualSmartcard.py: activated
+	  ATR polling as workaround for pyscard bug #3084449. now when the
+	  real smartcard is removed, the relay process terminates
 
-	* src/vpicc/VirtualSmartcard.py: added status message
+	* [r315] src/vpcd/ifd.c: checked ifd.c and vpcd.c with flawfinder
+	  rats and pscan
 
-2010-10-11 12:31  frankmorgner
+2010-10-10  frankmorgner
 
-	* src/vpcd/vpcd.c, src/vpicc/VirtualSmartcard.py: activated ATR
-	  polling as workaround for pyscard bug #3084449. now when the real
-	  smartcard is removed, the relay process terminates
+	* [r314] src/vpcd/ifd.c: fixed problems for workaround of pcscd bug
+	  312749
 
-2010-10-11 10:59  frankmorgner
+	* [r313] src/vpcd/ifd.c, src/vpcd/reader.conf.in: added workaround
+	  for pcscd bug #312749
 
-	* src/vpcd/ifd.c: checked ifd.c and vpcd.c with flawfinder rats and
-	  pscan
+	* [r312] src/vpcd/ifd.c: added length check on rapdu buffer.
 
-2010-10-10 16:20  frankmorgner
+2010-10-09  frankmorgner
 
-	* src/vpcd/ifd.c: fixed problems for workaround of pcscd bug 312749
+	* [r311] src/vpicc/VirtualSmartcard.py: modified error messages
 
-2010-10-10 15:45  frankmorgner
-
-	* src/vpcd/ifd.c, src/vpcd/reader.conf.in: added workaround for
-	  pcscd bug #312749
-
-2010-10-10 14:38  frankmorgner
-
-	* src/vpcd/ifd.c: added length check on rapdu buffer.
-
-2010-10-09 20:42  frankmorgner
-
-	* src/vpicc/VirtualSmartcard.py: modified error messages
-
-2010-10-09 20:32  frankmorgner
-
-	* src/vpcd/ifd.c, src/vpcd/reader.conf.in, src/vpcd/vpcd.c,
+	* [r310] src/vpcd/ifd.c, src/vpcd/reader.conf.in, src/vpcd/vpcd.c,
 	  src/vpcd/vpcd.h: now reading the port to open from reader.conf
 
-2010-10-09 13:33  frankmorgner
+	* [r309] src/vpicc/VirtualSmartcard.py: - added more error handling
+	  to RelayOS - vicc in relay mode terminates when card is removed -
+	  created cleanup routines to use with atexit.register
 
-	* src/vpicc/VirtualSmartcard.py: - added more error handling to
-	  RelayOS
-	  - vicc in relay mode terminates when card is removed
-	  - created cleanup routines to use with atexit.register
+2010-10-08  frankmorgner
 
-2010-10-08 20:14  frankmorgner
+	* [r308] src/vpcd/ifd.c: - added workaround for "Error resetting
+	  card." in pcscd. it is propably a bug in pcscd - added more debug
+	  information
 
-	* src/vpcd/ifd.c: - added workaround for "Error resetting card." in
-	  pcscd. it is propably a bug in pcscd
-	  - added more debug information
-
-2010-10-08 20:12  frankmorgner
-
-	* src/vpicc/VirtualSmartcard.py: added better inheritance to
+	* [r307] src/vpicc/VirtualSmartcard.py: added better inheritance to
 	  smartcard os's
 
-2010-10-08 08:44  frankmorgner
+	* [r306] src/vpicc/VirtualSmartcard.py: - exception handling on
+	  power up and power down - added workaround for pyscard bugs
+	  #3083586 and #3083254
 
-	* src/vpicc/VirtualSmartcard.py: - exception handling on power up
-	  and power down
-	  - added workaround for pyscard bugs #3083586 and #3083254
+	* [r305] src/vpcd/ifd.c: added debug information
 
-2010-10-08 08:11  frankmorgner
+2010-10-07  frankmorgner
 
-	* src/vpcd/ifd.c: added debug information
-
-2010-10-07 21:04  frankmorgner
-
-	* src/vpicc/CardGenerator.py, src/vpicc/VirtualSmartcard.py:
+	* [r303] src/vpicc/CardGenerator.py, src/vpicc/VirtualSmartcard.py:
 	  implemented smart card class for relaying
 
-2010-07-01 11:13  frankmorgner
+2010-07-01  frankmorgner
 
-	* ChangeLog, configure.ac: releasing 0.2
+	* [r185] ChangeLog, configure.ac: releasing 0.2
 
-2010-06-23 07:10  frankmorgner
+2010-06-23  frankmorgner
 
-	* src/vpcd/ifd.c: removed the last references of references to
-	  ifdhandler functions v1.0
+	* [r167] src/vpcd/ifd.c: removed the last references of references
+	  to ifdhandler functions v1.0
 
-2010-06-22 18:16  oepen
+2010-06-22  oepen
 
-	* src/vpicc/SmartcardSAM.py: -Fixed two unhandled exceptions
+	* [r164] src/vpicc/SmartcardSAM.py: -Fixed two unhandled exceptions
 	  -Removed some trailing whitespaces
 
-2010-06-22 14:06  frankmorgner
+2010-06-22  frankmorgner
 
-	* src/vpcd/ifd.c, src/vpcd/vpcd.c, src/vpicc/VirtualSmartcard.py: -
-	  changed vpcd driver to use ifdhandler api v 3.0, since
-	  support for v 1.0 has been dropped as of pcsc-lite 1.6
-	  - fixed initialization error of vpcd due to uninitialized value
-	  - changed virtual smartcard to use todays python syntax
+	* [r163] src/vpcd/ifd.c, src/vpcd/vpcd.c,
+	  src/vpicc/VirtualSmartcard.py: - changed vpcd driver to use
+	  ifdhandler api v 3.0, since support for v 1.0 has been dropped as
+	  of pcsc-lite 1.6 - fixed initialization error of vpcd due to
+	  uninitialized value - changed virtual smartcard to use todays
+	  python syntax
 
-2010-06-22 09:45  frankmorgner
-
-	* src/vpcd/ifd.c, src/vpcd/vpcd.c, src/vpcd/vpcd.h: forcing empty
-	  parameter list with function(void) instead of unspecified
+	* [r162] src/vpcd/ifd.c, src/vpcd/vpcd.c, src/vpcd/vpcd.h: forcing
+	  empty parameter list with function(void) instead of unspecified
 	  parameter list with function()
 
-2010-06-09 15:36  frankmorgner
+2010-06-09  frankmorgner
 
-	* configure.ac, src/vpcd/Makefile.am: added missing files for
-	  distribution packages. fixed installation when no serialdropdir
-	  is given.
+	* [r142] configure.ac, src/vpcd/Makefile.am: added missing files
+	  for distribution packages. fixed installation when no
+	  serialdropdir is given.
 
-2010-06-08 08:59  oepen
+2010-06-08  oepen
 
-	* configure.ac:
+	* [r137] configure.ac:
 
-2010-06-05 22:10  frankmorgner
+2010-06-05  frankmorgner
 
-	* ChangeLog: updated checksums, install files for recipes. updated
-	  log files for 0.6.1
+	* [r132] ChangeLog: updated checksums, install files for recipes.
+	  updated log files for 0.6.1
 
-2010-05-26 22:51  frankmorgner
+2010-05-26  frankmorgner
 
-	* src/vpcd/Makefile.am: bugfix: using libtool for installation
+	* [r112] src/vpcd/Makefile.am: bugfix: using libtool for
+	  installation
 
-2010-05-09 08:34  frankmorgner
+2010-05-09  frankmorgner
 
-	* configure.ac, src/vpcd/Makefile.am: be less restrictive in
+	* [r105] configure.ac, src/vpcd/Makefile.am: be less restrictive in
 	  ./configure. better output of configuration details
 
-2010-05-08 21:03  frankmorgner
+2010-05-08  frankmorgner
 
-	* configure.ac, src/vpicc/Makefile.am: added missing files
+	* [r104] configure.ac, src/vpicc/Makefile.am: added missing files
 
-2010-05-08 20:58  frankmorgner
+	* [r103] ChangeLog, INSTALL[DEL], Makefile[DEL], Makefile.am, NEWS,
+	  m4, src, src/Makefile.am, src/vpcd[CPY], src/vpcd/Makefile.am,
+	  src/vpcd/reader.conf.in, src/vpicc[CPY],
+	  src/vpicc/virtualsmartcard.in, vpcd[DEL], vpicc[DEL]: switched to
+	  autotools
 
-	* ChangeLog, INSTALL, Makefile, Makefile.am, NEWS, m4, src,
-	  src/Makefile.am, src/vpcd, src/vpcd/Makefile.am,
-	  src/vpcd/reader.conf.in, src/vpicc,
-	  src/vpicc/virtualsmartcard.in, vpcd, vpicc: switched to autotools
+2010-05-07  frankmorgner
 
-2010-05-07 19:13  frankmorgner
+	* [r97] Makefile: updated file references of install target
 
-	* Makefile: updated file references of install target
+2010-02-02  frankmorgner
 
-2010-02-02 14:29  frankmorgner
+	* [r39] vpcd/vpcd.c: moved operations for opening sockets into
+	  separate functions
 
-	* vpcd/vpcd.c: moved operations for opening sockets into separate
-	  functions
+2010-02-01  oepen
 
-2010-02-01 16:40  oepen
+	* [r38] vpicc/CardGenerator.py, vpicc/VirtualSmartcard.py,
+	  vpicc/jp2.jpg[DEL]: - Object orientated refactoring of
+	  CardGenerator - PassportOS class in VirtualSmartcard.py is no
+	  longer needed, because all the functionallity is now in
+	  CardGenerator - Removed hard coded image - Added version number
+	  and type to file format
 
-	* vpicc/CardGenerator.py, vpicc/VirtualSmartcard.py, vpicc/jp2.jpg:
-	  - Object orientated refactoring of CardGenerator
-	  - PassportOS class in VirtualSmartcard.py is no longer needed,
-	  because all the functionallity is now in CardGenerator
-	  - Removed hard coded image
-	  - Added version number and type to file format
+2010-01-30  oepen
 
-2010-01-30 18:51  oepen
-
-	* vpicc/CardGenerator.py, vpicc/CryptoUtils.py,
+	* [r35] vpicc/CardGenerator.py, vpicc/CryptoUtils.py,
 	  vpicc/SmartcardSAM.py, vpicc/VirtualSmartcard.py,
-	  vpicc/testconfig.mf, vpicc/testconfig.sam: Refactoring and
-	  Bugfixing:
-	  - CryptoUtils:
-	  - removing hard coded keylength from append_padding in
-	  CryptoUtils
-	  - rewrote append_padding, slightly modified strip_padding in
-	  CryptoUtils
-	  - added get_cipher_keylen and get_cipher_blocklen to CryptoUtils
-	  - Updated UnitTest in CryptoUtils. Note: PBKDF2.self_test()
-	  fails!!!
-	  - added new function protect_string to encrypt and authenticate a
-	  string
-	  - Removed hard coded padding pattern
-	  - VirtualICC:
-	  - Added and integrated functions to load and save VirtualICC
-	  objects
-	  - Added exception handling for opening of the socket
-	  - SmartcardSAM:
-	  - Removed all object persistance functionaliy from SmartcardSAM
-	  - Changed the constructors of the *SAM classes
+	  vpicc/testconfig.mf[DEL], vpicc/testconfig.sam[DEL]: Refactoring
+	  and Bugfixing: - CryptoUtils: - removing hard coded keylength
+	  from append_padding in CryptoUtils - rewrote append_padding,
+	  slightly modified strip_padding in CryptoUtils - added
+	  get_cipher_keylen and get_cipher_blocklen to CryptoUtils -
+	  Updated UnitTest in CryptoUtils. Note: PBKDF2.self_test()
+	  fails!!! - added new function protect_string to encrypt and
+	  authenticate a string - Removed hard coded padding pattern -
+	  VirtualICC: - Added and integrated functions to load and save
+	  VirtualICC objects - Added exception handling for opening of the
+	  socket - SmartcardSAM: - Removed all object persistance
+	  functionaliy from SmartcardSAM - Changed the constructors of the
+	  *SAM classes
 	  
 	  - Moved all the functionality to create cards (especially the
 	  pre-initialized filesystems for each card type) to the new file
-	  GenerateCards.py
-	  - Added minimal command line based interface to GenerateCards.py
-	  to generate customized cards and store them in a file
-	  - Removed default sam and mf files (testconfig.mf and
+	  GenerateCards.py - Added minimal command line based interface to
+	  GenerateCards.py to generate customized cards and store them in a
+	  file - Removed default sam and mf files (testconfig.mf and
 	  testconfig.sam)
 
-2010-01-25 17:18  oepen
+2010-01-25  oepen
 
-	* Makefile: Small Makefile fix: Added default target to
+	* [r30] Makefile: Small Makefile fix: Added default target to
 	  virtualsmartcard/Makefile
 
-2010-01-23 15:59  oepen
+2010-01-23  oepen
 
-	* vpicc/SmartcardSAM.py: PassportSAM: MRZ for key derivation is now
-	  read from MF instead of hard-encoding it in the code
+	* [r25] vpicc/SmartcardSAM.py: PassportSAM: MRZ for key derivation
+	  is now read from MF instead of hard-encoding it in the code
 
-2010-01-23 15:06  oepen
-
-	* vpicc/SmartcardSAM.py, vpicc/VirtualSmartcard.py: Changed
+	* [r24] vpicc/SmartcardSAM.py, vpicc/VirtualSmartcard.py: Changed
 	  Passport testdata
 
-2010-01-13 21:33  frankmorgner
+2010-01-13  frankmorgner
 
-	* Makefile, vpcd/ifd.c, vpcd/vpcd.c, vpcd/vpcd.h,
+	* [r18] Makefile, vpcd/ifd.c, vpcd/vpcd.c, vpcd/vpcd.h,
 	  vpicc/VirtualSmartcard.py: - added functions for a smartcard
-	  reset
-	  - changed communication protocol via socket, length is coded in
-	  network byteorder
-	  - splitted vpcd.[h|c] into more files, added include-guards
+	  reset - changed communication protocol via socket, length is
+	  coded in network byteorder - splitted vpcd.[h|c] into more files,
+	  added include-guards
 
-2010-01-10 22:53  frankmorgner
+2010-01-10  frankmorgner
 
-	* vpicc/VirtualSmartcard.py: bugfix
+	* [r15] vpicc/VirtualSmartcard.py: bugfix
 
-2010-01-08 14:33  frankmorgner
+2010-01-08  frankmorgner
 
-	* vpicc/SmartcardFilesystem.py, vpicc/VirtualSmartcard.py: added
-	  serial number to cryptoflex. opensc can read it.
+	* [r14] vpicc/SmartcardFilesystem.py, vpicc/VirtualSmartcard.py:
+	  added serial number to cryptoflex. opensc can read it.
 
-2010-01-08 00:07  frankmorgner
+	* [r13] vpicc/SmartcardFilesystem.py: bugfix
 
-	* vpicc/SmartcardFilesystem.py: bugfix
+2010-01-07  frankmorgner
 
-2010-01-07 22:57  frankmorgner
+	* [r12] vpicc/VirtualSmartcard.py: bugfix
 
-	* vpicc/VirtualSmartcard.py: bugfix
+2010-01-04  frankmorgner
 
-2010-01-04 19:48  frankmorgner
-
-	* virtualsmartcard.bb: Separated bitbake recipes.
+	* [r6] virtualsmartcard.bb[DEL]: Separated bitbake recipes.
 	  vscarchitecture.bb simply collects the other recipes now.
 
-2009-11-25 06:45  frankmorgner
+2009-11-25  frankmorgner
 
-	* README: Added information about running virtualsmartcard.
+	* [r5] README: Added information about running virtualsmartcard.
 
-2009-08-22 08:01  frankmorgner
+2009-08-22  frankmorgner
 
-	* AUTHORS, COPYING, INSTALL, README, vpcd/vpcd.c, vpcd/vpcd.h,
+	* [r4] AUTHORS, COPYING, INSTALL, README, vpcd/vpcd.c, vpcd/vpcd.h,
 	  vpicc/ConstantDefinitions.py, vpicc/CryptoUtils.py,
 	  vpicc/SEutils.py, vpicc/SWutils.py, vpicc/SmartcardFilesystem.py,
 	  vpicc/SmartcardSAM.py, vpicc/TLVutils.py,
 	  vpicc/VirtualSmartcard.py, vpicc/utils.py: Added project
 	  informations.
 
-2009-08-06 20:25  schertz123456
+2009-08-06  schertz123456
 
-	* ., Makefile, virtualsmartcard.bb, vpcd, vpcd/vpcd.c, vpcd/vpcd.h,
-	  vpicc, vpicc/ConstantDefinitions.py, vpicc/CryptoUtils.py,
-	  vpicc/SEutils.py, vpicc/SWutils.py, vpicc/SmartcardFilesystem.py,
-	  vpicc/SmartcardSAM.py, vpicc/TLVutils.py,
-	  vpicc/VirtualSmartcard.py, vpicc/jp2.jpg, vpicc/testconfig.mf,
-	  vpicc/testconfig.sam, vpicc/utils.py: Initial commit.
+	* [r1] ., Makefile, virtualsmartcard.bb, vpcd, vpcd/vpcd.c,
+	  vpcd/vpcd.h, vpicc, vpicc/ConstantDefinitions.py,
+	  vpicc/CryptoUtils.py, vpicc/SEutils.py, vpicc/SWutils.py,
+	  vpicc/SmartcardFilesystem.py, vpicc/SmartcardSAM.py,
+	  vpicc/TLVutils.py, vpicc/VirtualSmartcard.py, vpicc/jp2.jpg,
+	  vpicc/testconfig.mf, vpicc/testconfig.sam, vpicc/utils.py:
+	  Initial commit.
 
