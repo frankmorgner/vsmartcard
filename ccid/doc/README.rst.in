@@ -6,7 +6,6 @@
 
 .. |npa| replace:: :ref:`npa`
 .. |PACE| replace:: :abbr:`PACE (Password Authenticated Connection Establishment)`
-.. |win| replace:: 
 
 
 ********************************************************************************
