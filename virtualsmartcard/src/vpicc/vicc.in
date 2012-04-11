@@ -23,7 +23,6 @@ import argparse
 
 
 parser = argparse.ArgumentParser(
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         description='''
 The @PACKAGE_NAME@ emulates different types of smart cards.
 
@@ -38,7 +37,7 @@ parser.add_argument("-t", "--type",
         action="store",
         choices=['iso7816', 'cryptoflex', 'ePass', 'nPA', 'relay'],
         default='iso7816',
-        help="Type of smart card to emulate")
+        help="Type of smart card to emulate (default: %(default)s)")
 parser.add_argument("-f", "--file",
         action="store",
         type=argparse.FileType('r'),
@@ -47,12 +46,12 @@ parser.add_argument("-H", "--hostname",
         action="store",
         type=str,
         default='localhost',
-        help="address of the vpcd")
+        help="address of the vpcd (default: %(default)s)")
 parser.add_argument("-P", "--port",
         action="store",
         type=int,
         default=35963,
-        help="port of the vpcd")
+        help="port of the vpcd (default: %(default)s)")
 
 relay = parser.add_argument_group('options for relaying a local smart card')
 relay.add_argument("-r", "--reader",
