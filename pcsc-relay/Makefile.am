@@ -41,3 +41,6 @@ win: src/pcsc-relay.exe
 		$(PCSC_RELAY_EXE) \
 		; do cp $${i} $(WIN32_DIR); done
 	cp $(LIBUSB_DLL) $(WIN32_DIR)/libusb0.dll
+
+dist-hook:
+	svn2cl --group-by-day --reparagraph --separate-daylogs --include-actions --include-rev

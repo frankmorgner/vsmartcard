@@ -85,3 +85,6 @@ libnpa.pc:
 
 clean-local:
 	rm -f libnpa.pc
+
+dist-hook:
+	svn2cl --group-by-day --reparagraph --separate-daylogs --include-actions --include-rev
