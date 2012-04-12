@@ -32,6 +32,8 @@ ccid-emulator.ggo: ccid-emulator.ggo.in
 ccid-emulator.1:
 	$(HELP2MAN) \
 		--output=$@ \
+		--no-info \
+		--source='$(PACKAGE_STRING)' \
 		--version-string='$(PACKAGE) $(VERSION)' \
 		$(srcdir)/ccid-emulator
 

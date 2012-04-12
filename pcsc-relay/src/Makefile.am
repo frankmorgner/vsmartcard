@@ -18,6 +18,8 @@ dist_man1_MANS		= pcsc-relay.1
 pcsc-relay.1:
 	$(HELP2MAN) \
 		--output=$@ \
+		--no-info \
+		--source='$(PACKAGE_STRING)' \
 		--version-string='$(PACKAGE) $(VERSION)' \
 		$(srcdir)/pcsc-relay
 

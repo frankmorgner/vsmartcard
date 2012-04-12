@@ -21,4 +21,4 @@ option "verbose"    v
 text "
 Report bugs to @PACKAGE_BUGREPORT@
 
-Written by Frank Morgner <morgner@informatik.hu-berlin.de> and Dominik Oepen <oepen@informatik.hu-berlin.de>"
+Written by Frank Morgner and Dominik Oepen"

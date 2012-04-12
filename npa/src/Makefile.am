@@ -42,7 +42,9 @@ npa-tool.ggo: npa-tool.ggo.in
 npa-tool.1:
 	$(HELP2MAN) \
 		--output=$@ \
-		$(srcdir)/npa-tool
+		--no-info \
+		--source='$(PACKAGE_STRING)' \
+		$(builddir)/npa-tool
 
 
 bin_PROGRAMS = npa-tool
