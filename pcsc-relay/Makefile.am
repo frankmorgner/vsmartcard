@@ -19,11 +19,11 @@ $(LIBNFC_DLL): $(LIBNFC_DIR) $(LIBUSB_DLL)
 	cd $< && wget http://www2.informatik.hu-berlin.de/~morgner/libnfc.dll
 
 
-MINGW=i686-w64-mingw32
+MINGW ?= i686-w64-mingw32
 MINGW_DIR=/usr/$(MINGW)
 PCSC_RELAY_EXE=$(abs_builddir)/src/pcsc-relay.exe
 $(PCSC_RELAY_EXE): $(LIBNFC_DIR) $(LIBNFC_DLL)
-	./configure --target=$(MINGW) --host=$(MINGW) \
+	./configure --host=$(MINGW) --build=`config.guess` \
 		PKG_CONFIG_LIBDIR=$(MINGW_DIR)/lib/pkgconfig \
 		CFLAGS=-I$(MINGW_DIR)/include \
 		LDFLAGS=-L$(MINGW_DIR)/lib \
