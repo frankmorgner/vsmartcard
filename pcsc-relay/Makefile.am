@@ -34,7 +34,7 @@ $(PCSC_RELAY_EXE): $(LIBNFC_DIR) $(LIBNFC_DLL)
 
 
 WIN32_DIR=$(PACKAGE_TARNAME)-$(PACKAGE_VERSION)_win32
-win: src/pcsc-relay.exe
+win: $(PCSC_RELAY_EXE)
 	mkdir -p $(WIN32_DIR)
 	for i in \
 		$(LIBNFC_DLL) \

@@ -7,6 +7,8 @@ AC_CONFIG_SRCDIR([src/ccid.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE
+AC_USE_SYSTEM_EXTENSIONS
+AC_PROG_RANLIB
 LT_INIT
 
 # Checks for programs.
@@ -18,6 +20,7 @@ AC_PROG_LIBTOOL
 AM_PROG_CC_C_O
 AC_PROG_SED
 PKG_PROG_PKG_CONFIG
+
 AC_PATH_PROG(HELP2MAN, help2man, false // No help2man //)
 AC_PATH_PROG(GENGETOPT, gengetopt, false // No gengetopt //)
 
@@ -117,6 +120,7 @@ AC_TYPE_UINT8_T
 # Checks for library functions.
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
+AC_FUNC_STRNLEN
 AC_CHECK_FUNCS([memmove memset strerror strtol])
 
 cat << EOF
