@@ -36,6 +36,7 @@ $(PCSC_RELAY_EXE): $(LIBNFC_DIR) $(LIBNFC_DLL)
 LIBUSB_DLL=$(LIBNFC_DIR)/libusb-win32-bin-*/bin/x86/libusb0_x86.dll
 WIN32_DIR=$(abs_top_builddir)/$(PACKAGE_TARNAME)-$(PACKAGE_VERSION)_win32
 win: $(PCSC_RELAY_EXE)
+	mkdir -p $(WIN32_DIR)
 	$(INSTALL_PROGRAM) -t $(WIN32_DIR) \
 		$(LIBNFC_DLL) $(PCSC_RELAY_EXE)
 	$(INSTALL_PROGRAM) $(LIBUSB_DLL) $(WIN32_DIR)/libusb0.dll
