@@ -110,6 +110,7 @@ AC_CONFIG_FILES([
                  Makefile
                  m4/Makefile
                  src/Makefile
+                 win32/Makefile
                  doc/Makefile
                  ])
 AC_OUTPUT
