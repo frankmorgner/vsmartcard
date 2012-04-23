@@ -201,7 +201,7 @@ class nPA_SE(Security_Environment):
         pace.EAC_CTX_init_ca(self.eac_ctx, pace.id_CA_ECDH_AES_CBC_CMAC_128, 13, None, None)
 
         # we don't have a good CA key, so we simply generate an ephemeral one
-        comp_pubkey = pace.buf2string(pace.TA_STEP3_generate_ephemeral_key(self.eac_ctx))
+        comp_pubkey = pace.TA_STEP3_generate_ephemeral_key(self.eac_ctx)
         pubkey = pace.CA_STEP2_get_eph_pubkey(self.eac_ctx)
         if not comp_pubkey or not pubkey:
             pace.print_ossl_err()
@@ -502,7 +502,7 @@ class nPA_SAM(SAM):
             if (p1 != 0x00 or p2 != 0x00):
                 raise SwError(SW["ERR_INCORRECTP1P2"])
         
-            self.last_challenge = pace.buf2string(pace.TA_STEP4_get_nonce(self.current_SE.eac_ctx))
+            self.last_challenge = pace.TA_STEP4_get_nonce(self.current_SE.eac_ctx)
             if not self.last_challenge:
                 pace.print_ossl_err()
                 raise SwError(SW["ERR_NOINFO69"])
