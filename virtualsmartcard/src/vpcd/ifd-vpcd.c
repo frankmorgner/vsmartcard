@@ -202,7 +202,7 @@ IFDHTransmitToICC (DWORD Lun, SCARD_IO_HEADER SendPci, PUCHAR TxBuffer,
 
     (*RxLength) = size;
     /* Flawfinder: ignore */
-    RxBuffer = memcpy(RxBuffer, rapdu, size);
+    memcpy(RxBuffer, rapdu, size);
     free(rapdu);
     RecvPci->Protocol = 1;
 

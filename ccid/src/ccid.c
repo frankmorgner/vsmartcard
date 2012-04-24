@@ -420,7 +420,7 @@ static int
 perform_PC_to_RDR_IccPowerOff(const __u8 *in, size_t inlen, __u8 **out, size_t *outlen)
 {
     const PC_to_RDR_IccPowerOff_t *request = (PC_to_RDR_IccPowerOff_t *) in;
-    int sc_result;
+    int sc_result = SC_SUCCESS;
 
     if (!in || !out || !outlen)
         return SC_ERROR_INVALID_ARGUMENTS;
@@ -636,15 +636,14 @@ perform_PC_to_RDR_GetParamters(const __u8 *in, size_t inlen, __u8** out, size_t 
             break;
 
         default:
-            goto invaliddata;
+            sc_result = SC_ERROR_INVALID_DATA;
+            break;
     }
-invaliddata:
-        result = realloc(*out, sizeof *result);
-        if (!result)
-            return SC_ERROR_OUT_OF_MEMORY;
-        *out = (__u8 *) result;
 
-        sc_result = SC_ERROR_INVALID_DATA;
+    result = realloc(*out, sizeof *result);
+    if (!result)
+        return SC_ERROR_OUT_OF_MEMORY;
+    *out = (__u8 *) result;
 
     result->bMessageType = 0x82;
     result->bSlot = 0;
@@ -930,7 +929,6 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
         goto err;
     }
     pace_input.certificate_description = &abData[parsed];
-    parsed += pace_input.certificate_description_length;
     if (pace_input.certificate_description_length) {
         bin_log(ctx, SC_LOG_DEBUG_VERBOSE, "Certificate description",
                 pace_input.certificate_description,
@@ -1044,7 +1042,6 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
     /* Flawfinder: ignore */
     memcpy(p, pace_output.id_icc,
             pace_output.id_icc_length);
-    p += pace_output.id_icc_length;
 
 
     *abDataOutLen =
@@ -1680,6 +1677,8 @@ int ccid_parse_control(struct usb_ctrlrequest *setup, __u8 **outbuf)
 
                 r = SC_ERROR_NOT_SUPPORTED;
         }
+    } else {
+        r = SC_ERROR_INVALID_ARGUMENTS;
     }
 
     if (r < 0)

@@ -1589,7 +1589,9 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
     NPA_MSE_SET_AT_C *msesetat = NULL;
     const unsigned char *p;
 
-    if (!card || !ctx || !apdu || !ctx->priv_data) {
+    if (!card)
+       return SC_ERROR_INVALID_ARGUMENTS;
+    if(!ctx || !apdu || !ctx->priv_data) {
         r = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
     }
@@ -1787,7 +1789,9 @@ static int
 npa_sm_finish(sc_card_t *card, const struct sm_ctx *ctx,
         sc_apdu_t *apdu)
 {
-    if (!card || !ctx || !ctx->priv_data || !apdu || !card)
+    if (!card)
+       return SC_ERROR_INVALID_ARGUMENTS;
+    if(!ctx || !ctx->priv_data || !apdu)
         SC_FUNC_RETURN(card->ctx,  SC_LOG_DEBUG_NORMAL,
                 SC_ERROR_INVALID_ARGUMENTS);
     struct npa_sm_ctx *eacsmctx = ctx->priv_data;
