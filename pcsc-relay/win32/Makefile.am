@@ -43,7 +43,8 @@ win: $(PCSC_RELAY_EXE)
 
 clean-local:
 	rm -rf $(IMAGE) $(WIN32_DIR)
-	make -C $(LIBNFC_DIR) clean
+	test ! -d $(LIBNFC_DIR) || \
+		make -C $(LIBNFC_DIR) clean
 
 distclean-local:
 	rm -rf $(LIBNFC_DIR)
