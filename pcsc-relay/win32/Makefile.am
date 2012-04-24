@@ -11,12 +11,12 @@ IMAGE=$(abs_builddir)/image
 LIBNFC_DIR=$(abs_builddir)/libnfc
 LIBNFC_DLL=$(IMAGE)/bin/libnfc-3.dll
 $(LIBNFC_DIR)/configure.ac:
-	svn co -r1327 http://libnfc.googlecode.com/svn/trunk $@
+	svn co -r1327 http://libnfc.googlecode.com/svn/trunk $(LIBNFC_DIR)
 $(LIBNFC_DLL): $(LIBNFC_DIR)/configure.ac
 	grep i686-w64-mingw32 $(LIBNFC_DIR)/mingw-cross-configure.sh > /dev/null || \
-		patch -p0 -d $< < libnfc_mingw.patch
-	cd $< && sh mingw-cross-configure.sh --prefix=$(IMAGE)
-	make -C $< install
+		patch -p0 -d $(LIBNFC_DIR) < libnfc_mingw.patch
+	cd $(LIBNFC_DIR) && sh mingw-cross-configure.sh --prefix=$(IMAGE)
+	make -C $(LIBNFC_DIR) install
 
 
 MINGW ?= i686-w64-mingw32
