@@ -223,7 +223,7 @@ static int lnfc_send_rapdu(driver_data_t *driver_data,
         return 0;
     }
     if (r < len)
-        INFO ("Transmitted %d less bytes than desired: %s\n", len-r, nfc_strerror(data->pndTarget));
+        INFO ("Transmitted %u less bytes than desired: %s\n", (unsigned int) len-r, nfc_strerror(data->pndTarget));
 
 
     return 1;

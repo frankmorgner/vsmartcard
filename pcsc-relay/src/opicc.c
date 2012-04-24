@@ -61,7 +61,7 @@ int picc_encode_rapdu(const unsigned char *inbuf, size_t inlen,
     *outlen = length;
 
     /* write length of R-APDU */
-    sprintf(p, "%04X:", inlen);
+    sprintf(p, "%0lX:", inlen);
 
     /* next points to the next byte to encode */
     next = inbuf;
@@ -80,7 +80,8 @@ int picc_decode_apdu(const char *inbuf, size_t inlen,
         unsigned char **outbuf, size_t *outlen)
 {
     size_t pos, length;
-    char *end, *p;
+    char *end;
+    unsigned char *p;
     unsigned long int b;
 
     if (!outbuf || !outlen) {
@@ -219,7 +220,7 @@ static int picc_receive_capdu(driver_data_t *driver_data,
     if (fflush(data->fd) != 0)
         RELAY_ERROR("Warning, fflush failed: %s\n", strerror(errno));
 
-    DEBUG(data->line);
+    DEBUG("%s", data->line);
 
 
     /* decode C-APDU */

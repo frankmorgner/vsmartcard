@@ -167,7 +167,7 @@ IFDHPowerICC (DWORD Lun, DWORD Action, PUCHAR Atr, PDWORD AtrLength)
             }
             break;
         default:
-            Log2(PCSC_LOG_ERROR, "%d not supported", Action);
+            Log2(PCSC_LOG_ERROR, "%0lX not supported", Action);
             return IFD_NOT_SUPPORTED;
     }
 

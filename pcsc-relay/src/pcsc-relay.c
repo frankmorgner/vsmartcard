@@ -212,7 +212,7 @@ err:
     cleanup();
 
     if (r != SCARD_S_SUCCESS) {
-        RELAY_ERROR(stringify_error(r));
+        RELAY_ERROR("%s\n", stringify_error(r));
         exit(1);
     }
 

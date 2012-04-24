@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "ccid.h"
 #include "sslutil.h"
@@ -191,7 +192,7 @@ static int get_rapdu(sc_apdu_t *apdu, __u8 **buf, size_t *resplen)
         goto err;
     }
 
-    if (apdu->sw1 > 0xff || apdu->sw2 > 0xff || apdu->sw1 < 0 || apdu->sw2 < 0) {
+    if (apdu->sw1 > 0xff || apdu->sw2 > 0xff) {
         sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Received invalid status bytes SW1=%d SW2=%d", apdu->sw1, apdu->sw2);
         sc_result = SC_ERROR_INVALID_DATA;
         goto err;
