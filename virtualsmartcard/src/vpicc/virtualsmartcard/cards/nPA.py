@@ -36,6 +36,7 @@ class nPA_AT_CRT(ControlReferenceTemplate):
 
     def __init__(self):
         ControlReferenceTemplate.__init__(self, CRT_TEMPLATE["AT"])
+        self.chat = None
 
     def keyref_is_mrz(self):
         if self.keyref == '%c'% self.PACE_MRZ:
@@ -66,8 +67,8 @@ class nPA_AT_CRT(ControlReferenceTemplate):
             for tlv in structure:
                 tag, length, value = tlv
                 if tag == 0x7f4c:
-                    chat = CHAT(bertlv_pack([[tag, length, value]]))
-                    print(chat)
+                    self.chat = CHAT(bertlv_pack([[tag, length, value]]))
+                    print(self.chat)
                 elif tag == 0x67:
                     self.auxiliary_data = bertlv_pack([[tag, length, value]])
                 elif tag == 0x80 or tag == 0x84 or tag == 0x83:
@@ -297,10 +298,12 @@ class nPA_SE(Security_Environment):
         self.ssc = 0
 
         pace.EAC_CTX_set_encryption_ctx(self.eac_ctx, pace.EAC_ID_PACE)
-        pace.EAC_CTX_init_ta(self.eac_ctx, None, None, self.ca)
+        result = [[0x86, len(my_token), my_token]]
+        if self.at.chat:
+            pace.EAC_CTX_init_ta(self.eac_ctx, None, None, self.ca)
+            result.append([0x87, len(self.ca), self.ca])
 
-        return 0x9000, nPA_SE.__pack_general_authenticate([[0x86, len(my_token), my_token],
-            [0x87, len(self.ca), self.ca]])
+        return 0x9000, nPA_SE.__pack_general_authenticate(result)
 
     def __eac_ca(self, data):
         tlv_data = nPA_SE.__unpack_general_authenticate(data)
