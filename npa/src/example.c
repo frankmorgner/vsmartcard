@@ -75,7 +75,7 @@ main (int argc, char **argv)
      * You could set your PIN with pin=“123456”; or just leave it at NULL to be
      * asked for it. The same applies to the new PIN newpin. */
     pace_input.pin_id = PACE_PIN;
-    pace_input.pin = pin;
+    pace_input.pin = (unsigned char *) pin;
     pace_input.pin_length = pin ? strlen(pin) : 0;
 
     r = EstablishPACEChannel(NULL, card, pace_input, &pace_output,

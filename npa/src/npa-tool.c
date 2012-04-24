@@ -213,9 +213,9 @@ main (int argc, char **argv)
                     exit(2);
                 }
                 if (strlen(can) > pace_input.pin_length) {
-                    fprintf(stderr, "%s too big, only %d digits allowed.\n",
+                    fprintf(stderr, "%s too big, only %u digits allowed.\n",
                             npa_secret_name(pace_input.pin_id),
-                            pace_input.pin_length);
+                            (unsigned int) pace_input.pin_length);
                     exit(2);
                 }
             }
@@ -230,9 +230,9 @@ main (int argc, char **argv)
                     exit(2);
                 }
                 if (strlen(can) > pace_input.pin_length) {
-                    fprintf(stderr, "%s too big, only %d digits allowed.\n",
+                    fprintf(stderr, "%s too big, only %u digits allowed.\n",
                             npa_secret_name(pace_input.pin_id),
-                            pace_input.pin_length);
+                            (unsigned int) pace_input.pin_length);
                     exit(2);
                 }
             }
@@ -247,9 +247,9 @@ main (int argc, char **argv)
                     exit(2);
                 }
                 if (strlen(puk) > pace_input.pin_length) {
-                    fprintf(stderr, "%s too big, only %d digits allowed.\n",
+                    fprintf(stderr, "%s too big, only %u digits allowed.\n",
                             npa_secret_name(pace_input.pin_id),
-                            pace_input.pin_length);
+                            (unsigned int) pace_input.pin_length);
                     exit(2);
                 }
             }
@@ -259,10 +259,10 @@ main (int argc, char **argv)
             exit(1);
         }
 
-        pace_input.pin = secretbuf;
+        pace_input.pin = (unsigned char *) secretbuf;
 
         do {
-            sprintf(secretbuf, "%0*llu", pace_input.pin_length, secret);
+            sprintf(secretbuf, "%0*llu", (unsigned int) pace_input.pin_length, secret);
 
             gettimeofday(&tv, NULL);
             printf("%u,%06u: Trying %s=%s\n",
@@ -292,7 +292,7 @@ main (int argc, char **argv)
     if (cmdline.resume_flag) {
         pace_input.pin_id = PACE_CAN;
         if (can) {
-            pace_input.pin = can;
+            pace_input.pin = (unsigned char *) can;
             pace_input.pin_length = strlen(can);
         } else {
             pace_input.pin = NULL;
@@ -306,7 +306,7 @@ main (int argc, char **argv)
 
         pace_input.pin_id = PACE_PIN;
         if (pin) {
-            pace_input.pin = pin;
+            pace_input.pin = (unsigned char *) pin;
             pace_input.pin_length = strlen(pin);
         } else {
             pace_input.pin = NULL;
@@ -322,7 +322,7 @@ main (int argc, char **argv)
     if (cmdline.unblock_flag) {
         pace_input.pin_id = PACE_PUK;
         if (puk) {
-            pace_input.pin = puk;
+            pace_input.pin = (unsigned char *) puk;
             pace_input.pin_length = strlen(puk);
         } else {
             pace_input.pin = NULL;
@@ -343,7 +343,7 @@ main (int argc, char **argv)
     if (cmdline.new_pin_given) {
         pace_input.pin_id = PACE_PIN;
         if (pin) {
-            pace_input.pin = pin;
+            pace_input.pin = (unsigned char *) pin;
             pace_input.pin_length = strlen(pin);
         } else {
             pace_input.pin = NULL;
@@ -369,25 +369,25 @@ main (int argc, char **argv)
         if (cmdline.pin_given) {
             pace_input.pin_id = PACE_PIN;
             if (pin) {
-                pace_input.pin = pin;
+                pace_input.pin = (unsigned char *) pin;
                 pace_input.pin_length = strlen(pin);
             }
         } else if (cmdline.can_given) {
             pace_input.pin_id = PACE_CAN;
             if (can) {
-                pace_input.pin = can;
+                pace_input.pin = (unsigned char *) can;
                 pace_input.pin_length = strlen(can);
             }
         } else if (cmdline.mrz_given) {
             pace_input.pin_id = PACE_MRZ;
             if (mrz) {
-                pace_input.pin = mrz;
+                pace_input.pin = (unsigned char *) mrz;
                 pace_input.pin_length = strlen(mrz);
             }
         } else if (cmdline.puk_given) {
             pace_input.pin_id = PACE_PUK;
             if (puk) {
-                pace_input.pin = puk;
+                pace_input.pin = (unsigned char *) puk;
                 pace_input.pin_length = strlen(puk);
             }
         } else {
@@ -401,7 +401,7 @@ main (int argc, char **argv)
         if (r < 0)
             goto err;
         printf("Established PACE channel with %s.\n",
-                npa_secret_name(pace_input.pin_id), cmdline.translate_arg);
+                npa_secret_name(pace_input.pin_id));
 
         if (cmdline.translate_given) {
             FILE *input;

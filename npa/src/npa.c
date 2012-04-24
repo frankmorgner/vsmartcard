@@ -1465,8 +1465,10 @@ npa_sm_authenticate(sc_card_t *card, const struct sm_ctx *ctx,
     struct npa_sm_ctx *eacsmctx = ctx->priv_data;
 
     inbuf = BUF_MEM_create_init(data, datalen);
-    if (!inbuf)
+    if (!inbuf) {
+        r = SC_ERROR_OUT_OF_MEMORY;
         goto err;
+    }
 
 	macbuf = EAC_authenticate(eacsmctx->ctx, eacsmctx->ssc, inbuf);
     if (!macbuf) {
@@ -1514,8 +1516,10 @@ npa_sm_verify_authentication(sc_card_t *card, const struct sm_ctx *ctx,
     struct npa_sm_ctx *eacsmctx = ctx->priv_data;
 
     inbuf = BUF_MEM_create_init(macdata, macdatalen);
-    if (!inbuf)
+    if (!inbuf) {
+        r = SC_ERROR_OUT_OF_MEMORY;
         goto err;
+    }
 
 	my_mac = EAC_authenticate(eacsmctx->ctx, eacsmctx->ssc, inbuf); 
     if (!my_mac) {
@@ -1624,7 +1628,7 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
                 }
 
                 switch (CVC_check_description(cvc_cert,
-                            eacsmctx->certificate_description->data,
+                            (unsigned char *) eacsmctx->certificate_description->data,
                             eacsmctx->certificate_description->length)) {
                     case 1:
                         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
