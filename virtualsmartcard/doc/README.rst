@@ -81,8 +81,37 @@ Now you can run :command:`vicc` which connects to the |vpcd|. The command
 .. program-output:: vicc --help
 
 You should now be able to access the |vpicc| through the PC/SC API via
-|vpcd|/pcscd. You can use the :command:`opensc-explorer` or
+|vpcd|/:command:`pcscd`. You can use the :command:`opensc-explorer` or
 :command:`pcsc_scan` for testing.
+
+--------------------------------------------------------------------------------
+Accessing the Virtual Smart Card from Windows applications
+--------------------------------------------------------------------------------
+
+Running |vpcd| under Windows is currently not supported, because it implements
+a smart card driver specific for PCSC-Lite (:command:`pcscd`). This means, that
+although you can run |vpicc| under Windows (for example in relay mode), it
+can't be accessed by Windows' smart card applications.
+
+However, there are several more or less complicated paths you can go:
+
+- Run |vpcd|/:command:`pcscd` in Linux and use :ref:`pcsc-relay` to forward the
+  |vpicc| via NFC to a contactless reader which is attached to the Windows
+  machine. This has been tested tested with a ACR122U (touchatag).
+- Run your windows machine as virtual machine in a Linux host. Then run
+  |vpcd|/:command:`pcscd` in the Linux host and grab the |vpicc| with the
+  :ref:`ccid-emulator`. Now forward the emulated USB device to the Windows VM.
+  This is easy, but the :ref:`ccid-emulator` is not tested very well under
+  Windows.
+- Use the combination above (|vpcd|/:ref:`ccid-emulator` under Linux) on a
+  device, that you can put in USB client mode. Then use a USB connector to
+  physically connect the Linux machine in client mode to the Windows machine.
+- Port the |vpcd| from PCSC-Lite to Windows' PC/SC service. Then, |vpcd| runs
+  natively under Windows. Although |vpcd| is relatively simple and should be
+  POSIX compliant, this could be a lot of work.
+- Run |vpcd|/:command:`pcscd` under Cygwin on the Windows machine. This has
+  been reported to work, but it is unclear whether you can use PCSC-Lite as
+  PC/SC provider for a native Windows application.
 
 
 .. include:: questions.rst

@@ -7,6 +7,7 @@
 .. |npa| replace:: :ref:`npa`
 .. |PACE| replace:: :abbr:`PACE (Password Authenticated Connection Establishment)`
 
+.. _ccid-emulator:
 
 ********************************************************************************
 USB CCID Emulator
