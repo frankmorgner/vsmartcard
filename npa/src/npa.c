@@ -248,7 +248,11 @@ int GetReadersPACECapabilities(u8 *bitmap)
     return SC_SUCCESS;
 }
 
-/** select and read EF.CardAccess */
+#define ISO_READ_BINARY  0xB0
+#define ISO_P1_FLAG_SFID 0x80
+/** Read EF.CardAccess.
+ * @note MF must be selected before calling this function.
+ * */
 int get_ef_card_access(sc_card_t *card,
         u8 **ef_cardaccess, size_t *length_ef_cardaccess)
 {
@@ -256,7 +260,8 @@ int get_ef_card_access(sc_card_t *card,
     /* we read less bytes than possible. this is a workaround for acr 122,
      * which only supports apdus of max 250 bytes */
     size_t read = maxresp - 8;
-    sc_path_t path;
+    u8 p2;
+    sc_apdu_t apdu;
     sc_file_t *file = NULL;
     u8 *p;
 
@@ -264,22 +269,37 @@ int get_ef_card_access(sc_card_t *card,
         r = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
     }
-
-    memcpy(&path, sc_get_mf_path(), sizeof path);
-    r = sc_append_file_id(&path, FID_EF_CARDACCESS);
-    if (r < 0) {
-        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not create path object.");
-        goto err;
-    }
-
-    r = sc_select_file(card, &path, &file);
-    if (r < 0) {
-        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not select EF.CardAccess.");
-        goto err;
-    }
-
     *length_ef_cardaccess = 0;
+
+    sc_format_apdu(card, &apdu, SC_APDU_CASE_2_EXT,
+            ISO_READ_BINARY, ISO_P1_FLAG_SFID|SFID_EF_CARDACCESS, 0);
+
+    p = realloc(*ef_cardaccess, read);
+    if (!p) {
+        r = SC_ERROR_OUT_OF_MEMORY;
+        goto err;
+    }
+    *ef_cardaccess = p;
+    apdu.resp = *ef_cardaccess;
+    apdu.resplen = read;
+    apdu.le = read;
+
+    r = sc_transmit_apdu(card, &apdu);
+    /* emulate the behaviour of sc_read_binary */
+    if (r >= 0)
+        r = apdu.resplen;
+
     while(1) {
+        if (r >= 0 && r != read) {
+            *length_ef_cardaccess += r;
+            break;
+        }
+        if (r < 0) {
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not read EF.CardAccess.");
+            goto err;
+        }
+        *length_ef_cardaccess += r;
+
         p = realloc(*ef_cardaccess, *length_ef_cardaccess + read);
         if (!p) {
             r = SC_ERROR_OUT_OF_MEMORY;
@@ -289,23 +309,11 @@ int get_ef_card_access(sc_card_t *card,
 
         r = sc_read_binary(card, *length_ef_cardaccess,
                 *ef_cardaccess + *length_ef_cardaccess, read, 0);
-
-        if (r >= 0 && r != read) {
-            *length_ef_cardaccess += r;
-            break;
-        }
-
-        if (r < 0) {
-            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not read EF.CardAccess.");
-            goto err;
-        }
-
-        *length_ef_cardaccess += r;
     }
 
     /* test cards only return an empty FCI template,
      * so we can't determine any file proberties */
-    if (*length_ef_cardaccess < file->size) {
+    if (file && *length_ef_cardaccess < file->size) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Actual filesize differs from the size in file "
                 "proberties (%u!=%u).", *length_ef_cardaccess, file->size);
         r = SC_ERROR_FILE_TOO_SMALL;

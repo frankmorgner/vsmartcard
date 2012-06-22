@@ -85,7 +85,9 @@ extern "C" {
 //#define PACE_PUK 0x04
 
 /** File identifier of EF.CardAccess */
-#define FID_EF_CARDACCESS 0x011C
+#define  FID_EF_CARDACCESS 0x011C
+/** Short file identifier of EF.CardAccess */
+#define SFID_EF_CARDACCESS   0x1C
 
 /** Maximum length of EF.CardAccess */
 #define MAX_EF_CARDACCESS 2048
