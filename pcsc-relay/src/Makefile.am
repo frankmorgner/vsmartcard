@@ -19,6 +19,7 @@ pcsc-relay.1:
 	$(HELP2MAN) \
 		--output=$@ \
 		--no-info \
+		--no-discard-stderr \
 		--source='$(PACKAGE_STRING)' \
 		--version-string='$(PACKAGE) $(VERSION)' \
 		$(srcdir)/pcsc-relay
