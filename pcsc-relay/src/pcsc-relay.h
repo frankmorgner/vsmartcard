@@ -45,6 +45,17 @@ extern int verbose;
 extern struct rf_driver driver_openpicc;
 extern struct rf_driver driver_libnfc;
 
+struct sc_driver {
+    int (*connect) (driver_data_t **driver_data);
+    int (*disconnect) (driver_data_t *driver_data);
+    int (*transmit) (driver_data_t *driver_data,
+        const unsigned char *send, size_t send_len,
+        unsigned char *recv, size_t *recv_len);
+};
+
+extern struct sc_driver driver_pcsc;
+extern unsigned int readernum;
+
 #define LEVEL_INFO    1
 #define LEVEL_DEBUG   2
 #define DEBUG(...) \

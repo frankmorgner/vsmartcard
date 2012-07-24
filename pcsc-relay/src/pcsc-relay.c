@@ -17,22 +17,19 @@
  * You should have received a copy of the GNU General Public License along with
  * pcsc-relay.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <sys/types.h>
-#include <sys/stat.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
-#include <winscard.h>
-#include <string.h>
-#include <errno.h>
 
 #include "cmdline.h"
 #include "pcsc-relay.h"
-#include "pcscutil.h"
 
 #ifndef MAX_BUFFER_SIZE
 #define MAX_BUFFER_SIZE         264 /**< Maximum Tx/Rx Buffer for short APDU */
@@ -41,18 +38,16 @@
 static int doinfo = 0;
 static int dodaemon = 1;
 int verbose = 0;
-static struct rf_driver *driver = &driver_openpicc;
-static driver_data_t *driver_data = NULL;
-
-
-static LPSTR readers = NULL;
-static SCARDCONTEXT hContext = 0;
-static SCARDHANDLE hCard = 0;
+static struct rf_driver *rfdriver = &driver_openpicc;
+static driver_data_t *rfdriver_data = NULL;
+static struct sc_driver *scdriver = &driver_pcsc;
+static driver_data_t *scdriver_data = NULL;
 
 /* Forward declaration */
 static void daemonize(void);
 static void cleanup_exit(int signo);
 static void cleanup(void);
+static void printb(const char *label, unsigned char *buf, size_t len);
 
 
 #if HAVE_WORKING_FORK
@@ -111,9 +106,26 @@ void cleanup_exit(int signo){
 }
 
 void cleanup(void) {
-    driver->disconnect(driver_data);
-    driver_data = NULL;
-    pcsc_disconnect(hContext, hCard, readers);
+    rfdriver->disconnect(rfdriver_data);
+    rfdriver_data = NULL;
+    scdriver->disconnect(scdriver_data);
+    scdriver_data = NULL;
+}
+
+void
+printb(const char *label, unsigned char *buf, size_t len)
+{
+    size_t i = 0;
+    printf("%s", label);
+    while (i < len) {
+        printf("%02X", buf[i]);
+        i++;
+        if (i%20)
+            printf(" ");
+        else if (i != len)
+            printf("\n");
+    }
+    printf("\n");
 }
 
 int main (int argc, char **argv)
@@ -123,11 +135,10 @@ int main (int argc, char **argv)
     size_t buflen;
     int i, oindex;
 
-    BYTE outputBuffer[MAX_BUFFER_SIZE];
-    DWORD outputLength;
+    unsigned char outputBuffer[MAX_BUFFER_SIZE];
+    size_t outputLength;
 
-    LONG r = SCARD_S_SUCCESS;
-    DWORD ctl, protocol;
+    /*LONG r = SCARD_S_SUCCESS;*/
 
     struct gengetopt_args_info args_info;
 
@@ -137,15 +148,15 @@ int main (int argc, char **argv)
         exit(1) ;
     switch (args_info.emulator_arg) {
         case emulator_arg_openpicc:
-            driver = &driver_openpicc;
+            rfdriver = &driver_openpicc;
             break;
         case emulator_arg_libnfc:
-            driver = &driver_libnfc;
+            rfdriver = &driver_libnfc;
             break;
         default:
             exit(2);
     }
-
+    readernum = args_info.reader_arg;
 
 #if HAVE_SIGACTION
     struct sigaction new_sig, old_sig;
@@ -162,15 +173,13 @@ int main (int argc, char **argv)
 #endif
 
 
-    /* Open the device */
-    if (!driver->connect(&driver_data))
+    /* connect to reader and card */
+    if (!scdriver->connect(&scdriver_data))
         goto err;
 
 
-    /* connect to reader and card */
-    r = pcsc_connect(args_info.reader_arg, SCARD_SHARE_EXCLUSIVE, SCARD_PROTOCOL_ANY,
-            &hContext, &readers, &hCard, &protocol);
-    if (r != SCARD_S_SUCCESS)
+    /* Open the device */
+    if (!rfdriver->connect(&rfdriver_data))
         goto err;
 
 
@@ -183,7 +192,7 @@ int main (int argc, char **argv)
 
     while(1) {
         /* get C-APDU */
-        if (!driver->receive_capdu(driver_data, &buf, &buflen))
+        if (!rfdriver->receive_capdu(rfdriver_data, &buf, &buflen))
             goto err;
         if (!buflen || !buf)
             continue;
@@ -194,8 +203,8 @@ int main (int argc, char **argv)
 
         /* transmit APDU to card */
         outputLength = sizeof outputBuffer;
-        r = pcsc_transmit(protocol, hCard, buf, buflen, outputBuffer, &outputLength);
-        if (r != SCARD_S_SUCCESS)
+        if (!scdriver->transmit(scdriver_data, buf, buflen, outputBuffer,
+                    &outputLength))
             goto err;
 
 
@@ -203,7 +212,7 @@ int main (int argc, char **argv)
         if (verbose >= 0)
             printb("R-APDU:\n", outputBuffer, outputLength);
 
-        if (!driver->send_rapdu(driver_data, outputBuffer, outputLength))
+        if (!rfdriver->send_rapdu(rfdriver_data, outputBuffer, outputLength))
             goto err;
     }
 
@@ -211,10 +220,10 @@ int main (int argc, char **argv)
 err:
     cleanup();
 
-    if (r != SCARD_S_SUCCESS) {
-        RELAY_ERROR("%s\n", stringify_error(r));
-        exit(1);
-    }
+    /*if (r != SCARD_S_SUCCESS) {*/
+        /*RELAY_ERROR("%s\n", stringify_error(r));*/
+        /*exit(1);*/
+    /*}*/
 
     exit(0);
 }
