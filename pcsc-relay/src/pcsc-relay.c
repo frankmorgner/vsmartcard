@@ -158,6 +158,18 @@ int main (int argc, char **argv)
     }
     readernum = args_info.reader_arg;
 
+    switch (args_info.connector_arg) {
+        case connector_arg_vicc:
+            scdriver = &driver_vpcd;
+            break;
+        case connector_arg_pcsc:
+            scdriver = &driver_pcsc;
+            break;
+        default:
+            exit(2);
+    }
+    vpcdport = args_info.port_arg;
+
 #if HAVE_SIGACTION
     struct sigaction new_sig, old_sig;
 

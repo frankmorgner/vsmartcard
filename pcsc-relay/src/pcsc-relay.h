@@ -55,6 +55,8 @@ struct sc_driver {
 
 extern struct sc_driver driver_pcsc;
 extern unsigned int readernum;
+extern struct sc_driver driver_vpcd;
+extern unsigned int vpcdport;
 
 #define LEVEL_INFO    1
 #define LEVEL_DEBUG   2
