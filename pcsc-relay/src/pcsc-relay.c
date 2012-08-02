@@ -47,7 +47,7 @@ static driver_data_t *scdriver_data = NULL;
 static void daemonize(void);
 static void cleanup_exit(int signo);
 static void cleanup(void);
-static void printb(const char *label, unsigned char *buf, size_t len);
+static void hexdump(const char *label, unsigned char *buf, size_t len);
 
 
 #if HAVE_WORKING_FORK
@@ -113,19 +113,21 @@ void cleanup(void) {
 }
 
 void
-printb(const char *label, unsigned char *buf, size_t len)
+hexdump(const char *label, unsigned char *buf, size_t len)
 {
     size_t i = 0;
-    printf("%s", label);
-    while (i < len) {
-        printf("%02X", buf[i]);
-        i++;
-        if (i%20)
-            printf(" ");
-        else if (i != len)
-            printf("\n");
+    if (verbose >= LEVEL_NORMAL) {
+        printf("%s", label);
+        while (i < len) {
+            printf("%02X", buf[i]);
+            i++;
+            if (i%20)
+                printf(" ");
+            else if (i != len)
+                printf("\n");
+        }
+        printf("\n");
     }
-    printf("\n");
 }
 
 int main (int argc, char **argv)
@@ -209,8 +211,7 @@ int main (int argc, char **argv)
         if (!buflen || !buf)
             continue;
 
-        if (verbose >= 0)
-            printb("C-APDU:\n", buf, buflen);
+        hexdump("C-APDU:\n", buf, buflen);
 
 
         /* transmit APDU to card */
@@ -221,8 +222,7 @@ int main (int argc, char **argv)
 
 
         /* send R-APDU */
-        if (verbose >= 0)
-            printb("R-APDU:\n", outputBuffer, outputLength);
+        hexdump("R-APDU:\n", outputBuffer, outputLength);
 
         if (!rfdriver->send_rapdu(rfdriver_data, outputBuffer, outputLength))
             goto err;

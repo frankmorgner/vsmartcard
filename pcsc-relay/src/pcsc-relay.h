@@ -58,8 +58,12 @@ extern unsigned int readernum;
 extern struct sc_driver driver_vpcd;
 extern unsigned int vpcdport;
 
+#define LEVEL_NORMAL  0
 #define LEVEL_INFO    1
 #define LEVEL_DEBUG   2
+#define PRINTF(...) \
+    {if (verbose >= LEVEL_DEBUG) \
+        printf (__VA_ARGS__);}
 #define DEBUG(...) \
     {if (verbose >= LEVEL_DEBUG) \
         printf (__VA_ARGS__);}

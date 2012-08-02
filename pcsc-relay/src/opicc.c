@@ -172,8 +172,7 @@ static int picc_connect(driver_data_t **driver_data)
     un_braindead_ify_device(fileno(data->fd));
 
 
-    if (verbose >= 0)
-        printf("Connected to %s\n", PICCDEV);
+    PRINTF("Connected to %s\n", PICCDEV);
 
     return 1;
 }

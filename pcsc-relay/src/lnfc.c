@@ -146,8 +146,7 @@ static int lnfc_connect(driver_data_t **driver_data)
         return 0;
     }
 
-    if (verbose >= 0)
-        printf("Connected to %s\n", nfc_device_get_name(data->pndTarget));
+    PRINTF("Connected to %s\n", nfc_device_get_name(data->pndTarget));
 
     DEBUG("Waiting for a command that is not part of the anti-collision...\n");
     data->iCapduLen = nfc_target_init(data->pndTarget, &ntEmulatedTarget, data->abtCapdu, sizeof data->abtCapdu, 0);
