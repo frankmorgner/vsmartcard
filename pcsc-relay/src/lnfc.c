@@ -30,11 +30,6 @@ struct lnfc_data {
 };
 
 
-/* Wait 5 seconds for (R-)APDUs, which is the maximum frame waiting time
- * according to 14443-4 */
-#define TRANSMIT_TIMEOUT 5000
-
-
 static size_t get_historical_bytes(unsigned char *atr, size_t atrlen,
         unsigned char **hb)
 {
@@ -186,7 +181,7 @@ static int lnfc_receive_capdu(driver_data_t *driver_data,
 
 
     // Receive external reader command through target
-    data->iCapduLen = nfc_target_receive_bytes(data->pndTarget, data->abtCapdu, sizeof data->abtCapdu, TRANSMIT_TIMEOUT);
+    data->iCapduLen = nfc_target_receive_bytes(data->pndTarget, data->abtCapdu, sizeof data->abtCapdu, 0);
     if (data->iCapduLen < 0) {
         RELAY_ERROR ("nfc_target_receive_bytes: %s\n", nfc_strerror(data->pndTarget));
         return 0;
@@ -216,7 +211,7 @@ static int lnfc_send_rapdu(driver_data_t *driver_data,
         return 0;
 
 
-    r = nfc_target_send_bytes(data->pndTarget, rapdu, len, TRANSMIT_TIMEOUT);
+    r = nfc_target_send_bytes(data->pndTarget, rapdu, len, -1);
     if (r < 0) {
         RELAY_ERROR ("nfc_target_send_bytes: %s\n", nfc_strerror(data->pndTarget));
         return 0;
