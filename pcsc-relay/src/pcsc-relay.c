@@ -172,6 +172,8 @@ int main (int argc, char **argv)
     }
     vpcdport = args_info.port_arg;
 
+    verbose = args_info.verbose_given;
+
 #if HAVE_SIGACTION
     struct sigaction new_sig, old_sig;
 
