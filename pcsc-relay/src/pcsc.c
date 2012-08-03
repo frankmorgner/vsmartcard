@@ -51,7 +51,8 @@ struct pcsc_data {
 
 
 
-unsigned int readernum = -1;
+#define READERNUM_AUTODETECT -1
+unsigned int readernum = READERNUM_AUTODETECT;
 
 
 static int pcsc_connect(driver_data_t **driver_data)
@@ -60,6 +61,7 @@ static int pcsc_connect(driver_data_t **driver_data)
 
     LONG r;
     DWORD readerslen = SCARD_AUTOALLOCATE;
+    SCARD_READERSTATE state;
     LPSTR readers = NULL;
     char *reader;
     size_t l, i;
@@ -94,8 +96,24 @@ static int pcsc_connect(driver_data_t **driver_data)
     for (reader = readers, i = 0; readerslen > 0;
             l = strlen(reader)+1, readerslen -= l, reader += l, i++) {
 
-        if (i == readernum)
-            break;
+        if (i == readernum || readernum == READERNUM_AUTODETECT) {
+            state.szReader = reader;
+            state.dwCurrentState = SCARD_STATE_UNAWARE;
+
+            r = SCardGetStatusChange(data->hContext, 0, &state, 1);
+            if (r != SCARD_S_SUCCESS) {
+                RELAY_ERROR("Could not get status of %s\n", reader);
+                goto err;
+            }
+
+            if (state.dwEventState & SCARD_STATE_PRESENT)
+                break;
+
+            if (i == readernum) {
+                RELAY_ERROR("No card present in %s\n", reader);
+                goto err;
+            }
+        }
     }
     if (readerslen <= 0) {
         RELAY_ERROR("Could not find reader number %u\n", readernum);
