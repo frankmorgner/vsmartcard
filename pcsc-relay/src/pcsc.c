@@ -128,7 +128,8 @@ static int pcsc_connect(driver_data_t **driver_data)
         RELAY_ERROR("Could not connect to %s\n", reader);
         goto err;
     }
-    INFO("Connected to %s\n", reader);
+    INFO("Connected to reader %u: %s\n", i, reader);
+    hexdump("Card's ATR: ", state.rgbAtr, state.cbAtr);
 
 err:
     if (r != SCARD_S_SUCCESS) {

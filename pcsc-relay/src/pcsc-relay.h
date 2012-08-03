@@ -58,6 +58,8 @@ extern unsigned int readernum;
 extern struct sc_driver driver_vpcd;
 extern unsigned int vpcdport;
 
+void hexdump(const char *label, unsigned char *buf, size_t len);
+
 #define LEVEL_NORMAL  0
 #define LEVEL_INFO    1
 #define LEVEL_DEBUG   2

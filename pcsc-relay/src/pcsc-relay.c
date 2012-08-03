@@ -47,7 +47,6 @@ static driver_data_t *scdriver_data = NULL;
 static void daemonize(void);
 static void cleanup_exit(int signo);
 static void cleanup(void);
-static void hexdump(const char *label, unsigned char *buf, size_t len);
 
 
 #if HAVE_WORKING_FORK
