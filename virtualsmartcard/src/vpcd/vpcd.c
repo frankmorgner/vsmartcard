@@ -29,6 +29,23 @@
 
 #include "vpcd.h"
 
+#define VPCD_CTRL_LEN 	1
+
+#define VPCD_CTRL_OFF   0
+#define VPCD_CTRL_ON    1
+#define VPCD_CTRL_RESET 2
+#define VPCD_CTRL_ATR	4
+
+/*
+ * First send length (unsigned integer in network byte order), then send the
+ * message itself to the socket.
+ */
+int sendToVICC(uint16_t size, const char* buffer);
+/*
+ * Receive a message from icc
+ */
+int recvFromVICC(char** buffer);
+
 static int server_sock = -1;
 static int client_sock = -1;
 

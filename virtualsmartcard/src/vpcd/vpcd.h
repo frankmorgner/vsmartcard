@@ -28,23 +28,6 @@ extern "C" {
 
 #define VPCDPORT 35963
 
-#define VPCD_CTRL_LEN 	1
-
-#define VPCD_CTRL_OFF   0
-#define VPCD_CTRL_ON    1
-#define VPCD_CTRL_RESET 2
-#define VPCD_CTRL_ATR	4
-
-/*
- * First send length (unsigned integer in network byte order), then send the
- * message itself to the socket.
- */
-int sendToVICC(uint16_t size, const char* buffer);
-/*
- * Receive a message from icc
- */
-int recvFromVICC(char** buffer);
-
 int vicc_eject(void);
 int vicc_init(unsigned short port);
 int vicc_exit(void);
