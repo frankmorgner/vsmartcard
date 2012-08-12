@@ -88,27 +88,32 @@ static int vpcd_transmit(driver_data_t *driver_data,
         const unsigned char *send, size_t send_len,
         unsigned char *recv, size_t *recv_len)
 {
-    char *rapdu;
-    int size = vicc_transmit(send_len, (char *) send, &rapdu);
+    unsigned char *rapdu = NULL;
+    int r = 0;
+    ssize_t size = vicc_transmit(send_len, send, &rapdu);
 
     if (size < 0) {
         RELAY_ERROR("could not send apdu or receive rapdu\n");
-        *recv_len = 0;
-        return 0;
+        goto err;
     }
 
     if (*recv_len < size) {
         RELAY_ERROR("Not enough memory for rapdu\n");
-        *recv_len = 0;
-        free(rapdu);
-        return 0;
+        goto err;
     }
 
-    *recv_len = size;
     memcpy(recv, rapdu, size);
+    *recv_len = size;
+
+    r = 1;
+
+err:
+    if (!r)
+        *recv_len = 0;
+
     free(rapdu);
 
-    return 1;
+    return r;
 }
 
 

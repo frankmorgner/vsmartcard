@@ -16,18 +16,16 @@
  * You should have received a copy of the GNU General Public License along with
  * virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include "vpcd.h"
 #include <arpa/inet.h>
+#include <errno.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
-
-
-#include <stdlib.h>
-
-#include "vpcd.h"
 
 #define VPCD_CTRL_LEN 	1
 
@@ -36,144 +34,135 @@
 #define VPCD_CTRL_RESET 2
 #define VPCD_CTRL_ATR	4
 
-/*
- * First send length (unsigned integer in network byte order), then send the
- * message itself to the socket.
- */
-int sendToVICC(uint16_t size, const char* buffer);
-/*
- * Receive a message from icc
- */
-int recvFromVICC(char** buffer);
-
 static int server_sock = -1;
 static int client_sock = -1;
 
-/*
- * Send all size bytes from buffer to sock
- */
-static int sendall(int sock, size_t size, const char* buffer);
-/*
- * Receive size bytes from sock
- */
-static char* recvall(int sock, size_t size);
-/*
- * Open a TCP socket and listen.
- */
+ssize_t sendToVICC(size_t size, const unsigned char *buffer);
+ssize_t recvFromVICC(unsigned char **buffer);
+
+static int sendall(int sock, const void *buffer, size_t size);
+static ssize_t recvall(int sock, void *buffer, size_t size);
+
 static int opensock(unsigned short port);
 
 
-int sendall(int sock, size_t size, const char* buffer) {
+ssize_t sendall(int sock, const void *buffer, size_t size)
+{
     size_t sent = 0;
-    int i;
+    ssize_t r;
+
     while (sent < size) {
-        i = send(sock, buffer, size-sent, 0);
-        if (i < 0) return i;
-        sent += i;
+        r = send(sock, buffer, size-sent, 0);
+        if (r < 0)
+            return r;
+
+        sent += r;
+        buffer += r;
     }
-    return 0;
+
+    return sent;
 }
 
-char* recvall(int sock, size_t size) {
-    char* buffer = (char*) malloc(size);
-    if (buffer == NULL) return NULL;
-
-    if (recv(sock, buffer, size, MSG_WAITALL) < size) {
-        free(buffer);
-        return NULL;
-    }
-    return buffer;
+ssize_t recvall(int sock, void *buffer, size_t size) {
+    return recv(sock, buffer, size, MSG_WAITALL);
 }
 
 int opensock(unsigned short port)
 {
     int sock;
+    socklen_t yes = 1;
+    struct sockaddr_in server_sockaddr;
 
     sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock < 0) return -1;
+    if (sock < 0)
+        return -1;
 
-	int i = 1;
-	if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i)) < 0)
+    if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof yes) != 0)
 		return -1;
 
-    struct sockaddr_in server_sockaddr;
     memset(&server_sockaddr, 0, sizeof server_sockaddr);
     server_sockaddr.sin_family      = PF_INET;
     server_sockaddr.sin_port        = htons(port);
     server_sockaddr.sin_addr.s_addr = htonl(INADDR_ANY);
 
-    if (bind(sock, (struct sockaddr*)&server_sockaddr,
-                sizeof server_sockaddr) < 0) return -1;
+    if (bind(sock, (struct sockaddr *) &server_sockaddr,
+                sizeof server_sockaddr) != 0)
+        return -1;
 
-    if (listen(sock, 0) < 0) return -1;
+    if (listen(sock, 0) != 0)
+        return -1;
 
     return sock;
 }
 
-int waitforclient(int server, long int secs, long int usecs) {
-    int sock = 0;
-
+int waitforclient(int server, long secs, long usecs)
+{
     fd_set rfds;
+    struct sockaddr_in client_sockaddr;
+    socklen_t client_socklen = sizeof client_sockaddr;
+    struct timeval tv;
+
     FD_ZERO(&rfds);
     FD_SET(server, &rfds);
 
-    /* Wait up to one microsecond. */
-    struct timeval tv;
     tv.tv_sec = secs;
     tv.tv_usec = usecs;
 
-    if (select(server+1, &rfds, NULL, NULL, &tv) < 0) return -1;
+    if (select(server+1, &rfds, NULL, NULL, &tv) == -1)
+        return -1;
 
-    if (FD_ISSET(server, &rfds)) {
-        struct sockaddr_in client_sockaddr;
-        socklen_t client_socklen = sizeof client_sockaddr;
-        sock = accept(server,
-                (struct sockaddr*)&client_sockaddr,
+    if (FD_ISSET(server, &rfds))
+        return accept(server, (struct sockaddr *) &client_sockaddr,
                 &client_socklen);
-    }
-
-    return sock;
-}
-
-int sendToVICC(uint16_t size, const char* buffer) {
-    /* send size of message */
-    uint16_t i = htons(size);
-    i = sendall(client_sock, sizeof i, (char *) &i);
-    if (i<0) {
-        vicc_eject();
-        return i;
-    }
-    /* send message */
-    i = sendall(client_sock, size, buffer);
-    if (i<0) {
-        vicc_eject();
-        return i;
-    }
 
     return 0;
 }
 
-/*
- * Receive a message from icc
- */
-int recvFromVICC(char** buffer) {
-    /* receive size of message on LENLEN bytes */
-    uint16_t *p = (uint16_t *) recvall(client_sock, sizeof *p);
-    if (p == NULL) {
+ssize_t sendToVICC(size_t length, const unsigned char* buffer)
+{
+    ssize_t r;
+    uint16_t size;
+
+    /* send size of message on 2 bytes */
+    size = htons(length);
+    r = sendall(client_sock, (void *) &size, sizeof size);
+    if (r == sizeof size)
+        /* send message */
+        r = sendall(client_sock, buffer, length);
+
+    if (r < 0)
         vicc_eject();
+
+    return r;
+}
+
+ssize_t recvFromVICC(unsigned char **buffer)
+{
+    ssize_t r;
+    uint16_t size;
+    unsigned char *p = NULL;
+
+    if (!buffer) {
+        errno = EINVAL;
         return -1;
     }
-    uint16_t size = ntohs(*p);
-    free(p);
+
+    /* receive size of message on 2 bytes */
+    r = recvall(client_sock, &size, sizeof size);
+    if (r < sizeof size)
+        return r;
+
+    size = ntohs(size);
+
+    p = realloc(*buffer, size);
+    if (p == NULL) {
+        errno = ENOMEM;
+        return -1;
+    }
+    *buffer = p;
 
     /* receive message */
-    *buffer = recvall(client_sock, size);
-    if (*buffer == NULL) {
-        vicc_eject();
-        return -1;
-    }
-
-    return size;
+    return recvall(client_sock, *buffer, size);
 }
 
 int vicc_eject(void) {
@@ -203,22 +192,36 @@ int vicc_exit(void) {
     return 0;
 }
 
-int vicc_transmit(int apdu_len, const char *apdu, char **rapdu) {
-    if (sendToVICC(apdu_len, apdu) < 0) return -1;
+ssize_t vicc_transmit(size_t apdu_len,
+        const unsigned char *apdu, unsigned char **rapdu)
+{
+    ssize_t r;
 
-    return recvFromVICC(rapdu);
+    r = sendToVICC(apdu_len, apdu);
+
+    if (r > 0)
+        r = recvFromVICC(rapdu);
+
+    if (r <= 0)
+        vicc_eject();
+
+    return r;
 }
 
 int vicc_present(void) {
+    unsigned char *atr = NULL;
+
     if (client_sock > 0) {
-        char *atr = NULL;
-        if (vicc_getatr(&atr) < 0)
+        if (vicc_getatr(&atr) <= 0)
             return 0;
+
         free(atr);
+
         return 1;
     } else {
         /* Wait up to one microsecond. */
         client_sock = waitforclient(server_sock, 0, 1);
+
         if (client_sock < 0)
             return -1;
     }
@@ -226,7 +229,7 @@ int vicc_present(void) {
     return 0;
 }
 
-int vicc_getatr(char** atr) {
+ssize_t vicc_getatr(unsigned char **atr) {
     char i = VPCD_CTRL_ATR;
     return vicc_transmit(VPCD_CTRL_LEN, &i, atr);
 }

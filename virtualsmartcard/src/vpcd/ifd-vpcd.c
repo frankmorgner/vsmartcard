@@ -78,8 +78,12 @@ IFDHCloseChannel (DWORD Lun)
 RESPONSECODE
 IFDHGetCapabilities (DWORD Lun, DWORD Tag, PDWORD Length, PUCHAR Value)
 {
-    char *atr;
-    int size;
+    unsigned char *atr = NULL;
+    ssize_t size;
+
+    if (!Length || !Value)
+        return IFD_COMMUNICATION_ERROR;
+
     switch (Tag) {
         case TAG_IFD_ATR:
 
@@ -88,19 +92,23 @@ IFDHGetCapabilities (DWORD Lun, DWORD Tag, PDWORD Length, PUCHAR Value)
                 Log1(PCSC_LOG_ERROR, "could not get ATR");
                 return IFD_COMMUNICATION_ERROR;
             }
+            if (size == 0) {
+                Log1(PCSC_LOG_ERROR, "Virtual ICC removed");
+                return IFD_ICC_NOT_PRESENT;
+            }
             Log2(PCSC_LOG_DEBUG, "Got ATR (%d bytes)", size);
 
             if (*Length < size) {
+                free(atr);
                 Log1(PCSC_LOG_ERROR, "Not enough memory for ATR");
                 return IFD_COMMUNICATION_ERROR;
             }
 
-            /* Flawfinder: ignore */
             memcpy(Value, atr, size);
             *Length = size;
             free(atr);
-
             break;
+
         case TAG_IFD_SLOTS_NUMBER:
             if (*Length < 1) {
                 Log1(PCSC_LOG_ERROR, "Invalid input data");
@@ -109,8 +117,8 @@ IFDHGetCapabilities (DWORD Lun, DWORD Tag, PDWORD Length, PUCHAR Value)
 
             *Value  = 1;
             *Length = 1;
-
             break;
+
         default:
             Log2(PCSC_LOG_DEBUG, "unknown tag %d", (int)Tag);
             return IFD_ERROR_TAG;
@@ -179,34 +187,40 @@ IFDHTransmitToICC (DWORD Lun, SCARD_IO_HEADER SendPci, PUCHAR TxBuffer,
         DWORD TxLength, PUCHAR RxBuffer, PDWORD RxLength,
         PSCARD_IO_HEADER RecvPci)
 {
+    unsigned char *rapdu = NULL;
+    ssize_t size;
+    RESPONSECODE r = IFD_COMMUNICATION_ERROR;
+
     if (!RxLength || !RecvPci) {
         Log1(PCSC_LOG_ERROR, "Invalid input data");
-        return IFD_COMMUNICATION_ERROR;
+        goto err;
     }
 
-    char *rapdu;
-    int size = vicc_transmit(TxLength, (char *) TxBuffer, &rapdu);
+    size = vicc_transmit(TxLength, TxBuffer, &rapdu);
 
     if (size < 0) {
         Log1(PCSC_LOG_ERROR, "could not send apdu or receive rapdu");
-        *RxLength = 0;
-        return IFD_COMMUNICATION_ERROR;
+        goto err;
     }
 
     if (*RxLength < size) {
         Log1(PCSC_LOG_ERROR, "Not enough memory for rapdu");
-        *RxLength = 0;
-        free(rapdu);
-        return IFD_COMMUNICATION_ERROR;
+        goto err;
     }
 
-    (*RxLength) = size;
-    /* Flawfinder: ignore */
+    *RxLength = size;
     memcpy(RxBuffer, rapdu, size);
-    free(rapdu);
     RecvPci->Protocol = 1;
 
-    return IFD_SUCCESS;
+    r = IFD_SUCCESS;
+
+err:
+    if (r != IFD_SUCCESS)
+        *RxLength = 0;
+
+    free(rapdu);
+
+    return r;
 }
 
 RESPONSECODE

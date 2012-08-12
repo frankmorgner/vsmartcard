@@ -19,24 +19,50 @@
 #ifndef _VPCD_H_
 #define _VPCD_H_
 
-#include <stdint.h>
+#include <unistd.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 
+/** Standard port of the virtual smart card reader */
 #define VPCDPORT 35963
 
-int vicc_eject(void);
 int vicc_init(unsigned short port);
 int vicc_exit(void);
-int vicc_transmit(int apdu_len, const char *apdu, char **rapdu);
-int vicc_getatr(char** atr);
+int vicc_eject(void);
+
 int vicc_present(void);
 int vicc_poweron(void);
 int vicc_poweroff(void);
 int vicc_reset(void);
+
+/**
+ * @brief Receive ATR from the virtual smart card.
+ *
+ * @param[in,out] atr ATR received. Memory will be reused (via \a realloc) and
+ *                    should be freed by the caller if no longer needed.
+ *
+ * @return On success, the call returns the number of bytes received.
+ *         On error, -1 is returned, and errno is set appropriately.
+ */
+ssize_t vicc_getatr(unsigned char** atr);
+
+/**
+ * @brief Send an APDU to the virtual smart card.
+ *
+ * @param[in]     apdu_len Number of bytes to send
+ * @param[in]     apdu     Data to be sent
+ * @param[in,out] rapdu    Data received. Memory will be reused (via \a
+ *                         realloc) and should be freed by the caller if no
+ *                         longer needed.
+ *
+ * @return On success, the call returns the number of bytes received.
+ *         On error, -1 is returned, and errno is set appropriately.
+ */
+ssize_t vicc_transmit(size_t apdu_len, const unsigned char *apdu,
+        unsigned char **rapdu);
 
 #ifdef  __cplusplus
 }
