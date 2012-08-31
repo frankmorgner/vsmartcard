@@ -110,6 +110,8 @@ class nPA_SE(Security_Environment):
         self.eac_ctx = None
         self.ssc = 0
         self.ca = "DECVCAeID00102"
+        self.ca_key = None
+        self.ca_pubkey = None
 
     def _set_SE(self, p2, data):
         sw, resp = Security_Environment._set_SE(self, p2, data)
@@ -199,26 +201,21 @@ class nPA_SE(Security_Environment):
         ef_card_access = self.mf.select('fid', 0x011c)
         ef_card_access_data = ef_card_access.getenc('data')
         pace.EAC_CTX_init_ef_cardaccess(ef_card_access_data, self.eac_ctx)
-        pace.EAC_CTX_init_ca(self.eac_ctx, pace.id_CA_ECDH_AES_CBC_CMAC_128, 13, None, None)
+        pace.EAC_CTX_init_ca(self.eac_ctx, pace.id_CA_ECDH_AES_CBC_CMAC_128, 13, self.ca_key, self.ca_pubkey)
 
-        # we don't have a good CA key, so we simply generate an ephemeral one
-        comp_pubkey = pace.TA_STEP3_generate_ephemeral_key(self.eac_ctx)
-        pubkey = pace.CA_STEP2_get_eph_pubkey(self.eac_ctx)
-        if not comp_pubkey or not pubkey:
-            pace.print_ossl_err()
-            raise SwError(SW["WARN_NOINFO63"])
+        if not self.ca_key:
+            # we don't have a good CA key, so we simply generate an ephemeral one
+            comp_pubkey = pace.TA_STEP3_generate_ephemeral_key(self.eac_ctx)
+            pubkey = pace.CA_STEP2_get_eph_pubkey(self.eac_ctx)
+            if not comp_pubkey or not pubkey:
+                pace.print_ossl_err()
+                raise SwError(SW["WARN_NOINFO63"])
 
-        # save public key in EF.CardSecurity (and invalidate the signature)
-        ef_card_security = self.mf.select('fid', 0x011d)
-        ef_card_security_data = ef_card_security.getenc('data')
-        ef_card_security_data = ef_card_security_data[:61+4+239+2+1] + pubkey + ef_card_security_data[61+4+239+2+1+len(pubkey):]
-        ef_card_security.setdec('data', ef_card_security_data)
-
-        #print 'pubkey'
-        #print hexdump(pubkey)
-        #f=open('test', 'w')
-        #f.write(ef_card_security_data)
-        #f.close()
+            # save public key in EF.CardSecurity (and invalidate the signature)
+            ef_card_security = self.mf.select('fid', 0x011d)
+            ef_card_security_data = ef_card_security.getenc('data')
+            ef_card_security_data = ef_card_security_data[:61+4+239+2+1] + pubkey + ef_card_security_data[61+4+239+2+1+len(pubkey):]
+            ef_card_security.setdec('data', ef_card_security_data)
 
         nonce = pace.PACE_STEP1_enc_nonce(self.eac_ctx, self.sec)
 
@@ -300,7 +297,9 @@ class nPA_SE(Security_Environment):
         pace.EAC_CTX_set_encryption_ctx(self.eac_ctx, pace.EAC_ID_PACE)
         result = [[0x86, len(my_token), my_token]]
         if self.at.chat:
-            pace.EAC_CTX_init_ta(self.eac_ctx, None, None, self.ca)
+            if not pace.EAC_CTX_init_ta(self.eac_ctx, None, None, self.ca):
+                pace.print_ossl_err()
+                raise SwError(SW["WARN_NOINFO63"])
             result.append([0x87, len(self.ca), self.ca])
 
         return 0x9000, nPA_SE.__pack_general_authenticate(result)
