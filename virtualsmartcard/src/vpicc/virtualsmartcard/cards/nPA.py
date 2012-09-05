@@ -212,6 +212,8 @@ class nPA_SE(Security_Environment):
                 raise SwError(SW["WARN_NOINFO63"])
 
             # save public key in EF.CardSecurity (and invalidate the signature)
+            # FIXME this only works for the default EF.CardSecurity.
+            # Better use an ASN.1 parser to do this manipulation
             ef_card_security = self.mf.select('fid', 0x011d)
             ef_card_security_data = ef_card_security.data
             ef_card_security_data = ef_card_security_data[:61+4+239+2+1] + pubkey + ef_card_security_data[61+4+239+2+1+len(pubkey):]
