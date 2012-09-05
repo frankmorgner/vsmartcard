@@ -16,8 +16,8 @@
 # You should have received a copy of the GNU General Public License along with
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 
-MAX_SHORT_LE = 0xff
-MAX_EXTENDED_LE = 0xffff
+MAX_SHORT_LE = 0xff+1
+MAX_EXTENDED_LE = 0xffff+1
 
 # Life cycle status byte 
 LCB = {}
