@@ -250,11 +250,11 @@ class File(object):
         if simpletlv_data:
             if not isinstance(simpletlv_data, list):
                 raise TypeError("must be a list of (tag, length, value)-tuples")
-            self.setdec('simpletlv_data', simpletlv_data)
+            self.simpletlv_data = simpletlv_data
         if bertlv_data:
             if not isinstance(bertlv_data, list):
                 raise TypeError("must be a list of (tag, length, value)-tuples")
-            self.setdec('bertlv_data', bertlv_data)
+            self.bertlv_data = bertlv_data
 
     def decrypt(self, path, data):
         if self.SAM == None: #WARNING: Fails silent
@@ -280,14 +280,6 @@ class File(object):
         else:
             return self.parent.getpath() + inttostring(self.fid, 2)
 
-    def getenc(self, attribute):
-        """Returns the decrypted data of an 'attribute' from the file."""
-        return loads(self.decrypt(self.getpath(), getattr(self, attribute)))
-
-    def setdec(self, attribute, data):
-        """Encrypts 'data' and sets the file's 'attribute' to the chiffre."""
-        setattr(self, attribute, dumps(self.encrypt(self.getpath(), data)))
-
     def getdata(self, isSimpleTlv, requestedTL):
         """
         Returns a string of either the file's BER-TLV or the file's SIMPLE-TLV
@@ -303,7 +295,7 @@ class File(object):
         if not hasattr(self, attribute):
             raise SwError(SW["ERR_NOTSUPPORTED"])
 
-        tlv_data = self.getenc(attribute)
+        tlv_data = getattr(self, attribute)
         if requestedTL == []:
             result = tlv_data
         else:
@@ -339,7 +331,7 @@ class File(object):
         if not hasattr(self, attribute):
             raise SwError(SW["ERR_NOTSUPPORTED"])
 
-        tlv_data = self.getenc(attribute)
+        tlv_data = getattr(self, attribute)
         for tag, newlength, newvalue in newtlvlist:
             tagfound = False
             for i in range(0, len(tlv_data)):
@@ -352,7 +344,7 @@ class File(object):
                     tagfound = True
             if not tagfound:
                 tlv_data.append(tag, newlength, newvalue)
-        self.setdec(attribute, tlv_data)
+        setattr(self, attribute, tlv_data)
 
     def readbinary(self, *argz, **args):
         """Only a template, will raise an error."""
@@ -412,7 +404,7 @@ class DF(File):
         self.content = []
         # TODO: opensc sends the length of data, but what does it limit
         # (bertlv-data/simpletlv-data/number of files in DF, ...)?
-        self.setdec('data', data)
+        self.data = data
 
     def __len__(self):
         """
@@ -582,7 +574,7 @@ class MF(DF):
                 fdm.append("%c\x00" % TAG["SHORTFID"])
 
             if isinstance(file, TransparentStructureEF):
-                l = inttostring(len(file.getenc('data')))
+                l = inttostring(len(file.data))
                 fdm.append("%c%c%s" % (TAG["BYTES_EXCLUDINGSTRUCTURE"],
                     chr(len(l)), l))
                 fdm.append("%c%c%s" % (TAG["BYTES_INCLUDINGSTRUCTURE"],
@@ -592,7 +584,7 @@ class MF(DF):
 
             elif isinstance(file, RecordStructureEF):
                 l = 0
-                records = file.getenc('records')
+                records = file.records
                 for r in records:
                     if file.hasSimpleTlv():
                         l += simpletlv_unpack(r.data)[0][1]
@@ -1378,11 +1370,11 @@ class TransparentStructureEF(EF):
                 filedescriptor, lifecycle,
                 simpletlv_data, bertlv_data,
                 datacoding, shortfid)
-        self.setdec('data', data)
+        self.data = data
 
     def readbinary(self, offset):
         """Returns the string of decrypted data beginning at 'offset'."""
-        data = self.getenc('data')
+        data = self.data
 
         if offset + 1 > len(data):
             raise SwError(SW["ERR_OFFSETOUTOFFILE"])
@@ -1398,12 +1390,12 @@ class TransparentStructureEF(EF):
         :param datalist: list of strings. Data pieces.
         :param datacoding: the data coding byte to use for writing
         """
-        data = self.getenc('data')
+        data = self.data
         if datacoding:
             data = write(data, datalist, offsets, datacoding)
         else:
             data = write(data, datalist, offsets, self.datacoding)
-        self.setdec('data', data)
+        self.data = data
 
     def updatebinary(self, offsets, datalist):
         """
@@ -1416,7 +1408,7 @@ class TransparentStructureEF(EF):
         Sets (part of) the content of an EF to its logical erased state,
         sequentially starting from 'erasefrom' ending at 'eraseto'.
         """
-        data = self.getenc('data')
+        data = self.data
         if erasefrom == None:
             erasefrom = 0
         if eraseto == None:
@@ -1428,7 +1420,7 @@ class TransparentStructureEF(EF):
             raise SwError(SW["ERR_INCORRECTPARAMETERS"])
 
         data = data[0:erasefrom] + data[eraseto:len(data)]
-        self.setdec('data', data)
+        self.data = data
 
 
 
@@ -1482,7 +1474,7 @@ class RecordStructureEF(EF):
             if len(r.data) > maxrecordsize or (self.hasFixedRecordSize() and
                     len(r.data) < maxrecordsize):
                 raise SwError(SW["ERR_INCOMPATIBLEWITHFILE"])
-        self.setdec('records', records)
+        self.records = records
         self.resetRecordPointer()
         self.maxrecordsize = maxrecordsize
 
@@ -1538,7 +1530,7 @@ class RecordStructureEF(EF):
             bits of 'p1' of a record handling command)
         """
         result  = []
-        records = self.getenc('records')
+        records = self.records
 
         if number == 0:
             # refer to the current record
@@ -1572,7 +1564,7 @@ class RecordStructureEF(EF):
             bits of 'p1' of a record handling command)
         """
         result  = []
-        records = self.getenc('records')
+        records = self.records
 
         indexes = get_indexes(records, reference, self.recordpointer)
         for i in indexes:
@@ -1651,14 +1643,14 @@ class RecordStructureEF(EF):
         if self.hasFixedRecordSize():
             data = chr(0)*(self.maxrecordsize) + data
 
-        records = self.getenc('records')
+        records = self.records
         if self.isCyclic():
             records.insert(0, Record(recordidentifier, data))
             self.recordpointer = 0
         else:
             records.append(Record(recordidentifier, data))
             self.recordpointer = len(records)-1
-        self.setdec('records', records)
+        self.records = records
 
     def eraserecord(self, num_id, reference):
         """

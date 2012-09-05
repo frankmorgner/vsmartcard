@@ -199,7 +199,7 @@ class nPA_SE(Security_Environment):
             raise SwError(SW["ERR_INCORRECTPARAMETERS"])
 
         ef_card_access = self.mf.select('fid', 0x011c)
-        ef_card_access_data = ef_card_access.getenc('data')
+        ef_card_access_data = ef_card_access.data
         pace.EAC_CTX_init_ef_cardaccess(ef_card_access_data, self.eac_ctx)
         pace.EAC_CTX_init_ca(self.eac_ctx, pace.id_CA_ECDH_AES_CBC_CMAC_128, 13, self.ca_key, self.ca_pubkey)
 
@@ -213,9 +213,9 @@ class nPA_SE(Security_Environment):
 
             # save public key in EF.CardSecurity (and invalidate the signature)
             ef_card_security = self.mf.select('fid', 0x011d)
-            ef_card_security_data = ef_card_security.getenc('data')
+            ef_card_security_data = ef_card_security.data
             ef_card_security_data = ef_card_security_data[:61+4+239+2+1] + pubkey + ef_card_security_data[61+4+239+2+1+len(pubkey):]
-            ef_card_security.setdec('data', ef_card_security_data)
+            ef_card_security.data = ef_card_security_data
 
         nonce = pace.PACE_STEP1_enc_nonce(self.eac_ctx, self.sec)
 

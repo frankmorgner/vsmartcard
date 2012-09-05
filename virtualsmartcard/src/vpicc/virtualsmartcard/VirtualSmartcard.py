@@ -506,10 +506,10 @@ class NPAOS(Iso7816OS):
         self.atr = '\x3B\x8A\x80\x01\x80\x31\xF8\x73\xF7\x41\xE0\x82\x90\x00\x75'
         if ef_cardsecurity:
             ef = self.mf.select('fid', 0x011d)
-            ef.setdec('data', ef_cardsecurity)
+            ef.data = ef_cardsecurity
         if ef_cardaccess:
             ef = self.mf.select('fid', 0x011c)
-            ef.setdec('data', ef_cardaccess)
+            ef.data = ef_cardaccess
         if ca:
             self.SAM.current_SE.ca = ca
         if ca_key:
