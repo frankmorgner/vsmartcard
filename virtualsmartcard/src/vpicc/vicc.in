@@ -61,17 +61,21 @@ relay.add_argument("-r", "--reader",
         help="number of the reader which contains the smart card to be relayed.")
 
 npa = parser.add_argument_group('options for nPA emulation')
-npa.add_argument("-e", "--ef-cardsecurity",
+npa.add_argument("-s", "--ef-cardsecurity",
         action="store",
-        type=argparse.FileType('r'),
+        type=argparse.FileType('rb'),
         help="EF.CardSecurity with the signed CA public key.")
+npa.add_argument("-a", "--ef-cardaccess",
+        action="store",
+        type=argparse.FileType('rb'),
+        help="EF.CardAccess with the EAC configuration.")
 npa.add_argument("-k", "--ca-key",
         action="store",
-        type=argparse.FileType('r'),
+        type=argparse.FileType('rb'),
         help="CA private key.")
 npa.add_argument("-p", "--ca-pubkey",
         action="store",
-        type=argparse.FileType('r'),
+        type=argparse.FileType('rb'),
         help="CA public key.")
 npa.add_argument("-c", "--ca",
         action="store",
@@ -83,19 +87,24 @@ args = parser.parse_args()
 from virtualsmartcard.VirtualSmartcard import VirtualICC
 
 ef_cardsecurity_data = None
+ef_cardaccess_data = None
 ca_key_data = None
 ca_pubkey_data = None
 if (args.ef_cardsecurity):
     ef_cardsecurity_data = args.ef_cardsecurity.read()
     args.ef_cardsecurity.close()
+if (args.ef_cardaccess):
+    ef_cardaccess_data = args.ef_cardaccess.read()
+    args.ef_cardaccess.close()
 if (args.ca_key):
     ca_key_data = args.ca_key.read()
     args.ca_key.close()
 if (args.ca_pubkey):
     ca_pubkey_data = args.ca_pubkey.read()
     args.ca_pubkey.close()
+
 vicc = VirtualICC(args.file, args.type,
         args.hostname, args.port, readernum=args.reader,
-        ef_cardsecurity=ef_cardsecurity_data, ca_pubkey=ca_pubkey_data,
+        ef_cardaccess=ef_cardaccess_data, ef_cardsecurity=ef_cardsecurity_data, ca_pubkey=ca_pubkey_data,
         ca_key=ca_key_data, ca=args.ca)
 vicc.run()
