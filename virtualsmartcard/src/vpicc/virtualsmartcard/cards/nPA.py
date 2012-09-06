@@ -294,9 +294,8 @@ class nPA_SE(Security_Environment):
         self.eac_step += 1
         self.at.algorithm = "TA"
 
-        self.ssc = 0
+        self.new_encryption_ctx = pace.EAC_ID_PACE
 
-        pace.EAC_CTX_set_encryption_ctx(self.eac_ctx, pace.EAC_ID_PACE)
         result = [[0x86, len(my_token), my_token]]
         if self.at.chat:
             if not pace.EAC_CTX_init_ta(self.eac_ctx, None, None, self.ca):
@@ -325,6 +324,7 @@ class nPA_SE(Security_Environment):
         print "Generated Nonce and Authentication Token for CA"
 
         # TODO activate SM
+        self.new_encryption_ctx = pace.EAC_ID_CA
 
         return 0x9000, nPA_SE.__pack_general_authenticate([[0x81,
             len(nonce), nonce], [0x82, len(token), token]])
@@ -516,6 +516,19 @@ class nPA_SAM(SAM):
         return SW["NORMAL"], self.last_challenge
 
     def parse_SM_CAPDU(self, CAPDU, header_authentication):
+        if hasattr(self.current_SE, "new_encryption_ctx"):
+            if self.current_SE.new_encryption_ctx == pace.EAC_ID_PACE:
+                protocol = "PACE"
+            else:
+                protocol = "CA"
+            print "switching to new encryption context established in %s:" % protocol
+            pace.EAC_CTX_print_private(self.current_SE.eac_ctx, 4)
+
+            self.current_SE.ssc = 0
+            pace.EAC_CTX_set_encryption_ctx(self.current_SE.eac_ctx, self.current_SE.new_encryption_ctx)
+
+            delattr(self.current_SE, "new_encryption_ctx")
+
         self.current_SE.ssc += 1
         return SAM.parse_SM_CAPDU(self, CAPDU, header_authentication)
 
