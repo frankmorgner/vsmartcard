@@ -313,25 +313,25 @@ class Iso7816OS(SmartcardOS):
             logical_channel = class_byte & 0x0f
             logical_channel += 4
             #Bit 6 indicates secure messaging
-            secure_messaging = class_byte >> 5
-            secure_messaging &= 0x01
+            secure_messaging = class_byte >> 6
             if (secure_messaging == 0x00):
-                SM_STATUS = "No SM"            
+                SM_STATUS = "No SM" 
             elif (secure_messaging == 0x01):
                 SM_STATUS = "Standard SM"
+            else:
+                # Bit 8 is set to 1, which is not specified by ISO 7816-4
+                SM_STATUS = "Proprietary SM"
         #In both cases Bit 5 specifies command chaining
         command_chaining = class_byte >> 5
         command_chaining &= 0x01
         #}}}
         
         try:             
-            if SM_STATUS == "Standard SM":
+            if SM_STATUS == "Standard SM" or SM_STATUS == "Proprietary SM":
                 c = self.SAM.parse_SM_CAPDU(c, header_authentication)
                 logging.info("Decrypted APDU:\n%s", str(c))
-            elif SM_STATUS == "Proprietary SM":
-                raise SwError(SW["ERR_SECMESSNOTSUPPORTED"])
             sw, result = self.ins2handler.get(c.ins, notImplemented)(c.p1, c.p2, c.data)
-            if SM_STATUS == "Standard SM":
+            if SM_STATUS == "Standard SM" or SM_STATUS == "Proprietary SM":
                 answer = self.formatResult(Iso7816OS.seekable(c.ins), c.effective_Le, result, sw, True)
             else:
                 answer = self.formatResult(Iso7816OS.seekable(c.ins), c.effective_Le, result, sw, False)
