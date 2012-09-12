@@ -19,10 +19,10 @@
 from virtualsmartcard.SmartcardSAM import SAM
 from virtualsmartcard.SEutils import ControlReferenceTemplate, Security_Environment
 from virtualsmartcard.SWutils import SwError, SW
-from virtualsmartcard.ConstantDefinitions import CRT_TEMPLATE, SM_Class
+from virtualsmartcard.ConstantDefinitions import CRT_TEMPLATE, SM_Class, ALGO_MAPPING
 from virtualsmartcard.TLVutils import unpack, bertlv_pack
 from virtualsmartcard.SmartcardFilesystem import make_property
-from virtualsmartcard.utils import inttostring, hexdump
+from virtualsmartcard.utils import inttostring
 import virtualsmartcard.CryptoUtils as vsCrypto
 from chat import CHAT
 import pace
@@ -321,6 +321,8 @@ class nPA_SE(Security_Environment):
 
         nonce, token = pace.CA_STEP5_derive_keys(self.eac_ctx, pubkey)
 
+        self.eac_step += 1
+
         print "Generated Nonce and Authentication Token for CA"
 
         # TODO activate SM
@@ -515,6 +517,19 @@ class nPA_SAM(SAM):
 
         return SW["NORMAL"], self.last_challenge
 
+    def verify(self, p1, p2, data):
+        if (p1 != 0x80 or p2 != 0x00):
+            raise SwError(SW["ERR_INCORRECTP1P2"])
+
+        if self.current_SE.eac_step == 6:
+            structure = unpack(data)
+            for tag, length, value in structure:
+                if tag == 6 and ALGO_MAPPING[value] == "DateOfExpiry":
+                    # hell yes, this is a valid nPA
+                    return SW["NORMAL"], ""
+
+        raise SwError(SW["WARN_NOINFO63"])
+
     def parse_SM_CAPDU(self, CAPDU, header_authentication):
         if hasattr(self.current_SE, "new_encryption_ctx"):
             if self.current_SE.new_encryption_ctx == pace.EAC_ID_PACE:
@@ -530,7 +545,7 @@ class nPA_SAM(SAM):
             delattr(self.current_SE, "new_encryption_ctx")
 
         self.current_SE.ssc += 1
-        return SAM.parse_SM_CAPDU(self, CAPDU, header_authentication)
+        return SAM.parse_SM_CAPDU(self, CAPDU, 1)
 
     def protect_result(self, sw, unprotected_result):
         self.current_SE.ssc += 1
