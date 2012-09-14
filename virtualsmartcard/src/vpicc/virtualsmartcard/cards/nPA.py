@@ -141,6 +141,9 @@ class nPA_SE(Security_Environment):
             return self.__eac_pace_step4(data)
         elif self.eac_step == 5 and self.at.algorithm == "CA":
             return self.__eac_ca(data)
+        elif self.eac_step == 6:
+            # TODO implement RI
+            return SW["NORMAL"], ""
 
         raise SwError(SW["ERR_INCORRECTPARAMETERS"])
 
@@ -526,6 +529,15 @@ class nPA_SAM(SAM):
             for tag, length, value in structure:
                 if tag == 6 and ALGO_MAPPING[value] == "DateOfExpiry":
                     # hell yes, this is a valid nPA
+                    # TODO actually check it...
+                    return SW["NORMAL"], ""
+                if tag == 6 and ALGO_MAPPING[value] == "DateOfBirth":
+                    # hell yes, we are old enough
+                    # TODO actually check it...
+                    return SW["NORMAL"], ""
+                if tag == 6 and ALGO_MAPPING[value] == "CommunityID":
+                    # well OK, we are living there
+                    # TODO actually check it...
                     return SW["NORMAL"], ""
 
         raise SwError(SW["WARN_NOINFO63"])

@@ -143,7 +143,9 @@ class CardGenerator(object):
         from virtualsmartcard.cards.nPA import nPA_SAM
         ALGO_MAPPING["\x04\x00\x7f\x00\x07\x02\x02\x04\x02\x02"] = "PACE"
         ALGO_MAPPING["\x04\x00\x7f\x00\x07\x02\x02\x03\x02\x02"] = "CA"
+        ALGO_MAPPING["\x04\x00\x7f\x00\x07\x03\x01\x04\x03"] = "CommunityID"
         ALGO_MAPPING["\x04\x00\x7f\x00\x07\x03\x01\x04\x02"] = "DateOfExpiry"
+        ALGO_MAPPING["\x04\x00\x7f\x00\x07\x03\x01\x04\x01"] = "DateOfBirth"
 
         self.mf = MF()
 
