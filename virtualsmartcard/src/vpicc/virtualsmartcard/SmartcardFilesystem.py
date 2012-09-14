@@ -699,7 +699,7 @@ class MF(DF):
     def dataUnitsDecodePlain(self, p1, p2, data):
         """
         Decodes 'p1', 'p2' and 'data' from a data unit command (i. e.
-        read/write/update/search/erase binary) with *odd* instruction code.
+        read/write/update/search/erase binary) with *even* instruction code.
         
         :returns: the specified TransparentStructureEF, a list of offsets and a
             list of data strings.
@@ -725,7 +725,7 @@ class MF(DF):
     def dataUnitsDecodeEncapsulated(self, p1, p2, data):
         """
         Decodes 'p1', 'p2' and 'data' from a data unit command (i. e.
-        read/write/update/search/erase binary) with *even* instruction code.
+        read/write/update/search/erase binary) with *odd* instruction code.
         
         :returns the specified TransparentStructureEF, a list of offsets and a
             list of data strings.
@@ -1376,10 +1376,13 @@ class TransparentStructureEF(EF):
         """Returns the string of decrypted data beginning at 'offset'."""
         data = self.data
 
-        if offset + 1 > len(data):
-            raise SwError(SW["ERR_OFFSETOUTOFFILE"])
+        if offset == 0:
+            return data
+        else:
+            if offset + 1 > len(data):
+                raise SwError(SW["ERR_OFFSETOUTOFFILE"])
 
-        return data[offset:]
+            return data[offset:]
 
     def writebinary(self, offsets, datalist, datacoding=None):
         """
@@ -1587,13 +1590,14 @@ class RecordStructureEF(EF):
         records  = self.__getRecords(num_id, reference)
         result   = []
         for r in records:
-            result.append(r.data[offset:])
             if offset == 0:
-                pass
-            elif offset > 0 and offset > len(r.data):
-                offset -= len(r.data)
+                result.append(r.data)
             else:
-                offset = 0
+                result.append(r.data[offset:])
+                if offset > 0 and offset > len(r.data):
+                    offset -= len(r.data)
+                else:
+                    offset = 0
 
         return result
 
