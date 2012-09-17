@@ -157,6 +157,7 @@ IMPLEMENT_ASN1_FUNCTIONS(NPA_GEN_AUTH_R)
 
 #define maxresp SC_MAX_APDU_BUFFER_SIZE - 2
 
+#define NPA_FLAG_DISABLE_CHECKS 1
 /** NPA secure messaging context */
 struct npa_sm_ctx {
     /** Send sequence counter */
@@ -171,6 +172,7 @@ struct npa_sm_ctx {
     BUF_MEM *eph_pub_key;
     /** Auxiliary Data */
     BUF_MEM *auxiliary_data;
+    char flags;
 };
 
 
@@ -229,6 +231,8 @@ npa_sm_ctx_create(EAC_CTX *ctx, const unsigned char *certificate_description,
 
     out->eph_pub_key = NULL;
     out->auxiliary_data = NULL;
+
+    out->flags = NPA_FLAG_DISABLE_CHECKS;
 
     return out;
 
@@ -1601,183 +1605,185 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
     }
     struct npa_sm_ctx *eacsmctx = ctx->priv_data;
 
-    if (apdu->ins == 0x2a && apdu->p1 == 0x00 && apdu->p2 == 0xbe) {
-        /* PSO:Verify Certificate
-         * check certificate description to match given certificate */
+    if (eacsmctx->flags & NPA_FLAG_DISABLE_CHECKS) {
+        if (apdu->ins == 0x2a && apdu->p1 == 0x00 && apdu->p2 == 0xbe) {
+            /* PSO:Verify Certificate
+             * check certificate description to match given certificate */
 
-        len = add_tag(&cert, 1, 0x21, V_ASN1_APPLICATION, apdu->data, apdu->datalen);
-        p = cert;
-        if (len < 0 || !CVC_d2i_CVC_CERT(&cvc_cert, &p, len)
-                || !cvc_cert || !cvc_cert->body) {
-            r = SC_ERROR_INVALID_DATA;
-            goto err;
-        }
+            len = add_tag(&cert, 1, 0x21, V_ASN1_APPLICATION, apdu->data, apdu->datalen);
+            p = cert;
+            if (len < 0 || !CVC_d2i_CVC_CERT(&cvc_cert, &p, len)
+                    || !cvc_cert || !cvc_cert->body) {
+                r = SC_ERROR_INVALID_DATA;
+                goto err;
+            }
 
-        switch (CVC_get_role(cvc_cert->body->chat)) {
-            case CVC_CVCA:
-                sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Processing CVCA certificate");
-                break;
+            switch (CVC_get_role(cvc_cert->body->chat)) {
+                case CVC_CVCA:
+                    sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Processing CVCA certificate");
+                    break;
 
-            case CVC_DV:
-            case CVC_DocVer:
-                sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Processing DV certificate");
-                break;
+                case CVC_DV:
+                case CVC_DocVer:
+                    sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Processing DV certificate");
+                    break;
 
-            case CVC_Terminal:
-                sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Processing Terminal certificate");
+                case CVC_Terminal:
+                    sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Processing Terminal certificate");
 
-                if (!eacsmctx->certificate_description) {
-                    sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
-                            "Certificate Description missing");
-                    r = SC_ERROR_INVALID_DATA;
-                    goto err;
-                }
-
-                switch (CVC_check_description(cvc_cert,
-                            (unsigned char *) eacsmctx->certificate_description->data,
-                            eacsmctx->certificate_description->length)) {
-                    case 1:
+                    if (!eacsmctx->certificate_description) {
                         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
-                                "Certificate Description matches Certificate");
-                        break;
-                    case 0:
-                        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
-                                "Certificate Description doesn't match Certificate");
+                                "Certificate Description missing");
                         r = SC_ERROR_INVALID_DATA;
                         goto err;
-                        break;
-                    default:
-                        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
-                                "Error verifying Certificate Description");
-                        ssl_error(card->ctx);
-                        r = SC_ERROR_INTERNAL;
-                        goto err;
-                        break;
-                }
-                break;
+                    }
 
-            default:
-                sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Unknown type of certificate");
-                r = SC_ERROR_INVALID_DATA;
-                goto err;
-                break;
-        }
+                    switch (CVC_check_description(cvc_cert,
+                                (unsigned char *) eacsmctx->certificate_description->data,
+                                eacsmctx->certificate_description->length)) {
+                        case 1:
+                            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
+                                    "Certificate Description matches Certificate");
+                            break;
+                        case 0:
+                            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
+                                    "Certificate Description doesn't match Certificate");
+                            r = SC_ERROR_INVALID_DATA;
+                            goto err;
+                            break;
+                        default:
+                            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
+                                    "Error verifying Certificate Description");
+                            ssl_error(card->ctx);
+                            r = SC_ERROR_INTERNAL;
+                            goto err;
+                            break;
+                    }
+                    break;
 
-        if (!TA_STEP2_import_certificate(eacsmctx->ctx, cert, len)) {
-            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
-                    "Error importing certificate");
-            ssl_error(card->ctx);
-            r = SC_ERROR_INTERNAL;
-            goto err;
-        }
-
-    } else if (apdu->ins == 0x22 && apdu->p2 == 0xa4) {
-        /* MSE:Set AT */
-
-        len = add_tag(&sequence, 1, V_ASN1_SEQUENCE, V_ASN1_UNIVERSAL, apdu->data, apdu->datalen);
-        p = sequence;
-        if (len < 0 || !d2i_NPA_MSE_SET_AT_C(&msesetat, &p, len)) {
-            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not parse MSE:Set AT.");
-            ssl_error(card->ctx);
-            r = SC_ERROR_INTERNAL;
-            goto err;
-        }
-
-        if (apdu->p1 == 0x81) {
-             /* CA: fetch auxiliary data and terminal's compressed ephemeral
-              * public key */
-
-            if (msesetat->auxiliary_data) {
-                sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Saving terminal's auxiliary data");
-                if (eacsmctx->auxiliary_data)
-                    BUF_MEM_free(eacsmctx->auxiliary_data);
-                eacsmctx->auxiliary_data = BUF_MEM_new();
-                if (!eacsmctx->auxiliary_data) {
-                    r = SC_ERROR_OUT_OF_MEMORY;
+                default:
+                    sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Unknown type of certificate");
+                    r = SC_ERROR_INVALID_DATA;
                     goto err;
-                }
-                /* Note that we can not define CVC_DISCRETIONARY_DATA_TEMPLATES as
-                 * item template with the correct tag.  Due to limitations of
-                 * OpenSSL it is not possible to *encode* an optional item template
-                 * (such as APDU_DISCRETIONARY_DATA_TEMPLATES) in an other item
-                 * template (such as NPA_MSE_SET_AT_C). So what we have to do here
-                 * is manually adding the correct tag to the saved
-                 * CVC_DISCRETIONARY_DATA_TEMPLATES.
-                 * See also openssl/crypto/asn1/tasn_dec.c:183
-                 */
-                len = i2d_CVC_DISCRETIONARY_DATA_TEMPLATES(msesetat->auxiliary_data, &templates);
-                p = templates;
-                if (len < 0 ||
-                        (0x80 & ASN1_get_object(&p, &llen, &tag, &class, len))) {
-                    sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Error encoding auxiliary data.");
-                    ssl_error(card->ctx);
-                    r = SC_ERROR_INTERNAL;
-                    goto err;
-                }
-                eacsmctx->auxiliary_data->length = add_tag(
-                        (unsigned char **) &eacsmctx->auxiliary_data->data, 1,
-                        7, V_ASN1_APPLICATION, p, llen);
-                if ((int) eacsmctx->auxiliary_data->length < 0) {
-                    r = SC_ERROR_OUT_OF_MEMORY;
-                    goto err;
-                }
-                eacsmctx->auxiliary_data->max = eacsmctx->auxiliary_data->length;
+                    break;
             }
-            if (msesetat->eph_pub_key) {
-                sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Saving terminal's compressed ephemeral public key");
-                if (eacsmctx->eph_pub_key)
-                    BUF_MEM_free(eacsmctx->eph_pub_key);
-                eacsmctx->eph_pub_key =
-                    BUF_MEM_create_init(msesetat->eph_pub_key->data,
-                            msesetat->eph_pub_key->length);
-                if (!eacsmctx->eph_pub_key) {
-                    r = SC_ERROR_OUT_OF_MEMORY;
-                    goto err;
-                }
-            }
-        } else if (apdu->p1 == 0x41) {
-             /* TA: Set CAR */
 
-            if (msesetat->key_reference1 && msesetat->key_reference1->data &&
-                    msesetat->key_reference1->length) {
-                if (!EAC_CTX_init_ta(eacsmctx->ctx, NULL, 0, NULL, 0,
-                            msesetat->key_reference1->data,
-                            msesetat->key_reference1->length)) {
-                    sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not initialize TA.\n");
-                    ssl_error(card->ctx);
-                    r = SC_ERROR_INTERNAL;
-                    goto err;
-                }
-            }
-        }
-    } else if (apdu->ins == 0x82 && apdu->p1 == 0x00 && apdu->p2 == 0x00) {
-        /* External Authenticate
-         * check terminal's signature */
-
-        signature = BUF_MEM_create_init(apdu->data, apdu->datalen);
-        if (!signature) {
-            r = SC_ERROR_OUT_OF_MEMORY;
-            goto err;
-        }
-        switch (TA_STEP6_verify(eacsmctx->ctx, eacsmctx->eph_pub_key,
-                    eacsmctx->id_icc, eacsmctx->auxiliary_data, signature)) {
-            case 1:
+            if (!TA_STEP2_import_certificate(eacsmctx->ctx, cert, len)) {
                 sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
-                        "Verified Terminal's signature");
-                break;
-            case 0:
-                sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
-                        "Terminal's signature not verified");
-                r = SC_ERROR_INVALID_DATA;
-                goto err;
-                break;
-            default:
-                sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
-                        "Error verifying terminal's signature");
+                        "Error importing certificate");
                 ssl_error(card->ctx);
                 r = SC_ERROR_INTERNAL;
                 goto err;
-                break;
+            }
+
+        } else if (apdu->ins == 0x22 && apdu->p2 == 0xa4) {
+            /* MSE:Set AT */
+
+            len = add_tag(&sequence, 1, V_ASN1_SEQUENCE, V_ASN1_UNIVERSAL, apdu->data, apdu->datalen);
+            p = sequence;
+            if (len < 0 || !d2i_NPA_MSE_SET_AT_C(&msesetat, &p, len)) {
+                sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not parse MSE:Set AT.");
+                ssl_error(card->ctx);
+                r = SC_ERROR_INTERNAL;
+                goto err;
+            }
+
+            if (apdu->p1 == 0x81) {
+                /* CA: fetch auxiliary data and terminal's compressed ephemeral
+                 * public key */
+
+                if (msesetat->auxiliary_data) {
+                    sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Saving terminal's auxiliary data");
+                    if (eacsmctx->auxiliary_data)
+                        BUF_MEM_free(eacsmctx->auxiliary_data);
+                    eacsmctx->auxiliary_data = BUF_MEM_new();
+                    if (!eacsmctx->auxiliary_data) {
+                        r = SC_ERROR_OUT_OF_MEMORY;
+                        goto err;
+                    }
+                    /* Note that we can not define CVC_DISCRETIONARY_DATA_TEMPLATES as
+                     * item template with the correct tag.  Due to limitations of
+                     * OpenSSL it is not possible to *encode* an optional item template
+                     * (such as APDU_DISCRETIONARY_DATA_TEMPLATES) in an other item
+                     * template (such as NPA_MSE_SET_AT_C). So what we have to do here
+                     * is manually adding the correct tag to the saved
+                     * CVC_DISCRETIONARY_DATA_TEMPLATES.
+                     * See also openssl/crypto/asn1/tasn_dec.c:183
+                     */
+                    len = i2d_CVC_DISCRETIONARY_DATA_TEMPLATES(msesetat->auxiliary_data, &templates);
+                    p = templates;
+                    if (len < 0 ||
+                            (0x80 & ASN1_get_object(&p, &llen, &tag, &class, len))) {
+                        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Error encoding auxiliary data.");
+                        ssl_error(card->ctx);
+                        r = SC_ERROR_INTERNAL;
+                        goto err;
+                    }
+                    eacsmctx->auxiliary_data->length = add_tag(
+                            (unsigned char **) &eacsmctx->auxiliary_data->data, 1,
+                            7, V_ASN1_APPLICATION, p, llen);
+                    if ((int) eacsmctx->auxiliary_data->length < 0) {
+                        r = SC_ERROR_OUT_OF_MEMORY;
+                        goto err;
+                    }
+                    eacsmctx->auxiliary_data->max = eacsmctx->auxiliary_data->length;
+                }
+                if (msesetat->eph_pub_key) {
+                    sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Saving terminal's compressed ephemeral public key");
+                    if (eacsmctx->eph_pub_key)
+                        BUF_MEM_free(eacsmctx->eph_pub_key);
+                    eacsmctx->eph_pub_key =
+                        BUF_MEM_create_init(msesetat->eph_pub_key->data,
+                                msesetat->eph_pub_key->length);
+                    if (!eacsmctx->eph_pub_key) {
+                        r = SC_ERROR_OUT_OF_MEMORY;
+                        goto err;
+                    }
+                }
+            } else if (apdu->p1 == 0x41) {
+                /* TA: Set CAR */
+
+                if (msesetat->key_reference1 && msesetat->key_reference1->data &&
+                        msesetat->key_reference1->length) {
+                    if (!EAC_CTX_init_ta(eacsmctx->ctx, NULL, 0, NULL, 0,
+                                msesetat->key_reference1->data,
+                                msesetat->key_reference1->length)) {
+                        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not initialize TA.\n");
+                        ssl_error(card->ctx);
+                        r = SC_ERROR_INTERNAL;
+                        goto err;
+                    }
+                }
+            }
+        } else if (apdu->ins == 0x82 && apdu->p1 == 0x00 && apdu->p2 == 0x00) {
+            /* External Authenticate
+             * check terminal's signature */
+
+            signature = BUF_MEM_create_init(apdu->data, apdu->datalen);
+            if (!signature) {
+                r = SC_ERROR_OUT_OF_MEMORY;
+                goto err;
+            }
+            switch (TA_STEP6_verify(eacsmctx->ctx, eacsmctx->eph_pub_key,
+                        eacsmctx->id_icc, eacsmctx->auxiliary_data, signature)) {
+                case 1:
+                    sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
+                            "Verified Terminal's signature");
+                    break;
+                case 0:
+                    sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
+                            "Terminal's signature not verified");
+                    r = SC_ERROR_INVALID_DATA;
+                    goto err;
+                    break;
+                default:
+                    sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
+                            "Error verifying terminal's signature");
+                    ssl_error(card->ctx);
+                    r = SC_ERROR_INTERNAL;
+                    goto err;
+                    break;
+            }
         }
     }
 
@@ -1817,22 +1823,24 @@ npa_sm_finish(sc_card_t *card, const struct sm_ctx *ctx,
                 SC_ERROR_INVALID_ARGUMENTS);
     struct npa_sm_ctx *eacsmctx = ctx->priv_data;
 
-    if (apdu->sw1 == 0x90 && apdu->sw2 == 0x00) {
-        if (apdu->ins == 0x84 && apdu->p1 == 0x00 && apdu->p2 == 0x00
-                && apdu->le == 8 && apdu->resplen == 8) {
-            /* Get Challenge
-             * copy challenge to EAC context */
+    if (eacsmctx->flags & NPA_FLAG_DISABLE_CHECKS) {
+        if (apdu->sw1 == 0x90 && apdu->sw2 == 0x00) {
+            if (apdu->ins == 0x84 && apdu->p1 == 0x00 && apdu->p2 == 0x00
+                    && apdu->le == 8 && apdu->resplen == 8) {
+                /* Get Challenge
+                 * copy challenge to EAC context */
 
-            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Saving MRTD's nonce to later verify Terminal's signature");
+                sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Saving MRTD's nonce to later verify Terminal's signature");
 
-            BUF_MEM *nonce = BUF_MEM_create_init(apdu->resp, apdu->resplen);
-            int r = TA_STEP4_set_nonce(eacsmctx->ctx, nonce);
-            if (nonce)
-                BUF_MEM_free(nonce);
+                BUF_MEM *nonce = BUF_MEM_create_init(apdu->resp, apdu->resplen);
+                int r = TA_STEP4_set_nonce(eacsmctx->ctx, nonce);
+                if (nonce)
+                    BUF_MEM_free(nonce);
 
-            if (!r) {
-                ssl_error(card->ctx);
-                SC_FUNC_RETURN(card->ctx,  SC_LOG_DEBUG_NORMAL, SC_ERROR_INTERNAL);
+                if (!r) {
+                    ssl_error(card->ctx);
+                    SC_FUNC_RETURN(card->ctx,  SC_LOG_DEBUG_NORMAL, SC_ERROR_INTERNAL);
+                }
             }
         }
     }
