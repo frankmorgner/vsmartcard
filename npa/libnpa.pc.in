@@ -6,6 +6,6 @@ includedir=@includedir@
 Name: lib@PACKAGE_NAME@
 Description: Library for the new German ID card (neuer Personalausweis, nPA)
 Version: @VERSION@
-Requires: libcrypto
+Requires: libeac
 Libs: -L${libdir} -lnpa @OPENSC_LIBS@
 Cflags: -I${includedir}

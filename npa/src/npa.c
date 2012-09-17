@@ -17,22 +17,22 @@
  * ccid.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "npa.h"
-#include "sm.h"
 #include "scutil.h"
+#include "sm.h"
 #include "sslutil.h"
+#include <eac/cv_cert.h>
+#include <eac/eac.h>
+#include <eac/pace.h>
+#include <eac/ta.h>
 #include <libopensc/asn1.h>
 #include <libopensc/log.h>
 #include <libopensc/opensc.h>
 #include <openssl/asn1t.h>
 #include <openssl/bio.h>
 #include <openssl/buffer.h>
-#include <openssl/cv_cert.h>
-#include <openssl/eac.h>
-#include <openssl/ta.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>
 #include <openssl/objects.h>
-#include <openssl/pace.h>
 #include <string.h>
 
 
@@ -172,6 +172,11 @@ struct npa_sm_ctx {
     /** Auxiliary Data */
     BUF_MEM *auxiliary_data;
 };
+
+
+/* included in OpenPACE, but not propagated */
+extern BUF_MEM *BUF_MEM_create_init(const void *buf, size_t len);
+
 
 static int npa_sm_encrypt(sc_card_t *card, const struct sm_ctx *ctx,
         const u8 *data, size_t datalen, u8 **enc);

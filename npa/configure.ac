@@ -34,11 +34,22 @@ AC_PATH_PROG(GENGETOPT, doxygen, false // No gengetopt //)
 # If you need to see the details, just run make V=1.
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
+
 # Checks for libraries.
 PKG_CHECK_EXISTS([libopensc],
                  [PKG_CHECK_MODULES([OPENSC], [libopensc >= 0.12.1 ])],
                  [AC_MSG_WARN([libopensc >= 0.12.1 not found by pkg-config])])
 test -z "$OPENSC_LIBS" && OPENSC_LIBS="-lopensc"
+
+saved_LIBS="$LIBS"
+LIBS="$LDFLAGS $OPENSC_LIBS"
+
+AC_MSG_CHECKING([for sc_perform_pace])
+AC_TRY_LINK_FUNC(sc_perform_pace, [ AC_MSG_RESULT([yes]) ],
+        [ AC_MSG_ERROR([libopensc with PACE (git clone git://github.com/frankmorgner/OpenSC.git) not found, use ./configure OPENSC_LIBS=...]) ])
+
+LIBS="$saved_LIBS"
+
 
 PKG_CHECK_EXISTS([libcrypto],
                  [PKG_CHECK_MODULES([OPENSSL], [libcrypto])],
@@ -47,23 +58,32 @@ PKG_CHECK_EXISTS([libcrypto],
 saved_CPPFLAGS="$CPPFLAGS"
 saved_LIBS="$LIBS"
 CPPFLAGS="$CPPFLAGS $OPENSSL_CFLAGS"
-LIBS="$LDFLAGS $OPENSC_LIBS $OPENSSL_LIBS"
-AC_MSG_CHECKING([for sc_perform_pace])
-AC_TRY_LINK_FUNC(sc_perform_pace, [ AC_MSG_RESULT([yes]) ],
-        [ AC_MSG_ERROR([libopensc with PACE (git clone git://github.com/frankmorgner/OpenSC.git) not found, use ./configure OPENSC_LIBS=...]) ])
+LIBS="$LDFLAGS $OPENSSL_LIBS"
 
 AC_CHECK_HEADERS(openssl/evp.h, [], [ AC_MSG_ERROR([openssl/evp.h not found, install OpenSSL or use ./configure OPENSSL_CFLAGS=...]) ])
 AC_MSG_CHECKING([for EVP_read_pw_string_min])
 AC_TRY_LINK_FUNC(EVP_read_pw_string_min, [ AC_MSG_RESULT([yes]) ], [ AC_MSG_ERROR([OpenSSL not found, use ./configure OPENSSL_LIBS=...]) ])
 
-AC_CHECK_HEADERS(openssl/eac.h, [], [ AC_MSG_ERROR([openssl/eac.h not found, install OpenPACE or use ./configure OPENSSL_CFLAGS=...]) ])
+CPPFLAGS="$saved_CPPFLAGS"
+LIBS="$saved_LIBS"
+
+
+PKG_CHECK_EXISTS([libeac],
+                 [PKG_CHECK_MODULES([OPENPACE], [libeac])],
+                 [AC_MSG_WARN([libeac not found by pkg-config])])
+
+saved_CPPFLAGS="$CPPFLAGS"
+saved_LIBS="$LIBS"
+CPPFLAGS="$CPPFLAGS $OPENPACE_CFLAGS"
+LIBS="$LDFLAGS $OPENPACE_LIBS"
+
+AC_CHECK_HEADERS(eac/eac.h, [], [ AC_MSG_ERROR([eac/eac.h not found, install OpenPACE or use ./configure OPENSSL_CFLAGS=...]) ])
 AC_MSG_CHECKING([for EAC_CTX_init_pace])
-AC_TRY_LINK_FUNC(EAC_CTX_init_pace, [ AC_MSG_RESULT([yes]) ], [ AC_MSG_ERROR([OpenPACE not found, use ./configure OPENSSL_LIBS=...]) ])
+AC_TRY_LINK_FUNC(EAC_CTX_init_pace, [ AC_MSG_RESULT([yes]) ], [ AC_MSG_ERROR([OpenPACE not found, use ./configure OPENPACE_LIBS=...]) ])
 
 CPPFLAGS="$saved_CPPFLAGS"
 LIBS="$saved_LIBS"
 
-AC_DEFINE(BUERGERCLIENT_WORKAROUND, 1, [Always get EF.CardAccess, when connecting to a smart card. This is a workaround for the recent Buergerclient])
 
 
 # Checks for header files.
@@ -102,6 +122,8 @@ Libraries:            ${LIBS}
 OPENSC_LIBS:          ${OPENSC_LIBS}
 OPENSSL_CFLAGS:       ${OPENSSL_CFLAGS}
 OPENSSL_LIBS:         ${OPENSSL_LIBS}
+OPENPACE_CFLAGS:      ${OPENPACE_CFLAGS}
+OPENPACE_LIBS:        ${OPENPACE_LIBS}
 
 EOF
 

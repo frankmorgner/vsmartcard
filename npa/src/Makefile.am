@@ -17,17 +17,17 @@ dist_man1_MANS		= npa-tool.1
 AM_CPPFLAGS = -I$(top_srcdir)/src/npa -I$(top_srcdir)/src/opensc/src
 
 libnpa_la_SOURCES = sm.c scutil.c npa.c sslutil.c
-libnpa_la_LIBADD = $(OPENSSL_LIBS) $(OPENSC_LIBS)
-libnpa_la_CFLAGS = $(OPENSSL_CFLAGS)
+libnpa_la_LIBADD = $(OPENSSL_LIBS) $(OPENPACE_LIBS) $(OPENSC_LIBS)
+libnpa_la_CFLAGS = $(OPENSSL_CFLAGS) $(OPENPACE_CFLAGS)
 libnpa_la_LDFLAGS = -no-undefined
 
 npa_tool_SOURCES = npa-tool.c $(BUILT_SOURCES)
-npa_tool_LDADD = $(OPENSSL_LIBS) $(OPENSC_LIBS) libnpa.la
-npa_tool_CFLAGS = $(OPENSSL_CFLAGS)
+npa_tool_LDADD = $(OPENSSL_LIBS) $(OPENPACE_LIBS) $(OPENSC_LIBS) libnpa.la
+npa_tool_CFLAGS = $(OPENSSL_CFLAGS) $(OPENPACE_CFLAGS)
 
 example_SOURCES = example.c
-example_LDADD = $(OPENSSL_LIBS) $(OPENSC_LIBS) libnpa.la
-example_CFLAGS = $(OPENSSL_CFLAGS)
+example_LDADD = $(OPENSSL_LIBS) $(OPENPACE_LIBS) $(OPENSC_LIBS) libnpa.la
+example_CFLAGS = $(OPENSSL_CFLAGS) $(OPENPACE_CFLAGS)
 
 
 npa-tool.c: $(BUILT_SOURCES)

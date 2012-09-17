@@ -26,10 +26,10 @@
 #ifndef _CCID_NPA_H
 #define _CCID_NPA_H
 
-#include <npa/sm.h>
+#include <eac/eac.h>
+#include <eac/pace.h>
 #include <libopensc/opensc.h>
-#include <openssl/eac.h>
-#include <openssl/pace.h>
+#include <npa/sm.h>
 
 #ifdef __cplusplus
 extern "C" {

@@ -18,10 +18,11 @@
  */
 #include "cmdline.h"
 #include "config.h"
+#include <eac/pace.h>
 #include <libopensc/log.h>
+#include <libopensc/opensc.h>
 #include <npa/npa.h>
 #include <npa/scutil.h>
-#include <openssl/pace.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
