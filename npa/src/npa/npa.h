@@ -153,6 +153,13 @@ int EstablishPACEChannel(struct sm_ctx *oldpacectx, sc_card_t *card,
         struct establish_pace_channel_output *pace_output,
         struct sm_ctx *sctx, enum eac_tr_version tr_version);
 
+int perform_terminal_authentication(struct sm_ctx *ctx, sc_card_t *card,
+        const unsigned char **certs, const size_t *certs_lens,
+        const unsigned char *privkey, size_t privkey_len,
+        const unsigned char *auxiliary_data, size_t auxiliary_data_len);
+
+int perform_chip_authentication(struct sm_ctx *ctx, sc_card_t *card);
+
 /** 
  * @brief Sends a reset retry counter APDU
  *
