@@ -38,41 +38,42 @@
 
 #define ASN1_APP_IMP_OPT(stname, field, type, tag) ASN1_EX_TYPE(ASN1_TFLG_IMPTAG|ASN1_TFLG_APPLICATION|ASN1_TFLG_OPTIONAL, tag, stname, field, type)
 #define ASN1_APP_IMP(stname, field, type, tag) ASN1_EX_TYPE(ASN1_TFLG_IMPTAG|ASN1_TFLG_APPLICATION, tag, stname, field, type)
+IMPLEMENT_ASN1_FUNCTIONS(CVC_DISCRETIONARY_DATA_TEMPLATES)
 
 /*
  * MSE:Set AT
  */
 
-typedef struct npa_mse_set_at_cd_st {
+typedef struct npa_mse_cd_st {
     ASN1_OBJECT *cryptographic_mechanism_reference;
     ASN1_OCTET_STRING *key_reference1;
     ASN1_OCTET_STRING *key_reference2;
     ASN1_OCTET_STRING *eph_pub_key;
     CVC_DISCRETIONARY_DATA_TEMPLATES *auxiliary_data;
     CVC_CHAT *chat;
-} NPA_MSE_SET_AT_C;
-ASN1_SEQUENCE(NPA_MSE_SET_AT_C) = {
+} NPA_MSE_C;
+ASN1_SEQUENCE(NPA_MSE_C) = {
     /* 0x80
      * Cryptographic mechanism reference */
-    ASN1_IMP_OPT(NPA_MSE_SET_AT_C, cryptographic_mechanism_reference, ASN1_OBJECT, 0),
+    ASN1_IMP_OPT(NPA_MSE_C, cryptographic_mechanism_reference, ASN1_OBJECT, 0),
     /* 0x83
      * Reference of a public key / secret key */
-    ASN1_IMP_OPT(NPA_MSE_SET_AT_C, key_reference1, ASN1_OCTET_STRING, 3),
+    ASN1_IMP_OPT(NPA_MSE_C, key_reference1, ASN1_OCTET_STRING, 3),
     /* 0x84
      * Reference of a private key / Reference for computing a session key */
-    ASN1_IMP_OPT(NPA_MSE_SET_AT_C, key_reference2, ASN1_OCTET_STRING, 4),
+    ASN1_IMP_OPT(NPA_MSE_C, key_reference2, ASN1_OCTET_STRING, 4),
     /* 0x91
      * Ephemeral Public Key */
-    ASN1_IMP_OPT(NPA_MSE_SET_AT_C, eph_pub_key, ASN1_OCTET_STRING, 0x11),
+    ASN1_IMP_OPT(NPA_MSE_C, eph_pub_key, ASN1_OCTET_STRING, 0x11),
     /* 0x67
      * Auxiliary authenticated data */
-    ASN1_APP_IMP_OPT(NPA_MSE_SET_AT_C, auxiliary_data, CVC_DISCRETIONARY_DATA_TEMPLATES, 7),
-    /*ASN1_APP_IMP_OPT(NPA_MSE_SET_AT_C, auxiliary_data, ASN1_OCTET_STRING, 7),*/
+    ASN1_APP_IMP_OPT(NPA_MSE_C, auxiliary_data, CVC_DISCRETIONARY_DATA_TEMPLATES, 7),
+    /*ASN1_APP_IMP_OPT(NPA_MSE_C, auxiliary_data, ASN1_OCTET_STRING, 7),*/
     /* Certificate Holder Authorization Template */
-    ASN1_OPT(NPA_MSE_SET_AT_C, chat, CVC_CHAT),
-} ASN1_SEQUENCE_END(NPA_MSE_SET_AT_C)
-DECLARE_ASN1_FUNCTIONS(NPA_MSE_SET_AT_C)
-IMPLEMENT_ASN1_FUNCTIONS(NPA_MSE_SET_AT_C)
+    ASN1_OPT(NPA_MSE_C, chat, CVC_CHAT),
+} ASN1_SEQUENCE_END(NPA_MSE_C)
+DECLARE_ASN1_FUNCTIONS(NPA_MSE_C)
+IMPLEMENT_ASN1_FUNCTIONS(NPA_MSE_C)
 
 
 /*
@@ -177,6 +178,7 @@ struct npa_sm_ctx {
 
 
 /* included in OpenPACE, but not propagated */
+extern BUF_MEM *BUF_MEM_create(size_t len);
 extern BUF_MEM *BUF_MEM_create_init(const void *buf, size_t len);
 
 
@@ -339,69 +341,146 @@ err:
     return r;
 }
 
-static int npa_mse_set_at(struct sm_ctx *oldnpactx, sc_card_t *card,
-        int protocol, int secret_key, const CVC_CHAT *chat, u8 *sw1, u8 *sw2)
+static int format_mse_cdata(struct sc_context *ctx, int protocol,
+        const unsigned char *key_reference1, size_t key_reference1_len,
+        const unsigned char *key_reference2, size_t key_reference2_len,
+        const unsigned char *eph_pub_key, size_t eph_pub_key_len,
+        const unsigned char *auxiliary_data, size_t auxiliary_data_len,
+        const CVC_CHAT *chat, unsigned char **cdata)
 {
-    sc_apdu_t apdu;
-    unsigned char *d = NULL;
-    NPA_MSE_SET_AT_C *data = NULL;
-    int r, tries, class, tag;
+    NPA_MSE_C *data = NULL;
+    unsigned char *data_sequence;
+    const unsigned char *data_no_sequence, *p;
     long length;
-    const unsigned char *p;
+    int r, class, tag;
 
-    memset(&apdu, 0, sizeof apdu);
-
-    if (!card || !sw1 || !sw2) {
+    if (!cdata) {
         r = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
     }
 
-    apdu.ins = 0x22;
-    apdu.p1 = 0xc1;
-    apdu.p2 = 0xa4;
-    apdu.cse = SC_APDU_CASE_3_SHORT;
-    apdu.flags = SC_APDU_FLAGS_NO_GET_RESP|SC_APDU_FLAGS_NO_RETRY_WL;
-
-
-    data = NPA_MSE_SET_AT_C_new();
+    data = NPA_MSE_C_new();
     if (!data) {
-        r = SC_ERROR_OUT_OF_MEMORY;
         goto err;
     }
 
-    data->cryptographic_mechanism_reference = OBJ_nid2obj(protocol);
-    data->key_reference1 = ASN1_INTEGER_new();
-
-    if (!data->cryptographic_mechanism_reference
-            || !data->key_reference1) {
-        r = SC_ERROR_OUT_OF_MEMORY;
-        goto err;
+    if (protocol) {
+        data->cryptographic_mechanism_reference = OBJ_nid2obj(protocol);
+        if (!data->cryptographic_mechanism_reference) {
+            sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Error setting Cryptographic mechanism reference of MSE:Set AT data");
+            r = SC_ERROR_INTERNAL;
+            goto err;
+        }
     }
 
-    if (!ASN1_INTEGER_set(data->key_reference1, secret_key)) {
-        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Error setting key reference 1 of MSE:Set AT data");
-        ssl_error(card->ctx);
-        r = SC_ERROR_INTERNAL;
-        goto err;
+    if (key_reference1 && key_reference1_len) {
+        data->key_reference1 = ASN1_OCTET_STRING_new();
+        if (!data->key_reference1
+                || !M_ASN1_OCTET_STRING_set(
+                    data->key_reference1, key_reference1, key_reference1_len)) {
+            sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Error setting key reference 1 of MSE:Set AT data");
+            r = SC_ERROR_INTERNAL;
+            goto err;
+        }
+    }
+
+    if (key_reference2 && key_reference2_len) {
+        data->key_reference2 = ASN1_OCTET_STRING_new();
+        if (!data->key_reference2
+                || !M_ASN1_OCTET_STRING_set(
+                    data->key_reference2, key_reference2, key_reference2_len)) {
+            sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Error setting key reference 2 of MSE:Set AT data");
+            r = SC_ERROR_INTERNAL;
+            goto err;
+        }
+    }
+
+    if (eph_pub_key && eph_pub_key_len) {
+        data->eph_pub_key = ASN1_OCTET_STRING_new();
+        if (!data->eph_pub_key
+                || !M_ASN1_OCTET_STRING_set(
+                    data->eph_pub_key, eph_pub_key, eph_pub_key_len)) {
+            sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Error setting ephemeral Public Key of MSE:Set AT data");
+            r = SC_ERROR_INTERNAL;
+            goto err;
+        }
+    }
+
+    if (auxiliary_data && auxiliary_data_len) {
+        if (!d2i_CVC_DISCRETIONARY_DATA_TEMPLATES(&data->auxiliary_data, &auxiliary_data, auxiliary_data_len)) {
+            sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Error setting auxiliary authenticated data of MSE:Set AT data");
+            r = SC_ERROR_INTERNAL;
+            goto err;
+        }
     }
 
     data->chat = (CVC_CHAT *) chat;
 
 
-    r = i2d_NPA_MSE_SET_AT_C(data, &d);
-    p = d;
-    if (r < 0
-            || (0x80 & ASN1_get_object(&p, &length, &tag, &class, r))) {
-        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Error encoding MSE:Set AT APDU data");
-        ssl_error(card->ctx);
+    length = i2d_NPA_MSE_C(data, &data_sequence);
+    data_no_sequence = data_sequence;
+    if (length < 0
+            || (0x80 & ASN1_get_object(&data_no_sequence, &length, &tag, &class, length))) {
+        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Error encoding MSE:Set AT APDU data");
         r = SC_ERROR_INTERNAL;
         goto err;
     }
-    apdu.data = p;
-    apdu.datalen = length;
-    apdu.lc = length;
+    if (length < 0) {
+        r = SC_ERROR_INTERNAL;
+        goto err;
+    }
+    bin_log(ctx, SC_LOG_DEBUG_NORMAL, "MSE command data", data_no_sequence, length);
 
-    bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "MSE:Set AT command data", apdu.data, apdu.datalen);
+
+    p = realloc(*cdata, length);
+    if (!p) {
+        r = SC_ERROR_OUT_OF_MEMORY;
+        goto err;
+    }
+    memcpy(*cdata, data_no_sequence, length);
+    r = length;
+
+err:
+    if (data) {
+        /* do not free the functions parameter chat */
+        data->chat = NULL;
+        NPA_MSE_C_free(data);
+    }
+    if (data_sequence)
+        free(data_sequence);
+
+    return r;
+}
+
+static int npa_mse(struct sm_ctx *oldnpactx, sc_card_t *card, unsigned char p1,
+        int protocol, const unsigned char *secret_key, size_t secret_key_len,
+        const CVC_CHAT *chat, u8 *sw1, u8 *sw2)
+{
+    sc_apdu_t apdu;
+    unsigned char *d = NULL;
+    int r, tries, class, tag;
+
+    memset(&apdu, 0, sizeof apdu);
+
+    if (!card) {
+        r = SC_ERROR_INVALID_ARGUMENTS;
+        goto err;
+    }
+
+    apdu.ins = 0x22;
+    apdu.p1 = p1;
+    apdu.p2 = 0xa4;
+    apdu.cse = SC_APDU_CASE_3_SHORT;
+    apdu.flags = SC_APDU_FLAGS_NO_GET_RESP|SC_APDU_FLAGS_NO_RETRY_WL;
+    
+    r = format_mse_cdata(card->ctx, protocol, secret_key, secret_key_len, NULL,
+            0, NULL, 0, NULL, 0, chat, &d);
+    if (r < 0)
+        goto err;
+    apdu.data = d;
+    apdu.datalen = r;
+    apdu.lc = r;
+
 
     if (oldnpactx)
         r = sm_transmit_apdu(oldnpactx, card, &apdu);
@@ -417,12 +496,30 @@ static int npa_mse_set_at(struct sm_ctx *oldnpactx, sc_card_t *card,
         goto err;
     }
 
-    *sw1 = apdu.sw1;
-    *sw2 = apdu.sw2;
+    if (sw1)
+        *sw1 = apdu.sw1;
+    if (sw2)
+        *sw2 = apdu.sw2;
 
-    if (apdu.sw1 == 0x63) {
-        if ((apdu.sw2 & 0xc0) == 0xc0) {
-            tries = apdu.sw2 & 0x0f;
+err:
+    if (d)
+        free(d);
+
+    return r;
+}
+
+static int npa_mse_set_at_pace(struct sm_ctx *oldnpactx, sc_card_t *card,
+        int protocol, enum s_type secret_key, const CVC_CHAT *chat, u8 *sw1,
+        u8 *sw2)
+{
+    int r, tries;
+    char key = secret_key;
+   
+    r = npa_mse(oldnpactx, card, 0xC1, protocol, &key, sizeof key, chat, sw1, sw2);
+
+    if (*sw1 == 0x63) {
+        if ((*sw2 & 0xc0) == 0xc0) {
+            tries = *sw2 & 0x0f;
             if (tries <= 1) {
                 /* this is only a warning... */
                 sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Remaining tries: %d (%s must be %s)\n",
@@ -432,31 +529,19 @@ static int npa_mse_set_at(struct sm_ctx *oldnpactx, sc_card_t *card,
             r = SC_SUCCESS;
         } else {
             sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Unknown status bytes: SW1=%02X, SW2=%02X\n",
-                    apdu.sw1, apdu.sw2);
+                    *sw1, *sw2);
             r = SC_ERROR_CARD_CMD_FAILED;
-            goto err;
         }
-    } else if (apdu.sw1 == 0x62 && apdu.sw2 == 0x83) {
+    } else if (*sw1 == 0x62 && *sw2 == 0x83) {
              sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Password is deactivated\n");
              r = SC_ERROR_AUTH_METHOD_BLOCKED;
-             goto err;
     } else {
-        r = sc_check_sw(card, apdu.sw1, apdu.sw2);
+        r = sc_check_sw(card, *sw1, *sw2);
     }
-
-err:
-    if (apdu.resp)
-        free(apdu.resp);
-    if (data) {
-        /* do not free the functions parameter chat */
-        data->chat = NULL;
-        NPA_MSE_SET_AT_C_free(data);
-    }
-    if (d)
-        free(d);
 
     return r;
 }
+
 
 static int npa_gen_auth_1_encrypted_nonce(struct sm_ctx *oldnpactx,
         sc_card_t *card, u8 **enc_nonce, size_t *enc_nonce_len)
@@ -1098,13 +1183,15 @@ int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
 
         eac_ctx->tr_version = tr_version;
 
-        r = npa_mse_set_at(oldnpactx, card, eac_ctx->pace_ctx->protocol, pace_input.pin_id,
-                chat, &pace_output->mse_set_at_sw1, &pace_output->mse_set_at_sw2);
+        r = npa_mse_set_at_pace(oldnpactx, card, eac_ctx->pace_ctx->protocol,
+                pace_input.pin_id, chat, &pace_output->mse_set_at_sw1,
+                &pace_output->mse_set_at_sw2);
         if (r < 0) {
             sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not select protocol proberties "
                     "(MSE: Set AT failed).");
             goto err;
         }
+
         enc_nonce = BUF_MEM_new();
         if (!enc_nonce) {
             ssl_error(card->ctx);
@@ -1313,6 +1400,248 @@ err:
         if (sctx->priv_data)
             npa_sm_clear_free(sctx->priv_data);
     }
+
+    SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_NORMAL, r);
+}
+
+static int npa_mse_set_dst_ta(struct sm_ctx *npactx, sc_card_t *card,
+        const unsigned char *car, size_t car_len)
+{
+    return npa_mse(npactx, card, 0x81, 0, car, car_len, NULL,
+            NULL, NULL);
+}
+
+static int npa_mse_set_at_ta(struct sm_ctx *npactx, sc_card_t *card,
+        const unsigned char *chr, size_t chr_len)
+{
+    return npa_mse(npactx, card, 0xa1, 0, chr, chr_len, NULL,
+            NULL, NULL);
+}
+
+static int npa_get_challenge(struct sm_ctx *npactx, sc_card_t *card,
+        unsigned char *challenge, size_t len)
+{
+    sc_apdu_t apdu;
+    int r, class, tag;
+    long int length;
+
+    memset(&apdu, 0, sizeof apdu);
+
+    if (!card) {
+        r = SC_ERROR_INVALID_ARGUMENTS;
+        goto err;
+    }
+
+    apdu.ins = 0x84;
+    apdu.cse = SC_APDU_CASE_2_SHORT;
+    apdu.flags = SC_APDU_FLAGS_NO_GET_RESP|SC_APDU_FLAGS_NO_RETRY_WL;
+    apdu.resplen = len;
+    apdu.resp = challenge;
+
+    if (npactx)
+        r = sm_transmit_apdu(npactx, card, &apdu);
+    else
+        r = sc_transmit_apdu(card, &apdu);
+    if (r < 0)
+        goto err;
+
+    r = sc_check_sw(card, apdu.sw1, apdu.sw2);
+
+err:
+    return r;
+}
+
+static int npa_verify(struct sm_ctx *npactx, sc_card_t *card,
+        const unsigned char *cert, size_t cert_len)
+{
+    sc_apdu_t apdu;
+    int r, class, tag;
+    long int length;
+
+    memset(&apdu, 0, sizeof apdu);
+
+    if (!card) {
+        r = SC_ERROR_INVALID_ARGUMENTS;
+        goto err;
+    }
+
+    apdu.ins = 0x2A;
+    apdu.p1 = 0x00;
+    apdu.p2 = 0xbe;
+    apdu.cse = SC_APDU_CASE_4_EXT;
+    apdu.flags = SC_APDU_FLAGS_NO_GET_RESP|SC_APDU_FLAGS_NO_RETRY_WL;
+
+    apdu.data = cert;
+    if (0x80 & ASN1_get_object(&apdu.data, &length, &tag,
+                &class, cert_len)) {
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Error decoding Certificate");
+        ssl_error(card->ctx);
+        r = SC_ERROR_INTERNAL;
+        goto err;
+    }
+    apdu.datalen = length;
+    apdu.lc = length;
+
+    if (npactx)
+        r = sm_transmit_apdu(npactx, card, &apdu);
+    else
+        r = sc_transmit_apdu(card, &apdu);
+    if (r < 0)
+        goto err;
+
+    r = sc_check_sw(card, apdu.sw1, apdu.sw2);
+
+err:
+    return r;
+}
+
+static int npa_external_authenticate(struct sm_ctx *npactx, sc_card_t *card,
+        const unsigned char *signature, size_t signature_len)
+{
+    int r;
+    sc_apdu_t apdu;
+    memset(&apdu, 0, sizeof apdu);
+
+    if (!card) {
+        r = SC_ERROR_INVALID_ARGUMENTS;
+        goto err;
+    }
+
+    apdu.ins = 0x82;
+    apdu.cse = SC_APDU_CASE_4_SHORT;
+    apdu.flags = SC_APDU_FLAGS_NO_GET_RESP|SC_APDU_FLAGS_NO_RETRY_WL;
+
+    apdu.data = signature;
+    apdu.datalen = signature_len;
+    apdu.lc = signature_len;
+
+    if (npactx)
+        r = sm_transmit_apdu(npactx, card, &apdu);
+    else
+        r = sc_transmit_apdu(card, &apdu);
+    if (r < 0)
+        goto err;
+
+    r = sc_check_sw(card, apdu.sw1, apdu.sw2);
+
+err:
+    return r;
+}
+
+int perform_terminal_authentication(struct sm_ctx *ctx, sc_card_t *card,
+        const unsigned char **certs, const size_t *certs_lens,
+        const unsigned char *privkey, size_t privkey_len,
+        const unsigned char *auxiliary_data, size_t auxiliary_data_len)
+{
+    int r;
+    const unsigned char *cert;
+    size_t cert_len, num_certs = 0;
+    CVC_CERT *cvc_cert = NULL;
+    BUF_MEM *my_ta_comp_eph_pubkey = NULL, *nonce = NULL, *signature = NULL;
+
+    if (!card || !ctx->priv_data || !certs_lens || !certs) {
+        r = SC_ERROR_INVALID_ARGUMENTS;
+        goto err;
+    }
+    struct npa_sm_ctx *eacsmctx = ctx->priv_data;
+
+    eacsmctx->flags = 0;
+
+
+    cert = *certs;
+    cert_len = *certs_lens;
+    while (cert && cert_len) {
+        if (!CVC_d2i_CVC_CERT(&cvc_cert, &cert, cert_len) || !cvc_cert
+                || !cvc_cert->body || !cvc_cert->body->certificate_authority_reference
+                || !cvc_cert->body->certificate_holder_reference) {
+            r = SC_ERROR_INVALID_DATA;
+            goto err;
+        }
+
+        r = npa_mse_set_dst_ta(ctx, card,
+                cvc_cert->body->certificate_authority_reference->data,
+                cvc_cert->body->certificate_authority_reference->length);
+        if (r < 0) {
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not select protocol proberties "
+                    "(MSE: Set AT failed).");
+            goto err;
+        }
+
+        r = npa_verify(ctx, card, cert, cert_len);
+        if (r < 0)
+            goto err;
+
+        cert++;
+        cert_len++;
+        CVC_CERT_free(cvc_cert);
+        cvc_cert = NULL;
+    }
+
+
+    if (!EAC_CTX_init_ta(eacsmctx->ctx, privkey, privkey_len, cert, cert_len,
+                NULL, 0)) {
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not initialize TA.");
+        ssl_error(card->ctx);
+        r = SC_ERROR_INTERNAL;
+        goto err;
+    }
+    my_ta_comp_eph_pubkey = TA_STEP3_generate_ephemeral_key(eacsmctx->ctx);
+    if (!my_ta_comp_eph_pubkey) {
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not generate CA ephemeral key.");
+        ssl_error(card->ctx);
+        r = SC_ERROR_INTERNAL;
+        goto err;
+    }
+
+
+    r = npa_mse_set_at_ta(ctx, card,
+            cvc_cert->body->certificate_holder_reference->data,
+            cvc_cert->body->certificate_holder_reference->length);
+    if (r < 0) {
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not select protocol proberties "
+                "(MSE: Set AT failed).");
+        goto err;
+    }
+
+    nonce = BUF_MEM_create(8);
+    if (!nonce) {
+        ssl_error(card->ctx);
+        r = SC_ERROR_INTERNAL;
+        goto err;
+    }
+    r = npa_get_challenge(ctx, card, nonce->data, nonce->length);
+    if (r < 0) {
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not get nonce for TA.");
+        goto err;
+    }
+    if (!TA_STEP4_set_nonce(eacsmctx->ctx, nonce)) {
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not set nonce for TA.");
+        ssl_error(card->ctx);
+        r = SC_ERROR_INTERNAL;
+        goto err;
+    }
+
+    eacsmctx->auxiliary_data = BUF_MEM_create_init(auxiliary_data,
+            auxiliary_data_len);
+    signature = TA_STEP5_sign(eacsmctx->ctx, my_ta_comp_eph_pubkey,
+            eacsmctx->id_icc, eacsmctx->auxiliary_data);
+    if (!signature) {
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not generate signature.");
+        ssl_error(card->ctx);
+        r = SC_ERROR_INTERNAL;
+        goto err;
+    }
+    r = npa_external_authenticate(ctx, card, signature->data, signature->length);
+
+err:
+    if (cvc_cert)
+        CVC_CERT_free(cvc_cert);
+    if (my_ta_comp_eph_pubkey)
+        BUF_MEM_free(my_ta_comp_eph_pubkey);
+    if (nonce)
+        BUF_MEM_free(nonce);
+    if (signature)
+        BUF_MEM_free(signature);
 
     SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_NORMAL, r);
 }
@@ -1594,7 +1923,7 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
     long int llen;
     BUF_MEM *signature = NULL;
     unsigned char *sequence = NULL, *templates = NULL;
-    NPA_MSE_SET_AT_C *msesetat = NULL;
+    NPA_MSE_C *msesetat = NULL;
     const unsigned char *p;
 
     if (!card)
@@ -1681,7 +2010,7 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
 
             len = add_tag(&sequence, 1, V_ASN1_SEQUENCE, V_ASN1_UNIVERSAL, apdu->data, apdu->datalen);
             p = sequence;
-            if (len < 0 || !d2i_NPA_MSE_SET_AT_C(&msesetat, &p, len)) {
+            if (len < 0 || !d2i_NPA_MSE_C(&msesetat, &p, len)) {
                 sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not parse MSE:Set AT.");
                 ssl_error(card->ctx);
                 r = SC_ERROR_INTERNAL;
@@ -1705,7 +2034,7 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
                      * item template with the correct tag.  Due to limitations of
                      * OpenSSL it is not possible to *encode* an optional item template
                      * (such as APDU_DISCRETIONARY_DATA_TEMPLATES) in an other item
-                     * template (such as NPA_MSE_SET_AT_C). So what we have to do here
+                     * template (such as NPA_MSE_C). So what we have to do here
                      * is manually adding the correct tag to the saved
                      * CVC_DISCRETIONARY_DATA_TEMPLATES.
                      * See also openssl/crypto/asn1/tasn_dec.c:183
