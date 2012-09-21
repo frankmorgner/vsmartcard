@@ -534,6 +534,7 @@ err:
     return r;
 }
 
+#define ISO_MSE 0x22
 static int npa_mse(struct sm_ctx *oldnpactx, sc_card_t *card, unsigned char p1,
         int protocol, const unsigned char *key_reference1,
         size_t key_reference1_len, const unsigned char *key_reference2,
@@ -544,18 +545,12 @@ static int npa_mse(struct sm_ctx *oldnpactx, sc_card_t *card, unsigned char p1,
     unsigned char *d = NULL;
     int r, tries, class, tag;
 
-    memset(&apdu, 0, sizeof apdu);
-
     if (!card) {
         r = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
     }
 
-    apdu.ins = 0x22;
-    apdu.p1 = p1;
-    apdu.p2 = 0xa4;
-    apdu.cse = SC_APDU_CASE_3_SHORT;
-    apdu.flags = SC_APDU_FLAGS_NO_GET_RESP|SC_APDU_FLAGS_NO_RETRY_WL;
+    sc_format_apdu(card, &apdu, SC_APDU_CASE_3_SHORT, ISO_MSE, p1, 0xa4);
     
     r = format_mse_cdata(card->ctx, protocol, key_reference1,
             key_reference1_len, key_reference2, key_reference2_len, NULL, 0,
@@ -627,6 +622,8 @@ static int npa_mse_set_at_pace(struct sm_ctx *oldnpactx, sc_card_t *card,
 }
 
 
+#define ISO_GENERAL_AUTHENTICATE 0x86
+#define ISO_COMMAND_CHAINING 0x10
 static int npa_gen_auth_1_encrypted_nonce(struct sm_ctx *oldnpactx,
         sc_card_t *card, u8 **enc_nonce, size_t *enc_nonce_len)
 {
@@ -637,11 +634,9 @@ static int npa_gen_auth_1_encrypted_nonce(struct sm_ctx *oldnpactx,
     int r, l;
 	unsigned char resp[maxresp];
 
-    memset(&apdu, 0, sizeof apdu);
-    apdu.cla = 0x10;
-    apdu.ins = 0x86;
-    apdu.cse = SC_APDU_CASE_4_SHORT;
-    apdu.flags = SC_APDU_FLAGS_NO_GET_RESP|SC_APDU_FLAGS_NO_RETRY_WL;
+    sc_format_apdu(card, &apdu, SC_APDU_CASE_4_SHORT, ISO_GENERAL_AUTHENTICATE,
+            0, 0);
+    apdu.cla = ISO_COMMAND_CHAINING;
 
     c_data = NPA_GEN_AUTH_PACE_C_new();
     if (!c_data) {
@@ -726,11 +721,9 @@ static int npa_gen_auth_2_map_nonce(struct sm_ctx *oldnpactx,
     int r, l;
 	unsigned char resp[maxresp];
 
-    memset(&apdu, 0, sizeof apdu);
-    apdu.cla = 0x10;
-    apdu.ins = 0x86;
-    apdu.cse = SC_APDU_CASE_4_SHORT;
-    apdu.flags = SC_APDU_FLAGS_NO_GET_RESP|SC_APDU_FLAGS_NO_RETRY_WL;
+    sc_format_apdu(card, &apdu, SC_APDU_CASE_4_SHORT, ISO_GENERAL_AUTHENTICATE,
+            0, 0);
+    apdu.cla = ISO_COMMAND_CHAINING;
 
     c_data = NPA_GEN_AUTH_PACE_C_new();
     if (!c_data) {
@@ -823,11 +816,9 @@ static int npa_gen_auth_3_perform_key_agreement(
     int r, l;
 	unsigned char resp[maxresp];
 
-    memset(&apdu, 0, sizeof apdu);
-    apdu.cla = 0x10;
-    apdu.ins = 0x86;
-    apdu.cse = SC_APDU_CASE_4_SHORT;
-    apdu.flags = SC_APDU_FLAGS_NO_GET_RESP|SC_APDU_FLAGS_NO_RETRY_WL;
+    sc_format_apdu(card, &apdu, SC_APDU_CASE_4_SHORT, ISO_GENERAL_AUTHENTICATE,
+            0, 0);
+    apdu.cla = ISO_COMMAND_CHAINING;
 
     c_data = NPA_GEN_AUTH_PACE_C_new();
     if (!c_data) {
@@ -922,10 +913,9 @@ static int npa_gen_auth_4_mutual_authentication(
     int r, l;
 	unsigned char resp[maxresp];
 
-    memset(&apdu, 0, sizeof apdu);
-    apdu.ins = 0x86;
-    apdu.cse = SC_APDU_CASE_4_SHORT;
-    apdu.flags = SC_APDU_FLAGS_NO_GET_RESP|SC_APDU_FLAGS_NO_RETRY_WL;
+    sc_format_apdu(card, &apdu, SC_APDU_CASE_4_SHORT, ISO_GENERAL_AUTHENTICATE,
+            0, 0);
+    apdu.cla = ISO_COMMAND_CHAINING;
 
     c_data = NPA_GEN_AUTH_PACE_C_new();
     if (!c_data) {
@@ -1066,7 +1056,6 @@ npa_reset_retry_counter(struct sm_ctx *ctx, sc_card_t *card,
     apdu.data = (u8 *) new;
     apdu.datalen = new_len;
     apdu.lc = apdu.datalen;
-    apdu.flags = SC_APDU_FLAGS_NO_GET_RESP|SC_APDU_FLAGS_NO_RETRY_WL;
 
     if (new_len) {
         apdu.p1 = 0x02;
@@ -1513,7 +1502,6 @@ static int npa_get_challenge(struct sm_ctx *npactx, sc_card_t *card,
 
     apdu.ins = 0x84;
     apdu.cse = SC_APDU_CASE_2_SHORT;
-    apdu.flags = SC_APDU_FLAGS_NO_GET_RESP|SC_APDU_FLAGS_NO_RETRY_WL;
     apdu.resplen = len;
     apdu.resp = challenge;
 
@@ -1548,7 +1536,6 @@ static int npa_verify(struct sm_ctx *npactx, sc_card_t *card,
     apdu.p1 = 0x00;
     apdu.p2 = 0xbe;
     apdu.cse = SC_APDU_CASE_4_EXT;
-    apdu.flags = SC_APDU_FLAGS_NO_GET_RESP|SC_APDU_FLAGS_NO_RETRY_WL;
 
     apdu.data = cert;
     if (0x80 & ASN1_get_object(&apdu.data, &length, &tag,
@@ -1588,7 +1575,6 @@ static int npa_external_authenticate(struct sm_ctx *npactx, sc_card_t *card,
 
     apdu.ins = 0x82;
     apdu.cse = SC_APDU_CASE_4_SHORT;
-    apdu.flags = SC_APDU_FLAGS_NO_GET_RESP|SC_APDU_FLAGS_NO_RETRY_WL;
 
     apdu.data = signature;
     apdu.datalen = signature_len;
@@ -1743,10 +1729,9 @@ static int npa_gen_auth_ca(struct sm_ctx *npactx, sc_card_t *card,
     int r;
 	unsigned char resp[maxresp];
 
-    memset(&apdu, 0, sizeof apdu);
-    apdu.ins = 0x86;
-    apdu.cse = SC_APDU_CASE_4_SHORT;
-    apdu.flags = SC_APDU_FLAGS_NO_GET_RESP|SC_APDU_FLAGS_NO_RETRY_WL;
+    sc_format_apdu(card, &apdu, SC_APDU_CASE_4_SHORT, ISO_GENERAL_AUTHENTICATE,
+            0, 0);
+    apdu.cla = ISO_COMMAND_CHAINING;
 
     c_data = NPA_GEN_AUTH_CA_C_new();
     if (!c_data) {
@@ -2280,7 +2265,7 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
                 goto err;
             }
 
-        } else if (apdu->ins == 0x22 && apdu->p2 == 0xa4) {
+        } else if (apdu->ins == ISO_MSE && apdu->p2 == 0xa4) {
             /* MSE:Set AT */
 
             len = add_tag(&sequence, 1, V_ASN1_SEQUENCE, V_ASN1_UNIVERSAL, apdu->data, apdu->datalen);
