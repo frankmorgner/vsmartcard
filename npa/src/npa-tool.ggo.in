@@ -39,6 +39,34 @@ option "mrz"            m
     argoptional
     optional
 
+section "Terminal Authentication"
+option "cv-certificate" C
+    "Card Verifiable Certificate to create a certificate chain. Can be used multiple times (order is important)."
+    string
+    typestr="FILENAME"
+    optional
+    multiple
+option "cert-desc"      -
+    "Certificate description to use for Terminal Authentication"
+    string
+    typestr="HEX_STRING"
+    optional
+option "chat"           -
+    "Card holder authorization template to use"
+    string
+    typestr="HEX_STRING"
+    optional
+option "auxiliary-data" A
+    "Terminal's auxiliary data."
+    string
+    typestr="HEX_STRING"
+    optional
+option "private-key"    P
+    "Terminal's private key."
+    string
+    typestr="FILENAME"
+    optional
+
 section "PIN management"
 option "new-pin"        N
     "Install a new PIN"
@@ -55,16 +83,6 @@ section "Special options, not always useful"
 option "break"          b
     "Brute force PIN, CAN or PUK"
     flag off
-option "chat"           -
-    "Card holder authorization template to use"
-    string
-    typestr="HEX_STRING"
-    optional
-option "cert-desc"      -
-    "Certificate description to use for Terminal Authentication"
-    string
-    typestr="HEX_STRING"
-    optional
 option "translate"      t
     "File with APDUs to send through the secure channel"
     string

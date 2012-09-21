@@ -1612,8 +1612,8 @@ int perform_terminal_authentication(struct sm_ctx *ctx, sc_card_t *card,
         const unsigned char *auxiliary_data, size_t auxiliary_data_len)
 {
     int r;
-    const unsigned char *cert;
-    size_t cert_len, num_certs = 0;
+    const unsigned char *cert = NULL;
+    size_t cert_len = 0;
     CVC_CERT *cvc_cert = NULL;
     BUF_MEM *my_ta_comp_eph_pubkey = NULL, *nonce = NULL, *signature = NULL;
 
@@ -1626,15 +1626,17 @@ int perform_terminal_authentication(struct sm_ctx *ctx, sc_card_t *card,
     eacsmctx->flags = 0;
 
 
-    cert = *certs;
-    cert_len = *certs_lens;
-    while (cert && cert_len) {
+    while (*certs && *certs_lens) {
+        cert = *certs;
+        cert_len = *certs_lens;
         if (!CVC_d2i_CVC_CERT(&cvc_cert, &cert, cert_len) || !cvc_cert
                 || !cvc_cert->body || !cvc_cert->body->certificate_authority_reference
                 || !cvc_cert->body->certificate_holder_reference) {
+            ssl_error(card->ctx);
             r = SC_ERROR_INVALID_DATA;
             goto err;
         }
+        cert = *certs;
 
         r = npa_mse_set_dst_ta(ctx, card,
                 cvc_cert->body->certificate_authority_reference->data,
@@ -1649,10 +1651,8 @@ int perform_terminal_authentication(struct sm_ctx *ctx, sc_card_t *card,
         if (r < 0)
             goto err;
 
-        cert++;
-        cert_len++;
-        CVC_CERT_free(cvc_cert);
-        cvc_cert = NULL;
+        certs++;
+        certs_lens++;
     }
 
 

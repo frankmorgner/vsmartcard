@@ -54,10 +54,54 @@ static const char *can = NULL;
 static const char *mrz = NULL;
 static u8 chat[0xff];
 static u8 desc[0xffff];
+size_t *certs_lens = NULL;
+static const unsigned char **certs = NULL;
+static unsigned char *privkey = NULL;
+static size_t privkey_len = 0;
+static u8 auxiliary_data[0xff];
+static size_t auxiliary_data_len = 0;
 
 static sc_context_t *ctx = NULL;
 static sc_card_t *card = NULL;
 static sc_reader_t *reader;
+
+int fread_to_eof(const unsigned char *file, unsigned char **buf, size_t *buflen)
+{
+    FILE *input;
+    int r = 0;
+    unsigned char *p;
+
+    if (!buflen || !buf)
+        goto err;
+
+#define MAX_READ_LEN 0xfff
+    p = realloc(*buf, MAX_READ_LEN);
+    if (!p)
+        goto err;
+    *buf = p;
+
+    input = fopen(file, "rb");
+    if (!input) {
+        fprintf(stderr, "Could not open %s.\n", file);
+        goto err;
+    }
+
+    *buflen = 0;
+    while (feof(input) == 0 && *buflen < MAX_READ_LEN) {
+        *buflen += fread(*buf+*buflen, 1, MAX_READ_LEN-*buflen, input);
+        if (ferror(input)) {
+            fprintf(stderr, "Could not read %s.\n", file);
+            goto err;
+        }
+    }
+
+    r = 1;
+err:
+    if (input)
+        fclose(input);
+
+    return r;
+}
 
 int npa_translate_apdus(struct sm_ctx *sctx, sc_card_t *card, FILE *input)
 {
@@ -133,7 +177,8 @@ main (int argc, char **argv)
     struct establish_pace_channel_input pace_input;
     struct establish_pace_channel_output pace_output;
     struct timeval tv;
-    size_t outlen;
+    size_t i;
+    FILE *input = NULL;
 
     struct gengetopt_args_info cmdline;
 
@@ -404,8 +449,53 @@ main (int argc, char **argv)
         printf("Established PACE channel with %s.\n",
                 npa_secret_name(pace_input.pin_id));
 
+        if (cmdline.cv_certificate_given || cmdline.private_key_given
+                || cmdline.auxiliary_data_given) {
+            if (!cmdline.cv_certificate_given || !cmdline.private_key_given) {
+                fprintf(stderr, "Need at least the terminal's certificate "
+                        "and its private key to perform terminal authentication.\n");
+                exit(1);
+            }
+
+            certs = calloc(sizeof *certs, cmdline.cv_certificate_given + 1);
+            certs_lens = calloc(sizeof *certs_lens,
+                    cmdline.cv_certificate_given + 1);
+            if (!certs || !certs_lens) {
+                r = SC_ERROR_OUT_OF_MEMORY;
+                goto err;
+            }
+            for (i = 0; i < cmdline.cv_certificate_given; i++) {
+                if (!fread_to_eof(cmdline.cv_certificate_arg[i],
+                            (unsigned char **) &certs[i], &certs_lens[i]))
+                    goto err;
+            }
+
+            if (!fread_to_eof(cmdline.private_key_arg,
+                        &privkey, &privkey_len))
+                goto err;
+
+            if (cmdline.auxiliary_data_given) {
+                auxiliary_data_len = sizeof auxiliary_data;
+                if (sc_hex_to_bin(cmdline.auxiliary_data_arg, auxiliary_data,
+                            &auxiliary_data_len) < 0) {
+                    fprintf(stderr, "Could not parse auxiliary data.\n");
+                    exit(2);
+                }
+            }
+
+            r = perform_terminal_authentication(&sctx, card, certs, certs_lens,
+                    privkey, privkey_len, auxiliary_data, auxiliary_data_len);
+            if (r < 0)
+                goto err;
+            printf("Performed Terminal Authentication.\n");
+
+            r = perform_chip_authentication(&sctx, card);
+            if (r < 0)
+                goto err;
+            printf("Performed Chip Authentication.\n");
+        }
+
         if (cmdline.translate_given) {
-            FILE *input;
             if (strncmp(cmdline.translate_arg, "stdin", strlen("stdin")) == 0)
                 input = stdin;
             else {
@@ -417,9 +507,10 @@ main (int argc, char **argv)
             }
 
             r = npa_translate_apdus(&sctx, card, input);
-            fclose(input);
             if (r < 0)
                 goto err;
+            fclose(input);
+            input = NULL;
         }
     }
 
@@ -436,6 +527,8 @@ err:
         free(pace_output.id_icc);
     if (pace_output.id_pcd)
         free(pace_output.id_pcd);
+    if (input)
+        fclose(input);
 
     sc_reset(card, 1);
     sc_disconnect_card(card);
