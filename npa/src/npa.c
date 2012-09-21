@@ -537,8 +537,8 @@ err:
 static int npa_mse(struct sm_ctx *oldnpactx, sc_card_t *card, unsigned char p1,
         int protocol, const unsigned char *key_reference1,
         size_t key_reference1_len, const unsigned char *key_reference2,
-        size_t key_reference2_len,
-        const CVC_CHAT *chat, u8 *sw1, u8 *sw2)
+        size_t key_reference2_len, const unsigned char *auxiliary_data,
+        size_t auxiliary_data_len, const CVC_CHAT *chat, u8 *sw1, u8 *sw2)
 {
     sc_apdu_t apdu;
     unsigned char *d = NULL;
@@ -559,7 +559,7 @@ static int npa_mse(struct sm_ctx *oldnpactx, sc_card_t *card, unsigned char p1,
     
     r = format_mse_cdata(card->ctx, protocol, key_reference1,
             key_reference1_len, key_reference2, key_reference2_len, NULL, 0,
-            NULL, 0, chat, &d);
+            auxiliary_data, auxiliary_data_len, chat, &d);
     if (r < 0)
         goto err;
     apdu.data = d;
@@ -599,7 +599,7 @@ static int npa_mse_set_at_pace(struct sm_ctx *oldnpactx, sc_card_t *card,
     int r, tries;
     char key = secret_key;
    
-    r = npa_mse(oldnpactx, card, 0xC1, protocol, &key, sizeof key, NULL, 0, chat, sw1, sw2);
+    r = npa_mse(oldnpactx, card, 0xC1, protocol, &key, sizeof key, NULL, 0, NULL, 0, chat, sw1, sw2);
 
     if (*sw1 == 0x63) {
         if ((*sw2 & 0xc0) == 0xc0) {
@@ -1485,15 +1485,16 @@ err:
 static int npa_mse_set_dst_ta(struct sm_ctx *npactx, sc_card_t *card,
         const unsigned char *car, size_t car_len)
 {
-    return npa_mse(npactx, card, 0x81, 0, car, car_len, NULL, 0, NULL, NULL,
-            NULL);
+    return npa_mse(npactx, card, 0x81, 0, car, car_len, NULL, 0, NULL, 0,
+            NULL, NULL, NULL);
 }
 
 static int npa_mse_set_at_ta(struct sm_ctx *npactx, sc_card_t *card,
-        const unsigned char *chr, size_t chr_len)
+        const unsigned char *chr, size_t chr_len,
+        const unsigned char *auxiliary_data, size_t auxiliary_data_len)
 {
-    return npa_mse(npactx, card, 0xa1, 0, chr, chr_len, NULL, 0, NULL, NULL,
-            NULL);
+    return npa_mse(npactx, card, 0xa1, 0, chr, chr_len, NULL, 0,
+            auxiliary_data, auxiliary_data_len, NULL, NULL, NULL);
 }
 
 static int npa_get_challenge(struct sm_ctx *npactx, sc_card_t *card,
@@ -1674,7 +1675,8 @@ int perform_terminal_authentication(struct sm_ctx *ctx, sc_card_t *card,
 
     r = npa_mse_set_at_ta(ctx, card,
             cvc_cert->body->certificate_holder_reference->data,
-            cvc_cert->body->certificate_holder_reference->length);
+            cvc_cert->body->certificate_holder_reference->length,
+            auxiliary_data, auxiliary_data_len);
     if (r < 0) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not select protocol proberties "
                 "(MSE: Set AT failed).");
@@ -1728,7 +1730,7 @@ static int npa_mse_set_at_ca(struct sm_ctx *npactx, sc_card_t *card,
         const unsigned char *key_ref, size_t key_ref_len)
 {
     return npa_mse(npactx, card, 0x41, 0, NULL, 0, key_ref, key_ref_len, NULL,
-            NULL, NULL);
+            0, NULL, NULL, NULL);
 }
 
 static int npa_gen_auth_ca(struct sm_ctx *npactx, sc_card_t *card,
