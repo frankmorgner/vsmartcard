@@ -40,7 +40,7 @@ static int client_sock = -1;
 ssize_t sendToVICC(size_t size, const unsigned char *buffer);
 ssize_t recvFromVICC(unsigned char **buffer);
 
-static int sendall(int sock, const void *buffer, size_t size);
+static ssize_t sendall(int sock, const void *buffer, size_t size);
 static ssize_t recvall(int sock, void *buffer, size_t size);
 
 static int opensock(unsigned short port);
