@@ -535,11 +535,13 @@ err:
 }
 
 #define ISO_MSE 0x22
-static int npa_mse(struct sm_ctx *oldnpactx, sc_card_t *card, unsigned char p1,
-        int protocol, const unsigned char *key_reference1,
-        size_t key_reference1_len, const unsigned char *key_reference2,
-        size_t key_reference2_len, const unsigned char *auxiliary_data,
-        size_t auxiliary_data_len, const CVC_CHAT *chat, u8 *sw1, u8 *sw2)
+static int npa_mse(struct sm_ctx *oldnpactx, sc_card_t *card,
+        unsigned char p1, unsigned char p2, int protocol,
+        const unsigned char *key_reference1, size_t key_reference1_len,
+        const unsigned char *key_reference2, size_t key_reference2_len,
+        const unsigned char *eph_pub_key, size_t eph_pub_key_len,
+        const unsigned char *auxiliary_data, size_t auxiliary_data_len,
+        const CVC_CHAT *chat, u8 *sw1, u8 *sw2)
 {
     sc_apdu_t apdu;
     unsigned char *d = NULL;
@@ -550,11 +552,12 @@ static int npa_mse(struct sm_ctx *oldnpactx, sc_card_t *card, unsigned char p1,
         goto err;
     }
 
-    sc_format_apdu(card, &apdu, SC_APDU_CASE_3_SHORT, ISO_MSE, p1, 0xa4);
+    sc_format_apdu(card, &apdu, SC_APDU_CASE_3_SHORT, ISO_MSE, p1, p2);
     
     r = format_mse_cdata(card->ctx, protocol, key_reference1,
-            key_reference1_len, key_reference2, key_reference2_len, NULL, 0,
-            auxiliary_data, auxiliary_data_len, chat, &d);
+            key_reference1_len, key_reference2, key_reference2_len,
+            eph_pub_key, eph_pub_key_len, auxiliary_data, auxiliary_data_len,
+            chat, &d);
     if (r < 0)
         goto err;
     apdu.data = d;
@@ -587,6 +590,20 @@ err:
     return r;
 }
 
+static int npa_mse_set_at(struct sm_ctx *oldnpactx, sc_card_t *card,
+        unsigned char p1, int protocol,
+        const unsigned char *key_reference1, size_t key_reference1_len,
+        const unsigned char *key_reference2, size_t key_reference2_len,
+        const unsigned char *eph_pub_key, size_t eph_pub_key_len,
+        const unsigned char *auxiliary_data, size_t auxiliary_data_len,
+        const CVC_CHAT *chat, u8 *sw1, u8 *sw2)
+{
+    return npa_mse(oldnpactx, card, p1, 0xa4, protocol, key_reference1,
+            key_reference1_len, key_reference2, key_reference2_len,
+            eph_pub_key, eph_pub_key_len, auxiliary_data, auxiliary_data_len,
+            chat, sw1, sw2);
+}
+
 static int npa_mse_set_at_pace(struct sm_ctx *oldnpactx, sc_card_t *card,
         int protocol, enum s_type secret_key, const CVC_CHAT *chat, u8 *sw1,
         u8 *sw2)
@@ -594,7 +611,8 @@ static int npa_mse_set_at_pace(struct sm_ctx *oldnpactx, sc_card_t *card,
     int r, tries;
     char key = secret_key;
    
-    r = npa_mse(oldnpactx, card, 0xC1, protocol, &key, sizeof key, NULL, 0, NULL, 0, chat, sw1, sw2);
+    r = npa_mse_set_at(oldnpactx, card, 0xC1, protocol, &key, sizeof key, NULL,
+            0, NULL, 0, NULL, 0, chat, sw1, sw2);
 
     if (*sw1 == 0x63) {
         if ((*sw2 & 0xc0) == 0xc0) {
@@ -1471,19 +1489,21 @@ err:
     SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_NORMAL, r);
 }
 
-static int npa_mse_set_dst_ta(struct sm_ctx *npactx, sc_card_t *card,
-        const unsigned char *car, size_t car_len)
+static int npa_mse_set_at_ta(struct sm_ctx *npactx, sc_card_t *card,
+        int protocol, const unsigned char *chr, size_t chr_len,
+        const unsigned char *eph_pub_key, size_t eph_pub_key_len,
+        const unsigned char *auxiliary_data, size_t auxiliary_data_len)
 {
-    return npa_mse(npactx, card, 0x81, 0, car, car_len, NULL, 0, NULL, 0,
+    return npa_mse_set_at(npactx, card, 0x81, protocol, chr, chr_len, NULL, 0,
+            eph_pub_key, eph_pub_key_len, auxiliary_data, auxiliary_data_len,
             NULL, NULL, NULL);
 }
 
-static int npa_mse_set_at_ta(struct sm_ctx *npactx, sc_card_t *card,
-        const unsigned char *chr, size_t chr_len,
-        const unsigned char *auxiliary_data, size_t auxiliary_data_len)
+static int npa_mse_set_dst(struct sm_ctx *npactx, sc_card_t *card,
+        const unsigned char *chr, size_t chr_len)
 {
-    return npa_mse(npactx, card, 0xa1, 0, chr, chr_len, NULL, 0,
-            auxiliary_data, auxiliary_data_len, NULL, NULL, NULL);
+    return npa_mse(npactx, card, 0x81, 0xb6, 0, chr, chr_len, NULL, 0, NULL, 0,
+            NULL, 0, NULL, NULL, NULL);
 }
 
 static int npa_get_challenge(struct sm_ctx *npactx, sc_card_t *card,
@@ -1574,7 +1594,7 @@ static int npa_external_authenticate(struct sm_ctx *npactx, sc_card_t *card,
     }
 
     apdu.ins = 0x82;
-    apdu.cse = SC_APDU_CASE_4_SHORT;
+    apdu.cse = SC_APDU_CASE_3_SHORT;
 
     apdu.data = signature;
     apdu.datalen = signature_len;
@@ -1602,7 +1622,7 @@ int perform_terminal_authentication(struct sm_ctx *ctx, sc_card_t *card,
     const unsigned char *cert = NULL;
     size_t cert_len = 0;
     CVC_CERT *cvc_cert = NULL;
-    BUF_MEM *my_ta_comp_eph_pubkey = NULL, *nonce = NULL, *signature = NULL;
+    BUF_MEM *nonce = NULL, *signature = NULL;
 
     if (!card || !ctx->priv_data || !certs_lens || !certs) {
         r = SC_ERROR_INVALID_ARGUMENTS;
@@ -1625,7 +1645,7 @@ int perform_terminal_authentication(struct sm_ctx *ctx, sc_card_t *card,
         }
         cert = *certs;
 
-        r = npa_mse_set_dst_ta(ctx, card,
+        r = npa_mse_set_dst(ctx, card,
                 cvc_cert->body->certificate_authority_reference->data,
                 cvc_cert->body->certificate_authority_reference->length);
         if (r < 0) {
@@ -1650,8 +1670,10 @@ int perform_terminal_authentication(struct sm_ctx *ctx, sc_card_t *card,
         r = SC_ERROR_INTERNAL;
         goto err;
     }
-    my_ta_comp_eph_pubkey = TA_STEP3_generate_ephemeral_key(eacsmctx->ctx);
-    if (!my_ta_comp_eph_pubkey) {
+    if (eacsmctx->eph_pub_key)
+        BUF_MEM_free(eacsmctx->eph_pub_key);
+    eacsmctx->eph_pub_key = TA_STEP3_generate_ephemeral_key(eacsmctx->ctx);
+    if (!eacsmctx->eph_pub_key) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not generate CA ephemeral key.");
         ssl_error(card->ctx);
         r = SC_ERROR_INTERNAL;
@@ -1659,9 +1681,10 @@ int perform_terminal_authentication(struct sm_ctx *ctx, sc_card_t *card,
     }
 
 
-    r = npa_mse_set_at_ta(ctx, card,
+    r = npa_mse_set_at_ta(ctx, card, eacsmctx->ctx->ta_ctx->protocol,
             cvc_cert->body->certificate_holder_reference->data,
             cvc_cert->body->certificate_holder_reference->length,
+            eacsmctx->eph_pub_key->data, eacsmctx->eph_pub_key->length,
             auxiliary_data, auxiliary_data_len);
     if (r < 0) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not select protocol proberties "
@@ -1687,9 +1710,11 @@ int perform_terminal_authentication(struct sm_ctx *ctx, sc_card_t *card,
         goto err;
     }
 
+    if (eacsmctx->auxiliary_data)
+        BUF_MEM_free(eacsmctx->auxiliary_data);
     eacsmctx->auxiliary_data = BUF_MEM_create_init(auxiliary_data,
             auxiliary_data_len);
-    signature = TA_STEP5_sign(eacsmctx->ctx, my_ta_comp_eph_pubkey,
+    signature = TA_STEP5_sign(eacsmctx->ctx, eacsmctx->eph_pub_key,
             eacsmctx->id_icc, eacsmctx->auxiliary_data);
     if (!signature) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not generate signature.");
@@ -1702,8 +1727,6 @@ int perform_terminal_authentication(struct sm_ctx *ctx, sc_card_t *card,
 err:
     if (cvc_cert)
         CVC_CERT_free(cvc_cert);
-    if (my_ta_comp_eph_pubkey)
-        BUF_MEM_free(my_ta_comp_eph_pubkey);
     if (nonce)
         BUF_MEM_free(nonce);
     if (signature)
@@ -1713,10 +1736,10 @@ err:
 }
 
 static int npa_mse_set_at_ca(struct sm_ctx *npactx, sc_card_t *card,
-        const unsigned char *key_ref, size_t key_ref_len)
+        int protocol)
 {
-    return npa_mse(npactx, card, 0x41, 0, NULL, 0, key_ref, key_ref_len, NULL,
-            0, NULL, NULL, NULL);
+    return npa_mse_set_at(npactx, card, 0x41, protocol, NULL, 0, NULL, 0, NULL,
+            0, NULL, 0, NULL, NULL, NULL);
 }
 
 static int npa_gen_auth_ca(struct sm_ctx *npactx, sc_card_t *card,
@@ -1731,7 +1754,6 @@ static int npa_gen_auth_ca(struct sm_ctx *npactx, sc_card_t *card,
 
     sc_format_apdu(card, &apdu, SC_APDU_CASE_4_SHORT, ISO_GENERAL_AUTHENTICATE,
             0, 0);
-    apdu.cla = ISO_COMMAND_CHAINING;
 
     c_data = NPA_GEN_AUTH_CA_C_new();
     if (!c_data) {
@@ -1839,8 +1861,6 @@ int perform_chip_authentication(struct sm_ctx *ctx, sc_card_t *card)
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not get EF.CardSecurity.");
         goto err;
     }
-    /* FIXME patch OpenPACE to do verification of EF.CardSecurity and
-     * to call EAC_CTX_init_ca */
     picc_pubkey = CA_get_pubkey(ef_cardsecurity, ef_cardsecurity_len);
     if (!picc_pubkey) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not verify EF.CardSecurity.");
@@ -1849,17 +1869,8 @@ int perform_chip_authentication(struct sm_ctx *ctx, sc_card_t *card)
         goto err;
     }
 
-    
-    if (!CA_STEP4_compute_shared_secret(eacsmctx->ctx, picc_pubkey)) {
-        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not compute shared secret.");
-        ssl_error(card->ctx);
-        r = SC_ERROR_INTERNAL;
-        goto err;
-    }
 
-
-    unsigned char key_ref = 1;
-    r = npa_mse_set_at_ca(ctx, card, &key_ref, sizeof key_ref);
+    r = npa_mse_set_at_ca(ctx, card, eacsmctx->ctx->ca_ctx->protocol);
     if (r < 0) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not select protocol proberties "
                 "(MSE: Set AT failed).");
@@ -1875,6 +1886,14 @@ int perform_chip_authentication(struct sm_ctx *ctx, sc_card_t *card)
         goto err;
     }
     r = npa_gen_auth_ca(ctx, card, eph_pub_key, &nonce, &token);
+
+
+    if (!CA_STEP4_compute_shared_secret(eacsmctx->ctx, picc_pubkey)) {
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not compute shared secret.");
+        ssl_error(card->ctx);
+        r = SC_ERROR_INTERNAL;
+        goto err;
+    }
 
 
     if (r < 0 || !CA_STEP6_derive_keys(eacsmctx->ctx, nonce, token)) {
