@@ -71,12 +71,9 @@ class nPA_AT_CRT(ControlReferenceTemplate):
                     print(self.chat)
                 elif tag == 0x67:
                     self.auxiliary_data = bertlv_pack([[tag, length, value]])
-                elif tag == 0x80 or tag == 0x84 or tag == 0x83:
+                elif tag == 0x80 or tag == 0x84 or tag == 0x83 or tag == 0x91:
                     # handled by ControlReferenceTemplate.parse_SE_config
                     pass
-                elif tag == 0x91:
-                    #print "saving eph_pub_key"
-                    self.eph_pub_key = value
                 else:
                     raise SwError(SW["ERR_REFNOTUSABLE"])
 
@@ -362,7 +359,7 @@ class nPA_SE(Security_Environment):
                 auxiliary_data = None
 
             if 1 != pace.TA_STEP6_verify(self.eac_ctx,
-                    pace.get_buf(self.at.eph_pub_key), pace.get_buf(id_picc),
+                    pace.get_buf(self.at.iv), pace.get_buf(id_picc),
                     auxiliary_data, pace.get_buf(data)):
                 pace.print_ossl_err()
                 raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
