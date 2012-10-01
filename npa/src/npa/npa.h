@@ -198,6 +198,9 @@ int npa_reset_retry_counter(struct sm_ctx *ctx, sc_card_t *card,
 #define npa_change_pin(ctx, card, newp, newplen) \
     npa_reset_retry_counter(ctx, card, PACE_PIN, 1, newp, newplen)
 
+#define NPA_FLAG_DISABLE_CHECKS 1
+extern char npa_default_flags;
+
 #ifdef  __cplusplus
 }
 #endif

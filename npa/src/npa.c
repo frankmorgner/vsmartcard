@@ -214,7 +214,6 @@ IMPLEMENT_ASN1_FUNCTIONS(NPA_GEN_AUTH_CA_R)
 
 #define maxresp SC_MAX_APDU_BUFFER_SIZE - 2
 
-#define NPA_FLAG_DISABLE_CHECKS 1
 /** NPA secure messaging context */
 struct npa_sm_ctx {
     /** Send sequence counter */
@@ -259,6 +258,10 @@ static int increment_ssc(struct npa_sm_ctx *eacsmctx);
 static int decrement_ssc(struct npa_sm_ctx *eacsmctx);
 static int reset_ssc(struct npa_sm_ctx *eacsmctx);
 
+
+char npa_default_flags = 0;
+
+
 static struct npa_sm_ctx *
 npa_sm_ctx_create(EAC_CTX *ctx, const unsigned char *certificate_description,
         size_t certificate_description_length,
@@ -290,7 +293,9 @@ npa_sm_ctx_create(EAC_CTX *ctx, const unsigned char *certificate_description,
     out->eph_pub_key = NULL;
     out->auxiliary_data = NULL;
 
-    out->flags = NPA_FLAG_DISABLE_CHECKS;
+    out->flags = npa_default_flags;
+    if (out->flags & NPA_FLAG_DISABLE_CHECKS)
+        TA_disable_checks(out->ctx);
 
     return out;
 
@@ -1630,8 +1635,6 @@ int perform_terminal_authentication(struct sm_ctx *ctx, sc_card_t *card,
     }
     struct npa_sm_ctx *eacsmctx = ctx->priv_data;
 
-    eacsmctx->flags = 0;
-
 
     while (*certs && *certs_lens) {
         cert = *certs;
@@ -1670,6 +1673,8 @@ int perform_terminal_authentication(struct sm_ctx *ctx, sc_card_t *card,
         r = SC_ERROR_INTERNAL;
         goto err;
     }
+
+
     if (eacsmctx->eph_pub_key)
         BUF_MEM_free(eacsmctx->eph_pub_key);
     eacsmctx->eph_pub_key = TA_STEP3_generate_ephemeral_key(eacsmctx->ctx);
@@ -1851,8 +1856,6 @@ int perform_chip_authentication(struct sm_ctx *ctx, sc_card_t *card)
         goto err;
     }
     struct npa_sm_ctx *eacsmctx = ctx->priv_data;
-
-    eacsmctx->flags = 0;
 
 
     /* Passive Authentication */
@@ -2213,7 +2216,7 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
     }
     struct npa_sm_ctx *eacsmctx = ctx->priv_data;
 
-    if (eacsmctx->flags & NPA_FLAG_DISABLE_CHECKS) {
+    if (!(eacsmctx->flags & NPA_FLAG_DISABLE_CHECKS)) {
         if (apdu->ins == 0x2a && apdu->p1 == 0x00 && apdu->p2 == 0xbe) {
             /* PSO:Verify Certificate
              * check certificate description to match given certificate */
@@ -2430,7 +2433,7 @@ npa_sm_finish(sc_card_t *card, const struct sm_ctx *ctx,
                 SC_ERROR_INVALID_ARGUMENTS);
     struct npa_sm_ctx *eacsmctx = ctx->priv_data;
 
-    if (eacsmctx->flags & NPA_FLAG_DISABLE_CHECKS) {
+    if (!(eacsmctx->flags & NPA_FLAG_DISABLE_CHECKS)) {
         if (apdu->sw1 == 0x90 && apdu->sw2 == 0x00) {
             if (apdu->ins == 0x84 && apdu->p1 == 0x00 && apdu->p2 == 0x00
                     && apdu->le == 8 && apdu->resplen == 8) {

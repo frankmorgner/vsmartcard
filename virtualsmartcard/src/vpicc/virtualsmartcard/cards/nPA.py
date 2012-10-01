@@ -109,6 +109,7 @@ class nPA_SE(Security_Environment):
         self.ca = "DECVCAeID00102"
         self.ca_key = None
         self.ca_pubkey = None
+        self.disable_checks = False
 
     def _set_SE(self, p2, data):
         sw, resp = Security_Environment._set_SE(self, p2, data)
@@ -302,6 +303,8 @@ class nPA_SE(Security_Environment):
                 pace.print_ossl_err()
                 raise SwError(SW["WARN_NOINFO63"])
             result.append([0x87, len(self.ca), self.ca])
+            if (self.disable_checks):
+                pace.TA_disable_checks(self.eac_ctx)
 
         return 0x9000, nPA_SE.__pack_general_authenticate(result)
 

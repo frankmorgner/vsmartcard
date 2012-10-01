@@ -224,6 +224,8 @@ main (int argc, char **argv)
     }
     if (cmdline.tr_03110v201_flag)
         tr_version = EAC_TR_VERSION_2_01;
+    if (cmdline.disable_checks_flag)
+        npa_default_flags |= NPA_FLAG_DISABLE_CHECKS;
 
 
     if (cmdline.info_flag)

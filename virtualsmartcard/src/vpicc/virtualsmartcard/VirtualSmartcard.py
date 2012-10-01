@@ -499,11 +499,12 @@ class RelayOS(SmartcardOS):
 
 
 class NPAOS(Iso7816OS):
-    def __init__(self, mf, sam, ins2handler=None, maxle=MAX_EXTENDED_LE, ef_cardsecurity=None, ef_cardaccess=None, ca_key=None, ca_pubkey=None, ca=None):
+    def __init__(self, mf, sam, ins2handler=None, maxle=MAX_EXTENDED_LE, ef_cardsecurity=None, ef_cardaccess=None, ca_key=None, ca_pubkey=None, ca=None, disable_checks=False):
         Iso7816OS.__init__(self, mf, sam, ins2handler, maxle)
         self.ins2handler[0x86] = self.SAM.general_authenticate
         self.ins2handler[0x2c] = self.SAM.reset_retry_counter
         self.atr = '\x3B\x8A\x80\x01\x80\x31\xF8\x73\xF7\x41\xE0\x82\x90\x00\x75'
+        self.SAM.current_SE.disable_checks = disable_checks
         if ef_cardsecurity:
             ef = self.mf.select('fid', 0x011d)
             ef.data = ef_cardsecurity
@@ -556,7 +557,7 @@ class VirtualICC(object):
     the vpcd, which forwards it to the application.
     """ 
     
-    def __init__(self, filename, card_type, host, port, lenlen=3, readernum=None, ef_cardsecurity=None, ef_cardaccess=None, ca_key=None, ca_pubkey=None, ca=None):
+    def __init__(self, filename, card_type, host, port, lenlen=3, readernum=None, ef_cardsecurity=None, ef_cardaccess=None, ca_key=None, ca_pubkey=None, ca=None, disable_checks=False):
         from os.path import exists
         
         logging.basicConfig(level = logging.INFO, 
@@ -581,7 +582,7 @@ class VirtualICC(object):
         if card_type == "iso7816" or card_type == "ePass":
             self.os = Iso7816OS(MF, SAM)
         elif card_type == "nPA":
-            self.os = NPAOS(MF, SAM, ef_cardsecurity=ef_cardsecurity, ef_cardaccess=ef_cardaccess, ca_key=ca_key, ca_pubkey=ca_pubkey, ca=ca)
+            self.os = NPAOS(MF, SAM, ef_cardsecurity=ef_cardsecurity, ef_cardaccess=ef_cardaccess, ca_key=ca_key, ca_pubkey=ca_pubkey, ca=ca, disable_checks=disable_checks)
         elif card_type == "cryptoflex":
             self.os = CryptoflexOS(MF, SAM)
         elif card_type == "relay":
