@@ -499,7 +499,7 @@ class RelayOS(SmartcardOS):
 
 
 class NPAOS(Iso7816OS):
-    def __init__(self, mf, sam, ins2handler=None, maxle=MAX_EXTENDED_LE, ef_cardsecurity=None, ef_cardaccess=None, ca_key=None, ca_pubkey=None, ca=None, disable_checks=False):
+    def __init__(self, mf, sam, ins2handler=None, maxle=MAX_EXTENDED_LE, ef_cardsecurity=None, ef_cardaccess=None, ca_key=None, ca=None, disable_checks=False):
         Iso7816OS.__init__(self, mf, sam, ins2handler, maxle)
         self.ins2handler[0x86] = self.SAM.general_authenticate
         self.ins2handler[0x2c] = self.SAM.reset_retry_counter
@@ -515,8 +515,6 @@ class NPAOS(Iso7816OS):
             self.SAM.current_SE.ca = ca
         if ca_key:
             self.SAM.current_SE.ca_key = ca_key
-        if ca_pubkey:
-            self.SAM.current_SE.ca_pubkey = ca_pubkey
 
 
     def formatResult(self, seekable, le, data, sw, sm):
@@ -557,7 +555,7 @@ class VirtualICC(object):
     the vpcd, which forwards it to the application.
     """ 
     
-    def __init__(self, filename, card_type, host, port, lenlen=3, readernum=None, ef_cardsecurity=None, ef_cardaccess=None, ca_key=None, ca_pubkey=None, ca=None, disable_checks=False):
+    def __init__(self, filename, card_type, host, port, lenlen=3, readernum=None, ef_cardsecurity=None, ef_cardaccess=None, ca_key=None, ca=None, disable_checks=False):
         from os.path import exists
         
         logging.basicConfig(level = logging.INFO, 
@@ -582,7 +580,7 @@ class VirtualICC(object):
         if card_type == "iso7816" or card_type == "ePass":
             self.os = Iso7816OS(MF, SAM)
         elif card_type == "nPA":
-            self.os = NPAOS(MF, SAM, ef_cardsecurity=ef_cardsecurity, ef_cardaccess=ef_cardaccess, ca_key=ca_key, ca_pubkey=ca_pubkey, ca=ca, disable_checks=disable_checks)
+            self.os = NPAOS(MF, SAM, ef_cardsecurity=ef_cardsecurity, ef_cardaccess=ef_cardaccess, ca_key=ca_key, ca=ca, disable_checks=disable_checks)
         elif card_type == "cryptoflex":
             self.os = CryptoflexOS(MF, SAM)
         elif card_type == "relay":
