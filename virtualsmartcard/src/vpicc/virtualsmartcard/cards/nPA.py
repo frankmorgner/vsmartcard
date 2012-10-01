@@ -204,7 +204,7 @@ class nPA_SE(Security_Environment):
         ef_card_security = self.mf.select('fid', 0x011d)
         ef_card_security_data = ef_card_security.data
         ca_pubkey = pace.CA_get_pubkey(ef_card_security_data)
-        pace.EAC_CTX_init_ca(self.eac_ctx, pace.id_CA_ECDH_AES_CBC_CMAC_128, 13, self.ca_key, ca_pubkey)
+        pace.EAC_CTX_init_ca(self.eac_ctx, 0, 0, self.ca_key, ca_pubkey)
 
         if not self.ca_key:
             # we don't have a good CA key, so we simply generate an ephemeral one
