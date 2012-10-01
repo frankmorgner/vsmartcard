@@ -141,8 +141,15 @@ class CardGenerator(object):
     
     def __generate_nPA(self):
         from virtualsmartcard.cards.nPA import nPA_SAM
-        ALGO_MAPPING["\x04\x00\x7f\x00\x07\x02\x02\x04\x02\x02"] = "PACE"
-        ALGO_MAPPING["\x04\x00\x7f\x00\x07\x02\x02\x03\x02\x02"] = "CA"
+        for oid_base, x_list, y_list, algo in [
+                ('\x04\x00\x7f\x00\x07\x02\x02\x04', range(1,5), range(1,5), "PACE"),
+                ('\x04\x00\x7f\x00\x07\x02\x02\x02', range(1,3), range(1,6), "TA"),
+                ('\x04\x00\x7f\x00\x07\x02\x02\x02', [1],        [6],        "TA"),
+                ('\x04\x00\x7f\x00\x07\x02\x02\x03', range(1,3), range(1,5), "CA"),
+                ('\x04\x00\x7f\x00\x07\x02\x02\x05', range(1,3), range(1,6), "RI"),
+                ]:
+            for oid in [oid_base+chr(x)+chr(y) for x in x_list for y in y_list]:
+                ALGO_MAPPING[oid] = algo
         ALGO_MAPPING["\x04\x00\x7f\x00\x07\x03\x01\x04\x03"] = "CommunityID"
         ALGO_MAPPING["\x04\x00\x7f\x00\x07\x03\x01\x04\x02"] = "DateOfExpiry"
         ALGO_MAPPING["\x04\x00\x7f\x00\x07\x03\x01\x04\x01"] = "DateOfBirth"
