@@ -73,10 +73,10 @@ npa.add_argument("-k", "--ca-key",
         action="store",
         type=argparse.FileType('rb'),
         help="CA private key.")
-npa.add_argument("-c", "--ca",
+npa.add_argument("-c", "--car",
         action="store",
         type=str,
-        help="CHR of the CVCA.")
+        help="certificate authority reference (CHR of the CVCA)")
 npa.add_argument("-d", "--disable-checks",
         action="store_true", default=False,
         help="Disable checking validity period of TA certificate")
@@ -102,5 +102,5 @@ if (args.ca_key):
 vicc = VirtualICC(args.file, args.type,
         args.hostname, args.port, readernum=args.reader,
         ef_cardaccess=ef_cardaccess_data, ef_cardsecurity=ef_cardsecurity_data,
-        ca_key=ca_key_data, ca=args.ca, disable_checks=args.disable_checks)
+        ca_key=ca_key_data, car=args.car, disable_checks=args.disable_checks)
 vicc.run()

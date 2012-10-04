@@ -106,7 +106,7 @@ class nPA_SE(Security_Environment):
         self.sec = None
         self.eac_ctx = None
         self.ssc = 0
-        self.ca = "DECVCAeID00102"
+        self.car = "DECVCAeID00102"
         self.ca_key = None
         self.disable_checks = False
 
@@ -301,11 +301,11 @@ class nPA_SE(Security_Environment):
 
         result = [[0x86, len(my_token), my_token]]
         if self.at.chat:
-            result.append([0x87, len(self.ca), self.ca])
+            result.append([0x87, len(self.car), self.car])
             if (self.disable_checks):
                 pace.TA_disable_checks(self.eac_ctx)
             else:
-                if not pace.EAC_CTX_init_ta(self.eac_ctx, None, None, self.ca):
+                if not pace.EAC_CTX_init_ta(self.eac_ctx, None, None, self.car):
                     pace.print_ossl_err()
                     raise SwError(SW["WARN_NOINFO63"])
 
