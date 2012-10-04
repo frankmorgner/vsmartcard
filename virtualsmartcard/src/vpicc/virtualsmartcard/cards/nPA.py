@@ -301,12 +301,14 @@ class nPA_SE(Security_Environment):
 
         result = [[0x86, len(my_token), my_token]]
         if self.at.chat:
-            if not pace.EAC_CTX_init_ta(self.eac_ctx, None, None, self.ca):
-                pace.print_ossl_err()
-                raise SwError(SW["WARN_NOINFO63"])
             result.append([0x87, len(self.ca), self.ca])
             if (self.disable_checks):
                 pace.TA_disable_checks(self.eac_ctx)
+            else:
+                if not pace.EAC_CTX_init_ta(self.eac_ctx, None, None, self.ca):
+                    pace.print_ossl_err()
+                    raise SwError(SW["WARN_NOINFO63"])
+
 
         return 0x9000, nPA_SE.__pack_general_authenticate(result)
 
