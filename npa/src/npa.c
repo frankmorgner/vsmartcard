@@ -1559,7 +1559,7 @@ static int npa_verify(struct sm_ctx *npactx, sc_card_t *card,
     apdu.ins = 0x2A;
     apdu.p1 = 0x00;
     apdu.p2 = 0xbe;
-    apdu.cse = SC_APDU_CASE_4_EXT;
+    apdu.cse = SC_APDU_CASE_3_EXT;
 
     apdu.data = cert;
     if (0x80 & ASN1_get_object(&apdu.data, &length, &tag,
