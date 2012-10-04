@@ -1526,6 +1526,7 @@ static int npa_get_challenge(struct sm_ctx *npactx, sc_card_t *card,
 
     apdu.ins = 0x84;
     apdu.cse = SC_APDU_CASE_2_SHORT;
+    apdu.le = len;
     apdu.resplen = len;
     apdu.resp = challenge;
 
