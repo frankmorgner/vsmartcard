@@ -276,7 +276,7 @@ class nPA_SE(Security_Environment):
             else:
                 raise SwError(SW["ERR_INCORRECTPARAMETERS"])
 
-        if 1 != pace.verify_authentication_token(self.eac_ctx, token):
+        if 1 != pace.PACE_STEP3D_verify_authentication_token(self.eac_ctx, token):
             pace.print_ossl_err()
             raise SwError(SW["WARN_NOINFO63"])
 
