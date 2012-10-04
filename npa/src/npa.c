@@ -938,7 +938,6 @@ static int npa_gen_auth_4_mutual_authentication(
 
     sc_format_apdu(card, &apdu, SC_APDU_CASE_4_SHORT, ISO_GENERAL_AUTHENTICATE,
             0, 0);
-    apdu.cla = ISO_COMMAND_CHAINING;
 
     c_data = NPA_GEN_AUTH_PACE_C_new();
     if (!c_data) {
