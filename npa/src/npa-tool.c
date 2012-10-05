@@ -517,6 +517,7 @@ main (int argc, char **argv)
     }
 
 err:
+    cmdline_parser_free(&cmdline);
     sm_ctx_clear_free(&sctx);
     sm_ctx_clear_free(&tmpctx);
     if (pace_output.ef_cardaccess)
@@ -531,6 +532,15 @@ err:
         free(pace_output.id_pcd);
     if (input)
         fclose(input);
+    if (certs) {
+        i = 0;
+        while (certs[i]) {
+            free((unsigned char *) certs[i]);
+            i++;
+        }
+        free(certs);
+    }
+    free(certs_lens);
 
     sc_reset(card, 1);
     sc_disconnect_card(card);

@@ -1175,13 +1175,14 @@ int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
 			goto err;
 		}
 
-        if (!bio_stdout)
-            bio_stdout = BIO_new_fp(stdout, BIO_NOCLOSE);
         if (!bio_stdout) {
-            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not create output buffer.");
-            ssl_error(card->ctx);
-            r = SC_ERROR_INTERNAL;
-            goto err;
+            bio_stdout = BIO_new_fp(stdout, BIO_NOCLOSE);
+            if (!bio_stdout) {
+                sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not create output buffer.");
+                ssl_error(card->ctx);
+                r = SC_ERROR_INTERNAL;
+                goto err;
+            }
         }
 
         printf("Certificate Description\n");
@@ -1220,13 +1221,14 @@ int EstablishPACEChannel(struct sm_ctx *oldnpactx, sc_card_t *card,
      * This behaviour differs from TR-03119 v1.1 p. 44. */
     if (pace_input.chat_length && pace_input.chat) {
 
-        if (!bio_stdout)
-            bio_stdout = BIO_new_fp(stdout, BIO_NOCLOSE);
         if (!bio_stdout) {
-            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not create output buffer.");
-            ssl_error(card->ctx);
-            r = SC_ERROR_INTERNAL;
-            goto err;
+            bio_stdout = BIO_new_fp(stdout, BIO_NOCLOSE);
+            if (!bio_stdout) {
+                sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not create output buffer.");
+                ssl_error(card->ctx);
+                r = SC_ERROR_INTERNAL;
+                goto err;
+            }
         }
 
         pp = pace_input.chat;
@@ -1476,16 +1478,16 @@ err:
         BUF_MEM_free(comp_pub_opp);
     if (comp_pub)
         BUF_MEM_free(comp_pub);
-    if (sec)
-        PACE_SEC_clear_free(sec);
+    PACE_SEC_clear_free(sec);
     if (bio_stdout)
         BIO_free_all(bio_stdout);
     if (desc)
         CVC_CERTIFICATE_DESCRIPTION_free(desc);
+    if (chat)
+        CVC_CHAT_free(chat);
 
     if (r < 0) {
-        if (eac_ctx)
-            EAC_CTX_clear_free(eac_ctx);
+        EAC_CTX_clear_free(eac_ctx);
         if (sctx->priv_data)
             npa_sm_clear_free(sctx->priv_data);
     }
@@ -1732,10 +1734,8 @@ int perform_terminal_authentication(struct sm_ctx *ctx, sc_card_t *card,
 err:
     if (cvc_cert)
         CVC_CERT_free(cvc_cert);
-    if (nonce)
-        BUF_MEM_free(nonce);
-    if (signature)
-        BUF_MEM_free(signature);
+    BUF_MEM_clear_free(nonce);
+    BUF_MEM_clear_free(signature);
 
     SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_NORMAL, r);
 }
@@ -1847,7 +1847,8 @@ int get_ef_card_security(struct sm_ctx *npactx, sc_card_t *card,
 int perform_chip_authentication(struct sm_ctx *ctx, sc_card_t *card)
 {
     int r;
-    BUF_MEM *picc_pubkey = NULL, *nonce = NULL, *token = NULL, *eph_pub_key = NULL;
+    BUF_MEM *picc_pubkey = NULL, *nonce = NULL, *token = NULL,
+            *eph_pub_key = NULL;
     unsigned char *ef_cardsecurity = NULL;
     size_t ef_cardsecurity_len;
 
@@ -1920,15 +1921,14 @@ int perform_chip_authentication(struct sm_ctx *ctx, sc_card_t *card)
     }
 
 err:
-    free(ef_cardsecurity);
-    if (picc_pubkey)
-        BUF_MEM_free(picc_pubkey);
-    if (nonce)
-        BUF_MEM_free(nonce);
-    if (token)
-        BUF_MEM_free(token);
-    if (eph_pub_key)
-        BUF_MEM_free(eph_pub_key);
+    if (ef_cardsecurity) {
+        OPENSSL_cleanse(ef_cardsecurity, ef_cardsecurity_len);
+        free(ef_cardsecurity);
+    }
+    BUF_MEM_clear_free(picc_pubkey);
+    BUF_MEM_clear_free(nonce);
+    BUF_MEM_clear_free(token);
+    BUF_MEM_clear_free(eph_pub_key);
 
     SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_NORMAL, r);
 }
@@ -2020,10 +2020,7 @@ npa_sm_encrypt(sc_card_t *card, const struct sm_ctx *ctx,
     r = encbuf->length;
 
 err:
-    if (databuf) {
-        OPENSSL_cleanse(databuf->data, databuf->max);
-        BUF_MEM_free(databuf);
-    }
+    BUF_MEM_clear_free(databuf);
     if (encbuf)
         BUF_MEM_free(encbuf);
 
@@ -2064,10 +2061,7 @@ npa_sm_decrypt(sc_card_t *card, const struct sm_ctx *ctx,
     r = databuf->length;
 
 err:
-    if (databuf) {
-        OPENSSL_cleanse(databuf->data, databuf->max);
-        BUF_MEM_free(databuf);
-    }
+    BUF_MEM_clear_free(databuf);
     if (encbuf)
         BUF_MEM_free(encbuf);
 

@@ -567,11 +567,11 @@ static int sm_decrypt(const struct sm_ctx *ctx, sc_card_t *card,
     r = SC_SUCCESS;
 
 err:
-    if (asn1) {
-        free(asn1);
-    }
-    if (mac_data) {
-        free(mac_data);
+    free(asn1);
+    free(mac_data);
+    if (data) {
+        sc_mem_clear(data, buf_len);
+        free(data);
     }
 
     return r;
