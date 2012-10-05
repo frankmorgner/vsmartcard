@@ -93,7 +93,7 @@ option "tr-03110v201"    -
     "Force compliance to BSI TR-03110 version 2.01"
     flag off
 option "disable-checks"   -
-    "Disable checking fly-by-data"
+    "Disable checking fly-by-data and validity period of CV certifcates"
     flag off
 
 text "

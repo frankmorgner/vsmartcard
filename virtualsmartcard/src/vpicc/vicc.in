@@ -79,7 +79,7 @@ npa.add_argument("-c", "--car",
         help="certificate authority reference (CHR of the CVCA)")
 npa.add_argument("-d", "--disable-checks",
         action="store_true", default=False,
-        help="Disable checking validity period of TA certificate")
+        help="Disables checking validity period of TA certificate and always accepts the first CV certificate of a chain")
 
 
 args = parser.parse_args()
