@@ -105,7 +105,6 @@ class nPA_SE(Security_Environment):
         self.eac_step = 0
         self.sec = None
         self.eac_ctx = None
-        self.ssc = 0
         self.car = "DECVCAeID00102"
         self.cvca = None
         self.ca_key = None
@@ -380,7 +379,7 @@ class nPA_SE(Security_Environment):
         raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
 
     def compute_cryptographic_checksum(self, p1, p2, data):
-        checksum = pace.EAC_authenticate(self.eac_ctx, self.ssc, data)
+        checksum = pace.EAC_authenticate(self.eac_ctx, data)
         if not checksum:
             pace.print_ossl_err()
             raise SwError(SW["ERR_NOINFO69"]) 
@@ -389,7 +388,7 @@ class nPA_SE(Security_Environment):
 
     def encipher(self, p1, p2, data):
         padded = vsCrypto.append_padding(self.cct.blocklength, data)
-        cipher = pace.EAC_encrypt(self.eac_ctx, self.ssc, padded)
+        cipher = pace.EAC_encrypt(self.eac_ctx, padded)
         if not cipher:
             pace.print_ossl_err()
             raise SwError(SW["ERR_NOINFO69"]) 
@@ -397,7 +396,7 @@ class nPA_SE(Security_Environment):
         return cipher
 
     def decipher(self, p1, p2, data):
-        plain = pace.EAC_decrypt(self.eac_ctx, self.ssc, data)
+        plain = pace.EAC_decrypt(self.eac_ctx, data)
         if not plain:
             pace.print_ossl_err()
             raise SwError(SW["ERR_NOINFO69"]) 
@@ -555,14 +554,13 @@ class nPA_SAM(SAM):
             print "switching to new encryption context established in %s:" % protocol
             pace.EAC_CTX_print_private(self.current_SE.eac_ctx, 4)
 
-            self.current_SE.ssc = 0
             pace.EAC_CTX_set_encryption_ctx(self.current_SE.eac_ctx, self.current_SE.new_encryption_ctx)
 
             delattr(self.current_SE, "new_encryption_ctx")
 
-        self.current_SE.ssc += 1
+        pace.EAC_increment_ssc(self.current_SE.eac_ctx)
         return SAM.parse_SM_CAPDU(self, CAPDU, 1)
 
     def protect_result(self, sw, unprotected_result):
-        self.current_SE.ssc += 1
+        pace.EAC_increment_ssc(self.current_SE.eac_ctx)
         return SAM.protect_result(self, sw, unprotected_result)

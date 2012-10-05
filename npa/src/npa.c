@@ -216,8 +216,6 @@ IMPLEMENT_ASN1_FUNCTIONS(NPA_GEN_AUTH_CA_R)
 
 /** NPA secure messaging context */
 struct npa_sm_ctx {
-    /** Send sequence counter */
-    BIGNUM *ssc;
     /** EAC context */
     EAC_CTX *ctx;
     /** Certificate Description given on initialization of PACE */
@@ -254,10 +252,6 @@ static int npa_sm_finish(sc_card_t *card, const struct sm_ctx *ctx,
         sc_apdu_t *apdu);
 static void npa_sm_clear_free(const struct sm_ctx *ctx);
 
-static int increment_ssc(struct npa_sm_ctx *eacsmctx);
-static int decrement_ssc(struct npa_sm_ctx *eacsmctx);
-static int reset_ssc(struct npa_sm_ctx *eacsmctx);
-
 
 char npa_default_flags = 0;
 
@@ -269,10 +263,6 @@ npa_sm_ctx_create(EAC_CTX *ctx, const unsigned char *certificate_description,
 {
     struct npa_sm_ctx *out = malloc(sizeof *out);
     if (!out)
-        goto err;
-
-    out->ssc = BN_new();
-    if (!out->ssc || reset_ssc(out) < 0)
         goto err;
 
     out->ctx = ctx;
@@ -300,11 +290,7 @@ npa_sm_ctx_create(EAC_CTX *ctx, const unsigned char *certificate_description,
     return out;
 
 err:
-    if (out) {
-        if (out->ssc)
-            BN_clear_free(out->ssc);
-        free(out);
-    }
+    free(out);
     return NULL;
 }
 
@@ -1959,18 +1945,8 @@ increment_ssc(struct npa_sm_ctx *eacsmctx)
     if (!eacsmctx)
         return SC_ERROR_INVALID_ARGUMENTS;
 
-    BN_add_word(eacsmctx->ssc, 1);
-
-    return SC_SUCCESS;
-}
-
-int
-decrement_ssc(struct npa_sm_ctx *eacsmctx)
-{
-    if (!eacsmctx)
-        return SC_ERROR_INVALID_ARGUMENTS;
-
-    BN_sub_word(eacsmctx->ssc, 1);
+    if (!EAC_increment_ssc(eacsmctx->ctx))
+        return SC_ERROR_INTERNAL;
 
     return SC_SUCCESS;
 }
@@ -1981,7 +1957,8 @@ reset_ssc(struct npa_sm_ctx *eacsmctx)
     if (!eacsmctx)
         return SC_ERROR_INVALID_ARGUMENTS;
 
-    BN_zero(eacsmctx->ssc);
+    if (!EAC_reset_ssc(eacsmctx->ctx))
+        return SC_ERROR_INTERNAL;
 
     return SC_SUCCESS;
 }
@@ -2001,7 +1978,7 @@ npa_sm_encrypt(sc_card_t *card, const struct sm_ctx *ctx,
     struct npa_sm_ctx *eacsmctx = ctx->priv_data;
 
     databuf = BUF_MEM_create_init(data, datalen);
-    encbuf = EAC_encrypt(eacsmctx->ctx, eacsmctx->ssc, databuf);
+    encbuf = EAC_encrypt(eacsmctx->ctx, databuf);
     if (!databuf || !encbuf) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not encrypt data.");
         ssl_error(card->ctx);
@@ -2042,7 +2019,7 @@ npa_sm_decrypt(sc_card_t *card, const struct sm_ctx *ctx,
     struct npa_sm_ctx *eacsmctx = ctx->priv_data;
 
     encbuf = BUF_MEM_create_init(enc, enclen);
-    databuf = EAC_decrypt(eacsmctx->ctx, eacsmctx->ssc, encbuf);
+    databuf = EAC_decrypt(eacsmctx->ctx, encbuf);
     if (!encbuf || !databuf) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not decrypt data.");
         ssl_error(card->ctx);
@@ -2073,7 +2050,7 @@ npa_sm_authenticate(sc_card_t *card, const struct sm_ctx *ctx,
         const u8 *data, size_t datalen, u8 **macdata)
 {
     BUF_MEM *inbuf = NULL, *macbuf = NULL;
-    u8 *p = NULL, *ssc = NULL;
+    u8 *p = NULL;
     int r;
 
     if (!card || !ctx || !ctx->priv_data || !macdata) {
@@ -2088,7 +2065,7 @@ npa_sm_authenticate(sc_card_t *card, const struct sm_ctx *ctx,
         goto err;
     }
 
-	macbuf = EAC_authenticate(eacsmctx->ctx, eacsmctx->ssc, inbuf);
+	macbuf = EAC_authenticate(eacsmctx->ctx, inbuf);
     if (!macbuf) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
                 "Could not compute message authentication code (MAC).");
@@ -2112,7 +2089,6 @@ err:
         BUF_MEM_free(inbuf);
     if (macbuf)
         BUF_MEM_free(macbuf);
-    free(ssc);
 
     return r;
 }
@@ -2138,7 +2114,7 @@ npa_sm_verify_authentication(sc_card_t *card, const struct sm_ctx *ctx,
         goto err;
     }
 
-	my_mac = EAC_authenticate(eacsmctx->ctx, eacsmctx->ssc, inbuf); 
+	my_mac = EAC_authenticate(eacsmctx->ctx, inbuf); 
     if (!my_mac) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
                 "Could not compute message authentication code (MAC) for verification.");
@@ -2462,8 +2438,6 @@ npa_sm_clear_free(const struct sm_ctx *ctx)
     if (ctx) {
         struct npa_sm_ctx *eacsmctx = ctx->priv_data;
         EAC_CTX_clear_free(eacsmctx->ctx);
-        if (eacsmctx->ssc)
-            BN_clear_free(eacsmctx->ssc);
         if (eacsmctx->certificate_description)
             BUF_MEM_free(eacsmctx->certificate_description);
         if (eacsmctx->id_icc)
