@@ -77,9 +77,13 @@ npa.add_argument("-c", "--car",
         action="store",
         type=str,
         help="certificate authority reference (CHR of the CVCA)")
+npa.add_argument("-C", "--cvca",
+        action="store",
+        type=argparse.FileType('rb'),
+        help="CVCA certificate")
 npa.add_argument("-d", "--disable-checks",
         action="store_true", default=False,
-        help="Disables checking validity period of TA certificate and always accepts the first CV certificate of a chain")
+        help="Disables checking validity period of TA certificates")
 
 
 args = parser.parse_args()
@@ -89,6 +93,7 @@ from virtualsmartcard.VirtualSmartcard import VirtualICC
 ef_cardsecurity_data = None
 ef_cardaccess_data = None
 ca_key_data = None
+cvca = None
 if (args.ef_cardsecurity):
     ef_cardsecurity_data = args.ef_cardsecurity.read()
     args.ef_cardsecurity.close()
@@ -98,9 +103,12 @@ if (args.ef_cardaccess):
 if (args.ca_key):
     ca_key_data = args.ca_key.read()
     args.ca_key.close()
+if (args.cvca):
+    cvca = args.cvca.read()
+    args.cvca.close()
 
 vicc = VirtualICC(args.file, args.type,
         args.hostname, args.port, readernum=args.reader,
         ef_cardaccess=ef_cardaccess_data, ef_cardsecurity=ef_cardsecurity_data,
-        ca_key=ca_key_data, car=args.car, disable_checks=args.disable_checks)
+        ca_key=ca_key_data, car=args.car, cvca=cvca, disable_checks=args.disable_checks)
 vicc.run()
