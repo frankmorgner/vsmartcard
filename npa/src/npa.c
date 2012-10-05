@@ -1889,6 +1889,10 @@ int perform_chip_authentication(struct sm_ctx *ctx, sc_card_t *card)
         goto err;
     }
     r = npa_gen_auth_ca(ctx, card, eph_pub_key, &nonce, &token);
+    if (r < 0) {
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "(General Authenticate failed).");
+        goto err;
+    }
 
 
     if (!CA_STEP4_compute_shared_secret(eacsmctx->ctx, picc_pubkey)) {
@@ -1899,7 +1903,7 @@ int perform_chip_authentication(struct sm_ctx *ctx, sc_card_t *card)
     }
 
 
-    if (r < 0 || !CA_STEP6_derive_keys(eacsmctx->ctx, nonce, token)) {
+    if (!CA_STEP6_derive_keys(eacsmctx->ctx, nonce, token)) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not derive keys.");
         ssl_error(card->ctx);
         r = SC_ERROR_INTERNAL;
