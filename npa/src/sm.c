@@ -318,8 +318,8 @@ static int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
                     goto err;
                 }
             } else {
-                /* in case of T1 always use 3 bytes for length */
-                le_len = 3;
+                /* in case of T1 always use 2 bytes for length */
+                le_len = 2;
                 r = format_le(apdu->le, sm_capdu + 1, &le, &le_len);
                 if (r < 0) {
                     sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not format Le of SM apdu");
@@ -441,7 +441,10 @@ static int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
     sm_apdu->datalen = sm_data_len;
     sm_apdu->lc = sm_apdu->datalen;
     sm_apdu->le = 0;
-    sm_apdu->cse = SC_APDU_CASE_4;
+    if (apdu->cse & SC_APDU_EXT)
+        sm_apdu->cse = SC_APDU_CASE_4_EXT;
+    else
+        sm_apdu->cse = SC_APDU_CASE_4_SHORT;
     bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "ASN.1 encoded encrypted APDU data", sm_apdu->data, sm_apdu->datalen);
 
 err:
@@ -467,7 +470,7 @@ static int sm_decrypt(const struct sm_ctx *ctx, sc_card_t *card,
     int r;
     struct sc_asn1_entry sm_rapdu[4];
     struct sc_asn1_entry my_sm_rapdu[4];
-    u8 sw[2], mac[8], fdata[SC_MAX_APDU_BUFFER_SIZE];
+    u8 sw[2], mac[8], fdata[SC_MAX_EXT_APDU_BUFFER_SIZE];
     size_t sw_len = sizeof sw, mac_len = sizeof mac, fdata_len = sizeof fdata,
            buf_len, asn1_len;
     const u8 *buf;
@@ -529,7 +532,9 @@ static int sm_decrypt(const struct sm_ctx *ctx, sc_card_t *card,
         }
 
         if (apdu->resplen < r || (r && !apdu->resp)) {
-            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Response of SM APDU too long");
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
+                    "Response of SM APDU %u byte%s too long", r-apdu->resplen,
+                    r-apdu->resplen < 2 ? "" : "s");
             r = SC_ERROR_OUT_OF_MEMORY;
             goto err;
         }
