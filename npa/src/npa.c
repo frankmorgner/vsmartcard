@@ -329,7 +329,13 @@ static int get_ef(struct sm_ctx *npactx, sc_card_t *card, unsigned char sfid,
     }
     *ef_len = 0;
 
-    if (read > SC_MAX_APDU_BUFFER_SIZE - 2)
+    if (read > SC_MAX_APDU_BUFFER_SIZE-2
+            || (npactx && read > (((SC_MAX_APDU_BUFFER_SIZE-2
+                    /* for encrypted APDUs we usually get authenticated status
+                     * bytes (4B), a MAC (11B) and a cryptogram with padding
+                     * indicator (3B without data).  The cryptogram is always
+                     * padded to the block size. */
+                    -18) / npactx->block_length) * npactx->block_length - 1)))
         sc_format_apdu(card, &apdu, SC_APDU_CASE_2_EXT,
                 ISO_READ_BINARY, ISO_P1_FLAG_SFID|sfid, 0);
     else
