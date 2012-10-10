@@ -18,11 +18,6 @@
  */
 #include "scutil.h"
 #include "sm.h"
-#ifdef _WIN32
-#include <winsock2.h>
-#else
-#include <arpa/inet.h>
-#endif
 #include <libopensc/asn1.h>
 #include <libopensc/log.h>
 #include <stdlib.h>
@@ -150,13 +145,13 @@ static int format_le(size_t le, struct sc_asn1_entry *le_entry,
             p[0] = le;
             break;
         case 2:
-            p[0] = htons(le) >> 8;
-            p[1] = htons(le) & 0xff;
+            p[0] = le >> 8;
+            p[1] = le & 0xff;
             break;
         case 3:
             p[0] = 0x00;
-            p[1] = htons(le) >> 8;
-            p[2] = htons(le) & 0xff;
+            p[1] = le >> 8;
+            p[2] = le & 0xff;
             break;
         default:
             return SC_ERROR_INVALID_ARGUMENTS;
