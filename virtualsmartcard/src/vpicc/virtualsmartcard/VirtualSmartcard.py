@@ -38,6 +38,7 @@ class SmartcardOS(object):
         
     def powerUp(self):
         """Powers up the card"""
+        self.mf.current = self.mf
         pass
 
     def powerDown(self):
@@ -46,6 +47,7 @@ class SmartcardOS(object):
 
     def reset(self):
         """Performs a warm reset of the card (no power down)"""
+        self.mf.current = self.mf
         pass
 
     def execute(self, msg):
