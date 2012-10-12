@@ -39,22 +39,22 @@ class nPA_AT_CRT(ControlReferenceTemplate):
         self.chat = None
 
     def keyref_is_mrz(self):
-        if self.keyref == '%c'% self.PACE_MRZ:
+        if self.keyref_secret_key == '%c'% self.PACE_MRZ:
             return True
         return False
 
     def keyref_is_can(self):
-        if self.keyref == '%c'% self.PACE_CAN:
+        if self.keyref_secret_key == '%c'% self.PACE_CAN:
             return True
         return False
 
     def keyref_is_pin(self):
-        if self.keyref == '%c'% self.PACE_PIN:
+        if self.keyref_secret_key == '%c'% self.PACE_PIN:
             return True
         return False
 
     def keyref_is_puk(self):
-        if self.keyref == '%c'% self.PACE_PUK:
+        if self.keyref_secret_key == '%c'% self.PACE_PUK:
             return True
         return False
 
@@ -355,7 +355,7 @@ class nPA_SE(Security_Environment):
         Authenticate the terminal to the card. Check whether Terminal correctly
         encrypted the given challenge or not
         """
-        if self.dst.keyref: # TODO check if this is the correct CAR
+        if self.dst.keyref_public_key: # TODO check if this is the correct CAR
             id_picc = pace.EAC_Comp(self.eac_ctx, pace.EAC_ID_PACE, self.my_pace_eph_pubkey)
 
             # FIXME auxiliary_data might be from an older run of PACE

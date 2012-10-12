@@ -50,7 +50,9 @@ class ControlReferenceTemplate:
             self.type = tag
 
         self.iv = None
-        self.keyref = None
+        self.keyref_secret_key = None
+        self.keyref_public_key = None
+        self.keyref_private_key = None
         self.key = None
         self.fileref = None
         self.DFref = None
@@ -105,9 +107,11 @@ class ControlReferenceTemplate:
             self.fileref = value
         elif tag == 0x82:
             self.DFref = value
-        elif tag in (0x83, 0x84):
-            #Todo: Resolve reference
-            self.keyref = value
+        elif tag == 0x83:
+            self.keyref_secret_key = value
+            self.keyref_public_key = value
+        elif tag == 0x84:
+            self.keyref_private_key = value
     
     def __set_iv(self, tag, length, value):
         iv = None
