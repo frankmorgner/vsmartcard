@@ -20,8 +20,20 @@ AM_PROG_CC_C_O
 AC_PROG_SED
 PKG_PROG_PKG_CONFIG
 
-AC_PATH_PROG(HELP2MAN, help2man, false // No help2man //)
-AC_PATH_PROG(GENGETOPT, gengetopt, false // No gengetopt //)
+AC_ARG_VAR([HELP2MAN],
+           [absolute path to help2man used for man page generation of ccid-emulator])
+AC_PATH_PROG(HELP2MAN, help2man, not found)
+if test ! -r src/ccid-emulator.1 -a "${HELP2MAN}" = "not found"
+then
+    AC_MSG_ERROR([Need help2man to generate man page for ccid-emulator])
+fi
+AC_ARG_VAR([GENGETOPT],
+           [absolute path to gengetopt used for command line parsing of ccid-emulator])
+AC_PATH_PROG(GENGETOPT, gengetopt, not found)
+if test ! -r src/cmdline.h -a "${GENGETOPT}" = "not found"
+then
+    AC_MSG_ERROR([Need gengetopt for parsing command line of ccid-emulator])
+fi
 
 # If you need to see the details, just run make V=1.
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
@@ -149,6 +161,10 @@ LIBNPA_LIBS:          ${LIBNPA_LIBS}
 
 CCID emulator:        ${enable_ccid}
 PACE support:         ${enable_pace}
+
+
+HELP2MAN:             ${HELP2MAN}
+GENGETOPT:            ${GENGETOPT}
 
 EOF
 
