@@ -52,7 +52,7 @@ option "cert-desc"      -
     typestr="HEX_STRING"
     optional
 option "chat"           -
-    "Card holder authorization template to use"
+    "Card holder authorization template to use (default is terminal's CHAT)"
     string
     typestr="HEX_STRING"
     optional

@@ -179,6 +179,8 @@ main (int argc, char **argv)
     struct timeval tv;
     size_t i;
     FILE *input = NULL;
+    CVC_CERT *cvc_cert = NULL;
+    unsigned char *certs_chat = NULL;
 
     struct gengetopt_args_info cmdline;
 
@@ -412,6 +414,59 @@ main (int argc, char **argv)
     if (cmdline.translate_given
             || (!cmdline.resume_flag && !cmdline.new_pin_given
                 && !cmdline.unblock_flag && !cmdline.break_given)) {
+
+        if (cmdline.cv_certificate_given || cmdline.private_key_given
+                || cmdline.auxiliary_data_given) {
+            if (!cmdline.cv_certificate_given || !cmdline.private_key_given) {
+                fprintf(stderr, "Need at least the terminal's certificate "
+                        "and its private key to perform terminal authentication.\n");
+                exit(1);
+            }
+
+            certs = calloc(sizeof *certs, cmdline.cv_certificate_given + 1);
+            certs_lens = calloc(sizeof *certs_lens,
+                    cmdline.cv_certificate_given + 1);
+            if (!certs || !certs_lens) {
+                r = SC_ERROR_OUT_OF_MEMORY;
+                goto err;
+            }
+            for (i = 0; i < cmdline.cv_certificate_given; i++) {
+                if (!fread_to_eof(cmdline.cv_certificate_arg[i],
+                            (unsigned char **) &certs[i], &certs_lens[i]))
+                    goto err;
+            }
+
+            if (!pace_input.chat_length) {
+                const unsigned char *p = certs[cmdline.cv_certificate_given-1];
+                if (!CVC_d2i_CVC_CERT(&cvc_cert, &p, certs_lens[cmdline.cv_certificate_given-1])
+                        || !cvc_cert || !cvc_cert->body
+                        || !cvc_cert->body->certificate_authority_reference
+                        || !cvc_cert->body->chat) {
+                    r = SC_ERROR_INVALID_DATA;
+                    goto err;
+                }
+                pace_input.chat_length = i2d_CVC_CHAT(cvc_cert->body->chat, &certs_chat);
+                if (0 >= (int) pace_input.chat_length) {
+                    r = SC_ERROR_INVALID_DATA;
+                    goto err;
+                }
+                pace_input.chat = certs_chat;
+            }
+
+            if (!fread_to_eof(cmdline.private_key_arg,
+                        &privkey, &privkey_len))
+                goto err;
+
+            if (cmdline.auxiliary_data_given) {
+                auxiliary_data_len = sizeof auxiliary_data;
+                if (sc_hex_to_bin(cmdline.auxiliary_data_arg, auxiliary_data,
+                            &auxiliary_data_len) < 0) {
+                    fprintf(stderr, "Could not parse auxiliary data.\n");
+                    exit(2);
+                }
+            }
+        }
+
         pace_input.pin = NULL;
         pace_input.pin_length = 0;
         if (cmdline.pin_given) {
@@ -451,40 +506,7 @@ main (int argc, char **argv)
         printf("Established PACE channel with %s.\n",
                 npa_secret_name(pace_input.pin_id));
 
-        if (cmdline.cv_certificate_given || cmdline.private_key_given
-                || cmdline.auxiliary_data_given) {
-            if (!cmdline.cv_certificate_given || !cmdline.private_key_given) {
-                fprintf(stderr, "Need at least the terminal's certificate "
-                        "and its private key to perform terminal authentication.\n");
-                exit(1);
-            }
-
-            certs = calloc(sizeof *certs, cmdline.cv_certificate_given + 1);
-            certs_lens = calloc(sizeof *certs_lens,
-                    cmdline.cv_certificate_given + 1);
-            if (!certs || !certs_lens) {
-                r = SC_ERROR_OUT_OF_MEMORY;
-                goto err;
-            }
-            for (i = 0; i < cmdline.cv_certificate_given; i++) {
-                if (!fread_to_eof(cmdline.cv_certificate_arg[i],
-                            (unsigned char **) &certs[i], &certs_lens[i]))
-                    goto err;
-            }
-
-            if (!fread_to_eof(cmdline.private_key_arg,
-                        &privkey, &privkey_len))
-                goto err;
-
-            if (cmdline.auxiliary_data_given) {
-                auxiliary_data_len = sizeof auxiliary_data;
-                if (sc_hex_to_bin(cmdline.auxiliary_data_arg, auxiliary_data,
-                            &auxiliary_data_len) < 0) {
-                    fprintf(stderr, "Could not parse auxiliary data.\n");
-                    exit(2);
-                }
-            }
-
+        if (cmdline.cv_certificate_given || cmdline.private_key_given) {
             r = perform_terminal_authentication(&sctx, card, certs, certs_lens,
                     privkey, privkey_len, auxiliary_data, auxiliary_data_len);
             if (r < 0)
@@ -541,6 +563,9 @@ err:
         free(certs);
     }
     free(certs_lens);
+    free(certs_chat);
+    if (cvc_cert)
+        CVC_CERT_free(cvc_cert);
 
     sc_reset(card, 1);
     sc_disconnect_card(card);
