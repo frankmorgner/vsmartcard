@@ -24,7 +24,7 @@ from virtualsmartcard.TLVutils import unpack, bertlv_pack
 from virtualsmartcard.SmartcardFilesystem import make_property
 from virtualsmartcard.utils import inttostring
 import virtualsmartcard.CryptoUtils as vsCrypto
-from chat import CHAT
+from chat import CHAT, CVC
 import pace
 
 class nPA_AT_CRT(ControlReferenceTemplate):
@@ -105,8 +105,8 @@ class nPA_SE(Security_Environment):
         self.eac_step = 0
         self.sec = None
         self.eac_ctx = None
-        self.car = "DECVCAeID00102"
         self.cvca = None
+        self.car = None
         self.ca_key = None
         self.disable_checks = False
 
@@ -203,7 +203,7 @@ class nPA_SE(Security_Environment):
         pace.EAC_CTX_init_ef_cardaccess(ef_card_access_data, self.eac_ctx)
         ef_card_security = self.mf.select('fid', 0x011d)
         ef_card_security_data = ef_card_security.data
-        ca_pubkey = pace.CA_get_pubkey(ef_card_security_data)
+        ca_pubkey = pace.CA_get_pubkey(self.eac_ctx, ef_card_security_data)
         pace.EAC_CTX_init_ca(self.eac_ctx, 0, 0, self.ca_key, ca_pubkey)
 
         if not self.ca_key:
@@ -301,6 +301,8 @@ class nPA_SE(Security_Environment):
 
         result = [[0x86, len(my_token), my_token]]
         if self.at.chat:
+            if self.cvca:
+                self.car = CVC(self.cvca).get_chr()
             result.append([0x87, len(self.car), self.car])
             if (self.disable_checks):
                 pace.TA_disable_checks(self.eac_ctx)

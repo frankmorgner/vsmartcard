@@ -1,8 +1,5 @@
 #! /bin/sh
 
-ECDH_CAR=DECVCAAT00001
-DH_CAR=DETESTCVCA00003
-
 CVCA=cvca.cvcert
 DVCA=dvca.cvcert
 TERMINAL=at.cvcert
@@ -50,21 +47,9 @@ fi
 
 for KA in ecdh dh
 do
-    CAR=
-    if test $KA = ecdh
-    then
-        CAR=$ECDH_CAR
-    elif test $KA = dh
-    then
-        CAR=$DH_CAR
-    else
-        echo "CAR not found"
-        exit 1
-    fi
-
     $VICC --type nPA --ef-cardsecurity=$DATA/$KA/$SECURITY \
         --ef-cardaccess=$DATA/$KA/$ACCESS --ca-key=$DATA/$KA/$NPA_KEY \
-        --car=$CAR --cvca=$DATA/$KA/$CVCA --disable-checks &
+        --cvca=$DATA/$KA/$CVCA --disable-checks &
     VICC_PID=$!
     if test $? -ne 0
     then

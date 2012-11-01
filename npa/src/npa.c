@@ -1857,7 +1857,7 @@ int perform_chip_authentication(struct sm_ctx *ctx, sc_card_t *card)
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not get EF.CardSecurity.");
         goto err;
     }
-    picc_pubkey = CA_get_pubkey(ef_cardsecurity, ef_cardsecurity_len);
+    picc_pubkey = CA_get_pubkey(eacsmctx->ctx, ef_cardsecurity, ef_cardsecurity_len);
     if (!picc_pubkey) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not verify EF.CardSecurity.");
         ssl_error(card->ctx);
