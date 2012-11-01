@@ -75,7 +75,7 @@ do
     sleep 1
 
     $NPA_TOOL --pin=111111 --private-key=$DATA/$KA/$TERM_KEY \
-        --cv-certificate=$DATA/$KA/$DVCA,$DATA/$KA/$TERMINAL
+        --cv-certificate=$DATA/$KA/$DVCA,$DATA/$KA/$TERMINAL --disable-checks
     NPA_RESULT=$?
 
     kill $VICC_PID 2>/dev/null
