@@ -29,6 +29,7 @@
 #include <eac/eac.h>
 #include <eac/pace.h>
 #include <libopensc/opensc.h>
+#include <libopensc/pace.h>
 #include <npa/sm.h>
 
 #ifdef __cplusplus
