@@ -306,7 +306,7 @@ class nPA_SE(Security_Environment):
             result.append([0x87, len(self.car), self.car])
             if (self.disable_checks):
                 pace.TA_disable_checks(self.eac_ctx)
-            if not pace.EAC_CTX_init_ta(self.eac_ctx, None, self.cvca, self.car):
+            if not pace.EAC_CTX_init_ta(self.eac_ctx, None, self.cvca):
                 pace.print_ossl_err()
                 raise SwError(SW["WARN_NOINFO63"])
 

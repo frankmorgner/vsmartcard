@@ -1660,8 +1660,7 @@ int perform_terminal_authentication(struct sm_ctx *ctx, sc_card_t *card,
     }
 
 
-    if (!EAC_CTX_init_ta(eacsmctx->ctx, privkey, privkey_len, cert, cert_len,
-                NULL, 0)) {
+    if (!EAC_CTX_init_ta(eacsmctx->ctx, privkey, privkey_len, cert, cert_len)) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not initialize TA.");
         ssl_error(card->ctx);
         r = SC_ERROR_INTERNAL;
@@ -2336,14 +2335,8 @@ npa_sm_pre_transmit(sc_card_t *card, const struct sm_ctx *ctx,
 
                 if (msesetat->key_reference1 && msesetat->key_reference1->data &&
                         msesetat->key_reference1->length) {
-                    if (!EAC_CTX_init_ta(eacsmctx->ctx, NULL, 0, NULL, 0,
-                                msesetat->key_reference1->data,
-                                msesetat->key_reference1->length)) {
-                        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not initialize TA.\n");
-                        ssl_error(card->ctx);
-                        r = SC_ERROR_INTERNAL;
-                        goto err;
-                    }
+                    /* do nothing. The trust anchor matching this CAR will be
+                     * looked up when the certificate chain is imported */
                 }
             }
         } else if (apdu->ins == 0x82 && apdu->p1 == 0x00 && apdu->p2 == 0x00) {
