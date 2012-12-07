@@ -554,7 +554,7 @@ class nPA_SAM(SAM):
             else:
                 protocol = "CA"
             print "switching to new encryption context established in %s:" % protocol
-            pace.EAC_CTX_print_private(self.current_SE.eac_ctx, 4)
+            print pace.EAC_CTX_print_private(self.current_SE.eac_ctx, 4)
 
             pace.EAC_CTX_set_encryption_ctx(self.current_SE.eac_ctx, self.current_SE.new_encryption_ctx)
 
