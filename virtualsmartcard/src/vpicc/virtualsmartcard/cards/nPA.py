@@ -172,9 +172,6 @@ class nPA_SE(Security_Environment):
         if  tlv_data != []:
             raise SwError(SW["WARN_NOINFO63"])
 
-        self.__eac_abort()
-
-        self.eac_ctx = pace.EAC_CTX_new()
         if self.at.keyref_is_mrz():
             self.sec = pace.PACE_SEC_new(self.sam.mrz, pace.PACE_MRZ)
         elif self.at.keyref_is_can():
@@ -198,29 +195,33 @@ class nPA_SE(Security_Environment):
         else:
             raise SwError(SW["ERR_INCORRECTPARAMETERS"])
 
-        ef_card_access = self.mf.select('fid', 0x011c)
-        ef_card_access_data = ef_card_access.data
-        pace.EAC_CTX_init_ef_cardaccess(ef_card_access_data, self.eac_ctx)
-        ef_card_security = self.mf.select('fid', 0x011d)
-        ef_card_security_data = ef_card_security.data
-        ca_pubkey = pace.CA_get_pubkey(self.eac_ctx, ef_card_security_data)
-        pace.EAC_CTX_init_ca(self.eac_ctx, 0, 0, self.ca_key, ca_pubkey)
+        if not self.eac_ctx:
+            self.eac_ctx = pace.EAC_CTX_new()
 
-        if not self.ca_key:
-            # we don't have a good CA key, so we simply generate an ephemeral one
-            comp_pubkey = pace.TA_STEP3_generate_ephemeral_key(self.eac_ctx)
-            pubkey = pace.CA_STEP2_get_eph_pubkey(self.eac_ctx)
-            if not comp_pubkey or not pubkey:
-                pace.print_ossl_err()
-                raise SwError(SW["WARN_NOINFO63"])
+            ef_card_access = self.mf.select('fid', 0x011c)
+            ef_card_access_data = ef_card_access.data
+            pace.EAC_CTX_init_ef_cardaccess(ef_card_access_data, self.eac_ctx)
 
-            # save public key in EF.CardSecurity (and invalidate the signature)
-            # FIXME this only works for the default EF.CardSecurity.
-            # Better use an ASN.1 parser to do this manipulation
             ef_card_security = self.mf.select('fid', 0x011d)
             ef_card_security_data = ef_card_security.data
-            ef_card_security_data = ef_card_security_data[:61+4+239+2+1] + pubkey + ef_card_security_data[61+4+239+2+1+len(pubkey):]
-            ef_card_security.data = ef_card_security_data
+            ca_pubkey = pace.CA_get_pubkey(self.eac_ctx, ef_card_security_data)
+            pace.EAC_CTX_init_ca(self.eac_ctx, 0, 0, self.ca_key, ca_pubkey)
+
+            if not self.ca_key:
+                # we don't have a good CA key, so we simply generate an ephemeral one
+                comp_pubkey = pace.TA_STEP3_generate_ephemeral_key(self.eac_ctx)
+                pubkey = pace.CA_STEP2_get_eph_pubkey(self.eac_ctx)
+                if not comp_pubkey or not pubkey:
+                    pace.print_ossl_err()
+                    raise SwError(SW["WARN_NOINFO63"])
+
+                # save public key in EF.CardSecurity (and invalidate the signature)
+                # FIXME this only works for the default EF.CardSecurity.
+                # Better use an ASN.1 parser to do this manipulation
+                ef_card_security = self.mf.select('fid', 0x011d)
+                ef_card_security_data = ef_card_security.data
+                ef_card_security_data = ef_card_security_data[:61+4+239+2+1] + pubkey + ef_card_security_data[61+4+239+2+1+len(pubkey):]
+                ef_card_security.data = ef_card_security_data
 
         nonce = pace.PACE_STEP1_enc_nonce(self.eac_ctx, self.sec)
 
