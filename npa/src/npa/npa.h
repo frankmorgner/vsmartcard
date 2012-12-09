@@ -113,53 +113,50 @@ extern "C" {
 const char *npa_secret_name(enum s_type pin_id);
 
 
-#ifdef BUERGERCLIENT_WORKAROUND
-int get_ef_card_access(sc_card_t *card,
-        u8 **ef_cardaccess, size_t *length_ef_cardaccess);
-#endif
-
 /** 
- * @brief Get the reader's PACE capabilities
+ * @brief Get the PACE capabilities
  * 
  * @param[in,out] bitmap where to store capabilities bitmap
  * @note Since this code offers no support for terminal certificate, the bitmap is always \c PACE_BITMAP_PACE|PACE_BITMAP_EID
  * 
  * @return \c SC_SUCCESS or error code if an error occurred
  */
-int GetReadersPACECapabilities(u8 *bitmap);
+int get_pace_capabilities(u8 *bitmap);
 
 /** 
  * @brief Establish secure messaging using PACE
  *
+ * Modifies \a card to use the ISO SM driver and initializes the data
+ * structures to use the established SM channel.
+ *
  * Prints certificate description and card holder authorization template if
  * given in a human readable form to stdout. If no secret is given, the user is
  * asked for it. Only \a pace_input.pin_id is mandatory, the other members of
- * \a pace_input can be set to \c 0 or \c NULL.
+ * \a pace_input can be set to \c 0 or \c NULL respectively.
  *
  * The buffers in \a pace_output are allocated using \c realloc() and should be
  * set to NULL, if empty. If an EF.CardAccess is already present, this file is
  * reused and not fetched from the card.
  * 
  * @param[in]     oldpacectx  (optional) Old SM context, if PACE is established in an existing SM channel
- * @param[in]     card
+ * @param[in,out] card
  * @param[in]     pace_input
  * @param[in,out] pace_output
- * @param[out]    sctx
  * @param[in]     tr_version Version of TR-03110 to use with PACE
  * 
  * @return \c SC_SUCCESS or error code if an error occurred
  */
-int EstablishPACEChannel(struct sm_ctx *oldpacectx, sc_card_t *card,
+int perform_pace(sc_card_t *card,
         struct establish_pace_channel_input pace_input,
         struct establish_pace_channel_output *pace_output,
-        struct sm_ctx *sctx, enum eac_tr_version tr_version);
+        enum eac_tr_version tr_version);
 
-int perform_terminal_authentication(struct sm_ctx *ctx, sc_card_t *card,
+int perform_terminal_authentication(sc_card_t *card,
         const unsigned char **certs, const size_t *certs_lens,
         const unsigned char *privkey, size_t privkey_len,
         const unsigned char *auxiliary_data, size_t auxiliary_data_len);
 
-int perform_chip_authentication(struct sm_ctx *ctx, sc_card_t *card);
+int perform_chip_authentication(sc_card_t *card);
 
 /** 
  * @brief Sends a reset retry counter APDU
@@ -169,7 +166,6 @@ int perform_chip_authentication(struct sm_ctx *ctx, sc_card_t *card);
  * operation to be authorized either by an established PACE channel or by the
  * effective authorization of the terminal's certificate.
  * 
- * @param[in] ctx            (optional) NPA SM context
  * @param[in] card
  * @param[in] pin_id         Type of secret (usually PIN or CAN). You may use <tt>enum s_type</tt> from \c <openssl/pace.h>.
  * @param[in] ask_for_secret whether to ask the user for the secret (\c 1) or not (\c 0)
@@ -178,26 +174,24 @@ int perform_chip_authentication(struct sm_ctx *ctx, sc_card_t *card);
  * 
  * @return \c SC_SUCCESS or error code if an error occurred
  */
-int npa_reset_retry_counter(struct sm_ctx *ctx, sc_card_t *card,
+int npa_reset_retry_counter(sc_card_t *card,
         enum s_type pin_id, int ask_for_secret,
         const char *new, size_t new_len);
 /** 
  * @brief Send APDU to unblock the PIN
  *
- * @param[in] ctx            (optional) NPA SM context
  * @param[in] card
  */
-#define npa_unblock_pin(ctx, card) \
-    npa_reset_retry_counter(ctx, card, PACE_PIN, 0, NULL, 0)
+#define npa_unblock_pin(card) \
+    npa_reset_retry_counter(card, PACE_PIN, 0, NULL, 0)
 /** Send APDU to set a new PIN
  *
- * @param[in] ctx            (optional) NPA SM context
  * @param[in] card
  * @param[in] newp           (optional) new PIN
  * @param[in] newplen        (optional) length of \a new
  */
-#define npa_change_pin(ctx, card, newp, newplen) \
-    npa_reset_retry_counter(ctx, card, PACE_PIN, 1, newp, newplen)
+#define npa_change_pin(card, newp, newplen) \
+    npa_reset_retry_counter(card, PACE_PIN, 1, newp, newplen)
 
 #define NPA_FLAG_DISABLE_CHECKS 1
 extern char npa_default_flags;

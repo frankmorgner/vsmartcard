@@ -55,9 +55,9 @@ test -z "$OPENSC_LIBS" && OPENSC_LIBS="-lopensc"
 saved_LIBS="$LIBS"
 LIBS="$LDFLAGS $OPENSC_LIBS"
 
-AC_MSG_CHECKING([for sc_perform_pace])
-AC_TRY_LINK_FUNC(sc_perform_pace, [ AC_MSG_RESULT([yes]) ],
-        [ AC_MSG_ERROR([libopensc with PACE (git clone git://github.com/frankmorgner/OpenSC.git) not found, use ./configure OPENSC_LIBS=...]) ])
+AC_MSG_CHECKING([for iasecc_sm_external_authentication])
+AC_TRY_LINK_FUNC(iasecc_sm_external_authentication, [ AC_MSG_RESULT([yes]) ],
+        [ AC_MSG_ERROR([libopensc configured with SM (git clone git://github.com/frankmorgner/OpenSC.git) not found, use ./configure OPENSC_LIBS=...]) ])
 
 LIBS="$saved_LIBS"
 

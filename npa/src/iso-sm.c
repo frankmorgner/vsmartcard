@@ -16,12 +16,67 @@
  * You should have received a copy of the GNU General Public License along with
  * ccid.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "scutil.h"
-#include "sm.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <libopensc/asn1.h>
 #include <libopensc/log.h>
+#include <npa/iso-sm.h>
+#include <npa/scutil.h>
 #include <stdlib.h>
 #include <string.h>
+
+/* @brief Protect an APDU with Secure Messaging
+ *
+ * If secure messaging (SM) is activated in \a sctx and \a apdu is not already
+ * SM protected, \a apdu is processed with the following steps:
+ * \li call to \a sctx->pre_transmit
+ * \li encrypt \a apdu calling \a sctx->encrypt
+ * \li authenticate \a apdu calling \a sctx->authenticate
+ * \li copy the SM protected data to \a sm_apdu
+ *
+ * Data for authentication or encryption is always padded before the callback
+ * functions are called
+ *
+ * @param[in]     card
+ * @param[in]     apdu
+ * @param[in,out] sm_apdu
+ *
+ * @return \c SC_SUCCESS or error code if an error occurred
+ */
+static int iso_get_sm_apdu(struct sc_card *card, struct sc_apdu *apdu, struct sc_apdu **sm_apdu);
+
+/* @brief Remove Secure Messaging from an APDU
+ *
+ * If secure messaging (SM) is activated in \a sctx and \a apdu is not already
+ * SM protected, \a apdu is processed with the following steps:
+ * \li verify SM protected \a apdu calling \a sctx->verify_authentication
+ * \li decrypt SM protected \a apdu calling \a sctx->decrypt
+ * \li copy decrypted/authenticated data and status bytes to \a apdu
+ *
+ * Callback functions must not remove padding.
+ *
+ * @param[in]     card
+ * @param[in,out] apdu
+ * @param[in,out] sm_apdu will be freed when done.
+ *
+ * @return \c SC_SUCCESS or error code if an error occurred
+ */
+static int iso_free_sm_apdu(struct sc_card *card, struct sc_apdu *apdu, struct sc_apdu **sm_apdu);
+
+/**
+ * @brief Cleans up allocated ressources of the ISO SM driver
+ *
+ * \c iso_sm_close() is designed as SM card operation. However, have in mind
+ * that this card operation is not called automatically for \c
+ * sc_disconnect_card() .
+ *
+ * @param[in] card
+ *
+ * @return \c SC_SUCCESS or error code if an error occurred
+ */
+static int iso_sm_close(struct sc_card *card);
 
 static const struct sc_asn1_entry c_sm_capdu[] = {
     { "Padding-content indicator followed by cryptogram",
@@ -73,7 +128,7 @@ add_iso_pad(const u8 *data, size_t datalen, int block_size, u8 **padded)
 }
 
 static int
-add_padding(const struct sm_ctx *ctx, const u8 *data, size_t datalen,
+add_padding(const struct iso_sm_ctx *ctx, const u8 *data, size_t datalen,
         u8 **padded)
 {
     u8 *p;
@@ -97,7 +152,7 @@ add_padding(const struct sm_ctx *ctx, const u8 *data, size_t datalen,
 }
 
 static int
-no_padding(u8 padding_indicator, const u8 *data, size_t datalen)
+rm_padding(u8 padding_indicator, const u8 *data, size_t datalen)
 {
     if (!datalen || !data)
         return SC_ERROR_INVALID_ARGUMENTS;
@@ -108,6 +163,7 @@ no_padding(u8 padding_indicator, const u8 *data, size_t datalen)
         case SM_NO_PADDING:
             len = datalen;
             break;
+
         case SM_ISO_PADDING:
             len = datalen;
 
@@ -121,6 +177,7 @@ no_padding(u8 padding_indicator, const u8 *data, size_t datalen)
                 return SC_ERROR_INVALID_DATA;
 
             break;
+
         default:
             return SC_ERROR_NOT_SUPPORTED;
     }
@@ -184,7 +241,7 @@ static int prefix_buf(u8 prefix, u8 *buf, size_t buflen, u8 **cat)
     return buflen + 1;
 }
 
-static int format_data(sc_card_t *card, const struct sm_ctx *ctx,
+static int format_data(sc_card_t *card, const struct iso_sm_ctx *ctx,
         const u8 *data, size_t datalen,
         struct sc_asn1_entry *formatted_encrypted_data_entry,
         u8 **formatted_data, size_t *formatted_data_len)
@@ -236,7 +293,7 @@ err:
     return r;
 }
 
-static int format_head(const struct sm_ctx *ctx, const sc_apdu_t *apdu,
+static int format_head(const struct iso_sm_ctx *ctx, const sc_apdu_t *apdu,
         u8 **formatted_head)
 {
     if (!apdu || !formatted_head)
@@ -255,16 +312,17 @@ static int format_head(const struct sm_ctx *ctx, const sc_apdu_t *apdu,
     return add_padding(ctx, *formatted_head, 4, formatted_head);
 }
 
-static int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
-        const sc_apdu_t *apdu, sc_apdu_t *sm_apdu)
+static int sm_encrypt(const struct iso_sm_ctx *ctx, sc_card_t *card,
+        const sc_apdu_t *apdu, sc_apdu_t **psm_apdu)
 {
     struct sc_asn1_entry sm_capdu[4];
     u8 *p, *le = NULL, *sm_data = NULL, *fdata = NULL, *mac_data = NULL,
-       *asn1 = NULL, *mac = NULL;
+       *asn1 = NULL, *mac = NULL, *resp_data = NULL;
     size_t sm_data_len, fdata_len, mac_data_len, asn1_len, mac_len, le_len;
     int r;
+    sc_apdu_t *sm_apdu = NULL;
 
-    if (!apdu || !ctx || !card || !card->reader || !sm_apdu) {
+    if (!apdu || !ctx || !card || !card->reader || !psm_apdu) {
         r = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
     }
@@ -277,6 +335,11 @@ static int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
 
     sc_copy_asn1_entry(c_sm_capdu, sm_capdu);
 
+    sm_apdu = malloc(sizeof(sc_apdu_t));
+    if (!sm_apdu) {
+        r = SC_ERROR_OUT_OF_MEMORY;
+        goto err;
+    }
     sm_apdu->control = apdu->control;
     sm_apdu->flags = apdu->flags;
     sm_apdu->cla = apdu->cla|0x0C;
@@ -426,40 +489,51 @@ static int sm_encrypt(const struct sm_ctx *ctx, sc_card_t *card,
     r = sc_asn1_encode(card->ctx, sm_capdu, (u8 **) &sm_data, &sm_data_len);
     if (r < 0)
         goto err;
-    if (sm_apdu->datalen < sm_data_len) {
-        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Data for SM APDU too long");
+    sm_apdu->data = sm_data;
+    sm_apdu->datalen = sm_data_len;
+    sm_apdu->lc = sm_data_len;
+    sm_apdu->le = 0;
+    if (apdu->cse & SC_APDU_EXT) {
+        sm_apdu->cse = SC_APDU_CASE_4_EXT;
+#if OPENSC_NOT_BOGUS_ANYMORE
+        sm_apdu->resplen = 0xffff+1;
+#else
+        sm_apdu->resplen = SC_MAX_EXT_APDU_BUFFER_SIZE;
+#endif
+    } else {
+        sm_apdu->cse = SC_APDU_CASE_4_SHORT;
+#if OPENSC_NOT_BOGUS_ANYMORE
+        sm_apdu->resplen = 0xff+1;
+#else
+        sm_apdu->resplen = SC_MAX_APDU_BUFFER_SIZE;
+#endif
+    }
+    resp_data = malloc(sm_apdu->resplen);
+    if (!resp_data) {
         r = SC_ERROR_OUT_OF_MEMORY;
         goto err;
     }
-    /* Flawfinder: ignore */
-    memcpy((u8 *) sm_apdu->data, sm_data, sm_data_len);
-    sm_apdu->datalen = sm_data_len;
-    sm_apdu->lc = sm_apdu->datalen;
-    sm_apdu->le = 0;
-    if (apdu->cse & SC_APDU_EXT)
-        sm_apdu->cse = SC_APDU_CASE_4_EXT;
-    else
-        sm_apdu->cse = SC_APDU_CASE_4_SHORT;
+    sm_apdu->resp = resp_data;
     bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "ASN.1 encoded encrypted APDU data", sm_apdu->data, sm_apdu->datalen);
 
+    *psm_apdu = sm_apdu;
+
 err:
-    if (fdata)
-        free(fdata);
-    if (asn1)
-        free(asn1);
-    if (mac_data)
-        free(mac_data);
-    if (mac)
-        free(mac);
-    if (le)
-        free(le);
-    if (sm_data)
+    free(fdata);
+    free(asn1);
+    free(mac_data);
+    free(mac);
+    free(le);
+    if (r < 0) {
+        free(resp_data);
+        free(sm_apdu);
         free(sm_data);
+    }
 
     return r;
 }
 
-static int sm_decrypt(const struct sm_ctx *ctx, sc_card_t *card,
+static int sm_decrypt(const struct iso_sm_ctx *ctx, sc_card_t *card,
         const sc_apdu_t *sm_apdu, sc_apdu_t *apdu)
 {
     int r;
@@ -520,7 +594,7 @@ static int sm_decrypt(const struct sm_ctx *ctx, sc_card_t *card,
             goto err;
         buf_len = r;
 
-        r = no_padding(ctx->padding_indicator, data, buf_len);
+        r = rm_padding(ctx->padding_indicator, data, buf_len);
         if (r < 0) {
             sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not remove padding");
             goto err;
@@ -572,42 +646,35 @@ err:
     return r;
 }
 
-int sm_transmit_apdu(struct sm_ctx *sctx, sc_card_t *card,
-        sc_apdu_t *apdu)
+static int iso_add_sm(struct iso_sm_ctx *sctx, sc_card_t *card,
+        sc_apdu_t *apdu, sc_apdu_t **sm_apdu)
 {
-    sc_apdu_t sm_apdu;
-    u8 rbuf[0xffff], sbuf[0xffff];
-
-    if (!card)
+    if (!card || !sctx)
         return SC_ERROR_INVALID_ARGUMENTS;
 
-    sm_apdu.data = sbuf;
-    sm_apdu.datalen = sizeof sbuf;
-    sm_apdu.resp = rbuf;
-    sm_apdu.resplen = sizeof rbuf;
-
-    if (!sctx || !sctx->active) {
-        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Secure messaging disabled.");
-        return sc_transmit_apdu(card, apdu);
-    }
-
     if ((apdu->cla & 0x0C) == 0x0C) {
-        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Given APDU is already protected with some secure messaging. Deactivating own SM context.");
-        sctx->active = 0;
-        return sc_transmit_apdu(card, apdu);
+        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Given APDU is already protected with some secure messaging. Closing own SM context.");
+        SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, iso_sm_close(card),
+                "Could not close ISO SM session");
+        return SC_ERROR_SM_NOT_APPLIED;
     }
 
     if (sctx->pre_transmit)
         SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, sctx->pre_transmit(card, sctx, apdu),
                 "Could not complete SM specific pre transmit routine");
-    SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, sm_encrypt(sctx, card, apdu, &sm_apdu),
+    SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, sm_encrypt(sctx, card, apdu, sm_apdu),
             "Could not encrypt APDU");
-    SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, sc_transmit_apdu(card, &sm_apdu),
-            "Could not transmit SM APDU");
+
+    return SC_SUCCESS;
+}
+
+static int iso_rm_sm(struct iso_sm_ctx *sctx, sc_card_t *card,
+        sc_apdu_t *sm_apdu, sc_apdu_t *apdu)
+{
     if (sctx->post_transmit)
-        SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, sctx->post_transmit(card, sctx, &sm_apdu),
+        SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, sctx->post_transmit(card, sctx, sm_apdu),
                 "Could not complete SM specific post transmit routine");
-    SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, sm_decrypt(sctx, card, &sm_apdu, apdu),
+    SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, sm_decrypt(sctx, card, sm_apdu, apdu),
             "Could not decrypt APDU");
     if (sctx->finish)
         SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, sctx->finish(card, sctx, apdu),
@@ -616,8 +683,92 @@ int sm_transmit_apdu(struct sm_ctx *sctx, sc_card_t *card,
     return SC_SUCCESS;
 }
 
-void sm_ctx_clear_free(const struct sm_ctx *sctx)
+int iso_sm_close(struct sc_card *card)
+{
+    if (card) {
+        iso_sm_ctx_clear_free(card->sm_ctx.info.cmd_data);
+        card->sm_ctx.info.cmd_data = NULL;
+    }
+
+    return SC_SUCCESS;
+}
+
+int iso_get_sm_apdu(struct sc_card *card, struct sc_apdu *apdu, struct sc_apdu **sm_apdu)
+{
+    return iso_add_sm(card->sm_ctx.info.cmd_data, card, apdu, sm_apdu);
+}
+
+int iso_free_sm_apdu(struct sc_card *card, struct sc_apdu *apdu, struct sc_apdu **sm_apdu)
+{
+    if (!sm_apdu)
+        return SC_ERROR_INVALID_ARGUMENTS;
+
+    struct sc_apdu *p = *sm_apdu;
+
+    int r = iso_rm_sm(card->sm_ctx.info.cmd_data, card, p, apdu);
+
+    if (p) {
+        free((unsigned char *) p->data);
+        free((unsigned char *) p->resp);
+    }
+    free(*sm_apdu);
+    *sm_apdu = NULL;
+
+    return r;
+}
+
+struct iso_sm_ctx *iso_sm_ctx_create(void)
+{
+    struct iso_sm_ctx *sctx = malloc(sizeof *sctx);
+    if (!sctx)
+        return NULL;
+
+    sctx->priv_data = NULL;
+    sctx->padding_indicator = SM_ISO_PADDING;
+    sctx->block_length = 0;
+    sctx->authenticate = NULL;
+    sctx->verify_authentication = NULL;
+    sctx->encrypt = NULL;
+    sctx->decrypt = NULL;
+    sctx->pre_transmit = NULL;
+    sctx->post_transmit = NULL;
+    sctx->finish = NULL;
+    sctx->clear_free = NULL;
+
+    return sctx;
+}
+
+void iso_sm_ctx_clear_free(struct iso_sm_ctx *sctx)
 {
     if (sctx && sctx->clear_free)
         sctx->clear_free(sctx);
+    free(sctx);
+}
+
+int iso_sm_start(struct sc_card *card, struct iso_sm_ctx *sctx)
+{
+    if (!card)
+        return SC_ERROR_INVALID_ARGUMENTS;
+
+    if (card->sm_ctx.ops.close)
+        card->sm_ctx.ops.close(card);
+
+    card->sm_ctx.info.cmd_data = sctx;
+    card->sm_ctx.ops.close = iso_sm_close;
+    card->sm_ctx.ops.free_sm_apdu = iso_free_sm_apdu;
+    card->sm_ctx.ops.get_sm_apdu = iso_get_sm_apdu;
+    card->sm_ctx.sm_mode = SM_MODE_TRANSMIT;
+}
+
+int sm_stop(struct sc_card *card)
+{
+    int r = SC_SUCCESS;
+
+    if (card) {
+        if (card->sm_ctx.ops.close)
+            r = card->sm_ctx.ops.close(card);
+        card->sm_ctx.sm_mode = SM_MODE_NONE;
+    }
+
+    return r;
 }

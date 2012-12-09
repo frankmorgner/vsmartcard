@@ -17,10 +17,14 @@
  * npa.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* This example shows how to use the library functions EstablishPACEChannel to
+/* This example shows how to use the library functions perform_pace to
  * get a secure channel to the nPA. We use the builtin function npa_change_pin
  * to modify the PIN using the secure channel. Then we transmit an arbitrary
  * APDU encrypted and authenticated to the card using sm_transmit_apdu. */
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <npa/npa.h>
 #include <npa/scutil.h>
 #include <string.h>
@@ -46,11 +50,9 @@ main (int argc, char **argv)
     sc_apdu_t apdu;
     u8 buf[0xffff];
 
-    struct sm_ctx sctx;
     struct establish_pace_channel_input pace_input;
     struct establish_pace_channel_output pace_output;
 
-    memset(&sctx, 0, sizeof sctx);
     memset(&pace_input, 0, sizeof pace_input);
     memset(&pace_output, 0, sizeof pace_output);
 
@@ -78,13 +80,12 @@ main (int argc, char **argv)
     pace_input.pin = (unsigned char *) pin;
     pace_input.pin_length = pin ? strlen(pin) : 0;
 
-    r = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
-            &sctx, EAC_TR_VERSION_2_02);
+    r = perform_pace(card, pace_input, &pace_output, EAC_TR_VERSION_2_02);
     if (r < 0)
         goto err;
     printf("Established PACE channel with PIN.\n");
 
-    r = npa_change_pin(&sctx, card, newpin, newpin ? strlen(newpin) : 0);
+    r = npa_change_pin(card, newpin, newpin ? strlen(newpin) : 0);
     if (r < 0)
         goto err;
     printf("Changed PIN.\n");
@@ -104,14 +105,13 @@ main (int argc, char **argv)
     apdu.resplen = sizeof buf;
 
     /* Transmit the APDU with SM */
-    r = sm_transmit_apdu(&sctx, card, &apdu);
+    r = sc_transmit_apdu(card, &apdu);
 
 
 err:
     fprintf(r < 0 ? stderr : stdout, "%s\n", sc_strerror(r));
 
     /* Free up memory and wipe it if necessary (e.g. for keys stored in sm_ctx) */
-    sm_ctx_clear_free(&sctx);
     if (pace_output.ef_cardaccess)
         free(pace_output.ef_cardaccess);
     if (pace_output.recent_car)
@@ -123,6 +123,7 @@ err:
     if (pace_output.id_pcd)
         free(pace_output.id_pcd);
 
+    sm_stop(card);
     sc_reset(card, 1);
     sc_disconnect_card(card);
     sc_release_context(ctx);

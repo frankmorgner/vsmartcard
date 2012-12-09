@@ -16,6 +16,10 @@
  * You should have received a copy of the GNU General Public License along with
  * npa.  If not, see <http://www.gnu.org/licenses/>.
  */
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "cmdline.h"
 #include "config.h"
 #include <eac/pace.h>
@@ -103,7 +107,7 @@ err:
     return r;
 }
 
-int npa_translate_apdus(struct sm_ctx *sctx, sc_card_t *card, FILE *input)
+int npa_translate_apdus(sc_card_t *card, FILE *input)
 {
     u8 buf[4 + 3 + 0xffff + 3];
     char *read = NULL;
@@ -150,7 +154,7 @@ int npa_translate_apdus(struct sm_ctx *sctx, sc_card_t *card, FILE *input)
         apdu.resp = buf;
         apdu.resplen = sizeof buf;
 
-        r = sm_transmit_apdu(sctx, card, &apdu);
+        r = sc_transmit_apdu(card, &apdu);
         if (r < 0) {
             sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE_TOOL,
                     "Could not send C-APDU: %s", sc_strerror(r));
@@ -173,7 +177,6 @@ main (int argc, char **argv)
 {
     int r, oindex = 0, tr_version = EAC_TR_VERSION_2_02;
     size_t channeldatalen;
-    struct sm_ctx sctx, tmpctx;
     struct establish_pace_channel_input pace_input;
     struct establish_pace_channel_output pace_output;
     struct timeval tv;
@@ -184,8 +187,6 @@ main (int argc, char **argv)
 
     struct gengetopt_args_info cmdline;
 
-    memset(&sctx, 0, sizeof sctx);
-    memset(&tmpctx, 0, sizeof tmpctx);
     memset(&pace_input, 0, sizeof pace_input);
     memset(&pace_output, 0, sizeof pace_output);
 
@@ -319,8 +320,7 @@ main (int argc, char **argv)
                     (unsigned int) tv.tv_sec, (unsigned int) tv.tv_usec,
                     npa_secret_name(pace_input.pin_id), pace_input.pin);
 
-            r = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
-                    &sctx, tr_version);
+            r = perform_pace(card, pace_input, &pace_output, tr_version);
 
             secret++;
         } while (0 > r && secret <= maxsecret);
@@ -348,8 +348,7 @@ main (int argc, char **argv)
             pace_input.pin = NULL;
             pace_input.pin_length = 0;
         }
-        r = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
-            &tmpctx, tr_version);
+        r = perform_pace(card, pace_input, &pace_output, tr_version);
         if (r < 0)
             goto err;
         printf("Established PACE channel with CAN.\n");
@@ -362,8 +361,7 @@ main (int argc, char **argv)
             pace_input.pin = NULL;
             pace_input.pin_length = 0;
         }
-        r = EstablishPACEChannel(&tmpctx, card, pace_input, &pace_output,
-            &sctx, tr_version);
+        r = perform_pace(card, pace_input, &pace_output, tr_version);
         if (r < 0)
             goto err;
         printf("Established PACE channel with PIN. PIN resumed.\n");
@@ -378,13 +376,12 @@ main (int argc, char **argv)
             pace_input.pin = NULL;
             pace_input.pin_length = 0;
         }
-        r = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
-            &sctx, tr_version);
+        r = perform_pace(card, pace_input, &pace_output, tr_version);
         if (r < 0)
             goto err;
         printf("Established PACE channel with PUK.\n");
 
-        r = npa_unblock_pin(&sctx, card);
+        r = npa_unblock_pin(card);
         if (r < 0)
             goto err;
         printf("Unblocked PIN.\n");
@@ -399,13 +396,12 @@ main (int argc, char **argv)
             pace_input.pin = NULL;
             pace_input.pin_length = 0;
         }
-        r = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
-            &sctx, tr_version);
+        r = perform_pace(card, pace_input, &pace_output, tr_version);
         if (r < 0)
             goto err;
         printf("Established PACE channel with PIN.\n");
 
-        r = npa_change_pin(&sctx, card, newpin, newpin ? strlen(newpin) : 0);
+        r = npa_change_pin(card, newpin, newpin ? strlen(newpin) : 0);
         if (r < 0)
             goto err;
         printf("Changed PIN.\n");
@@ -499,21 +495,20 @@ main (int argc, char **argv)
             exit(1);
         }
 
-        r = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
-            &sctx, tr_version);
+        r = perform_pace(card, pace_input, &pace_output, tr_version);
         if (r < 0)
             goto err;
         printf("Established PACE channel with %s.\n",
                 npa_secret_name(pace_input.pin_id));
 
         if (cmdline.cv_certificate_given || cmdline.private_key_given) {
-            r = perform_terminal_authentication(&sctx, card, certs, certs_lens,
+            r = perform_terminal_authentication(card, certs, certs_lens,
                     privkey, privkey_len, auxiliary_data, auxiliary_data_len);
             if (r < 0)
                 goto err;
             printf("Performed Terminal Authentication.\n");
 
-            r = perform_chip_authentication(&sctx, card);
+            r = perform_chip_authentication(card);
             if (r < 0)
                 goto err;
             printf("Performed Chip Authentication.\n");
@@ -530,7 +525,7 @@ main (int argc, char **argv)
                 }
             }
 
-            r = npa_translate_apdus(&sctx, card, input);
+            r = npa_translate_apdus(card, input);
             if (r < 0)
                 goto err;
             fclose(input);
@@ -540,8 +535,6 @@ main (int argc, char **argv)
 
 err:
     cmdline_parser_free(&cmdline);
-    sm_ctx_clear_free(&sctx);
-    sm_ctx_clear_free(&tmpctx);
     if (pace_output.ef_cardaccess)
         free(pace_output.ef_cardaccess);
     if (pace_output.recent_car)
@@ -567,6 +560,7 @@ err:
     if (cvc_cert)
         CVC_CERT_free(cvc_cert);
 
+    sm_stop(card);
     sc_reset(card, 1);
     sc_disconnect_card(card);
     sc_release_context(ctx);

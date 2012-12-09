@@ -16,10 +16,14 @@
  * You should have received a copy of the GNU General Public License along with
  * ccid.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "scutil.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include <libopensc/log.h>
+#include <npa/scutil.h>
 #include <stdio.h>
 #include <string.h>
-#include <libopensc/log.h>
 
 int initialize(int reader_id, const char *cdriver, int verbose,
         sc_context_t **ctx, sc_reader_t **reader)

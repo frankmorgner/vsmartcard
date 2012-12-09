@@ -1,7 +1,7 @@
 ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = src m4 doc win32
 
-EXTRA_DIST = libnpa.pc.in apdus test_vicc_with_npa.sh
+EXTRA_DIST = libnpa.pc.in apdus test_vicc_with_npa-tool.sh
 
 do_subst = $(SED) \
 	   -e 's,[@]PACKAGE_NAME[@],$(PACKAGE_NAME),g' \
