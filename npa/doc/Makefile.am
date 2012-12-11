@@ -18,6 +18,8 @@ do_subst = $(SED) \
 
 EXTRA_DIST = README.rst.in README.rst Doxyfile.in example.c autotools.rst autotools.rst.in questions.rst questions.rst.in
 
+DOXYGEN = doxygen
+
 doc: $(top_srcdir)/src/npa/*.h *.in
 	$(do_subst) < Doxyfile.in > Doxyfile
 	$(DOXYGEN) Doxyfile

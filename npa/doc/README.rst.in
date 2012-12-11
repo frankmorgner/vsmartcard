@@ -30,8 +30,10 @@ The @PACKAGE_NAME@ offers an easy to use API for the new German identity card
 which could also be used for other cards. The included |npa-tool| can
 be used for PIN management or to send APDUs inside a secure channel.
 
-The @PACKAGE_NAME@ is implemented using OpenPACE_.  Some fragments of the
-source code are based on the source code of the OpenSC_ tools.
+The @PACKAGE_NAME@ is implemented using OpenPACE_ and OpenSC_. @PACKAGE_NAME@
+implements and initializes Secure Messaging wrappers of OpenSC to allow a
+transparent SM usage in OpenSC. This allows @PACKAGE_NAME@ to be fully
+compatible with OpenSC.
 
 
 .. _npa-install:

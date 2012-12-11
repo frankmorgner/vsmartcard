@@ -26,9 +26,9 @@ Please consider the following overview to the API as incomplete. The `Doxygen
 documentation <../_static/doxygen-npa/modules.html>`_ should be used as programmer's
 reference since it is more detailed.
 
-=====================
-Secure Messaging (SM)
-=====================
+======================================
+Generic ISO 7816 Secure Messaging (SM)
+======================================
 
 The complete documentation can be found `here
 <../_static/doxygen-npa/group__sm.html>`__.
@@ -36,13 +36,15 @@ The complete documentation can be found `here
 -----
 Types
 -----
-.. doxygenstruct:: sm_ctx
+.. doxygenstruct:: iso_sm_ctx
 
 ---------
 Functions
 ---------
-.. doxygenfunction:: sm_transmit_apdu
-.. doxygenfunction:: sm_ctx_clear_free
+.. doxygenfunction:: iso_sm_ctx_create
+.. doxygenfunction:: iso_sm_ctx_clear_free
+.. doxygenfunction:: iso_sm_start
+.. doxygenfunction:: sm_stop
 
 ==============================================================
 Interface to German identity card (neuer Personalausweis, nPA)
@@ -54,7 +56,9 @@ The complete documentation can be found `here
 ---------
 Functions
 ---------
-.. doxygenfunction:: EstablishPACEChannel
+.. doxygenfunction:: perform_pace
+.. doxygenfunction:: perform_terminal_authentication
+.. doxygenfunction:: perform_chip_authentication
 .. doxygenfunction:: npa_reset_retry_counter
 
 -------
