@@ -8,7 +8,7 @@ Programming with the nPA Library
 
 The nPA library includes a generic implementation for Secure Messaging (SM),
 which might also be used in conjunction with other cards. It is implemented to
-be close to ISO 7816-8 focusing only on encoding rather than implementing
+be close to ISO 7816 focusing only on encoding rather than implementing
 everything that is needed to get a secure channel. All cryptographic work is
 done by call back functions, which should be appropriatly set for the specific
 card.
@@ -17,36 +17,19 @@ Using the German identity card (neuer Personalausweis, nPA) requires user
 authentication via entry of the PIN. Transmitting the PIN in plaintext is
 risky, since it would be transmitted over the air and could be snooped. That's
 why the PACE keyagreement is used to verify the PIN and establish an SM channel
-to the nPA. :npa:`EstablishPACEChannel` does exactly that and if everything
-went fine, it initializes :npa:`sm_ctx` for use of the SM channel. Now
-:npa:`sm_transmit_apdu` can be used to securely transmit arbitrary APDUs to the
-card. You could for example change your PIN or even continue the Extended
-Access Control (EAC) with Terminal Authentication (TA) and Chit Authenitcation
-(CA).
+to the nPA. :npa:`perform_pace` does exactly that and if everything went fine,
+it initializes the card for use of the SM channel. Now `sc_transmit_apdu` or
+any other OpenSC command can be used to securely transmit arbitrary APDUs to
+the card. Next in the Extended Access Control (EAC) are the Terminal
+Authentication (:npa:`perform_terminal_authentication`) and Chip Authentication
+(:npa:`perform_chip_authentication`). When the EAC was successfull, the card
+will be initialized for the new SM channel. Again, libopensc can directly be
+used to read identity attributes, for example.
 
 Please consider the following overview to the API as incomplete. The `Doxygen
 documentation <../_static/doxygen-npa/modules.html>`_ should be used as programmer's
 reference since it is more detailed.
 
-======================================
-Generic ISO 7816 Secure Messaging (SM)
-======================================
-
-The complete documentation can be found `here
-<../_static/doxygen-npa/group__sm.html>`__.
-
------
-Types
------
-.. doxygenstruct:: iso_sm_ctx
-
----------
-Functions
----------
-.. doxygenfunction:: iso_sm_ctx_create
-.. doxygenfunction:: iso_sm_ctx_clear_free
-.. doxygenfunction:: iso_sm_start
-.. doxygenfunction:: sm_stop
 
 ==============================================================
 Interface to German identity card (neuer Personalausweis, nPA)
@@ -69,6 +52,7 @@ Defines
 .. doxygendefine:: npa_change_pin
 .. doxygendefine:: npa_unblock_pin
 
+
 =======
 Example
 =======
@@ -78,3 +62,24 @@ your environment <npa-usage>`.
 
 .. literalinclude:: example.c
     :lines: 20-
+
+
+======================================
+Generic ISO 7816 Secure Messaging (SM)
+======================================
+
+The complete documentation can be found `here
+<../_static/doxygen-npa/group__sm.html>`__.
+
+-----
+Types
+-----
+.. doxygenstruct:: iso_sm_ctx
+
+---------
+Functions
+---------
+.. doxygenfunction:: iso_sm_ctx_create
+.. doxygenfunction:: iso_sm_ctx_clear_free
+.. doxygenfunction:: iso_sm_start
+.. doxygenfunction:: sm_stop
