@@ -47,19 +47,25 @@ m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
 
 # Checks for libraries.
-PKG_CHECK_EXISTS([libopensc],
-                 [PKG_CHECK_MODULES([OPENSC], [libopensc >= 0.12.1 ])],
-                 [AC_MSG_WARN([libopensc >= 0.12.1 not found by pkg-config])])
 test -z "$OPENSC_LIBS" && OPENSC_LIBS="-lopensc"
+test -z "$OPENSC_CFLAGS" && OPENSC_CFLAGS="-I${PWD}/${srcdir}/src/opensc/src -DENABLE_SM"
 
+saved_CPPFLAGS="$CPPFLAGS"
 saved_LIBS="$LIBS"
+CPPFLAGS="$OPENSC_CFLAGS $CPPFLAGS"
 LIBS="$LDFLAGS $OPENSC_LIBS"
 
+AC_CHECK_HEADERS([libopensc/opensc.h libopensc/sm.h libopensc/pace.h],
+                 [], [AC_MSG_ERROR([OpenSC headers not found])])
 AC_MSG_CHECKING([for iasecc_sm_external_authentication])
-AC_TRY_LINK_FUNC(iasecc_sm_external_authentication, [ AC_MSG_RESULT([yes]) ],
-        [ AC_MSG_ERROR([libopensc configured with SM (git clone git://github.com/frankmorgner/OpenSC.git) not found, use ./configure OPENSC_LIBS=...]) ])
+AC_TRY_LINK_FUNC(iasecc_sm_external_authentication,
+                 [ AC_MSG_RESULT([yes]) ],
+                 [ AC_MSG_ERROR([Cannot link against libopensc with SM]) ])
 
+CPPFLAGS="$saved_CPPFLAGS"
 LIBS="$saved_LIBS"
+AC_SUBST([OPENSC_LIBS])
+AC_SUBST([OPENSC_CFLAGS])
 
 
 PKG_CHECK_EXISTS([libcrypto],
@@ -71,16 +77,18 @@ saved_LIBS="$LIBS"
 CPPFLAGS="$CPPFLAGS $OPENSSL_CFLAGS"
 LIBS="$LDFLAGS $OPENSSL_LIBS"
 
-AC_CHECK_HEADERS(openssl/evp.h, [], [ AC_MSG_ERROR([openssl/evp.h not found, install OpenSSL or use ./configure OPENSSL_CFLAGS=...]) ])
+AC_CHECK_HEADERS(openssl/evp.h, [],
+                 [ AC_MSG_ERROR([OpenSSL headers not found]) ])
 AC_MSG_CHECKING([for EVP_read_pw_string_min])
-AC_TRY_LINK_FUNC(EVP_read_pw_string_min, [ AC_MSG_RESULT([yes]) ], [ AC_MSG_ERROR([OpenSSL not found, use ./configure OPENSSL_LIBS=...]) ])
+AC_TRY_LINK_FUNC(EVP_read_pw_string_min,
+                 [ AC_MSG_RESULT([yes]) ],
+                 [ AC_MSG_ERROR([Cannot link against libcrypto]) ])
 
 CPPFLAGS="$saved_CPPFLAGS"
 LIBS="$saved_LIBS"
 
 
-PKG_CHECK_EXISTS([libeac],
-                 [PKG_CHECK_MODULES([OPENPACE], [libeac])],
+PKG_CHECK_EXISTS([libeac], [PKG_CHECK_MODULES([OPENPACE], [libeac])],
                  [AC_MSG_WARN([libeac not found by pkg-config])])
 
 saved_CPPFLAGS="$CPPFLAGS"
@@ -88,9 +96,11 @@ saved_LIBS="$LIBS"
 CPPFLAGS="$CPPFLAGS $OPENPACE_CFLAGS"
 LIBS="$LDFLAGS $OPENPACE_LIBS"
 
-AC_CHECK_HEADERS(eac/eac.h, [], [ AC_MSG_ERROR([eac/eac.h not found, install OpenPACE or use ./configure OPENSSL_CFLAGS=...]) ])
+AC_CHECK_HEADERS(eac/eac.h, [],
+                 [ AC_MSG_ERROR([OpenPACE headers not found]) ])
 AC_MSG_CHECKING([for EAC_CTX_init_pace])
-AC_TRY_LINK_FUNC(EAC_CTX_init_pace, [ AC_MSG_RESULT([yes]) ], [ AC_MSG_ERROR([OpenPACE not found, use ./configure OPENPACE_LIBS=...]) ])
+AC_TRY_LINK_FUNC(EAC_CTX_init_pace, [ AC_MSG_RESULT([yes]) ],
+                 [ AC_MSG_ERROR([Cannot link against libeac]) ])
 
 CPPFLAGS="$saved_CPPFLAGS"
 LIBS="$saved_LIBS"
@@ -131,6 +141,7 @@ Preprocessor flags:   ${CPPFLAGS}
 Linker flags:         ${LDFLAGS}
 Libraries:            ${LIBS}
 OPENSC_LIBS:          ${OPENSC_LIBS}
+OPENSC_CFLAGS:        ${OPENSC_CFLAGS}
 OPENSSL_CFLAGS:       ${OPENSSL_CFLAGS}
 OPENSSL_LIBS:         ${OPENSSL_LIBS}
 OPENPACE_CFLAGS:      ${OPENPACE_CFLAGS}

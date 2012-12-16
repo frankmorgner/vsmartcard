@@ -1,5 +1,7 @@
 .. highlight:: c
 
+.. _npa-api:
+
 ********************************
 Programming with the nPA Library
 ********************************

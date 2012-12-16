@@ -1,7 +1,6 @@
 .. highlight:: sh
 
-.. _OpenSC: http://www.opensc-project.org
-.. _OpenSC with PACE: http://github.com/frankmorgner/OpenSC
+.. _OpenSC: https://github.com/OpenSC/OpenSC
 .. _OpenSSL: http://www.openssl.org
 .. _OpenPACE: http://openpace.sourceforge.net
 
@@ -30,8 +29,10 @@ The nPA Smart Card Library offers an easy to use API for the new German identity
 which could also be used for other cards. The included |npa-tool| can
 be used for PIN management or to send APDUs inside a secure channel.
 
-The nPA Smart Card Library is implemented using OpenPACE_.  Some fragments of the
-source code are based on the source code of the OpenSC_ tools.
+The nPA Smart Card Library is implemented using OpenPACE_ and OpenSC_. nPA Smart Card Library
+implements and initializes Secure Messaging wrappers of OpenSC to allow a
+transparent SM usage in OpenSC. This allows nPA Smart Card Library to be fully
+compatible with OpenSC.
 
 
 .. _npa-install:
@@ -40,61 +41,62 @@ source code are based on the source code of the OpenSC_ tools.
 
 The nPA Smart Card Library has the following dependencies:
 
-- `OpenSC with PACE`_
-- OpenSSL_ with OpenPACE_
+- OpenSSL_
+- OpenPACE_
+- OpenSC_
 
 
-------------------------------
-Hints on OpenSSL with OpenPACE
-------------------------------
+------------------------------------
+Installation of OpenPACE and OpenSSL
+------------------------------------
 
-The nPA Smart Card Library links against OpenSSL_, which must be patched with
-OpenPACE_.  Here is an example of how to get the standard installation of
-OpenPACE_::
+The nPA Smart Card Library links against OpenSSL_, which must be patched for OpenPACE_.
+Here is an example of how to get the standard installation of OpenPACE_ (with
+the required binaries for OpenSSL)::
  
     PREFIX=/tmp/install
     OPENPACE=openpace
-    svn co https://openpace.svn.sourceforge.net/svnroot/openpace $OPENPACE
+    git clone git://openpace.git.sourceforge.net/gitroot/openpace $OPENPACE
     cd $OPENPACE
-    make patch_with_openpace
-    cd openpace
-    ./config experimental-pace --prefix=$PREFIX
-    make depend
-    make
-    make install
+    autoreconf --verbose --install
+    # with `--enable-openssl-install` OpenSSL will be downloaded and installed along with OpenPACE
+    ./configure --enable-openssl-install --prefix=$PREFIX
+    make install && cd -
 
-Building the nPA Smart Card Library with OpenPACE_ is done best using
-:command:`pkg-config`.  The file :file:`libcrypto.pc` should be located in
-``$INSTALL/lib/pkgconfig``. Here is how to configure the nPA Smart Card Library to use
-it::
-
-    ./configure PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig
+The file :file:`libcrypto.pc` should be located in ``$INSTALL/lib/pkgconfig``.
 
 
----------------
-Hints on OpenSC
----------------
+----------------------
+Installation of OpenSC
+----------------------
 
-The nPA Smart Card Library links against OpenSC, which is discouraged and hindered
-since OpenSC version >= 0.12. However, I extended OpenSC to support smart card
-readers with PACE capabilities. You need the OpenSC components to be installed
-(especially :file:`libopensc.so`). Here is an example of how to get the
-standard installation of `OpenSC with PACE`_::
+The nPA Smart Card Library need the OpenSC components to be installed (especially
+:file:`libopensc.so`). Here is an example of how to get a suitable installation
+of OpenSC_::
 
-    PREFIX=/tmp/install
-    OPENSC=opensc
-    git clone git://github.com/frankmorgner/OpenSC.git $OPENSC
-    cd $OPENSC
-    autoreconf -i
+    VSMARTCARD=vsmartcard
+    git clone git://vsmartcard.git.sourceforge.net/gitroot/vsmartcard $VSMARTCARD
+    cd $VSMARTCARD/npa/src/opensc
+    autoreconf --verbose --install
     # adding PKG_CONFIG_PATH here lets OpenSC use OpenSSL with OpenPACE
     ./configure --prefix=$PREFIX PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig
-    make
-    make install
+    make install && cd -
 
-Now :file:`libopensc.so` should be located in ``$PREFIX/lib``. Here is how to
-configure the nPA Smart Card Library to use it::
+Now :file:`libopensc.so` should be located in ``$PREFIX/lib``.
 
-    ./configure OPENSC_LIBS="-L$PREFIX/lib -lopensc"
+
+--------------------------------------------------------------------------------
+Installation of the nPA Smart Card Library
+--------------------------------------------------------------------------------
+
+To complete this step-by-step guide, here is how to install nPA Smart Card Library::
+
+    cd $VSMARTCARD/npa
+    autoreconf --verbose --install
+    # adding PKG_CONFIG_PATH here lets OpenSC use OpenSSL with OpenPACE
+    ./configure --prefix=$PREFIX PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig OPENSC_LIBS="-L$PREFIX/lib -lopensc"
+    make install && cd -
+
 
 
 .. _npa-usage:
@@ -119,27 +121,25 @@ be found in :file:`apdus`.
 Linking against libnpa
 ----------------------
 
-Following the section `Installation`_ above, you have installed `OpenSC with
-PACE`_, OpenPACE_ and the nPA Smart Card Library to :file:`/tmp/install`. To compile a
-program using nPA Smart Card Library you need to get the header files from `OpenSC with
-PACE`_ as well.  Here is how to compile an external program with these
-libraries::
+Following the section `Installation`_ above, you have installed OpenSSL_,
+OpenPACE_, OpenSC_ and the nPA Smart Card Library to `$PREFIX` which points to
+:file:`/tmp/install`. To compile a program using nPA Smart Card Library you also need
+the OpenSC header files, which are located in
+:file:`$VSMARTCARD/npa/src/opensc` Here is how to compile an external program
+with these libraries::
 
-    PREFIX=/tmp/install
-    OPENSC=opensc
-    git clone git://github.com/frankmorgner/OpenSC.git $OPENSC
-    cc example.c -I$OPENSC/src \
-        $(env PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig \
-            pkg-config --cflags --libs npa)
+    PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig
+    cc example.c -I$VSMARTCARD/npa/src/opensc \
+        $(pkg-config --cflags --libs npa)
 
 Alternatively you can specify libraries and flags by hand::
 
-    PREFIX=/tmp/install
-    OPENSC=opensc
-    git clone git://github.com/frankmorgner/OpenSC.git $OPENSC
-    cc example.c -I$OPENSC/src \
+    cc example.c -I$VSMARTCARD/npa/src/opensc \
         -I$PREFIX/include \
-        -L$PREFIX/lib -lcrypto -lnpa -lopensc"
+        -L$PREFIX/lib -lnpa -lopensc -lcrypto"
+
+The API to libnpa is documented in :ref:`npa-api`. It includes a simple
+programming example.
 
 
 .. include:: questions.rst

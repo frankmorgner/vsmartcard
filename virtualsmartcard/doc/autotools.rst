@@ -1,8 +1,8 @@
 .. highlight:: sh
 
-=============
+============
 Installation
-=============
+============
 
 The Virtual Smart Card uses the GNU Build System to compile and install. If you are
 unfamiliar with it, please have a look at :file:`INSTALL`. If you have a look
@@ -10,7 +10,7 @@ around and can not find it, you are probably working bleeding edge in the
 repository.  Run the following command in :file:`virtualsmartcard` to
 get the missing standard auxiliary files::
     
-    autoreconf -i
+    autoreconf --verbose --install
 
 To configure (:command:`configure --help` lists possible options), build and
 install the Virtual Smart Card now do the following::
