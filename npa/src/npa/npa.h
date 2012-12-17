@@ -80,11 +80,6 @@ extern "C" {
 /** NPA result (TR-03119): Benutzer – Timeout */
 #define NPA_ERROR_TIMEOUT                      0xF0200002
 
-//#define PACE_MRZ 0x01
-//#define PACE_CAN 0x02
-//#define PACE_PIN 0x03
-//#define PACE_PUK 0x04
-
 /** File identifier of EF.CardAccess */
 #define  FID_EF_CARDACCESS   0x011C
 /** Short file identifier of EF.CardAccess */
@@ -94,8 +89,6 @@ extern "C" {
 /** Short file identifier of EF.CardAccess */
 #define SFID_EF_CARDSECURITY 0x1D
 
-/** Maximum length of EF.CardAccess */
-#define MAX_EF_CARDACCESS 2048
 /** Maximum length of PIN */
 #define MAX_PIN_LEN       6
 /** Minimum length of PIN */
@@ -138,11 +131,10 @@ int get_pace_capabilities(u8 *bitmap);
  * set to NULL, if empty. If an EF.CardAccess is already present, this file is
  * reused and not fetched from the card.
  * 
- * @param[in]     oldpacectx  (optional) Old SM context, if PACE is established in an existing SM channel
  * @param[in,out] card
  * @param[in]     pace_input
  * @param[in,out] pace_output
- * @param[in]     tr_version Version of TR-03110 to use with PACE
+ * @param[in]     tr_version  Version of TR-03110 to use with PACE
  * 
  * @return \c SC_SUCCESS or error code if an error occurred
  */
@@ -151,11 +143,37 @@ int perform_pace(sc_card_t *card,
         struct establish_pace_channel_output *pace_output,
         enum eac_tr_version tr_version);
 
+/**
+ * @brief Terminal Authentication version 2
+ *
+ * @param[in] card
+ * @param[in] certs              chain of cv certificates, the last certificate
+ *                               is the terminal's certificate, array should be
+ *                               terminated with \c NULL
+ * @param[in] certs_lens         length of each element in \c certs, should be
+ *                               terminated with \c 0
+ * @param[in] privkey            The terminal's private key
+ * @param[in] privkey_len        length of \a privkey
+ * @param[in] auxiliary_data     auxiliary data for age/validity/community ID
+ *                               verification
+ * @param[in] auxiliary_data_len length of \a auxiliary_data
+ *
+ * @return \c SC_SUCCESS or error code if an error occurred
+ */
 int perform_terminal_authentication(sc_card_t *card,
         const unsigned char **certs, const size_t *certs_lens,
         const unsigned char *privkey, size_t privkey_len,
         const unsigned char *auxiliary_data, size_t auxiliary_data_len);
 
+/**
+ * @brief Establish secure messaging using Chip Authentication version 2
+ *
+ * Switches the SM context of \c card to the new established keys.
+ *
+ * @param[in] card
+ *
+ * @return \c SC_SUCCESS or error code if an error occurred
+ */
 int perform_chip_authentication(sc_card_t *card);
 
 /** 
@@ -193,7 +211,15 @@ int npa_reset_retry_counter(sc_card_t *card,
 #define npa_change_pin(card, newp, newplen) \
     npa_reset_retry_counter(card, PACE_PIN, 1, newp, newplen)
 
+/**
+ * @brief Disable all sanity checks done by OpenPACE
+ *
+ * Currently used to set \c TA_FLAG_SKIP_TIMECHECK (Skip checking effective and
+ * expiration date of cv certificates against the system's current time).
+ */
 #define NPA_FLAG_DISABLE_CHECKS 1
+
+/** Use \c npa_default_flags to disable checks for EAC/SM */
 extern char npa_default_flags;
 
 #ifdef  __cplusplus
