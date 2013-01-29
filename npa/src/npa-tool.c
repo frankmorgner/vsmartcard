@@ -51,24 +51,6 @@ static ssize_t getline(char **lineptr, size_t *n, FILE *stream)
 }
 #endif
 
-static const char *newpin = NULL;
-static const char *pin = NULL;
-static const char *puk = NULL;
-static const char *can = NULL;
-static const char *mrz = NULL;
-static u8 chat[0xff];
-static u8 desc[0xffff];
-size_t *certs_lens = NULL;
-static const unsigned char **certs = NULL;
-static unsigned char *privkey = NULL;
-static size_t privkey_len = 0;
-static u8 auxiliary_data[0xff];
-static size_t auxiliary_data_len = 0;
-
-static sc_context_t *ctx = NULL;
-static sc_card_t *card = NULL;
-static sc_reader_t *reader;
-
 int fread_to_eof(const unsigned char *file, unsigned char **buf, size_t *buflen)
 {
     FILE *input;
@@ -105,6 +87,36 @@ err:
         fclose(input);
 
     return r;
+}
+
+static void read_dg(sc_card_t *card, unsigned char sfid, const char *dg_str,
+        unsigned char **dg, size_t *dg_len)
+{
+    int r = read_binary_rec(card, sfid, dg, dg_len);
+    if (r < 0)
+        fprintf(stderr, "Coult not read DG %02u %s (%s)\n",
+                sfid, dg_str, sc_strerror(r));
+    else
+        bin_print(stdout, dg_str, *dg, *dg_len);
+}
+
+static void write_dg(sc_card_t *card, unsigned char sfid, const char *dg_str,
+        const char *dg_hex)
+{
+    unsigned char dg[0xff];
+    size_t dg_len = sizeof dg;
+    int r;
+
+    r = sc_hex_to_bin(dg_hex, dg, &dg_len);
+    if (r < 0) {
+        fprintf(stderr, "Coult not parse DG %02u %s (%s)\n",
+                sfid, dg_str, sc_strerror(r));
+    } else {
+        r = write_binary_rec(card, sfid, dg, dg_len);
+        if (r < 0)
+            printf("Coult not write DG %02u %s (%s)\n",
+                    sfid, dg_str, sc_strerror(r));
+    }
 }
 
 int npa_translate_apdus(sc_card_t *card, FILE *input)
@@ -147,7 +159,7 @@ int npa_translate_apdus(sc_card_t *card, FILE *input)
 
         r = sc_bytes2apdu(card->ctx, buf, apdulen, &apdu);
         if (r < 0) {
-            bin_log(ctx, SC_LOG_DEBUG_NORMAL, "Invalid C-APDU", buf, apdulen);
+            bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "Invalid C-APDU", buf, apdulen);
             continue;
         }
 
@@ -175,8 +187,28 @@ int npa_translate_apdus(sc_card_t *card, FILE *input)
 int
 main (int argc, char **argv)
 {
+    const char *newpin = NULL;
+    const char *pin = NULL;
+    const char *puk = NULL;
+    const char *can = NULL;
+    const char *mrz = NULL;
+
+    unsigned char chat[0xff];
+    unsigned char desc[0xffff];
+    unsigned char **certs = NULL;
+    size_t *certs_lens = NULL;
+    unsigned char *privkey = NULL;
+    size_t privkey_len = 0;
+    unsigned char auxiliary_data[0xff];
+    size_t auxiliary_data_len = 0;
+    unsigned char new_dg[0xff];
+    size_t new_dg_len;
+
+    sc_context_t *ctx = NULL;
+    sc_card_t *card = NULL;
+    sc_reader_t *reader;
+
     int r, oindex = 0, tr_version = EAC_TR_VERSION_2_02;
-    size_t channeldatalen;
     struct establish_pace_channel_input pace_input;
     struct establish_pace_channel_output pace_output;
     struct timeval tv;
@@ -184,6 +216,8 @@ main (int argc, char **argv)
     FILE *input = NULL;
     CVC_CERT *cvc_cert = NULL;
     unsigned char *certs_chat = NULL;
+    unsigned char *dg = NULL;
+    size_t dg_len = 0;
 
     struct gengetopt_args_info cmdline;
 
@@ -502,7 +536,8 @@ main (int argc, char **argv)
                 npa_secret_name(pace_input.pin_id));
 
         if (cmdline.cv_certificate_given || cmdline.private_key_given) {
-            r = perform_terminal_authentication(card, certs, certs_lens,
+            r = perform_terminal_authentication(card,
+                    (const unsigned char **) certs, certs_lens,
                     privkey, privkey_len, auxiliary_data, auxiliary_data_len);
             if (r < 0)
                 goto err;
@@ -513,6 +548,60 @@ main (int argc, char **argv)
                 goto err;
             printf("Performed Chip Authentication.\n");
         }
+
+        if (cmdline.read_dg1_flag)
+            read_dg(card, 1, "Document Type", &dg, &dg_len);
+        if (cmdline.read_dg2_flag)
+            read_dg(card, 2, "Issuing State", &dg, &dg_len);
+        if (cmdline.read_dg3_flag)
+            read_dg(card, 3, "Date of Expiry", &dg, &dg_len);
+        if (cmdline.read_dg4_flag)
+            read_dg(card, 4, "Given Names", &dg, &dg_len);
+        if (cmdline.read_dg5_flag)
+            read_dg(card, 5, "Family Names", &dg, &dg_len);
+        if (cmdline.read_dg6_flag)
+            read_dg(card, 6, "Religious/Artistic Name", &dg, &dg_len);
+        if (cmdline.read_dg7_flag)
+            read_dg(card, 7, "Academic Title", &dg, &dg_len);
+        if (cmdline.read_dg8_flag)
+            read_dg(card, 8, "Date of Birth", &dg, &dg_len);
+        if (cmdline.read_dg9_flag)
+            read_dg(card, 9, "Place of Birth", &dg, &dg_len);
+        if (cmdline.read_dg10_flag)
+            read_dg(card, 10, "Nationality", &dg, &dg_len);
+        if (cmdline.read_dg11_flag)
+            read_dg(card, 11, "Sex", &dg, &dg_len);
+        if (cmdline.read_dg12_flag)
+            read_dg(card, 12, "Optional Data", &dg, &dg_len);
+        if (cmdline.read_dg13_flag)
+            read_dg(card, 13, "", &dg, &dg_len);
+        if (cmdline.read_dg14_flag)
+            read_dg(card, 14, "", &dg, &dg_len);
+        if (cmdline.read_dg15_flag)
+            read_dg(card, 15, "", &dg, &dg_len);
+        if (cmdline.read_dg16_flag)
+            read_dg(card, 16, "", &dg, &dg_len);
+        if (cmdline.read_dg17_flag)
+            read_dg(card, 17, "Normal Place of Residence", &dg, &dg_len);
+        if (cmdline.read_dg18_flag)
+            read_dg(card, 18, "Community ID", &dg, &dg_len);
+        if (cmdline.read_dg19_flag)
+            read_dg(card, 19, "Residence Permit I", &dg, &dg_len);
+        if (cmdline.read_dg20_flag)
+            read_dg(card, 20, "Residence Permit II", &dg, &dg_len);
+        if (cmdline.read_dg21_flag)
+            read_dg(card, 21, "Optional Data", &dg, &dg_len);
+
+        if (cmdline.write_dg17_given)
+            write_dg(card, 17, "Normal Place of Residence", cmdline.write_dg17_arg);
+        if (cmdline.write_dg18_given)
+            write_dg(card, 18, "Community ID", cmdline.write_dg18_arg);
+        if (cmdline.write_dg19_given)
+            write_dg(card, 19, "Residence Permit I", cmdline.write_dg19_arg);
+        if (cmdline.write_dg20_given)
+            write_dg(card, 20, "Residence Permit II", cmdline.write_dg20_arg);
+        if (cmdline.write_dg21_given)
+            write_dg(card, 21, "Optional Data", cmdline.write_dg21_arg);
 
         if (cmdline.translate_given) {
             if (strncmp(cmdline.translate_arg, "stdin", strlen("stdin")) == 0)
@@ -535,16 +624,11 @@ main (int argc, char **argv)
 
 err:
     cmdline_parser_free(&cmdline);
-    if (pace_output.ef_cardaccess)
-        free(pace_output.ef_cardaccess);
-    if (pace_output.recent_car)
-        free(pace_output.recent_car);
-    if (pace_output.previous_car)
-        free(pace_output.previous_car);
-    if (pace_output.id_icc)
-        free(pace_output.id_icc);
-    if (pace_output.id_pcd)
-        free(pace_output.id_pcd);
+    free(pace_output.ef_cardaccess);
+    free(pace_output.recent_car);
+    free(pace_output.previous_car);
+    free(pace_output.id_icc);
+    free(pace_output.id_pcd);
     if (input)
         fclose(input);
     if (certs) {
@@ -559,6 +643,7 @@ err:
     free(certs_chat);
     if (cvc_cert)
         CVC_CERT_free(cvc_cert);
+    free(dg);
 
     sm_stop(card);
     sc_reset(card, 1);

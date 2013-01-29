@@ -79,6 +79,96 @@ option "unblock"        U
     "Unblock PIN (uses PUK to activate three more retries)"
     flag off
 
+section "Read and Write Data Groups"
+option "read-dg1"       -
+    "Read DG 1   (Document Type)"
+    flag off
+option "read-dg2"       -
+    "Read DG 2   (Issuing State)"
+    flag off
+option "read-dg3"       -
+    "Read DG 3   (Date of Expiry)"
+    flag off
+option "read-dg4"       -
+    "Read DG 4   (Given Names)"
+    flag off
+option "read-dg5"       -
+    "Read DG 5   (Family Names)"
+    flag off
+option "read-dg6"       -
+    "Read DG 6   (Religious/Artistic Name)"
+    flag off
+option "read-dg7"       -
+    "Read DG 7   (Academic Title)"
+    flag off
+option "read-dg8"       -
+    "Read DG 8   (Date of Birth)"
+    flag off
+option "read-dg9"       -
+    "Read DG 9   (Place of Birth)"
+    flag off
+option "read-dg10"      -
+    "Read DG 10  (Nationality)"
+    flag off
+option "read-dg11"      -
+    "Read DG 11  (Sex)"
+    flag off
+option "read-dg12"      -
+    "Read DG 12  (Optional Data)"
+    flag off
+option "read-dg13"      -
+    "Read DG 13"
+    flag off
+option "read-dg14"      -
+    "Read DG 14"
+    flag off
+option "read-dg15"      -
+    "Read DG 15"
+    flag off
+option "read-dg16"      -
+    "Read DG 16"
+    flag off
+option "read-dg17"      -
+    "Read DG 17  (Normal Place of Residence)"
+    flag off
+option "read-dg18"      -
+    "Read DG 18  (Community ID)"
+    flag off
+option "read-dg19"      -
+    "Read DG 19  (Residence Permit I)"
+    flag off
+option "read-dg20"      -
+    "Read DG 20  (Residence Permit II)"
+    flag off
+option "read-dg21"      -
+    "Read DG 21  (Optional Data)"
+    flag off
+option "write-dg17"      -
+    "Write DG 17 (Normal Place of Residence)"
+    string
+    typestr="HEX_STRING"
+    optional
+option "write-dg18"      -
+    "Write DG 18 (Community ID)"
+    string
+    typestr="HEX_STRING"
+    optional
+option "write-dg19"      -
+    "Write DG 19 (Residence Permit I)"
+    string
+    typestr="HEX_STRING"
+    optional
+option "write-dg20"      -
+    "Write DG 20 (Residence Permit II)"
+    string
+    typestr="HEX_STRING"
+    optional
+option "write-dg21"      -
+    "Write DG 21 (Optional Data)"
+    string
+    typestr="HEX_STRING"
+    optional
+
 section "Special options, not always useful"
 option "break"          b
     "Brute force PIN, CAN or PUK"

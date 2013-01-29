@@ -312,19 +312,14 @@ int get_pace_capabilities(u8 *bitmap)
 
 #define ISO_READ_BINARY  0xB0
 #define ISO_P1_FLAG_SFID 0x80
-/** Read an EF.
- * @note MF must be selected before calling this function.
- * */
-static int get_ef(sc_card_t *card, unsigned char sfid,
+int read_binary_rec(sc_card_t *card, unsigned char sfid,
         u8 **ef, size_t *ef_len)
 {
     int r;
     /* we read less bytes than possible. this is a workaround for acr 122,
      * which only supports apdus of max 250 bytes */
     size_t read = maxresp - 8;
-    u8 p2;
     sc_apdu_t apdu;
-    sc_file_t *file = NULL;
     u8 *p;
     struct iso_sm_ctx *iso_sm_ctx = card->sm_ctx.info.cmd_data;
 
@@ -386,27 +381,80 @@ static int get_ef(sc_card_t *card, unsigned char sfid,
                 *ef + *ef_len, read, 0);
     }
 
-    /* test cards only return an empty FCI template,
-     * so we can't determine any file proberties */
-    if (file && *ef_len < file->size) {
-        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Actual filesize differs from the size in file "
-                "proberties (%u!=%u).", *ef_len, file->size);
-        r = SC_ERROR_FILE_TOO_SMALL;
-        goto err;
-    }
-
     r = SC_SUCCESS;
 
 err:
-    free(file);
-
     return r;
 }
 
-int get_ef_card_access(sc_card_t *card,
+#define ISO_WRITE_BINARY  0xD0
+int write_binary_rec(sc_card_t *card, unsigned char sfid,
+        u8 *ef, size_t ef_len)
+{
+    int r;
+    /* we write less bytes than possible. this is a workaround for acr 122,
+     * which only supports apdus of max 250 bytes */
+    size_t write = maxresp - 8;
+    sc_apdu_t apdu;
+    sc_file_t *file = NULL;
+    u8 *p;
+    struct iso_sm_ctx *iso_sm_ctx = card->sm_ctx.info.cmd_data;
+
+    if (!card) {
+        r = SC_ERROR_INVALID_ARGUMENTS;
+        goto err;
+    }
+
+    if (write > SC_MAX_APDU_BUFFER_SIZE-2
+            || (card->sm_ctx.sm_mode == SM_MODE_TRANSMIT
+                && write > (((SC_MAX_APDU_BUFFER_SIZE-2
+                    /* for encrypted APDUs we usually get authenticated status
+                     * bytes (4B), a MAC (11B) and a cryptogram with padding
+                     * indicator (3B without data).  The cryptogram is always
+                     * padded to the block size. */
+                    -18) / iso_sm_ctx->block_length)
+                    * iso_sm_ctx->block_length - 1)))
+        sc_format_apdu(card, &apdu, SC_APDU_CASE_2_EXT,
+                ISO_WRITE_BINARY, ISO_P1_FLAG_SFID|sfid, 0);
+    else
+        sc_format_apdu(card, &apdu, SC_APDU_CASE_2_SHORT,
+                ISO_WRITE_BINARY, ISO_P1_FLAG_SFID|sfid, 0);
+
+    if (write > ef_len) {
+        apdu.datalen = ef_len;
+        apdu.lc = ef_len;
+    } else {
+        apdu.datalen = write;
+        apdu.lc = write;
+    }
+
+
+    r = sc_transmit_apdu(card, &apdu);
+    /* emulate the behaviour of sc_write_binary */
+    if (r >= 0)
+        r = apdu.resplen;
+
+    while (1) {
+        if (r < 0 || r > ef_len) {
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not write EF.");
+            goto err;
+        }
+        ef_len -= r;
+        ef += r;
+        if (!ef_len)
+            break;
+
+        r = sc_write_binary(card, ef_len, ef, write, 0);
+    }
+
+err:
+    return r;
+}
+
+static int get_ef_card_access(sc_card_t *card,
         u8 **ef_cardaccess, size_t *length_ef_cardaccess)
 {
-    return get_ef(card, SFID_EF_CARDACCESS, ef_cardaccess, length_ef_cardaccess);
+    return read_binary_rec(card, SFID_EF_CARDACCESS, ef_cardaccess, length_ef_cardaccess);
 }
 
 static int format_mse_cdata(struct sc_context *ctx, int protocol,
@@ -1821,7 +1869,7 @@ err:
 int get_ef_card_security(sc_card_t *card,
         u8 **ef_security, size_t *length_ef_security)
 {
-    return get_ef(card, SFID_EF_CARDSECURITY, ef_security, length_ef_security);
+    return read_binary_rec(card, SFID_EF_CARDSECURITY, ef_security, length_ef_security);
 }
 
 int perform_chip_authentication(sc_card_t *card)
