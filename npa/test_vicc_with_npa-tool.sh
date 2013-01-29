@@ -24,7 +24,7 @@ then
         VICC=../virtualsmartcard/src/vpicc/vicc
     elif test -n "`which vicc`"
     then
-        VICC=VICC
+        VICC=vicc
     else
         echo "vicc not found"
         exit 1
