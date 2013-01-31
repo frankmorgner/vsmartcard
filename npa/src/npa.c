@@ -43,7 +43,6 @@
 
 #define ASN1_APP_IMP_OPT(stname, field, type, tag) ASN1_EX_TYPE(ASN1_TFLG_IMPTAG|ASN1_TFLG_APPLICATION|ASN1_TFLG_OPTIONAL, tag, stname, field, type)
 #define ASN1_APP_IMP(stname, field, type, tag) ASN1_EX_TYPE(ASN1_TFLG_IMPTAG|ASN1_TFLG_APPLICATION, tag, stname, field, type)
-IMPLEMENT_ASN1_FUNCTIONS(CVC_DISCRETIONARY_DATA_TEMPLATES)
 
 /*
  * MSE:Set AT
@@ -321,7 +320,6 @@ int read_binary_rec(sc_card_t *card, unsigned char sfid,
     size_t read = maxresp - 8;
     sc_apdu_t apdu;
     u8 *p;
-    struct iso_sm_ctx *iso_sm_ctx = card->sm_ctx.info.cmd_data;
 
     if (!card || !ef || !ef_len) {
         r = SC_ERROR_INVALID_ARGUMENTS;
@@ -514,6 +512,7 @@ static int format_mse_cdata(struct sc_context *ctx, int protocol,
     }
 
     if (auxiliary_data && auxiliary_data_len) {
+        bin_log(ctx, SC_LOG_DEBUG_NORMAL, "test", auxiliary_data, auxiliary_data_len);
         if (!d2i_CVC_DISCRETIONARY_DATA_TEMPLATES(&data->auxiliary_data, &auxiliary_data, auxiliary_data_len)) {
             sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Error setting auxiliary authenticated data of MSE:Set AT data");
             r = SC_ERROR_INTERNAL;
@@ -2131,7 +2130,6 @@ npa_sm_verify_authentication(sc_card_t *card, const struct iso_sm_ctx *ctx,
         const u8 *macdata, size_t macdatalen)
 {
     int r;
-    char *p;
     BUF_MEM *inbuf = NULL, *my_mac = NULL;
 
     if (!card || !ctx || !ctx->priv_data) {

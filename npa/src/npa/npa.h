@@ -155,7 +155,8 @@ int perform_pace(sc_card_t *card,
  * @param[in] privkey            The terminal's private key
  * @param[in] privkey_len        length of \a privkey
  * @param[in] auxiliary_data     auxiliary data for age/validity/community ID
- *                               verification
+ *                               verification. Should be formatted as buffer of
+ *                               \c CVC_DISCRETIONARY_DATA_TEMPLATES
  * @param[in] auxiliary_data_len length of \a auxiliary_data
  *
  * @return \c SC_SUCCESS or error code if an error occurred

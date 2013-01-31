@@ -21,10 +21,10 @@
 #endif
 
 #include "cmdline.h"
-#include "config.h"
 #include <eac/pace.h>
 #include <libopensc/log.h>
 #include <libopensc/opensc.h>
+#include <npa/iso-sm.h>
 #include <npa/npa.h>
 #include <npa/scutil.h>
 #include <stdint.h>
@@ -109,14 +109,37 @@ static void write_dg(sc_card_t *card, unsigned char sfid, const char *dg_str,
 
     r = sc_hex_to_bin(dg_hex, dg, &dg_len);
     if (r < 0) {
-        fprintf(stderr, "Coult not parse DG %02u %s (%s)\n",
+        fprintf(stderr, "Could not parse DG %02u %s (%s)\n",
                 sfid, dg_str, sc_strerror(r));
     } else {
         r = write_binary_rec(card, sfid, dg, dg_len);
         if (r < 0)
-            printf("Coult not write DG %02u %s (%s)\n",
+            fprintf(stderr, "Could not write DG %02u %s (%s)\n",
                     sfid, dg_str, sc_strerror(r));
+        else
+            printf("Wrote DG %02u %s\n", sfid, dg_str);
     }
+}
+
+#define ISO_VERIFY 0x20
+static void verify(sc_card_t *card, const char *verify_str,
+        const unsigned char *data, size_t data_len)
+{
+    sc_apdu_t apdu;
+    int r;
+
+    sc_format_apdu(card, &apdu, SC_APDU_CASE_3_SHORT, ISO_VERIFY, 0x80, 0);
+    apdu.cla = 0x80;
+    apdu.data = data;
+    apdu.datalen = data_len;
+    apdu.lc = data_len;
+
+    r = sc_transmit_apdu(card, &apdu);
+    if (r < 0)
+        fprintf(stderr, "Coult not verify %s (%s)\n",
+                verify_str, sc_strerror(r));
+    else
+        printf("Verified %s\n", verify_str);
 }
 
 int npa_translate_apdus(sc_card_t *card, FILE *input)
@@ -184,6 +207,65 @@ int npa_translate_apdus(sc_card_t *card, FILE *input)
     return r;
 }
 
+static int add_to_CVC_DISCRETIONARY_DATA_TEMPLATES(
+        CVC_DISCRETIONARY_DATA_TEMPLATES **templates,
+        int nid, const unsigned char *data, size_t data_len)
+{
+    int r;
+    CVC_DISCRETIONARY_DATA_TEMPLATE **template;
+
+    if (!templates) {
+        r = SC_ERROR_INVALID_ARGUMENTS;
+        goto err;
+    }
+
+    if (!*templates) {
+        *templates = CVC_DISCRETIONARY_DATA_TEMPLATES_new();
+        if (!*templates) {
+            r = SC_ERROR_INTERNAL;
+            goto err;
+        }
+    }
+
+    if (!(*templates)->template1)
+        template = &(*templates)->template1;
+    else if (!(*templates)->template2)
+        template = &(*templates)->template2;
+    else {
+        fprintf(stderr,
+                "Not enough space in auxiliary data for that many data templates");
+        r = SC_ERROR_INVALID_ARGUMENTS;
+        goto err;
+    }
+
+    *template = CVC_DISCRETIONARY_DATA_TEMPLATE_new();
+    if (!*template) {
+        r = SC_ERROR_INTERNAL;
+        goto err;
+    }
+
+    (*template)->type = OBJ_nid2obj(nid);
+    if (!(*template)->type) {
+        r = SC_ERROR_INTERNAL;
+        goto err;
+    }
+
+    if (data && data_len) {
+        (*template)->discretionary_data1 = ASN1_OCTET_STRING_new();
+        if (!(*template)->discretionary_data1
+                || !M_ASN1_OCTET_STRING_set(
+                    (*template)->discretionary_data1, data, data_len)) {
+            r = SC_ERROR_INTERNAL;
+            goto err;
+        }
+    }
+
+    r = SC_SUCCESS;
+
+err:
+    return r;
+}
+
 int
 main (int argc, char **argv)
 {
@@ -201,14 +283,18 @@ main (int argc, char **argv)
     size_t privkey_len = 0;
     unsigned char auxiliary_data[0xff];
     size_t auxiliary_data_len = 0;
-    unsigned char new_dg[0xff];
-    size_t new_dg_len;
+    unsigned char *verify_age_data = NULL;
+    size_t verify_age_len = 0;
+    unsigned char *verify_community_data = NULL;
+    size_t verify_community_len = 0;
+    unsigned char *verify_validity_data = NULL;
+    size_t verify_validity_len = 0;
 
     sc_context_t *ctx = NULL;
     sc_card_t *card = NULL;
     sc_reader_t *reader;
 
-    int r, oindex = 0, tr_version = EAC_TR_VERSION_2_02;
+    int r, tr_version = EAC_TR_VERSION_2_02;
     struct establish_pace_channel_input pace_input;
     struct establish_pace_channel_output pace_output;
     struct timeval tv;
@@ -218,6 +304,7 @@ main (int argc, char **argv)
     unsigned char *certs_chat = NULL;
     unsigned char *dg = NULL;
     size_t dg_len = 0;
+    CVC_DISCRETIONARY_DATA_TEMPLATES *templates = NULL;
 
     struct gengetopt_args_info cmdline;
 
@@ -494,6 +581,44 @@ main (int argc, char **argv)
                     fprintf(stderr, "Could not parse auxiliary data.\n");
                     exit(2);
                 }
+            } else {
+                if (cmdline.older_than_given) {
+                    r = add_to_CVC_DISCRETIONARY_DATA_TEMPLATES(&templates,
+                            NID_id_DateOfBirth, cmdline.older_than_arg,
+                            strlen(cmdline.older_than_arg));
+                    if (r < 0) {
+                        fprintf(stderr, "Error formatting age verification data template.\n");
+                        goto err;
+                    }
+                }
+                if (cmdline.verify_validity_given) {
+                    r = add_to_CVC_DISCRETIONARY_DATA_TEMPLATES(&templates,
+                            NID_id_DateOfExpiry, NULL, 0);
+                    if (r < 0) {
+                        fprintf(stderr, "Error formatting validity verification data template.\n");
+                        goto err;
+                    }
+                }
+                if (cmdline.verify_community_given) {
+                    r = add_to_CVC_DISCRETIONARY_DATA_TEMPLATES(&templates,
+                            NID_id_CommunityID, cmdline.verify_community_arg,
+                            strlen(cmdline.verify_community_arg));
+                    if (r < 0) {
+                        fprintf(stderr, "Error formatting community ID verification data template.\n");
+                        goto err;
+                    }
+                }
+                unsigned char *p = NULL;
+                auxiliary_data_len = i2d_CVC_DISCRETIONARY_DATA_TEMPLATES(
+                        templates, &p);
+                if (0 >= (int) auxiliary_data_len
+                        || auxiliary_data_len > sizeof auxiliary_data) {
+                    free(p);
+                    r = SC_ERROR_INTERNAL;
+                    goto err;
+                }
+                memcpy(auxiliary_data, p, auxiliary_data_len);
+                free(p);
             }
         }
 
@@ -611,6 +736,19 @@ main (int argc, char **argv)
         if (cmdline.write_dg21_given)
             write_dg(card, 21, "Optional Data", cmdline.write_dg21_arg);
 
+        if (cmdline.older_than_given) {
+            unsigned char id_DateOfBirth[]  = {6, 9, 4, 0, 127, 0, 7, 3, 1, 4, 1};
+            verify(card, "age", id_DateOfBirth, sizeof id_DateOfBirth);
+        }
+        if (cmdline.verify_validity_given) {
+            unsigned char id_DateOfExpiry[] = {6, 9, 4, 0, 127, 0, 7, 3, 1, 4, 2};
+            verify(card, "validity", id_DateOfExpiry, sizeof id_DateOfExpiry);
+        }
+        if (cmdline.verify_community_given) {
+            unsigned char id_CommunityID[]  = {6, 9, 4, 0, 127, 0, 7, 3, 1, 4, 3};
+            verify(card, "community ID", id_CommunityID, sizeof id_CommunityID);
+        }
+
         if (cmdline.translate_given) {
             if (strncmp(cmdline.translate_arg, "stdin", strlen("stdin")) == 0)
                 input = stdin;
@@ -652,6 +790,8 @@ err:
     if (cvc_cert)
         CVC_CERT_free(cvc_cert);
     free(dg);
+    if (templates)
+        CVC_DISCRETIONARY_DATA_TEMPLATES_free(templates);
 
     sm_stop(card);
     sc_reset(card, 1);

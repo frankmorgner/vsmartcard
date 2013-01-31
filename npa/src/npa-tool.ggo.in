@@ -57,7 +57,7 @@ option "chat"           -
     typestr="HEX_STRING"
     optional
 option "auxiliary-data" A
-    "Terminal's auxiliary data."
+    "Terminal's auxiliary data (default is determined by age verification and community id verification)."
     string
     typestr="HEX_STRING"
     optional
@@ -167,6 +167,20 @@ option "write-dg21"      -
     "Write DG 21 (Optional Data)"
     string
     typestr="HEX_STRING"
+    optional
+
+section "nPA operations"
+option "older-than"     -
+    "Verify age with a reference date"
+    string
+    typestr="YYYYMMDD"
+    optional
+option "verify-validity"    -
+    "Verify document validity with the chips current date"
+    flag off
+option "verify-community"   -
+    "Verify community ID with a reference ID"
+    string
     optional
 
 section "Special options, not always useful"
