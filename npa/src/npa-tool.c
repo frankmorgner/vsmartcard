@@ -547,6 +547,14 @@ main (int argc, char **argv)
             if (r < 0)
                 goto err;
             printf("Performed Chip Authentication.\n");
+
+            unsigned char eid_aid[] = { 0xE8, 0x07, 0x04, 0x00, 0x7f, 0x00, 0x07, 0x03, 0x02};
+            sc_path_t path;
+            sc_path_set(&path, SC_PATH_TYPE_DF_NAME, eid_aid, sizeof eid_aid, 0, 0);
+            r = sc_select_file(card, &path, NULL);
+            if (r < 0)
+                goto err;
+            printf("Selected eID application.\n");
         }
 
         if (cmdline.read_dg1_flag)
