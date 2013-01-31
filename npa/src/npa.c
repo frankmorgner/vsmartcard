@@ -396,8 +396,6 @@ int write_binary_rec(sc_card_t *card, unsigned char sfid,
      * which only supports apdus of max 250 bytes */
     size_t write = maxresp - 8;
     sc_apdu_t apdu;
-    sc_file_t *file = NULL;
-    u8 *p;
     struct iso_sm_ctx *iso_sm_ctx = card->sm_ctx.info.cmd_data;
 
     if (!card) {
@@ -580,7 +578,7 @@ static int npa_mse(sc_card_t *card,
 {
     sc_apdu_t apdu;
     unsigned char *d = NULL;
-    int r, tries, class, tag;
+    int r;
 
     if (!card) {
         r = SC_ERROR_INVALID_ARGUMENTS;
@@ -1114,7 +1112,6 @@ get_psec(sc_card_t *card, const char *pin, size_t length_pin, enum s_type pin_id
 {
     char *p = NULL;
     PACE_SEC *r;
-    int sc_result;
     /* Flawfinder: ignore */
     char buf[MAX_MRZ_LEN > 32 ? MAX_MRZ_LEN : 32];
 
@@ -1558,8 +1555,7 @@ static int npa_get_challenge(sc_card_t *card,
         unsigned char *challenge, size_t len)
 {
     sc_apdu_t apdu;
-    int r, class, tag;
-    long int length;
+    int r;
 
     memset(&apdu, 0, sizeof apdu);
 
@@ -1668,7 +1664,8 @@ int perform_terminal_authentication(sc_card_t *card,
         r = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
     }
-    struct npa_sm_ctx *eacsmctx = card->sm_ctx.info.cmd_data;
+    struct iso_sm_ctx *isosmctx = card->sm_ctx.info.cmd_data;
+    struct npa_sm_ctx *eacsmctx = isosmctx->priv_data;
 
 
     while (*certs && *certs_lens) {
@@ -1884,7 +1881,8 @@ int perform_chip_authentication(sc_card_t *card)
         r = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
     }
-    struct npa_sm_ctx *eacsmctx = card->sm_ctx.info.cmd_data;
+    struct iso_sm_ctx *isosmctx = card->sm_ctx.info.cmd_data;
+    struct npa_sm_ctx *eacsmctx = isosmctx->priv_data;
 
 
     /* Passive Authentication */
