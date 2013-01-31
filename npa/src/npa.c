@@ -329,15 +329,7 @@ int read_binary_rec(sc_card_t *card, unsigned char sfid,
     }
     *ef_len = 0;
 
-    if (read > SC_MAX_APDU_BUFFER_SIZE-2
-            || (card->sm_ctx.sm_mode == SM_MODE_TRANSMIT
-                && read > (((SC_MAX_APDU_BUFFER_SIZE-2
-                    /* for encrypted APDUs we usually get authenticated status
-                     * bytes (4B), a MAC (11B) and a cryptogram with padding
-                     * indicator (3B without data).  The cryptogram is always
-                     * padded to the block size. */
-                    -18) / iso_sm_ctx->block_length)
-                    * iso_sm_ctx->block_length - 1)))
+    if (read > 0xff+1)
         sc_format_apdu(card, &apdu, SC_APDU_CASE_2_EXT,
                 ISO_READ_BINARY, ISO_P1_FLAG_SFID|sfid, 0);
     else

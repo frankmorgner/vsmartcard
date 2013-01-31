@@ -319,7 +319,7 @@ static int sm_encrypt(const struct iso_sm_ctx *ctx, sc_card_t *card,
     u8 *p, *le = NULL, *sm_data = NULL, *fdata = NULL, *mac_data = NULL,
        *asn1 = NULL, *mac = NULL, *resp_data = NULL;
     size_t sm_data_len, fdata_len, mac_data_len, asn1_len, mac_len, le_len;
-    int r;
+    int r, cse;
     sc_apdu_t *sm_apdu = NULL;
 
     if (!apdu || !ctx || !card || !card->reader || !psm_apdu) {
@@ -354,7 +354,14 @@ static int sm_encrypt(const struct iso_sm_ctx *ctx, sc_card_t *card,
     mac_data_len = r;
 
     /* get le and data depending on the case of the unsecure command */
-    switch (apdu->cse) {
+    cse = apdu->cse;
+    if ((apdu->le/ctx->block_length + 1)*ctx->block_length + 18 > 0xff+1)
+        /* for encrypted APDUs we usually get authenticated status bytes (4B),
+         * a MAC (11B) and a cryptogram with padding indicator (3B without
+         * data).  The cryptogram is always padded to the block size. */
+        cse |= SC_APDU_EXT;
+
+    switch (cse) {
         case SC_APDU_CASE_1:
             break;
 	case SC_APDU_CASE_2_SHORT:
@@ -493,7 +500,7 @@ static int sm_encrypt(const struct iso_sm_ctx *ctx, sc_card_t *card,
     sm_apdu->datalen = sm_data_len;
     sm_apdu->lc = sm_data_len;
     sm_apdu->le = 0;
-    if (apdu->cse & SC_APDU_EXT) {
+    if (cse & SC_APDU_EXT) {
         sm_apdu->cse = SC_APDU_CASE_4_EXT;
 #if OPENSC_NOT_BOGUS_ANYMORE
         sm_apdu->resplen = 0xffff+1;
