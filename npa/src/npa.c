@@ -309,6 +309,7 @@ int get_pace_capabilities(u8 *bitmap)
     return SC_SUCCESS;
 }
 
+
 #define ISO_READ_BINARY  0xB0
 #define ISO_P1_FLAG_SFID 0x80
 int read_binary_rec(sc_card_t *card, unsigned char sfid,
@@ -384,7 +385,7 @@ int write_binary_rec(sc_card_t *card, unsigned char sfid,
     int r;
     /* we write less bytes than possible. this is a workaround for acr 122,
      * which only supports apdus of max 250 bytes */
-    size_t write = maxresp - 8;
+    size_t write = maxresp - 8, wrote = 0;
     sc_apdu_t apdu;
     struct iso_sm_ctx *iso_sm_ctx = card->sm_ctx.info.cmd_data;
 
@@ -402,10 +403,10 @@ int write_binary_rec(sc_card_t *card, unsigned char sfid,
                      * padded to the block size. */
                     -18) / iso_sm_ctx->block_length)
                     * iso_sm_ctx->block_length - 1)))
-        sc_format_apdu(card, &apdu, SC_APDU_CASE_2_EXT,
+        sc_format_apdu(card, &apdu, SC_APDU_CASE_3_EXT,
                 ISO_WRITE_BINARY, ISO_P1_FLAG_SFID|sfid, 0);
     else
-        sc_format_apdu(card, &apdu, SC_APDU_CASE_2_SHORT,
+        sc_format_apdu(card, &apdu, SC_APDU_CASE_3_SHORT,
                 ISO_WRITE_BINARY, ISO_P1_FLAG_SFID|sfid, 0);
 
     if (write > ef_len) {
@@ -415,25 +416,28 @@ int write_binary_rec(sc_card_t *card, unsigned char sfid,
         apdu.datalen = write;
         apdu.lc = write;
     }
+    apdu.data = ef;
 
 
     r = sc_transmit_apdu(card, &apdu);
     /* emulate the behaviour of sc_write_binary */
     if (r >= 0)
-        r = apdu.resplen;
+        r = apdu.datalen;
 
     while (1) {
         if (r < 0 || r > ef_len) {
             sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not write EF.");
             goto err;
         }
-        ef_len -= r;
-        ef += r;
-        if (!ef_len)
+        wrote += r;
+        apdu.data += r;
+        if (wrote >= ef_len)
             break;
 
-        r = sc_write_binary(card, ef_len, ef, write, 0);
+        r = sc_write_binary(card, wrote, ef, write, 0);
     }
+
+    r = SC_SUCCESS;
 
 err:
     return r;
