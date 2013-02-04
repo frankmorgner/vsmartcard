@@ -1741,6 +1741,10 @@ int perform_terminal_authentication(sc_card_t *card,
         BUF_MEM_free(eacsmctx->auxiliary_data);
     eacsmctx->auxiliary_data = BUF_MEM_create_init(auxiliary_data,
             auxiliary_data_len);
+    /* FIXME this is a workaround for fixing 0x30 tag of
+     * CVC_DISCRETIONARY_DATA_TEMPLATES. */
+    if (eacsmctx->auxiliary_data->data && eacsmctx->auxiliary_data->length)
+        eacsmctx->auxiliary_data->data[0] = 0x67;
     signature = TA_STEP5_sign(eacsmctx->ctx, eacsmctx->eph_pub_key,
             eacsmctx->id_icc, eacsmctx->auxiliary_data);
     if (!signature) {

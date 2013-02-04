@@ -233,7 +233,7 @@ static int add_to_CVC_DISCRETIONARY_DATA_TEMPLATES(
         template = &(*templates)->template2;
     else {
         fprintf(stderr,
-                "Not enough space in auxiliary data for that many data templates");
+                "Choose at most two nPA operations.\n");
         r = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
     }
@@ -586,27 +586,21 @@ main (int argc, char **argv)
                     r = add_to_CVC_DISCRETIONARY_DATA_TEMPLATES(&templates,
                             NID_id_DateOfBirth, cmdline.older_than_arg,
                             strlen(cmdline.older_than_arg));
-                    if (r < 0) {
-                        fprintf(stderr, "Error formatting age verification data template.\n");
+                    if (r < 0)
                         goto err;
-                    }
                 }
                 if (cmdline.verify_validity_given) {
                     r = add_to_CVC_DISCRETIONARY_DATA_TEMPLATES(&templates,
                             NID_id_DateOfExpiry, NULL, 0);
-                    if (r < 0) {
-                        fprintf(stderr, "Error formatting validity verification data template.\n");
+                    if (r < 0)
                         goto err;
-                    }
                 }
                 if (cmdline.verify_community_given) {
                     r = add_to_CVC_DISCRETIONARY_DATA_TEMPLATES(&templates,
                             NID_id_CommunityID, cmdline.verify_community_arg,
                             strlen(cmdline.verify_community_arg));
-                    if (r < 0) {
-                        fprintf(stderr, "Error formatting community ID verification data template.\n");
+                    if (r < 0)
                         goto err;
-                    }
                 }
                 unsigned char *p = NULL;
                 auxiliary_data_len = i2d_CVC_DISCRETIONARY_DATA_TEMPLATES(
@@ -789,6 +783,7 @@ err:
     free(certs_chat);
     if (cvc_cert)
         CVC_CERT_free(cvc_cert);
+    free(privkey);
     free(dg);
     if (templates)
         CVC_DISCRETIONARY_DATA_TEMPLATES_free(templates);
