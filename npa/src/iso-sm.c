@@ -765,6 +765,8 @@ int iso_sm_start(struct sc_card *card, struct iso_sm_ctx *sctx)
     card->sm_ctx.ops.free_sm_apdu = iso_free_sm_apdu;
     card->sm_ctx.ops.get_sm_apdu = iso_get_sm_apdu;
     card->sm_ctx.sm_mode = SM_MODE_TRANSMIT;
+
+    return SC_SUCCESS;
 }
 
 int sm_stop(struct sc_card *card)
@@ -772,7 +774,8 @@ int sm_stop(struct sc_card *card)
     int r = SC_SUCCESS;
 
     if (card) {
-        if (card->sm_ctx.ops.close)
+        if (card->sm_ctx.sm_mode == SM_MODE_TRANSMIT
+                && card->sm_ctx.ops.close)
             r = card->sm_ctx.ops.close(card);
         card->sm_ctx.sm_mode = SM_MODE_NONE;
     }
