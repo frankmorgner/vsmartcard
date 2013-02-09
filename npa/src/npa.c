@@ -1660,6 +1660,10 @@ int perform_terminal_authentication(sc_card_t *card,
         goto err;
     }
     struct iso_sm_ctx *isosmctx = card->sm_ctx.info.cmd_data;
+    if (!isosmctx->priv_data) {
+        r = SC_ERROR_INVALID_ARGUMENTS;
+        goto err;
+    }
     struct npa_sm_ctx *eacsmctx = isosmctx->priv_data;
 
 
@@ -1881,6 +1885,10 @@ int perform_chip_authentication(sc_card_t *card)
         goto err;
     }
     struct iso_sm_ctx *isosmctx = card->sm_ctx.info.cmd_data;
+    if (!isosmctx->priv_data) {
+        r = SC_ERROR_INVALID_ARGUMENTS;
+        goto err;
+    }
     struct npa_sm_ctx *eacsmctx = isosmctx->priv_data;
 
 
