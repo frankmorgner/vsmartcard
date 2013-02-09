@@ -25,6 +25,7 @@
 #include "config.h"
 #endif
 
+#include <npa/iso-sm.h>
 #include <npa/npa.h>
 #include <npa/scutil.h>
 #include <string.h>

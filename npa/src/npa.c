@@ -632,7 +632,7 @@ static int npa_mse_set_at_pace(sc_card_t *card, int protocol,
         enum s_type secret_key, const CVC_CHAT *chat, u8 *sw1, u8 *sw2)
 {
     int r, tries;
-    char key = secret_key;
+    unsigned char key = secret_key;
    
     r = npa_mse_set_at(card, 0xC1, protocol, &key, sizeof key, NULL,
             0, NULL, 0, NULL, 0, chat, sw1, sw2);
@@ -690,7 +690,7 @@ static int npa_gen_auth_1_encrypted_nonce(sc_card_t *card,
         r = SC_ERROR_INTERNAL;
         goto err;
     }
-    apdu.data = (const u8 *) d;
+    apdu.data = d;
     apdu.datalen = r;
     apdu.lc = r;
 
@@ -782,7 +782,7 @@ static int npa_gen_auth_2_map_nonce(sc_card_t *card,
         r = SC_ERROR_INTERNAL;
         goto err;
     }
-    apdu.data = (const u8 *) d;
+    apdu.data = d;
     apdu.datalen = r;
     apdu.lc = r;
 
@@ -874,7 +874,7 @@ static int npa_gen_auth_3_perform_key_agreement(sc_card_t *card,
         r = SC_ERROR_INTERNAL;
         goto err;
     }
-    apdu.data = (const u8 *) d;
+    apdu.data = d;
     apdu.datalen = r;
     apdu.lc = r;
 
@@ -967,7 +967,7 @@ static int npa_gen_auth_4_mutual_authentication(sc_card_t *card,
         r = SC_ERROR_INTERNAL;
         goto err;
     }
-    apdu.data = (const u8 *) d;
+    apdu.data = d;
     apdu.datalen = r;
     apdu.lc = r;
 
@@ -1595,8 +1595,7 @@ static int npa_verify(sc_card_t *card,
     apdu.cse = SC_APDU_CASE_3_EXT;
 
     apdu.data = cert;
-    if (0x80 & ASN1_get_object(&apdu.data, &length, &tag,
-                &class, cert_len)) {
+    if (0x80 & ASN1_get_object(&apdu.data, &length, &tag, &class, cert_len)) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Error decoding Certificate");
         ssl_error(card->ctx);
         r = SC_ERROR_INTERNAL;
@@ -1616,7 +1615,7 @@ err:
 }
 
 static int npa_external_authenticate(sc_card_t *card,
-        const unsigned char *signature, size_t signature_len)
+        unsigned char *signature, size_t signature_len)
 {
     int r;
     sc_apdu_t apdu;
@@ -1644,6 +1643,7 @@ err:
     return r;
 }
 
+#define TA_NONCE_LENGTH 8
 int perform_terminal_authentication(sc_card_t *card,
         const unsigned char **certs, const size_t *certs_lens,
         const unsigned char *privkey, size_t privkey_len,
@@ -1719,7 +1719,7 @@ int perform_terminal_authentication(sc_card_t *card,
     r = npa_mse_set_at_ta(card, eacsmctx->ctx->ta_ctx->protocol,
             cvc_cert->body->certificate_holder_reference->data,
             cvc_cert->body->certificate_holder_reference->length,
-            eacsmctx->eph_pub_key->data, eacsmctx->eph_pub_key->length,
+            (unsigned char *) eacsmctx->eph_pub_key->data, eacsmctx->eph_pub_key->length,
             auxiliary_data, auxiliary_data_len);
     if (r < 0) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not select protocol proberties "
@@ -1727,13 +1727,13 @@ int perform_terminal_authentication(sc_card_t *card,
         goto err;
     }
 
-    nonce = BUF_MEM_create(8);
+    nonce = BUF_MEM_create(TA_NONCE_LENGTH);
     if (!nonce) {
         ssl_error(card->ctx);
         r = SC_ERROR_INTERNAL;
         goto err;
     }
-    r = npa_get_challenge(card, nonce->data, nonce->length);
+    r = npa_get_challenge(card, (unsigned char *) nonce->data, nonce->length);
     if (r < 0) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not get nonce for TA.");
         goto err;
@@ -1761,7 +1761,8 @@ int perform_terminal_authentication(sc_card_t *card,
         r = SC_ERROR_INTERNAL;
         goto err;
     }
-    r = npa_external_authenticate(card, signature->data, signature->length);
+    r = npa_external_authenticate(card, (unsigned char *) signature->data,
+            signature->length);
 
 err:
     if (cvc_cert)
@@ -1810,7 +1811,7 @@ static int npa_gen_auth_ca(sc_card_t *card, const BUF_MEM *eph_pub_key,
         r = SC_ERROR_INTERNAL;
         goto err;
     }
-    apdu.data = (const u8 *) d;
+    apdu.data = d;
     apdu.datalen = r;
     apdu.lc = r;
 

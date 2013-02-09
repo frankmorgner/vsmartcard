@@ -51,7 +51,7 @@ static ssize_t getline(char **lineptr, size_t *n, FILE *stream)
 }
 #endif
 
-int fread_to_eof(const unsigned char *file, unsigned char **buf, size_t *buflen)
+int fread_to_eof(const char *file, unsigned char **buf, size_t *buflen)
 {
     FILE *input;
     int r = 0;
@@ -123,7 +123,7 @@ static void write_dg(sc_card_t *card, unsigned char sfid, const char *dg_str,
 
 #define ISO_VERIFY 0x20
 static void verify(sc_card_t *card, const char *verify_str,
-        const unsigned char *data, size_t data_len)
+        unsigned char *data, size_t data_len)
 {
     sc_apdu_t apdu;
     int r;
@@ -283,12 +283,6 @@ main (int argc, char **argv)
     size_t privkey_len = 0;
     unsigned char auxiliary_data[0xff];
     size_t auxiliary_data_len = 0;
-    unsigned char *verify_age_data = NULL;
-    size_t verify_age_len = 0;
-    unsigned char *verify_community_data = NULL;
-    size_t verify_community_len = 0;
-    unsigned char *verify_validity_data = NULL;
-    size_t verify_validity_len = 0;
 
     sc_context_t *ctx = NULL;
     sc_card_t *card = NULL;
@@ -584,7 +578,8 @@ main (int argc, char **argv)
             } else {
                 if (cmdline.older_than_given) {
                     r = add_to_CVC_DISCRETIONARY_DATA_TEMPLATES(&templates,
-                            NID_id_DateOfBirth, cmdline.older_than_arg,
+                            NID_id_DateOfBirth,
+                            (unsigned char *) cmdline.older_than_arg,
                             strlen(cmdline.older_than_arg));
                     if (r < 0)
                         goto err;
@@ -597,7 +592,8 @@ main (int argc, char **argv)
                 }
                 if (cmdline.verify_community_given) {
                     r = add_to_CVC_DISCRETIONARY_DATA_TEMPLATES(&templates,
-                            NID_id_CommunityID, cmdline.verify_community_arg,
+                            NID_id_CommunityID,
+                            (unsigned char *) cmdline.verify_community_arg,
                             strlen(cmdline.verify_community_arg));
                     if (r < 0)
                         goto err;
