@@ -65,6 +65,17 @@ typedef struct npa_mse_cd_st {
     ASN1_AUXILIARY_DATA *auxiliary_data;
     CVC_CHAT *chat;
 } NPA_MSE_C;
+/* Note that we can not use ASN1_AUXILIARY_DATA for the auxiliary_data element
+ * here. Due to limitations of OpenSSL it is not possible to *encode* an
+ * optional item template (such as auxiliary_data) in an other item template
+ * (such as ASN1_AUXILIARY_DATA). However, we can do
+ *
+ * NPA_MSE_C->auxiliary_data = d2i_ASN1_AUXILIARY_DATA(...)
+ *
+ * because they both use the same underlieing struct.
+ *
+ * See also openssl/crypto/asn1/tasn_dec.c:183
+ */
 ASN1_SEQUENCE(NPA_MSE_C) = {
     /* 0x80
      * Cryptographic mechanism reference */
@@ -79,8 +90,8 @@ ASN1_SEQUENCE(NPA_MSE_C) = {
      * Ephemeral Public Key */
     ASN1_IMP_OPT(NPA_MSE_C, eph_pub_key, ASN1_OCTET_STRING, 0x11),
     /* 0x67
-     * Auxiliary authenticated data */
-    ASN1_OPT(NPA_MSE_C, auxiliary_data, ASN1_AUXILIARY_DATA),
+     * Auxiliary authenticated data. See note above. */
+    ASN1_APP_IMP_OPT(NPA_MSE_C, auxiliary_data, CVC_DISCRETIONARY_DATA_TEMPLATES, 7),
     /* Certificate Holder Authorization Template */
     ASN1_OPT(NPA_MSE_C, chat, CVC_CHAT),
 } ASN1_SEQUENCE_END(NPA_MSE_C)
