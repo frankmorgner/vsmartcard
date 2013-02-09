@@ -204,6 +204,7 @@ class nPA_SE(Security_Environment):
 
             ef_card_security = self.mf.select('fid', 0x011d)
             ef_card_security_data = ef_card_security.data
+            pace.CA_disable_passive_authentication(self.eac_ctx)
             ca_pubkey = pace.CA_get_pubkey(self.eac_ctx, ef_card_security_data)
             pace.EAC_CTX_init_ca(self.eac_ctx, 0, 0, self.ca_key, ca_pubkey)
 
