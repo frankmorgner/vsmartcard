@@ -2276,33 +2276,31 @@ npa_sm_pre_transmit(sc_card_t *card, const struct iso_sm_ctx *ctx,
                 case CVC_Terminal:
                     sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Processing Terminal certificate");
 
-                    if (!eacsmctx->certificate_description) {
+                    if (eacsmctx->certificate_description) {
+                        switch (CVC_check_description(cvc_cert,
+                                    (unsigned char *) eacsmctx->certificate_description->data,
+                                    eacsmctx->certificate_description->length)) {
+                            case 1:
+                                sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
+                                        "Certificate Description matches Certificate");
+                                break;
+                            case 0:
+                                sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
+                                        "Certificate Description doesn't match Certificate");
+                                r = SC_ERROR_INVALID_DATA;
+                                goto err;
+                                break;
+                            default:
+                                sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
+                                        "Error verifying Certificate Description");
+                                ssl_error(card->ctx);
+                                r = SC_ERROR_INTERNAL;
+                                goto err;
+                                break;
+                        }
+                    } else {
                         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
-                                "Certificate Description missing");
-                        r = SC_ERROR_INVALID_DATA;
-                        goto err;
-                    }
-
-                    switch (CVC_check_description(cvc_cert,
-                                (unsigned char *) eacsmctx->certificate_description->data,
-                                eacsmctx->certificate_description->length)) {
-                        case 1:
-                            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
-                                    "Certificate Description matches Certificate");
-                            break;
-                        case 0:
-                            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
-                                    "Certificate Description doesn't match Certificate");
-                            r = SC_ERROR_INVALID_DATA;
-                            goto err;
-                            break;
-                        default:
-                            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE,
-                                    "Error verifying Certificate Description");
-                            ssl_error(card->ctx);
-                            r = SC_ERROR_INTERNAL;
-                            goto err;
-                            break;
+                                "Warning: Certificate Description missing");
                     }
                     break;
 
