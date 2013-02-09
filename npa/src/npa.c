@@ -44,6 +44,15 @@
 #define ASN1_APP_IMP_OPT(stname, field, type, tag) ASN1_EX_TYPE(ASN1_TFLG_IMPTAG|ASN1_TFLG_APPLICATION|ASN1_TFLG_OPTIONAL, tag, stname, field, type)
 #define ASN1_APP_IMP(stname, field, type, tag) ASN1_EX_TYPE(ASN1_TFLG_IMPTAG|ASN1_TFLG_APPLICATION, tag, stname, field, type)
 
+/* 0x67
+ * Auxiliary authenticated data */
+ASN1_ITEM_TEMPLATE(ASN1_AUXILIARY_DATA) =
+    ASN1_EX_TEMPLATE_TYPE(
+            ASN1_TFLG_IMPTAG|ASN1_TFLG_APPLICATION,
+            7, ASN1_AUXILIARY_DATA, CVC_DISCRETIONARY_DATA_TEMPLATES)
+ASN1_ITEM_TEMPLATE_END(ASN1_AUXILIARY_DATA)
+IMPLEMENT_ASN1_FUNCTIONS(ASN1_AUXILIARY_DATA)
+
 /*
  * MSE:Set AT
  */
@@ -53,7 +62,7 @@ typedef struct npa_mse_cd_st {
     ASN1_OCTET_STRING *key_reference1;
     ASN1_OCTET_STRING *key_reference2;
     ASN1_OCTET_STRING *eph_pub_key;
-    CVC_DISCRETIONARY_DATA_TEMPLATES *auxiliary_data;
+    ASN1_AUXILIARY_DATA *auxiliary_data;
     CVC_CHAT *chat;
 } NPA_MSE_C;
 ASN1_SEQUENCE(NPA_MSE_C) = {
@@ -71,8 +80,7 @@ ASN1_SEQUENCE(NPA_MSE_C) = {
     ASN1_IMP_OPT(NPA_MSE_C, eph_pub_key, ASN1_OCTET_STRING, 0x11),
     /* 0x67
      * Auxiliary authenticated data */
-    ASN1_APP_IMP_OPT(NPA_MSE_C, auxiliary_data, CVC_DISCRETIONARY_DATA_TEMPLATES, 7),
-    /*ASN1_APP_IMP_OPT(NPA_MSE_C, auxiliary_data, ASN1_OCTET_STRING, 7),*/
+    ASN1_OPT(NPA_MSE_C, auxiliary_data, ASN1_AUXILIARY_DATA),
     /* Certificate Holder Authorization Template */
     ASN1_OPT(NPA_MSE_C, chat, CVC_CHAT),
 } ASN1_SEQUENCE_END(NPA_MSE_C)
@@ -516,9 +524,8 @@ static int format_mse_cdata(struct sc_context *ctx, int protocol,
     }
 
     if (auxiliary_data && auxiliary_data_len) {
-        bin_log(ctx, SC_LOG_DEBUG_NORMAL, "test", auxiliary_data, auxiliary_data_len);
-        if (!d2i_CVC_DISCRETIONARY_DATA_TEMPLATES(&data->auxiliary_data, &auxiliary_data, auxiliary_data_len)) {
-            sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Error setting auxiliary authenticated data of MSE:Set AT data");
+        if (!d2i_ASN1_AUXILIARY_DATA(&data->auxiliary_data, &auxiliary_data, auxiliary_data_len)) {
+            sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Error setting authenticated auxiliary data of MSE:Set AT data");
             r = SC_ERROR_INTERNAL;
             goto err;
         }
@@ -1749,10 +1756,6 @@ int perform_terminal_authentication(sc_card_t *card,
         BUF_MEM_free(eacsmctx->auxiliary_data);
     eacsmctx->auxiliary_data = BUF_MEM_create_init(auxiliary_data,
             auxiliary_data_len);
-    /* FIXME this is a workaround for fixing 0x30 tag of
-     * CVC_DISCRETIONARY_DATA_TEMPLATES. */
-    if (eacsmctx->auxiliary_data->data && eacsmctx->auxiliary_data->length)
-        eacsmctx->auxiliary_data->data[0] = 0x67;
     signature = TA_STEP5_sign(eacsmctx->ctx, eacsmctx->eph_pub_key,
             eacsmctx->id_icc, eacsmctx->auxiliary_data);
     if (!signature) {
@@ -2222,8 +2225,7 @@ npa_sm_pre_transmit(sc_card_t *card, const struct iso_sm_ctx *ctx,
     int r;
     CVC_CERT *cvc_cert = NULL;
     unsigned char *cert = NULL;
-    int len,  tag, class;
-    long int llen;
+    int len;
     BUF_MEM *signature = NULL;
     unsigned char *sequence = NULL, *templates = NULL;
     NPA_MSE_C *msesetat = NULL;
@@ -2333,29 +2335,13 @@ npa_sm_pre_transmit(sc_card_t *card, const struct iso_sm_ctx *ctx,
                         r = SC_ERROR_OUT_OF_MEMORY;
                         goto err;
                     }
-                    /* Note that we can not define CVC_DISCRETIONARY_DATA_TEMPLATES as
-                     * item template with the correct tag.  Due to limitations of
-                     * OpenSSL it is not possible to *encode* an optional item template
-                     * (such as APDU_DISCRETIONARY_DATA_TEMPLATES) in an other item
-                     * template (such as NPA_MSE_C). So what we have to do here
-                     * is manually adding the correct tag to the saved
-                     * CVC_DISCRETIONARY_DATA_TEMPLATES.
-                     * See also openssl/crypto/asn1/tasn_dec.c:183
-                     */
-                    len = i2d_CVC_DISCRETIONARY_DATA_TEMPLATES(msesetat->auxiliary_data, &templates);
-                    p = templates;
-                    if (len < 0 ||
-                            (0x80 & ASN1_get_object(&p, &llen, &tag, &class, len))) {
+                    eacsmctx->auxiliary_data->length = i2d_ASN1_AUXILIARY_DATA(
+                            msesetat->auxiliary_data,
+                            (unsigned char **) &eacsmctx->auxiliary_data->data);
+                    if ((int) eacsmctx->auxiliary_data->length < 0) {
                         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Error encoding auxiliary data.");
                         ssl_error(card->ctx);
                         r = SC_ERROR_INTERNAL;
-                        goto err;
-                    }
-                    eacsmctx->auxiliary_data->length = add_tag(
-                            (unsigned char **) &eacsmctx->auxiliary_data->data, 1,
-                            7, V_ASN1_APPLICATION, p, llen);
-                    if ((int) eacsmctx->auxiliary_data->length < 0) {
-                        r = SC_ERROR_OUT_OF_MEMORY;
                         goto err;
                     }
                     eacsmctx->auxiliary_data->max = eacsmctx->auxiliary_data->length;

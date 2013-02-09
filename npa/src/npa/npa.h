@@ -26,6 +26,7 @@
 #ifndef _CCID_NPA_H
 #define _CCID_NPA_H
 
+#include <eac/cv_cert.h>
 #include <eac/eac.h>
 #include <eac/pace.h>
 #include <libopensc/opensc.h>
@@ -155,8 +156,8 @@ int perform_pace(sc_card_t *card,
  * @param[in] privkey            The terminal's private key
  * @param[in] privkey_len        length of \a privkey
  * @param[in] auxiliary_data     auxiliary data for age/validity/community ID
- *                               verification. Should be formatted as buffer of
- *                               \c CVC_DISCRETIONARY_DATA_TEMPLATES
+ *                               verification. Should be an ASN1 object tagged
+ *                               with \c 0x67
  * @param[in] auxiliary_data_len length of \a auxiliary_data
  *
  * @return \c SC_SUCCESS or error code if an error occurred
@@ -222,6 +223,10 @@ int npa_reset_retry_counter(sc_card_t *card,
 
 /** Use \c npa_default_flags to disable checks for EAC/SM */
 extern char npa_default_flags;
+
+/** ASN.1 type for authenticated auxiliary data for terminal authentication */
+typedef CVC_DISCRETIONARY_DATA_TEMPLATES ASN1_AUXILIARY_DATA;
+DECLARE_ASN1_FUNCTIONS(ASN1_AUXILIARY_DATA)
 
 #ifdef  __cplusplus
 }

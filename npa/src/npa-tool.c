@@ -207,8 +207,8 @@ int npa_translate_apdus(sc_card_t *card, FILE *input)
     return r;
 }
 
-static int add_to_CVC_DISCRETIONARY_DATA_TEMPLATES(
-        CVC_DISCRETIONARY_DATA_TEMPLATES **templates,
+static int add_to_ASN1_AUXILIARY_DATA(
+        ASN1_AUXILIARY_DATA **templates,
         int nid, const unsigned char *data, size_t data_len)
 {
     int r;
@@ -220,7 +220,7 @@ static int add_to_CVC_DISCRETIONARY_DATA_TEMPLATES(
     }
 
     if (!*templates) {
-        *templates = CVC_DISCRETIONARY_DATA_TEMPLATES_new();
+        *templates = ASN1_AUXILIARY_DATA_new();
         if (!*templates) {
             r = SC_ERROR_INTERNAL;
             goto err;
@@ -298,7 +298,7 @@ main (int argc, char **argv)
     unsigned char *certs_chat = NULL;
     unsigned char *dg = NULL;
     size_t dg_len = 0;
-    CVC_DISCRETIONARY_DATA_TEMPLATES *templates = NULL;
+    ASN1_AUXILIARY_DATA *templates = NULL;
 
     struct gengetopt_args_info cmdline;
 
@@ -577,7 +577,7 @@ main (int argc, char **argv)
                 }
             } else {
                 if (cmdline.older_than_given) {
-                    r = add_to_CVC_DISCRETIONARY_DATA_TEMPLATES(&templates,
+                    r = add_to_ASN1_AUXILIARY_DATA(&templates,
                             NID_id_DateOfBirth,
                             (unsigned char *) cmdline.older_than_arg,
                             strlen(cmdline.older_than_arg));
@@ -585,30 +585,32 @@ main (int argc, char **argv)
                         goto err;
                 }
                 if (cmdline.verify_validity_given) {
-                    r = add_to_CVC_DISCRETIONARY_DATA_TEMPLATES(&templates,
+                    r = add_to_ASN1_AUXILIARY_DATA(&templates,
                             NID_id_DateOfExpiry, NULL, 0);
                     if (r < 0)
                         goto err;
                 }
                 if (cmdline.verify_community_given) {
-                    r = add_to_CVC_DISCRETIONARY_DATA_TEMPLATES(&templates,
+                    r = add_to_ASN1_AUXILIARY_DATA(&templates,
                             NID_id_CommunityID,
                             (unsigned char *) cmdline.verify_community_arg,
                             strlen(cmdline.verify_community_arg));
                     if (r < 0)
                         goto err;
                 }
-                unsigned char *p = NULL;
-                auxiliary_data_len = i2d_CVC_DISCRETIONARY_DATA_TEMPLATES(
-                        templates, &p);
-                if (0 >= (int) auxiliary_data_len
-                        || auxiliary_data_len > sizeof auxiliary_data) {
+                if (templates) {
+                    unsigned char *p = NULL;
+                    auxiliary_data_len = i2d_ASN1_AUXILIARY_DATA(
+                            templates, &p);
+                    if (0 > (int) auxiliary_data_len
+                            || auxiliary_data_len > sizeof auxiliary_data) {
+                        free(p);
+                        r = SC_ERROR_INTERNAL;
+                        goto err;
+                    }
+                    memcpy(auxiliary_data, p, auxiliary_data_len);
                     free(p);
-                    r = SC_ERROR_INTERNAL;
-                    goto err;
                 }
-                memcpy(auxiliary_data, p, auxiliary_data_len);
-                free(p);
             }
         }
 
@@ -782,7 +784,7 @@ err:
     free(privkey);
     free(dg);
     if (templates)
-        CVC_DISCRETIONARY_DATA_TEMPLATES_free(templates);
+        ASN1_AUXILIARY_DATA_free(templates);
 
     sm_stop(card);
     sc_reset(card, 1);
