@@ -37,7 +37,7 @@ parser.add_argument("-t", "--type",
         action="store",
         choices=['iso7816', 'cryptoflex', 'ePass', 'nPA', 'relay'],
         default='iso7816',
-        help="Type of smart card to emulate (default: %(default)s)")
+        help="type of smart card to emulate (default: %(default)s)")
 parser.add_argument("-f", "--file",
         action="store",
         type=argparse.FileType('r'),
@@ -54,32 +54,33 @@ parser.add_argument("-P", "--port",
         help="port of the vpcd (default: %(default)s)")
 parser.add_argument('--version', action='version', version='%(prog)s @PACKAGE_VERSION@')
 
-relay = parser.add_argument_group('options for relaying a local smart card')
-relay.add_argument("-r", "--reader",
+relay = parser.add_argument_group('Relaying a local smart card (`--type=relay`)')
+relay.add_argument("--reader",
         action="store",
         type=int,
-        help="number of the reader which contains the smart card to be relayed.")
+        default=0,
+        help="number of the reader containing the card to be relayed (default: %(default)s)")
 
-npa = parser.add_argument_group('options for nPA emulation')
-npa.add_argument("-s", "--ef-cardsecurity",
+npa = parser.add_argument_group('Emulation of German identity card (`--type=nPA`)')
+npa.add_argument("--ef-cardaccess",
         action="store",
         type=argparse.FileType('rb'),
-        help="EF.CardSecurity with the signed CA public key.")
-npa.add_argument("-a", "--ef-cardaccess",
+        help="the card's EF.CardAccess (default: use file from first generation nPA)")
+npa.add_argument("--ef-cardsecurity",
         action="store",
         type=argparse.FileType('rb'),
-        help="EF.CardAccess with the EAC configuration.")
-npa.add_argument("-k", "--ca-key",
+        help="the card's EF.CardSecurity (default: use file from first generation nPA)")
+npa.add_argument("--cvca",
         action="store",
         type=argparse.FileType('rb'),
-        help="CA private key.")
-npa.add_argument("-C", "--cvca",
-        action="store",
-        type=argparse.FileType('rb'),
-        help="CVCA certificate")
-npa.add_argument("-d", "--disable-checks",
+        help="trust anchor for verifying certificates in TA (default: use libeac's trusted certificates)")
+npa.add_argument("--disable-ta-checks",
         action="store_true", default=False,
-        help="Disables checking validity period of TA certificates")
+        help="disable checking the validity period of CV certifcates (default: %(default)s)")
+npa.add_argument("--ca-key",
+        action="store",
+        type=argparse.FileType('rb'),
+        help="the chip's private key for CA (default: randomly generated, invalidates signature of EF.CardSecurity)")
 
 
 args = parser.parse_args()
@@ -106,5 +107,5 @@ if (args.cvca):
 vicc = VirtualICC(args.file, args.type,
         args.hostname, args.port, readernum=args.reader,
         ef_cardaccess=ef_cardaccess_data, ef_cardsecurity=ef_cardsecurity_data,
-        ca_key=ca_key_data, cvca=cvca, disable_checks=args.disable_checks)
+        ca_key=ca_key_data, cvca=cvca, disable_checks=args.disable_ta_checks)
 vicc.run()

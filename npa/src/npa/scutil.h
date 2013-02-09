@@ -89,7 +89,8 @@ void _bin_log(sc_context_t *ctx, int type, const char *file, int line,
  */
 int print_avail(int verbose);
 
-/** Recursively read an EF by short file identifier.
+/** 
+ * @brief Recursively read an EF by short file identifier.
  *
  * @param[in]     card
  * @param[in]     sfid   Short file identifier
@@ -103,7 +104,8 @@ int print_avail(int verbose);
 int read_binary_rec(sc_card_t *card, unsigned char sfid,
         u8 **ef, size_t *ef_len);
 
-/** Recursively write an EF by short file identifier.
+/**
+ * @brief Recursively write an EF by short file identifier.
  *
  * @param[in] card
  * @param[in] sfid   Short file identifier

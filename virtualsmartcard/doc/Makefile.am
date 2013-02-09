@@ -17,13 +17,14 @@ do_subst = $(SED) \
 	   -e 's,[@]abs_top_srcdir[@],$(abs_top_srcdir),g' \
 	   -e 's,[@]top_srcdir[@],$(top_srcdir),g'
 
-EXTRA_DIST = README.rst.in README.rst autotools.rst.in questions.rst.in autotools.rst questions.rst
+EXTRA_DIST = README.rst.in README.rst autotools.rst.in questions.rst.in autotools.rst questions.rst download.rst.in download.rst
 
 dist_noinst_SCRIPTS = generate_modules.py
 
 doc: $(top_srcdir)/src/vpicc/virtualsmartcard/*.py $(top_srcdir)/src/vpicc/virtualsmartcard/cards/*.py generate_modules.py *.in
 	$(do_subst) < autotools.rst.in > autotools.rst
 	$(do_subst) < questions.rst.in > questions.rst
+	$(do_subst) < download.rst.in  > download.rst
 	$(do_subst) < README.rst.in > README.rst
 	./generate_modules.py $(top_srcdir)/src/vpicc --dest-dir=api --suffix=rst --no-toc -1 -f
 	touch doc

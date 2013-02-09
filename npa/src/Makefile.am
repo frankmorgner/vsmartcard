@@ -37,7 +37,7 @@ npa-tool.ggo: npa-tool.ggo.in
 	$(do_subst) < $< > $(srcdir)/$@
 
 
-npa-tool.1:
+npa-tool.1: npa-tool.ggo
 	$(HELP2MAN) \
 		--output=$@ \
 		--no-info \

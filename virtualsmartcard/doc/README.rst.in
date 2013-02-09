@@ -13,6 +13,9 @@
 .. |vpcd| replace:: :abbr:`vpcd (virtual smart card reader)`
 .. |EAC| replace:: :abbr:`EAC (Extended Access Control)`
 .. |PACE| replace:: :abbr:`PACE (Password Authenticated Connection Establishment)`
+.. |TA| replace:: :abbr:`TA (Terminal Authenticatation)`
+.. |CA| replace:: :abbr:`CA (Chip Authentication)`
+.. |BAC| replace:: :abbr:`BAC (Basic Access Control)`
 
 .. _vicc:
 
@@ -35,8 +38,8 @@
 Currently the @PACKAGE_NAME@ supports the following types of smart cards:
 
 - Generic ISO-7816 smart card including secure messaging
-- German electronic identity card (nPA) with |EAC| including |PACE|
-- German electronic passport (ePass) with basic access control
+- German electronic identity card (nPA) with complete support for |EAC| (|PACE|, |TA|, |CA|)
+- German electronic passport (ePass) with complete support for |BAC|
 - Cryptoflex smart card (incomplete)
       
 The |vpcd| is a smart card driver for PCSC-Lite_. It allows
@@ -50,6 +53,9 @@ Although the @PACKAGE_NAME@ is a software emulator, you can use
 reader.
 
 The file :file:`utils.py` was taken from Henryk Plötz's cyberflex-shell_.
+
+
+.. include:: download.rst
 
 
 .. include:: autotools.rst

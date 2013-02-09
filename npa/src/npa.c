@@ -236,17 +236,17 @@ IMPLEMENT_ASN1_FUNCTIONS(NPA_GEN_AUTH_CA_R)
 
 #define maxresp SC_MAX_APDU_BUFFER_SIZE - 2
 
-/** NPA secure messaging context */
+/** @brief NPA secure messaging context */
 struct npa_sm_ctx {
-    /** EAC context */
+    /** @brief EAC context */
     EAC_CTX *ctx;
-    /** Certificate Description given on initialization of PACE */
+    /** @brief Certificate Description given on initialization of PACE */
     BUF_MEM *certificate_description;
-    /** picc's compressed ephemeral public key of PACE */
+    /** @brief picc's compressed ephemeral public key of PACE */
     BUF_MEM *id_icc;
-    /** PCD's compressed ephemeral public key of CA */
+    /** @brief PCD's compressed ephemeral public key of CA */
     BUF_MEM *eph_pub_key;
-    /** Auxiliary Data */
+    /** @brief Auxiliary Data */
     BUF_MEM *auxiliary_data;
     char flags;
 };

@@ -13,11 +13,8 @@ option "verbose"    v
     "Use (several times) to be more verbose"
     multiple
     optional
-option "env"            -
-    "Whether to use environment variables PIN, PUK, CAN, MRZ and NEWPIN. You may want to clean your environment before enabling this."
-    flag off
 
-section "Secrets for establishing the secure PACE channel to the card"
+section "Password Authenticated Connection Establishment (PACE)"
 option "pin"            p
     "Run PACE with (transport) eID-PIN"
     string
@@ -38,34 +35,9 @@ option "mrz"            m
     string
     argoptional
     optional
-
-section "Terminal Authentication"
-option "cv-certificate" C
-    "Card Verifiable Certificate to create a certificate chain. Can be used multiple times (order is important)."
-    string
-    typestr="FILENAME"
-    optional
-    multiple
-option "cert-desc"      -
-    "Certificate description to use for Terminal Authentication"
-    string
-    typestr="HEX_STRING"
-    optional
-option "chat"           -
-    "Card holder authorization template to use (default is terminal's CHAT). Use 7F:4C:0e:06:09:04:00:7F:00:07:03:01:02:03:53:01:03 to trigger EAC on the CAT-C (Komfortleser)."
-    string
-    typestr="HEX_STRING"
-    optional
-option "auxiliary-data" A
-    "Terminal's auxiliary data (default is determined by age verification and community id verification)."
-    string
-    typestr="HEX_STRING"
-    optional
-option "private-key"    P
-    "Terminal's private key."
-    string
-    typestr="FILENAME"
-    optional
+option "env"            -
+    "Whether to use environment variables PIN, PUK, CAN, MRZ and NEWPIN. You may want to clean your environment before enabling this."
+    flag off
 
 section "PIN management"
 option "new-pin"        N
@@ -79,7 +51,41 @@ option "unblock"        U
     "Unblock PIN (uses PUK to activate three more retries)"
     flag off
 
-section "Read and Write Data Groups"
+section "Terminal Authentication (TA) and Chip Authentication (CA)"
+option "cv-certificate" C
+    "Card Verifiable Certificate to create a certificate chain. Can be used multiple times (order is important)."
+    string
+    typestr="FILENAME"
+    optional
+    multiple
+option "cert-desc"      -
+    "Certificate description to show for Terminal Authentication"
+    string
+    typestr="HEX_STRING"
+    optional
+option "chat"           -
+    "Card holder authorization template to use (default is terminal's CHAT). Use 7F4C0E060904007F000703010203530103 to trigger EAC on the CAT-C (Komfortleser)."
+    string
+    typestr="HEX_STRING"
+    optional
+option "auxiliary-data" A
+    "Terminal's auxiliary data (default is determined by age verification and community id verification)."
+    string
+    typestr="HEX_STRING"
+    optional
+option "private-key"    P
+    "Terminal's private key."
+    string
+    typestr="FILENAME"
+    optional
+option "disable-ta-checks"   -
+    "Disable checking the validity period of CV certifcates"
+    flag off
+option "disable-ca-checks"   -
+    "Disable passive authentication"
+    flag off
+
+section "Read and write data groups"
 option "read-dg1"       -
     "Read DG 1   (Document Type)"
     flag off
@@ -169,15 +175,15 @@ option "write-dg21"      -
     typestr="HEX_STRING"
     optional
 
-section "nPA operations"
+section "Verification of validity, age and community ID"
+option "verify-validity"    -
+    "Verify the chip's validity"
+    flag off
 option "older-than"     -
     "Verify age with a reference date"
     string
     typestr="YYYYMMDD"
     optional
-option "verify-validity"    -
-    "Verify document validity with the chips current date"
-    flag off
 option "verify-community"   -
     "Verify community ID with a reference ID"
     string
@@ -185,10 +191,10 @@ option "verify-community"   -
 
 section "Special options, not always useful"
 option "break"          b
-    "Brute force PIN, CAN or PUK"
+    "Brute force PIN, CAN or PUK. Use together with -p, -a or -u"
     flag off
 option "translate"      t
-    "File with APDUs to send through the secure channel"
+    "File with APDUs of HEX_STRINGs to send through the secure channel"
     string
     typestr="FILENAME"
     default="stdin"
@@ -198,12 +204,6 @@ option "tr-03110v201"    -
     flag off
 option "disable-all-checks"   -
     "Disable all checking of fly-by-data"
-    flag off
-option "disable-ta-checks"   -
-    "Disable checking the validity period of CV certifcates"
-    flag off
-option "disable-ca-checks"   -
-    "Disable passive authentication"
     flag off
 
 text "

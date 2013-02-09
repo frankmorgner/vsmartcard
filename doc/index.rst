@@ -1,3 +1,5 @@
+.. highlight:: sh
+
 .. |vsmartcard| replace:: Virtual Smart Card Architecture
 
 Welcome to the |vsmartcard| documentation!
@@ -59,9 +61,13 @@ Mobile Phone with Virtual Smartcard connected via USB
     :width: 320px
 
 
+========
 Download
 ========
 
-You can download the latest release of the |vsmartcard| `here <https://sourceforge.net/projects/vsmartcard/files/vsmartcard_2011-05-20.tar.gz/download>`_.
+You can download the latest release of the |vsmartcard| `here
+<http://sourceforge.net/projects/vsmartcard/files>`_.
 
-Alternatively you can check out the source code from our `subversion repository <https://sourceforge.net/projects/vsmartcard/develop>`_. 
+Alternatively, you can clone our git repository::
+
+    git clone git://vsmartcard.git.sourceforge.net/gitroot/vsmartcard/vsmartcard

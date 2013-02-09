@@ -41,6 +41,9 @@ emulate an ISO/IEC 14443 smart card.
     but it generally concerns *all* contact-less smart cards.
 
 
+.. include:: download.rst
+
+
 .. include:: autotools.rst
 
 PC/SC Relay has the following dependencies:

@@ -16,7 +16,7 @@ do_subst = $(SED) \
 	   -e 's,[@]abs_top_srcdir[@],$(abs_top_srcdir),g' \
 	   -e 's,[@]top_srcdir[@],$(top_srcdir),g'
 
-EXTRA_DIST = README.rst.in README.rst Doxyfile.in example.c autotools.rst autotools.rst.in questions.rst questions.rst.in
+EXTRA_DIST = README.rst.in README.rst Doxyfile.in example.c autotools.rst autotools.rst.in questions.rst questions.rst.in download.rst.in download.rst
 
 DOXYGEN = doxygen
 
@@ -26,6 +26,7 @@ doc: $(top_srcdir)/src/npa/*.h *.in
 	touch api.rst
 	$(do_subst) < autotools.rst.in > autotools.rst
 	$(do_subst) < questions.rst.in > questions.rst
+	$(do_subst) < download.rst.in  > download.rst
 	$(do_subst) < README.rst.in > README.rst
 	touch doc
 

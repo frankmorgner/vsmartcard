@@ -35,6 +35,9 @@ transparent SM usage in OpenSC. This allows nPA Smart Card Library to be fully
 compatible with OpenSC.
 
 
+.. include:: download.rst
+
+
 .. _npa-install:
 
 .. include:: autotools.rst
@@ -79,7 +82,7 @@ of OpenSC_::
     cd $VSMARTCARD/npa/src/opensc
     autoreconf --verbose --install
     # adding PKG_CONFIG_PATH here lets OpenSC use OpenSSL with OpenPACE
-    ./configure --prefix=$PREFIX PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig
+    ./configure --prefix=$PREFIX PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig --enable-sm
     make install && cd -
 
 Now :file:`libopensc.so` should be located in ``$PREFIX/lib``.
@@ -94,7 +97,7 @@ To complete this step-by-step guide, here is how to install nPA Smart Card Libra
     cd $VSMARTCARD/npa
     autoreconf --verbose --install
     # adding PKG_CONFIG_PATH here lets OpenSC use OpenSSL with OpenPACE
-    ./configure --prefix=$PREFIX PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig OPENSC_LIBS="-L$PREFIX/lib -lopensc"
+    ./configure --prefix=$PREFIX PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig OPENSC_LIBS="-L$PREFIX/lib -lopensc -lcrypto"
     make install && cd -
 
 
@@ -105,9 +108,13 @@ To complete this step-by-step guide, here is how to install nPA Smart Card Libra
 Usage
 =====
 
+The API to libnpa is documented in :ref:`npa-api`. It includes a simple
+programming example. Here we will focus on the command line interface to the
+library offered by the |npa-tool|.
+
 To pass a secret to |npa-tool| for |PACE|, command line parameters or
 environment variables can be used. If the smart card reader supports |PACE|,
-the PIN pad is used. If none of these options is applies, npa-tool will show a
+the PIN pad is used. If none of these options applies, |npa-tool| will show a
 password prompt.
 
 |npa-tool| can send arbitrary APDUs to the nPA in the secure channel.  APDUs
@@ -137,9 +144,6 @@ Alternatively you can specify libraries and flags by hand::
     cc example.c -I$VSMARTCARD/npa/src/opensc \
         -I$PREFIX/include \
         -L$PREFIX/lib -lnpa -lopensc -lcrypto"
-
-The API to libnpa is documented in :ref:`npa-api`. It includes a simple
-programming example.
 
 
 .. include:: questions.rst

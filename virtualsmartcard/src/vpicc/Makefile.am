@@ -35,7 +35,7 @@ $(builddir)/vicc: vicc.in Makefile
 	$(do_subst) < $(srcdir)/vicc.in > $(builddir)/vicc
 	chmod +x $(builddir)/vicc
 
-$(builddir)/vicc.1:
+$(builddir)/vicc.1: vicc.in
 	$(HELP2MAN) \
 		--no-discard-stderr \
 		--output=$@ \

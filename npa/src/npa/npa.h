@@ -37,64 +37,64 @@
 extern "C" {
 #endif
 
-/** NPA capabilities (TR-03119): PACE */
+/** @brief NPA capabilities (TR-03119): PACE */
 #define NPA_BITMAP_PACE  0x40
-/** NPA capabilities (TR-03119): EPA: eID */
+/** @brief NPA capabilities (TR-03119): EPA: eID */
 #define NPA_BITMAP_EID   0x20
-/** NPA capabilities (TR-03119): EPA: eSign */
+/** @brief NPA capabilities (TR-03119): EPA: eSign */
 #define NPA_BITMAP_ESIGN 0x10
 
-/** NPA result (TR-03119): Kein Fehler */
+/** @brief NPA result (TR-03119): Kein Fehler */
 #define NPA_SUCCESS                            0x00000000
-/** NPA result (TR-03119): Längen im Input sind inkonsistent */
+/** @brief NPA result (TR-03119): Längen im Input sind inkonsistent */
 #define NPA_ERROR_LENGTH_INCONSISTENT          0xD0000001
-/** NPA result (TR-03119): Unerwartete Daten im Input */
+/** @brief NPA result (TR-03119): Unerwartete Daten im Input */
 #define NPA_ERROR_UNEXPECTED_DATA              0xD0000002
-/** NPA result (TR-03119): Unerwartete Kombination von Daten im Input */
+/** @brief NPA result (TR-03119): Unerwartete Kombination von Daten im Input */
 #define NPA_ERROR_UNEXPECTED_DATA_COMBINATION  0xD0000003
-/** NPA result (TR-03119): Die Karte unterstützt das PACE – Verfahren nicht.  (Unerwartete Struktur in Antwortdaten der Karte) */
+/** @brief NPA result (TR-03119): Die Karte unterstützt das PACE – Verfahren nicht.  (Unerwartete Struktur in Antwortdaten der Karte) */
 #define NPA_ERROR_CARD_NOT_SUPPORTED           0xE0000001
-/** NPA result (TR-03119): Der Kartenleser unterstützt den angeforderten bzw. den ermittelten Algorithmus nicht.  */
+/** @brief NPA result (TR-03119): Der Kartenleser unterstützt den angeforderten bzw. den ermittelten Algorithmus nicht.  */
 #define NPA_ERROR_ALGORITH_NOT_SUPPORTED       0xE0000002
-/** NPA result (TR-03119): Der Kartenleser kennt die PIN – ID nicht. */
+/** @brief NPA result (TR-03119): Der Kartenleser kennt die PIN – ID nicht. */
 #define NPA_ERROR_PINID_NOT_SUPPORTED          0xE0000003
-/** NPA result (TR-03119): Negative Antwort der Karte auf Select EF_CardAccess (needs to be OR-ed with SW1|SW2) */
+/** @brief NPA result (TR-03119): Negative Antwort der Karte auf Select EF_CardAccess (needs to be OR-ed with SW1|SW2) */
 #define NPA_ERROR_SELECT_EF_CARDACCESS         0xF0000000
-/** NPA result (TR-03119): Negative Antwort der Karte auf Read Binary (needs to be OR-ed with SW1|SW2) */
+/** @brief NPA result (TR-03119): Negative Antwort der Karte auf Read Binary (needs to be OR-ed with SW1|SW2) */
 #define NPA_ERROR_READ_BINARY                  0xF0010000
-/** NPA result (TR-03119): Negative Antwort der Karte auf MSE: Set AT (needs to be OR-ed with SW1|SW2) */
+/** @brief NPA result (TR-03119): Negative Antwort der Karte auf MSE: Set AT (needs to be OR-ed with SW1|SW2) */
 #define NPA_ERROR_MSE_SET_AT                   0xF0020000
-/** NPA result (TR-03119): Negative Antwort der Karte auf General Authenticate Step 1 (needs to be OR-ed with SW1|SW2) */
+/** @brief NPA result (TR-03119): Negative Antwort der Karte auf General Authenticate Step 1 (needs to be OR-ed with SW1|SW2) */
 #define NPA_ERROR_GENERAL_AUTHENTICATE_1       0xF0030000
-/** NPA result (TR-03119): Negative Antwort der Karte auf General Authenticate Step 2 (needs to be OR-ed with SW1|SW2) */
+/** @brief NPA result (TR-03119): Negative Antwort der Karte auf General Authenticate Step 2 (needs to be OR-ed with SW1|SW2) */
 #define NPA_ERROR_GENERAL_AUTHENTICATE_2       0xF0040000
-/** NPA result (TR-03119): Negative Antwort der Karte auf General Authenticate Step 3 (needs to be OR-ed with SW1|SW2) */
+/** @brief NPA result (TR-03119): Negative Antwort der Karte auf General Authenticate Step 3 (needs to be OR-ed with SW1|SW2) */
 #define NPA_ERROR_GENERAL_AUTHENTICATE_3       0xF0050000
-/** NPA result (TR-03119): Negative Antwort der Karte auf General Authenticate Step 4 (needs to be OR-ed with SW1|SW2) */
+/** @brief NPA result (TR-03119): Negative Antwort der Karte auf General Authenticate Step 4 (needs to be OR-ed with SW1|SW2) */
 #define NPA_ERROR_GENERAL_AUTHENTICATE_4       0xF0060000
-/** NPA result (TR-03119): Kommunikationsabbruch mit Karte. */
+/** @brief NPA result (TR-03119): Kommunikationsabbruch mit Karte. */
 #define NPA_ERROR_COMMUNICATION                0xF0100001
-/** NPA result (TR-03119): Keine Karte im Feld. */
+/** @brief NPA result (TR-03119): Keine Karte im Feld. */
 #define NPA_ERROR_NO_CARD                      0xF0100002
-/** NPA result (TR-03119): Benutzerabbruch. */
+/** @brief NPA result (TR-03119): Benutzerabbruch. */
 #define NPA_ERROR_ABORTED                      0xF0200001
-/** NPA result (TR-03119): Benutzer – Timeout */
+/** @brief NPA result (TR-03119): Benutzer – Timeout */
 #define NPA_ERROR_TIMEOUT                      0xF0200002
 
-/** File identifier of EF.CardAccess */
+/** @brief File identifier of EF.CardAccess */
 #define  FID_EF_CARDACCESS   0x011C
-/** Short file identifier of EF.CardAccess */
+/** @brief Short file identifier of EF.CardAccess */
 #define SFID_EF_CARDACCESS   0x1C
-/** File identifier of EF.CardSecurity */
+/** @brief File identifier of EF.CardSecurity */
 #define  FID_EF_CARDSECURITY 0x011D
-/** Short file identifier of EF.CardAccess */
+/** @brief Short file identifier of EF.CardAccess */
 #define SFID_EF_CARDSECURITY 0x1D
 
-/** Maximum length of PIN */
+/** @brief Maximum length of PIN */
 #define MAX_PIN_LEN       6
-/** Minimum length of PIN */
+/** @brief Minimum length of PIN */
 #define MIN_PIN_LEN       6
-/** Minimum length of MRZ */
+/** @brief Minimum length of MRZ */
 #define MAX_MRZ_LEN       128
 
 /**
@@ -204,7 +204,8 @@ int npa_reset_retry_counter(sc_card_t *card,
  */
 #define npa_unblock_pin(card) \
     npa_reset_retry_counter(card, PACE_PIN, 0, NULL, 0)
-/** Send APDU to set a new PIN
+/**
+ * @brief Send APDU to set a new PIN
  *
  * @param[in] card
  * @param[in] newp           (optional) new PIN
@@ -215,15 +216,15 @@ int npa_reset_retry_counter(sc_card_t *card,
 
 /** @brief Disable all sanity checks done by libnpa */
 #define NPA_FLAG_DISABLE_CHECK_ALL 1
-/** Disable checking validity period of CV certificates */
+/** @brief Disable checking validity period of CV certificates */
 #define NPA_FLAG_DISABLE_CHECK_TA 2
-/** Disable checking passive authentication during CA */
+/** @brief Disable checking passive authentication during CA */
 #define NPA_FLAG_DISABLE_CHECK_CA 4
 
-/** Use \c npa_default_flags to disable checks for EAC/SM */
+/** @brief Use \c npa_default_flags to disable checks for EAC/SM */
 extern char npa_default_flags;
 
-/** ASN.1 type for authenticated auxiliary data for terminal authentication */
+/** @brief ASN.1 type for authenticated auxiliary data for terminal authentication */
 typedef CVC_DISCRETIONARY_DATA_TEMPLATES ASN1_AUXILIARY_DATA;
 DECLARE_ASN1_FUNCTIONS(ASN1_AUXILIARY_DATA)
 

@@ -51,7 +51,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Virtual Smart Card Architecture'
-copyright = u'2009-2012 by Dominik Oepen and Frank Morgner'
+copyright = u'2009-2013 by Dominik Oepen and Frank Morgner'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -74,7 +74,7 @@ release = '2012-04-11'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ['_build', '*/questions.rst', '*/autotools.rst']
+exclude_patterns = ['_build', '*/questions.rst', '*/autotools.rst', '*/download.rst']
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 #default_role = None
