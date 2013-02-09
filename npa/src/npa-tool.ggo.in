@@ -52,7 +52,7 @@ option "cert-desc"      -
     typestr="HEX_STRING"
     optional
 option "chat"           -
-    "Card holder authorization template to use (default is terminal's CHAT)"
+    "Card holder authorization template to use (default is terminal's CHAT). Use 7F:4C:0e:06:09:04:00:7F:00:07:03:01:02:03:53:01:03 to trigger EAC on the CAT-C (Komfortleser)."
     string
     typestr="HEX_STRING"
     optional
