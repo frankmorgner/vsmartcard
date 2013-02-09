@@ -213,13 +213,12 @@ int npa_reset_retry_counter(sc_card_t *card,
 #define npa_change_pin(card, newp, newplen) \
     npa_reset_retry_counter(card, PACE_PIN, 1, newp, newplen)
 
-/**
- * @brief Disable all sanity checks done by OpenPACE
- *
- * Currently used to set \c TA_FLAG_SKIP_TIMECHECK (Skip checking effective and
- * expiration date of cv certificates against the system's current time).
- */
-#define NPA_FLAG_DISABLE_CHECKS 1
+/** @brief Disable all sanity checks done by libnpa */
+#define NPA_FLAG_DISABLE_CHECK_ALL 1
+/** Disable checking validity period of CV certificates */
+#define NPA_FLAG_DISABLE_CHECK_TA 2
+/** Disable checking passive authentication during CA */
+#define NPA_FLAG_DISABLE_CHECK_CA 4
 
 /** Use \c npa_default_flags to disable checks for EAC/SM */
 extern char npa_default_flags;

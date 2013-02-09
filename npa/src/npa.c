@@ -306,8 +306,10 @@ npa_sm_ctx_create(EAC_CTX *ctx, const unsigned char *certificate_description,
     out->auxiliary_data = NULL;
 
     out->flags = npa_default_flags;
-    if (out->flags & NPA_FLAG_DISABLE_CHECKS)
+    if (out->flags & NPA_FLAG_DISABLE_CHECK_TA)
         TA_disable_checks(out->ctx);
+    if (out->flags & NPA_FLAG_DISABLE_CHECK_CA)
+        CA_disable_passive_authentication(out->ctx);
 
     return out;
 
@@ -2250,7 +2252,7 @@ npa_sm_pre_transmit(sc_card_t *card, const struct iso_sm_ctx *ctx,
     }
     struct npa_sm_ctx *eacsmctx = ctx->priv_data;
 
-    if (!(eacsmctx->flags & NPA_FLAG_DISABLE_CHECKS)) {
+    if (!(eacsmctx->flags & NPA_FLAG_DISABLE_CHECK_ALL)) {
         if (apdu->ins == 0x2a && apdu->p1 == 0x00 && apdu->p2 == 0xbe) {
             /* PSO:Verify Certificate
              * check certificate description to match given certificate */
@@ -2443,7 +2445,7 @@ npa_sm_finish(sc_card_t *card, const struct iso_sm_ctx *ctx,
                 SC_ERROR_INVALID_ARGUMENTS);
     struct npa_sm_ctx *eacsmctx = ctx->priv_data;
 
-    if (!(eacsmctx->flags & NPA_FLAG_DISABLE_CHECKS)) {
+    if (!(eacsmctx->flags & NPA_FLAG_DISABLE_CHECK_ALL)) {
         if (apdu->sw1 == 0x90 && apdu->sw2 == 0x00) {
             if (apdu->ins == 0x84 && apdu->p1 == 0x00 && apdu->p2 == 0x00
                     && apdu->le == 8 && apdu->resplen == 8) {

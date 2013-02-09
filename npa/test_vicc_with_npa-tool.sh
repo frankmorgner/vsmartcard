@@ -64,7 +64,7 @@ do
         --older-than=19991231 --verify-validity \
         --read-dg1 --read-dg2 --read-dg3 --read-dg4 --read-dg5 --read-dg6 --read-dg7 --read-dg8 --read-dg9 --read-dg10 --read-dg11 --read-dg12 --read-dg13 --read-dg14 --read-dg15 --read-dg16 --read-dg17 --read-dg18 --read-dg19 --read-dg20 --read-dg21 \
         --write-dg17=0107 --write-dg18=0108 --write-dg19=0109 --write-dg20=0200 --write-dg21=0201 \
-        --disable-checks
+        --disable-ta-check --disable-ca-check
     NPA_RESULT=$?
 
     kill $VICC_PID 2>/dev/null
