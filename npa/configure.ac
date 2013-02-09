@@ -47,7 +47,7 @@ m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
 
 # Checks for libraries.
-test -z "$OPENSC_LIBS" && OPENSC_LIBS="-lopensc"
+test -z "$OPENSC_LIBS" && OPENSC_LIBS="-lopensc -lcrypto"
 test -z "$OPENSC_CFLAGS" && OPENSC_CFLAGS="-I${PWD}/${srcdir}/src/opensc/src -DENABLE_SM"
 
 saved_CPPFLAGS="$CPPFLAGS"
@@ -106,6 +106,41 @@ CPPFLAGS="$saved_CPPFLAGS"
 LIBS="$saved_LIBS"
 
 
+AC_ARG_ENABLE(cvcdir,
+              AC_HELP_STRING([--enable-cvcdir=DIR],
+                             [directory containing CV certificates (default is determined by libeac)]),
+                             [cvcdir="${enableval}"],
+                             [cvcdir=false])
+if test "${cvcdir}" = false ; then
+    cvcdir="`$PKG_CONFIG libeac --variable=cvcdir`"
+fi
+if test "${cvcdir}" = "" ; then
+    AC_MSG_ERROR([use --enable-cvcdir=DIR])
+fi
+CVCDIR="${cvcdir}"
+AC_SUBST(CVCDIR)
+
+AC_ARG_ENABLE(x509dir,
+              AC_HELP_STRING([--enable-x509dir=DIR],
+                             [directory containing X.509 certificates (default is determined by libeac)]),
+                             [x509dir="${enableval}"],
+                             [x509dir=false])
+if test "${x509dir}" = false ; then
+    x509dir="`$PKG_CONFIG libeac --variable=x509dir`"
+fi
+if test -z "${x509dir}"
+then
+    x509dir="`$PKG_CONFIG libeac --variable=x509dir`"
+fi
+if test -z "${x509dir}"
+then
+    AC_MSG_ERROR([use --enable-x509dir=DIR])
+fi
+X509DIR="${x509dir}"
+AC_SUBST(X509DIR)
+
+
+
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h memory.h stdint.h stdlib.h string.h sys/ioctl.h unistd.h])
@@ -155,9 +190,10 @@ EOF
 
 AC_CONFIG_FILES([
                  Makefile
+                 certs/Makefile
+                 doc/Makefile
                  m4/Makefile
                  src/Makefile
                  win32/Makefile
-                 doc/Makefile
                  ])
 AC_OUTPUT

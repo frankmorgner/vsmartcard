@@ -1,5 +1,5 @@
 ACLOCAL_AMFLAGS = -I m4
-SUBDIRS = src m4 doc win32
+SUBDIRS = src m4 doc win32 certs
 
 EXTRA_DIST = libnpa.pc.in apdus test_vicc_with_npa-tool.sh
 
