@@ -45,7 +45,7 @@ Currently the Virtual Smart Card supports the following types of smart cards:
 The |vpcd| is a smart card driver for PCSC-Lite_. It allows
 smart card applications to access the |vpicc| through the PC/SC API.  By
 default |vpicc| communicates with |vpcd| through a socket on localhost port
-``35963``. But the |vpicc| does not need to run on the same machine as the |vpcd|,
+35963. But the |vpicc| does not need to run on the same machine as the |vpcd|,
 they can connect over the internet for example.
 
 Although the Virtual Smart Card is a software emulator, you can use

@@ -81,7 +81,7 @@ of OpenSC_::
     git clone git://vsmartcard.git.sourceforge.net/gitroot/vsmartcard $VSMARTCARD
     cd $VSMARTCARD/npa/src/opensc
     autoreconf --verbose --install
-    # adding PKG_CONFIG_PATH here lets OpenSC use OpenSSL with OpenPACE
+    # adding PKG_CONFIG_PATH here lets OpenSC use the patched OpenSSL
     ./configure --prefix=$PREFIX PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig --enable-sm
     make install && cd -
 
@@ -96,7 +96,6 @@ To complete this step-by-step guide, here is how to install nPA Smart Card Libra
 
     cd $VSMARTCARD/npa
     autoreconf --verbose --install
-    # adding PKG_CONFIG_PATH here lets OpenSC use OpenSSL with OpenPACE
     ./configure --prefix=$PREFIX PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig OPENSC_LIBS="-L$PREFIX/lib -lopensc -lcrypto"
     make install && cd -
 
@@ -114,7 +113,7 @@ library offered by the |npa-tool|.
 
 To pass a secret to |npa-tool| for |PACE|, command line parameters or
 environment variables can be used. If the smart card reader supports |PACE|,
-the PIN pad is used. If none of these options applies, |npa-tool| will show a
+the PIN pad is used. If none of these options apply, |npa-tool| will show a
 password prompt.
 
 |npa-tool| can send arbitrary APDUs to the nPA in the secure channel.  APDUs
