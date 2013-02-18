@@ -9,15 +9,14 @@ do_subst = $(SED) \
 BUILT_SOURCES = cmdline.h cmdline.c
 
 EXTRA_DIST  = ccid-emulator.ggo ccid-emulator.ggo.in
-EXTRA_DIST += $(shell find $(top_srcdir)/src/opensc/src -path '*/.svn' -prune -o -type f -a -name '*.h' -print)
-EXTRA_DIST += $(shell find -L $(top_srcdir)/src/opensc-npa/src -path '*/.git' -prune -o -type f -a -name '*.h' -print)
+EXTRA_DIST += $(shell find $(top_srcdir)/src/opensc/src -path '*/.git' -prune -o -type f -a -name '*.h' -print)
 MAINTAINERCLEANFILES = $(BUILT_SOURCES) ccid-emulator.ggo $(dist_man1_MANS)
 
 dist_man1_MANS		= ccid-emulator.1
 
-ccid_emulator_SOURCES = ccid.c usbstring.c usb.c sslutil.c $(BUILT_SOURCES)
+ccid_emulator_SOURCES = ccid.c usbstring.c usb.c $(BUILT_SOURCES)
 ccid_emulator_LDADD =  $(OPENSSL_LIBS) $(PTHREAD_LIBS)
-ccid_emulator_CFLAGS = $(OPENSSL_CFLAGS) $(PTHREAD_CFLAGS)
+ccid_emulator_CFLAGS = $(OPENSSL_CFLAGS) $(PTHREAD_CFLAGS) -I$(top_srcdir)/src/opensc/src
 
 
 ccid-emulator.c: $(BUILT_SOURCES)
@@ -38,27 +37,19 @@ ccid-emulator.1:
 		$(srcdir)/ccid-emulator
 
 
-bin_PROGRAMS =
+bin_PROGRAMS = ccid-emulator
 
 noinst_HEADERS = \
-		 scutil.h \
 		 ccid.h \
+		 npa/scutil.h \
 		 sslutil.h \
 		 usbstring.h
 
-if WITH_CCID
-bin_PROGRAMS += ccid-emulator
-endif
-
 
 if WITH_PACE
-AM_CPPFLAGS = -I$(top_srcdir)/src/opensc-npa/src
-
 ccid_emulator_LDADD += $(LIBNPA_LIBS)
 ccid_emulator_CFLAGS += $(LIBNPA_CFLAGS)
 else
-AM_CPPFLAGS = -I$(top_srcdir)/src/opensc/src
-
 ccid_emulator_SOURCES += scutil.c
 ccid_emulator_LDADD += $(OPENSC_LIBS)
 endif

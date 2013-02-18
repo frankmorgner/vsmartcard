@@ -281,7 +281,7 @@ int ccid_initialize(int reader_id, const char *cdriver, int verbose);
 /** 
  * @brief Disconnects from card, reader and releases allocated memory
  */
-void ccid_shutdown();
+void ccid_shutdown(void);
 
 
 /**

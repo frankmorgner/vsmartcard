@@ -31,15 +31,12 @@
 #include "sslutil.h"
 #include "config.h"
 
+#include <npa/scutil.h>
 #ifdef WITH_PACE
 #include <npa/npa.h>
-#include <npa/sm.h>
-#include <npa/scutil.h>
-
-static struct sm_ctx sctx;
-
+#include <npa/iso-sm.h>
 #else
-#include "scutil.h"
+int sm_stop(struct sc_card *card) { return SC_SUCCESS; }
 #endif
 
 static sc_context_t *ctx = NULL;
@@ -130,13 +127,6 @@ detect_card_presence(void)
 }
 
 
-void sm_stop() {
-#ifdef WITH_PACE
-    sm_ctx_clear_free(&sctx);
-    memset(&sctx, 0, sizeof(sctx));
-#endif
-}
-
 int ccid_initialize(int reader_id, const char *cdriver, int verbose)
 {
     int i;
@@ -145,24 +135,18 @@ int ccid_initialize(int reader_id, const char *cdriver, int verbose)
     if (i < 0)
         return i;
 
-#ifdef WITH_PACE
-    memset(&sctx, 0, sizeof(sctx));
-    sm_stop();
-#endif
-
     return SC_SUCCESS;
 }
 
-void ccid_shutdown()
+void ccid_shutdown(void)
 {
-    int i;
+    sm_stop(card);
+
     if (card) {
         sc_disconnect_card(card);
     }
     if (ctx)
         sc_release_context(ctx);
-
-    sm_stop();
 }
 
 static int get_rapdu(sc_apdu_t *apdu, __u8 **buf, size_t *resplen)
@@ -183,11 +167,7 @@ static int get_rapdu(sc_apdu_t *apdu, __u8 **buf, size_t *resplen)
     }
     *buf = apdu->resp;
 
-#ifdef WITH_PACE
-    sc_result = sm_transmit_apdu(&sctx, card, apdu);
-#else
     sc_result = sc_transmit_apdu(card, apdu);
-#endif
     if (sc_result < 0) {
         goto err;
     }
@@ -401,7 +381,7 @@ perform_PC_to_RDR_IccPowerOn(const __u8 *in, size_t inlen, __u8 **out, size_t *o
         sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "Card is already powered on.");
         sc_result = SC_SUCCESS;
     } else {
-        sm_stop();
+        sm_stop(card);
         sc_result = sc_connect_card(reader, &card);
         card->caps |= SC_CARD_CAP_APDU_EXT;
     }
@@ -936,8 +916,8 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
     }
 
 
-    sc_result = EstablishPACEChannel(NULL, card, pace_input, &pace_output,
-            &sctx, EAC_TR_VERSION_2_02);
+    sc_result = perform_pace(card, pace_input, &pace_output,
+            EAC_TR_VERSION_2_02);
     if (sc_result < 0)
         goto err;
 
@@ -1080,7 +1060,7 @@ perform_PC_to_RDR_Secure_GetReadersPACECapabilities(__u8 **abDataOut,
         return SC_ERROR_OUT_OF_MEMORY;
     *abDataOut = BitMap;
 
-    sc_result = GetReadersPACECapabilities(BitMap);
+    sc_result = get_pace_capabilities(BitMap);
     if (sc_result < 0)
         return sc_result;
 
@@ -1118,7 +1098,6 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
     size_t abDatalen = inlen - sizeof *request;
     u8 *abDataOut = NULL;
     size_t abDataOutLen = 0;
-    RDR_to_PC_DataBlock_t *result;
 
     memset(&curr_pin, 0, sizeof(curr_pin));
     memset(&new_pin, 0, sizeof(new_pin));
@@ -1355,25 +1334,6 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
                 break;
             case SC_APDU_CASE_2_SHORT:
                 apdu.cse = SC_APDU_CASE_4_SHORT;
-#ifdef WITH_PACE
-                /* This is an ugly hack to support the current AusweisApp.
-                 *
-                 * AusweisApp predefines a case 2 apdu, that includes a Le.
-                 * Unfortunately the nPA does only accept Reset Retry Counter
-                 * without secured Le (Le is not specified by BSI TR-03110, p.
-                 * 80).
-                 * In addition AusweisApp predefines a short apdu, which is
-                 * also incompatible with nPA. It accepts only extended length
-                 * APDUs.
-                 *
-                 * Therefor we drop the Le and switch to extended length.
-                 */
-
-                /* Note that this is only an approximation to find out if we
-                 * have a nPA */
-                if (sctx.active)
-                    apdu.cse = SC_APDU_CASE_3_EXT;
-#endif
                 break;
             case SC_APDU_CASE_2_EXT:
                 apdu.cse = SC_APDU_CASE_4_EXT;
@@ -1433,7 +1393,6 @@ err:
 static int
 get_RDR_to_PC_NotifySlotChange(RDR_to_PC_NotifySlotChange_t **out)
 {
-    int i;
     int sc_result;
     uint8_t oldmask;
     uint8_t changed [] = {

@@ -40,33 +40,24 @@ m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
 # Checks for libraries.
 
-# --disable-ccid
-AC_ARG_ENABLE(ccid,
-              AS_HELP_STRING([--disable-ccid], [Disable USB CCID emulator]),
-              [enable_ccid="${enableval}"], [enable_ccid=yes])
-if test "x$enable_ccid" != xno ; then
-    AC_CHECK_HEADERS(linux/usb/gadgetfs.h,,
-                     [ AC_MSG_ERROR([linux/usb/gadgetfs.h not found, maybe you want to disable ccid]) ])
+AC_CHECK_HEADERS(linux/usb/gadgetfs.h,,
+                 [ AC_MSG_ERROR([linux/usb/gadgetfs.h not found, maybe you want to disable ccid]) ])
 
-    ACX_PTHREAD
+ACX_PTHREAD
 
-    saved_CPPFLAGS="$CPPFLAGS"
-    saved_LIBS="$LIBS"
-    CPPFLAGS="$CPPFLAGS $PTHREAD_CFLAGS"
-    LIBS="$LDFLAGS $PTHREAD_LIBS"
+saved_CPPFLAGS="$CPPFLAGS"
+saved_LIBS="$LIBS"
+CPPFLAGS="$CPPFLAGS $PTHREAD_CFLAGS"
+LIBS="$LDFLAGS $PTHREAD_LIBS"
 
-    AC_CHECK_HEADERS(pthread.h, [],
-                     [ AC_MSG_ERROR([pthread.h not found, use ./configure PTHREAD_CFLAGS=... or disable ccid]) ])
-    AC_MSG_CHECKING([for pthread_create])
-    AC_TRY_LINK_FUNC(pthread_create, [ AC_MSG_RESULT([yes]) ],
-                     [ AC_MSG_ERROR([pthread not found, use ./configure PTHREAD_LIBS=... or disable ccid]) ])
+AC_CHECK_HEADERS(pthread.h, [],
+                 [ AC_MSG_ERROR([pthread.h not found, use ./configure PTHREAD_CFLAGS=... or disable ccid]) ])
+AC_MSG_CHECKING([for pthread_create])
+AC_TRY_LINK_FUNC(pthread_create, [ AC_MSG_RESULT([yes]) ],
+                 [ AC_MSG_ERROR([pthread not found, use ./configure PTHREAD_LIBS=... or disable ccid]) ])
 
-    CPPFLAGS="$saved_CPPFLAGS"
-    LIBS="$saved_LIBS"
-
-    enable_ccid=yes
-fi
-AM_CONDITIONAL(WITH_CCID, test "${enable_ccid}" != "no")
+CPPFLAGS="$saved_CPPFLAGS"
+LIBS="$saved_LIBS"
 
 
 PKG_CHECK_EXISTS([libssl],
@@ -96,8 +87,8 @@ if test "x$enable_pace" != xno ; then
     CPPFLAGS="$CPPFLAGS $LIBNPA_CFLAGS -I$(pwd)/src/opensc/src $OPENSSL_CFLAGS"
     LIBS="$LDFLAGS $LIBNPA_LIBS $OPENSSL_LIBS"
     AC_CHECK_HEADERS(npa/npa.h, [], [ AC_MSG_ERROR([npa/npa.h not found, install libnpa or use ./configure LIBNPA_CFLAGS=...]) ])
-    AC_MSG_CHECKING([for EstablishPACEChannel])
-    AC_TRY_LINK_FUNC(EstablishPACEChannel, [ AC_MSG_RESULT([yes]) ], [ AC_MSG_ERROR([libnpa not found, use ./configure LIBNPA_LIBS=...]) ])
+    AC_MSG_CHECKING([for perform_pace])
+    AC_TRY_LINK_FUNC(perform_pace, [ AC_MSG_RESULT([yes]) ], [ AC_MSG_ERROR([libnpa not found, use ./configure LIBNPA_LIBS=...]) ])
 
     enable_pace=yes
 else
@@ -159,7 +150,6 @@ OPENSSL_LIBS:         ${OPENSSL_LIBS}
 LIBNPA_CFLAGS:        ${LIBNPA_CFLAGS}
 LIBNPA_LIBS:          ${LIBNPA_LIBS}
 
-CCID emulator:        ${enable_ccid}
 PACE support:         ${enable_pace}
 
 

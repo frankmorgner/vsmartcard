@@ -35,6 +35,7 @@
 #include <linux/types.h>
 #include <linux/usb/gadgetfs.h>
 #include <linux/usb/ch9.h>
+#include <npa/scutil.h>
 //#include <usb.h>
 //
 
@@ -254,11 +255,6 @@ static char	*EP_IN_NAME, *EP_OUT_NAME, *EP_STATUS_NAME;
 #define	USB_BUFSIZE	(7 * 1024)
 
 static enum usb_device_speed	current_speed;
-
-static inline int min(unsigned a, unsigned b)
-{
-	return (a < b) ? a : b;
-}
 
 static int autoconfig ()
 {
@@ -774,6 +770,11 @@ static void close_fd (void *fd_ptr)
 			fprintf (stderr, "closed fd\n");
 }
 
+static void close_ccid()
+{
+    ccid_shutdown();
+}
+
 
 /* you should be able to open and configure endpoints
  * whether or not the host is connected
@@ -894,7 +895,7 @@ static void *ccid (void *param)
     }
     pthread_cleanup_push (close_fd, &sink_fd);
 
-    pthread_cleanup_push (ccid_shutdown, NULL);
+    pthread_cleanup_push (close_ccid, NULL);
 
     __u8 *outbuf = NULL;
     pthread_cleanup_push (free, outbuf);
@@ -1488,7 +1489,6 @@ main (int argc, char **argv)
 {
     /*printf("%s:%d\n", __FILE__, __LINE__);*/
     int fd, c, i;
-    int oindex = 0;
 
     struct gengetopt_args_info cmdline;
 

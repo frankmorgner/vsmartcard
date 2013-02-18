@@ -53,6 +53,9 @@ tools.
 .. [#f1] Note that the heavily outdated `Windows USB CCID driver <http://msdn.microsoft.com/en-us/windows/hardware/gg487509>`_ does not support secure PIN entry or PIN modification. USB CCID Emulator comes with a patch for libccid_ to support |PACE|, because it is not yet standardised in USB CCID. However, the traditional commands can be used without restriction.
 
 
+.. include:: download.rst
+
+
 .. include:: autotools.rst
 
 Running the USB CCID Emulator has the following dependencies:
