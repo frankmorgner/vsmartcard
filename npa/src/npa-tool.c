@@ -348,6 +348,10 @@ main (int argc, char **argv)
         npa_default_flags |= NPA_FLAG_DISABLE_CHECK_TA;
     if (cmdline.disable_ca_checks_flag)
         npa_default_flags |= NPA_FLAG_DISABLE_CHECK_CA;
+    if (cmdline.cvc_dir_given)
+        cvc_default_dir = cmdline.cvc_dir_arg;
+    if (cmdline.x509_dir_given)
+        x509_default_dir = cmdline.cvc_dir_arg;
 
 
     if (cmdline.info_flag)

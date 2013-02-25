@@ -1,10 +1,12 @@
 do_subst = $(SED) \
+	   -e 's,[@]CVCDIR[@],$(CVCDIR),g' \
 	   -e 's,[@]PACKAGE[@],$(PACKAGE),g' \
+	   -e 's,[@]PACKAGE_BUGREPORT[@],$(PACKAGE_BUGREPORT),g' \
 	   -e 's,[@]PACKAGE_NAME[@],$(PACKAGE_NAME),g' \
 	   -e 's,[@]PACKAGE_TARNAME[@],$(PACKAGE_TARNAME),g' \
-	   -e 's,[@]PACKAGE_BUGREPORT[@],$(PACKAGE_BUGREPORT),g' \
 	   -e 's,[@]PACKAGE_URL[@],$(PACKAGE_URL),g' \
-	   -e 's,[@]PACKAGE_VERSION[@],$(PACKAGE_VERSION),g'
+	   -e 's,[@]PACKAGE_VERSION[@],$(PACKAGE_VERSION),g' \
+	   -e 's,[@]X509DIR[@],$(X509DIR),g'
 
 BUILT_SOURCES = cmdline.h cmdline.c
 

@@ -74,9 +74,21 @@ option "auxiliary-data" A
     typestr="HEX_STRING"
     optional
 option "private-key"    P
-    "Terminal's private key."
+    "Terminal's private key"
     string
     typestr="FILENAME"
+    optional
+option "cvc-dir"        -
+    "Where to look for the CVCA's certificate"
+    string
+    typestr="DIRECTORY"
+    default="@CVCDIR@"
+    optional
+option "x509-dir"        -
+    "Where to look for the CSCA's certificate"
+    string
+    typestr="DIRECTORY"
+    default="@X509DIR@"
     optional
 option "disable-ta-checks"   -
     "Disable checking the validity period of CV certifcates"
