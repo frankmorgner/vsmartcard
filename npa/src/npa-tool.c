@@ -707,13 +707,13 @@ main (int argc, char **argv)
         if (cmdline.read_dg12_flag)
             read_dg(card, 12, "Optional Data", &dg, &dg_len);
         if (cmdline.read_dg13_flag)
-            read_dg(card, 13, "", &dg, &dg_len);
+            read_dg(card, 13, "DG 13", &dg, &dg_len);
         if (cmdline.read_dg14_flag)
-            read_dg(card, 14, "", &dg, &dg_len);
+            read_dg(card, 14, "DG 14", &dg, &dg_len);
         if (cmdline.read_dg15_flag)
-            read_dg(card, 15, "", &dg, &dg_len);
+            read_dg(card, 15, "DG 15", &dg, &dg_len);
         if (cmdline.read_dg16_flag)
-            read_dg(card, 16, "", &dg, &dg_len);
+            read_dg(card, 16, "DG 16", &dg, &dg_len);
         if (cmdline.read_dg17_flag)
             read_dg(card, 17, "Normal Place of Residence", &dg, &dg_len);
         if (cmdline.read_dg18_flag)
