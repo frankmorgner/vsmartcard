@@ -1,5 +1,5 @@
-CV_CERTS = at_cert_19a.cvcert at_cert_19a_ecdh.cvcert cvca-eid.cv dv_cert_19.cvcert dv_cert_19_ecdh.cvcert
-X509_CERTS = csca-germany_013_self_signed_cer.cer
+CV_CERTS = DECVCAeID00102 DECVCAEPASS00102 DECVCAeSign00102
+X509_CERTS = ff3d20d2
 
 EXTRA_DIST = $(CV_CERTS) $(X509_CERTS)
 
