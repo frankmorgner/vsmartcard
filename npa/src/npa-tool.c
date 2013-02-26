@@ -96,8 +96,10 @@ static void read_dg(sc_card_t *card, unsigned char sfid, const char *dg_str,
     if (r < 0)
         fprintf(stderr, "Coult not read DG %02u %s (%s)\n",
                 sfid, dg_str, sc_strerror(r));
-    else
+    else {
+        fprintf(stdout, "Read ");
         bin_print(stdout, dg_str, *dg, *dg_len);
+    }
 }
 
 static void write_dg(sc_card_t *card, unsigned char sfid, const char *dg_str,
