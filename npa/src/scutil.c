@@ -95,11 +95,11 @@ void _bin_log(sc_context_t *ctx, int type, const char *file, int line,
         else
             buf[0] = 0;
         sc_do_log(ctx, type, file, line, func,
-                "\n%s (%u byte%s):\n%s",
-                label, (unsigned int) len, len==1?"":"s", buf);
+                "\n%s (%u byte%s)%s%s",
+                label, (unsigned int) len, len==1?"":"s", len==0?"":":\n", buf);
     } else {
-        fprintf(f, "%s (%u byte%s):\n%s\n",
-                label, (unsigned int) len, len==1?"":"s", sc_dump_hex(data, len));
+        fprintf(f, "%s (%u byte%s)%s%s\n",
+                label, (unsigned int) len, len==1?"":"s", len==0?"":":\n", sc_dump_hex(data, len));
     }
 }
 
