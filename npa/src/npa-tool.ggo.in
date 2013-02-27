@@ -189,8 +189,10 @@ option "write-dg21"      -
 
 section "Verification of validity, age and community ID"
 option "verify-validity"    -
-    "Verify the chip's validity"
-    flag off
+    "Verify the chip's validity with a reference date"
+    string
+    typestr="YYYYMMDD"
+    optional
 option "older-than"     -
     "Verify age with a reference date"
     string

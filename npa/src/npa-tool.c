@@ -598,7 +598,9 @@ main (int argc, char **argv)
                 }
                 if (cmdline.verify_validity_given) {
                     r = add_to_ASN1_AUXILIARY_DATA(&templates,
-                            NID_id_DateOfExpiry, NULL, 0);
+                            NID_id_DateOfExpiry,
+                            (unsigned char *) cmdline.verify_validity_arg,
+                            strlen(cmdline.verify_validity_arg));
                     if (r < 0)
                         goto err;
                 }
