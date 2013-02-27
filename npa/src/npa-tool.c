@@ -233,9 +233,11 @@ static int add_to_ASN1_AUXILIARY_DATA(
         template = &(*templates)->template1;
     else if (!(*templates)->template2)
         template = &(*templates)->template2;
+    else if (!(*templates)->template3)
+        template = &(*templates)->template3;
     else {
         fprintf(stderr,
-                "Choose at most two nPA operations.\n");
+                "Choose at most three nPA operations.\n");
         r = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
     }
