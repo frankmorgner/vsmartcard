@@ -69,7 +69,7 @@ option "chat"           -
     typestr="HEX_STRING"
     optional
 option "auxiliary-data" A
-    "Terminal's auxiliary data (default is determined by age verification and community id verification)."
+    "Terminal's auxiliary data (default is determined by verification of validity, age and community ID)."
     string
     typestr="HEX_STRING"
     optional
@@ -189,7 +189,7 @@ option "write-dg21"      -
 
 section "Verification of validity, age and community ID"
 option "verify-validity"    -
-    "Verify the chip's validity with a reference date"
+    "Verify chip's validity with a reference date"
     string
     typestr="YYYYMMDD"
     optional
@@ -201,6 +201,7 @@ option "older-than"     -
 option "verify-community"   -
     "Verify community ID with a reference ID"
     string
+    typestr="HEX_STRING"
     optional
 
 section "Special options, not always useful"

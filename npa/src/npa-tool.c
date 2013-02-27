@@ -287,6 +287,8 @@ main (int argc, char **argv)
     size_t privkey_len = 0;
     unsigned char auxiliary_data[0xff];
     size_t auxiliary_data_len = 0;
+    unsigned char community_id[0xf];
+    size_t community_id_len = 0;
 
     sc_context_t *ctx = NULL;
     sc_card_t *card = NULL;
@@ -605,10 +607,15 @@ main (int argc, char **argv)
                         goto err;
                 }
                 if (cmdline.verify_community_given) {
+                    community_id_len = sizeof community_id;
+                    if (sc_hex_to_bin(cmdline.verify_community_arg, community_id,
+                                &community_id_len) < 0) {
+                        fprintf(stderr, "Could not parse community ID.\n");
+                        exit(2);
+                    }
                     r = add_to_ASN1_AUXILIARY_DATA(&templates,
                             NID_id_CommunityID,
-                            (unsigned char *) cmdline.verify_community_arg,
-                            strlen(cmdline.verify_community_arg));
+                            community_id, community_id_len);
                     if (r < 0)
                         goto err;
                 }
