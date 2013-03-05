@@ -1,0 +1,10 @@
+ePass Module
+============
+
+.. inheritance-diagram:: virtualsmartcard.cards.ePass
+.. automodule:: virtualsmartcard.cards.ePass
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :show-inheritance:
+    :private-members:

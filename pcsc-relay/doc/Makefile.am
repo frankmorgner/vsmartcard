@@ -16,13 +16,13 @@ do_subst = $(SED) \
 	   -e 's,[@]abs_top_srcdir[@],$(abs_top_srcdir),g' \
 	   -e 's,[@]top_srcdir[@],$(top_srcdir),g'
 
-EXTRA_DIST = README.rst.in README.rst autotools.rst.in questions.rst.in autotools.rst questions.rst download.rst.in download.rst
+EXTRA_DIST = README.txt.in README.txt autotools.txt.in questions.txt.in autotools.txt questions.txt download.txt.in download.txt
 
 doc: *.in
-	$(do_subst) < autotools.rst.in > autotools.rst
-	$(do_subst) < questions.rst.in > questions.rst
-	$(do_subst) < download.rst.in  > download.rst
-	$(do_subst) < README.rst.in > README.rst
+	$(do_subst) < autotools.txt.in > autotools.txt
+	$(do_subst) < questions.txt.in > questions.txt
+	$(do_subst) < download.txt.in  > download.txt
+	$(do_subst) < README.txt.in > README.txt
 	touch doc
 
 clean-local:

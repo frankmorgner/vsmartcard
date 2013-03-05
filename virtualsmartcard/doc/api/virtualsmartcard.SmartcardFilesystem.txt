@@ -1,0 +1,10 @@
+SmartcardFilesystem Module
+==========================
+
+.. inheritance-diagram:: virtualsmartcard.SmartcardFilesystem
+.. automodule:: virtualsmartcard.SmartcardFilesystem
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :show-inheritance:
+    :private-members:

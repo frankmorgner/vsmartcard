@@ -1,0 +1,10 @@
+VirtualSmartcard Module
+=======================
+
+.. inheritance-diagram:: virtualsmartcard.VirtualSmartcard
+.. automodule:: virtualsmartcard.VirtualSmartcard
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :show-inheritance:
+    :private-members:

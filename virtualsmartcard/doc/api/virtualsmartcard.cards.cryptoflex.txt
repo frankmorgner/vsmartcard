@@ -1,0 +1,10 @@
+cryptoflex Module
+=================
+
+.. inheritance-diagram:: virtualsmartcard.cards.cryptoflex
+.. automodule:: virtualsmartcard.cards.cryptoflex
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :show-inheritance:
+    :private-members:

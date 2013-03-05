@@ -1,6 +1,0 @@
-========
-Question
-========
-
-Do you have questions, suggestions or contributions? Feedback of any kind is
-more than welcome! Please use our `project trackers <http://sourceforge.net/projects/vsmartcard/support>`_.

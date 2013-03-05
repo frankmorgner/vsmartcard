@@ -1,0 +1,10 @@
+TLVutils Module
+===============
+
+.. inheritance-diagram:: virtualsmartcard.TLVutils
+.. automodule:: virtualsmartcard.TLVutils
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :show-inheritance:
+    :private-members:

@@ -1,0 +1,10 @@
+SmartcardSAM Module
+===================
+
+.. inheritance-diagram:: virtualsmartcard.SmartcardSAM
+.. automodule:: virtualsmartcard.SmartcardSAM
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :show-inheritance:
+    :private-members:

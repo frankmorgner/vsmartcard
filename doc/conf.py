@@ -41,7 +41,7 @@ extensions = ["breathe", "sphinxcontrib.doxylink", "sphinx.ext.autosummary", "sp
 templates_path = ['_templates']
 
 # The suffix of source filenames.
-source_suffix = '.rst'
+source_suffix = '.txt'
 
 # The encoding of source files.
 #source_encoding = 'utf-8-sig'
@@ -74,7 +74,7 @@ release = '2012-04-11'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ['_build', '*/questions.rst', '*/autotools.rst', '*/download.rst']
+exclude_patterns = ['_build', '*/questions.txt', '*/autotools.txt', '*/download.txt']
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 #default_role = None

@@ -1,0 +1,10 @@
+CryptoUtils Module
+==================
+
+.. inheritance-diagram:: virtualsmartcard.CryptoUtils
+.. automodule:: virtualsmartcard.CryptoUtils
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :show-inheritance:
+    :private-members:
