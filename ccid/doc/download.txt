@@ -4,7 +4,7 @@
 Download
 ********
 
-You can find the latest release of USB CCID Emulator `here
+You can find the latest release of USB CCID Emulator on `Sourceforge
 <http://sourceforge.net/projects/vsmartcard/files>`_.
 
 Alternatively, you can clone our git repository::

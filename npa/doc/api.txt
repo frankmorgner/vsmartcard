@@ -26,17 +26,19 @@ Authentication (:npa:`perform_terminal_authentication`) and Chip Authentication
 will be initialized for the new SM channel. Again, libopensc can directly be
 used to read identity attributes, for example.
 
-Please consider the following overview to the API as incomplete. The `Doxygen
-documentation <../_static/doxygen-npa/modules.html>`_ should be used as programmer's
-reference since it is more detailed.
+.. note::
+    Please consider the following overview to the API as incomplete. The
+    `Doxygen documentation <../_static/doxygen-npa/modules.html>`_ should be
+    used as programmer's.
 
 
 ==============================================================
 Interface to German identity card (neuer Personalausweis, nPA)
 ==============================================================
 
-The complete documentation can be found `here
-<../_static/doxygen-npa/group__npa.html>`__.
+.. seealso::
+    `Doxygen documentation of the nPA module
+    <../_static/doxygen-npa/group__npa.html>`__.
 
 ---------
 Functions
@@ -68,8 +70,9 @@ your environment <npa-usage>`.
 Generic ISO 7816 Secure Messaging (SM)
 ======================================
 
-The complete documentation can be found `here
-<../_static/doxygen-npa/group__sm.html>`__.
+.. seealso::
+    `Doxygen documentation of the SM module
+    <../_static/doxygen-npa/group__sm.html>`__.
 
 -----
 Types

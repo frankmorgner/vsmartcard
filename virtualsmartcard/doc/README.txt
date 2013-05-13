@@ -2,21 +2,21 @@
 
 .. |vpicc| replace:: :abbr:`vpicc (virtual smart card)`
 .. |vpcd| replace:: :abbr:`vpcd (virtual smart card reader)`
-.. |EAC| replace:: :abbr:`EAC (Extended Access Control)`
+.. |BAC| replace:: :abbr:`BAC (Basic Access Control)`
 .. |PACE| replace:: :abbr:`PACE (Password Authenticated Connection Establishment)`
 .. |TA| replace:: :abbr:`TA (Terminal Authenticatation)`
 .. |CA| replace:: :abbr:`CA (Chip Authentication)`
-.. |BAC| replace:: :abbr:`BAC (Basic Access Control)`
+.. |EAC| replace:: :abbr:`EAC (Extended Access Control)`
 
 .. _vicc:
 
-##################
+################################################################################
 Virtual Smart Card
-##################
+################################################################################
 
 :Authors:
-    - Frank Morgner <morgner@informatik.hu-berlin.de>
-    - Dominik Oepen <oepen@informatik.hu-berlin.de>
+    - `Frank Morgner <morgner@informatik.hu-berlin.de>`_
+    - `Dominik Oepen <oepen@informatik.hu-berlin.de>`_
 :License:
     GPL version 3
 :Tested Platforms:
@@ -46,6 +46,9 @@ reader.
 The file :file:`utils.py` was taken from Henryk Plötz's cyberflex-shell_.
 
 
+.. include:: relay-note.txt
+
+
 .. include:: download.txt
 
 
@@ -59,13 +62,14 @@ the following:
 - PyCrypto_
 - PBKDF2_
 - PIP_
+- OpenPACE_ (nPA emulation)
 
 The |vpcd| depends on PCSC-Lite_.
 
 
-******************************
+********************************************************************************
 Running the Virtual Smart Card
-******************************
+********************************************************************************
 
 Fitxt you need to make sure that :command:`pcscd` loads the |vpcd|. You might
 need to run :command:`update-reader.conf` to update its configuration file.
@@ -82,9 +86,9 @@ You should now be able to access the |vpicc| through the PC/SC API via
 :command:`pcsc_scan` for testing.
 
 
-==========================================================
+================================================================================
 Accessing the Virtual Smart Card from Windows applications
-==========================================================
+================================================================================
 
 Running |vpcd| under Windows is currently not supported, because it implements
 a smart card driver specific for PCSC-Lite (:command:`pcscd`). This means, that
@@ -121,10 +125,11 @@ Notes and References
 
 .. target-notes::
 
-.. _PBKDF2: https://www.dlitz.net/software/python-pbkdf2/
-.. _PCSC-lite: http://pcsclite.alioth.debian.org/
-.. _PIP: http://www.pythonware.com/products/pil/
-.. _PyCrypto: http://pycrypto.org/
-.. _Python: http://www.python.org/
 .. _cyberflex-shell: https://github.com/henryk/cyberflex-shell
+.. _PCSC-lite: http://pcsclite.alioth.debian.org/
+.. _Python: http://www.python.org/
 .. _pyscard: http://pyscard.sourceforge.net/
+.. _PyCrypto: http://pycrypto.org/
+.. _PBKDF2: https://www.dlitz.net/software/python-pbkdf2/
+.. _PIP: http://www.pythonware.com/products/pil/
+.. _OpenPACE: http://openpace.sourceforge.net

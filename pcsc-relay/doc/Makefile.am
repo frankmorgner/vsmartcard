@@ -16,7 +16,7 @@ do_subst = $(SED) \
 	   -e 's,[@]abs_top_srcdir[@],$(abs_top_srcdir),g' \
 	   -e 's,[@]top_srcdir[@],$(top_srcdir),g'
 
-EXTRA_DIST = README.txt.in README.txt autotools.txt.in questions.txt.in autotools.txt questions.txt download.txt.in download.txt
+EXTRA_DIST = README.txt.in README.txt autotools.txt.in questions.txt.in autotools.txt questions.txt download.txt.in download.txt relay-note.txt
 
 doc: *.in
 	$(do_subst) < autotools.txt.in > autotools.txt

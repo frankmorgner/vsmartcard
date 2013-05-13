@@ -74,7 +74,7 @@ release = '2012-04-11'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ['_build', '*/questions.txt', '*/autotools.txt', '*/download.txt']
+exclude_patterns = ['_build', '*/questions.txt', '*/autotools.txt', '*/download.txt', '*/relay-note.txt']
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 #default_role = None
@@ -148,10 +148,10 @@ html_use_smartypants = True
 #html_additional_pages = {}
 
 # If false, no module index is generated.
-#html_domain_indices = True
+html_domain_indices = False
 
 # If false, no index is generated.
-#html_use_index = True
+html_use_index = False
 
 # If true, the index is split into individual pages for each letter.
 #html_split_index = False

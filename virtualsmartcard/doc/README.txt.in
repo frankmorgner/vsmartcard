@@ -2,21 +2,21 @@
 
 .. |vpicc| replace:: :abbr:`vpicc (virtual smart card)`
 .. |vpcd| replace:: :abbr:`vpcd (virtual smart card reader)`
-.. |EAC| replace:: :abbr:`EAC (Extended Access Control)`
+.. |BAC| replace:: :abbr:`BAC (Basic Access Control)`
 .. |PACE| replace:: :abbr:`PACE (Password Authenticated Connection Establishment)`
 .. |TA| replace:: :abbr:`TA (Terminal Authenticatation)`
 .. |CA| replace:: :abbr:`CA (Chip Authentication)`
-.. |BAC| replace:: :abbr:`BAC (Basic Access Control)`
+.. |EAC| replace:: :abbr:`EAC (Extended Access Control)`
 
 .. _vicc:
 
-##################
-Virtual Smart Card
-##################
+################################################################################
+@PACKAGE_NAME@
+################################################################################
 
 :Authors:
-    - Frank Morgner <morgner@informatik.hu-berlin.de>
-    - Dominik Oepen <oepen@informatik.hu-berlin.de>
+    - `Frank Morgner <morgner@informatik.hu-berlin.de>`_
+    - `Dominik Oepen <oepen@informatik.hu-berlin.de>`_
 :License:
     GPL version 3
 :Tested Platforms:
@@ -25,8 +25,8 @@ Virtual Smart Card
 :Potential Platforms:
     Unix-like operating systems (Mac OS, Solaris, BSD, ...)
 
-Virtual Smart Card emulates a smart card and makes it accessible through PC/SC.
-Currently the Virtual Smart Card supports the following types of smart cards:
+@PACKAGE_NAME@ emulates a smart card and makes it accessible through PC/SC.
+Currently the @PACKAGE_NAME@ supports the following types of smart cards:
 
 - Generic ISO-7816 smart card including secure messaging
 - German electronic identity card (nPA) with complete support for |EAC| (|PACE|, |TA|, |CA|)
@@ -39,11 +39,14 @@ default |vpicc| communicates with |vpcd| through a socket on localhost port
 35963. But the |vpicc| does not need to run on the same machine as the |vpcd|,
 they can connect over the internet for example.
 
-Although the Virtual Smart Card is a software emulator, you can use
+Although the @PACKAGE_NAME@ is a software emulator, you can use
 :ref:`pcsc-relay` to make it accessible to an external contact-less smart card
 reader.
 
 The file :file:`utils.py` was taken from Henryk Plötz's cyberflex-shell_.
+
+
+.. include:: relay-note.txt
 
 
 .. include:: download.txt
@@ -59,13 +62,14 @@ the following:
 - PyCrypto_
 - PBKDF2_
 - PIP_
+- OpenPACE_ (nPA emulation)
 
 The |vpcd| depends on PCSC-Lite_.
 
 
-******************************
-Running the Virtual Smart Card
-******************************
+********************************************************************************
+Running the @PACKAGE_NAME@
+********************************************************************************
 
 Fitxt you need to make sure that :command:`pcscd` loads the |vpcd|. You might
 need to run :command:`update-reader.conf` to update its configuration file.
@@ -82,9 +86,9 @@ You should now be able to access the |vpicc| through the PC/SC API via
 :command:`pcsc_scan` for testing.
 
 
-==========================================================
-Accessing the Virtual Smart Card from Windows applications
-==========================================================
+================================================================================
+Accessing the @PACKAGE_NAME@ from Windows applications
+================================================================================
 
 Running |vpcd| under Windows is currently not supported, because it implements
 a smart card driver specific for PCSC-Lite (:command:`pcscd`). This means, that
@@ -121,10 +125,11 @@ Notes and References
 
 .. target-notes::
 
-.. _PBKDF2: https://www.dlitz.net/software/python-pbkdf2/
-.. _PCSC-lite: http://pcsclite.alioth.debian.org/
-.. _PIP: http://www.pythonware.com/products/pil/
-.. _PyCrypto: http://pycrypto.org/
-.. _Python: http://www.python.org/
 .. _cyberflex-shell: https://github.com/henryk/cyberflex-shell
+.. _PCSC-lite: http://pcsclite.alioth.debian.org/
+.. _Python: http://www.python.org/
 .. _pyscard: http://pyscard.sourceforge.net/
+.. _PyCrypto: http://pycrypto.org/
+.. _PBKDF2: https://www.dlitz.net/software/python-pbkdf2/
+.. _PIP: http://www.pythonware.com/products/pil/
+.. _OpenPACE: http://openpace.sourceforge.net

@@ -1,17 +1,20 @@
 .. highlight:: sh
 
 .. |PACE| replace:: :abbr:`PACE (Password Authenticated Connection Establishment)`
+.. |TA| replace:: :abbr:`TA (Terminal Authenticatation)`
+.. |CA| replace:: :abbr:`CA (Chip Authentication)`
+.. |EAC| replace:: :abbr:`EAC (Extended Access Control)`
+.. |CSCA| replace:: :abbr:`CSCA (Country Signing Certificate Authority)`
 .. |npa-tool| replace:: :command:`npa-tool`
 
+.. _libnpa:
 
-.. _npa:
-
-######################
+################################################################################
 nPA Smart Card Library
-######################
+################################################################################
 
 :Author:
-    Frank Morgner <morgner@informatik.hu-berlin.de>
+    `Frank Morgner <morgner@informatik.hu-berlin.de>`_
 :License:
     GPL version 3
 :Tested Platforms:
@@ -40,17 +43,17 @@ compatible with OpenSC.
 
 The nPA Smart Card Library has the following dependencies:
 
-- OpenSSL_
 - OpenPACE_
 - OpenSC_
+- OpenSSL_
 
 
 ====================================
 Installation of OpenPACE and OpenSSL
 ====================================
 
-The nPA Smart Card Library links against OpenSSL_, which must be patched for OpenPACE_.
-Here is an example of how to get the standard installation of OpenPACE_ (with
+The nPA Smart Card Library links against OpenSSL, which must be patched for OpenPACE.
+Here is an example of how to get the standard installation of OpenPACE (with
 the required binaries for OpenSSL)::
  
     PREFIX=/tmp/install
@@ -69,7 +72,7 @@ The file :file:`libcrypto.pc` should be located in ``$INSTALL/lib/pkgconfig``.
 Installation of OpenSC
 ======================
 
-The nPA Smart Card Library need the OpenSC components to be installed (especially
+The nPA Smart Card Library needs the OpenSC components to be installed (especially
 :file:`libopensc.so`). Here is an example of how to get a suitable installation
 of OpenSC::
 
@@ -84,9 +87,9 @@ of OpenSC::
 Now :file:`libopensc.so` should be located in ``$PREFIX/lib``.
 
 
-==========================================
+================================================================================
 Installation of the nPA Smart Card Library
-==========================================
+================================================================================
 
 To complete this step-by-step guide, here is how to install nPA Smart Card Library::
 
@@ -105,17 +108,24 @@ Usage
 
 The API to libnpa is documented in :ref:`npa-api`. It includes a simple
 programming example. Here we will focus on the command line interface to the
-library offered by the |npa-tool|.
+library offered by the |npa-tool|. It can perform |EAC| (i.e. |PACE|, |TA|,
+|CA|) and read data groups from the identity card.
 
 To pass a secret to |npa-tool| for |PACE|, command line parameters or
 environment variables can be used. If the smart card reader supports |PACE|,
-the PIN pad is used. If none of these options apply, |npa-tool| will show a
+its PIN pad is used. If none of these options apply, |npa-tool| will show a
 password prompt.
 
-|npa-tool| can send arbitrary APDUs to the nPA in the secure channel.  APDUs
-are entered interactively or through a file.  APDUs are formatted in hex (upper
-or lower case) with an optional colon to separate the bytes. Example APDUs can
-be found in :file:`apdus`.
+The certificates certificate chain for |TA| should be passed in the correct
+order (finishing with the terminal certificate) so that the card can verify it.
+|CA| is always done when the terminal's signature has been verified
+successfully. The appropriate |CSCA| certificate will automatically be looked
+up by OpenPACE.
+
+|npa-tool| can send arbitrary APDUs to the nPA in the secure channel (after
+|PACE| or |EAC|).  APDUs are entered interactively or through a file.  APDUs
+are formatted in hex (upper or lower case) with an optional colon to separate
+the bytes. Example APDUs can be found in :file:`apdus`.
 
 .. program-output:: npa-tool --help
 
@@ -150,6 +160,6 @@ Notes and References
 
 .. target-notes::
 
+.. _OpenPACE: http://openpace.sourceforge.net
 .. _OpenSC: https://github.com/OpenSC/OpenSC
 .. _OpenSSL: http://www.openssl.org
-.. _OpenPACE: http://openpace.sourceforge.net
