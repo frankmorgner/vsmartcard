@@ -157,10 +157,13 @@ HELP2MAN:             ${HELP2MAN}
 EOF
 
 AC_CONFIG_FILES([Makefile
+                 doc/Makefile
+                 doc/api/Makefile
+                 npa-example-data/Makefile
+                 npa-example-data/dh/Makefile
+                 npa-example-data/ecdh/Makefile
                  src/Makefile
                  src/vpcd/Makefile
                  src/vpicc/Makefile
-                 doc/Makefile
-                 doc/api/Makefile
                  ])
 AC_OUTPUT

@@ -1,5 +1,5 @@
 ACLOCAL_AMFLAGS = -I m4
-SUBDIRS = src doc
+SUBDIRS = src doc npa-example-data
 
 EXTRA_DIST = test_vicc_with_npa-tool.sh
 
