@@ -1,4 +1,5 @@
 MINGW ?= i686-w64-mingw32
+MINGW_DIR ?= /usr/$(MINGW)
 WIN32_DIR ?= $(abs_top_builddir)/$(PACKAGE_TARNAME)-$(PACKAGE_VERSION)_win32
 
 OPENPACE=$(abs_builddir)/openpace
