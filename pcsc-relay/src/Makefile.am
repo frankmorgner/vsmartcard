@@ -32,6 +32,10 @@ pcsc_relay_SOURCES = pcsc-relay.c pcsc.c vpcd.c vpcd-driver.c opicc.c lnfc.c $(B
 pcsc_relay_LDADD = $(PCSC_LIBS) $(LIBNFC_LIBS)
 pcsc_relay_CFLAGS = $(PCSC_CFLAGS) $(LIBNFC_CFLAGS)
 
+if WIN32
+pcsc_relay_LDADD += -lws2_32
+endif
+
 noinst_HEADERS = pcsc-relay.h vpcd.h
 
 pcsc-relay.c: $(BUILT_SOURCES)

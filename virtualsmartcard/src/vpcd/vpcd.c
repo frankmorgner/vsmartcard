@@ -17,15 +17,24 @@
  * virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "vpcd.h"
+
+#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#define close(s) closesocket(s)
+typedef WORD uint16_t;
+#else
 #include <arpa/inet.h>
-#include <errno.h>
 #include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
 #include <sys/socket.h>
 #include <sys/time.h>
-#include <sys/types.h>
 #include <unistd.h>
+#endif
+
+#include <errno.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
 
 #define VPCD_CTRL_LEN 	1
 
@@ -50,14 +59,15 @@ ssize_t sendall(int sock, const void *buffer, size_t size)
 {
     size_t sent = 0;
     ssize_t r;
+    const unsigned char *p = buffer;
 
     while (sent < size) {
-        r = send(sock, buffer, size-sent, 0);
+        r = send(sock, (void *) p, size-sent, 0);
         if (r < 0)
             return r;
 
         sent += r;
-        buffer += r;
+        p += r;
     }
 
     return sent;
@@ -77,7 +87,7 @@ int opensock(unsigned short port)
     if (sock < 0)
         return -1;
 
-    if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof yes) != 0)
+    if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (void *) &yes, sizeof yes) != 0)
 		return -1;
 
     memset(&server_sockaddr, 0, sizeof server_sockaddr);
@@ -103,7 +113,14 @@ int waitforclient(int server, long secs, long usecs)
     struct timeval tv;
 
     FD_ZERO(&rfds);
+#if _WIN32
+    /* work around clumsy define of FD_SET in winsock2.h */
+#pragma warning(disable:4127)
+    FD_SET((SOCKET) server, &rfds);
+#pragma warning(default:4127)
+#else
     FD_SET(server, &rfds);
+#endif
 
     tv.tv_sec = secs;
     tv.tv_usec = usecs;
@@ -124,7 +141,7 @@ ssize_t sendToVICC(size_t length, const unsigned char* buffer)
     uint16_t size;
 
     /* send size of message on 2 bytes */
-    size = htons(length);
+    size = htons((uint16_t) length);
     r = sendall(client_sock, (void *) &size, sizeof size);
     if (r == sizeof size)
         /* send message */

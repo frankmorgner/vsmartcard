@@ -19,7 +19,12 @@
 #ifndef _VPCD_H_
 #define _VPCD_H_
 
+#ifdef _WIN32
+#include <stddef.h>
+typedef int ssize_t;
+#else
 #include <unistd.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {

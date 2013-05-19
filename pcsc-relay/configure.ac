@@ -5,7 +5,19 @@ AC_PREREQ([2.65])
 AC_INIT([PC/SC Relay], [0.4], [http://sourceforge.net/projects/vsmartcard/support], [pcsc-relay], [http://vsmartcard.sourceforge.net/pcsc-relay/README.html])
 AC_CONFIG_SRCDIR([src/pcsc-relay.c])
 AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE
+
+dnl Check for windows build
+case "${host}" in
+    *-mingw*|*-winnt*)
+        WIN32="yes"
+        ;;
+    *-cygwin*)
+        WIN32="yes"
+        ;;
+esac
+AM_CONDITIONAL([WIN32], [test "${WIN32}" = "yes"])
 
 # Checks for programs.
 AC_PROG_CC
