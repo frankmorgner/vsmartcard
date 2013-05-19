@@ -2,25 +2,25 @@ EXTRA_DIST = libnfc_mingw.patch
 
 
 all-local:
-	echo "Use \`make win\` to cross compile for Windows"
+	@echo "Use \`make win\` to cross compile for Windows"
 
 
 IMAGE=$(abs_builddir)/image
 
 
+MINGW ?= i686-w64-mingw32
+MINGW_DIR=/usr/$(MINGW)
+
+
 LIBNFC_DIR=$(abs_builddir)/libnfc
-LIBNFC_DLL=$(IMAGE)/bin/libnfc-3.dll
+LIBNFC_DLL=$(IMAGE)/bin/libnfc-4.dll
 $(LIBNFC_DIR)/configure.ac:
-	svn co -r1327 http://libnfc.googlecode.com/svn/trunk $(LIBNFC_DIR)
+	git clone git://github.com/frankmorgner/libnfc $(LIBNFC_DIR)
 $(LIBNFC_DLL): $(LIBNFC_DIR)/configure.ac
-	grep i686-w64-mingw32 $(LIBNFC_DIR)/mingw-cross-configure.sh > /dev/null || \
-		patch -p0 -d $(LIBNFC_DIR) < libnfc_mingw.patch
-	cd $(LIBNFC_DIR) && sh mingw-cross-configure.sh --prefix=$(IMAGE)
+	cd $(LIBNFC_DIR) && env MINGW=$(MINGW) sh mingw-cross-configure.sh --prefix=$(IMAGE)
 	make -C $(LIBNFC_DIR) install
 
 
-MINGW ?= i686-w64-mingw32
-MINGW_DIR=/usr/$(MINGW)
 PCSC_RELAY_EXE=$(IMAGE)/bin/pcsc-relay.exe
 $(PCSC_RELAY_EXE): $(LIBNFC_DLL)
 	cd $(abs_top_builddir) && ./configure \
