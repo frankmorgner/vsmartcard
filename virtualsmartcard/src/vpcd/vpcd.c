@@ -247,21 +247,21 @@ int vicc_present(void) {
 }
 
 ssize_t vicc_getatr(unsigned char **atr) {
-    char i = VPCD_CTRL_ATR;
+    unsigned char i = VPCD_CTRL_ATR;
     return vicc_transmit(VPCD_CTRL_LEN, &i, atr);
 }
 
 int vicc_poweron(void) {
-    char i = VPCD_CTRL_ON;
+    unsigned char i = VPCD_CTRL_ON;
     return sendToVICC(VPCD_CTRL_LEN, &i);
 }
 
 int vicc_poweroff(void) {
-    char i = VPCD_CTRL_OFF;
+    unsigned char i = VPCD_CTRL_OFF;
     return sendToVICC(VPCD_CTRL_LEN, &i);
 }
 
 int vicc_reset(void) {
-    char i = VPCD_CTRL_RESET;
+    unsigned char i = VPCD_CTRL_RESET;
     return sendToVICC(VPCD_CTRL_LEN, &i);
 }
