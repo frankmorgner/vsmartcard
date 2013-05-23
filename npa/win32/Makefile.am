@@ -40,7 +40,7 @@ $(OPENSC_CONFIGURE): $(OPENSC_CONFIGURE_AC)
 $(LIBOPENSC): $(OPENSC_CONFIGURE) $(LIBEAC)
 	cd $(OPENSC) && ./configure \
 		--prefix=/ \
-		--target=$(MINGW) \
+		--target=$(MINGW) --host=$(MINGW) \
 		PKG_CONFIG_SYSROOT_DIR=$(WIN32_DIR) \
 		PKG_CONFIG_LIBDIR=$(WIN32_DIR)/lib/pkgconfig \
 		CFLAGS=-I$(MINGW_DIR)/include \
