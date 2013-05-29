@@ -36,8 +36,7 @@ $(PCSC_RELAY_EXE): $(LIBNFC_DLL)
 
 LIBUSB_DLL=$(LIBNFC_DIR)/libusb-win32-bin-*/bin/x86/libusb0_x86.dll
 win: $(PCSC_RELAY_EXE)
-
-#$(INSTALL_PROGRAM) $(LIBUSB_DLL) $(WIN32_DIR)/libusb0.dll
+	$(INSTALL_PROGRAM) $(LIBUSB_DLL) $(WIN32_DIR)/bin/libusb0.dll
 
 clean-local:
 	rm -rf $(WIN32_DIR)
