@@ -426,6 +426,7 @@ static int
 perform_pseudo_apdu(const __u8 *in, size_t inlen, __u8 **out, size_t *outlen)
 {
     __u8 *p;
+    sc_apdu_t apdu;
 
     if (!in || !out || !outlen)
         return SC_ERROR_INVALID_ARGUMENTS;
@@ -433,11 +434,9 @@ perform_pseudo_apdu(const __u8 *in, size_t inlen, __u8 **out, size_t *outlen)
     if (*in != 0xFF)
 		sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "malformed PC_to_RDR_XfrBlock, will continue anyway");
 
-	if (inlen < 5) {
-        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Not enough Data for Pseudo-APDU");
-        SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_VERBOSE, SC_ERROR_INVALID_DATA);
-	}
-	switch (in[1]) {
+    LOG_TEST_RET(ctx, sc_bytes2apdu(ctx, in, inlen, &apdu), "Could not parse Pseudo-APDU");
+
+	switch (apdu.ins) {
 		case 0x9A:
 			/* GetReaderInfo */
 			if (in[2] != 0x01 || inlen != 5 || in[4] != 0x00) {
@@ -473,12 +472,14 @@ parse_error:
 					goto parse_error;
 			}
 			size_t infolen = strlen(info);
-			p = realloc(*out, infolen);
+			p = realloc(*out, infolen+2);
 			if (!p)
 				SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_VERBOSE, SC_ERROR_OUT_OF_MEMORY);
 			*out = p;
 			memcpy(*out, info, infolen);
-			*outlen = infolen;
+            *out[infolen]   = 0x90;
+            *out[infolen+1] = 0x00;
+			*outlen = infolen+2;
 			break;
 
 		default:
