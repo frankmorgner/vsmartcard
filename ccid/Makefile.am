@@ -1,3 +1,5 @@
+DISTCHECK_CONFIGURE_FLAGS = --enable-pace
+
 ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = src m4 patches doc
 
