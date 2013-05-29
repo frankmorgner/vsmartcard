@@ -31,7 +31,7 @@
 #include <eac/pace.h>
 #include <libopensc/opensc.h>
 #include <libopensc/pace.h>
-#include <npa/sm.h>
+#include <npa/iso-sm.h>
 
 #ifdef __cplusplus
 extern "C" {
