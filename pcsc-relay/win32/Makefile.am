@@ -1,4 +1,4 @@
-EXTRA_DIST = libnfc_mingw.patch
+EXTRA_DIST =
 
 
 all-local:
