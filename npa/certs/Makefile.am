@@ -4,5 +4,5 @@ X509_CERTS = ff3d20d2
 EXTRA_DIST = $(CV_CERTS) $(X509_CERTS)
 
 install-data-local:
-	for cert in $(X509_CERTS); do $(INSTALL_DATA) $(srcdir)/$${cert} "$(X509DIR)"; done
-	for cert in $(CV_CERTS);   do $(INSTALL_DATA) $(srcdir)/$${cert} "$(CVCDIR)";  done
+	for cert in $(X509_CERTS); do $(INSTALL_DATA) $(srcdir)/$${cert} "$(DESTDIR)$(X509DIR)"; done
+	for cert in $(CV_CERTS);   do $(INSTALL_DATA) $(srcdir)/$${cert} "$(DESTDIR)$(CVCDIR)";  done
