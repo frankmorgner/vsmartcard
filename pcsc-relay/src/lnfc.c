@@ -27,6 +27,7 @@ struct lnfc_data {
     uint8_t abtCapdu[4+1+0xff+1];
     int iCapduLen;
     nfc_device *pndTarget;
+    nfc_context *context;
 };
 
 
@@ -135,7 +136,13 @@ static int lnfc_connect(driver_data_t **driver_data)
     *driver_data = data;
 
 
-    data->pndTarget = nfc_open(NULL, NULL);
+    nfc_init(&data->context);
+    if (data->context == NULL) {
+        RELAY_ERROR("Error initializing libnfc\n");
+        return 0;
+    }
+
+    data->pndTarget = nfc_open(data->context, NULL);
     if (data->pndTarget == NULL) {
         RELAY_ERROR("Error connecting to NFC emulator device\n");
         return 0;
@@ -163,6 +170,7 @@ static int lnfc_disconnect(driver_data_t *driver_data)
 
     if (data) {
         nfc_close(data->pndTarget);
+        nfc_exit(data->context);
         free(data);
     }
 
