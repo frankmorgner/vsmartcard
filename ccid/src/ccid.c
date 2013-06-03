@@ -33,11 +33,40 @@
 
 #include <npa/scutil.h>
 #ifdef WITH_PACE
-#include <npa/npa.h>
+#include <npa/boxing.h>
 #include <npa/iso-sm.h>
+#include <npa/npa.h>
 #else
 int sm_stop(struct sc_card *card) { return SC_SUCCESS; }
 #endif
+
+static int
+perform_PC_to_RDR_GetSlotStatus(const __u8 *in, size_t inlen, __u8 **out, size_t *outlen);
+static int
+perform_PC_to_RDR_IccPowerOn(const __u8 *in, size_t inlen, __u8 **out, size_t *outlen);
+static int
+perform_PC_to_RDR_IccPowerOff(const __u8 *in, size_t inlen, __u8 **out, size_t *outlen);
+static int
+perform_pseudo_apdu_EstablishPACEChannel(sc_apdu_t *apdu);
+static int
+perform_pseudo_apdu_GetReaderPACECapabilities(sc_apdu_t *apdu);
+static int
+perform_pseudo_apdu(sc_reader_t *reader, sc_apdu_t *apdu);
+static int
+perform_PC_to_RDR_XfrBlock(const u8 *in, size_t inlen, __u8** out, size_t *outlen);
+static int
+perform_PC_to_RDR_GetParamters(const __u8 *in, size_t inlen, __u8** out, size_t *outlen);
+static int
+perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
+        const __u8 *abData, size_t abDatalen,
+        __u8 **abDataOut, size_t *abDataOutLen);
+static int
+perform_PC_to_RDR_Secure_GetReadersPACECapabilities(__u8 **abDataOut,
+        size_t *abDataOutLen);
+static int
+perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outlen);
+static int
+perform_unknown(const __u8 *in, size_t inlen, __u8 **out, size_t *outlen);
 
 static sc_context_t *ctx = NULL;
 static sc_card_t *card = NULL;
@@ -153,21 +182,24 @@ static int get_rapdu(sc_apdu_t *apdu, __u8 **buf, size_t *resplen)
 {
     int sc_result;
 
-    if (!apdu || !buf || !resplen) {
+    if (!apdu || !buf || !resplen || !card) {
         sc_result = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
     }
 
     apdu->resplen = apdu->le;
-    /* Get two more bytes to later use as return buffer including sw1 and sw2 */
-    apdu->resp = realloc(*buf, apdu->resplen + sizeof(__u8) + sizeof(__u8));
+    apdu->resp = realloc(*buf, apdu->resplen);
     if (!apdu->resp) {
         sc_result = SC_ERROR_OUT_OF_MEMORY;
         goto err;
     }
     *buf = apdu->resp;
 
-    sc_result = sc_transmit_apdu(card, apdu);
+    if (apdu->cla == 0XFF) {
+        sc_result = perform_pseudo_apdu(card->reader, apdu);
+    } else {
+        sc_result = sc_transmit_apdu(card, apdu);
+    }
     if (sc_result < 0) {
         goto err;
     }
@@ -178,10 +210,15 @@ static int get_rapdu(sc_apdu_t *apdu, __u8 **buf, size_t *resplen)
         goto err;
     }
 
-    apdu->resp[apdu->resplen] = apdu->sw1;
-    apdu->resp[apdu->resplen + sizeof(__u8)] = apdu->sw2;
+    /* Get two more bytes to use as return buffer including sw1 and sw2 */
+    *buf = realloc(apdu->resp, apdu->resplen + sizeof(__u8) + sizeof(__u8));
+    if (!*buf) {
+        sc_result = SC_ERROR_OUT_OF_MEMORY;
+        goto err;
+    }
 
-    *buf = apdu->resp;
+    (*buf)[apdu->resplen] = apdu->sw1;
+    (*buf)[apdu->resplen + sizeof(__u8)] = apdu->sw2;
     *resplen = apdu->resplen + sizeof(__u8) + sizeof(__u8);
 
     sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "R-APDU, %d byte%s:\tsw1=%02x sw2=%02x",
@@ -387,6 +424,9 @@ perform_PC_to_RDR_IccPowerOn(const __u8 *in, size_t inlen, __u8 **out, size_t *o
     }
 
     if (sc_result >= 0) {
+#ifndef DISABLE_GLOBAL_BOXING_INITIALIZATION
+        sc_initialize_boxing_cmds(ctx);
+#endif
         return get_RDR_to_PC_SlotStatus(request->bSeq,
                 sc_result, out, outlen, card->atr.value, card->atr.len);
     } else {
@@ -422,75 +462,163 @@ perform_PC_to_RDR_IccPowerOff(const __u8 *in, size_t inlen, __u8 **out, size_t *
                 out, outlen, NULL, 0);
 }
 
-static int
-perform_pseudo_apdu(const __u8 *in, size_t inlen, __u8 **out, size_t *outlen)
-{
-    __u8 *p;
-    sc_apdu_t apdu;
+struct sw {
+    unsigned char sw1;
+    unsigned char sw2;
+};
+static const struct sw iso_sw_ok = { 0x90, 0x00};
+static const struct sw iso_sw_incorrect_p1_p2 = { 0x6A, 0x86};
+static const struct sw iso_sw_ref_data_not_found = {0x6A, 0x88};
+static const struct sw iso_sw_inconsistent_data = {0x6A, 0x87};
+static const struct sw iso_sw_func_not_supported = {0x6A, 0x81};
+static const struct sw iso_sw_ins_not_supported = {0x6D, 0x00};
 
-    if (!in || !out || !outlen)
+static int
+perform_pseudo_apdu_EstablishPACEChannel(sc_apdu_t *apdu)
+{
+    struct establish_pace_channel_input  pace_input;
+    struct establish_pace_channel_output pace_output;
+    int r;
+
+    memset(&pace_input, 0, sizeof pace_input);
+    memset(&pace_output, 0, sizeof pace_output);
+
+    r = boxing_buf_to_pace_input(reader->ctx, apdu->data, apdu->datalen,
+            &pace_input);
+    if (r < 0)
+        goto err;
+
+    r = perform_pace(card, pace_input, &pace_output,
+            EAC_TR_VERSION_2_02);
+    if (r < 0)
+        goto err;
+
+    r = boxing_pace_output_to_buf(reader->ctx, &pace_output, &apdu->resp,
+            &apdu->resplen);
+
+err:
+    free((unsigned char *) pace_input.chat);
+    free((unsigned char *) pace_input.certificate_description);
+    free((unsigned char *) pace_input.pin);
+    free(pace_output.ef_cardaccess);
+    free(pace_output.recent_car);
+    free(pace_output.previous_car);
+    free(pace_output.id_icc);
+    free(pace_output.id_pcd);
+
+    return r;
+}
+
+static int
+perform_pseudo_apdu_GetReaderPACECapabilities(sc_apdu_t *apdu)
+{
+    unsigned long sc_reader_t_capabilities = SC_READER_CAP_PACE_GENERIC
+        | SC_READER_CAP_PACE_EID | SC_READER_CAP_PACE_ESIGN;
+
+
+    return boxing_pace_capabilities_to_buf(reader->ctx,
+            sc_reader_t_capabilities, &apdu->resp, &apdu->resplen);
+}
+
+#define min(a,b) (a<b?a:b)
+static int
+perform_pseudo_apdu(sc_reader_t *reader, sc_apdu_t *apdu)
+{
+    if (!reader || !apdu || apdu->cla != 0xff)
         return SC_ERROR_INVALID_ARGUMENTS;
 
-    if (*in != 0xFF)
-		sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "malformed PC_to_RDR_XfrBlock, will continue anyway");
-
-    LOG_TEST_RET(ctx, sc_bytes2apdu(ctx, in, inlen, &apdu), "Could not parse Pseudo-APDU");
-
-	switch (apdu.ins) {
+	switch (apdu->ins) {
 		case 0x9A:
-			/* GetReaderInfo */
-			if (in[2] != 0x01 || inlen != 5 || in[4] != 0x00) {
-parse_error:
-					p = realloc(*out, 2);
-					if (!p)
-						SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_VERBOSE, SC_ERROR_OUT_OF_MEMORY);
-					*out = p;
-					memcpy(*out, "\x6A\x86", 2);
-					*outlen = 2;
-			}
-			/* TODO Merge this with STRINGID_MFGR, STRINGID_PRODUCT in usb.c */
-			/* Copied from olsc/AusweisApp/Data/siqTerminalsInfo.cfg */
-			const char *info;
-			const char *Herstellername = "REINER SCT";
-			const char *Produktname = "cyberJack RFID komfort";
-			const char *Firmwareversion = "1.0";
-			const char *Treiberversion = "3.99.5";
-			switch (in[3]) {
-				case 0x01:
-					info = Herstellername;
-					break;
-				case 0x03:
-					info = Produktname;
-					break;
-				case 0x06:
-					info = Firmwareversion;
-					break;
-				case 0x07:
-					info = Treiberversion;
-					break;
-				default:
-					goto parse_error;
-			}
-			size_t infolen = strlen(info);
-			p = realloc(*out, infolen+2);
-			if (!p)
-				SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_VERBOSE, SC_ERROR_OUT_OF_MEMORY);
-			*out = p;
-			memcpy(*out, info, infolen);
-            *out[infolen]   = 0x90;
-            *out[infolen+1] = 0x00;
-			*outlen = infolen+2;
-			break;
+
+            switch (apdu->p1) {
+                case 0x01:
+                    /* GetReaderInfo */
+                    if (apdu->datalen != 0) {
+                        apdu->resplen = 0;
+                        apdu->sw1 = iso_sw_incorrect_p1_p2.sw1;
+                        apdu->sw2 = iso_sw_incorrect_p1_p2.sw2;
+                        goto err;
+                    }
+                    /* TODO Merge this with STRINGID_MFGR, STRINGID_PRODUCT in usb.c */
+                    /* Copied from olsc/AusweisApp/Data/siqTerminalsInfo.cfg */
+                    char *Herstellername = "REINER SCT";
+                    char *Produktname = "cyberJack RFID komfort";
+                    char *Firmwareversion = "1.0";
+                    char *Treiberversion = "3.99.5";
+                    switch (apdu->p2) {
+                        case 0x01:
+                            apdu->resplen = min(apdu->resplen, strlen(Herstellername));
+                            memcpy(apdu->resp, Herstellername, apdu->resplen);
+                            break;
+                        case 0x03:
+                            apdu->resplen = min(apdu->resplen, strlen(Produktname));
+                            memcpy(apdu->resp, Produktname, apdu->resplen);
+                            break;
+                        case 0x06:
+                            apdu->resplen = min(apdu->resplen, strlen(Firmwareversion));
+                            memcpy(apdu->resp, Firmwareversion, apdu->resplen);
+                            break;
+                        case 0x07:
+                            apdu->resplen = min(apdu->resplen, strlen(Treiberversion));
+                            memcpy(apdu->resp, Treiberversion, apdu->resplen);
+                            break;
+                        default:
+                            apdu->resplen = 0;
+                            apdu->sw1 = iso_sw_ref_data_not_found.sw1;
+                            apdu->sw2 = iso_sw_ref_data_not_found.sw2;
+                            goto err;
+                    }
+                    break;
+
+                case 0x04:
+                    switch (apdu->p2) {
+                        case 0x04:
+                            /* VerifyPIN/ModifyPIN */
+                            LOG_TEST_RET(ctx,
+                                    perform_PC_to_RDR_Secure(apdu->data, apdu->datalen, &apdu->resp, &apdu->resplen),
+                                    "Could not perform PC_to_RDR_Secure");
+                            apdu->sw1 = iso_sw_ok.sw1;
+                            apdu->sw2 = iso_sw_ok.sw2;
+                            break;
+                        case 0x01:
+                            /* GetReaderPACECapabilities */
+                            LOG_TEST_RET(ctx,
+                                    perform_pseudo_apdu_GetReaderPACECapabilities(apdu),
+                                    "Could not get reader's PACE Capabilities");
+                            apdu->sw1 = iso_sw_ok.sw1;
+                            apdu->sw2 = iso_sw_ok.sw2;
+                            break;
+                        case 0x02:
+                            /* EstablishPACEChannel */
+                            LOG_TEST_RET(ctx,
+                                    perform_pseudo_apdu_EstablishPACEChannel(apdu),
+                                    "Could not perform PACE");
+                            apdu->sw1 = iso_sw_ok.sw1;
+                            apdu->sw2 = iso_sw_ok.sw2;
+                            break;
+                        case 0x03:
+                            /* DestroyPACEChannel */
+                        default:
+                            apdu->sw1 = iso_sw_func_not_supported.sw1;
+                            apdu->sw2 = iso_sw_func_not_supported.sw2;
+                            goto err;
+                    }
+                    break;
+
+                default:
+                    apdu->sw1 = iso_sw_func_not_supported.sw1;
+                    apdu->sw2 = iso_sw_func_not_supported.sw2;
+                    goto err;
+            }
+            break;
 
 		default:
-			p = realloc(*out, 2);
-			if (!p)
-				SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_VERBOSE, SC_ERROR_OUT_OF_MEMORY);
-			*out = p;
-			memcpy(*out, "\x6A\x81", 2);
-			*outlen = 2;
+            apdu->sw1 = iso_sw_ins_not_supported.sw1;
+            apdu->sw2 = iso_sw_ins_not_supported.sw2;
+            goto err;
 	}
 
+err:
     return SC_SUCCESS;
 }
 
@@ -521,18 +649,13 @@ perform_PC_to_RDR_XfrBlock(const u8 *in, size_t inlen, __u8** out, size_t *outle
         SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_VERBOSE, SC_ERROR_INVALID_DATA);
 	}
 
-	if (apdulen >= 1 && *abDataIn == 0xff) {
-		sc_result = perform_pseudo_apdu(abDataIn, apdulen, &abDataOut,
-				&abDataOutLen);
-	} else {
-		sc_result = sc_bytes2apdu(ctx, abDataIn, apdulen, &apdu);
-		if (sc_result >= 0)
-			sc_result = get_rapdu(&apdu, &abDataOut,
-					&abDataOutLen);
-		else
-			bin_log(ctx, SC_LOG_DEBUG_VERBOSE, "Invalid APDU", abDataIn,
-					__le32_to_cpu(request->dwLength));
-	}
+    sc_result = sc_bytes2apdu(ctx, abDataIn, apdulen, &apdu);
+    if (sc_result >= 0)
+        sc_result = get_rapdu(&apdu, &abDataOut,
+                &abDataOutLen);
+    else
+        bin_log(ctx, SC_LOG_DEBUG_VERBOSE, "Invalid APDU", abDataIn,
+                __le32_to_cpu(request->dwLength));
 
     sc_result = get_RDR_to_PC_DataBlock(request->bSeq, sc_result,
             out, outlen, abDataOut, abDataOutLen);

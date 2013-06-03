@@ -127,32 +127,3 @@ similar. Install |libnpa| and it should be recognized automatically by the
 :file:`configure` script.
 
 
-*****
-Usage
-*****
-
-The USB CCID Emulator has various command line options to customize the appearance
-on the USB host. In order to run the USB CCID Emulator GadgetFS must be loaded
-and mounted.  The USB CCID Emulator is compatible with the unix driver libccid_
-and the `Windows USB CCID driver`_. To initialize |PACE| using the PC/SC API
-you need to patch libccid (see :file:`patches`). On Windows, the USB CCID Emulator
-currently has no support for |PACE|.
-
-.. program-output:: ccid-emulator --help
-
-
-.. include:: questions.txt
-
-
-********************
-Notes and References
-********************
-
-.. target-notes::
-
-.. _`GadgetFS`: http://www.linux-usb.org/gadget/
-.. _`OpenSC`: http://www.opensc-project.org/opensc
-.. _`libccid`: http://pcsclite.alioth.debian.org/ccid.html
-.. _`Windows USB CCID driver`: http://msdn.microsoft.com/en-us/windows/hardware/gg487509
-.. _`OpenMoko Wiki`: http://wiki.openmoko.org/wiki/Building_Gadget_USB_Module>`_
-.. [#f1] Note that the heavily outdated Windows USB CCID driver does not support secure PIN entry or PIN modification. USB CCID Emulator comes with a patch for libccid to support |PACE|, because it is not yet standardised in USB CCID. However, the traditional commands can be used without restriction.

@@ -31,6 +31,7 @@
 #include <libopensc/opensc.h>
 #include <npa/iso-sm.h>
 #include <npa/npa.h>
+#include <npa/boxing.h>
 #include <npa/scutil.h>
 #include <openssl/asn1t.h>
 #include <openssl/bio.h>
@@ -1271,6 +1272,10 @@ static int establish_pace_channel(sc_card_t *card,
             goto err;
         }
     }
+
+#ifdef DISABLE_GLOBAL_BOXING_INITIALIZATION
+    sc_detect_boxing_cmds(card->reader);
+#endif
 
     if (card->reader->capabilities & SC_READER_CAP_PACE_GENERIC
             && card->reader->ops->perform_pace) {

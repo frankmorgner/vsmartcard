@@ -16,7 +16,7 @@ MAINTAINERCLEANFILES = $(BUILT_SOURCES) npa-tool.ggo $(dist_man1_MANS)
 
 dist_man1_MANS		= npa-tool.1
 
-libnpa_la_SOURCES = iso-sm.c scutil.c npa.c
+libnpa_la_SOURCES = iso-sm.c scutil.c npa.c boxing.c
 libnpa_la_LIBADD = $(OPENSSL_LIBS) $(OPENPACE_LIBS) $(OPENSC_LIBS)
 libnpa_la_CFLAGS = $(OPENSSL_CFLAGS) $(OPENPACE_CFLAGS) $(OPENSC_CFLAGS)
 libnpa_la_LDFLAGS = -no-undefined
@@ -58,4 +58,5 @@ noinst_HEADERS = \
 nobase_include_HEADERS = \
 	npa/iso-sm.h \
 	npa/npa.h \
+	npa/boxing.h \
 	npa/scutil.h

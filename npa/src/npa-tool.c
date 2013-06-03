@@ -24,6 +24,7 @@
 #include <eac/pace.h>
 #include <libopensc/log.h>
 #include <libopensc/opensc.h>
+#include <npa/boxing.h>
 #include <npa/iso-sm.h>
 #include <npa/npa.h>
 #include <npa/scutil.h>
@@ -375,6 +376,10 @@ main (int argc, char **argv)
         sc_release_context(ctx);
         exit(1);
     }
+
+#ifndef DISABLE_GLOBAL_BOXING_INITIALIZATION
+    sc_initialize_boxing_cmds(ctx);
+#endif
 
     if (cmdline.break_flag) {
         /* The biggest buffer sprintf could write with "%llu" */
