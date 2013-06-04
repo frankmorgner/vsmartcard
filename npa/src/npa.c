@@ -1080,22 +1080,24 @@ npa_reset_retry_counter(sc_card_t *card, enum s_type pin_id,
     int r;
 
     if (ask_for_secret && (!new || !new_len)) {
-        p = malloc(MAX_PIN_LEN+1);
-        if (!p) {
-            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Not enough memory for new PIN.\n");
-            return SC_ERROR_OUT_OF_MEMORY;
+        if (!(SC_READER_CAP_PIN_PAD & card->reader->capabilities)) {
+            p = malloc(MAX_PIN_LEN+1);
+            if (!p) {
+                sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Not enough memory for new PIN.\n");
+                return SC_ERROR_OUT_OF_MEMORY;
+            }
+            if (0 > EVP_read_pw_string_min(p,
+                        MIN_PIN_LEN, MAX_PIN_LEN+1,
+                        "Please enter your new PIN: ", 0)) {
+                sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not read new PIN.\n");
+                free(p);
+                return SC_ERROR_INTERNAL;
+            }
+            new_len = strlen(p);
+            if (new_len > MAX_PIN_LEN)
+                return SC_ERROR_INVALID_PIN_LENGTH;
+            new = p;
         }
-        if (0 > EVP_read_pw_string_min(p,
-                    MIN_PIN_LEN, MAX_PIN_LEN+1,
-                    "Please enter your new PIN: ", 0)) {
-            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not read new PIN.\n");
-            free(p);
-            return SC_ERROR_INTERNAL;
-        }
-        new_len = strlen(p);
-        if (new_len > MAX_PIN_LEN)
-            return SC_ERROR_INVALID_PIN_LENGTH;
-        new = p;
     }
 
     memset(&apdu, 0, sizeof apdu);
@@ -1105,7 +1107,7 @@ npa_reset_retry_counter(sc_card_t *card, enum s_type pin_id,
     apdu.datalen = new_len;
     apdu.lc = apdu.datalen;
 
-    if (new_len) {
+    if (new_len || ask_for_secret) {
         apdu.p1 = 0x02;
         apdu.cse = SC_APDU_CASE_3_SHORT;
     } else {
@@ -1113,7 +1115,20 @@ npa_reset_retry_counter(sc_card_t *card, enum s_type pin_id,
         apdu.cse = SC_APDU_CASE_1;
     }
 
-    r = sc_transmit_apdu(card, &apdu);
+    if (ask_for_secret && !new_len) {
+        struct sc_pin_cmd_data data;
+        data.apdu = &apdu;
+        data.cmd = SC_PIN_CMD_CHANGE;
+        data.flags = SC_PIN_CMD_IMPLICIT_CHANGE;
+        data.pin2.encoding = SC_PIN_ENCODING_ASCII;
+        data.pin2.length_offset = 0;
+        data.pin2.offset = 5;
+        data.pin2.max_length = MAX_PIN_LEN;
+        data.pin2.min_length = MIN_PIN_LEN;
+        data.pin2.pad_length = 0;
+        r = card->reader->ops->perform_verify(card->reader, &data);
+    } else
+        r = sc_transmit_apdu(card, &apdu);
 
     if (p) {
         OPENSSL_cleanse(p, new_len);
