@@ -43,6 +43,7 @@ section "PIN management"
 option "new-pin"        N
     "Install a new PIN"
     string
+    argoptional
     optional
 option "resume"         R
     "Resume eID-PIN (uses CAN to activate last retry)"
