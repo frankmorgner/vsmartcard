@@ -1295,6 +1295,9 @@ static int establish_pace_channel(sc_card_t *card,
     if (card->reader->capabilities & SC_READER_CAP_PACE_GENERIC
             && card->reader->ops->perform_pace) {
         r = card->reader->ops->perform_pace(card->reader, &pace_input, pace_output);
+        if (r < 0)
+            goto err;
+        memset(sctx, 0, sizeof *sctx);
     } else {
         if (!pace_output->ef_cardaccess_length || !pace_output->ef_cardaccess) {
             r = get_ef_card_access(card, &pace_output->ef_cardaccess,
