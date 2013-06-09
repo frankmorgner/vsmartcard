@@ -260,9 +260,12 @@ static int autoconfig ()
 {
 	struct stat	statb;
 
-	/* NetChip 2280 PCI device or dummy_hcd, high/full speed */
-	if (stat (DEVNAME = "net2280", &statb) == 0 ||
-			stat (DEVNAME = "dummy_udc", &statb) == 0) {
+	/* NetChip 2280 PCI device (or dummy_hcd), high/full speed */
+	if (stat (DEVNAME = "net2280", &statb) == 0
+#ifdef OLD_KERNEL
+            || stat (DEVNAME = "dummy_udc", &statb) == 0
+#endif
+    ) {
 		HIGHSPEED = 1;
 		device_desc.bcdDevice = __constant_cpu_to_le16 (0x0100),
 
@@ -279,6 +282,27 @@ static int autoconfig ()
 			= hs_status_desc.bEndpointAddress
 			= USB_DIR_IN | 11;
 		EP_STATUS_NAME = "ep-f";
+
+#ifndef OLD_KERNEL
+	/* dummy_hcd, high/full speed */
+    } else if (stat (DEVNAME = "dummy_udc", &statb) == 0) {
+		HIGHSPEED = 1;
+		device_desc.bcdDevice = __constant_cpu_to_le16 (0x0100),
+
+		fs_source_desc.bEndpointAddress
+			= hs_source_desc.bEndpointAddress
+			= USB_DIR_IN | 7;
+		EP_IN_NAME = "ep6in-bulk";
+		fs_sink_desc.bEndpointAddress = hs_sink_desc.bEndpointAddress
+			= USB_DIR_OUT | 3;
+		EP_OUT_NAME = "ep7out-bulk";
+
+		source_sink_intf.bNumEndpoints = 3;
+		fs_status_desc.bEndpointAddress
+			= hs_status_desc.bEndpointAddress
+			= USB_DIR_IN | 11;
+		EP_STATUS_NAME = "ep11in-bulk";
+#endif
 
 	/* Intel PXA 2xx processor, full speed only */
 	} else if (stat (DEVNAME = "pxa2xx_udc", &statb) == 0) {
