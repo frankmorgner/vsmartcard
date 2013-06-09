@@ -68,8 +68,26 @@ Hints on GadgetFS
 =================
 
 To create a USB Gadget in both USB host and USB client mode, you need to load
-the kernel module :program:`gadgetfs`. A guide focused on Debian based systems
-to run and compile GadgetFS, you can find in the `OpenMoko Wiki`_.
+the kernel module :program:`gadgetfs`. Here is how to get a running version of
+GadgetFS on a Debian system (see also `OpenMoko Wiki`_)::
+
+    sudo apt-get install linux-source linux-headers-`uname -r`
+    sudo tar xjf /usr/src/linux-source-*.tar.bz2
+    cd linux-source-*/drivers/usb/gadget
+    # build dummy_hcd and gadgetfs
+    echo "KDIR := /lib/modules/`uname -r`/build" >> Makefile
+    echo "PWD := `pwd`" >> Makefile
+    echo "obj-m := dummy_hcd.o gadgetfs.o" >> Makefile
+    echo "default: " >> Makefile
+    echo -e "\t\$(MAKE) -C \$(KDIR) SUBDIRS=\$(PWD) modules" >> Makefile
+    make
+    # load GadgetFS with its dependencies
+    sudo modprobe udc-core
+    sudo insmod ./dummy_hcd.ko
+    sudo insmod ./gadgetfs.ko default_uid=`id -u`
+    # mount GadgetFS
+    sudo mkdir /dev/gadget
+    sudo mount -t gadgetfs gadgetfs /dev/gadget
 
 On OpenMoko it is likely that you need to `patch your kernel
 <http://docs.openmoko.org/trac/ticket/2206>`_. If you also want to switch
