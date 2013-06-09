@@ -1377,7 +1377,9 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
             "\twrite PIN length on %d bits with %d system units offset\n"
             "\tcurrent PIN offset is %d %s\n",
             modify ? "modification" : "verification",
-            blocksize, (unsigned int) curr_pin.min_length,
+            blocksize, modify ? (unsigned int) new_pin.min_length :
+            (unsigned int) curr_pin.min_length, modify ?
+            (unsigned int) new_pin.max_length :
             (unsigned int) curr_pin.max_length,
             encoding == CCID_PIN_ENCODING_BIN ? "binary" :
             encoding == CCID_PIN_ENCODING_BCD ? "BCD" :
@@ -1433,10 +1435,12 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
     if (!apdu.datalen || !apdu.data) {
         /* Host did not provide any data in the APDU, so we have to assign
          * something for the pin block */
-        if (verify)
+        if (verify) {
             apdu.lc = get_datasize_for_pin(&curr_pin, length_size);
-        else {
+            blocksize = apdu.lc;
+        } else {
             apdu.lc = get_datasize_for_pin(&new_pin, length_size);
+            blocksize = apdu.lc;
             if (modify->bConfirmPIN & CCID_PIN_INSERT_OLD) {
                 if (get_datasize_for_pin(&curr_pin, length_size) > apdu.lc)
                     apdu.lc = get_datasize_for_pin(&curr_pin, length_size);
@@ -1484,7 +1488,8 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
         }
     }
     if (modify) {
-        if (modify->bInsertionOffsetOld != curr_pin.offset) {
+        if (modify->bConfirmPIN & CCID_PIN_INSERT_OLD
+                && modify->bInsertionOffsetOld != curr_pin.offset) {
             sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Inconsistent PIN block proberties.\n");
             sc_result = SC_ERROR_INVALID_DATA;
             goto err;
