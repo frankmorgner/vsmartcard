@@ -1,20 +1,20 @@
 /*
  * Copyright (C) 2011 Frank Morgner
  *
- * This file is part of ccid.
+ * This file is part of libnpa.
  *
- * ccid is free software: you can redistribute it and/or modify it under the
+ * libnpa is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation, either version 3 of the License, or (at your option) any later
  * version.
  *
- * ccid is distributed in the hope that it will be useful, but WITHOUT ANY
+ * libnpa is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
  * details.
  *
  * You should have received a copy of the GNU General Public License along with
- * ccid.  If not, see <http://www.gnu.org/licenses/>.
+ * libnpa.  If not, see <http://www.gnu.org/licenses/>.
  */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -334,7 +334,7 @@ int get_pace_capabilities(u8 *bitmap)
 
 #define ISO_READ_BINARY  0xB0
 #define ISO_P1_FLAG_SFID 0x80
-int read_binary_rec(sc_card_t *card, unsigned char sfid,
+static int read_binary_rec(sc_card_t *card, unsigned char sfid,
         u8 **ef, size_t *ef_len)
 {
     int r;
