@@ -21,8 +21,8 @@ install_libvpcd: libvpcd.la reader.conf.in
 	$(LIBTOOL) --mode=install cp .libs/$(VPCD_LIB) $(DESTDIR)$(serialdropdir)/$(VPCD_LIB).$(VERSION)
 	(cd $(DESTDIR)$(serialdropdir) && \
 		$(LN_S) -f $(VPCD_LIB).$(VERSION) $(VPCD_LIB))
-	$(mkinstalldirs) $(DESTDIR)$(sysconfdir)/reader.conf.d
-	$(do_subst) < $(srcdir)/reader.conf.in > $(DESTDIR)$(sysconfdir)/reader.conf.d/vpcd
+	$(mkinstalldirs) $(DESTDIR)$(confdir)
+	$(do_subst) < $(srcdir)/reader.conf.in > $(DESTDIR)$(confdir)/vpcd
 
 
 uninstall: uninstall_libvpcd
@@ -30,4 +30,4 @@ uninstall: uninstall_libvpcd
 uninstall_libvpcd:
 	rm -f $(DESTDIR)$(serialdropdir)/$(VPCD_LIB).$(VERSION) \
 	    $(DESTDIR)$(serialdropdir)/$(VPCD_LIB) \
-	    $(DESTDIR)$(sysconfdir)/reader.conf.d/vpcd
+	    $(DESTDIR)$(confdir)/vpcd

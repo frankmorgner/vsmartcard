@@ -74,6 +74,13 @@ if test "${serialdropdir}" = false ; then
 fi
 
 
+# --enable-confdir=DIR
+AC_ARG_ENABLE(confdir,
+	AC_HELP_STRING([--enable-confdir=DIR],[directory to install the
+	vpcd configuration (default to pcscd config or /etc/reader.conf.d)]),
+	[confdir="${enableval}"], [confdir=/etc/reader.conf.d])
+
+
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h stdint.h stdlib.h string.h sys/socket.h sys/time.h unistd.h])
 
@@ -90,6 +97,7 @@ AC_SUBST(BUNDLE_HOST)
 AC_SUBST(DYN_LIB_EXT)
 AC_SUBST(LIB_PREFIX)
 AC_SUBST(serialdropdir)
+AC_SUBST(confdir)
 case "$host" in
 *-*-darwin*)
 	BUNDLE_HOST="MacOS"
@@ -133,7 +141,7 @@ ${PACKAGE} has been configured with following options:
 
 Version:              ${PACKAGE_VERSION}
 User binaries:        $(eval eval eval echo "${bindir}")
-PC/SC configuration:  $(eval eval eval echo "${sysconfdir}/reader.conf.d")
+PC/SC configuration:  ${confdir}
 Python site-packages: $(eval eval eval echo "${pythondir}")
 Driver directory:     ${serialdropdir}
 
