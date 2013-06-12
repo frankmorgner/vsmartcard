@@ -319,6 +319,54 @@ err:
     return NULL;
 }
 
+static int
+npa_sm_start(sc_card_t *card, EAC_CTX *eac_ctx,
+        const unsigned char *certificate_description,
+        size_t certificate_description_length,
+        const unsigned char *id_icc, size_t id_icc_length)
+{
+    int r;
+    struct iso_sm_ctx *sctx;
+
+    if (!eac_ctx || !eac_ctx->key_ctx) {
+        r = SC_ERROR_INVALID_ARGUMENTS;
+        goto err;
+    }
+
+    sctx = iso_sm_ctx_create();
+    if (!sctx) {
+        r = SC_ERROR_OUT_OF_MEMORY;
+        goto err;
+    }
+
+    sctx->priv_data = npa_sm_ctx_create(eac_ctx,
+            certificate_description, certificate_description_length,
+            id_icc, id_icc_length);
+    if (!sctx->priv_data) {
+        r = SC_ERROR_OUT_OF_MEMORY;
+        goto err;
+    }
+
+    sctx->authenticate = npa_sm_authenticate;
+    sctx->encrypt = npa_sm_encrypt;
+    sctx->decrypt = npa_sm_decrypt;
+    sctx->verify_authentication = npa_sm_verify_authentication;
+    sctx->pre_transmit = npa_sm_pre_transmit;
+    sctx->post_transmit = npa_sm_post_transmit;
+    sctx->finish = npa_sm_finish;
+    sctx->clear_free = npa_sm_clear_free;
+    sctx->padding_indicator = SM_ISO_PADDING;
+    sctx->block_length = EVP_CIPHER_block_size(eac_ctx->key_ctx->cipher);
+
+    r = iso_sm_start(card, sctx);
+
+err:
+    if (r < 0)
+        iso_sm_ctx_clear_free(sctx);
+
+    return r;
+}
+
 
 int get_pace_capabilities(u8 *bitmap)
 {
@@ -334,7 +382,7 @@ int get_pace_capabilities(u8 *bitmap)
 
 #define ISO_READ_BINARY  0xB0
 #define ISO_P1_FLAG_SFID 0x80
-static int read_binary_rec(sc_card_t *card, unsigned char sfid,
+int read_binary_rec(sc_card_t *card, unsigned char sfid,
         u8 **ef, size_t *ef_len)
 {
     int r;
@@ -1181,10 +1229,11 @@ get_psec(sc_card_t *card, const char *pin, size_t length_pin, enum s_type pin_id
     return r;
 }
 
-static int establish_pace_channel(sc_card_t *card,
+
+int perform_pace(sc_card_t *card,
         struct establish_pace_channel_input pace_input,
         struct establish_pace_channel_output *pace_output,
-        struct iso_sm_ctx *sctx, enum eac_tr_version tr_version)
+        enum eac_tr_version tr_version)
 {
     u8 *p = NULL;
 	EAC_CTX *eac_ctx = NULL;
@@ -1198,7 +1247,7 @@ static int establish_pace_channel(sc_card_t *card,
     int r;
     const unsigned char *pp;
 
-    if (!card || !pace_output || !sctx)
+    if (!card || !pace_output)
         return SC_ERROR_INVALID_ARGUMENTS;
 
     /* show description in advance to give the user more time to read it...
@@ -1297,7 +1346,6 @@ static int establish_pace_channel(sc_card_t *card,
         r = card->reader->ops->perform_pace(card->reader, &pace_input, pace_output);
         if (r < 0)
             goto err;
-        memset(sctx, 0, sizeof *sctx);
     } else {
         if (!pace_output->ef_cardaccess_length || !pace_output->ef_cardaccess) {
             r = get_ef_card_access(card, &pace_output->ef_cardaccess,
@@ -1492,25 +1540,9 @@ static int establish_pace_channel(sc_card_t *card,
         bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "ID PCD", pace_output->id_pcd,
                 pace_output->id_pcd_length);
 
-        sctx->priv_data = npa_sm_ctx_create(eac_ctx,
-                pace_input.certificate_description,
-                pace_input.certificate_description_length,
-                pace_output->id_icc,
+        r = npa_sm_start(card, eac_ctx, pace_input.certificate_description,
+                pace_input.certificate_description_length, pace_output->id_icc,
                 pace_output->id_icc_length);
-        if (!sctx->priv_data) {
-            r = SC_ERROR_OUT_OF_MEMORY;
-            goto err;
-        }
-        sctx->authenticate = npa_sm_authenticate;
-        sctx->encrypt = npa_sm_encrypt;
-        sctx->decrypt = npa_sm_decrypt;
-        sctx->verify_authentication = npa_sm_verify_authentication;
-        sctx->pre_transmit = npa_sm_pre_transmit;
-        sctx->post_transmit = npa_sm_post_transmit;
-        sctx->finish = npa_sm_finish;
-        sctx->clear_free = npa_sm_clear_free;
-        sctx->padding_indicator = SM_ISO_PADDING;
-        sctx->block_length = EVP_CIPHER_block_size(eac_ctx->key_ctx->cipher);
     }
 
 err:
@@ -1540,36 +1572,10 @@ err:
     if (chat)
         CVC_CHAT_free(chat);
 
-    if (r < 0) {
+    if (r < 0)
         EAC_CTX_clear_free(eac_ctx);
-        if (sctx->priv_data)
-            npa_sm_clear_free(sctx->priv_data);
-    }
 
     SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_NORMAL, r);
-}
-
-int perform_pace(sc_card_t *card,
-        struct establish_pace_channel_input pace_input,
-        struct establish_pace_channel_output *pace_output,
-        enum eac_tr_version tr_version)
-{
-    int r;
-    struct iso_sm_ctx *sctx = iso_sm_ctx_create();
-
-    if (!sctx)
-        SC_FUNC_RETURN(card->ctx,  SC_LOG_DEBUG_NORMAL,
-                SC_ERROR_OUT_OF_MEMORY);
-
-    r = establish_pace_channel(card, pace_input, pace_output, sctx, tr_version);
-
-    if (r < 0) {
-        iso_sm_ctx_clear_free(sctx);
-    } else {
-        iso_sm_start(card, sctx);
-    }
-
-    SC_FUNC_RETURN(card->ctx,  SC_LOG_DEBUG_NORMAL, r);
 }
 
 static int npa_mse_set_at_ta(sc_card_t *card, int protocol,
@@ -2445,6 +2451,8 @@ err:
     free(sequence);
     if (templates)
         OPENSSL_free(templates);
+    if (msesetat)
+        NPA_MSE_C_free(msesetat);
 
     SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_NORMAL, r);
 }
