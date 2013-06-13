@@ -29,15 +29,14 @@
 /** 
  * @brief Initializes smart card context and reader
  * 
- * @param[in]     reader_id Index to the reader to be used (optional). Set to -1 to use a reader with a inserted card.
- * @param[in]     cdriver   Card driver to be used (optional)
+ * @param[in]     reader_id Index to the reader to be used. Set to -1 to use a reader with an inserted card.
  * @param[in]     verbose   verbosity level passed to \c sc_context_t
  * @param[in,out] ctx       Where to write the sc context
  * @param[in,out] reader    Where to write the reader context
  * 
  * @return 
  */
-int initialize(int reader_id, const char *cdriver, int verbose,
+int initialize(int reader_id, int verbose,
         sc_context_t **ctx, sc_reader_t **reader);
 
 /** 

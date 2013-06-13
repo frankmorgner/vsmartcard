@@ -271,12 +271,11 @@ struct hid_class_descriptor {
  * @brief Initializes reader for relaying
  * 
  * @param[in] reader_id (optional) Index to the reader to be used. Set to -1 to use the first reader with a card or the first reader if no card is available.
- * @param[in] cdriver   (optional) Card driver to be used
  * @param[in] verbose   Verbosity level passed to \c sc_context_t
  * 
  * @return \c SC_SUCCESS or error code if an error occurred
  */
-int ccid_initialize(int reader_id, const char *cdriver, int verbose);
+int ccid_initialize(int reader_id, int verbose);
 
 /** 
  * @brief Disconnects from card, reader and releases allocated memory

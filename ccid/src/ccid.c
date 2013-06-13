@@ -156,11 +156,11 @@ detect_card_presence(void)
 }
 
 
-int ccid_initialize(int reader_id, const char *cdriver, int verbose)
+int ccid_initialize(int reader_id, int verbose)
 {
     int i;
 
-    i = initialize(reader_id, cdriver, verbose, &ctx, &reader);
+    i = initialize(reader_id, verbose, &ctx, &reader);
     if (i < 0)
         return i;
 

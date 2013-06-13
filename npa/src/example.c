@@ -59,7 +59,7 @@ main (int argc, char **argv)
 
 
     /* Connect to a reader and the nPA */
-    r = initialize(reader_num, NULL, 0, &ctx, &reader);
+    r = initialize(reader_num, 0, &ctx, &reader);
     if (r < 0) {
         fprintf(stderr, "Can't initialize reader\n");
         exit(1);

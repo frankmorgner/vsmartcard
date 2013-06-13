@@ -1531,7 +1531,7 @@ main (int argc, char **argv)
     if (cmdline.info_flag)
         return print_avail(verbose);
 
-    if (ccid_initialize(cmdline.reader_arg, NULL, verbose) < 0) {
+    if (ccid_initialize(cmdline.reader_arg, verbose) < 0) {
         fprintf (stderr, "Can't initialize ccid\n");
         return 1;
     }

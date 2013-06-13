@@ -21,11 +21,13 @@
 #endif
 
 #include <libopensc/log.h>
+#include <npa/iso-sm.h>
 #include <npa/scutil.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
-int initialize(int reader_id, const char *cdriver, int verbose,
+int initialize(int reader_id, int verbose,
         sc_context_t **ctx, sc_reader_t **reader)
 {
     unsigned int i, reader_count;
@@ -34,17 +36,9 @@ int initialize(int reader_id, const char *cdriver, int verbose,
         return SC_ERROR_INVALID_ARGUMENTS;
 
     int r = sc_establish_context(ctx, "");
-    if (r < 0) {
+    if (r < 0 || !*ctx) {
         fprintf(stderr, "Failed to create initial context: %s", sc_strerror(r));
         return r;
-    }
-
-    if (cdriver != NULL) {
-        r = sc_set_card_driver(*ctx, cdriver);
-        if (r < 0) {
-            sc_debug(*ctx, SC_LOG_DEBUG_VERBOSE, "Card driver '%s' not found.\n", cdriver);
-            return r;
-        }
     }
 
     (*ctx)->debug = verbose;
@@ -103,23 +97,6 @@ void _bin_log(sc_context_t *ctx, int type, const char *file, int line,
     }
 }
 
-static int list_drivers(sc_context_t *ctx)
-{
-	int i;
-	
-	if (ctx->card_drivers[0] == NULL) {
-		printf("No card drivers installed!\n");
-		return 0;
-	}
-	printf("Configured card drivers:\n");
-	for (i = 0; ctx->card_drivers[i] != NULL; i++) {
-		printf("  %-16s %s\n", ctx->card_drivers[i]->short_name,
-		       ctx->card_drivers[i]->name);
-	}
-
-	return 0;
-}
-
 static int list_readers(sc_context_t *ctx)
 {
 	unsigned int i, rcount = sc_ctx_get_reader_count(ctx);
@@ -151,10 +128,144 @@ int print_avail(int verbose)
     }
     ctx->debug = verbose;
 
-    r = list_readers(ctx)|list_drivers(ctx);
+    r = list_readers(ctx);
 
     if (ctx)
         sc_release_context(ctx);
 
+    return r;
+}
+
+#define maxresp SC_MAX_APDU_BUFFER_SIZE - 2
+#define ISO_READ_BINARY  0xB0
+#define ISO_P1_FLAG_SFID 0x80
+int read_binary_rec(sc_card_t *card, unsigned char sfid,
+        u8 **ef, size_t *ef_len)
+{
+    int r;
+    /* we read less bytes than possible. this is a workaround for acr 122,
+     * which only supports apdus of max 250 bytes */
+    size_t read = maxresp - 8;
+    sc_apdu_t apdu;
+    u8 *p;
+
+    if (!card || !ef || !ef_len) {
+        r = SC_ERROR_INVALID_ARGUMENTS;
+        goto err;
+    }
+    *ef_len = 0;
+
+    if (read > 0xff+1)
+        sc_format_apdu(card, &apdu, SC_APDU_CASE_2_EXT,
+                ISO_READ_BINARY, ISO_P1_FLAG_SFID|sfid, 0);
+    else
+        sc_format_apdu(card, &apdu, SC_APDU_CASE_2_SHORT,
+                ISO_READ_BINARY, ISO_P1_FLAG_SFID|sfid, 0);
+
+    p = realloc(*ef, read);
+    if (!p) {
+        r = SC_ERROR_OUT_OF_MEMORY;
+        goto err;
+    }
+    *ef = p;
+    apdu.resp = *ef;
+    apdu.resplen = read;
+    apdu.le = read;
+
+    r = sc_transmit_apdu(card, &apdu);
+    /* emulate the behaviour of sc_read_binary */
+    if (r >= 0)
+        r = apdu.resplen;
+
+    while(1) {
+        if (r >= 0 && r != read) {
+            *ef_len += r;
+            break;
+        }
+        if (r < 0) {
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not read EF.");
+            goto err;
+        }
+        *ef_len += r;
+
+        p = realloc(*ef, *ef_len + read);
+        if (!p) {
+            r = SC_ERROR_OUT_OF_MEMORY;
+            goto err;
+        }
+        *ef = p;
+
+        r = sc_read_binary(card, *ef_len,
+                *ef + *ef_len, read, 0);
+    }
+
+    r = SC_SUCCESS;
+
+err:
+    return r;
+}
+
+#define ISO_WRITE_BINARY  0xD0
+int write_binary_rec(sc_card_t *card, unsigned char sfid,
+        u8 *ef, size_t ef_len)
+{
+    int r;
+    /* we write less bytes than possible. this is a workaround for acr 122,
+     * which only supports apdus of max 250 bytes */
+    size_t write = maxresp - 8, wrote = 0;
+    sc_apdu_t apdu;
+    struct iso_sm_ctx *iso_sm_ctx = card->sm_ctx.info.cmd_data;
+
+    if (!card) {
+        r = SC_ERROR_INVALID_ARGUMENTS;
+        goto err;
+    }
+
+    if (write > SC_MAX_APDU_BUFFER_SIZE-2
+            || (card->sm_ctx.sm_mode == SM_MODE_TRANSMIT
+                && write > (((SC_MAX_APDU_BUFFER_SIZE-2
+                    /* for encrypted APDUs we usually get authenticated status
+                     * bytes (4B), a MAC (11B) and a cryptogram with padding
+                     * indicator (3B without data).  The cryptogram is always
+                     * padded to the block size. */
+                    -18) / iso_sm_ctx->block_length)
+                    * iso_sm_ctx->block_length - 1)))
+        sc_format_apdu(card, &apdu, SC_APDU_CASE_3_EXT,
+                ISO_WRITE_BINARY, ISO_P1_FLAG_SFID|sfid, 0);
+    else
+        sc_format_apdu(card, &apdu, SC_APDU_CASE_3_SHORT,
+                ISO_WRITE_BINARY, ISO_P1_FLAG_SFID|sfid, 0);
+
+    if (write > ef_len) {
+        apdu.datalen = ef_len;
+        apdu.lc = ef_len;
+    } else {
+        apdu.datalen = write;
+        apdu.lc = write;
+    }
+    apdu.data = ef;
+
+
+    r = sc_transmit_apdu(card, &apdu);
+    /* emulate the behaviour of sc_write_binary */
+    if (r >= 0)
+        r = apdu.datalen;
+
+    while (1) {
+        if (r < 0 || r > ef_len) {
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not write EF.");
+            goto err;
+        }
+        wrote += r;
+        apdu.data += r;
+        if (wrote >= ef_len)
+            break;
+
+        r = sc_write_binary(card, wrote, ef, write, 0);
+    }
+
+    r = SC_SUCCESS;
+
+err:
     return r;
 }

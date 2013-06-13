@@ -365,7 +365,7 @@ main (int argc, char **argv)
         return print_avail(cmdline.verbose_given);
 
 
-    r = initialize(cmdline.reader_arg, NULL, cmdline.verbose_given, &ctx, &reader);
+    r = initialize(cmdline.reader_arg, cmdline.verbose_given, &ctx, &reader);
     if (r < 0) {
         fprintf(stderr, "Can't initialize reader\n");
         exit(1);
