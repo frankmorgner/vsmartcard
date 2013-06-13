@@ -99,18 +99,30 @@ void _bin_log(sc_context_t *ctx, int type, const char *file, int line,
 
 static int list_readers(sc_context_t *ctx)
 {
-	unsigned int i, rcount = sc_ctx_get_reader_count(ctx);
+    char card_atr[0x3e];
+    sc_card_t *card;
+    sc_reader_t *reader;
+	size_t i, rcount = sc_ctx_get_reader_count(ctx);
 	
 	if (rcount == 0) {
 		printf("No smart card readers found.\n");
 		return 0;
 	}
-	printf("Readers known about:\n");
-	printf("Nr.    Driver     Name\n");
+    printf("%-4s %-7s %s\n", "Nr.", "Driver", "Smart Card Reader");
 	for (i = 0; i < rcount; i++) {
-		sc_reader_t *screader = sc_ctx_get_reader(ctx, i);
-		printf("%-7d%-11s%s\n", i, screader->driver->short_name,
-		       screader->name);
+		reader = sc_ctx_get_reader(ctx, i);
+        memset(card_atr, '\0', sizeof card_atr);
+        if (sc_detect_card_presence(reader) & SC_READER_CARD_PRESENT) {
+            if (sc_connect_card(reader, &card) == SC_SUCCESS) {
+                sc_bin_to_hex(card->atr.value, card->atr.len,
+                        card_atr, sizeof card_atr, ':');
+            }
+            sc_disconnect_card(card);
+        } else {
+            strncpy(card_atr, "[no card present]", sizeof card_atr);
+        }
+        printf("%-4d %-7s %s\n", i, reader->driver->short_name, reader->name);
+        printf("             ATR: %s\n", card_atr);
 	}
 
 	return 0;
