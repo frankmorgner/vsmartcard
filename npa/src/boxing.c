@@ -74,25 +74,21 @@ int boxing_pace_input_to_buf(sc_context_t *ctx,
         const struct establish_pace_channel_input *input,
         unsigned char **asn1, size_t *asn1_len)
 {
-    const size_t count_data =
+    size_t pin_id_len = sizeof input->pin_id;
+    struct sc_asn1_entry EstablishPACEChannelInput_data[
         sizeof g_EstablishPACEChannelInput_data/
-        sizeof *g_EstablishPACEChannelInput_data;
-    const size_t count_sequence =
+        sizeof *g_EstablishPACEChannelInput_data];
+    struct sc_asn1_entry EstablishPACEChannel[
         sizeof g_EstablishPACEChannel/
-        sizeof *g_EstablishPACEChannel;
-    size_t pin_id_len = sizeof input->pin_id, i;
-    struct sc_asn1_entry EstablishPACEChannelInput_data[count_data];
-    struct sc_asn1_entry EstablishPACEChannel[count_sequence];
+        sizeof *g_EstablishPACEChannel];
 
-    for (i = 0; i < count_sequence; i++)
-        sc_copy_asn1_entry(g_EstablishPACEChannel+i,
-                EstablishPACEChannel+i);
+    sc_copy_asn1_entry(g_EstablishPACEChannel,
+            EstablishPACEChannel);
     sc_format_asn1_entry(EstablishPACEChannel,
             EstablishPACEChannelInput_data, 0, 1);
 
-    for (i = 0; i < count_data; i++)
-        sc_copy_asn1_entry(g_EstablishPACEChannelInput_data+i,
-                EstablishPACEChannelInput_data+i);
+    sc_copy_asn1_entry(g_EstablishPACEChannelInput_data,
+            EstablishPACEChannelInput_data);
     sc_format_asn1_entry(EstablishPACEChannelInput_data,
             (unsigned char *) &input->pin_id, &pin_id_len, 1);
     if (input->pin)
@@ -115,25 +111,21 @@ int boxing_buf_to_pace_input(sc_context_t *ctx,
         const unsigned char *asn1, size_t asn1_len,
         struct establish_pace_channel_input *input)
 {
-    const size_t count_data =
+    size_t pin_id_len = sizeof input->pin_id;
+    struct sc_asn1_entry EstablishPACEChannelInput_data[
         sizeof g_EstablishPACEChannelInput_data/
-        sizeof *g_EstablishPACEChannelInput_data;
-    const size_t count_sequence =
+        sizeof *g_EstablishPACEChannelInput_data];
+    struct sc_asn1_entry EstablishPACEChannel[
         sizeof g_EstablishPACEChannel/
-        sizeof *g_EstablishPACEChannel;
-    size_t pin_id_len = sizeof input->pin_id, i;
-    struct sc_asn1_entry EstablishPACEChannelInput_data[count_data];
-    struct sc_asn1_entry EstablishPACEChannel[count_sequence];
+        sizeof *g_EstablishPACEChannel];
 
-    for (i = 0; i < count_sequence; i++)
-        sc_copy_asn1_entry(g_EstablishPACEChannel+i,
-                EstablishPACEChannel+i);
+    sc_copy_asn1_entry(g_EstablishPACEChannel,
+            EstablishPACEChannel);
     sc_format_asn1_entry(EstablishPACEChannel,
             EstablishPACEChannelInput_data, 0, 0);
 
-    for (i = 0; i < count_data; i++)
-        sc_copy_asn1_entry(g_EstablishPACEChannelInput_data+i,
-                EstablishPACEChannelInput_data+i);
+    sc_copy_asn1_entry(g_EstablishPACEChannelInput_data,
+            EstablishPACEChannelInput_data);
     sc_format_asn1_entry(EstablishPACEChannelInput_data+0,
             &input->pin_id, &pin_id_len, 0);
     sc_format_asn1_entry(EstablishPACEChannelInput_data+1,
@@ -158,27 +150,23 @@ int boxing_pace_output_to_buf(sc_context_t *ctx,
         const struct establish_pace_channel_output *output,
         unsigned char **asn1, size_t *asn1_len)
 {
-    const size_t count_data =
-        sizeof g_EstablishPACEChannelOutput_data/
-        sizeof *g_EstablishPACEChannelOutput_data;
-    const size_t count_sequence =
-        sizeof g_EstablishPACEChannel/
-        sizeof *g_EstablishPACEChannel;
     uint16_t status_mse_set_at = ((output->mse_set_at_sw1 & 0xff) << 8) | output->mse_set_at_sw2;
-    size_t i, result_len = sizeof output->result,
+    size_t result_len = sizeof output->result,
            status_mse_set_at_len = sizeof status_mse_set_at;
-    struct sc_asn1_entry EstablishPACEChannelOutput_data[count_data];
-    struct sc_asn1_entry EstablishPACEChannel[count_sequence];
+    struct sc_asn1_entry EstablishPACEChannelOutput_data[
+        sizeof g_EstablishPACEChannelOutput_data/
+        sizeof *g_EstablishPACEChannelOutput_data];
+    struct sc_asn1_entry EstablishPACEChannel[
+        sizeof g_EstablishPACEChannel/
+        sizeof *g_EstablishPACEChannel];
 
-    for (i = 0; i < count_sequence; i++)
-        sc_copy_asn1_entry(g_EstablishPACEChannel+i,
-                EstablishPACEChannel+i);
+    sc_copy_asn1_entry(g_EstablishPACEChannel,
+            EstablishPACEChannel);
     sc_format_asn1_entry(EstablishPACEChannel,
             EstablishPACEChannelOutput_data, 0, 1);
 
-    for (i = 0; i < count_data; i++)
-        sc_copy_asn1_entry(g_EstablishPACEChannelOutput_data+i,
-                EstablishPACEChannelOutput_data+i);
+    sc_copy_asn1_entry(g_EstablishPACEChannelOutput_data,
+            EstablishPACEChannelOutput_data);
     sc_format_asn1_entry(EstablishPACEChannelOutput_data+0,
             (unsigned char *) &output->result, &result_len, 1);
     sc_format_asn1_entry(EstablishPACEChannelOutput_data+1,
@@ -203,27 +191,23 @@ int boxing_buf_to_pace_output(sc_context_t *ctx,
         const unsigned char *asn1, size_t asn1_len,
         struct establish_pace_channel_output *output)
 {
-    const size_t count_data =
-        sizeof g_EstablishPACEChannelOutput_data/
-        sizeof *g_EstablishPACEChannelOutput_data;
-    const size_t count_sequence =
-        sizeof g_EstablishPACEChannel/
-        sizeof *g_EstablishPACEChannel;
     uint16_t status_mse_set_at;
-    size_t i, result_len = sizeof output->result,
+    size_t result_len = sizeof output->result,
            status_mse_set_at_len = sizeof status_mse_set_at;
-    struct sc_asn1_entry EstablishPACEChannelOutput_data[count_data];
-    struct sc_asn1_entry EstablishPACEChannel[count_sequence];
+    struct sc_asn1_entry EstablishPACEChannelOutput_data[
+        sizeof g_EstablishPACEChannelOutput_data/
+        sizeof *g_EstablishPACEChannelOutput_data];
+    struct sc_asn1_entry EstablishPACEChannel[
+        sizeof g_EstablishPACEChannel/
+        sizeof *g_EstablishPACEChannel];
 
-    for (i = 0; i < count_sequence; i++)
-        sc_copy_asn1_entry(g_EstablishPACEChannel+i,
-                EstablishPACEChannel+i);
+    sc_copy_asn1_entry(g_EstablishPACEChannel,
+            EstablishPACEChannel);
     sc_format_asn1_entry(EstablishPACEChannel,
             EstablishPACEChannelOutput_data, 0, 0);
 
-    for (i = 0; i < count_data; i++)
-        sc_copy_asn1_entry(g_EstablishPACEChannelOutput_data+i,
-                EstablishPACEChannelOutput_data+i);
+    sc_copy_asn1_entry(g_EstablishPACEChannelOutput_data,
+            EstablishPACEChannelOutput_data);
     sc_format_asn1_entry(EstablishPACEChannelOutput_data+0,
             &output->result,       &result_len, 0);
     sc_format_asn1_entry(EstablishPACEChannelOutput_data+1,
@@ -337,27 +321,22 @@ int boxing_buf_to_pace_capabilities(sc_context_t *ctx,
         const unsigned char *asn1, size_t asn1_len,
         unsigned long *sc_reader_t_capabilities)
 {
-    const size_t count_data =
-        sizeof g_PACECapabilities_data/
-        sizeof *g_PACECapabilities_data;
-    const size_t count_sequence =
-        sizeof g_PACECapabilities/
-        sizeof *g_PACECapabilities;
     int capabilityPACE = 0, capabilityEID = 0, capabilityESign = 0,
         capabilityDestroy = 0;
-    size_t i;
-    struct sc_asn1_entry PACECapabilities_data[count_data];
-    struct sc_asn1_entry PACECapabilities[count_sequence];
+    struct sc_asn1_entry PACECapabilities_data[
+        sizeof g_PACECapabilities_data/
+        sizeof *g_PACECapabilities_data];
+    struct sc_asn1_entry PACECapabilities[
+        sizeof g_PACECapabilities/
+        sizeof *g_PACECapabilities];
 
-    for (i = 0; i < count_sequence; i++)
-        sc_copy_asn1_entry(g_PACECapabilities+i,
-                PACECapabilities+i);
+    sc_copy_asn1_entry(g_PACECapabilities,
+            PACECapabilities);
     sc_format_asn1_entry(PACECapabilities,
             PACECapabilities_data, 0, 1);
 
-    for (i = 0; i < count_data; i++)
-        sc_copy_asn1_entry(g_PACECapabilities_data+i,
-                PACECapabilities_data+i);
+    sc_copy_asn1_entry(g_PACECapabilities_data,
+            PACECapabilities_data);
     sc_format_asn1_entry(PACECapabilities_data+0,
             &capabilityPACE, NULL, 0);
     sc_format_asn1_entry(PACECapabilities_data+1,
@@ -394,26 +373,21 @@ int boxing_pace_capabilities_to_buf(sc_context_t *ctx,
         const unsigned long sc_reader_t_capabilities,
         unsigned char **asn1, size_t *asn1_len)
 {
-    const size_t count_data =
-        sizeof g_PACECapabilities_data/
-        sizeof *g_PACECapabilities_data;
-    const size_t count_sequence =
-        sizeof g_PACECapabilities/
-        sizeof *g_PACECapabilities;
     int yes = 1, no = 0;
-    size_t i;
-    struct sc_asn1_entry PACECapabilities_data[count_data];
-    struct sc_asn1_entry PACECapabilities[count_sequence];
+    struct sc_asn1_entry PACECapabilities_data[
+        sizeof g_PACECapabilities_data/
+        sizeof *g_PACECapabilities_data];
+    struct sc_asn1_entry PACECapabilities[
+        sizeof g_PACECapabilities/
+        sizeof *g_PACECapabilities];
 
-    for (i = 0; i < count_sequence; i++)
-        sc_copy_asn1_entry(g_EstablishPACEChannel+i,
-                PACECapabilities+i);
+    sc_copy_asn1_entry(g_EstablishPACEChannel,
+            PACECapabilities);
     sc_format_asn1_entry(PACECapabilities,
             PACECapabilities_data, 0, 1);
 
-    for (i = 0; i < count_data; i++)
-        sc_copy_asn1_entry(g_PACECapabilities_data+i,
-                PACECapabilities_data+i);
+    sc_copy_asn1_entry(g_PACECapabilities_data,
+            PACECapabilities_data);
     if (sc_reader_t_capabilities & SC_READER_CAP_PACE_GENERIC)
         sc_format_asn1_entry(PACECapabilities_data+0, 
                 &yes, NULL, 1);
