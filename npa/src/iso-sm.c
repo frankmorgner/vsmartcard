@@ -353,7 +353,7 @@ static int sm_encrypt(const struct iso_sm_ctx *ctx, sc_card_t *card,
     }
     mac_data_len = r;
 
-    /* get le and data depending on the case of the unsecure command */
+    /* get le and data depending on the case of the insecure command */
     cse = apdu->cse;
     if ((apdu->le/ctx->block_length + 1)*ctx->block_length + 18 > 0xff+1)
         /* for encrypted APDUs we usually get authenticated status bytes (4B),
@@ -487,12 +487,11 @@ static int sm_encrypt(const struct iso_sm_ctx *ctx, sc_card_t *card,
         goto err;
     }
     mac_len = r;
-    sc_format_asn1_entry(sm_capdu + 2, mac, &mac_len,
-            SC_ASN1_PRESENT);
     bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "Cryptographic Checksum (plain)", mac, mac_len);
 
 
     /* format SM apdu */
+    sc_format_asn1_entry(sm_capdu + 2, mac, &mac_len, SC_ASN1_PRESENT);
     r = sc_asn1_encode(card->ctx, sm_capdu, (u8 **) &sm_data, &sm_data_len);
     if (r < 0)
         goto err;
