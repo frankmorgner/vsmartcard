@@ -611,7 +611,7 @@ static int npa_gen_auth_1_encrypted_nonce(sc_card_t *card,
 	unsigned char resp[maxresp];
 
     sc_format_apdu(card, &apdu, SC_APDU_CASE_4_SHORT, ISO_GENERAL_AUTHENTICATE,
-            0, 0);
+            0x00, 0x00);
     apdu.cla = ISO_COMMAND_CHAINING;
 
     c_data = NPA_GEN_AUTH_PACE_C_new();
@@ -695,7 +695,7 @@ static int npa_gen_auth_2_map_nonce(sc_card_t *card,
 	unsigned char resp[maxresp];
 
     sc_format_apdu(card, &apdu, SC_APDU_CASE_4_SHORT, ISO_GENERAL_AUTHENTICATE,
-            0, 0);
+            0x00, 0x00);
     apdu.cla = ISO_COMMAND_CHAINING;
 
     c_data = NPA_GEN_AUTH_PACE_C_new();
@@ -787,7 +787,7 @@ static int npa_gen_auth_3_perform_key_agreement(sc_card_t *card,
 	unsigned char resp[maxresp];
 
     sc_format_apdu(card, &apdu, SC_APDU_CASE_4_SHORT, ISO_GENERAL_AUTHENTICATE,
-            0, 0);
+            0x00, 0x00);
     apdu.cla = ISO_COMMAND_CHAINING;
 
     c_data = NPA_GEN_AUTH_PACE_C_new();
@@ -881,7 +881,7 @@ static int npa_gen_auth_4_mutual_authentication(sc_card_t *card,
 	unsigned char resp[maxresp];
 
     sc_format_apdu(card, &apdu, SC_APDU_CASE_4_SHORT, ISO_GENERAL_AUTHENTICATE,
-            0, 0);
+            0x00, 0x00);
 
     c_data = NPA_GEN_AUTH_PACE_C_new();
     if (!c_data) {
@@ -1014,9 +1014,7 @@ npa_reset_retry_counter(sc_card_t *card, enum s_type pin_id,
         }
     }
 
-    memset(&apdu, 0, sizeof apdu);
-    apdu.ins = 0x2C;
-    apdu.p2 = pin_id;
+    sc_format_apdu(card, &apdu, 0, 0x2C, 0, pin_id);
     apdu.data = (u8 *) new;
     apdu.datalen = new_len;
     apdu.lc = apdu.datalen;
@@ -1467,15 +1465,12 @@ static int npa_get_challenge(sc_card_t *card,
     sc_apdu_t apdu;
     int r;
 
-    memset(&apdu, 0, sizeof apdu);
-
     if (!card) {
         r = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
     }
 
-    apdu.ins = 0x84;
-    apdu.cse = SC_APDU_CASE_2_SHORT;
+    sc_format_apdu(card, &apdu, SC_APDU_CASE_2_SHORT, 0x84, 0x00, 0x00);
     apdu.le = len;
     apdu.resplen = len;
     apdu.resp = challenge;
@@ -1504,10 +1499,7 @@ static int npa_verify(sc_card_t *card,
         goto err;
     }
 
-    apdu.ins = 0x2A;
-    apdu.p1 = 0x00;
-    apdu.p2 = 0xbe;
-    apdu.cse = SC_APDU_CASE_3_EXT;
+    sc_format_apdu(card, &apdu, SC_APDU_CASE_3_EXT, 0x2A, 0x00, 0xbe);
 
     apdu.data = cert;
     if (0x80 & ASN1_get_object(&apdu.data, &length, &tag, &class, cert_len)) {
@@ -1541,8 +1533,7 @@ static int npa_external_authenticate(sc_card_t *card,
         goto err;
     }
 
-    apdu.ins = 0x82;
-    apdu.cse = SC_APDU_CASE_3_SHORT;
+    sc_format_apdu(card, &apdu, SC_APDU_CASE_3_SHORT, 0x82, 0x00, 0x00);
 
     apdu.data = signature;
     apdu.datalen = signature_len;
@@ -1778,7 +1769,7 @@ err:
     return r;
 }
 
-int get_ef_card_security(sc_card_t *card,
+static int get_ef_card_security(sc_card_t *card,
         u8 **ef_security, size_t *length_ef_security)
 {
     return read_binary_rec(card, SFID_EF_CARDSECURITY, ef_security, length_ef_security);
@@ -1898,25 +1889,13 @@ const char *npa_secret_name(enum s_type pin_id) {
     }
 }
 
-int
+static int
 increment_ssc(struct npa_sm_ctx *eacsmctx)
 {
     if (!eacsmctx)
         return SC_ERROR_INVALID_ARGUMENTS;
 
     if (!EAC_increment_ssc(eacsmctx->ctx))
-        return SC_ERROR_INTERNAL;
-
-    return SC_SUCCESS;
-}
-
-int
-reset_ssc(struct npa_sm_ctx *eacsmctx)
-{
-    if (!eacsmctx)
-        return SC_ERROR_INVALID_ARGUMENTS;
-
-    if (!EAC_reset_ssc(eacsmctx->ctx))
         return SC_ERROR_INTERNAL;
 
     return SC_SUCCESS;
