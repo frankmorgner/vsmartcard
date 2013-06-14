@@ -28,7 +28,7 @@ CCID reader will locally be present.
 Applications on Windows and Unix-like systems can access the USB CCID Emulator
 through PC/SC as if it was a real smart card reader. No installation of a smart
 card driver is required since USB CCID drivers are usually shipped with the
-modern OS. [#f1]_
+modern OS.
 
 Here is a subset of USB CCID commands supported by the USB CCID Emulator with
 their PC/SC counterpart:
@@ -40,6 +40,26 @@ USB CCID                           PC/SC
 ``PC_to_RDR_Secure``               ``FEATURE_VERIFY_PIN_DIRECT``, ``FEATURE_MODIFY_PIN_DIRECT``
 ``PC_to_RDR_Secure`` (proprietary) ``FEATURE_EXECUTE_PACE``
 ================================== ============================================================
+
+PIN verification/modification and |PACE| can also be started by the application
+transmitting (SCardTransmit) specially crafted APDUs.  Only the alternative
+initialization of |PACE| using SCardControl requires patching the driver
+(available for libccid, see :file:`patches`). The pseudo APDUs with no need for
+patches are defined as follows (see `BSI TR-03119 1.3`_ p. 33-34):
+
++--------------------------+--------------------------------------------------------------------------------------------+---------------------------------------------+
+|                          | Command APDU                                                                               | Response APDU                               |
+|                          +----------+----------+----------+----------+------------------------------------------------+--------------------------------+------------+
+|                          | CLA      | INS      | P1       | P2       | Command Data                                   | Response Data                  | SW1/SW2    |
++==========================+==========+==========+==========+==========+================================================+================================+============+
+| GetReaderPACECapabilities| ``0xFF`` | ``0x9A`` | ``0x04`` | ``0x01`` | (No Data)                                      | ``PACECapabilities``           | ``0x9000`` |
++--------------------------+----------+----------+----------+----------+------------------------------------------------+--------------------------------+ or other   |
+| EstablishPACEChannel     | ``0xFF`` | ``0x9A`` | ``0x04`` | ``0x02`` | ``EstablishPACEChannelInput``                  | ``EstablishPACEChannelOutput`` | in case of |
++--------------------------+----------+----------+----------+----------+------------------------------------------------+--------------------------------+ an error   |
+| DestroyPACEChannel       | ``0xFF`` | ``0x9A`` | ``0x04`` | ``0x03`` | (No Data)                                      | (No Data)                      |            |
++--------------------------+----------+----------+----------+----------+------------------------------------------------+--------------------------------+------------+
+| Verify/Modify PIN        | ``0xFF`` | ``0x9A`` | ``0x04`` | ``0x10`` | Coding as ``abData`` from ``PC_to_RDR_Secure`` | Coding as ``RDR_to_PC_DataBlock``           |
++--------------------------+----------+----------+----------+----------+------------------------------------------------+---------------------------------------------+
 
 The USB CCID Emulator is implemented using GadgetFS_. Some fragments of the source
 code are based on the GadgetFS example and on the source code of the OpenSC
@@ -127,3 +147,36 @@ similar. Install |libnpa| and it should be recognized automatically by the
 :file:`configure` script.
 
 
+*****
+Usage
+*****
+
+The USB CCID Emulator has various command line options to customize the appearance
+on the USB host. In order to run the USB CCID Emulator GadgetFS must be loaded
+and mounted.  The USB CCID Emulator is compatible with the unix driver libccid_
+and the `Windows USB CCID driver`_. PIN commands are supported if implemented
+by the driver.
+
+.. versionadded:: 0.7
+    USB CCID Emulator now supports the boxing commands defined in `BSI TR-03119
+    1.3`_.
+
+
+.. program-output:: ccid-emulator --help
+
+
+.. include:: questions.txt
+
+
+********************
+Notes and References
+********************
+
+.. target-notes::
+
+.. _`GadgetFS`: http://www.linux-usb.org/gadget/
+.. _`OpenSC`: http://www.opensc-project.org/opensc
+.. _`libccid`: http://pcsclite.alioth.debian.org/ccid.html
+.. _`Windows USB CCID driver`: http://msdn.microsoft.com/en-us/windows/hardware/gg487509
+.. _`OpenMoko Wiki`: http://wiki.openmoko.org/wiki/Building_Gadget_USB_Module
+.. _`BSI TR-03119 1.3`: https://www.bsi.bund.de/DE/Publikationen/TechnischeRichtlinien/tr03119/index_htm.html
