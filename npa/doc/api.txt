@@ -29,7 +29,7 @@ used to read identity attributes, for example.
 .. note::
     Please consider the following overview to the API as incomplete. The
     `Doxygen documentation <../_static/doxygen-npa/modules.html>`_ should be
-    used as programmer's.
+    used as programmer's reference.
 
 
 ==============================================================

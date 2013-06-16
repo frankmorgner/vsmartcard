@@ -9,12 +9,16 @@
 @PACKAGE_NAME@
 ################################################################################
 
-:Author:
-    `Frank Morgner <morgner@informatik.hu-berlin.de>`_
-:License:
-    GPL version 3
-:Tested Platforms:
-    Linux (Debian, Ubuntu, OpenMoko)
+.. sidebar:: Summary
+
+    @PACKAGE_SUMMARY@
+
+    :Author:
+        `Frank Morgner <morgner@informatik.hu-berlin.de>`_
+    :License:
+        GPL version 3
+    :Tested Platforms:
+        Linux (Debian, Ubuntu, OpenMoko)
 
 The @PACKAGE_NAME@ forwards a locally present PC/SC smart card reader as a
 standard USB CCID reader. @PACKAGE_NAME@ can be used as trusted intermediary

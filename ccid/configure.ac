@@ -113,6 +113,10 @@ AM_CONDITIONAL(WITH_PACE, test "${WITH_PACE}" = "yes")
 AM_COND_IF(WITH_PACE, [AC_DEFINE(WITH_PACE, 1, [enable PACE support])])
 
 
+PACKAGE_SUMMARY="Emulate a USB CCID compliant smart card reader"
+AC_SUBST(PACKAGE_SUMMARY)
+
+
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h memory.h stdint.h stdlib.h string.h sys/ioctl.h unistd.h])
 

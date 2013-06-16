@@ -81,6 +81,10 @@ AC_ARG_ENABLE(confdir,
 	[confdir="${enableval}"], [confdir=/etc/reader.conf.d])
 
 
+PACKAGE_SUMMARY="Smart card emulator written in Python"
+AC_SUBST(PACKAGE_SUMMARY)
+
+
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h stdint.h stdlib.h string.h sys/socket.h sys/time.h unistd.h])
 

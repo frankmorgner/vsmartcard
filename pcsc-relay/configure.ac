@@ -78,6 +78,11 @@ AC_ARG_ENABLE(piccdev,
               [piccdev="${enableval}"], [piccdev="/dev/ttyACM0"])
 AC_DEFINE_UNQUOTED(PICCDEV, "${piccdev}", [OpenPICC character device])
 
+
+PACKAGE_SUMMARY="Relay a smart card to a contactless interface"
+AC_SUBST(PACKAGE_SUMMARY)
+
+
 # Checks for header files.
 AC_CHECK_HEADERS([fcntl.h stdint.h stdlib.h string.h unistd.h termios.h])
 

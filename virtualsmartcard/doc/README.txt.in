@@ -14,16 +14,18 @@
 @PACKAGE_NAME@
 ################################################################################
 
-:Authors:
-    - `Frank Morgner <morgner@informatik.hu-berlin.de>`_
-    - `Dominik Oepen <oepen@informatik.hu-berlin.de>`_
-:License:
-    GPL version 3
-:Tested Platforms:
-    - Linux (Debian, Ubuntu, OpenMoko)
-    - Windows (|vpicc| natively, |vpcd| only via Cygwin)
-:Potential Platforms:
-    Unix-like operating systems (Mac OS, Solaris, BSD, ...)
+.. sidebar:: Summary
+
+    @PACKAGE_SUMMARY@
+
+  :Authors:
+      - `Frank Morgner <morgner@informatik.hu-berlin.de>`_
+      - `Dominik Oepen <oepen@informatik.hu-berlin.de>`_
+  :License:
+      GPL version 3
+  :Tested Platforms:
+      - Linux (Debian, Ubuntu, OpenMoko)
+      - Windows (|vpicc| natively, |vpcd| only via Cygwin)
 
 @PACKAGE_NAME@ emulates a smart card and makes it accessible through PC/SC.
 Currently the @PACKAGE_NAME@ supports the following types of smart cards:

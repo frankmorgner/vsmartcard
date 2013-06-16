@@ -29,6 +29,7 @@ do_subst = $(SED) \
 		   -e 's,[@]PYTHON[@],$(PYTHON),g' \
 		   -e 's,[@]PACKAGE_VERSION[@],$(PACKAGE_VERSION),g' \
 		   -e 's,[@]PACKAGE_BUGREPORT[@],$(PACKAGE_BUGREPORT),g' \
+		   -e 's,[@]PACKAGE_SUMMARY[@],$(PACKAGE_SUMMARY),g' \
 		   -e 's,[@]PACKAGE_NAME[@],$(PACKAGE_NAME),g'
 
 $(builddir)/vicc: vicc.in Makefile

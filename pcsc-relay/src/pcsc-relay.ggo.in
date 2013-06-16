@@ -1,4 +1,4 @@
-purpose     "Emulate a contact-less smart card"
+purpose     "@PACKAGE_SUMMARY@"
 description "Using an contact-less interface (currently OpenPICC or libnfc) @PACKAGE@ receives command APDUs which are forwared to an existing smart card via PC/SC. @PACKAGE@ sends the response APDU back to the contact-less interface."
 
 option "emulator"   e

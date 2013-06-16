@@ -140,6 +140,8 @@ X509DIR="${x509dir}"
 AC_SUBST(X509DIR)
 
 
+PACKAGE_SUMMARY="Access the German electronic identity card (neuer Personalausweis/nPA)"
+AC_SUBST(PACKAGE_SUMMARY)
 
 
 # Checks for header files.

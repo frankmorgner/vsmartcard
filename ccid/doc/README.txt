@@ -9,12 +9,16 @@
 USB CCID Emulator
 ################################################################################
 
-:Author:
-    `Frank Morgner <morgner@informatik.hu-berlin.de>`_
-:License:
-    GPL version 3
-:Tested Platforms:
-    Linux (Debian, Ubuntu, OpenMoko)
+.. sidebar:: Summary
+
+    Emulate a USB CCID compliant smart card reader
+
+    :Author:
+        `Frank Morgner <morgner@informatik.hu-berlin.de>`_
+    :License:
+        GPL version 3
+    :Tested Platforms:
+        Linux (Debian, Ubuntu, OpenMoko)
 
 The USB CCID Emulator forwards a locally present PC/SC smart card reader as a
 standard USB CCID reader. USB CCID Emulator can be used as trusted intermediary

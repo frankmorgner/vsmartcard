@@ -14,16 +14,18 @@
 Virtual Smart Card
 ################################################################################
 
-:Authors:
-    - `Frank Morgner <morgner@informatik.hu-berlin.de>`_
-    - `Dominik Oepen <oepen@informatik.hu-berlin.de>`_
-:License:
-    GPL version 3
-:Tested Platforms:
-    - Linux (Debian, Ubuntu, OpenMoko)
-    - Windows (|vpicc| natively, |vpcd| only via Cygwin)
-:Potential Platforms:
-    Unix-like operating systems (Mac OS, Solaris, BSD, ...)
+.. sidebar:: Summary
+
+    Smart card emulator written in Python
+
+  :Authors:
+      - `Frank Morgner <morgner@informatik.hu-berlin.de>`_
+      - `Dominik Oepen <oepen@informatik.hu-berlin.de>`_
+  :License:
+      GPL version 3
+  :Tested Platforms:
+      - Linux (Debian, Ubuntu, OpenMoko)
+      - Windows (|vpicc| natively, |vpcd| only via Cygwin)
 
 Virtual Smart Card emulates a smart card and makes it accessible through PC/SC.
 Currently the Virtual Smart Card supports the following types of smart cards:

@@ -6,16 +6,18 @@
 PC/SC Relay
 ################################################################################
 
-:Authors:
-    - `Frank Morgner <morgner@informatik.hu-berlin.de>`_
-    - `Dominik Oepen <oepen@informatik.hu-berlin.de>`_
-:License:
-    GPL version 3
-:Tested Platforms:
-    - Windows
-    - Linux (Debian, Ubuntu, OpenMoko)
-:Potential Platforms:
-    Unix-like operating systems (Mac OS, Solaris, BSD, ...)
+.. sidebar:: Summary
+
+  Relay a smart card to a contactless interface
+
+  :Authors:
+      - `Frank Morgner <morgner@informatik.hu-berlin.de>`_
+      - `Dominik Oepen <oepen@informatik.hu-berlin.de>`_
+  :License:
+      GPL version 3
+  :Tested Platforms:
+      - Windows
+      - Linux (Debian, Ubuntu, OpenMoko)
 
 Welcome to PC/SC Relay. The purpose of PC/SC Relay is to relay a smart
 card using an contact-less interface. Currently the following contact-less

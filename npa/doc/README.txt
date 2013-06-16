@@ -13,15 +13,17 @@
 nPA Smart Card Library
 ################################################################################
 
-:Author:
-    `Frank Morgner <morgner@informatik.hu-berlin.de>`_
-:License:
-    GPL version 3
-:Tested Platforms:
-    - Windows
-    - Linux (Debian, Ubuntu, OpenMoko)
-:Potential Platforms:
-    Unix-like operating systems (Mac OS, Solaris, BSD, ...)
+.. sidebar:: Summary
+
+    Access the German electronic identity card (neuer Personalausweis/nPA)
+
+    :Author:
+        `Frank Morgner <morgner@informatik.hu-berlin.de>`_
+    :License:
+        GPL version 3
+    :Tested Platforms:
+        - Windows
+        - Linux (Debian, Ubuntu, OpenMoko)
 
 The nPA Smart Card Library offers an easy to use API for the new German identity card
 (neuer Personalausweis, nPA). The library also implements secure messaging,

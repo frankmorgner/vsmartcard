@@ -4,6 +4,7 @@ do_subst = $(SED) \
 	   -e 's,[@]PACKAGE_TARNAME[@],$(PACKAGE_TARNAME),g' \
 	   -e 's,[@]PACKAGE_BUGREPORT[@],$(PACKAGE_BUGREPORT),g' \
 	   -e 's,[@]PACKAGE_URL[@],$(PACKAGE_URL),g' \
+	   -e 's,[@]PACKAGE_SUMMARY[@],$(PACKAGE_SUMMARY),g' \
 	   -e 's,[@]PACKAGE_VERSION[@],$(PACKAGE_VERSION),g' \
 	   -e 's,[@]RECOMMENDED_CONF_OPTS[@],,g' \
 	   -e 's,[@]builddir[@],$(builddir),g' \

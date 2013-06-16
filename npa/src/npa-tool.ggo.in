@@ -1,5 +1,5 @@
 package "npa-tool"
-purpose "Access the German electronic identity card (neuer Personalausweis, nPA)"
+purpose "@PACKAGE_SUMMARY@"
 
 option "info"           i
     "Print available readers and drivers."
