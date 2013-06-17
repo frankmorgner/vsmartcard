@@ -2,17 +2,70 @@
 
 .. |vsmartcard| replace:: Virtual Smart Card Architecture
 
+################################################################################
 Welcome to the |vsmartcard| documentation!
-==========================================================
+################################################################################
 
 Welcome to the |vsmartcard|. |vsmartcard| is an umbrella project for various
 projects concerned with the emulation of different types of smart card readers
 or smart cards themselves.
 
-.. image:: _static/vsmartcard.jpeg
-    :alt: |vsmartcard| connects different aspects of smart card handling
-    :scale: 50%
-    :align: center
+.. tikz:: |vsmartcard| connects different aspects of smart card handling
+    :libs: arrows, calc, fit, patterns, plotmarks, shapes.geometric, shapes.misc, shapes.symbols, shapes.arrows, shapes.callouts, shapes.multipart, shapes.gates.logic.US, shapes.gates.logic.IEC, er, automata, backgrounds, chains, topaths, trees, petri, mindmap, matrix, calendar, folding, fadings, through, positioning, scopes, decorations.fractals, decorations.shapes, decorations.text, decorations.pathmorphing, decorations.pathreplacing, decorations.footprints, decorations.markings, shadows
+
+    \definecolor{hublue}{cmyk}{1.00, 0.60, 0.00, 0.20}
+    \definecolor{hured}{cmyk}{0.00, 0.90, 0.80, 0.40}
+    \definecolor{hugreen}{cmyk}{0.90, 0.10, 0.80, 0.40}
+    \definecolor{husand}{cmyk}{0.00, 0.05, 0.50, 0.20}
+    \definecolor{huslategreen}{cmyk}{0.00, 0.00, 0.10, 0.20}
+    \definecolor{huslateblue}{cmyk}{0.10, 0.00, 0.00, 0.20}
+    \tikzstyle{klein}=[font={\small}]
+    \tikzstyle{kleiner}=[font={\footnotesize}]
+    \tikzstyle{box}=[line width=2pt, draw=huslateblue, rounded corners, inner
+    sep=.2cm, shadeslate, drop shadow={opacity=.15}, shadow scale=1.05]
+    \tikzstyle{aktivbox}=[box, darkshadeslate]
+    \tikzstyle{nichtrundelinie}=[line width=2pt, draw=hublue, kleiner, color=hublue]
+    \tikzstyle{linie}=[nichtrundelinie, line cap=round]
+    \tikzstyle{pfeil}=[linie, -stealth']
+    \tikzstyle{doppelpfeil}=[linie, stealth'-stealth']
+    \tikzstyle{usb}=[line width=2pt, line cap=round, draw=black, decorate,
+    decoration=coil, kleiner]
+    \tikzstyle{rfid}=[decorate, decoration={expanding waves, angle=30, segment
+    length=6}, nichtrundelinie]
+    \tikzstyle{shadeslate}=[shade, top color=huslateblue!2, bottom color=huslateblue!10]
+    \tikzstyle{darkshadeslate}=[shade, top color=huslateblue!20, bottom
+    color=huslateblue!50]
+    \tikzstyle{internet}=[cloud, cloud ignores aspect, minimum height=1.5cm, kleiner,
+    line width=2pt, draw=huslateblue, inner sep=.2cm, darkshadeslate,
+    drop shadow={opacity=.15}, shadow scale=1.05]
+
+    \pgfdeclarelayer{foreground}
+    \pgfsetlayers{background,main,foreground}
+    \tikzstyle{bla}=[box, klein, rounded rectangle,  inner sep=.3cm]
+    
+    \node (a) {};
+
+    \node[bla, above left=.5cm of a]
+    (usb) {USB Terminal};
+
+    \node[bla, below left=.5cm of a]
+    (nfc) {NFC Terminal};
+
+    \node[bla, rounded rectangle left arc=concave, above right=.5cm of a]
+    (sc)  {Real Smart Card};
+
+    \node[bla, rounded rectangle left arc=concave, below right=.5cm of a]
+    (vsc) {Virtual Smart Card};
+
+    \begin{pgfonlayer}{background}
+    \path[line width=.8cm,color=hublue!20]
+    (a.mid) edge [out=180, in=0] (usb.center)
+    edge [out=180, in=0] (nfc.center)
+    edge [out=0, in=180] (sc.center)
+    edge [out=0, in=180] (vsc.center)
+    ;
+    \end{pgfonlayer}
+
 
 Currently the following projects are part of |vsmartcard|: 
 
@@ -41,24 +94,373 @@ Example Use Cases
 Mobile Phone with Virtual Smartcard connected via NFC
 *****************************************************
 
-.. image:: _static/nfc-emulator.jpeg
-    :alt: Overview
-    :width: 320px
+.. tikz:: Emulating a smart card for checking an untrusted device
+    :stringsubst:
+    :libs: arrows, calc, fit, patterns, plotmarks, shapes.geometric, shapes.misc, shapes.symbols, shapes.arrows, shapes.callouts, shapes.multipart, shapes.gates.logic.US, shapes.gates.logic.IEC, er, automata, backgrounds, chains, topaths, trees, petri, mindmap, matrix, calendar, folding, fadings, through, positioning, scopes, decorations.fractals, decorations.shapes, decorations.text, decorations.pathmorphing, decorations.pathreplacing, decorations.footprints, decorations.markings, shadows
 
-.. image:: _static/nfc-emulator-arch.jpeg
-    :alt: Architecture
-    :width: 320px
+    \definecolor{hublue}{cmyk}{1.00, 0.60, 0.00, 0.20}
+    \definecolor{hured}{cmyk}{0.00, 0.90, 0.80, 0.40}
+    \definecolor{hugreen}{cmyk}{0.90, 0.10, 0.80, 0.40}
+    \definecolor{husand}{cmyk}{0.00, 0.05, 0.50, 0.20}
+    \definecolor{huslategreen}{cmyk}{0.00, 0.00, 0.10, 0.20}
+    \definecolor{huslateblue}{cmyk}{0.10, 0.00, 0.00, 0.20}
+    \tikzstyle{klein}=[font={\small}]
+    \tikzstyle{kleiner}=[font={\footnotesize}]
+    \tikzstyle{box}=[line width=2pt, draw=huslateblue, rounded corners, inner
+    sep=.2cm, shadeslate, drop shadow={opacity=.15}, shadow scale=1.05]
+    \tikzstyle{aktivbox}=[box, darkshadeslate]
+    \tikzstyle{nichtrundelinie}=[line width=2pt, draw=hublue, kleiner, color=hublue]
+    \tikzstyle{linie}=[nichtrundelinie, line cap=round]
+    \tikzstyle{pfeil}=[linie, -stealth']
+    \tikzstyle{doppelpfeil}=[linie, stealth'-stealth']
+    \tikzstyle{usb}=[line width=2pt, line cap=round, draw=black, decorate,
+    decoration=coil, kleiner]
+    \tikzstyle{rfid}=[decorate, decoration={expanding waves, angle=30, segment
+    length=6}, nichtrundelinie]
+    \tikzstyle{shadeslate}=[shade, top color=huslateblue!2, bottom color=huslateblue!10]
+    \tikzstyle{darkshadeslate}=[shade, top color=huslateblue!20, bottom
+    color=huslateblue!50]
+    \tikzstyle{internet}=[cloud, cloud ignores aspect, minimum height=1.5cm, kleiner,
+    line width=2pt, draw=huslateblue, inner sep=.2cm, darkshadeslate,
+    drop shadow={opacity=.15}, shadow scale=1.05]
 
-Mobile Phone with Virtual Smartcard connected via USB
-*****************************************************
+    \pgfdeclarelayer{foreground}
+    \pgfsetlayers{background,main,foreground}
+    [klein]
+    \tikzstyle{bla}=[kleiner, text width=.45\textwidth]
 
-.. image:: _static/usb-emulator.jpeg
-    :alt: Overview
-    :width: 320px
+    \node (antenna)
+    {\includegraphics[width=1cm]{%(wd)s/bilder/network-wireless.pdf}};
+    \node (antennatext) [right=0of antenna, bla]
+    {Smartphone emulates nPA via NFC};
+    \node (display) [below=.25of antenna]
+    {\includegraphics[width=1cm]{%(wd)s/bilder/display.pdf}};
+    \node (displaytext) [right=0of display, bla]
+    {Display service provider, purpose of transaction, security context,
+    requested permissions};
+    \node (firewall) [below=.25of display]
+    {\includegraphics[width=1cm]{%(wd)s/bilder/Firewall.pdf}};
+    \node (firewalltext) [right=0of firewall, bla]
+    {Verification of terminal authentication and sanitiy checks};
 
-.. image:: _static/usb-emulator-arch.jpeg
-    :alt: Architecture
-    :width: 320px
+    \node (features) [fit=(display) (antenna) (firewall)] {};
+
+    \node (moko) [left=0of features.west] {\includegraphics[height=4cm]{%(wd)s/bilder/phone-fic-neo-freerunner.pdf}};
+
+    \node (pc)  [left=1.5of moko]
+    {\includegraphics[width=2cm]{%(wd)s/bilder/ivak_kiosk-terminal.pdf}};
+
+    \begin{pgfonlayer}{background}
+
+        \node (mokobox) 
+        [box,
+        fit=(moko) (antennatext) (displaytext) (firewalltext)
+        (features)] {};
+
+        \draw [rfid]
+        (pc) -- (moko) ;
+
+    \end{pgfonlayer}
+
+
+.. tikz:: Implementation of the nPA emulator
+    :stringsubst:
+    :libs: arrows, calc, fit, patterns, plotmarks, shapes.geometric, shapes.misc, shapes.symbols, shapes.arrows, shapes.callouts, shapes.multipart, shapes.gates.logic.US, shapes.gates.logic.IEC, er, automata, backgrounds, chains, topaths, trees, petri, mindmap, matrix, calendar, folding, fadings, through, positioning, scopes, decorations.fractals, decorations.shapes, decorations.text, decorations.pathmorphing, decorations.pathreplacing, decorations.footprints, decorations.markings, shadows
+
+    \definecolor{hublue}{cmyk}{1.00, 0.60, 0.00, 0.20}
+    \definecolor{hured}{cmyk}{0.00, 0.90, 0.80, 0.40}
+    \definecolor{hugreen}{cmyk}{0.90, 0.10, 0.80, 0.40}
+    \definecolor{husand}{cmyk}{0.00, 0.05, 0.50, 0.20}
+    \definecolor{huslategreen}{cmyk}{0.00, 0.00, 0.10, 0.20}
+    \definecolor{huslateblue}{cmyk}{0.10, 0.00, 0.00, 0.20}
+    \tikzstyle{klein}=[font={\small}]
+    \tikzstyle{kleiner}=[font={\footnotesize}]
+    \tikzstyle{box}=[line width=2pt, draw=huslateblue, rounded corners, inner
+    sep=.2cm, shadeslate, drop shadow={opacity=.15}, shadow scale=1.05]
+    \tikzstyle{aktivbox}=[box, darkshadeslate]
+    \tikzstyle{nichtrundelinie}=[line width=2pt, draw=hublue, kleiner, color=hublue]
+    \tikzstyle{linie}=[nichtrundelinie, line cap=round]
+    \tikzstyle{pfeil}=[linie, -stealth']
+    \tikzstyle{doppelpfeil}=[linie, stealth'-stealth']
+    \tikzstyle{usb}=[line width=2pt, line cap=round, draw=black, decorate,
+    decoration=coil, kleiner]
+    \tikzstyle{rfid}=[decorate, decoration={expanding waves, angle=30, segment
+    length=6}, nichtrundelinie]
+    \tikzstyle{shadeslate}=[shade, top color=huslateblue!2, bottom color=huslateblue!10]
+    \tikzstyle{darkshadeslate}=[shade, top color=huslateblue!20, bottom
+    color=huslateblue!50]
+    \tikzstyle{internet}=[cloud, cloud ignores aspect, minimum height=1.5cm, kleiner,
+    line width=2pt, draw=huslateblue, inner sep=.2cm, darkshadeslate,
+    drop shadow={opacity=.15}, shadow scale=1.05]
+
+    \pgfdeclarelayer{foreground}
+    \pgfsetlayers{background,main,foreground}
+    [klein]
+    \tikzstyle{bla}=[shape=rectangle split, rectangle split parts=2,
+    every text node part/.style={align=center, klein}, text width=7cm,
+    every second node part/.style={kleiner}, inner sep=0pt]
+
+    \tikzstyle{keks}=[to path={-- ++(.1,0) |- (\tikztotarget)}]
+
+    \node (touchatag)
+	{\includegraphics[keepaspectratio, height=2cm,
+	width=2cm]{%(wd)s/bilder/touchatag.png}};
+    \node (touchatagbeschreibung) [below=0cm of touchatag, kleiner]
+    {touchatag};
+
+    \node (pcsc-relay) [right=of touchatag]
+    {\texttt{pcsc-relay}};
+    \node (pcsc-relaybeschreibung) [below=0cm of pcsc-relay, kleiner]
+    {NFC emulator
+    };
+
+    \node (vicc) [right=of pcsc-relay]
+    {\texttt{vicc -t nPA}};
+    \node (viccbeschreibung) [below=0cm of vicc, kleiner]
+    {nPA emulator};
+
+    \node (group) [fit=(touchatag) (pcsc-relay) (vicc) (touchatagbeschreibung)
+    (pcsc-relaybeschreibung) (viccbeschreibung)] {};
+    \node (funktionenchat) [below=0cm of group, bla]
+    {
+        PACE
+        \nodepart{second}
+		\begin{itemize}
+            \item Display context (eID/eSign)
+            \item Display requested permissions
+        \end{itemize}
+    };
+    \node (funktionenpace) [below=.5 of funktionenchat, bla]
+    {
+        Terminal Authentication
+        \nodepart{second}
+		\begin{itemize}
+            \item Verify authenticy of terminal
+            \item Check freshness of cv certificate
+            \item With certificate database
+                \begin{itemize}
+                    \item Identification of service provider
+                    \item Display purpose of transaction
+                \end{itemize}
+        \end{itemize}
+    };
+
+    \begin{pgfonlayer}{background}
+        \node (box) [fit=(touchatag) (pcsc-relay) (vicc) (touchatagbeschreibung)
+        (pcsc-relaybeschreibung) (viccbeschreibung) (funktionenchat)
+        (funktionenpace), box, inner sep=.5cm] {};
+        \node (boxbild) at (box.north west)
+        {\includegraphics[keepaspectratio, height=1.5cm,
+        width=1.5cm]{%(wd)s/bilder/moko/moko_reader.png}};
+        \node [right=0cm of boxbild.east, yshift=.3cm]
+        {Openmoko Neo FreeRunner};
+    \end{pgfonlayer}
+
+    \node (a) [left=1.5of box]
+	{\includegraphics[keepaspectratio, height=4cm,
+	width=4cm]{%(wd)s/bilder/ivak_kiosk-terminal.pdf}};
+    \node (e) [below=0cm of a, text width=2.5cm, align=center]
+    {(Public) Terminal};
+
+
+    \begin{pgfonlayer}{background}
+        \path
+        (touchatag)  edge  [doppelpfeil] (pcsc-relay)
+        (pcsc-relay) edge [doppelpfeil] (vicc)
+        (vicc.east) edge [keks, pfeil] (funktionenchat.text east)
+        (vicc.east) edge [keks, pfeil] (funktionenpace.text east)
+        (a) edge [decorate, decoration={expanding waves, angle=20, segment
+        length=6}, nichtrundelinie] (touchatag.south west);
+    \end{pgfonlayer}
+
+
+Mobile Smart Card Reader
+************************
+
+.. tikz:: Portable smart card reader with trusted user interface
+    :stringsubst:
+    :libs: arrows, calc, fit, patterns, plotmarks, shapes.geometric, shapes.misc, shapes.symbols, shapes.arrows, shapes.callouts, shapes.multipart, shapes.gates.logic.US, shapes.gates.logic.IEC, er, automata, backgrounds, chains, topaths, trees, petri, mindmap, matrix, calendar, folding, fadings, through, positioning, scopes, decorations.fractals, decorations.shapes, decorations.text, decorations.pathmorphing, decorations.pathreplacing, decorations.footprints, decorations.markings, shadows
+
+    \definecolor{hublue}{cmyk}{1.00, 0.60, 0.00, 0.20}
+    \definecolor{hured}{cmyk}{0.00, 0.90, 0.80, 0.40}
+    \definecolor{hugreen}{cmyk}{0.90, 0.10, 0.80, 0.40}
+    \definecolor{husand}{cmyk}{0.00, 0.05, 0.50, 0.20}
+    \definecolor{huslategreen}{cmyk}{0.00, 0.00, 0.10, 0.20}
+    \definecolor{huslateblue}{cmyk}{0.10, 0.00, 0.00, 0.20}
+    \tikzstyle{klein}=[font={\small}]
+    \tikzstyle{kleiner}=[font={\footnotesize}]
+    \tikzstyle{box}=[line width=2pt, draw=huslateblue, rounded corners, inner
+    sep=.2cm, shadeslate, drop shadow={opacity=.15}, shadow scale=1.05]
+    \tikzstyle{aktivbox}=[box, darkshadeslate]
+    \tikzstyle{nichtrundelinie}=[line width=2pt, draw=hublue, kleiner, color=hublue]
+    \tikzstyle{linie}=[nichtrundelinie, line cap=round]
+    \tikzstyle{pfeil}=[linie, -stealth']
+    \tikzstyle{doppelpfeil}=[linie, stealth'-stealth']
+    \tikzstyle{usb}=[line width=2pt, line cap=round, draw=black, decorate,
+    decoration=coil, kleiner]
+    \tikzstyle{rfid}=[decorate, decoration={expanding waves, angle=30, segment
+    length=6}, nichtrundelinie]
+    \tikzstyle{shadeslate}=[shade, top color=huslateblue!2, bottom color=huslateblue!10]
+    \tikzstyle{darkshadeslate}=[shade, top color=huslateblue!20, bottom
+    color=huslateblue!50]
+    \tikzstyle{internet}=[cloud, cloud ignores aspect, minimum height=1.5cm, kleiner,
+    line width=2pt, draw=huslateblue, inner sep=.2cm, darkshadeslate,
+    drop shadow={opacity=.15}, shadow scale=1.05]
+
+    \pgfdeclarelayer{foreground}
+    \pgfsetlayers{background,main,foreground}
+    [klein]
+    \tikzstyle{bla}=[kleiner, text width=.45\textwidth]
+
+    \node (reader)
+    {\includegraphics[width=1cm]{%(wd)s/bilder/my_cardreader.pdf}};
+    \node (readertext) [right=0of reader, bla]
+    {Smartphone provides smart card reader via USB};
+    \node (display) [below=0of reader]
+    {\includegraphics[width=1cm]{%(wd)s/bilder/display.pdf}};
+    \node (displaytext) [right=0of display, bla]
+    {Secure display of service provider and purpose of transaction};
+    \node (keyboard) [below=0of display]
+    {\includegraphics[width=1cm]{%(wd)s/bilder/keyboard.pdf}};
+    \node (keyboardtext) [right=0of keyboard, bla]
+    {Secure PIN Entry};
+    \node (firewall) [below=0of keyboard]
+    {\includegraphics[width=1cm]{%(wd)s/bilder/Firewall.pdf}};
+    \node (firewalltext) [right=0of firewall, bla]
+    {Verification of terminal authentication and sanitiy checks};
+
+    \node (features) [fit=(display) (keyboard) (reader) (firewall)] {};
+
+    \node (moko) [left=0of features.west] {\includegraphics[height=4cm]{%(wd)s/bilder/phone-fic-neo-freerunner.pdf}};
+
+    \node (epa) [left=1.5of moko, yshift=-2cm]
+    {\includegraphics[width=3cm]{%(wd)s/bilder/nPA_VS.png}};
+    \node (pc)  [left=1.5of moko, yshift=1.5cm]
+    {\includegraphics[width=3cm]{%(wd)s/bilder/computer-tango.pdf}};
+
+    \begin{pgfonlayer}{background}
+
+        \node (mokobox) 
+        [box,
+        fit=(moko) (readertext) (displaytext) (keyboardtext) (firewalltext)
+        (features)] {};
+
+        \draw [usb]
+        (moko) -- (pc.center) ;
+        \draw [decorate, decoration={expanding waves, angle=20, segment length=6}, nichtrundelinie]
+        (moko) -- (epa) ;
+
+    \end{pgfonlayer}
+
+.. tikz:: Implementation of a mobile smart card reader
+    :stringsubst:
+    :libs: arrows, calc, fit, patterns, plotmarks, shapes.geometric, shapes.misc, shapes.symbols, shapes.arrows, shapes.callouts, shapes.multipart, shapes.gates.logic.US, shapes.gates.logic.IEC, er, automata, backgrounds, chains, topaths, trees, petri, mindmap, matrix, calendar, folding, fadings, through, positioning, scopes, decorations.fractals, decorations.shapes, decorations.text, decorations.pathmorphing, decorations.pathreplacing, decorations.footprints, decorations.markings, shadows
+
+    \definecolor{hublue}{cmyk}{1.00, 0.60, 0.00, 0.20}
+    \definecolor{hured}{cmyk}{0.00, 0.90, 0.80, 0.40}
+    \definecolor{hugreen}{cmyk}{0.90, 0.10, 0.80, 0.40}
+    \definecolor{husand}{cmyk}{0.00, 0.05, 0.50, 0.20}
+    \definecolor{huslategreen}{cmyk}{0.00, 0.00, 0.10, 0.20}
+    \definecolor{huslateblue}{cmyk}{0.10, 0.00, 0.00, 0.20}
+    \tikzstyle{klein}=[font={\small}]
+    \tikzstyle{kleiner}=[font={\footnotesize}]
+    \tikzstyle{box}=[line width=2pt, draw=huslateblue, rounded corners, inner
+    sep=.2cm, shadeslate, drop shadow={opacity=.15}, shadow scale=1.05]
+    \tikzstyle{aktivbox}=[box, darkshadeslate]
+    \tikzstyle{nichtrundelinie}=[line width=2pt, draw=hublue, kleiner, color=hublue]
+    \tikzstyle{linie}=[nichtrundelinie, line cap=round]
+    \tikzstyle{pfeil}=[linie, -stealth']
+    \tikzstyle{doppelpfeil}=[linie, stealth'-stealth']
+    \tikzstyle{usb}=[line width=2pt, line cap=round, draw=black, decorate,
+    decoration=coil, kleiner]
+    \tikzstyle{rfid}=[decorate, decoration={expanding waves, angle=30, segment
+    length=6}, nichtrundelinie]
+    \tikzstyle{shadeslate}=[shade, top color=huslateblue!2, bottom color=huslateblue!10]
+    \tikzstyle{darkshadeslate}=[shade, top color=huslateblue!20, bottom
+    color=huslateblue!50]
+    \tikzstyle{internet}=[cloud, cloud ignores aspect, minimum height=1.5cm, kleiner,
+    line width=2pt, draw=huslateblue, inner sep=.2cm, darkshadeslate,
+    drop shadow={opacity=.15}, shadow scale=1.05]
+
+    \pgfdeclarelayer{foreground}
+    \pgfsetlayers{background,main,foreground}
+    [klein]
+    \tikzstyle{keks}=[to path={-- ++(.1,0) |- (\tikztotarget)}]
+
+    \tikzstyle{bla}=[shape=rectangle split, rectangle split parts=2,
+    every text node part/.style={align=center, klein}, text width=7cm,
+    every second node part/.style={kleiner}, inner sep=0pt]
+
+    \node (ccid-emulator)
+    {\texttt{ccid-emulator}};
+
+    \node (basis) [below=3of ccid-emulator]
+    {\includegraphics[keepaspectratio, height=2cm,
+        width=2cm]{%(wd)s/bilder/moko/basisleser_plain_klein.png}};
+    \node (basisbeschreibung) [below=0cm of basis, kleiner, text width=2cm]
+    {Reiner SCT RFID basis};
+
+    \node (npa) [left=1.5of basis]
+    {\includegraphics[keepaspectratio, height=3cm,
+        width=3cm]{%(wd)s/bilder/nPA_VS.png}};
+    \node (npabeschreibung) [below=0cm of npa, kleiner]
+    {German identity card};
+
+    \node (funktionenchat) [right=.6cm of ccid-emulator.east, anchor=text west, bla]
+    {
+        PACE
+        \nodepart{second}
+        \begin{itemize}
+
+        \item Display CHAT
+            \begin{itemize}
+                \item Display context (eID/eSign)
+                \item Display requested permissions
+            \end{itemize}
+
+            \item Display certificate description
+            \begin{itemize}
+                \item Identification of service provider
+                \item Display purpose of transaction
+            \end{itemize}
+
+            \item Secure PIN entry
+        \end{itemize}
+    };
+    \node (funktionenpace) [below=.5 of funktionenchat, bla]
+    {
+        Terminal Authentication
+        \nodepart{second}
+		\begin{itemize}
+            \item Verify authenticy of terminal
+            \item Check freshness of cv certificate
+        \end{itemize}
+    };
+
+    \begin{pgfonlayer}{background}
+        \node (box) [fit=(ccid-emulator) (basis) (basisbeschreibung)
+        (funktionenchat) (funktionenpace), box, inner sep=.5cm] {};
+        \node (boxbild) at (box.north west)
+        {\includegraphics[keepaspectratio, height=1.5cm,
+        width=1.5cm]{%(wd)s/bilder/moko/moko_reader.png}};
+        \node [right=0cm of boxbild.east, yshift=.3cm]
+        {Openmoko Neo FreeRunner};
+    \end{pgfonlayer}
+
+    \node (a) [above=1of npa]
+	{\includegraphics[keepaspectratio, height=3cm,
+	width=3cm]{%(wd)s/bilder/computer-tango.pdf}};
+
+
+    \begin{pgfonlayer}{background}
+        \path
+        (ccid-emulator) edge [doppelpfeil] (basis)
+        (basis) edge [rfid] (npa)
+        (a.center) edge [usb] (ccid-emulator)
+        (ccid-emulator.east) edge [pfeil, keks] (funktionenchat.text west)
+        (ccid-emulator.east) edge [pfeil, keks] (funktionenpace.text west);
+    \end{pgfonlayer}
+
 
 
 ========
@@ -71,3 +473,10 @@ You can download the latest release of the |vsmartcard| `here
 Alternatively, you can clone our git repository::
 
     git clone git://vsmartcard.git.sourceforge.net/gitroot/vsmartcard/vsmartcard
+
+
+References
+----------
+
+.. bibliography:: references.bib
+   :all:

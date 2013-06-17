@@ -35,7 +35,7 @@ needs_sphinx = '1.1'
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ["breathe", "sphinxcontrib.doxylink", "sphinx.ext.autosummary", "sphinxcontrib.programoutput", "sphinx.ext.inheritance_diagram"]
+extensions = ["breathe", "sphinxcontrib.doxylink", "sphinx.ext.autosummary", "sphinxcontrib.programoutput", "sphinx.ext.inheritance_diagram", "sphinxcontrib.tikz", 'sphinxcontrib.bibtex']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

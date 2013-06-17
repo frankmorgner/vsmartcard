@@ -69,6 +69,89 @@ The USB CCID Emulator is implemented using GadgetFS_. Some fragments of the sour
 code are based on the GadgetFS example and on the source code of the OpenSC
 tools.
 
+.. tikz:: Software stack of the USB CCID Emulator running on the OpenMoko Neo FreeRunner
+    :libs: arrows, calc, fit, patterns, plotmarks, shapes.geometric, shapes.misc, shapes.symbols, shapes.arrows, shapes.callouts, shapes.multipart, shapes.gates.logic.US, shapes.gates.logic.IEC, er, automata, backgrounds, chains, topaths, trees, petri, mindmap, matrix, calendar, folding, fadings, through, positioning, scopes, decorations.fractals, decorations.shapes, decorations.text, decorations.pathmorphing, decorations.pathreplacing, decorations.footprints, decorations.markings, shadows
+
+    \definecolor{hublue}{cmyk}{1.00, 0.60, 0.00, 0.20}
+    \definecolor{hured}{cmyk}{0.00, 0.90, 0.80, 0.40}
+    \definecolor{hugreen}{cmyk}{0.90, 0.10, 0.80, 0.40}
+    \definecolor{husand}{cmyk}{0.00, 0.05, 0.50, 0.20}
+    \definecolor{huslategreen}{cmyk}{0.00, 0.00, 0.10, 0.20}
+    \definecolor{huslateblue}{cmyk}{0.10, 0.00, 0.00, 0.20}
+    \tikzstyle{klein}=[font={\small}]
+    \tikzstyle{kleiner}=[font={\footnotesize}]
+    \tikzstyle{box}=[line width=2pt, draw=huslateblue, rounded corners, inner
+    sep=.2cm, shadeslate, drop shadow={opacity=.15}, shadow scale=1.05]
+    \tikzstyle{aktivbox}=[box, darkshadeslate]
+    \tikzstyle{nichtrundelinie}=[line width=2pt, draw=hublue, kleiner, color=hublue]
+    \tikzstyle{linie}=[nichtrundelinie, line cap=round]
+    \tikzstyle{pfeil}=[linie, -stealth']
+    \tikzstyle{doppelpfeil}=[linie, stealth'-stealth']
+    \tikzstyle{usb}=[line width=2pt, line cap=round, draw=black, decorate,
+    decoration=coil, kleiner]
+    \tikzstyle{rfid}=[decorate, decoration={expanding waves, angle=30, segment
+    length=6}, nichtrundelinie]
+    \tikzstyle{shadeslate}=[shade, top color=huslateblue!2, bottom color=huslateblue!10]
+    \tikzstyle{darkshadeslate}=[shade, top color=huslateblue!20, bottom
+    color=huslateblue!50]
+    \tikzstyle{internet}=[cloud, cloud ignores aspect, minimum height=1.5cm, kleiner,
+    line width=2pt, draw=huslateblue, inner sep=.2cm, darkshadeslate,
+    drop shadow={opacity=.15}, shadow scale=1.05]
+
+    \pgfdeclarelayer{foreground}
+    \pgfsetlayers{background,main,foreground}
+    [klein]
+    \tikzstyle{schicht}=[text width=5cm, align=right]
+    \tikzstyle{fade down}=[path fading=south, color=huslateblue]
+
+	\node (kernel)
+    [box, shape=rectangle split, rectangle split parts=3, kleiner]
+	{Linux  Kernel
+	\nodepart{second}
+    \footnotesize S3C24xx Controller Driver
+	\nodepart{third}
+    \footnotesize GadgetFS
+	};
+
+	\node (ccid)
+	[aktivbox, shape=rectangle split, rectangle split parts=2, below=of kernel]
+	{CCID Emulator
+	\nodepart{second}
+    \texttt{usb}\qquad\texttt{ccid}
+	};
+	\draw [box] ($(ccid.text split)-(.05cm,0)$) -- ($(ccid.south)-(.05cm,0)$);
+
+	\node (opensc) [box, below=of ccid, kleiner] {\texttt{libnpa} or OpenSC};
+
+    \node (controller) [klein, right=0of kernel.two east, schicht]
+    {Driver for USB Controller};
+    \node (gadget) [klein, right=0of kernel.three east, schicht]
+    {Gadget Driver};
+    \node (upper) [klein, right=0of kernel.three east, schicht, yshift=-1.75cm]
+    {Upper Layers};
+
+    \tikzstyle{rechts}=[to path={-- ++(1,0) |- (\tikztotarget)}]
+    \tikzstyle{links}=[to path={-- ++(-1,0) |- (\tikztotarget)}]
+    \begin{pgfonlayer}{background}
+        \path
+        (ccid.two west) edge [links, linie] (kernel.three west)
+        (ccid.two east) edge [rechts, linie] (opensc.east)
+        ;
+
+        \path [color=black!30]
+        (controller.north east) edge +(-9,0)
+        (gadget.north east) edge +(-9,0)
+        (upper.north east) edge +(-9,0)
+        ;
+    \end{pgfonlayer}
+
+    \node [kleiner, anchor=east, text width=3cm]
+    at ($($(ccid.two west)+(-3,0)$)!.5!(kernel.three west)$)
+    {\color{hublue}
+    \texttt{/dev/gadget/ep1-bulk}\\
+    \texttt{/dev/gadget/ep2-bulk}\\
+    \texttt{/dev/gadget/ep3-bulk}\\};
+
 
 
 .. include:: download.txt
