@@ -36,38 +36,10 @@ transparent SM usage in OpenSC. This allows nPA Smart Card Library to be fully
 compatible with OpenSC.
 
 .. tikz:: Architecture of the nPA Smart Card Library
+    :stringsubst:
     :libs: arrows, calc, fit, patterns, plotmarks, shapes.geometric, shapes.misc, shapes.symbols, shapes.arrows, shapes.callouts, shapes.multipart, shapes.gates.logic.US, shapes.gates.logic.IEC, er, automata, backgrounds, chains, topaths, trees, petri, mindmap, matrix, calendar, folding, fadings, through, positioning, scopes, decorations.fractals, decorations.shapes, decorations.text, decorations.pathmorphing, decorations.pathreplacing, decorations.footprints, decorations.markings, shadows
  
-
-    \definecolor{hublue}{cmyk}{1.00, 0.60, 0.00, 0.20}
-    \definecolor{hured}{cmyk}{0.00, 0.90, 0.80, 0.40}
-    \definecolor{hugreen}{cmyk}{0.90, 0.10, 0.80, 0.40}
-    \definecolor{husand}{cmyk}{0.00, 0.05, 0.50, 0.20}
-    \definecolor{huslategreen}{cmyk}{0.00, 0.00, 0.10, 0.20}
-    \definecolor{huslateblue}{cmyk}{0.10, 0.00, 0.00, 0.20}
-    \tikzstyle{kleiner}=[font={\footnotesize}]
-    \tikzstyle{klein}=[font={\small}]
-    \tikzstyle{box}=[line width=2pt, draw=huslateblue, rounded corners, inner
-    sep=.2cm, shadeslate, drop shadow={opacity=.15}, shadow scale=1.05]
-    \tikzstyle{aktivbox}=[box, darkshadeslate]
-    \tikzstyle{nichtrundelinie}=[line width=2pt, draw=hublue, kleiner, color=hublue]
-    \tikzstyle{linie}=[nichtrundelinie, line cap=round]
-    \tikzstyle{pfeil}=[linie, -stealth']
-    \tikzstyle{doppelpfeil}=[linie, stealth'-stealth']
-    \tikzstyle{usb}=[line width=2pt, line cap=round, draw=black, decorate,
-    decoration=coil, kleiner]
-    \tikzstyle{rfid}=[decorate, decoration={expanding waves, angle=30, segment
-    length=6}, nichtrundelinie]
-    \tikzstyle{shadeslate}=[shade, top color=huslateblue!2, bottom color=huslateblue!10]
-    \tikzstyle{darkshadeslate}=[shade, top color=huslateblue!20, bottom
-    color=huslateblue!50]
-    \tikzstyle{internet}=[cloud, cloud ignores aspect, minimum height=1.5cm, kleiner,
-    line width=2pt, draw=huslateblue, inner sep=.2cm, darkshadeslate,
-    drop shadow={opacity=.15}, shadow scale=1.05]
-
-    \pgfdeclarelayer{foreground}
-    \pgfsetlayers{background,main,foreground}
-    [klein]
+    \input{%(wd)s/bilder/tikzstyles.tex}
     \node (npa-tool) [aktivbox] {\texttt{npa-tool}};
     \node (libnpa) [box, below=of npa-tool] {\texttt{libnpa}};
 	\node (opensc)

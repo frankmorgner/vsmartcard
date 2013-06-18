@@ -11,38 +11,11 @@ projects concerned with the emulation of different types of smart card readers
 or smart cards themselves.
 
 .. tikz:: |vsmartcard| connects different aspects of smart card handling
+    :stringsubst:
     :libs: arrows, calc, fit, patterns, plotmarks, shapes.geometric, shapes.misc, shapes.symbols, shapes.arrows, shapes.callouts, shapes.multipart, shapes.gates.logic.US, shapes.gates.logic.IEC, er, automata, backgrounds, chains, topaths, trees, petri, mindmap, matrix, calendar, folding, fadings, through, positioning, scopes, decorations.fractals, decorations.shapes, decorations.text, decorations.pathmorphing, decorations.pathreplacing, decorations.footprints, decorations.markings, shadows
 
-    \definecolor{hublue}{cmyk}{1.00, 0.60, 0.00, 0.20}
-    \definecolor{hured}{cmyk}{0.00, 0.90, 0.80, 0.40}
-    \definecolor{hugreen}{cmyk}{0.90, 0.10, 0.80, 0.40}
-    \definecolor{husand}{cmyk}{0.00, 0.05, 0.50, 0.20}
-    \definecolor{huslategreen}{cmyk}{0.00, 0.00, 0.10, 0.20}
-    \definecolor{huslateblue}{cmyk}{0.10, 0.00, 0.00, 0.20}
-    \tikzstyle{klein}=[font={\small}]
-    \tikzstyle{kleiner}=[font={\footnotesize}]
-    \tikzstyle{box}=[line width=2pt, draw=huslateblue, rounded corners, inner
-    sep=.2cm, shadeslate, drop shadow={opacity=.15}, shadow scale=1.05]
-    \tikzstyle{aktivbox}=[box, darkshadeslate]
-    \tikzstyle{nichtrundelinie}=[line width=2pt, draw=hublue, kleiner, color=hublue]
-    \tikzstyle{linie}=[nichtrundelinie, line cap=round]
-    \tikzstyle{pfeil}=[linie, -stealth']
-    \tikzstyle{doppelpfeil}=[linie, stealth'-stealth']
-    \tikzstyle{usb}=[line width=2pt, line cap=round, draw=black, decorate,
-    decoration=coil, kleiner]
-    \tikzstyle{rfid}=[decorate, decoration={expanding waves, angle=30, segment
-    length=6}, nichtrundelinie]
-    \tikzstyle{shadeslate}=[shade, top color=huslateblue!2, bottom color=huslateblue!10]
-    \tikzstyle{darkshadeslate}=[shade, top color=huslateblue!20, bottom
-    color=huslateblue!50]
-    \tikzstyle{internet}=[cloud, cloud ignores aspect, minimum height=1.5cm, kleiner,
-    line width=2pt, draw=huslateblue, inner sep=.2cm, darkshadeslate,
-    drop shadow={opacity=.15}, shadow scale=1.05]
-
-    \pgfdeclarelayer{foreground}
-    \pgfsetlayers{background,main,foreground}
+    \input{%(wd)s/bilder/tikzstyles.tex}
     \tikzstyle{bla}=[box, klein, rounded rectangle,  inner sep=.3cm]
-    
     \node (a) {};
 
     \node[bla, above left=.5cm of a]
@@ -98,35 +71,7 @@ Mobile Phone with Virtual Smartcard connected via NFC
     :stringsubst:
     :libs: arrows, calc, fit, patterns, plotmarks, shapes.geometric, shapes.misc, shapes.symbols, shapes.arrows, shapes.callouts, shapes.multipart, shapes.gates.logic.US, shapes.gates.logic.IEC, er, automata, backgrounds, chains, topaths, trees, petri, mindmap, matrix, calendar, folding, fadings, through, positioning, scopes, decorations.fractals, decorations.shapes, decorations.text, decorations.pathmorphing, decorations.pathreplacing, decorations.footprints, decorations.markings, shadows
 
-    \definecolor{hublue}{cmyk}{1.00, 0.60, 0.00, 0.20}
-    \definecolor{hured}{cmyk}{0.00, 0.90, 0.80, 0.40}
-    \definecolor{hugreen}{cmyk}{0.90, 0.10, 0.80, 0.40}
-    \definecolor{husand}{cmyk}{0.00, 0.05, 0.50, 0.20}
-    \definecolor{huslategreen}{cmyk}{0.00, 0.00, 0.10, 0.20}
-    \definecolor{huslateblue}{cmyk}{0.10, 0.00, 0.00, 0.20}
-    \tikzstyle{klein}=[font={\small}]
-    \tikzstyle{kleiner}=[font={\footnotesize}]
-    \tikzstyle{box}=[line width=2pt, draw=huslateblue, rounded corners, inner
-    sep=.2cm, shadeslate, drop shadow={opacity=.15}, shadow scale=1.05]
-    \tikzstyle{aktivbox}=[box, darkshadeslate]
-    \tikzstyle{nichtrundelinie}=[line width=2pt, draw=hublue, kleiner, color=hublue]
-    \tikzstyle{linie}=[nichtrundelinie, line cap=round]
-    \tikzstyle{pfeil}=[linie, -stealth']
-    \tikzstyle{doppelpfeil}=[linie, stealth'-stealth']
-    \tikzstyle{usb}=[line width=2pt, line cap=round, draw=black, decorate,
-    decoration=coil, kleiner]
-    \tikzstyle{rfid}=[decorate, decoration={expanding waves, angle=30, segment
-    length=6}, nichtrundelinie]
-    \tikzstyle{shadeslate}=[shade, top color=huslateblue!2, bottom color=huslateblue!10]
-    \tikzstyle{darkshadeslate}=[shade, top color=huslateblue!20, bottom
-    color=huslateblue!50]
-    \tikzstyle{internet}=[cloud, cloud ignores aspect, minimum height=1.5cm, kleiner,
-    line width=2pt, draw=huslateblue, inner sep=.2cm, darkshadeslate,
-    drop shadow={opacity=.15}, shadow scale=1.05]
-
-    \pgfdeclarelayer{foreground}
-    \pgfsetlayers{background,main,foreground}
-    [klein]
+    \input{%(wd)s/bilder/tikzstyles.tex}
     \tikzstyle{bla}=[kleiner, text width=.45\textwidth]
 
     \node (antenna)
@@ -167,35 +112,7 @@ Mobile Phone with Virtual Smartcard connected via NFC
     :stringsubst:
     :libs: arrows, calc, fit, patterns, plotmarks, shapes.geometric, shapes.misc, shapes.symbols, shapes.arrows, shapes.callouts, shapes.multipart, shapes.gates.logic.US, shapes.gates.logic.IEC, er, automata, backgrounds, chains, topaths, trees, petri, mindmap, matrix, calendar, folding, fadings, through, positioning, scopes, decorations.fractals, decorations.shapes, decorations.text, decorations.pathmorphing, decorations.pathreplacing, decorations.footprints, decorations.markings, shadows
 
-    \definecolor{hublue}{cmyk}{1.00, 0.60, 0.00, 0.20}
-    \definecolor{hured}{cmyk}{0.00, 0.90, 0.80, 0.40}
-    \definecolor{hugreen}{cmyk}{0.90, 0.10, 0.80, 0.40}
-    \definecolor{husand}{cmyk}{0.00, 0.05, 0.50, 0.20}
-    \definecolor{huslategreen}{cmyk}{0.00, 0.00, 0.10, 0.20}
-    \definecolor{huslateblue}{cmyk}{0.10, 0.00, 0.00, 0.20}
-    \tikzstyle{klein}=[font={\small}]
-    \tikzstyle{kleiner}=[font={\footnotesize}]
-    \tikzstyle{box}=[line width=2pt, draw=huslateblue, rounded corners, inner
-    sep=.2cm, shadeslate, drop shadow={opacity=.15}, shadow scale=1.05]
-    \tikzstyle{aktivbox}=[box, darkshadeslate]
-    \tikzstyle{nichtrundelinie}=[line width=2pt, draw=hublue, kleiner, color=hublue]
-    \tikzstyle{linie}=[nichtrundelinie, line cap=round]
-    \tikzstyle{pfeil}=[linie, -stealth']
-    \tikzstyle{doppelpfeil}=[linie, stealth'-stealth']
-    \tikzstyle{usb}=[line width=2pt, line cap=round, draw=black, decorate,
-    decoration=coil, kleiner]
-    \tikzstyle{rfid}=[decorate, decoration={expanding waves, angle=30, segment
-    length=6}, nichtrundelinie]
-    \tikzstyle{shadeslate}=[shade, top color=huslateblue!2, bottom color=huslateblue!10]
-    \tikzstyle{darkshadeslate}=[shade, top color=huslateblue!20, bottom
-    color=huslateblue!50]
-    \tikzstyle{internet}=[cloud, cloud ignores aspect, minimum height=1.5cm, kleiner,
-    line width=2pt, draw=huslateblue, inner sep=.2cm, darkshadeslate,
-    drop shadow={opacity=.15}, shadow scale=1.05]
-
-    \pgfdeclarelayer{foreground}
-    \pgfsetlayers{background,main,foreground}
-    [klein]
+    \input{%(wd)s/bilder/tikzstyles.tex}
     \tikzstyle{bla}=[shape=rectangle split, rectangle split parts=2,
     every text node part/.style={align=center, klein}, text width=7cm,
     every second node part/.style={kleiner}, inner sep=0pt]
@@ -281,35 +198,7 @@ Mobile Smart Card Reader
     :stringsubst:
     :libs: arrows, calc, fit, patterns, plotmarks, shapes.geometric, shapes.misc, shapes.symbols, shapes.arrows, shapes.callouts, shapes.multipart, shapes.gates.logic.US, shapes.gates.logic.IEC, er, automata, backgrounds, chains, topaths, trees, petri, mindmap, matrix, calendar, folding, fadings, through, positioning, scopes, decorations.fractals, decorations.shapes, decorations.text, decorations.pathmorphing, decorations.pathreplacing, decorations.footprints, decorations.markings, shadows
 
-    \definecolor{hublue}{cmyk}{1.00, 0.60, 0.00, 0.20}
-    \definecolor{hured}{cmyk}{0.00, 0.90, 0.80, 0.40}
-    \definecolor{hugreen}{cmyk}{0.90, 0.10, 0.80, 0.40}
-    \definecolor{husand}{cmyk}{0.00, 0.05, 0.50, 0.20}
-    \definecolor{huslategreen}{cmyk}{0.00, 0.00, 0.10, 0.20}
-    \definecolor{huslateblue}{cmyk}{0.10, 0.00, 0.00, 0.20}
-    \tikzstyle{klein}=[font={\small}]
-    \tikzstyle{kleiner}=[font={\footnotesize}]
-    \tikzstyle{box}=[line width=2pt, draw=huslateblue, rounded corners, inner
-    sep=.2cm, shadeslate, drop shadow={opacity=.15}, shadow scale=1.05]
-    \tikzstyle{aktivbox}=[box, darkshadeslate]
-    \tikzstyle{nichtrundelinie}=[line width=2pt, draw=hublue, kleiner, color=hublue]
-    \tikzstyle{linie}=[nichtrundelinie, line cap=round]
-    \tikzstyle{pfeil}=[linie, -stealth']
-    \tikzstyle{doppelpfeil}=[linie, stealth'-stealth']
-    \tikzstyle{usb}=[line width=2pt, line cap=round, draw=black, decorate,
-    decoration=coil, kleiner]
-    \tikzstyle{rfid}=[decorate, decoration={expanding waves, angle=30, segment
-    length=6}, nichtrundelinie]
-    \tikzstyle{shadeslate}=[shade, top color=huslateblue!2, bottom color=huslateblue!10]
-    \tikzstyle{darkshadeslate}=[shade, top color=huslateblue!20, bottom
-    color=huslateblue!50]
-    \tikzstyle{internet}=[cloud, cloud ignores aspect, minimum height=1.5cm, kleiner,
-    line width=2pt, draw=huslateblue, inner sep=.2cm, darkshadeslate,
-    drop shadow={opacity=.15}, shadow scale=1.05]
-
-    \pgfdeclarelayer{foreground}
-    \pgfsetlayers{background,main,foreground}
-    [klein]
+    \input{%(wd)s/bilder/tikzstyles.tex}
     \tikzstyle{bla}=[kleiner, text width=.45\textwidth]
 
     \node (reader)
@@ -356,35 +245,7 @@ Mobile Smart Card Reader
     :stringsubst:
     :libs: arrows, calc, fit, patterns, plotmarks, shapes.geometric, shapes.misc, shapes.symbols, shapes.arrows, shapes.callouts, shapes.multipart, shapes.gates.logic.US, shapes.gates.logic.IEC, er, automata, backgrounds, chains, topaths, trees, petri, mindmap, matrix, calendar, folding, fadings, through, positioning, scopes, decorations.fractals, decorations.shapes, decorations.text, decorations.pathmorphing, decorations.pathreplacing, decorations.footprints, decorations.markings, shadows
 
-    \definecolor{hublue}{cmyk}{1.00, 0.60, 0.00, 0.20}
-    \definecolor{hured}{cmyk}{0.00, 0.90, 0.80, 0.40}
-    \definecolor{hugreen}{cmyk}{0.90, 0.10, 0.80, 0.40}
-    \definecolor{husand}{cmyk}{0.00, 0.05, 0.50, 0.20}
-    \definecolor{huslategreen}{cmyk}{0.00, 0.00, 0.10, 0.20}
-    \definecolor{huslateblue}{cmyk}{0.10, 0.00, 0.00, 0.20}
-    \tikzstyle{klein}=[font={\small}]
-    \tikzstyle{kleiner}=[font={\footnotesize}]
-    \tikzstyle{box}=[line width=2pt, draw=huslateblue, rounded corners, inner
-    sep=.2cm, shadeslate, drop shadow={opacity=.15}, shadow scale=1.05]
-    \tikzstyle{aktivbox}=[box, darkshadeslate]
-    \tikzstyle{nichtrundelinie}=[line width=2pt, draw=hublue, kleiner, color=hublue]
-    \tikzstyle{linie}=[nichtrundelinie, line cap=round]
-    \tikzstyle{pfeil}=[linie, -stealth']
-    \tikzstyle{doppelpfeil}=[linie, stealth'-stealth']
-    \tikzstyle{usb}=[line width=2pt, line cap=round, draw=black, decorate,
-    decoration=coil, kleiner]
-    \tikzstyle{rfid}=[decorate, decoration={expanding waves, angle=30, segment
-    length=6}, nichtrundelinie]
-    \tikzstyle{shadeslate}=[shade, top color=huslateblue!2, bottom color=huslateblue!10]
-    \tikzstyle{darkshadeslate}=[shade, top color=huslateblue!20, bottom
-    color=huslateblue!50]
-    \tikzstyle{internet}=[cloud, cloud ignores aspect, minimum height=1.5cm, kleiner,
-    line width=2pt, draw=huslateblue, inner sep=.2cm, darkshadeslate,
-    drop shadow={opacity=.15}, shadow scale=1.05]
-
-    \pgfdeclarelayer{foreground}
-    \pgfsetlayers{background,main,foreground}
-    [klein]
+    \input{%(wd)s/bilder/tikzstyles.tex}
     \tikzstyle{keks}=[to path={-- ++(.1,0) |- (\tikztotarget)}]
 
     \tikzstyle{bla}=[shape=rectangle split, rectangle split parts=2,
