@@ -89,18 +89,18 @@ int boxing_pace_input_to_buf(sc_context_t *ctx,
 
     sc_copy_asn1_entry(g_EstablishPACEChannelInput_data,
             EstablishPACEChannelInput_data);
-    sc_format_asn1_entry(EstablishPACEChannelInput_data,
+    sc_format_asn1_entry(EstablishPACEChannelInput_data+0,
             (unsigned char *) &input->pin_id, &pin_id_len, 1);
     if (input->pin)
-        sc_format_asn1_entry(EstablishPACEChannelInput_data,
+        sc_format_asn1_entry(EstablishPACEChannelInput_data+1,
                 (unsigned char *) input->pin,
                 (size_t *) &input->pin_length, 1);
     if (input->chat)
-        sc_format_asn1_entry(EstablishPACEChannelInput_data,
+        sc_format_asn1_entry(EstablishPACEChannelInput_data+2,
                 (unsigned char *) input->chat,
                 (size_t *) &input->chat_length, 1);
     if (input->certificate_description)
-        sc_format_asn1_entry(EstablishPACEChannelInput_data,
+        sc_format_asn1_entry(EstablishPACEChannelInput_data+3,
                 (unsigned char *) input->certificate_description,
                 (size_t *) &input->certificate_description_length, 1);
 
