@@ -129,11 +129,11 @@ int boxing_buf_to_pace_input(sc_context_t *ctx,
     sc_format_asn1_entry(EstablishPACEChannelInput_data+0,
             &input->pin_id, &pin_id_len, 0);
     sc_format_asn1_entry(EstablishPACEChannelInput_data+1,
-            (unsigned char *) input->pin, &input->pin_length, 0);
+            (unsigned char *) &input->pin, &input->pin_length, 0);
     sc_format_asn1_entry(EstablishPACEChannelInput_data+2,
-            (unsigned char *) input->chat, &input->chat_length, 0);
+            (unsigned char *) &input->chat, &input->chat_length, 0);
     sc_format_asn1_entry(EstablishPACEChannelInput_data+3,
-            (unsigned char *) input->certificate_description,
+            (unsigned char *) &input->certificate_description,
             &input->certificate_description_length, 0);
 
     LOG_TEST_RET(ctx,
@@ -213,13 +213,13 @@ int boxing_buf_to_pace_output(sc_context_t *ctx,
     sc_format_asn1_entry(EstablishPACEChannelOutput_data+1,
             &status_mse_set_at,    &status_mse_set_at_len, 0);
     sc_format_asn1_entry(EstablishPACEChannelOutput_data+2,
-            output->ef_cardaccess, &output->ef_cardaccess_length, 0);
+            &output->ef_cardaccess, &output->ef_cardaccess_length, 0);
     sc_format_asn1_entry(EstablishPACEChannelOutput_data+3,
-            output->id_icc,        &output->id_icc_length, 0);
+            &output->id_icc,        &output->id_icc_length, 0);
     sc_format_asn1_entry(EstablishPACEChannelOutput_data+4,
-            output->recent_car,    &output->recent_car_length, 0);
+            &output->recent_car,    &output->recent_car_length, 0);
     sc_format_asn1_entry(EstablishPACEChannelOutput_data+5,
-            output->previous_car,  &output->previous_car_length, 0);
+            &output->previous_car,  &output->previous_car_length, 0);
 
     LOG_TEST_RET(ctx,
             sc_asn1_decode(ctx, EstablishPACEChannel,
