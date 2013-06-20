@@ -195,7 +195,7 @@ static int get_rapdu(sc_apdu_t *apdu, __u8 **buf, size_t *resplen)
     }
     *buf = apdu->resp;
 
-    if (apdu->cla == 0XFF) {
+    if (apdu->cla == 0xff) {
         sc_result = perform_pseudo_apdu(card->reader, apdu);
     } else {
         sc_result = sc_transmit_apdu(card, apdu);
@@ -527,6 +527,7 @@ perform_pseudo_apdu(sc_reader_t *reader, sc_apdu_t *apdu)
     if (!reader || !apdu || apdu->cla != 0xff)
         return SC_ERROR_INVALID_ARGUMENTS;
 
+    apdu->resplen = 0;
 	switch (apdu->ins) {
 		case 0x9A:
 
@@ -534,7 +535,6 @@ perform_pseudo_apdu(sc_reader_t *reader, sc_apdu_t *apdu)
                 case 0x01:
                     /* GetReaderInfo */
                     if (apdu->datalen != 0) {
-                        apdu->resplen = 0;
                         apdu->sw1 = iso_sw_incorrect_p1_p2.sw1;
                         apdu->sw2 = iso_sw_incorrect_p1_p2.sw2;
                         goto err;
@@ -563,7 +563,6 @@ perform_pseudo_apdu(sc_reader_t *reader, sc_apdu_t *apdu)
                             memcpy(apdu->resp, Treiberversion, apdu->resplen);
                             break;
                         default:
-                            apdu->resplen = 0;
                             apdu->sw1 = iso_sw_ref_data_not_found.sw1;
                             apdu->sw2 = iso_sw_ref_data_not_found.sw2;
                             goto err;
@@ -572,7 +571,7 @@ perform_pseudo_apdu(sc_reader_t *reader, sc_apdu_t *apdu)
 
                 case 0x04:
                     switch (apdu->p2) {
-                        case 0x04:
+                        case 0x10:
                             /* VerifyPIN/ModifyPIN */
                             LOG_TEST_RET(ctx,
                                     perform_PC_to_RDR_Secure(apdu->data, apdu->datalen, &apdu->resp, &apdu->resplen),
@@ -1296,26 +1295,17 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
 			/* bTeoPrologue adds another 3 bytes */
             abPINApdu = (__u8*) modify + sizeof *modify + 3*(sizeof(__u8));
             apdulen = __le32_to_cpu(request->dwLength) - sizeof *modify - 4*sizeof(__u8);
-            if (bNumberMessage != 0x00) {
-                /* bMsgIndex2 is present */
-                abPINApdu++;
-                apdulen--;
-                if (abDatalen < sizeof *modify + 4*(sizeof(__u8))) {
-                    sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Not enough data for abPINDataStucture_Modification_t");
-                    sc_result = SC_ERROR_INVALID_DATA;
-                    goto err;
-                }
-
-                if (bNumberMessage == 0x03) {
+            switch (bNumberMessage) {
+                case 0x03:
                     /* bMsgIndex3 is present */
                     abPINApdu++;
                     apdulen--;
-                    if (abDatalen < sizeof *modify + 5*(sizeof(__u8))) {
-                        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Not enough data for abPINDataStucture_Modification_t");
-                        sc_result = SC_ERROR_INVALID_DATA;
-                        goto err;
-                    }
-                }
+                    /* fall through */
+                case 0x02:
+                    /* bMsgIndex2 is present */
+                    abPINApdu++;
+                    apdulen--;
+                    break;
             }
             break;
         case 0x10:
