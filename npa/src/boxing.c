@@ -19,12 +19,32 @@
  * libnpa.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ccid-types.h"
 #include <libopensc/asn1.h>
 #include <libopensc/log.h>
 #include <libopensc/opensc.h>
 #include <libopensc/pace.h>
+#include <npa/boxing.h>
 #include <stdlib.h>
 #include <string.h>
+
+#if _WIN32
+/* FIXME might not always work */
+#define htole16(x) (x)
+#define htole32(x) (x)
+#else
+#ifndef _BSD_SOURCE
+#define _BSD_SOURCE             /* See feature_test_macros(7) */
+#endif
+#include <endian.h>
+#endif
+
+#if HAVE_SC_APDU_GET_OCTETS
+#include "libopensc/internal.h"
+#else
+/* Pull request for exporting sc_apdu_get_octets is pending. */
+#include "libopensc/apdu.c"
+#endif
 
 static const u8 boxing_cla                          = 0xff;
 static const u8 boxing_ins                          = 0x9a;
@@ -209,9 +229,9 @@ int boxing_buf_to_pace_output(sc_context_t *ctx,
     sc_copy_asn1_entry(g_EstablishPACEChannelOutput_data,
             EstablishPACEChannelOutput_data);
     sc_format_asn1_entry(EstablishPACEChannelOutput_data+0,
-            &output->result,       &result_len, 0);
+            &output->result,        &result_len, 0);
     sc_format_asn1_entry(EstablishPACEChannelOutput_data+1,
-            &status_mse_set_at,    &status_mse_set_at_len, 0);
+            &status_mse_set_at,     &status_mse_set_at_len, 0);
     sc_format_asn1_entry(EstablishPACEChannelOutput_data+2,
             &output->ef_cardaccess, &output->ef_cardaccess_length, 0);
     sc_format_asn1_entry(EstablishPACEChannelOutput_data+3,
@@ -236,9 +256,256 @@ int boxing_buf_to_pace_output(sc_context_t *ctx,
     return SC_SUCCESS;
 }
 
-static int boxing_perform_verify(struct sc_reader *reader, struct sc_pin_cmd_data *data)
+#define CCID_PIN_TIMEOUT	30
+#define CCID_DISPLAY_DEFAULT    0xff
+static int boxing_pin_cmd_to_buf(sc_context_t *ctx,
+        const struct sc_pin_cmd_data *data,
+        unsigned char **pc_to_rdr_secure, size_t *pc_to_rdr_secure_len)
 {
-    return SC_ERROR_NOT_SUPPORTED;
+    PC_to_RDR_Secure_t *secure;
+    abPINDataStucture_Modification_t *modify;
+    abPINDataStucture_Verification_t *verify;
+    uint16_t wLangId = 0,
+             bTeoPrologue2 = 0,
+             wPINMaxExtraDigit;
+    uint8_t bTimeOut = CCID_PIN_TIMEOUT,
+            bNumberMessage = CCID_DISPLAY_DEFAULT,
+            bTeoPrologue1 = 0,
+            bMsgIndex = 0,
+            bMessageType = 0x69,
+            bSlot = 0,
+            bSeq = 0,
+            bBWI = 0xff,
+            wLevelParameter = 0,
+            bEntryValidationCondition = CCID_ENTRY_VALIDATE,
+            bmFormatString, bmPINLengthFormat, bmPINBlockString;
+    const struct sc_pin_cmd_pin *pin_ref;
+    int r;
+    unsigned char *pinapdu = NULL;
+    size_t pinapdu_len = 0;
+
+    if (!data || !pc_to_rdr_secure || !pc_to_rdr_secure_len) {
+        r = SC_ERROR_INVALID_ARGUMENTS;
+        goto err;
+    }
+
+    pin_ref = data->flags & SC_PIN_CMD_IMPLICIT_CHANGE ?
+        &data->pin2 : &data->pin1;
+
+    wPINMaxExtraDigit = htole16(
+            (0xff & pin_ref->min_length) << 8)
+            | (pin_ref->max_length & 0xff);
+
+    bmFormatString = CCID_PIN_UNITS_BYTES
+        | ((pin_ref->offset & 0xf) << 3);
+    switch (pin_ref->encoding) {
+        case SC_PIN_ENCODING_ASCII:
+            bmFormatString |= CCID_PIN_ENCODING_ASCII;
+            break;
+        case SC_PIN_ENCODING_BCD:
+            bmFormatString |= CCID_PIN_ENCODING_BCD;
+            break;
+        default:
+            r = SC_ERROR_INVALID_ARGUMENTS;
+            goto err;
+    }
+
+    /* GLP PINs expect the effective PIN length from bit 4 */
+	bmPINLengthFormat = pin_ref->encoding == SC_PIN_ENCODING_GLP ?
+        0x04 : 0x00;
+
+	if (pin_ref->encoding == SC_PIN_ENCODING_GLP) {
+		/* GLP PIN length is encoded in 4 bits and block size is always 8 bytes */
+		bmPINBlockString = 0x40 | 0x08;
+	} else if (pin_ref->encoding == SC_PIN_ENCODING_ASCII && data->flags & SC_PIN_CMD_NEED_PADDING) {
+		bmPINBlockString = pin_ref->pad_length;
+	} else {
+        bmPINBlockString = 0x00;
+    }
+
+    r = sc_apdu_get_octets(ctx, data->apdu, &pinapdu, &pinapdu_len,
+            SC_PROTO_T1);
+    if (r < 0)
+        goto err;
+
+    switch (data->cmd) {
+        case SC_PIN_CMD_VERIFY:
+            *pc_to_rdr_secure_len = sizeof *secure + 1
+                + sizeof *verify + pinapdu_len;
+            break;
+
+        case SC_PIN_CMD_CHANGE:
+            *pc_to_rdr_secure_len = sizeof *secure + 1
+                + sizeof *modify + 3 + pinapdu_len;
+            break;
+
+        default:
+            r = SC_ERROR_INVALID_ARGUMENTS;
+            goto err;
+    }
+
+    *pc_to_rdr_secure = malloc(*pc_to_rdr_secure_len);
+    if (!*pc_to_rdr_secure) {
+        r = SC_ERROR_OUT_OF_MEMORY;
+        goto err;
+    }
+    secure = (PC_to_RDR_Secure_t *) *pc_to_rdr_secure;
+    secure->bMessageType = bMessageType;
+    secure->dwLength = htole32((*pc_to_rdr_secure_len) - sizeof *secure);
+    secure->bSlot = bSlot;
+    secure->bSeq = bSeq;
+    secure->bBWI = bBWI;
+    secure->wLevelParameter = wLevelParameter;
+
+    switch (data->cmd) {
+        case SC_PIN_CMD_VERIFY:
+            /* bPINOperation */
+            *((*pc_to_rdr_secure) + sizeof *secure) = CCID_OPERATION_VERIFY;
+            verify = (abPINDataStucture_Verification_t *)
+                ((*pc_to_rdr_secure) + sizeof *secure + 1);
+            verify->bTimeOut = bTimeOut;
+            verify->bmFormatString = bmFormatString;
+            verify->bmPINBlockString = bmPINBlockString;
+            verify->bmPINLengthFormat = bmPINLengthFormat;
+            verify->wPINMaxExtraDigit = wPINMaxExtraDigit;
+            verify->bEntryValidationCondition = bEntryValidationCondition;
+            verify->bNumberMessage = bNumberMessage;
+            verify->wLangId = wLangId;
+            verify->bMsgIndex = bMsgIndex;
+            verify->bTeoPrologue1 = bTeoPrologue1;
+            verify->bTeoPrologue2 = bTeoPrologue2;
+
+            memcpy((*pc_to_rdr_secure) + sizeof *secure + 1 + sizeof *verify,
+                    pinapdu, pinapdu_len);
+            break;
+
+        case SC_PIN_CMD_CHANGE:
+            /* bPINOperation */
+            *((*pc_to_rdr_secure) + sizeof *secure) = CCID_OPERATION_MODIFY;
+            modify = (abPINDataStucture_Modification_t *)
+                ((*pc_to_rdr_secure) + sizeof *secure + 1);
+            modify->bTimeOut = bTimeOut;
+            modify->bmFormatString = bmFormatString;
+            modify->bmPINBlockString = bmPINBlockString;
+            modify->bmPINLengthFormat = bmPINLengthFormat;
+            if (!(data->flags & SC_PIN_CMD_IMPLICIT_CHANGE)
+                    && data->pin1.offset) {
+                modify->bInsertionOffsetOld = data->pin1.offset - 5;
+            } else {
+                modify->bInsertionOffsetOld = 0;
+            }
+            modify->bInsertionOffsetNew = data->pin2.offset ? data->pin2.offset - 5 : 0;
+            modify->wPINMaxExtraDigit = wPINMaxExtraDigit;
+            modify->bConfirmPIN = CCID_PIN_CONFIRM_NEW
+                | (data->flags & SC_PIN_CMD_IMPLICIT_CHANGE ? 0 : CCID_PIN_INSERT_OLD);
+            modify->bEntryValidationCondition = bEntryValidationCondition;
+            modify->bNumberMessage = bNumberMessage;
+            modify->wLangId = wLangId;
+            modify->bMsgIndex1 = bMsgIndex;
+            *((*pc_to_rdr_secure) + sizeof *secure + 1 + sizeof *modify + 0) =
+                bTeoPrologue1;
+            *((*pc_to_rdr_secure) + sizeof *secure + 1 + sizeof *modify + 1) =
+                bTeoPrologue1;
+            *((*pc_to_rdr_secure) + sizeof *secure + 1 + sizeof *modify + 2) =
+                bTeoPrologue1;
+
+            memcpy((*pc_to_rdr_secure) + sizeof *secure + 1 + sizeof *modify + 3,
+                    pinapdu, pinapdu_len);
+            break;
+
+        default:
+            r = SC_ERROR_INVALID_ARGUMENTS;
+            goto err;
+    }
+
+    r = SC_SUCCESS;
+
+err:
+    free(pinapdu);
+    if (r < 0 && *pc_to_rdr_secure) {
+        free(*pc_to_rdr_secure);
+        *pc_to_rdr_secure = NULL;
+    }
+
+    return r;
+}
+
+#define CCID_BSTATUS_OK_ACTIVE 0x00 /** No error. An ICC is present and active */
+static int boxing_buf_to_verify_result(sc_context_t *ctx,
+        const unsigned char *rdr_to_pc_datablock,
+        size_t rdr_to_pc_datablock_len,
+        sc_apdu_t *apdu)
+{
+    RDR_to_PC_DataBlock_t *datablock =
+        (RDR_to_PC_DataBlock_t *) rdr_to_pc_datablock;
+
+    if (!rdr_to_pc_datablock
+            || rdr_to_pc_datablock_len < sizeof *datablock
+            || datablock->bMessageType != 0x80)
+        return SC_ERROR_UNKNOWN_DATA_RECEIVED;
+
+    if (datablock->bStatus != CCID_BSTATUS_OK_ACTIVE)
+        return SC_ERROR_TRANSMIT_FAILED;
+
+    return sc_apdu_set_resp(ctx, apdu,
+            rdr_to_pc_datablock + sizeof *datablock,
+            htole32(datablock->dwLength));
+}
+
+static int boxing_perform_verify(struct sc_reader *reader,
+        struct sc_pin_cmd_data *data)
+{
+    u8 rbuf[0xff];
+    sc_apdu_t apdu;
+    int r;
+
+	memset(&apdu, 0, sizeof(apdu));
+    apdu.cse     = SC_APDU_CASE_4_SHORT;
+	apdu.cla     = boxing_cla;
+	apdu.ins     = boxing_ins;
+	apdu.p1      = boxing_p1;
+	apdu.p2      = boxing_p2_PC_to_RDR_Secure;
+    apdu.resp    = rbuf;
+    apdu.resplen = sizeof rbuf;
+    apdu.le      = sizeof rbuf;
+
+    if (!reader || !reader->ops || !reader->ops->transmit) {
+        r = SC_ERROR_NOT_SUPPORTED;
+        goto err;
+    }
+
+    r = boxing_pin_cmd_to_buf(reader->ctx, data,
+            (unsigned char **) &apdu.data, &apdu.datalen);
+    if (r < 0) {
+        sc_debug(reader->ctx, SC_LOG_DEBUG_NORMAL,
+                "Error encoding PC_to_RDR_Secure");
+        goto err;
+    }
+    apdu.lc = apdu.datalen;
+
+    r = SC_SUCCESS;
+
+    r = reader->ops->transmit(reader, &apdu);
+    if (r < 0) {
+        sc_debug(reader->ctx, SC_LOG_DEBUG_NORMAL,
+                "Error performing PC_to_RDR_Secure");
+        goto err;
+    }
+
+    if (apdu.sw1 != 0x90 && apdu.sw2 != 0x00) {
+        sc_debug(reader->ctx, SC_LOG_DEBUG_NORMAL,
+                "Error decoding PC_to_RDR_Secure");
+        r = SC_ERROR_NOT_SUPPORTED;
+        goto err;
+    }
+
+    r = boxing_buf_to_verify_result(reader->ctx, apdu.resp, apdu.resplen,
+            data->apdu);
+
+err:
+    free((unsigned char *) apdu.data);
+
+    return r;
 }
 
 static int boxing_perform_pace(struct sc_reader *reader,
@@ -416,7 +683,7 @@ int boxing_pace_capabilities_to_buf(sc_context_t *ctx,
     return sc_asn1_encode(ctx, PACECapabilities, asn1, asn1_len);
 }
 
-#ifdef DISABLE_GLOBAL_BOXING_INITIALIZATION
+#ifndef DISABLE_GLOBAL_BOXING_INITIALIZATION
 static
 #endif
 void sc_detect_boxing_cmds(sc_reader_t *reader)
@@ -464,7 +731,7 @@ void sc_detect_boxing_cmds(sc_reader_t *reader)
     }
 }
 
-#ifdef DISABLE_GLOBAL_BOXING_INITIALIZATION
+#ifndef DISABLE_GLOBAL_BOXING_INITIALIZATION
 void sc_initialize_boxing_cmds(sc_context_t *ctx)
 {
     sc_reader_t *reader;

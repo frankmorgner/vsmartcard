@@ -61,6 +61,7 @@ AC_MSG_CHECKING([for iasecc_sm_external_authentication])
 AC_TRY_LINK_FUNC(iasecc_sm_external_authentication,
                  [ AC_MSG_RESULT([yes]) ],
                  [ AC_MSG_ERROR([Cannot link against libopensc with SM]) ])
+AC_CHECK_FUNCS([sc_apdu_get_octets])
 
 CPPFLAGS="$saved_CPPFLAGS"
 LIBS="$saved_LIBS"
