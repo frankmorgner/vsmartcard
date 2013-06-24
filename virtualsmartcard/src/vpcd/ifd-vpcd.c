@@ -18,14 +18,28 @@
 
 #include "vpcd.h"
 
+/* pcscd allows at most 16 readers. We will use 10.
+ * See PCSCLITE_MAX_READERS_CONTEXTS in pcsclite.h */
+#define VICC_MAX_SLOTS \
+    (PCSCLITE_MAX_READERS_CONTEXTS > 6 ? \
+     PCSCLITE_MAX_READERS_CONTEXTS-6 : \
+     1)
+
+static struct vicc_ctx *ctx[VICC_MAX_SLOTS];
+
 RESPONSECODE
 IFDHCreateChannel (DWORD Lun, DWORD Channel)
 {
-    if (vicc_init(Channel) < 0) {
+    size_t slot = Lun & 0xffff;
+    if (slot >= VICC_MAX_SLOTS) {
+        return IFD_COMMUNICATION_ERROR;
+    }
+    ctx[slot] = vicc_init(Channel+slot);
+    if (!ctx[slot]) {
         Log1(PCSC_LOG_ERROR, "Could not initialize connection to virtual ICC");
         return IFD_COMMUNICATION_ERROR;
     }
-    Log2(PCSC_LOG_INFO, "Waiting for virtual ICC on port %hu", (unsigned short) Channel);
+    Log2(PCSC_LOG_INFO, "Waiting for virtual ICC on port %hu", (unsigned short) Channel+slot);
 
     return IFD_SUCCESS;
 }
@@ -66,13 +80,19 @@ IFDHControl(DWORD Lun, PUCHAR TxBuffer, DWORD TxLength, PUCHAR RxBuffer,
 RESPONSECODE
 IFDHCloseChannel (DWORD Lun)
 {
-    RESPONSECODE r = vicc_eject();
-    if (vicc_exit() < 0) {
+    size_t slot = Lun & 0xffff;
+    if (slot >= VICC_MAX_SLOTS) {
+        return IFD_COMMUNICATION_ERROR;
+    }
+    Log2(PCSC_LOG_ERROR, "Slot %u", slot);
+    if (vicc_exit(ctx[slot]) < 0) {
         Log1(PCSC_LOG_ERROR, "Could not close connection to virtual ICC");
         return IFD_COMMUNICATION_ERROR;
     }
+    ctx[slot] = NULL;
+    Log2(PCSC_LOG_ERROR, "Slot %u", slot);
 
-    return r;
+    return IFD_SUCCESS;
 }
 
 RESPONSECODE
@@ -80,6 +100,10 @@ IFDHGetCapabilities (DWORD Lun, DWORD Tag, PDWORD Length, PUCHAR Value)
 {
     unsigned char *atr = NULL;
     ssize_t size;
+    size_t slot = Lun & 0xffff;
+    if (slot >= VICC_MAX_SLOTS) {
+        return IFD_COMMUNICATION_ERROR;
+    }
 
     if (!Length || !Value)
         return IFD_COMMUNICATION_ERROR;
@@ -87,7 +111,7 @@ IFDHGetCapabilities (DWORD Lun, DWORD Tag, PDWORD Length, PUCHAR Value)
     switch (Tag) {
         case TAG_IFD_ATR:
 
-            size = vicc_getatr(&atr);
+            size = vicc_getatr(ctx[slot], &atr);
             if (size < 0) {
                 Log1(PCSC_LOG_ERROR, "could not get ATR");
                 return IFD_COMMUNICATION_ERROR;
@@ -115,6 +139,13 @@ IFDHGetCapabilities (DWORD Lun, DWORD Tag, PDWORD Length, PUCHAR Value)
                 return IFD_COMMUNICATION_ERROR;
             }
 
+            *Value  = VICC_MAX_SLOTS;
+            *Length = 1;
+            break;
+
+        case TAG_IFD_SLOT_THREAD_SAFE:
+            /* driver supports access to multiple slots of the same reader at
+             * the same time */
             *Value  = 1;
             *Length = 1;
             break;
@@ -149,9 +180,13 @@ IFDHSetProtocolParameters (DWORD Lun, DWORD Protocol, UCHAR Flags, UCHAR PTS1,
 RESPONSECODE
 IFDHPowerICC (DWORD Lun, DWORD Action, PUCHAR Atr, PDWORD AtrLength)
 {
+    size_t slot = Lun & 0xffff;
+    if (slot >= VICC_MAX_SLOTS) {
+        return IFD_COMMUNICATION_ERROR;
+    }
     switch (Action) {
         case IFD_POWER_DOWN:
-            if (vicc_poweroff() < 0) {
+            if (vicc_poweroff(ctx[slot]) < 0) {
                 Log1(PCSC_LOG_ERROR, "could not powerdown");
                 return IFD_COMMUNICATION_ERROR;
             }
@@ -163,13 +198,13 @@ IFDHPowerICC (DWORD Lun, DWORD Action, PUCHAR Atr, PDWORD AtrLength)
 #endif
             return IFD_SUCCESS;
         case IFD_POWER_UP:
-            if (vicc_poweron() < 0) {
+            if (vicc_poweron(ctx[slot]) < 0) {
                 Log1(PCSC_LOG_ERROR, "could not powerup");
                 return IFD_COMMUNICATION_ERROR;
             }
             break;
         case IFD_RESET:
-            if (vicc_reset() < 0) {
+            if (vicc_reset(ctx[slot]) < 0) {
                 Log1(PCSC_LOG_ERROR, "could not reset");
                 return IFD_COMMUNICATION_ERROR;
             }
@@ -190,13 +225,17 @@ IFDHTransmitToICC (DWORD Lun, SCARD_IO_HEADER SendPci, PUCHAR TxBuffer,
     unsigned char *rapdu = NULL;
     ssize_t size;
     RESPONSECODE r = IFD_COMMUNICATION_ERROR;
+    size_t slot = Lun & 0xffff;
+    if (slot >= VICC_MAX_SLOTS) {
+        return IFD_COMMUNICATION_ERROR;
+    }
 
     if (!RxLength || !RecvPci) {
         Log1(PCSC_LOG_ERROR, "Invalid input data");
         goto err;
     }
 
-    size = vicc_transmit(TxLength, TxBuffer, &rapdu);
+    size = vicc_transmit(ctx[slot], TxLength, TxBuffer, &rapdu);
 
     if (size < 0) {
         Log1(PCSC_LOG_ERROR, "could not send apdu or receive rapdu");
@@ -226,7 +265,11 @@ err:
 RESPONSECODE
 IFDHICCPresence (DWORD Lun)
 {
-    switch (vicc_present()) {
+    size_t slot = Lun & 0xffff;
+    if (slot >= VICC_MAX_SLOTS) {
+        return IFD_COMMUNICATION_ERROR;
+    }
+    switch (vicc_present(ctx[slot])) {
         case 0:
             return IFD_ICC_NOT_PRESENT;
         case 1:

@@ -26,6 +26,11 @@ typedef int ssize_t;
 #include <unistd.h>
 #endif
 
+struct vicc_ctx {
+        int server_sock;
+        int client_sock;
+};
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -34,14 +39,14 @@ extern "C" {
 /** Standard port of the virtual smart card reader */
 #define VPCDPORT 35963
 
-int vicc_init(unsigned short port);
-int vicc_exit(void);
-int vicc_eject(void);
+struct vicc_ctx * vicc_init(unsigned short port);
+int vicc_exit(struct vicc_ctx *ctx);
+int vicc_eject(struct vicc_ctx *ctx);
 
-int vicc_present(void);
-int vicc_poweron(void);
-int vicc_poweroff(void);
-int vicc_reset(void);
+int vicc_present(struct vicc_ctx *ctx);
+int vicc_poweron(struct vicc_ctx *ctx);
+int vicc_poweroff(struct vicc_ctx *ctx);
+int vicc_reset(struct vicc_ctx *ctx);
 
 /**
  * @brief Receive ATR from the virtual smart card.
@@ -52,7 +57,7 @@ int vicc_reset(void);
  * @return On success, the call returns the number of bytes received.
  *         On error, -1 is returned, and errno is set appropriately.
  */
-ssize_t vicc_getatr(unsigned char** atr);
+ssize_t vicc_getatr(struct vicc_ctx *ctx, unsigned char** atr);
 
 /**
  * @brief Send an APDU to the virtual smart card.
@@ -66,7 +71,8 @@ ssize_t vicc_getatr(unsigned char** atr);
  * @return On success, the call returns the number of bytes received.
  *         On error, -1 is returned, and errno is set appropriately.
  */
-ssize_t vicc_transmit(size_t apdu_len, const unsigned char *apdu,
+ssize_t vicc_transmit(struct vicc_ctx *ctx,
+        size_t apdu_len, const unsigned char *apdu,
         unsigned char **rapdu);
 
 #ifdef  __cplusplus
