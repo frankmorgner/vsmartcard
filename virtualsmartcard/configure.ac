@@ -61,12 +61,12 @@ AC_ARG_ENABLE(serialdropdir,
 	[serialdropdir="${enableval}"], [serialdropdir=false])
 if test "${serialdropdir}" = false ; then
 	if test "${prefix}" = NONE ; then
-		serialdropdir=`$PKG_CONFIG libpcsclite --variable=usbdropdir`/serial
+		serialdropdir="`$PKG_CONFIG libpcsclite --variable=usbdropdir`/serial"
 		if test "${serialdropdir}" = "/serial" ; then
 			AC_MSG_ERROR([use --enable-serialdropdir=DIR])
 		fi
 	else
-		serialdropdir=${prefix}`$PKG_CONFIG libpcsclite --variable=usbdropdir`/serial
+		serialdropdir="${prefix}`$PKG_CONFIG libpcsclite --variable=usbdropdir`/serial"
 		if test "${serialdropdir}" = "${prefix}/serial" ; then
 			AC_MSG_ERROR([use --enable-serialdropdir=DIR])
 		fi
@@ -74,11 +74,24 @@ if test "${serialdropdir}" = false ; then
 fi
 
 
-# --enable-confdir=DIR
-AC_ARG_ENABLE(confdir,
-	AC_HELP_STRING([--enable-confdir=DIR],[directory to install the
-	vpcd configuration (default to pcscd config or /etc/reader.conf.d)]),
-	[confdir="${enableval}"], [confdir=/etc/reader.conf.d])
+# --enable-serialconfdir=DIR
+AC_ARG_ENABLE(serialconfdir,
+	AC_HELP_STRING([--enable-serialconfdir=DIR],[directory to install the
+	serial wrapper driver (default to pcscd config or /etc/reader.conf.d)]),
+	[serialconfdir="${enableval}"], [serialconfdir=false])
+if test "${serialconfdir}" = false ; then
+	if test "${prefix}" = NONE ; then
+		serialconfdir="`$PKG_CONFIG libpcsclite --variable=serialconfdir`"
+		if test "${serialconfdir}" = "" ; then
+			serialconfdir="/etc/reader.conf.d"
+		fi
+	else
+		serialconfdir="${prefix}`$PKG_CONFIG libpcsclite --variable=serialconfdir`"
+		if test "${serialconfdir}" = "${prefix}" ; then
+			serialconfdir="${prefix}/etc/reader.conf.d"
+		fi
+	fi
+fi
 
 
 PACKAGE_SUMMARY="Smart card emulator written in Python"
@@ -101,7 +114,7 @@ AC_SUBST(BUNDLE_HOST)
 AC_SUBST(DYN_LIB_EXT)
 AC_SUBST(LIB_PREFIX)
 AC_SUBST(serialdropdir)
-AC_SUBST(confdir)
+AC_SUBST(serialconfdir)
 case "$host" in
 *-*-darwin*)
 	BUNDLE_HOST="MacOS"
@@ -145,7 +158,7 @@ ${PACKAGE} has been configured with following options:
 
 Version:              ${PACKAGE_VERSION}
 User binaries:        $(eval eval eval echo "${bindir}")
-PC/SC configuration:  ${confdir}
+PC/SC configuration:  ${serialconfdir}
 Python site-packages: $(eval eval eval echo "${pythondir}")
 Driver directory:     ${serialdropdir}
 
