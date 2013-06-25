@@ -84,13 +84,11 @@ IFDHCloseChannel (DWORD Lun)
     if (slot >= VICC_MAX_SLOTS) {
         return IFD_COMMUNICATION_ERROR;
     }
-    Log2(PCSC_LOG_ERROR, "Slot %u", slot);
     if (vicc_exit(ctx[slot]) < 0) {
         Log1(PCSC_LOG_ERROR, "Could not close connection to virtual ICC");
         return IFD_COMMUNICATION_ERROR;
     }
     ctx[slot] = NULL;
-    Log2(PCSC_LOG_ERROR, "Slot %u", slot);
 
     return IFD_SUCCESS;
 }
