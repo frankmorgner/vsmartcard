@@ -163,38 +163,45 @@ class CardGenerator(object):
 
         eid=DF(parent=self.mf, fid=0xffff, dfname='\xe8\x07\x04\x00\x7f\x00\x07\x03\x02')
         # FIXME access control for eid application
-        DocumentType = '??'
+        DocumentType = 'ID'
         IssuingState = 'DE'
         DateOfExpiry = '20201031'
-        GivenNames = 'Gabler'
-        FamilyNames = 'Mustermann'
-        ReligiousArtisticName = 'Muster'
+        GivenNames = 'ERIKA'
+        FamilyNames = 'MUSTERMANN'
+        ReligiousArtisticName = ''
         AcademicTitle = ''
         DateOfBirth = '19640812'
-        birth = 'BERLIN'
-        PlaceOfBirth = pack([(0x81, len(birth), birth)])
+        PlaceOfBirth = 'BERLIN'
         Nationality = 'DE'
         Sex = 'F'
-        residence = '51147 KOLN\nHEIDESTRASSE 17'
-        PlaceOfResidence = pack([(0x81, len(residence), residence)])
-        dg1 =  pack([(0x61, len(DocumentType), DocumentType)])
-        dg2 =  pack([(0x62, len(IssuingState), IssuingState)])
-        dg3 =  pack([(0x63, len(DateOfExpiry), DateOfExpiry)])
-        dg4 =  pack([(0x64, len(GivenNames), GivenNames)])
-        dg5 =  pack([(0x65, len(FamilyNames), FamilyNames)])
-        dg6 =  pack([(0x66, len(ReligiousArtisticName), ReligiousArtisticName)])
-        dg7 =  pack([(0x67, len(AcademicTitle), AcademicTitle)])
-        dg8 =  pack([(0x68, len(DateOfBirth), DateOfBirth)])
-        dg9 =  pack([(0x69, len(PlaceOfBirth), PlaceOfBirth)])
-        dg10 = pack([(0x6a, len(Nationality), Nationality)])
-        dg11 = pack([(0x6b, len(Sex), Sex)])
+        Country = 'D'
+        City = 'KOLN'
+        ZIP = '51147'
+        Street = 'HEIDESTRASSE 17'
+        CommunityID = '\x12\x34\x56\x78\x90\x12\x34'
+        dg1 =  pack([(0x61, 0, [(0x13, 0, DocumentType)])], True)
+        dg2 =  pack([(0x62, 0, [(0x13, 0, IssuingState)])], True)
+        dg3 =  pack([(0x63, 0, [(0x12, 0, DateOfExpiry)])], True)
+        dg4 =  pack([(0x64, 0, [(0x0C, 0, GivenNames)])], True)
+        dg5 =  pack([(0x65, 0, [(0x0C, 0, FamilyNames)])], True)
+        dg6 =  pack([(0x66, 0, [(0x0C, 0, ReligiousArtisticName)])], True)
+        dg7 =  pack([(0x67, 0, [(0x0C, 0, AcademicTitle)])], True)
+        dg8 =  pack([(0x68, 0, [(0x12, 0, DateOfBirth)])], True)
+        dg9 =  pack([(0x69, 0, [(0xA1, 0, [(0x0C, 0, PlaceOfBirth)])])], True)
+        dg10 = pack([(0x6A, 0, [(0x13, 0, Nationality)])], True)
+        dg11 = pack([(0x6B, 0, [(0x13, 0, Sex)])], True)
         dg12 = ''
         dg13 = ''
         dg14 = ''
         dg15 = ''
         dg16 = ''
-        dg17 = pack([(0x71, len(PlaceOfResidence), PlaceOfResidence)])
-        dg18 = ''
+        dg17 = pack([(0x71, 0, [(0x30, 0, [
+                (0xAA, 0, [(0x0C, 0, Street)]),
+                (0xAB, 0, [(0x0C, 0, City)]),
+                (0xAD, 0, [(0x13, 0, Country)]),
+                (0xAE, 0, [(0x13, 0, ZIP)])
+                ])])], True)
+        dg18 = pack([(0x72, 0, [(0x04, 0, CommunityID)])], True)
         dg19 = ''
         dg20 = ''
         dg21 = ''
