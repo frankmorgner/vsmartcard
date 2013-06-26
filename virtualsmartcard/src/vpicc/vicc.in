@@ -24,7 +24,7 @@ import argparse
 
 parser = argparse.ArgumentParser(
         description='''
-@PACKAGE_SUMMARY@
+@PACKAGE_NAME@ @PACKAGE_VERSION@: @PACKAGE_SUMMARY@.
 
 The emulator connects to the virtual smart card reader reader (vpcd). Smart
 card applications can access the @PACKAGE_NAME@ through the vpcd via PC/SC.
