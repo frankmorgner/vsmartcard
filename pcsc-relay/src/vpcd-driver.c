@@ -33,19 +33,26 @@ unsigned int vpcdport = VPCDPORT;
 
 static int vpcd_connect(driver_data_t **driver_data)
 {
+    struct vicc_ctx *ctx;
+
     int vicc_found = 0;
 
+    if (!driver_data)
+        return 0;
 
-    if (vicc_init(vpcdport) < 0) {
+
+    ctx = vicc_init(vpcdport);
+    if (!ctx) {
         RELAY_ERROR("Could not initialize connection to virtual ICC\n");
         return 0;
     }
+    *driver_data = ctx;
+
+
     INFO("Waiting for virtual ICC on port %hu\n",
             (unsigned short) vpcdport);
-
-
     do {
-        switch (vicc_present()) {
+        switch (vicc_present(ctx)) {
             case 0:
                 /* not present */
                 sleep(1);
@@ -60,7 +67,7 @@ static int vpcd_connect(driver_data_t **driver_data)
     } while (!vicc_found);
 
 
-    if (vicc_poweron() < 0) {
+    if (vicc_poweron(ctx) < 0) {
         RELAY_ERROR("could not powerup\n");
         return 0;
     }
@@ -73,10 +80,12 @@ static int vpcd_connect(driver_data_t **driver_data)
 
 static int vpcd_disconnect(driver_data_t *driver_data)
 {
-    if (vicc_eject() != 0)
+    struct vicc_ctx *ctx = driver_data;
+
+    if (vicc_eject(ctx) != 0)
         DEBUG("Could not eject virtual ICC\n");
 
-    if (vicc_exit() != 0) {
+    if (vicc_exit(ctx) != 0) {
         RELAY_ERROR("Could not close connection to virtual ICC\n");
         return 0;
     }
@@ -88,9 +97,11 @@ static int vpcd_transmit(driver_data_t *driver_data,
         const unsigned char *send, size_t send_len,
         unsigned char *recv, size_t *recv_len)
 {
+    struct vicc_ctx *ctx = driver_data;
+
     unsigned char *rapdu = NULL;
     int r = 0;
-    ssize_t size = vicc_transmit(send_len, send, &rapdu);
+    ssize_t size = vicc_transmit(ctx, send_len, send, &rapdu);
 
     if (size < 0) {
         RELAY_ERROR("could not send apdu or receive rapdu\n");
