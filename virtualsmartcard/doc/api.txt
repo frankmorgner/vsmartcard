@@ -28,7 +28,7 @@ Length        Command              Length        Response
 ============= ==================== ============= =============
 
 The communication is initiated by |vpcd|. First the length of the data (in
-network byte order, i.e. little endian) is sent followed by the data itself.
+network byte order, i.e. big endian) is sent followed by the data itself.
 
 
 ===================================
