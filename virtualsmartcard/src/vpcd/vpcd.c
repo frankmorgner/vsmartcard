@@ -249,8 +249,8 @@ int vicc_present(struct vicc_ctx *ctx) {
     unsigned char *atr = NULL;
 
     if (ctx->client_sock <= 0)
-        /* Wait up to one microsecond. */
-        ctx->client_sock = waitforclient(ctx->server_sock, 0, 1);
+        /* return immediately */
+        ctx->client_sock = waitforclient(ctx->server_sock, 0, 0);
 
     if (ctx->client_sock < 0)
         return -1;
