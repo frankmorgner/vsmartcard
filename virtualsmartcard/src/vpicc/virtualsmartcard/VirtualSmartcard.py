@@ -395,7 +395,7 @@ class CryptoflexOS(Iso7816OS):
         return r
 
 
-class RelayOS(SmartcardOS): 
+class RelayOS(SmartcardOS):
     """
     This class implements relaying of a (physical) smartcard. The RelayOS
     forwards the command APDUs received from the vpcd to the real smartcard via
@@ -535,6 +535,72 @@ class NPAOS(Iso7816OS):
         return R_APDU(result, inttostring(sw)).render()
 
 
+class HandlerTestOS(SmartcardOS):
+    """
+    This class implements the commands used for the PC/SC-lite  smart  card
+    reader driver tester. See http://pcsclite.alioth.debian.org/pcsclite.html
+    and handler_test(1).
+    """
+    def __init__(self):
+        lastCommandOffcut = ''
+
+    def getATR(self):
+        return 'ATR'
+        
+    def powerUp(self):
+        pass
+
+    def reset(self):
+        pass
+
+    def __output_from_le(self, msg):
+        le = (ord(msg[2])<<8)+ord(msg[3])
+        return ''.join([chr(num&0xff) for num in xrange(le)])
+
+    def execute(self, msg):
+        ok = '\x90\x00'
+        error = '\x6d\x00'
+        if msg == '\x00\xA4\x04\x00\x06\xA0\x00\x00\x00\x18\x50' or msg == '\x00\xA4\x04\x00\x06\xA0\x00\x00\x00\x18\xFF':
+            print 'Select applet'
+            return ok
+        elif msg.startswith('\x80\x38\x00'):
+            print 'Time Request'
+            return ok
+        elif msg == '\x80\x30\x00\x00':
+            print 'Case 1, APDU'
+            return ok
+        elif msg == '\x80\x30\x00\x00\x00':
+            print 'Case 1, TPDU'
+            return ok
+        elif msg.startswith('\x80\x32\x00\x00'):
+            print 'Case 3'
+            return ok
+        elif msg.startswith('\x80\x34'):
+            print 'Case 2'
+            return self.__output_from_le(msg) + ok
+        elif msg.startswith('\x80\x36'):
+            if len(msg) == 5+ord(msg[4]):
+                print 'Case 4, TPDU'
+                self.lastCommandOffcut = self.__output_from_le(msg)
+                # XXX the return code is expected by handler_test.c. According
+                # to ISO 7816 this should be:
+                # '\x61' + chr(max(0xff, len(self.lastCommandOffcut)))
+                return '\x61' + chr(len(self.lastCommandOffcut)&0xFF)
+            elif len(msg) == 6+ord(msg[4]):
+                print 'Case 4, APDU'
+                return self.__output_from_le(msg) + ok
+            else:
+                return error
+        elif msg.startswith('\x80\xC0\x00\x00'):
+            print 'Get response'
+            out = self.lastCommandOffcut[:ord(msg[4])]
+            self.lastCommandOffcut = self.lastCommandOffcut[ord(msg[4]):]
+            return out + ok
+        else:
+            return error
+
+
+
 # sizeof(int) taken from asizof-package {{{
 _Csizeof_short = len(struct.pack('h', 0))
 # }}}
@@ -587,6 +653,8 @@ class VirtualICC(object):
             self.os = CryptoflexOS(MF, SAM)
         elif card_type == "relay":
             self.os = RelayOS(readernum)
+        elif card_type == "handler_test":
+            self.os = HandlerTestOS()
         else:
             logging.warning("Unknown cardtype %s. Will use standard card_type (ISO 7816)",
                             card_type)
