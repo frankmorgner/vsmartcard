@@ -248,6 +248,13 @@ ssize_t vicc_transmit(struct vicc_ctx *ctx,
 int vicc_present(struct vicc_ctx *ctx) {
     unsigned char *atr = NULL;
 
+    if (ctx->client_sock <= 0)
+        /* Wait up to one microsecond. */
+        ctx->client_sock = waitforclient(ctx->server_sock, 0, 1);
+
+    if (ctx->client_sock < 0)
+        return -1;
+
     if (ctx->client_sock > 0) {
         if (vicc_getatr(ctx, &atr) <= 0)
             return 0;
@@ -256,14 +263,8 @@ int vicc_present(struct vicc_ctx *ctx) {
 
         return 1;
     } else {
-        /* Wait up to one microsecond. */
-        ctx->client_sock = waitforclient(ctx->server_sock, 0, 1);
-
-        if (ctx->client_sock < 0)
-            return -1;
+        return 0;
     }
-
-    return 0;
 }
 
 ssize_t vicc_getatr(struct vicc_ctx *ctx, unsigned char **atr) {
