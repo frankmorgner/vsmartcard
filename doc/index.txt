@@ -10,7 +10,7 @@ Welcome to the |vsmartcard|. |vsmartcard| is an umbrella project for various
 projects concerned with the emulation of different types of smart card readers
 or smart cards themselves.
 
-.. tikz:: |vsmartcard| connects different aspects of smart card handling
+.. tikz:: The Virtual Smart Card Architecture connects different aspects of smart card handling
     :stringsubst:
     :libs: arrows, calc, fit, patterns, plotmarks, shapes.geometric, shapes.misc, shapes.symbols, shapes.arrows, shapes.callouts, shapes.multipart, shapes.gates.logic.US, shapes.gates.logic.IEC, er, automata, backgrounds, chains, topaths, trees, petri, mindmap, matrix, calendar, folding, fadings, through, positioning, scopes, decorations.fractals, decorations.shapes, decorations.text, decorations.pathmorphing, decorations.pathreplacing, decorations.footprints, decorations.markings, shadows
 
