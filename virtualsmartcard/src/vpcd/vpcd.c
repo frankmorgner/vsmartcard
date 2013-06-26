@@ -137,7 +137,7 @@ ssize_t sendToVICC(struct vicc_ctx *ctx, size_t length, const unsigned char* buf
     ssize_t r;
     uint16_t size;
 
-    if (!ctx) {
+    if (!ctx || length > 0xFFFF) {
         errno = EINVAL;
         return -1;
     }
