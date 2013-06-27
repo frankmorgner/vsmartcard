@@ -3,8 +3,8 @@ exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
 
-Name: lib@PACKAGE_NAME@
-Description: Library for the new German ID card (neuer Personalausweis, nPA)
+Name: @PACKAGE_NAME@
+Description: @PACKAGE_SUMMARY@
 Version: @VERSION@
 Requires: libeac
 Libs: -L${libdir} -lnpa @OPENSC_LIBS@

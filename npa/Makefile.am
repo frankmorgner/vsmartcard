@@ -6,6 +6,7 @@ EXTRA_DIST = libnpa.pc.in apdus test_vicc_with_npa-tool.sh
 do_subst = $(SED) \
 	   -e 's,[@]PACKAGE_NAME[@],$(PACKAGE_NAME),g' \
 	   -e 's,[@]PACKAGE_VERSION[@],$(PACKAGE_VERSION),g' \
+	   -e 's,[@]PACKAGE_SUMMARY[@],$(PACKAGE_SUMMARY),g' \
 	   -e 's,[@]builddir[@],$(builddir),g' \
 	   -e 's,[@]prefix[@],$(prefix),g' \
 	   -e 's,[@]exec_prefix[@],$(exec_prefix),g' \
@@ -17,7 +18,7 @@ do_subst = $(SED) \
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libnpa.pc
-libnpa.pc:
+libnpa.pc: libnpa.pc.in
 	$(do_subst) < $(srcdir)/libnpa.pc.in > libnpa.pc
 
 win:
