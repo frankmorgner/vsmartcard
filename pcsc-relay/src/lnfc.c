@@ -31,11 +31,12 @@ struct lnfc_data {
 };
 
 
+#if 0
 static size_t get_historical_bytes(unsigned char *atr, size_t atrlen,
         unsigned char **hb)
 {
     size_t i, hblen;
-    char tax_present, tbx_present, tcx_present, tdx_present, x;
+    char tdx_present, x;
 
     if (!atr || !hb)
         return 0;
@@ -98,6 +99,7 @@ static size_t get_historical_bytes(unsigned char *atr, size_t atrlen,
 
     return hblen;
 }
+#endif
 
 
 static int lnfc_connect(driver_data_t **driver_data)

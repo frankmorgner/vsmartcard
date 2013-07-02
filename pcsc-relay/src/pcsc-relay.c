@@ -35,8 +35,6 @@
 #define MAX_BUFFER_SIZE         264 /**< Maximum Tx/Rx Buffer for short APDU */
 #endif
 
-static int doinfo = 0;
-static int dodaemon = 1;
 int verbose = 0;
 static struct rf_driver *rfdriver = &driver_openpicc;
 static driver_data_t *rfdriver_data = NULL;
@@ -134,7 +132,6 @@ int main (int argc, char **argv)
     /*printf("%s:%d\n", __FILE__, __LINE__);*/
     unsigned char *buf = NULL;
     size_t buflen;
-    int i, oindex;
 
     unsigned char outputBuffer[MAX_BUFFER_SIZE];
     size_t outputLength;
