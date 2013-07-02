@@ -42,6 +42,7 @@ bin_PROGRAMS = ccid-emulator
 
 noinst_HEADERS = \
 		 ccid.h \
+		 ccid-types.h \
 		 npa/scutil.h \
 		 sslutil.h \
 		 usbstring.h
