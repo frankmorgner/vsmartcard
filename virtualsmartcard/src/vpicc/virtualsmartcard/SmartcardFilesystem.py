@@ -25,7 +25,7 @@ import logging
 from virtualsmartcard.ConstantDefinitions import DCB, FDB, FID, LCB, REF
 from virtualsmartcard.TLVutils import *
 from virtualsmartcard.SWutils import SW, SwError
-from virtualsmartcard.utils import stringtoint, inttostring
+from virtualsmartcard.utils import stringtoint, inttostring, hexdump
 
 def isEqual(list): 
     """Returns True, if all items are equal, otherwise False"""
@@ -198,7 +198,8 @@ def prettyprint_anything(indent, thing):
         if isinstance(newvalue, int):
             s = s + "\n" + indent + attribute + (16-len(attribute))*" " + "0x%x" % (newvalue)
         elif isinstance(newvalue, str):
-            s = s + "\n" + indent + attribute + (16-len(attribute))*" " + "length %d" % len(newvalue)
+            s = s + "\n" + indent + attribute + (16-len(attribute))*" " + "length %d:" % len(newvalue)
+            s = s + "\n" + indent + hexdump(newvalue, len(indent))
         elif isinstance(newvalue, list):
             s = s + "\n" + indent + attribute + (16-len(attribute))*" "
             for item in newvalue:
@@ -473,9 +474,9 @@ class DF(File):
                 return file
         # not found
         if isinstance(value, int):
-            logging.debug("file not found %s=%x" % (attribute, value))
+            logging.debug("file (%s=%x) not found in:\n%s" % (attribute, value, self))
         elif isinstance(value, str):
-            logging.debug("file not found %s=%r" % (attribute, value))
+            logging.debug("file (%s=%r) not found in:\n%s" % (attribute, value, self))
         raise SwError(SW["ERR_FILENOTFOUND"])
 
     def remove(self, file):
