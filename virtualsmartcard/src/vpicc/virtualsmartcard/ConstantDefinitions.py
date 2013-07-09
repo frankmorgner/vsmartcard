@@ -223,6 +223,7 @@ REF = {
     "NUMBER_TO_LAST"      : 0x05,
     "NUMBER_FROM_LAST"    : 0x06,
     "NUMBER_CONTROL"      : 0x07,
-    "REFERENCE_CONTROL"   : 0x07,
+    "REFERENCE_CONTROL_RECORD" : 0x07,
+    "REFERENCE_CONTROL_SELECT" : 0x03,
         }
 

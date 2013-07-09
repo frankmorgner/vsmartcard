@@ -656,7 +656,7 @@ class MF(DF):
             else:
                 index_current = self.content.index(df)
             selected = self.select('dfname', data, p2 &
-                    REF["REFERENCE_CONTROL"], index_current)
+                    REF["REFERENCE_CONTROL_SELECT"], index_current)
         else:
             logging.debug("unknown selection method: p1 =%s" % p1)
             selected = None
@@ -934,7 +934,7 @@ class MF(DF):
             self.current = ef
             ef.resetRecordPointer()
 
-        return ef, num_id, p2 & REF["REFERENCE_CONTROL"]
+        return ef, num_id, p2 & REF["REFERENCE_CONTROL_RECORD"]
 
     def readRecordPlain(self, p1, p2, data):
         """
@@ -1049,7 +1049,7 @@ class MF(DF):
         :returns: the status bytes as two byte long integer and the response
             data as binary string.
         """
-        if p1 != 0 or (p2 & REF["REFERENCE_CONTROL"]) != 0:
+        if p1 != 0 or (p2 & REF["REFERENCE_CONTROL_RECORD"]) != 0:
             raise SwError(SW["ERR_INCORRECTP1P2"])
         ef, num_id, reference = self.recordHandlingDecode(p1, p2)
         sw = ef.appendrecord(data)
