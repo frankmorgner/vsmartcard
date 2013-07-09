@@ -529,7 +529,15 @@ class NPAOS(Iso7816OS):
 
         result = data[:le]
         if sm:
-            sw, result = self.SAM.protect_result(sw, result)
+            try:
+                sw, result = self.SAM.protect_result(sw, result)
+            except SwError as e:
+                logging.info(e.message)
+                import traceback
+                traceback.print_exception(*sys.exc_info())
+                sw = e.sw
+                result = ""
+                answer = self.formatResult(False, 0, result, sw, False)
 
         return R_APDU(result, inttostring(sw)).render()
 
