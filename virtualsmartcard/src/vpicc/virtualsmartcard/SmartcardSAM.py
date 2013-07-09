@@ -337,7 +337,10 @@ class SAM(object):
         Parse a command APDU protected by Secure Messaging and return the
         unprotected command APDU
         """
-        return self.current_SE.parse_SM_CAPDU(CAPDU, header_authentication)
+        try:
+            return self.current_SE.parse_SM_CAPDU(CAPDU, header_authentication)
+        except:
+            raise SwError(SW["ERR_SECMESSOBJECTSINCORRECT"])
     
     def protect_result(self, sw, unprotected_result):
         """
