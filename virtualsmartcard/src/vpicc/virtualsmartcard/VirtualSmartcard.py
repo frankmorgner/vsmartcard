@@ -328,22 +328,21 @@ class Iso7816OS(SmartcardOS):
         command_chaining &= 0x01
         #}}}
         
+        sm = False
         try:             
             if SM_STATUS == "Standard SM" or SM_STATUS == "Proprietary SM":
                 c = self.SAM.parse_SM_CAPDU(c, header_authentication)
                 logging.info("Decrypted APDU:\n%s", str(c))
+                sm = True
             sw, result = self.ins2handler.get(c.ins, notImplemented)(c.p1, c.p2, c.data)
-            if SM_STATUS == "Standard SM" or SM_STATUS == "Proprietary SM":
-                answer = self.formatResult(Iso7816OS.seekable(c.ins), c.effective_Le, result, sw, True)
-            else:
-                answer = self.formatResult(Iso7816OS.seekable(c.ins), c.effective_Le, result, sw, False)
+            answer = self.formatResult(Iso7816OS.seekable(c.ins), c.effective_Le, result, sw, sm)
         except SwError as e:
             logging.info(e.message)
             import traceback
             traceback.print_exception(*sys.exc_info())
             sw = e.sw
             result = ""
-            answer = self.formatResult(False, 0, result, sw, False)
+            answer = self.formatResult(False, 0, result, sw, sm)
 
         return answer
 
