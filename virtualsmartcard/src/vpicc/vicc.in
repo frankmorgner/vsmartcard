@@ -19,7 +19,7 @@
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import argparse
+import argparse, logging
 
 
 parser = argparse.ArgumentParser(
@@ -38,6 +38,9 @@ parser.add_argument("-t", "--type",
         choices=['iso7816', 'cryptoflex', 'ePass', 'nPA', 'relay', 'handler_test'],
         default='iso7816',
         help="type of smart card to emulate (default: %(default)s)")
+parser.add_argument("-v", "--verbose",
+        action="count",
+        help="Use (several times) to be more verbose")
 parser.add_argument("-f", "--file",
         action="store",
         type=argparse.FileType('r'),
@@ -104,8 +107,19 @@ if (args.cvca):
     cvca = args.cvca.read()
     args.cvca.close()
 
+if not args.verbose:
+    logginglevel = logging.CRITICAL
+elif args.verbose == 1:
+    logginglevel = logging.ERROR
+elif args.verbose == 2:
+    logginglevel = logging.WARNING
+elif args.verbose == 3:
+    logginglevel = logging.INFO
+else:
+    logginglevel = logging.DEBUG
+
 vicc = VirtualICC(args.file, args.type,
         args.hostname, args.port, readernum=args.reader,
         ef_cardaccess=ef_cardaccess_data, ef_cardsecurity=ef_cardsecurity_data,
-        ca_key=ca_key_data, cvca=cvca, disable_checks=args.disable_ta_checks)
+        ca_key=ca_key_data, cvca=cvca, disable_checks=args.disable_ta_checks, logginglevel=logginglevel)
 vicc.run()

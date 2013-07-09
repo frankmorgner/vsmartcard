@@ -622,10 +622,10 @@ class VirtualICC(object):
     the vpcd, which forwards it to the application.
     """ 
     
-    def __init__(self, filename, card_type, host, port, lenlen=3, readernum=None, ef_cardsecurity=None, ef_cardaccess=None, ca_key=None, cvca=None, disable_checks=False):
+    def __init__(self, filename, card_type, host, port, lenlen=3, readernum=None, ef_cardsecurity=None, ef_cardaccess=None, ca_key=None, cvca=None, disable_checks=False, logginglevel=logging.INFO):
         from os.path import exists
         
-        logging.basicConfig(level = logging.INFO, 
+        logging.basicConfig(level = logginglevel, 
                             format = "%(asctime)s  [%(levelname)s] %(message)s", 
                             datefmt = "%d.%m.%Y %H:%M:%S") 
         
