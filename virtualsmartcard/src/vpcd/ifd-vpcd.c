@@ -1,22 +1,10 @@
+#include "vpcd.h"
+#include <debuglog.h>
+#include <errno.h>
+#include <ifdhandler.h>
 #include <stdio.h>
 #include <stdlib.h>
-
 #include <string.h>
-
-/* The default configuration for vpcd provides a IFD-handler conforming to
- * version 2 of the IFDHandler API with adjustable port by ChannelID in
- * reader.conf. If you want vpcd to conform to version 3, you must...
- * 1. have a pcscd of r5294 and later (see but #312749 on
- *    https://alioth.debian.org/projects/pcsclite/ )
- * 2. remove the line "DEVICENAME   /dev/null" from the provided reader.conf
- * 3. not define IFDHANDLERv2 (e.g. remove the following line) */
-#define IFDHANDLERv2
-
-#include <ifdhandler.h>
-
-#include <debuglog.h>
-
-#include "vpcd.h"
 
 /* pcscd allows at most 16 readers. We will use 10.
  * See PCSCLITE_MAX_READERS_CONTEXTS in pcsclite.h */
@@ -44,12 +32,30 @@ IFDHCreateChannel (DWORD Lun, DWORD Channel)
     return IFD_SUCCESS;
 }
 
-#ifndef IFDHANDLERv2
 RESPONSECODE
 IFDHCreateChannelByName (DWORD Lun, LPSTR DeviceName)
 {
-    Log3(PCSC_LOG_INFO, "Not opening %s. Using default port %hu", DeviceName, VPCDPORT);
-    return IFDHCreateChannel (Lun, VPCDPORT);
+    char *dots;
+    unsigned long int port = VPCDPORT;
+
+    dots = strchr(DeviceName, ':');
+    if (dots) {
+        /* a port has been specified behind the device name */
+
+        /* skip '+' */
+        dots++;
+
+        errno = 0;
+        port = strtoul(dots, NULL, 0);
+        if (errno) {
+            Log2(PCSC_LOG_ERROR, "Could not parse port: %s", dots);
+            return IFD_NO_SUCH_DEVICE;
+        }
+    } else {
+        Log1(PCSC_LOG_INFO, "Using default port.");
+    }
+
+    return IFDHCreateChannel (Lun, port);
 }
 
 RESPONSECODE
@@ -63,19 +69,6 @@ IFDHControl (DWORD Lun, DWORD dwControlCode, PUCHAR TxBuffer, DWORD TxLength,
             (unsigned int *) pdwBytesReturned, "");
     return IFD_ERROR_NOT_SUPPORTED;
 }
-#else
-RESPONSECODE
-IFDHControl(DWORD Lun, PUCHAR TxBuffer, DWORD TxLength, PUCHAR RxBuffer,
-        PDWORD RxLength)
-{
-    Log9(PCSC_LOG_DEBUG, "IFDHControl not supported (Lun=%u%s TxBuffer=%p TxLength=%u RxBuffer=%p RxLength=%u%s)%s",
-            (unsigned int) Lun, "",
-            (unsigned char *) TxBuffer, (unsigned int) TxLength,
-            (unsigned char *) RxBuffer, (unsigned int) RxLength,
-            "", "");
-    return IFD_ERROR_NOT_SUPPORTED;
-}
-#endif
 
 RESPONSECODE
 IFDHCloseChannel (DWORD Lun)
