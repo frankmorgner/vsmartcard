@@ -41,7 +41,7 @@ static int vpcd_connect(driver_data_t **driver_data)
         return 0;
 
 
-    ctx = vicc_init(vpcdport);
+    ctx = vicc_init(NULL, vpcdport);
     if (!ctx) {
         RELAY_ERROR("Could not initialize connection to virtual ICC\n");
         return 0;

@@ -630,7 +630,7 @@ class VirtualICC(object):
     the vpcd, which forwards it to the application.
     """ 
     
-    def __init__(self, filename, card_type, host, port, lenlen=3, readernum=None, ef_cardsecurity=None, ef_cardaccess=None, ca_key=None, cvca=None, disable_checks=False, logginglevel=logging.INFO):
+    def __init__(self, filename, card_type, host, port, readernum=None, ef_cardsecurity=None, ef_cardaccess=None, ca_key=None, cvca=None, disable_checks=False, logginglevel=logging.INFO):
         from os.path import exists
         
         logging.basicConfig(level = logginglevel, 
@@ -670,16 +670,28 @@ class VirtualICC(object):
         self.type = card_type
             
         #Connect to the VPCD
-        try:
-            self.sock = self.connectToPort(host, port)
-            self.sock.settimeout(None)
-        except socket.error as e:
-            logging.error("Failed to open socket: %s", str(e))
-            logging.error("Is pcscd running at %s? Is vpcd loaded? Is a firewall blocking port %u?",
-                          host, port)
-            sys.exit()
-                       
-        self.lenlen = lenlen
+        self.host = host
+        if host:
+            # use normal connection mode
+            try:
+                self.sock = self.connectToPort(host, port)
+                self.sock.settimeout(None)
+                self.server_sock = None
+            except socket.error as e:
+                logging.error("Failed to open socket: %s", str(e))
+                logging.error("Is pcscd running at %s? Is vpcd loaded? Is a firewall blocking port %u?",
+                              host, port)
+                sys.exit()
+        else:
+            # use reversed connection mode
+            try:
+                (self.sock, self.server_sock, host) = self.openPort(port)
+                self.sock.settimeout(None)
+            except socket.error as e:
+                logging.error("Failed to open socket: %s", str(e))
+                logging.error("Is pcscd running? Is vpcd loaded and in reversed connection mode? Is a firewall blocking port %u?",
+                              port)
+                sys.exit()
 
         logging.info("Connected to virtual PCD at %s:%u", host, port)
 
@@ -700,10 +712,19 @@ class VirtualICC(object):
         sock.connect((host, port))
         return sock
 
+    @staticmethod
+    def openPort(port):
+        server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        server_socket.bind(('localhost', port))
+        server_socket.listen(0)
+        logging.info("Waiting for vpcd on port " + str(port))
+        (client_socket, address) = server_socket.accept()
+        return (client_socket, server_socket, address[0])
+
     def __sendToVPICC(self, msg):
         """ Send a message to the vpcd """
-        #size = inttostring(len(msg), self.lenlen)
-        self.sock.send(struct.pack('!H', len(msg)) + msg)
+        self.sock.sendall(struct.pack('!H', len(msg)) + msg)
 
     def __recvFromVPICC(self):
         """ Receive a message from the vpcd """
@@ -760,6 +781,8 @@ class VirtualICC(object):
 
     def stop(self):
         self.sock.close()
+        if self.server_sock:
+            self.server_sock.close()
         if self.filename != None:
             self.cardGenerator.setCard(self.os.mf, self.os.SAM)
             self.cardGenerator.saveCard(self.filename)

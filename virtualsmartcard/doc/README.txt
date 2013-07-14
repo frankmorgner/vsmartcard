@@ -74,19 +74,34 @@ The |vpcd| depends on PCSC-Lite_.
 Running the Virtual Smart Card
 ********************************************************************************
 
-Fitxt you need to make sure that :command:`pcscd` loads the |vpcd|. You might
-need to run :command:`update-reader.conf` to update its configuration file.
-Then :command:`pcscd -f -d` should say something like "Attempting startup of
-Virtual PCD"
+The configuration file from |vpcd| is usually placed into
+:file:`/etc/reader.conf.d/`. The PC/SC daemon should read it and load the
+|vpcd| on startup. In debug mode :command:`pcscd -f -d` should say something
+like "Attempting startup of Virtual PCD". For older versions of PCSC-Lite you
+need to run :command:`update-reader.conf` to update :command:`pcscd`'s main
+configuration file.
 
-Now you can run :command:`vicc` which connects to the |vpcd|. The command
-:command:`vicc --help` gives an overview about the command line options.
+By default, |vpcd| opens a socket for |vpicc| and waits for incoming
+connections.  The port to open should be specified in ``CHANNELID`` and
+``DEVICENAME``:
+
+.. literalinclude:: vpcd_example.conf
+    :emphasize-lines: 2,4
+
+If the first part of the ``DEVICENAME`` is different from ``/dev/null``, |vpcd|
+will use this string as a hostname to connect to a waiting |vpicc|. |vpicc|
+needs to be started with the ``--reversed`` flag in this case.
+
+The command :command:`vicc --help` gives an overview about the command line
+options of |vpicc|.
 
 .. program-output:: vicc --help
 
-You should now be able to access the |vpicc| through the PC/SC API via
-|vpcd|/:command:`pcscd`. You can use the :command:`opensc-explorer` or
-:command:`pcsc_scan` for testing.
+When |vpcd| and |vpicc| are connected you should be able to access the card
+through the PC/SC API via :command:`pcscd`. You can use the
+:command:`opensc-explorer` or :command:`pcsc_scan` for testing. In
+Virtual Smart Card's root directory we also provide scripts for testing with
+:ref:`libnpa` and PCSC-Lite's smart card reader driver tester.
 
 
 ================================================================================

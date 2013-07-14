@@ -29,6 +29,8 @@ typedef int ssize_t;
 struct vicc_ctx {
         int server_sock;
         int client_sock;
+        char *hostname;
+        unsigned short port;
 };
 
 #ifdef __cplusplus
@@ -39,7 +41,20 @@ extern "C" {
 /** Standard port of the virtual smart card reader */
 #define VPCDPORT 35963
 
-struct vicc_ctx * vicc_init(unsigned short port);
+/**
+ * @brief Initialize the module
+ *
+ * @param[in] hostname Set hostname to something different to NULL if you want
+ *                     to connect the vpcd to a socket opened by vicc.
+ *                     Otherwise (default behavior) the vpcd will open a port
+ *                     for vicc
+ * @param[in] port     Port to connect to or to open (see \a hostname)
+ *
+ * @return On success, the call returns the initialized context
+ *         On error, NULL is returned.
+ */
+struct vicc_ctx * vicc_init(const char *hostname, unsigned short port);
+
 int vicc_exit(struct vicc_ctx *ctx);
 int vicc_eject(struct vicc_ctx *ctx);
 

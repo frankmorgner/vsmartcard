@@ -49,12 +49,15 @@ parser.add_argument("-H", "--hostname",
         action="store",
         type=str,
         default='localhost',
-        help="address of the vpcd (default: %(default)s)")
+        help="specifiy vpcd's host name if vicc shall connect to it. (default: %(default)s)")
 parser.add_argument("-P", "--port",
         action="store",
         type=int,
         default=35963,
-        help="port of the vpcd (default: %(default)s)")
+        help="port of connection establishment (default: %(default)s)")
+parser.add_argument("-R", "--reversed",
+        action="store_true",
+        help="use reversed connection mode. vicc will wait for an incoming connection from vpcd. (default: %(default)s)")
 parser.add_argument('--version', action='version', version='%(prog)s @PACKAGE_VERSION@')
 
 relay = parser.add_argument_group('Relaying a local smart card (`--type=relay`)')
@@ -118,8 +121,13 @@ elif args.verbose == 3:
 else:
     logginglevel = logging.DEBUG
 
+if args.reversed:
+    hostname = None
+else:
+    hostname = args.hostname
+
 vicc = VirtualICC(args.file, args.type,
-        args.hostname, args.port, readernum=args.reader,
+        hostname, args.port, readernum=args.reader,
         ef_cardaccess=ef_cardaccess_data, ef_cardsecurity=ef_cardsecurity_data,
         ca_key=ca_key_data, cvca=cvca, disable_checks=args.disable_ta_checks, logginglevel=logginglevel)
 vicc.run()

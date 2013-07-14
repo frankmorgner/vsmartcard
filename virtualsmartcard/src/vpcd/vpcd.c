@@ -22,9 +22,13 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #define close(s) closesocket(s)
+#ifndef AI_NUMERICSERV
+#define AI_NUMERICSERV 0
+#endif
 typedef WORD uint16_t;
 #else
 #include <arpa/inet.h>
+#include <netdb.h>
 #include <stdint.h>
 #include <sys/socket.h>
 #include <sys/time.h>
@@ -32,6 +36,7 @@ typedef WORD uint16_t;
 #endif
 
 #include <errno.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
@@ -43,29 +48,27 @@ typedef WORD uint16_t;
 #define VPCD_CTRL_RESET 2
 #define VPCD_CTRL_ATR	4
 
-ssize_t sendToVICC(struct vicc_ctx *ctx, size_t size, const unsigned char *buffer);
-ssize_t recvFromVICC(struct vicc_ctx *ctx, unsigned char **buffer);
+static ssize_t sendToVICC(struct vicc_ctx *ctx, size_t size, const unsigned char *buffer);
+static ssize_t recvFromVICC(struct vicc_ctx *ctx, unsigned char **buffer);
 
 static ssize_t sendall(int sock, const void *buffer, size_t size);
 static ssize_t recvall(int sock, void *buffer, size_t size);
 
 static int opensock(unsigned short port);
+static int connectsock(const char *hostname, unsigned short port);
 
 
 ssize_t sendall(int sock, const void *buffer, size_t size)
 {
-    size_t sent = 0;
+    size_t sent;
     ssize_t r;
-    const unsigned char *p = buffer;
 
-    while (sent < size) {
-        r = send(sock, (void *) p, size-sent, 0);
-        if (r < 0)
-            return r;
+	for (sent = 0; sent < size; sent += r) {
+		r = send(sock, (void *) (buffer+sent), size-sent, 0);
 
-        sent += r;
-        p += r;
-    }
+		if (r < 0)
+			return r;
+	}
 
     return sent;
 }
@@ -74,7 +77,7 @@ ssize_t recvall(int sock, void *buffer, size_t size) {
     return recv(sock, buffer, size, MSG_WAITALL);
 }
 
-int opensock(unsigned short port)
+static int opensock(unsigned short port)
 {
     int sock;
     socklen_t yes = 1;
@@ -100,6 +103,40 @@ int opensock(unsigned short port)
         return -1;
 
     return sock;
+}
+
+static int connectsock(const char *hostname, unsigned short port)
+{
+	struct addrinfo hints, *res = NULL, *cur;
+	int sock = -1;
+    char _port[10];
+
+    if (snprintf(_port, sizeof _port, "%hu", port) < 0)
+        goto err;
+    _port[(sizeof _port) -1] = '\0';
+
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = AF_INET;
+	hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = AI_NUMERICSERV;
+
+	if (getaddrinfo(hostname, _port, &hints, &res) != 0)
+		goto err;
+
+	for (cur = res; cur; cur = cur->ai_next) {
+		sock = socket(cur->ai_family, cur->ai_socktype, cur->ai_protocol);
+		if (sock < 0)
+			continue;
+
+		if (connect(sock, cur->ai_addr, cur->ai_addrlen) != -1)
+			break;
+
+		close(sock);
+	}
+
+err:
+	freeaddrinfo(res);
+	return sock;
 }
 
 int waitforclient(int server, long secs, long usecs)
@@ -132,7 +169,7 @@ int waitforclient(int server, long secs, long usecs)
     return 0;
 }
 
-ssize_t sendToVICC(struct vicc_ctx *ctx, size_t length, const unsigned char* buffer)
+static ssize_t sendToVICC(struct vicc_ctx *ctx, size_t length, const unsigned char* buffer)
 {
     ssize_t r;
     uint16_t size;
@@ -155,7 +192,7 @@ ssize_t sendToVICC(struct vicc_ctx *ctx, size_t length, const unsigned char* buf
     return r;
 }
 
-ssize_t recvFromVICC(struct vicc_ctx *ctx, unsigned char **buffer)
+static ssize_t recvFromVICC(struct vicc_ctx *ctx, unsigned char **buffer)
 {
     ssize_t r;
     uint16_t size;
@@ -186,29 +223,45 @@ ssize_t recvFromVICC(struct vicc_ctx *ctx, unsigned char **buffer)
 
 int vicc_eject(struct vicc_ctx *ctx)
 {
+    int r = 0;
     if (ctx && ctx->client_sock > 0) {
-        ctx->client_sock = close(ctx->client_sock);
-        if (ctx->client_sock < 0) {
-            return -1;
+        if (close(ctx->client_sock) < 0) {
+            r -= 1;
         }
+        ctx->client_sock = -1;
     }
-    return 0;
+    return r;
 }
 
-struct vicc_ctx * vicc_init(unsigned short port)
+struct vicc_ctx * vicc_init(const char *hostname, unsigned short port)
 {
     struct vicc_ctx *ctx = malloc(sizeof *ctx);
     if (!ctx) {
         return NULL;
     }
 
-    ctx->server_sock = opensock(port);
-    if (ctx->server_sock < 0) {
-        free(ctx);
-        return NULL;
-    }
+    if (hostname) {
+        ctx->hostname = strdup(hostname);
+        if (!ctx->hostname) {
+            free(ctx);
+            return NULL;
+        }
 
-    ctx->client_sock = -1;
+        ctx->server_sock = -1;
+
+        ctx->client_sock = connectsock(hostname, port);
+    } else {
+        ctx->hostname = NULL;
+
+        ctx->server_sock = opensock(port);
+        if (ctx->server_sock < 0) {
+            free(ctx);
+            return NULL;
+        }
+
+        ctx->client_sock = -1;
+    }
+    ctx->port = port;
 
     return ctx;
 }
@@ -217,6 +270,7 @@ int vicc_exit(struct vicc_ctx *ctx)
 {
     int r = vicc_eject(ctx);
     if (ctx) {
+        free(ctx->hostname);
         if (ctx->server_sock > 0) {
             ctx->server_sock = close(ctx->server_sock);
             if (ctx->server_sock < 0) {
@@ -248,23 +302,30 @@ ssize_t vicc_transmit(struct vicc_ctx *ctx,
 int vicc_present(struct vicc_ctx *ctx) {
     unsigned char *atr = NULL;
 
-    if (ctx->client_sock <= 0)
-        /* return immediately */
-        ctx->client_sock = waitforclient(ctx->server_sock, 0, 0);
+    if (ctx->client_sock < 0) {
+        if (ctx->server_sock) {
+            /* server mode, try to accept a client */
+            ctx->client_sock = waitforclient(ctx->server_sock, 0, 0);
+            if (!ctx->client_sock) {
+                ctx->client_sock = -1;
+            }
+        } else {
+            /* client mode, try to connect (again) */
+            ctx->client_sock = connectsock(ctx->hostname, ctx->port);
+        }
+    }
 
     if (ctx->client_sock < 0)
-        return -1;
-
-    if (ctx->client_sock > 0) {
-        if (vicc_getatr(ctx, &atr) <= 0)
-            return 0;
-
-        free(atr);
-
-        return 1;
-    } else {
+        /* not connected */
         return 0;
-    }
+
+    /* get the atr to check if the card is still alive */
+    if (vicc_getatr(ctx, &atr) <= 0)
+        return 0;
+
+    free(atr);
+
+    return 1;
 }
 
 ssize_t vicc_getatr(struct vicc_ctx *ctx, unsigned char **atr) {

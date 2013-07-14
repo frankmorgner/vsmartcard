@@ -14,6 +14,8 @@
      1)
 
 static struct vicc_ctx *ctx[VICC_MAX_SLOTS];
+static char *hostname = NULL;
+static const char openport[] = "/dev/null";
 
 RESPONSECODE
 IFDHCreateChannel (DWORD Lun, DWORD Channel)
@@ -22,12 +24,17 @@ IFDHCreateChannel (DWORD Lun, DWORD Channel)
     if (slot >= VICC_MAX_SLOTS) {
         return IFD_COMMUNICATION_ERROR;
     }
-    ctx[slot] = vicc_init(Channel+slot);
+    if (!hostname)
+        Log2(PCSC_LOG_INFO, "Waiting for virtual ICC on port %hu",
+                (unsigned short) (Channel+slot));
+    ctx[slot] = vicc_init(hostname, Channel+slot);
     if (!ctx[slot]) {
         Log1(PCSC_LOG_ERROR, "Could not initialize connection to virtual ICC");
         return IFD_COMMUNICATION_ERROR;
     }
-    Log2(PCSC_LOG_INFO, "Waiting for virtual ICC on port %hu", (unsigned short) Channel+slot);
+    if (hostname)
+        Log3(PCSC_LOG_INFO, "Connected to virtual ICC on %s port %hu",
+                hostname, (unsigned short) (Channel+slot));
 
     return IFD_SUCCESS;
 }
@@ -35,27 +42,51 @@ IFDHCreateChannel (DWORD Lun, DWORD Channel)
 RESPONSECODE
 IFDHCreateChannelByName (DWORD Lun, LPSTR DeviceName)
 {
+    RESPONSECODE r = IFD_NOT_SUPPORTED;
     char *dots;
+    char _hostname[MAX_READERNAME];
+    size_t hostname_len;
     unsigned long int port = VPCDPORT;
 
     dots = strchr(DeviceName, ':');
     if (dots) {
         /* a port has been specified behind the device name */
 
-        /* skip '+' */
+        hostname_len = dots - DeviceName;
+        if (strlen(openport) != hostname_len
+                || strncmp(DeviceName, openport, hostname_len) != 0) {
+            /* a hostname other than /dev/null has been specified,
+             * so we connect initialize hostname to connect to vicc */
+            if (hostname_len < sizeof _hostname)
+                memcpy(_hostname, DeviceName, hostname_len);
+            else {
+                Log3(PCSC_LOG_ERROR, "Not enough memory to hold hostname (have %u, need %u)", sizeof _hostname, hostname_len);
+                goto err;
+            }
+            _hostname[hostname_len] = '\0';
+            hostname = _hostname;
+        }
+
+        /* skip the ':' */
         dots++;
 
         errno = 0;
         port = strtoul(dots, NULL, 0);
         if (errno) {
             Log2(PCSC_LOG_ERROR, "Could not parse port: %s", dots);
-            return IFD_NO_SUCH_DEVICE;
+            goto err;
         }
     } else {
         Log1(PCSC_LOG_INFO, "Using default port.");
     }
 
-    return IFDHCreateChannel (Lun, port);
+    r = IFDHCreateChannel (Lun, port);
+
+err:
+    /* set hostname back to default in case it has been changed */
+    hostname = NULL;
+
+    return r;
 }
 
 RESPONSECODE
