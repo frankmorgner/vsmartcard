@@ -54,7 +54,7 @@ static ssize_t getline(char **lineptr, size_t *n, FILE *stream)
 
 int fread_to_eof(const char *file, unsigned char **buf, size_t *buflen)
 {
-    FILE *input;
+    FILE *input = NULL;
     int r = 0;
     unsigned char *p;
 
