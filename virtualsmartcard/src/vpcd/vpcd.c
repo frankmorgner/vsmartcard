@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Frank Morgner
+ * Copyright (C) 2009-2013 Frank Morgner
  *
  * This file is part of virtualsmartcard.
  *
@@ -17,6 +17,14 @@
  * virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "vpcd.h"
+
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#if defined HAVE_DECL_MSG_NOSIGNAL && !HAVE_DECL_MSG_NOSIGNAL
+#define MSG_NOSIGNAL
+#endif
 
 #ifdef _WIN32
 #include <winsock2.h>
@@ -64,7 +72,7 @@ ssize_t sendall(int sock, const void *buffer, size_t size)
     ssize_t r;
 
 	for (sent = 0; sent < size; sent += r) {
-		r = send(sock, (void *) (buffer+sent), size-sent, 0);
+		r = send(sock, (void *) (buffer+sent), size-sent, MSG_NOSIGNAL);
 
 		if (r < 0)
 			return r;
@@ -74,7 +82,7 @@ ssize_t sendall(int sock, const void *buffer, size_t size)
 }
 
 ssize_t recvall(int sock, void *buffer, size_t size) {
-    return recv(sock, buffer, size, MSG_WAITALL);
+    return recv(sock, buffer, size, MSG_WAITALL|MSG_NOSIGNAL);
 }
 
 static int opensock(unsigned short port)
@@ -89,6 +97,11 @@ static int opensock(unsigned short port)
 
     if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (void *) &yes, sizeof yes) != 0)
 		return -1;
+
+#if HAVE_DECL_SO_NOSIGPIPE
+    if (setsockopt(sock, SOL_SOCKET, SO_NOSIGPIPE, (void *) &yes, sizeof yes) != 0)
+		return -1;
+#endif
 
     memset(&server_sockaddr, 0, sizeof server_sockaddr);
     server_sockaddr.sin_family      = PF_INET;
@@ -301,6 +314,9 @@ ssize_t vicc_transmit(struct vicc_ctx *ctx,
 
 int vicc_present(struct vicc_ctx *ctx) {
     unsigned char *atr = NULL;
+
+    if (!ctx)
+        return 0;
 
     if (ctx->client_sock < 0) {
         if (ctx->server_sock) {

@@ -1,0 +1,729 @@
+/*
+ * Copyright (C) 2013 Frank Morgner
+ *
+ * This file is part of virtualsmartcard.
+ *
+ * virtualsmartcard is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option)
+ * any later version.
+ *
+ * virtualsmartcard is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
+ */
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#include "ifd-vpcd.h"
+#include "vpcd.h"
+#include <ifdhandler.h>
+#include <inttypes.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <winscard.h>
+
+struct card {
+    DWORD dwShareMode;
+    size_t usage_counter;
+};
+
+#define SET_R_TEST(value) { r = value; if (r != SCARD_S_SUCCESS) { goto err; } }
+
+static struct card cards[PCSCLITE_MAX_READERS_CONTEXTS];
+static int cancel_status = 0;
+static size_t context_count = 0;
+
+static const char reader_format_str[] = "Virtual PCD %02"SCNu32;
+static const SCARDHANDLE validhandle = 1;
+
+/* part of libvpcd, but not exported */
+extern const unsigned char VICC_MAX_SLOTS;
+extern const char *hostname;
+
+static LONG autoallocate(void *buf, LPDWORD len, DWORD max, void **rbuf)
+{
+    LPSTR *p;
+
+    if (!len || !rbuf)
+        return SCARD_E_INVALID_PARAMETER;
+
+    if (buf && (*len == SCARD_AUTOALLOCATE)) {
+        p = malloc(max);
+        if (!p)
+            return SCARD_E_NO_MEMORY;
+
+        /* copy the pointer */
+        memcpy(buf, &p, sizeof p);
+
+        *len = max;
+        *rbuf = p;
+    } else {
+        /* we don't have anything to do.
+         * Simply tell the caller to use buf with unchanged length */
+        *rbuf = buf;
+    }
+
+    return SCARD_S_SUCCESS;
+}
+
+static void initialize_globals(void)
+{
+    DWORD Lun, Channel = VPCDPORT;
+    const char *hostname_old = hostname;
+
+    hostname = VPCDHOST;
+    for (Lun = 0;
+            Lun < PCSCLITE_MAX_READERS_CONTEXTS && Lun < VICC_MAX_SLOTS;
+            Lun++) {
+        IFDHCreateChannel (Lun, Channel);
+    }
+    hostname = hostname_old;
+}
+
+static void release_globals(void)
+{
+    DWORD Lun;
+    for (Lun = 0;
+            Lun < PCSCLITE_MAX_READERS_CONTEXTS && Lun < VICC_MAX_SLOTS;
+            Lun++) {
+        IFDHCloseChannel (Lun);
+    }
+    memset(cards, 0, sizeof cards);
+}
+
+static LONG handle2card(SCARDHANDLE hCard, struct card **card)
+{
+    DWORD index = hCard;
+
+    if (!card)
+        return SCARD_F_INTERNAL_ERROR;
+
+    if (index >= PCSCLITE_MAX_READERS_CONTEXTS)
+        return SCARD_E_INVALID_HANDLE;
+
+    *card = &cards[index];
+
+    return SCARD_S_SUCCESS;
+}
+
+LONG handle2reader(DWORD index, LPSTR mszReaderName, LPDWORD pcchReaderLen)
+{
+    LONG r;
+    char *reader;
+    int length;
+
+    if (!pcchReaderLen) {
+        r = SCARD_E_INVALID_PARAMETER;
+        goto err;
+    }
+
+    SET_R_TEST( autoallocate(mszReaderName, pcchReaderLen, MAX_READERNAME, (void **) &reader));
+
+    if (reader) {
+        /* caller wants to have the string */
+        length = snprintf(reader, *pcchReaderLen, reader_format_str, (uint32_t) index);
+        if (length > *pcchReaderLen) {
+            r = SCARD_E_INSUFFICIENT_BUFFER;
+            goto err;
+        }
+    } else {
+        /* caller wants to have the length */
+        length = snprintf(reader, 0, reader_format_str, (uint32_t) index);
+    }
+
+    if (length < 0) {
+        r = SCARD_F_INTERNAL_ERROR;
+        goto err;
+    }
+
+    *pcchReaderLen = length;
+    /* r has already been set to SCARD_S_SUCCESS */
+
+err:
+    return r;
+}
+
+static LONG reader2card(LPCSTR szReader, struct card **card, LPSCARDHANDLE phCard)
+{
+    DWORD index;
+
+    if (!card)
+        return SCARD_F_INTERNAL_ERROR;
+
+    if (1 != sscanf(szReader, reader_format_str, &index)
+            || index >= PCSCLITE_MAX_READERS_CONTEXTS)
+        return SCARD_E_READER_UNAVAILABLE;
+
+    *card = &cards[index];
+    if (phCard)
+        *phCard = index;
+
+    return SCARD_S_SUCCESS;
+}
+
+static LONG responsecode2long(RESPONSECODE r)
+{
+    switch (r) {
+        case IFD_ICC_PRESENT:
+        case IFD_SUCCESS:
+            return SCARD_S_SUCCESS;
+        case IFD_ERROR_INSUFFICIENT_BUFFER:
+            return SCARD_E_INSUFFICIENT_BUFFER;
+        case IFD_ERROR_NOT_SUPPORTED:
+        case IFD_NOT_SUPPORTED:
+        case IFD_PROTOCOL_NOT_SUPPORTED:
+            return SCARD_E_UNSUPPORTED_FEATURE;
+        case IFD_ERROR_CONFISCATE:
+        case IFD_ERROR_EJECT:
+        case IFD_ERROR_POWER_ACTION:
+            return SCARD_E_CANT_DISPOSE;
+        case IFD_RESPONSE_TIMEOUT:
+            return SCARD_E_TIMEOUT;
+        case IFD_ICC_NOT_PRESENT:
+            return SCARD_E_NO_SMARTCARD;
+        case IFD_COMMUNICATION_ERROR:
+            return SCARD_F_COMM_ERROR;
+        case IFD_NO_SUCH_DEVICE:
+            return SCARD_E_READER_UNAVAILABLE;
+        case IFD_ERROR_TAG:
+        case IFD_ERROR_SET_FAILURE:
+        case IFD_ERROR_VALUE_READ_ONLY:
+        case IFD_ERROR_PTS_FAILURE:
+        case IFD_ERROR_SWALLOW:
+        default:
+            return SCARD_F_INTERNAL_ERROR;
+    }
+}
+
+static LONG handle2atr(DWORD Lun, LPBYTE pbAtr, LPDWORD pcbAtrLen)
+{
+    LONG r;
+    void *atr;
+    unsigned char _atr[MAX_ATR_SIZE];
+
+    SET_R_TEST( responsecode2long(
+                IFDHICCPresence(Lun)));
+
+    SET_R_TEST( autoallocate(pbAtr, pcbAtrLen, MAX_ATR_SIZE, (void **) &atr));
+
+    if (!atr) {
+        /* caller wants to have the length */
+        *pcbAtrLen = sizeof _atr;
+        atr = _atr;
+    }
+
+    SET_R_TEST( responsecode2long(
+                IFDHGetCapabilities (Lun, TAG_IFD_ATR, pcbAtrLen, atr)));
+
+err:
+    return r;
+}
+
+PCSC_API LONG SCardEstablishContext(DWORD dwScope, LPCVOID pvReserved1, LPCVOID pvReserved2, LPSCARDCONTEXT phContext)
+{
+    if (!phContext)
+        return SCARD_E_INVALID_PARAMETER;
+
+    if (!context_count)
+        initialize_globals();
+    context_count++;
+
+    *phContext = validhandle;
+
+    return SCARD_S_SUCCESS;
+}
+
+PCSC_API LONG SCardReleaseContext(SCARDCONTEXT hContext)
+{
+    if (context_count) {
+        context_count--;
+    }
+
+    if (!context_count) {
+        release_globals();
+    }
+
+    return SCARD_S_SUCCESS;
+}
+
+PCSC_API LONG SCardIsValidContext(SCARDCONTEXT hContext)
+{
+    if (context_count && hContext == validhandle)
+        return SCARD_S_SUCCESS;
+    else
+        return SCARD_E_INVALID_HANDLE;
+}
+
+PCSC_API LONG SCardSetTimeout(SCARDCONTEXT hContext, DWORD dwTimeout)
+{
+    /* XXX better return an error here? */
+    return SCARD_S_SUCCESS;
+}
+
+PCSC_API LONG SCardConnect(SCARDCONTEXT hContext, LPCSTR szReader, DWORD dwShareMode, DWORD dwPreferredProtocols, LPSCARDHANDLE phCard, LPDWORD pdwActiveProtocol)
+{
+    struct card *card;
+    LONG r;
+
+    SET_R_TEST( reader2card(szReader, &card, phCard));
+
+    if (card->usage_counter) {
+        /* card/reader already in use */
+        if (card->dwShareMode == SCARD_SHARE_EXCLUSIVE
+                || card->dwShareMode != dwShareMode) {
+            /* cannot use the provided mode */
+            return SCARD_E_SHARING_VIOLATION;
+        }
+    }
+
+    card->usage_counter++;
+    card->dwShareMode = dwShareMode;
+
+err:
+    return r;
+}
+
+PCSC_API LONG SCardReconnect(SCARDHANDLE hCard, DWORD dwShareMode, DWORD dwPreferredProtocols, DWORD dwInitialization, LPDWORD pdwActiveProtocol)
+{
+    struct card *card;
+    LONG r;
+
+    SET_R_TEST( handle2card(hCard, &card));
+
+    if (card->usage_counter > 1
+            && card->dwShareMode != dwShareMode) {
+        /* cannot use the provided mode */
+        r = SCARD_E_SHARING_VIOLATION;
+        goto err;
+    }
+
+    card->dwShareMode = dwShareMode;
+
+err:
+    return r;
+}
+
+PCSC_API LONG SCardDisconnect(SCARDHANDLE hCard, DWORD dwDisposition)
+{
+    DWORD Lun = hCard;
+    LONG r;
+    UCHAR Atr[MAX_ATR_SIZE];
+    DWORD AtrLength = sizeof Atr;
+    struct card *card;
+
+    SET_R_TEST( handle2card(hCard, &card));
+
+    if (!card->usage_counter) {
+        r = SCARD_E_INVALID_HANDLE;
+        goto err;
+    }
+    card->usage_counter--;
+
+    switch (dwDisposition) {
+        case SCARD_LEAVE_CARD:
+            r = SCARD_S_SUCCESS;
+            break;
+
+        case SCARD_RESET_CARD:
+            if (card->usage_counter) {
+                r = SCARD_E_CANT_DISPOSE;
+                goto err;
+            }
+            SET_R_TEST( responsecode2long(
+                        IFDHPowerICC (Lun, IFD_RESET, Atr, &AtrLength)));
+            break;
+
+        case SCARD_EJECT_CARD:
+            /* fall through */
+        case SCARD_UNPOWER_CARD:
+            if (card->usage_counter) {
+                r = SCARD_E_CANT_DISPOSE;
+                goto err;
+            }
+            SET_R_TEST( responsecode2long(
+                        IFDHPowerICC (Lun, IFD_POWER_DOWN, Atr, &AtrLength)));
+            break;
+
+        default:
+            r = SCARD_E_INVALID_PARAMETER;
+            break;
+    }
+
+err:
+    return r;
+}
+
+PCSC_API LONG SCardBeginTransaction(SCARDHANDLE hCard)
+{
+    struct card *card;
+    LONG r;
+
+    SET_R_TEST( handle2card(hCard, &card));
+
+    /* we don't have a strategy if an other card handle is active */
+    if (card->usage_counter != 1)
+        return SCARD_E_SHARING_VIOLATION;
+
+    card->dwShareMode = SCARD_SHARE_EXCLUSIVE;
+
+err:
+    return r;
+}
+
+PCSC_API LONG SCardEndTransaction(SCARDHANDLE hCard, DWORD dwDisposition)
+{
+    struct card *card;
+    LONG r;
+
+    SET_R_TEST( handle2card(hCard, &card));
+
+    card->dwShareMode = dwDisposition;
+
+err:
+    return r;
+}
+
+PCSC_API LONG SCardCancelTransaction(SCARDHANDLE hCard)
+{
+    return SCARD_S_SUCCESS;
+}
+
+PCSC_API LONG SCardStatus(SCARDHANDLE hCard, LPSTR mszReaderName, LPDWORD pcchReaderLen, LPDWORD pdwState, LPDWORD pdwProtocol, LPBYTE pbAtr, LPDWORD pcbAtrLen)
+{
+    LONG r;
+
+    SET_R_TEST( handle2reader(hCard, mszReaderName, pcchReaderLen));
+    SET_R_TEST( handle2atr(hCard, pbAtr, pcbAtrLen));
+
+err:
+    return r;
+}
+
+PCSC_API LONG SCardGetStatusChange(SCARDCONTEXT hContext, DWORD dwTimeout, LPSCARD_READERSTATE rgReaderStates, DWORD cReaders)
+{
+    SCARDHANDLE hCard;
+    size_t i, seconds, event_count = 0;
+    struct card *card;
+
+    cancel_status = 0;
+
+    if (dwTimeout == INFINITE) {
+        /* "infinite" timeout */
+        seconds = 60;
+    } else {
+        seconds = dwTimeout/1000;
+    }
+
+    do {
+        for (i = 0; i < cReaders; i++) {
+            if (rgReaderStates[i].dwCurrentState & SCARD_STATE_IGNORE)
+                /* this reader should be ignored */
+                continue;
+
+            if (strcmp(rgReaderStates[i].szReader, "\\\\?PnP?\\Notification") == 0)
+                /* we don't allow readers to be added or removed */
+                continue;
+
+            rgReaderStates[i].dwEventState = 0;
+
+            if (SCARD_S_SUCCESS != reader2card(rgReaderStates[i].szReader,
+                        &card, &hCard)) {
+                /* given reader not recognized */
+                rgReaderStates[i].dwEventState |= SCARD_STATE_UNKNOWN
+                    | SCARD_STATE_CHANGED |SCARD_STATE_IGNORE;
+                event_count++;
+                continue;
+            }
+
+            if (card->usage_counter) {
+                rgReaderStates[i].dwEventState |= SCARD_STATE_INUSE;
+                if (card->dwShareMode == SCARD_SHARE_EXCLUSIVE)
+                    rgReaderStates[i].dwEventState |= SCARD_STATE_EXCLUSIVE;
+            }
+
+            /* normally the application should set cbAtr appropriately.
+             * Some application don't mind to do that (e.g., pcsc_scan) */
+            rgReaderStates[i].cbAtr = sizeof rgReaderStates[i].rgbAtr;
+
+            if (SCARD_S_SUCCESS != handle2atr(hCard, rgReaderStates[i].rgbAtr,
+                        &rgReaderStates[i].cbAtr)) {
+                rgReaderStates[i].dwEventState |= SCARD_STATE_EMPTY;
+                rgReaderStates[i].cbAtr = 0;
+            } else {
+                rgReaderStates[i].dwEventState |= SCARD_STATE_PRESENT;
+            }
+
+            /* if current and event state differ in the flags SCARD_STATE_EMPTY
+             * or SCARD_STATE_PRESENT a state change has occurred */
+            if (((rgReaderStates[i].dwCurrentState & SCARD_STATE_EMPTY)
+                        != (rgReaderStates[i].dwEventState & SCARD_STATE_EMPTY))
+                    || ((rgReaderStates[i].dwCurrentState & SCARD_STATE_PRESENT)
+                        != (rgReaderStates[i].dwEventState & SCARD_STATE_PRESENT))) {
+                rgReaderStates[i].dwEventState |= SCARD_STATE_CHANGED;
+                event_count++;
+            }
+        }
+
+        if (!seconds || event_count)
+            break;
+
+        sleep(1);
+        seconds--;
+
+    } while (!cancel_status);
+
+    if (!event_count)
+        return SCARD_E_TIMEOUT;
+
+    return SCARD_S_SUCCESS;
+}
+
+PCSC_API LONG SCardCancel(SCARDHANDLE hCard)
+{
+    cancel_status = 1;
+    return SCARD_S_SUCCESS;
+}
+
+PCSC_API LONG SCardControl(SCARDHANDLE hCard, DWORD dwControlCode, LPCVOID pbSendBuffer, DWORD cbSendLength, LPVOID pbRecvBuffer, DWORD cbRecvLength, LPDWORD lpBytesReturned)
+{
+    return responsecode2long(
+            IFDHControl (hCard, dwControlCode, (PUCHAR) pbSendBuffer,
+                cbSendLength, pbRecvBuffer, cbRecvLength, lpBytesReturned));
+}
+
+PCSC_API LONG SCardTransmit(SCARDHANDLE hCard, LPCSCARD_IO_REQUEST pioSendPci, LPCBYTE pbSendBuffer, DWORD cbSendLength, LPSCARD_IO_REQUEST pioRecvPci, LPBYTE pbRecvBuffer, LPDWORD pcbRecvLength)
+{
+    DWORD Lun = hCard;
+    LONG r;
+    /* ignored */
+    SCARD_IO_HEADER SendPci, RecvPci;
+
+    /* transceive data */
+    SET_R_TEST( responsecode2long(
+                IFDHTransmitToICC (Lun, SendPci, (PUCHAR) pbSendBuffer,
+                    cbSendLength, pbRecvBuffer, pcbRecvLength, &RecvPci)));
+
+err:
+    return r;
+}
+
+PCSC_API LONG SCardGetAttrib(SCARDHANDLE hCard, DWORD dwAttrId, LPBYTE pbAttr, LPDWORD pcbAttrLen)
+{
+    return SCARD_F_INTERNAL_ERROR;
+}
+
+PCSC_API LONG SCardSetAttrib(SCARDHANDLE hCard, DWORD dwAttrId, LPCBYTE pbAttr, DWORD cbAttrLen)
+{
+    return SCARD_F_INTERNAL_ERROR;
+}
+
+PCSC_API LONG SCardListReaders(SCARDCONTEXT hContext, LPCSTR mszGroups, LPSTR mszReaders, LPDWORD pcchReaders)
+{
+    DWORD Lun;
+    DWORD readerslen = 0, readerlen;
+    LONG r;
+    char *readers;
+
+    if (!pcchReaders) {
+        r = SCARD_E_INVALID_PARAMETER;
+        goto err;
+    }
+
+
+    SET_R_TEST( autoallocate(mszReaders, pcchReaders,
+                (MAX_READERNAME+1)*PCSCLITE_MAX_READERS_CONTEXTS,
+                (void **) &readers));
+
+
+    /* write reader names */
+    for (Lun = 0; Lun < PCSCLITE_MAX_READERS_CONTEXTS; Lun++) {
+        /* what memory we have left */
+        readerlen = *pcchReaders - readerslen;
+
+        /* get the current readername */
+        SET_R_TEST( handle2reader(Lun, readers ? readers+readerslen : NULL,
+                    &readerlen));
+
+        /* readerlen has been set to the correct value */
+        readerslen += readerlen;
+        /* copy null character */
+        readerslen++;
+    }
+
+    *pcchReaders = readerslen;
+
+    if (!readerslen) {
+        r = SCARD_E_NO_READERS_AVAILABLE;
+    } else {
+        r = SCARD_S_SUCCESS;
+    }
+
+err:
+    return r;
+}
+
+PCSC_API LONG SCardListReaderGroups(SCARDCONTEXT hContext, LPSTR mszGroups, LPDWORD pcchGroups)
+{
+    LONG r;
+    unsigned char *groups;
+
+    SET_R_TEST( autoallocate(mszGroups, pcchGroups, 1, (void **) &groups));
+
+    if (groups) {
+        /* caller wants to have the string */
+        *groups = '\0';
+    } else {
+        /* caller wants to have the length */
+    }
+
+    *pcchGroups = 1;
+
+
+err:
+    return r;
+}
+
+PCSC_API LONG SCardFreeMemory(SCARDCONTEXT hContext, LPCVOID pvMem)
+{
+    free((void *) pvMem);
+
+    return SCARD_S_SUCCESS;
+}
+
+/* copied from error.c of pcsc-lite-1.5.5 */
+char *pcsc_stringify_error(const long pcscError)
+{
+    static char strError[75];
+
+    switch (pcscError) {
+        case SCARD_S_SUCCESS:
+            (void)strncpy(strError, "Command successful.", sizeof(strError));
+            break;
+        case SCARD_E_CANCELLED:
+            (void)strncpy(strError, "Command cancelled.", sizeof(strError));
+            break;
+        case SCARD_E_CANT_DISPOSE:
+            (void)strncpy(strError, "Cannot dispose handle.", sizeof(strError));
+            break;
+        case SCARD_E_INSUFFICIENT_BUFFER:
+            (void)strncpy(strError, "Insufficient buffer.", sizeof(strError));
+            break;
+        case SCARD_E_INVALID_ATR:
+            (void)strncpy(strError, "Invalid ATR.", sizeof(strError));
+            break;
+        case SCARD_E_INVALID_HANDLE:
+            (void)strncpy(strError, "Invalid handle.", sizeof(strError));
+            break;
+        case SCARD_E_INVALID_PARAMETER:
+            (void)strncpy(strError, "Invalid parameter given.", sizeof(strError));
+            break;
+        case SCARD_E_INVALID_TARGET:
+            (void)strncpy(strError, "Invalid target given.", sizeof(strError));
+            break;
+        case SCARD_E_INVALID_VALUE:
+            (void)strncpy(strError, "Invalid value given.", sizeof(strError));
+            break;
+        case SCARD_E_NO_MEMORY:
+            (void)strncpy(strError, "Not enough memory.", sizeof(strError));
+            break;
+        case SCARD_F_COMM_ERROR:
+            (void)strncpy(strError, "RPC transport error.", sizeof(strError));
+            break;
+        case SCARD_F_INTERNAL_ERROR:
+            (void)strncpy(strError, "Internal error.", sizeof(strError));
+            break;
+        case SCARD_F_UNKNOWN_ERROR:
+            (void)strncpy(strError, "Unknown error.", sizeof(strError));
+            break;
+        case SCARD_F_WAITED_TOO_LONG:
+            (void)strncpy(strError, "Waited too long.", sizeof(strError));
+            break;
+        case SCARD_E_UNKNOWN_READER:
+            (void)strncpy(strError, "Unknown reader specified.", sizeof(strError));
+            break;
+        case SCARD_E_TIMEOUT:
+            (void)strncpy(strError, "Command timeout.", sizeof(strError));
+            break;
+        case SCARD_E_SHARING_VIOLATION:
+            (void)strncpy(strError, "Sharing violation.", sizeof(strError));
+            break;
+        case SCARD_E_NO_SMARTCARD:
+            (void)strncpy(strError, "No smart card inserted.", sizeof(strError));
+            break;
+        case SCARD_E_UNKNOWN_CARD:
+            (void)strncpy(strError, "Unknown card.", sizeof(strError));
+            break;
+        case SCARD_E_PROTO_MISMATCH:
+            (void)strncpy(strError, "Card protocol mismatch.", sizeof(strError));
+            break;
+        case SCARD_E_NOT_READY:
+            (void)strncpy(strError, "Subsystem not ready.", sizeof(strError));
+            break;
+        case SCARD_E_SYSTEM_CANCELLED:
+            (void)strncpy(strError, "System cancelled.", sizeof(strError));
+            break;
+        case SCARD_E_NOT_TRANSACTED:
+            (void)strncpy(strError, "Transaction failed.", sizeof(strError));
+            break;
+        case SCARD_E_READER_UNAVAILABLE:
+            (void)strncpy(strError, "Reader is unavailable.", sizeof(strError));
+            break;
+        case SCARD_W_UNSUPPORTED_CARD:
+            (void)strncpy(strError, "Card is not supported.", sizeof(strError));
+            break;
+        case SCARD_W_UNRESPONSIVE_CARD:
+            (void)strncpy(strError, "Card is unresponsive.", sizeof(strError));
+            break;
+        case SCARD_W_UNPOWERED_CARD:
+            (void)strncpy(strError, "Card is unpowered.", sizeof(strError));
+            break;
+        case SCARD_W_RESET_CARD:
+            (void)strncpy(strError, "Card was reset.", sizeof(strError));
+            break;
+        case SCARD_W_REMOVED_CARD:
+            (void)strncpy(strError, "Card was removed.", sizeof(strError));
+            break;
+        case SCARD_STATE_PRESENT:
+            (void)strncpy(strError, "Card was inserted.", sizeof(strError));
+            break;
+        case SCARD_E_UNSUPPORTED_FEATURE:
+            (void)strncpy(strError, "Feature not supported.", sizeof(strError));
+            break;
+        case SCARD_E_PCI_TOO_SMALL:
+            (void)strncpy(strError, "PCI struct too small.", sizeof(strError));
+            break;
+        case SCARD_E_READER_UNSUPPORTED:
+            (void)strncpy(strError, "Reader is unsupported.", sizeof(strError));
+            break;
+        case SCARD_E_DUPLICATE_READER:
+            (void)strncpy(strError, "Reader already exists.", sizeof(strError));
+            break;
+        case SCARD_E_CARD_UNSUPPORTED:
+            (void)strncpy(strError, "Card is unsupported.", sizeof(strError));
+            break;
+        case SCARD_E_NO_SERVICE:
+            (void)strncpy(strError, "Service not available.", sizeof(strError));
+            break;
+        case SCARD_E_SERVICE_STOPPED:
+            (void)strncpy(strError, "Service was stopped.", sizeof(strError));
+            break;
+        case SCARD_E_NO_READERS_AVAILABLE:
+            (void)strncpy(strError, "Cannot find a smart card reader.", sizeof(strError));
+            break;
+        default:
+            (void)snprintf(strError, sizeof(strError)-1, "Unkown error: 0x%08lX",
+                    pcscError);
+    };
+
+    /* add a null byte */
+    strError[sizeof(strError)-1] = '\0';
+
+    return strError;
+}

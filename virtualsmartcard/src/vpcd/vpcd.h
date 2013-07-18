@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Frank Morgner
+ * Copyright (C) 2009-2013 Frank Morgner
  *
  * This file is part of virtualsmartcard.
  *
