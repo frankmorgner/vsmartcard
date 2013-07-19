@@ -552,7 +552,7 @@ class HandlerTestOS(SmartcardOS):
         lastCommandOffcut = ''
 
     def getATR(self):
-        return 'ATR'
+        return '\x3B\xD6\x18\x00\x80\xB1\x80\x6D\x1F\x03\x80\x51\x00\x61\x10\x30\x9E'
         
     def powerUp(self):
         pass
