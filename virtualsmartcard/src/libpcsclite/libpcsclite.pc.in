@@ -7,4 +7,4 @@ Name: @PACKAGE_NAME@
 Description: PC/SC smart card interface
 Version: @VERSION@
 Libs: -L${libdir} -lpcsclite -lvpcd
-Cflags: -DNO_LOG -I${includedir}
+Cflags: -I${includedir}

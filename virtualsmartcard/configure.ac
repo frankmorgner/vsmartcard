@@ -117,9 +117,9 @@ AC_ARG_ENABLE(vpcdhost,
 	[vpcdhost="${enableval}"], [vpcdhost=/dev/null])
 AC_SUBST(vpcdhost)
 if test "${vpcdhost}" = "/dev/null"; then
-	AC_DEFINE_UNQUOTED(VPCDHOST, NULL, [OpenPICC character device])
+	AC_DEFINE_UNQUOTED(VPCDHOST, NULL, [address of vicc])
 else
-	AC_DEFINE_UNQUOTED(VPCDHOST, "${vpcdhost}", [OpenPICC character device])
+	AC_DEFINE_UNQUOTED(VPCDHOST, "${vpcdhost}", [address of vicc])
 fi
 
 

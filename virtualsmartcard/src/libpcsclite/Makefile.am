@@ -4,9 +4,10 @@ lib_LTLIBRARIES         = libpcsclite.la
 
 libpcsclite_la_CPPFLAGS = $(PCSC_CFLAGS) -I$(srcdir)/../vpcd
 libpcsclite_la_LDFLAGS  = -no-undefined
-libpcsclite_la_SOURCES  = winscard.c $(top_builddir)/src/vpcd/libvpcd.la
+libpcsclite_la_SOURCES  = winscard.c debug.c strlcpy.c error.c \
+						  $(top_builddir)/src/vpcd/libvpcd.la
 
-noinst_HEADERS = pcsclite.h
+noinst_HEADERS = pcsclite.h strlcpycat.h misc.h
 
 nobase_include_HEADERS  = \
 						  PCSC/pcsclite.h \
