@@ -43,6 +43,9 @@ static size_t context_count = 0;
 static const char reader_format_str[] = "Virtual PCD %02"SCNu32;
 static const SCARDHANDLE validhandle = 1;
 
+/* defined as "extern" in pcsclite.h, but not used here */
+const SCARD_IO_REQUEST g_rgSCardT0Pci, g_rgSCardT1Pci, g_rgSCardRawPci;
+
 /* part of libvpcd, but not exported */
 extern const unsigned char vicc_max_slots;
 extern const char *hostname;
