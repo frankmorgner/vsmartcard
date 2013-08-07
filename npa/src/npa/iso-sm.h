@@ -30,6 +30,20 @@
 extern "C" {
 #endif
 
+/** @brief maximum length of response when targeting a SM RAPDU
+ *
+ * Using SM with authenticated data+le and encrypted data this is the biggest
+ * amount of the unencrypted response data we can receive. We assume AES block
+ * length for padding and MAC. */
+#define MAX_SM_APDU_RESP_SIZE 223
+
+/** @brief maximum length of data when targeting a SM APDU
+ *
+ * Using SM with authenticated data+header and encrypted data this is the
+ * biggest amount of the unencrypted data we can send. We assume AES block
+ * length for padding and MAC. */
+#define MAX_SM_APDU_DATA_SIZE 239
+
 /** @brief Padding indicator: use ISO/IEC 9797-1 padding method 2 */
 #define SM_ISO_PADDING 0x01
 /** @brief Padding indicator: use no padding */

@@ -148,16 +148,13 @@ int print_avail(int verbose)
     return r;
 }
 
-#define maxresp SC_MAX_APDU_BUFFER_SIZE - 2
 #define ISO_READ_BINARY  0xB0
 #define ISO_P1_FLAG_SFID 0x80
 int read_binary_rec(sc_card_t *card, unsigned char sfid,
         u8 **ef, size_t *ef_len)
 {
     int r;
-    /* we read less bytes than possible. this is a workaround for acr 122,
-     * which only supports apdus of max 250 bytes */
-    size_t read = maxresp - 8;
+    size_t read = MAX_SM_APDU_RESP_SIZE;
     sc_apdu_t apdu;
     u8 *p;
 
@@ -222,9 +219,7 @@ int write_binary_rec(sc_card_t *card, unsigned char sfid,
         u8 *ef, size_t ef_len)
 {
     int r;
-    /* we write less bytes than possible. this is a workaround for acr 122,
-     * which only supports apdus of max 250 bytes */
-    size_t write = maxresp - 8, wrote = 0;
+    size_t write = MAX_SM_APDU_DATA_SIZE, wrote = 0;
     sc_apdu_t apdu;
     struct iso_sm_ctx *iso_sm_ctx = card->sm_ctx.info.cmd_data;
 
