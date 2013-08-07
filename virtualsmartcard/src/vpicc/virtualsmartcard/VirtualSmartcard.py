@@ -670,6 +670,7 @@ class VirtualICC(object):
             
         #Connect to the VPCD
         self.host = host
+        self.port = port
         if host:
             # use normal connection mode
             try:
@@ -731,7 +732,7 @@ class VirtualICC(object):
         sizestr = self.sock.recv(_Csizeof_short)
         if len(sizestr) == 0:
             logging.info("Virtual PCD shut down")
-            sys.exit()
+            raise socket.error
         size = struct.unpack('!H', sizestr)[0]
 
         # receive and return message
@@ -739,6 +740,7 @@ class VirtualICC(object):
             msg = self.sock.recv(size)
             if len(msg) == 0:
                 logging.info("Virtual PCD shut down")
+                raise socket.error
         else:
             msg = None
 
@@ -751,7 +753,16 @@ class VirtualICC(object):
         respsonse APDU back to the vpcd.
         """
         while True :
-            (size, msg) = self.__recvFromVPICC()
+            try:
+                (size, msg) = self.__recvFromVPICC()
+            except socket.error as e:
+                if not self.host:
+                    logging.info("Waiting for vpcd on port " + str(self.port))
+                    (self.sock, address) = self.server_sock.accept()
+                    continue
+                else:
+                    sys.exit()
+
             if not size:
                 logging.warning("Error in communication protocol (missing size parameter)")
             elif size == VPCD_CTRL_LEN:
