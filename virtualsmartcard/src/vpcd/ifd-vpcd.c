@@ -27,9 +27,10 @@
 
 /* pcscd allows at most 16 readers. We will use 10.
  * See PCSCLITE_MAX_READERS_CONTEXTS in pcsclite.h */
-const unsigned char VICC_MAX_SLOTS =
-        PCSCLITE_MAX_READERS_CONTEXTS > 6 ?
-        PCSCLITE_MAX_READERS_CONTEXTS-6 : 1;
+#define VICC_MAX_SLOTS \
+        PCSCLITE_MAX_READERS_CONTEXTS > 6 ? \
+        PCSCLITE_MAX_READERS_CONTEXTS-6 : 1
+const unsigned char vicc_max_slots = VICC_MAX_SLOTS;
 
 static struct vicc_ctx *ctx[VICC_MAX_SLOTS];
 const char *hostname = NULL;
@@ -39,7 +40,7 @@ RESPONSECODE
 IFDHCreateChannel (DWORD Lun, DWORD Channel)
 {
     size_t slot = Lun & 0xffff;
-    if (slot >= VICC_MAX_SLOTS) {
+    if (slot >= vicc_max_slots) {
         return IFD_COMMUNICATION_ERROR;
     }
     if (!hostname)
@@ -123,7 +124,7 @@ RESPONSECODE
 IFDHCloseChannel (DWORD Lun)
 {
     size_t slot = Lun & 0xffff;
-    if (slot >= VICC_MAX_SLOTS) {
+    if (slot >= vicc_max_slots) {
         return IFD_COMMUNICATION_ERROR;
     }
     if (vicc_exit(ctx[slot]) < 0) {
@@ -141,7 +142,7 @@ IFDHGetCapabilities (DWORD Lun, DWORD Tag, PDWORD Length, PUCHAR Value)
     unsigned char *atr = NULL;
     ssize_t size;
     size_t slot = Lun & 0xffff;
-    if (slot >= VICC_MAX_SLOTS) {
+    if (slot >= vicc_max_slots) {
         return IFD_COMMUNICATION_ERROR;
     }
 
@@ -179,7 +180,7 @@ IFDHGetCapabilities (DWORD Lun, DWORD Tag, PDWORD Length, PUCHAR Value)
                 return IFD_COMMUNICATION_ERROR;
             }
 
-            *Value  = VICC_MAX_SLOTS;
+            *Value  = vicc_max_slots;
             *Length = 1;
             break;
 
@@ -221,7 +222,7 @@ RESPONSECODE
 IFDHPowerICC (DWORD Lun, DWORD Action, PUCHAR Atr, PDWORD AtrLength)
 {
     size_t slot = Lun & 0xffff;
-    if (slot >= VICC_MAX_SLOTS) {
+    if (slot >= vicc_max_slots) {
         return IFD_COMMUNICATION_ERROR;
     }
     switch (Action) {
@@ -266,7 +267,7 @@ IFDHTransmitToICC (DWORD Lun, SCARD_IO_HEADER SendPci, PUCHAR TxBuffer,
     ssize_t size;
     RESPONSECODE r = IFD_COMMUNICATION_ERROR;
     size_t slot = Lun & 0xffff;
-    if (slot >= VICC_MAX_SLOTS) {
+    if (slot >= vicc_max_slots) {
         return IFD_COMMUNICATION_ERROR;
     }
 
@@ -306,7 +307,7 @@ RESPONSECODE
 IFDHICCPresence (DWORD Lun)
 {
     size_t slot = Lun & 0xffff;
-    if (slot >= VICC_MAX_SLOTS) {
+    if (slot >= vicc_max_slots) {
         return IFD_COMMUNICATION_ERROR;
     }
     switch (vicc_present(ctx[slot])) {

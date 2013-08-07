@@ -44,7 +44,7 @@ static const char reader_format_str[] = "Virtual PCD %02"SCNu32;
 static const SCARDHANDLE validhandle = 1;
 
 /* part of libvpcd, but not exported */
-extern const unsigned char VICC_MAX_SLOTS;
+extern const unsigned char vicc_max_slots;
 extern const char *hostname;
 
 static LONG autoallocate(void *buf, LPDWORD len, DWORD max, void **rbuf)
@@ -80,7 +80,7 @@ static void initialize_globals(void)
 
     hostname = VPCDHOST;
     for (Lun = 0;
-            Lun < PCSCLITE_MAX_READERS_CONTEXTS && Lun < VICC_MAX_SLOTS;
+            Lun < PCSCLITE_MAX_READERS_CONTEXTS && Lun < vicc_max_slots;
             Lun++) {
         IFDHCreateChannel (Lun, Channel);
     }
@@ -91,7 +91,7 @@ static void release_globals(void)
 {
     DWORD Lun;
     for (Lun = 0;
-            Lun < PCSCLITE_MAX_READERS_CONTEXTS && Lun < VICC_MAX_SLOTS;
+            Lun < PCSCLITE_MAX_READERS_CONTEXTS && Lun < vicc_max_slots;
             Lun++) {
         IFDHCloseChannel (Lun);
     }
