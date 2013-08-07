@@ -1,11 +1,8 @@
 VPCD_LIB = $(LIB_PREFIX)vpcd.$(DYN_LIB_EXT)
 
 libvpcd_la_SOURCES = ifd-vpcd.c vpcd.c
-libvpcd_la_LIBADD = $(PCSC_LIBS)
 libvpcd_la_LDFLAGS = -no-undefined
 libvpcd_la_CFLAGS = $(PCSC_CFLAGS)
-
-lib_LTLIBRARIES = libvpcd.la
 
 noinst_HEADERS = vpcd.h
 
@@ -18,7 +15,21 @@ do_subst = $(SED) \
 
 
 if BUILD_LIBPCSCLITE
+
+noinst_LTLIBRARIES = libvpcd.la
+
+ifd-vpcd.c: pcsclite.h
+
+.PHONY: pcsclite.h
+pcsclite.h:
+	$(MAKE) -C $(builddir)/../libpcsclite pcsclite.h
+
 else
+
+libvpcd_la_LIBADD = $(PCSC_LIBS)
+
+lib_LTLIBRARIES = libvpcd.la
+
 install: install_libvpcd
 
 install_libvpcd: libvpcd.la reader.conf.in

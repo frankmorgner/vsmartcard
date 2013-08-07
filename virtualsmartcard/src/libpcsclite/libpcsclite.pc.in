@@ -6,5 +6,5 @@ includedir=@includedir@/PCSC
 Name: @PACKAGE_NAME@
 Description: PC/SC smart card interface
 Version: @VERSION@
-Libs: -L${libdir} -lpcsclite -lvpcd
+Libs: -L${libdir} -lpcsclite
 Cflags: -I${includedir}
