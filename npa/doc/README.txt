@@ -104,6 +104,8 @@ of OpenSC::
 
     VSMARTCARD=vsmartcard
     git clone http://git.code.sf.net/p/vsmartcard/git $VSMARTCARD
+    cd $VSMARTCARD
+    git submodule update
     cd $VSMARTCARD/npa/src/opensc
     autoreconf --verbose --install
     # adding PKG_CONFIG_PATH here lets OpenSC use the patched OpenSSL
