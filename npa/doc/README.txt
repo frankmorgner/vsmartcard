@@ -84,7 +84,7 @@ the required binaries for OpenSSL)::
  
     PREFIX=/tmp/install
     OPENPACE=openpace
-    git clone git://openpace.git.sourceforge.net/gitroot/openpace $OPENPACE
+    git clone http://git.code.sf.net/p/openpace/git $OPENPACE
     cd $OPENPACE
     autoreconf --verbose --install
     # with `--enable-openssl-install` OpenSSL will be downloaded and installed along with OpenPACE
@@ -103,7 +103,7 @@ The nPA Smart Card Library needs the OpenSC components to be installed (especial
 of OpenSC::
 
     VSMARTCARD=vsmartcard
-    git clone git://vsmartcard.git.sourceforge.net/gitroot/vsmartcard $VSMARTCARD
+    git clone http://git.code.sf.net/p/vsmartcard/git $VSMARTCARD
     cd $VSMARTCARD/npa/src/opensc
     autoreconf --verbose --install
     # adding PKG_CONFIG_PATH here lets OpenSC use the patched OpenSSL

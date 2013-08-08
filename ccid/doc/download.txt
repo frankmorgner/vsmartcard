@@ -9,4 +9,4 @@ You can find the latest release of USB CCID Emulator on `Sourceforge
 
 Alternatively, you can clone our git repository::
 
-    git clone git://vsmartcard.git.sourceforge.net/gitroot/vsmartcard/vsmartcard
+    git clone http://git.code.sf.net/p/vsmartcard/git vsmartcard
