@@ -90,6 +90,8 @@ AC_CHECK_HEADERS([fcntl.h stdint.h stdlib.h string.h unistd.h termios.h])
 AC_TYPE_SIZE_T
 AC_TYPE_SSIZE_T
 AC_TYPE_UINT8_T
+AC_CHECK_DECLS([SO_NOSIGPIPE], [], [], [#include <sys/socket.h>])
+AC_CHECK_DECLS([MSG_NOSIGNAL], [], [], [#include <sys/socket.h>])
 
 # Checks for library functions.
 AC_CHECK_FUNCS([sigaction tcgetattr strerror strtol strtoul])
