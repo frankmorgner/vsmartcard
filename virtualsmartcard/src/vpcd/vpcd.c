@@ -22,14 +22,15 @@
 #include "config.h"
 #endif
 
-#if defined HAVE_DECL_MSG_NOSIGNAL && !HAVE_DECL_MSG_NOSIGNAL
-#define MSG_NOSIGNAL
+#if (!defined HAVE_DECL_MSG_NOSIGNAL) || !HAVE_DECL_MSG_NOSIGNAL
+#define MSG_NOSIGNAL 0
 #endif
 
 #ifdef _WIN32
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #define close(s) closesocket(s)
+#define snprintf _snprintf
 #ifndef AI_NUMERICSERV
 #define AI_NUMERICSERV 0
 #endif
@@ -72,7 +73,7 @@ ssize_t sendall(int sock, const void *buffer, size_t size)
     ssize_t r;
 
 	for (sent = 0; sent < size; sent += r) {
-		r = send(sock, (void *) (buffer+sent), size-sent, MSG_NOSIGNAL);
+		r = send(sock, (void *) (((unsigned char *) buffer)+sent), size-sent, MSG_NOSIGNAL);
 
 		if (r < 0)
 			return r;
