@@ -225,7 +225,7 @@ int npa_reset_retry_counter(sc_card_t *card,
 extern char npa_default_flags;
 
 /** @brief ASN.1 type for authenticated auxiliary data for terminal authentication */
-typedef CVC_DISCRETIONARY_DATA_TEMPLATES ASN1_AUXILIARY_DATA;
+typedef STACK_OF(CVC_DISCRETIONARY_DATA_TEMPLATE) ASN1_AUXILIARY_DATA;
 DECLARE_ASN1_FUNCTIONS(ASN1_AUXILIARY_DATA)
 
 #ifdef  __cplusplus

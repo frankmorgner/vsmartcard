@@ -211,58 +211,50 @@ int npa_translate_apdus(sc_card_t *card, FILE *input)
 }
 
 static int add_to_ASN1_AUXILIARY_DATA(
-        ASN1_AUXILIARY_DATA **templates,
+        ASN1_AUXILIARY_DATA **auxiliary_data,
         int nid, const unsigned char *data, size_t data_len)
 {
     int r;
-    CVC_DISCRETIONARY_DATA_TEMPLATE **template;
+    CVC_DISCRETIONARY_DATA_TEMPLATE *template = NULL;
 
-    if (!templates) {
+    if (!auxiliary_data) {
         r = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
     }
 
-    if (!*templates) {
-        *templates = ASN1_AUXILIARY_DATA_new();
-        if (!*templates) {
+    if (!*auxiliary_data) {
+        *auxiliary_data = ASN1_AUXILIARY_DATA_new();
+        if (!*auxiliary_data) {
             r = SC_ERROR_INTERNAL;
             goto err;
         }
     }
 
-    if (!(*templates)->template1)
-        template = &(*templates)->template1;
-    else if (!(*templates)->template2)
-        template = &(*templates)->template2;
-    else if (!(*templates)->template3)
-        template = &(*templates)->template3;
-    else {
-        fprintf(stderr,
-                "Choose at most three nPA operations.\n");
-        r = SC_ERROR_INVALID_ARGUMENTS;
-        goto err;
-    }
-
-    *template = CVC_DISCRETIONARY_DATA_TEMPLATE_new();
-    if (!*template) {
+    template = CVC_DISCRETIONARY_DATA_TEMPLATE_new();
+    if (!template) {
         r = SC_ERROR_INTERNAL;
         goto err;
     }
 
-    (*template)->type = OBJ_nid2obj(nid);
-    if (!(*template)->type) {
+    template->type = OBJ_nid2obj(nid);
+    if (!template->type) {
         r = SC_ERROR_INTERNAL;
         goto err;
     }
 
     if (data && data_len) {
-        (*template)->discretionary_data3 = ASN1_OCTET_STRING_new();
-        if (!(*template)->discretionary_data3
+        template->discretionary_data3 = ASN1_OCTET_STRING_new();
+        if (!template->discretionary_data3
                 || !M_ASN1_OCTET_STRING_set(
-                    (*template)->discretionary_data3, data, data_len)) {
+                    template->discretionary_data3, data, data_len)) {
             r = SC_ERROR_INTERNAL;
             goto err;
         }
+    }
+
+    if (!sk_push((_STACK*) (*auxiliary_data), template)) {
+        r = SC_ERROR_INTERNAL;
+        goto err;
     }
 
     r = SC_SUCCESS;

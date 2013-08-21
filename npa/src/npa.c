@@ -47,12 +47,13 @@
 
 /* 0x67
  * Auxiliary authenticated data */
-ASN1_ITEM_TEMPLATE(ASN1_AUXILIARY_DATA) =
+ASN1_ITEM_TEMPLATE(ASN1_AUXILIARY_DATA) = 
     ASN1_EX_TEMPLATE_TYPE(
-            ASN1_TFLG_IMPTAG|ASN1_TFLG_APPLICATION,
-            7, ASN1_AUXILIARY_DATA, CVC_DISCRETIONARY_DATA_TEMPLATES)
+            ASN1_TFLG_SEQUENCE_OF|ASN1_TFLG_IMPTAG|ASN1_TFLG_APPLICATION,
+            7, AuxiliaryAuthenticatedData, CVC_DISCRETIONARY_DATA_TEMPLATE)
 ASN1_ITEM_TEMPLATE_END(ASN1_AUXILIARY_DATA)
 IMPLEMENT_ASN1_FUNCTIONS(ASN1_AUXILIARY_DATA)
+
 
 /*
  * MSE:Set AT
@@ -73,7 +74,7 @@ typedef struct npa_mse_cd_st {
  *
  * NPA_MSE_C->auxiliary_data = d2i_ASN1_AUXILIARY_DATA(...)
  *
- * because they both use the same underlieing struct.
+ * because they both use the same underlying struct.
  *
  * See also openssl/crypto/asn1/tasn_dec.c:183
  */
@@ -92,7 +93,7 @@ ASN1_SEQUENCE(NPA_MSE_C) = {
     ASN1_IMP_OPT(NPA_MSE_C, eph_pub_key, ASN1_OCTET_STRING, 0x11),
     /* 0x67
      * Auxiliary authenticated data. See note above. */
-    ASN1_APP_IMP_OPT(NPA_MSE_C, auxiliary_data, CVC_DISCRETIONARY_DATA_TEMPLATES, 7),
+    ASN1_APP_IMP_SEQUENCE_OF_OPT(NPA_MSE_C, auxiliary_data, CVC_DISCRETIONARY_DATA_TEMPLATE, 7),
     /* Certificate Holder Authorization Template */
     ASN1_OPT(NPA_MSE_C, chat, CVC_CHAT),
 } ASN1_SEQUENCE_END(NPA_MSE_C)
