@@ -47,6 +47,9 @@ fi
 
 for KA in ecdh dh
 do
+    echo "$VICC --type nPA --ef-cardsecurity=$DATA/$KA/$SECURITY \
+        --ef-cardaccess=$DATA/$KA/$ACCESS --ca-key=$DATA/$KA/$NPA_KEY \
+        --cvca=$DATA/$KA/$CVCA --disable-ta-checks >/dev/null 2>&1 &"
     $VICC --type nPA --ef-cardsecurity=$DATA/$KA/$SECURITY \
         --ef-cardaccess=$DATA/$KA/$ACCESS --ca-key=$DATA/$KA/$NPA_KEY \
         --cvca=$DATA/$KA/$CVCA --disable-ta-checks >/dev/null 2>&1 &
@@ -59,6 +62,12 @@ do
 
     sleep 1
 
+    echo "$NPA_TOOL --pin=111111 --private-key=$DATA/$KA/$TERM_KEY \
+        --cv-certificate=$DATA/$KA/$DVCA,$DATA/$KA/$TERMINAL \
+        --older-than=19991231 --verify-validity \
+        --read-dg1 --read-dg2 --read-dg3 --read-dg4 --read-dg5 --read-dg6 --read-dg7 --read-dg8 --read-dg9 --read-dg10 --read-dg11 --read-dg12 --read-dg13 --read-dg14 --read-dg15 --read-dg16 --read-dg17 --read-dg18 --read-dg19 --read-dg20 --read-dg21 \
+        --write-dg17=0107 --write-dg18=0108 --write-dg19=0109 --write-dg20=0200 --write-dg21=0201 \
+        --cvc-dir=$DATA/$KA --disable-ta-checks --disable-ca-checks"
     $NPA_TOOL --pin=111111 --private-key=$DATA/$KA/$TERM_KEY \
         --cv-certificate=$DATA/$KA/$DVCA,$DATA/$KA/$TERMINAL \
         --older-than=19991231 --verify-validity \
