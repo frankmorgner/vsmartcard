@@ -42,6 +42,7 @@ int initialize(int reader_id, int verbose,
     }
 
     (*ctx)->debug = verbose;
+	(*ctx)->enable_default_driver = 1;
 
     reader_count = sc_ctx_get_reader_count(*ctx);
 
