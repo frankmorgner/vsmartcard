@@ -89,7 +89,7 @@ CPPFLAGS="$saved_CPPFLAGS"
 LIBS="$saved_LIBS"
 
 
-PKG_CHECK_EXISTS([libeac], [PKG_CHECK_MODULES([OPENPACE], [libeac])],
+PKG_CHECK_EXISTS([libeac], [PKG_CHECK_MODULES([OPENPACE], [libeac >= 0.9])],
                  [AC_MSG_WARN([libeac not found by pkg-config])])
 
 saved_CPPFLAGS="$CPPFLAGS"
