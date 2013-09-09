@@ -197,6 +197,6 @@ AC_CONFIG_FILES([
                  doc/Makefile
                  m4/Makefile
                  src/Makefile
-                 win32/Makefile
+                 cross/Makefile
                  ])
 AC_OUTPUT
