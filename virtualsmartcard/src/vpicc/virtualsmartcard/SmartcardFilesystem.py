@@ -232,7 +232,8 @@ class File(object):
             lifecycle=LCB["ACTIVATED"], 
             simpletlv_data=None,
             bertlv_data=None,
-            SAM=None):
+            SAM=None,
+            extra_fci_data=''):
         """
         The constructor is supposed to be involved by creation of a DF or EF.
         """
@@ -248,6 +249,7 @@ class File(object):
         self.fid = fid
         self.filedescriptor = filedescriptor
         self.SAM = SAM
+        self.extra_fci_data = extra_fci_data
         if simpletlv_data:
             if not isinstance(simpletlv_data, list):
                 raise TypeError("must be a list of (tag, length, value)-tuples")
@@ -566,6 +568,7 @@ class MF(DF):
         """
         fdm = [ chr(TAG["FILEIDENTIFIER"])+"\x02"+inttostring(file.fid, 2),
                 chr(TAG["LIFECYCLESTATUS"])+"\x01"+chr(file.lifecycle) ]
+        fdm.append(file.extra_fci_data)
 
         # TODO filesize and data objects
         if isinstance(file, EF):
