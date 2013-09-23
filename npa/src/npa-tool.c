@@ -373,6 +373,8 @@ main (int argc, char **argv)
     sc_initialize_boxing_cmds(ctx);
 #endif
 
+    EAC_init();
+
     if (cmdline.break_flag) {
         /* The biggest buffer sprintf could write with "%llu" */
         char secretbuf[strlen("18446744073709551615")+1];
@@ -808,6 +810,7 @@ err:
     sc_reset(card, 1);
     sc_disconnect_card(card);
     sc_release_context(ctx);
+    EAC_cleanup();
 
     if (r < 0)
         fprintf(stderr, "Error: %s\n", sc_strerror(r));
