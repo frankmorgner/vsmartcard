@@ -140,7 +140,7 @@ class nPA_SE(Security_Environment):
             return self.__eac_ca(data)
         elif self.eac_step == 6:
             # TODO implement RI
-            return SW["NORMAL"], ""
+            return SW["NORMAL"], "\x7c\x22\x81\x20\x48\x1e\x58\xd1\x7c\x12\x9a\x0a\xb4\x63\x7d\x43\xc7\xf7\xeb\x2b\x06\x10\x6f\x26\x90\xe3\x00\xc4\xe7\x03\x54\xa0\x41\xf0\xd3\x90"
 
         raise SwError(SW["ERR_INCORRECTPARAMETERS"])
 
