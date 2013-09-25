@@ -149,6 +149,7 @@ class nPA_SE(Security_Environment):
         self.eac_ctx = None
         pace.PACE_SEC_clear_free(self.sec)
         self.sec = None
+        pace.EAC_cleanup()
 
     @staticmethod
     def __unpack_general_authenticate(data):
@@ -196,6 +197,7 @@ class nPA_SE(Security_Environment):
             raise SwError(SW["ERR_INCORRECTPARAMETERS"])
 
         if not self.eac_ctx:
+            pace.EAC_init()
             self.eac_ctx = pace.EAC_CTX_new()
 
             ef_card_access = self.mf.select('fid', 0x011c)
