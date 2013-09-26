@@ -105,6 +105,7 @@ of OpenSC::
     VSMARTCARD=vsmartcard
     git clone http://git.code.sf.net/p/vsmartcard/git $VSMARTCARD
     cd $VSMARTCARD
+    git submodule init
     git submodule update
     cd $VSMARTCARD/npa/src/opensc
     autoreconf --verbose --install
