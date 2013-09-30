@@ -56,7 +56,7 @@ def get_cipher(cipherspec, key, iv = None):
     
     cipher = None
     if iv is None:
-        cipher = c_class.new(key, mode)
+        cipher = c_class.new(key, mode, '\x00'*get_cipher_blocklen(cipherspec))
     else:
         cipher = c_class.new(key, mode, iv)
 
