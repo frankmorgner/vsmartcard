@@ -83,7 +83,7 @@ Here is an example of how to get the standard installation of OpenPACE (with
 the required binaries for OpenSSL)::
  
     PREFIX=/tmp/install
-    OPENPACE=openpace
+    OPENPACE=$PWD/openpace
     git clone http://git.code.sf.net/p/openpace/git $OPENPACE
     cd $OPENPACE
     autoreconf --verbose --install
@@ -102,7 +102,7 @@ The @PACKAGE_NAME@ needs the OpenSC components to be installed (especially
 :file:`libopensc.so`). Here is an example of how to get a suitable installation
 of OpenSC::
 
-    VSMARTCARD=vsmartcard
+    VSMARTCARD=$PWD/vsmartcard
     git clone http://git.code.sf.net/p/vsmartcard/git $VSMARTCARD
     cd $VSMARTCARD
     git submodule init

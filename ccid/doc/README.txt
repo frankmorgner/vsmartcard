@@ -188,7 +188,7 @@ installed (especially :file:`libopensc.so`). Here is an example of how to get
 the standard installation of OpenSC without |PACE|::
 
     PREFIX=/tmp/install
-    VSMARTCARD=vsmartcard
+    VSMARTCARD=$PWD/vsmartcard
     git clone git://vsmartcard.git.sourceforge.net/gitroot/vsmartcard $VSMARTCARD
     cd $VSMARTCARD/ccid/src/opensc
     autoreconf --verbose --install
