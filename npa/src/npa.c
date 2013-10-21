@@ -407,6 +407,8 @@ static int format_mse_cdata(struct sc_context *ctx, int protocol,
 
     data = NPA_MSE_C_new();
     if (!data) {
+        ssl_error(ctx);
+        r = SC_ERROR_INTERNAL;
         goto err;
     }
 
@@ -455,6 +457,7 @@ static int format_mse_cdata(struct sc_context *ctx, int protocol,
     if (auxiliary_data && auxiliary_data_len) {
         if (!d2i_ASN1_AUXILIARY_DATA(&data->auxiliary_data, &auxiliary_data, auxiliary_data_len)) {
             sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Error setting authenticated auxiliary data of MSE:Set AT data");
+            ssl_error(ctx);
             r = SC_ERROR_INTERNAL;
             goto err;
         }
@@ -468,6 +471,7 @@ static int format_mse_cdata(struct sc_context *ctx, int protocol,
     if (length < 0
             || (0x80 & ASN1_get_object(&data_no_sequence, &length, &tag, &class, length))) {
         sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Error encoding MSE:Set AT APDU data");
+        ssl_error(ctx);
         r = SC_ERROR_INTERNAL;
         goto err;
     }

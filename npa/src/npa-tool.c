@@ -21,6 +21,7 @@
 #endif
 
 #include "cmdline.h"
+#include "sslutil.h"
 #include <eac/pace.h>
 #include <libopensc/log.h>
 #include <libopensc/opensc.h>
@@ -556,8 +557,11 @@ main (int argc, char **argv)
             }
             for (i = 0; i < cmdline.cv_certificate_given; i++) {
                 if (!fread_to_eof(cmdline.cv_certificate_arg[i],
-                            (unsigned char **) &certs[i], &certs_lens[i]))
+                            (unsigned char **) &certs[i], &certs_lens[i])) {
+                    fprintf(stderr, "Could not read certificate.\n");
+                    r = SC_ERROR_INVALID_DATA;
                     goto err;
+                }
             }
 
             if (!pace_input.chat_length) {
@@ -566,27 +570,35 @@ main (int argc, char **argv)
                         || !cvc_cert || !cvc_cert->body
                         || !cvc_cert->body->certificate_authority_reference
                         || !cvc_cert->body->chat) {
+                    fprintf(stderr, "Could not parse certificate.\n");
+                    ssl_error(ctx);
                     r = SC_ERROR_INVALID_DATA;
                     goto err;
                 }
                 pace_input.chat_length = i2d_CVC_CHAT(cvc_cert->body->chat, &certs_chat);
                 if (0 >= (int) pace_input.chat_length) {
+                    fprintf(stderr, "Could not parse CHAT.\n");
                     r = SC_ERROR_INVALID_DATA;
+                    ssl_error(ctx);
                     goto err;
                 }
                 pace_input.chat = certs_chat;
             }
 
             if (!fread_to_eof(cmdline.private_key_arg,
-                        &privkey, &privkey_len))
+                        &privkey, &privkey_len)) {
+                fprintf(stderr, "Could not parse private key.\n");
+                r = SC_ERROR_INVALID_DATA;
                 goto err;
+            }
 
             if (cmdline.auxiliary_data_given) {
                 auxiliary_data_len = sizeof auxiliary_data;
                 if (sc_hex_to_bin(cmdline.auxiliary_data_arg, auxiliary_data,
                             &auxiliary_data_len) < 0) {
                     fprintf(stderr, "Could not parse auxiliary data.\n");
-                    exit(2);
+                    r = SC_ERROR_INVALID_DATA;
+                    goto err;
                 }
             } else {
                 if (cmdline.older_than_given) {
@@ -625,7 +637,8 @@ main (int argc, char **argv)
                     if (0 > (int) auxiliary_data_len
                             || auxiliary_data_len > sizeof auxiliary_data) {
                         free(p);
-                        r = SC_ERROR_INTERNAL;
+                        fprintf(stderr, "Auxiliary data too big.\n");
+                        r = SC_ERROR_OUT_OF_MEMORY;
                         goto err;
                     }
                     memcpy(auxiliary_data, p, auxiliary_data_len);
@@ -768,6 +781,7 @@ main (int argc, char **argv)
                 input = fopen(cmdline.translate_arg, "r");
                 if (!input) {
                     perror("Opening file with APDUs");
+                    r = SC_ERROR_INVALID_DATA;
                     goto err;
                 }
             }
