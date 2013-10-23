@@ -375,13 +375,12 @@ class nPA_SE(Security_Environment):
 
             # FIXME auxiliary_data might be from an older run of PACE
             if hasattr(self.at, "auxiliary_data"):
-                auxiliary_data = pace.get_buf(self.at.auxiliary_data)
+                auxiliary_data = self.at.auxiliary_data
             else:
                 auxiliary_data = None
 
-            if 1 != pace.TA_STEP6_verify(self.eac_ctx,
-                    pace.get_buf(self.at.iv), pace.get_buf(id_picc),
-                    auxiliary_data, pace.get_buf(data)):
+            if 1 != pace.TA_STEP6_verify(self.eac_ctx, self.at.iv, id_picc,
+                    auxiliary_data, data):
                 pace.print_ossl_err()
                 raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
 
