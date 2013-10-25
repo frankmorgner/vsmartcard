@@ -198,19 +198,20 @@ class nPA_SE(Security_Environment):
 
         if not self.eac_ctx:
             pace.EAC_init()
-            self.eac_ctx = pace.EAC_CTX_new()
 
-            ef_card_access = self.mf.select('fid', 0x011c)
-            ef_card_access_data = ef_card_access.data
-            pace.EAC_CTX_init_ef_cardaccess(ef_card_access_data, self.eac_ctx)
+            self.eac_ctx = pace.EAC_CTX_new()
+            pace.CA_disable_passive_authentication(self.eac_ctx)
 
             ef_card_security = self.mf.select('fid', 0x011d)
             ef_card_security_data = ef_card_security.data
-            pace.CA_disable_passive_authentication(self.eac_ctx)
-            ca_pubkey = pace.CA_get_pubkey(self.eac_ctx, ef_card_security_data)
-            pace.EAC_CTX_init_ca(self.eac_ctx, pace.id_CA_ECDH_AES_CBC_CMAC_128, 13, self.ca_key, ca_pubkey)
+            pace.EAC_CTX_init_ef_cardsecurity(ef_card_security_data, self.eac_ctx)
 
-            if not self.ca_key:
+            if self.ca_key:
+                ca_pubkey = pace.CA_get_pubkey(self.eac_ctx, ef_card_security_data)
+                if 1 != pace.CA_set_key(self.eac_ctx, self.ca_key, ca_pubkey):
+                    pace.print_ossl_err()
+                    raise SwError(SW["WARN_NOINFO63"])
+            else:
                 # we don't have a good CA key, so we simply generate an ephemeral one
                 comp_pubkey = pace.TA_STEP3_generate_ephemeral_key(self.eac_ctx)
                 pubkey = pace.CA_STEP2_get_eph_pubkey(self.eac_ctx)
