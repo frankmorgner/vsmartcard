@@ -24,7 +24,7 @@ from virtualsmartcard.TLVutils import unpack, bertlv_pack
 from virtualsmartcard.SmartcardFilesystem import make_property
 from virtualsmartcard.utils import inttostring
 import virtualsmartcard.CryptoUtils as vsCrypto
-from chat import CHAT, CVC
+from chat import CHAT, CVC, PACE_SEC, EAC_CTX
 import pace
 
 class nPA_AT_CRT(ControlReferenceTemplate):
@@ -92,7 +92,6 @@ class nPA_AT_CRT(ControlReferenceTemplate):
         return r, ""
 
 class nPA_SE(Security_Environment):
-    # TODO call __eac_abort whenever an error occurred
 
     eac_step = make_property("eac_step", "next step to performed for EAC")
 
@@ -144,13 +143,6 @@ class nPA_SE(Security_Environment):
 
         raise SwError(SW["ERR_INCORRECTPARAMETERS"])
 
-    def __eac_abort(self):
-        pace.EAC_CTX_clear_free(self.eac_ctx)
-        self.eac_ctx = None
-        pace.PACE_SEC_clear_free(self.sec)
-        self.sec = None
-        pace.EAC_cleanup()
-
     @staticmethod
     def __unpack_general_authenticate(data):
         data_structure = []
@@ -174,9 +166,9 @@ class nPA_SE(Security_Environment):
             raise SwError(SW["WARN_NOINFO63"])
 
         if self.at.keyref_is_mrz():
-            self.sec = pace.PACE_SEC_new(self.sam.mrz, pace.PACE_MRZ)
+            self.PACE_SEC = PACE_SEC(self.sam.mrz, pace.PACE_MRZ)
         elif self.at.keyref_is_can():
-            self.sec = pace.PACE_SEC_new(self.sam.can, pace.PACE_CAN)
+            self.PACE_SEC = PACE_SEC(self.sam.can, pace.PACE_CAN)
         elif self.at.keyref_is_pin():
             if self.sam.counter <= 0:
                 print "Must use PUK to unblock"
@@ -184,22 +176,24 @@ class nPA_SE(Security_Environment):
             if self.sam.counter == 1 and not self.sam.active:
                 print "Must use CAN to activate"
                 return 0x63c1, ""
-            self.sec = pace.PACE_SEC_new(self.sam.PIN, pace.PACE_PIN)
+            self.PACE_SEC = PACE_SEC(self.sam.PIN, pace.PACE_PIN)
             self.sam.counter -= 1
             if self.sam.counter <= 1:
                 self.sam.active = False
         elif self.at.keyref_is_puk():
             if self.sam.counter_puk <= 0:
                 raise SwError(SW["WARN_NOINFO63"])
-            self.sec = pace.PACE_SEC_new(self.sam.puk, pace.PACE_PUK)
+            self.PACE_SEC = PACE_SEC(self.sam.puk, pace.PACE_PUK)
             self.sam.counter_puk -= 1
         else:
             raise SwError(SW["ERR_INCORRECTPARAMETERS"])
+        self.sec = self.PACE_SEC.sec
 
         if not self.eac_ctx:
             pace.EAC_init()
 
-            self.eac_ctx = pace.EAC_CTX_new()
+            self.EAC_CTX = EAC_CTX()
+            self.eac_ctx = self.EAC_CTX.ctx
             pace.CA_disable_passive_authentication(self.eac_ctx)
 
             ef_card_security = self.mf.select('fid', 0x011d)
