@@ -47,7 +47,7 @@ m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
 
 # Checks for libraries.
-test -z "$OPENSC_LIBS" && OPENSC_LIBS="-lopensc -lcrypto"
+test -z "$OPENSC_LIBS" && OPENSC_LIBS="-lopensc"
 test -z "$OPENSC_CFLAGS" && OPENSC_CFLAGS="-I${PWD}/${srcdir}/src/opensc/src -DENABLE_SM"
 
 saved_CPPFLAGS="$CPPFLAGS"
