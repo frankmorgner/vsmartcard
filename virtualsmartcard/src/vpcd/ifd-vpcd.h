@@ -19,10 +19,15 @@
 #ifndef _IFD_VPCD_H_
 #define _IFD_VPCD_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern const unsigned char VICC_MAX_SLOTS;
 extern const char *hostname;
 
 #ifdef  __cplusplus
 }
 #endif
+
 #endif
