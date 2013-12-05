@@ -324,9 +324,8 @@ Mobile Smart Card Reader
 
 
 
-========
 Download
-========
+--------
 
 You can download the latest release of the |vsmartcard| `here
 <http://sourceforge.net/projects/vsmartcard/files>`_.
