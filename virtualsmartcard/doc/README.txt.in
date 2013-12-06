@@ -48,6 +48,60 @@ reader.
 
 The file :file:`utils.py` was taken from Henryk Plötz's cyberflex-shell_.
 
+.. tikz:: @PACKAGE_NAME@ used with PCSC-Lite
+    :stringsubst:
+    :libs: arrows, calc, fit, patterns, plotmarks, shapes.geometric, shapes.misc, shapes.symbols, shapes.arrows, shapes.callouts, shapes.multipart, shapes.gates.logic.US, shapes.gates.logic.IEC, er, automata, backgrounds, chains, topaths, trees, petri, mindmap, matrix, calendar, folding, fadings, through, positioning, scopes, decorations.fractals, decorations.shapes, decorations.text, decorations.pathmorphing, decorations.pathreplacing, decorations.footprints, decorations.markings, shadows
+ 
+    \input{%(wd)s/bilder/tikzstyles.tex}
+	\node (pcsclite)
+    [klein, aktivbox, shape=rectangle split, rectangle split parts=3, inner xsep=3em]
+	{PCSC-Lite
+	\nodepart{second}
+	\footnotesize \texttt{libpcsclite}
+	\nodepart{third}
+    \footnotesize \texttt{pcscd}
+	};
+    \node (pcsc) [box, kleiner, at=(pcsclite.two west)] {PC/SC};
+    \node (sca) [aktivbox, klein, left=of pcsc, align=center] {Smart Card\\Application};
+    \node (vpcd) [box, at=(pcsclite.three east)] {\texttt{vpcd}};
+	\node (vicc) [aktivbox, right=of vpcd] {\texttt{vicc}};
+
+    \begin{pgfonlayer}{background}
+        \path[linie]
+        (sca) edge (pcsc)
+        (vpcd) edge (vicc)
+        ;
+    \end{pgfonlayer}
+
+.. versionadded:: 0.7
+    The @PACKAGE_NAME@ optionally brings its own standalone implementation of
+    PC/SC. This allows accessing |vpicc| without PCSC-Lite. Our PC/SC
+    implementation acts as replacement for ``libpcsclite`` which can lead to
+    problems when used in parallel with PCSC-Lite.
+
+.. tikz:: @PACKAGE_NAME@ used with its own PC/SC implementation
+    :stringsubst:
+    :libs: arrows, calc, fit, patterns, plotmarks, shapes.geometric, shapes.misc, shapes.symbols, shapes.arrows, shapes.callouts, shapes.multipart, shapes.gates.logic.US, shapes.gates.logic.IEC, er, automata, backgrounds, chains, topaths, trees, petri, mindmap, matrix, calendar, folding, fadings, through, positioning, scopes, decorations.fractals, decorations.shapes, decorations.text, decorations.pathmorphing, decorations.pathreplacing, decorations.footprints, decorations.markings, shadows
+ 
+    \input{%(wd)s/bilder/tikzstyles.tex}
+	\node (pcsclite)
+    [aktivbox, shape=rectangle split, rectangle split parts=2, inner xsep=3em]
+	{@PACKAGE_NAME@
+	\nodepart{second}
+	\footnotesize \texttt{libpcsclite} with \texttt{vpcd}
+	};
+    \node (pcsc) [box, kleiner, at=(pcsclite.two west)] {PC/SC};
+    \node (sca) [aktivbox, klein, left=of pcsc, align=center] {Smart Card\\Application};
+	\node (vicc) [aktivbox, right=of pcsclite.two east] {\texttt{vicc}};
+
+    \begin{pgfonlayer}{background}
+        \path[linie]
+        (sca) edge (pcsc)
+        (pcsclite.two east) edge (vicc)
+        ;
+    \end{pgfonlayer}
+
+
 
 .. include:: relay-note.txt
 
@@ -66,8 +120,6 @@ the following:
 - PBKDF2_
 - PIP_
 - OpenPACE_ (nPA emulation)
-
-The |vpcd| depends on PCSC-Lite_.
 
 
 ********************************************************************************
