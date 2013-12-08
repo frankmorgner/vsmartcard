@@ -85,7 +85,7 @@ The file :file:`utils.py` was taken from Henryk Plötz's cyberflex-shell_.
  
     \input{%(wd)s/bilder/tikzstyles.tex}
 	\node (pcsclite)
-    [aktivbox, shape=rectangle split, rectangle split parts=2, inner xsep=3em]
+    [box, shape=rectangle split, rectangle split parts=2, inner xsep=3em]
 	{Virtual Smart Card
 	\nodepart{second}
 	\footnotesize \texttt{libpcsclite} with \texttt{vpcd}
