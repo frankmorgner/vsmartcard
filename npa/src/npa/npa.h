@@ -94,6 +94,8 @@ extern "C" {
 #define MAX_PIN_LEN       6
 /** @brief Minimum length of PIN */
 #define MIN_PIN_LEN       6
+/** @brief Length of CAN */
+#define CAN_LEN       6
 /** @brief Minimum length of MRZ */
 #define MAX_MRZ_LEN       128
 

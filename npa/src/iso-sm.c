@@ -20,6 +20,8 @@
 #include "config.h"
 #endif
 
+#ifdef ENABLE_SM
+
 #include "iso-sm-internal.h"
 #include <libopensc/asn1.h>
 #include <libopensc/log.h>
@@ -731,3 +733,36 @@ int sm_stop(struct sc_card *card)
 
     return r;
 }
+
+#else
+
+int iso_sm_close(struct sc_card *card)
+{
+    return SC_ERROR_NOT_SUPPORTED;
+}
+
+int iso_get_sm_apdu(struct sc_card *card, struct sc_apdu *apdu, struct sc_apdu **sm_apdu)
+{
+    return SC_ERROR_NOT_SUPPORTED;
+}
+
+struct iso_sm_ctx *iso_sm_ctx_create(void)
+{
+    return NULL;
+}
+
+void iso_sm_ctx_clear_free(struct iso_sm_ctx *sctx)
+{
+}
+
+int iso_sm_start(struct sc_card *card, struct iso_sm_ctx *sctx)
+{
+    return SC_ERROR_NOT_SUPPORTED;
+}
+
+int sm_stop(struct sc_card *card)
+{
+    return SC_ERROR_NOT_SUPPORTED;
+}
+
+#endif
