@@ -11,7 +11,7 @@ do_subst = $(SED) \
 
 BUILT_SOURCES = cmdline.h cmdline.c
 
-EXTRA_DIST  = npa-tool.ggo npa-tool.ggo.in opensc/src/libopensc/apdu.c
+EXTRA_DIST  = npa-tool.ggo npa-tool.ggo.in opensc/src/libopensc/apdu.c opensc/src/libopensc/card.c
 EXTRA_DIST += $(shell find -L $(top_srcdir)/src/opensc/src -path '*/.git' -prune -o -type f -a -name '*.h' -print)
 MAINTAINERCLEANFILES = $(BUILT_SOURCES) npa-tool.ggo $(dist_man1_MANS)
 
@@ -21,6 +21,11 @@ libnpa_la_SOURCES = iso-sm.c scutil.c npa.c boxing.c
 libnpa_la_LIBADD = $(OPENSC_LIBS) $(OPENPACE_LIBS) $(OPENSSL_LIBS)
 libnpa_la_CFLAGS = $(OPENSSL_CFLAGS) $(OPENPACE_CFLAGS) $(OPENSC_CFLAGS)
 libnpa_la_LDFLAGS = -no-undefined
+
+libcardnpa_la_SOURCES = card-npa.c
+libcardnpa_la_LIBADD = $(OPENSC_LIBS) libnpa.la
+libcardnpa_la_CFLAGS = $(OPENSSL_CFLAGS) $(OPENPACE_CFLAGS) $(OPENSC_CFLAGS)
+libcardnpa_la_LDFLAGS = -no-undefined
 
 npa_tool_SOURCES = npa-tool.c $(BUILT_SOURCES)
 npa_tool_LDADD = libnpa.la $(OPENSC_LIBS) $(OPENPACE_LIBS) $(OPENSSL_LIBS)
@@ -51,10 +56,11 @@ npa-tool.1: npa-tool.ggo
 bin_PROGRAMS = npa-tool
 noinst_PROGRAMS = example
 
-lib_LTLIBRARIES = libnpa.la
+lib_LTLIBRARIES = libnpa.la libcardnpa.la
 
 noinst_HEADERS = \
 		 sslutil.h \
+		 iso-sm-internal.h \
 		 ccid-types.h
 
 nobase_include_HEADERS = \

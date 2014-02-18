@@ -1,0 +1,23 @@
+app default {
+
+	# What card drivers to load at start-up
+	#
+	# A special value of 'internal' will load all
+	# statically linked drivers. If an unknown (ie. not
+	# internal) driver is supplied, a separate configuration
+	# configuration block has to be written for the driver.
+	# Default: internal
+	# NOTE: When "internal" keyword is used, must be last entry
+	#
+	card_drivers = npa, internal;
+
+	# Card driver configuration blocks.
+	#
+	# For card drivers loaded from an external shared library/DLL,
+	# you need to specify the path name of the module
+	#
+	card_driver npa {
+		# The location of the driver library
+		module = @libdir@/libcardnpa.@DYN_LIB_EXT@;
+	# }
+}

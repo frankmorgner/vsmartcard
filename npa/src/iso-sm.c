@@ -20,63 +20,13 @@
 #include "config.h"
 #endif
 
+#include "iso-sm-internal.h"
 #include <libopensc/asn1.h>
 #include <libopensc/log.h>
 #include <npa/iso-sm.h>
 #include <npa/scutil.h>
 #include <stdlib.h>
 #include <string.h>
-
-/* @brief Protect an APDU with Secure Messaging
- *
- * If secure messaging (SM) is activated in \a sctx and \a apdu is not already
- * SM protected, \a apdu is processed with the following steps:
- * \li call to \a sctx->pre_transmit
- * \li encrypt \a apdu calling \a sctx->encrypt
- * \li authenticate \a apdu calling \a sctx->authenticate
- * \li copy the SM protected data to \a sm_apdu
- *
- * Data for authentication or encryption is always padded before the callback
- * functions are called
- *
- * @param[in]     card
- * @param[in]     apdu
- * @param[in,out] sm_apdu
- *
- * @return \c SC_SUCCESS or error code if an error occurred
- */
-static int iso_get_sm_apdu(struct sc_card *card, struct sc_apdu *apdu, struct sc_apdu **sm_apdu);
-
-/* @brief Remove Secure Messaging from an APDU
- *
- * If secure messaging (SM) is activated in \a sctx and \a apdu is not already
- * SM protected, \a apdu is processed with the following steps:
- * \li verify SM protected \a apdu calling \a sctx->verify_authentication
- * \li decrypt SM protected \a apdu calling \a sctx->decrypt
- * \li copy decrypted/authenticated data and status bytes to \a apdu
- *
- * Callback functions must not remove padding.
- *
- * @param[in]     card
- * @param[in,out] apdu
- * @param[in,out] sm_apdu will be freed when done.
- *
- * @return \c SC_SUCCESS or error code if an error occurred
- */
-static int iso_free_sm_apdu(struct sc_card *card, struct sc_apdu *apdu, struct sc_apdu **sm_apdu);
-
-/**
- * @brief Cleans up allocated ressources of the ISO SM driver
- *
- * \c iso_sm_close() is designed as SM card operation. However, have in mind
- * that this card operation is not called automatically for \c
- * sc_disconnect_card() .
- *
- * @param[in] card
- *
- * @return \c SC_SUCCESS or error code if an error occurred
- */
-static int iso_sm_close(struct sc_card *card);
 
 static const struct sc_asn1_entry c_sm_capdu[] = {
     { "Padding-content indicator followed by cryptogram",

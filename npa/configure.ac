@@ -62,6 +62,7 @@ AC_TRY_LINK_FUNC(iasecc_sm_external_authentication,
                  [ AC_MSG_RESULT([yes]) ],
                  [ AC_MSG_ERROR([Cannot link against libopensc with SM]) ])
 AC_CHECK_FUNCS([sc_apdu_get_octets])
+AC_CHECK_FUNCS([_sc_match_atr])
 
 CPPFLAGS="$saved_CPPFLAGS"
 LIBS="$saved_LIBS"
@@ -160,6 +161,30 @@ AC_TYPE_UINT8_T
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
 AC_CHECK_FUNCS([getline memmove memset strerror gettimeofday strtol])
+
+AC_SUBST(DYN_LIB_EXT)
+case "$host" in
+*-*-darwin*)
+	DYN_LIB_EXT="dylib"
+	;;
+*-*-freebsd*)
+	DYN_LIB_EXT="so"
+	;;
+*-*-openbsd*)
+	DYN_LIB_EXT="so.0.0"
+	;;
+*-*-solaris*)
+	DYN_LIB_EXT="so"
+	;;
+*-*-dragonfly*)
+	DYN_LIB_EXT="so"
+	;;
+*-*-cygwin*)
+	DYN_LIB_EXT="dll"
+	;;
+*)
+	DYN_LIB_EXT="so"
+esac
 
 cat << EOF
 
