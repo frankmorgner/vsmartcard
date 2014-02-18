@@ -46,6 +46,11 @@
 #include "libopensc/apdu.c"
 #endif
 
+#ifndef HAVE_LIST_ITERATOR_NEXT
+#include "opensc/src/common/simclist.c"
+#endif
+
+
 static const u8 boxing_cla                          = 0xff;
 static const u8 boxing_ins                          = 0x9a;
 static const u8 boxing_p1                           = 0x04;
