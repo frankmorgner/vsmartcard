@@ -46,11 +46,6 @@
 #include "libopensc/apdu.c"
 #endif
 
-#ifndef HAVE_LIST_ITERATOR_NEXT
-#include "opensc/src/common/simclist.c"
-#endif
-
-
 static const u8 boxing_cla                          = 0xff;
 static const u8 boxing_ins                          = 0x9a;
 static const u8 boxing_p1                           = 0x04;
@@ -737,6 +732,11 @@ void sc_detect_boxing_cmds(sc_reader_t *reader)
 }
 
 #ifndef DISABLE_GLOBAL_BOXING_INITIALIZATION
+
+#ifndef HAVE_LIST_ITERATOR_NEXT
+#include "opensc/src/common/simclist.c"
+#endif
+
 void sc_initialize_boxing_cmds(sc_context_t *ctx)
 {
     sc_reader_t *reader;

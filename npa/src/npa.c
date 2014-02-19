@@ -1206,10 +1206,6 @@ int perform_pace(sc_card_t *card,
         }
     }
 
-#ifdef DISABLE_GLOBAL_BOXING_INITIALIZATION
-    sc_detect_boxing_cmds(card->reader);
-#endif
-
     if (card->reader->capabilities & SC_READER_CAP_PACE_GENERIC
             && card->reader->ops->perform_pace) {
         r = card->reader->ops->perform_pace(card->reader, &pace_input, pace_output);

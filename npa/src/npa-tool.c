@@ -370,7 +370,9 @@ main (int argc, char **argv)
         exit(1);
     }
 
-#ifndef DISABLE_GLOBAL_BOXING_INITIALIZATION
+#ifdef DISABLE_GLOBAL_BOXING_INITIALIZATION
+    sc_detect_boxing_cmds(card->reader);
+#else
     sc_initialize_boxing_cmds(ctx);
 #endif
 

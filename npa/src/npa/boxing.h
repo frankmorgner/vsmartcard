@@ -30,9 +30,11 @@ extern "C" {
 
 #define DISABLE_GLOBAL_BOXING_INITIALIZATION
 #ifndef DISABLE_GLOBAL_BOXING_INITIALIZATION
-    /** initialize boxing for all available readers */
-    /* currently disabled, because the OpenSC PC/SC reader implementation
-     * allows a transmit only when a card is connected. */
+    /** initialize boxing for all available readers once on the application
+     * layer */
+    /* The OpenSC PC/SC reader implementation allows a transmit only when a
+     * card is connected. So testing for boxing commands will yield an error
+     * then. */
 void sc_initialize_boxing_cmds(sc_context_t *ctx);
 #else
 void sc_detect_boxing_cmds(sc_reader_t *reader);

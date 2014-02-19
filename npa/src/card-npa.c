@@ -21,6 +21,7 @@
 #include "iso-sm-internal.h"
 #include "libopensc/internal.h"
 #include "libopensc/pace.h"
+#include <npa/boxing.h>
 #include <npa/npa.h>
 #include <string.h>
 
@@ -60,6 +61,10 @@ static int npa_init(sc_card_t * card)
 {
     card->drv_data = NULL;
     card->caps |= SC_CARD_CAP_APDU_EXT | SC_CARD_CAP_RNG;
+
+#ifdef DISABLE_GLOBAL_BOXING_INITIALIZATION
+    sc_detect_boxing_cmds(card->reader);
+#endif
 
     return SC_SUCCESS;
 }
