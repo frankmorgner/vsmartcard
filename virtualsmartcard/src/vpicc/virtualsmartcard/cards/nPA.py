@@ -77,18 +77,6 @@ class nPA_AT_CRT(ControlReferenceTemplate):
                 else:
                     raise SwError(SW["ERR_REFNOTUSABLE"])
 
-        structure = unpack(config)
-
-        pin_ref_str = '%c'% self.PACE_PIN
-        for tlv in structure:
-            if [0x83, len(pin_ref_str), pin_ref_str] == tlv:
-                if self.sam.counter <= 0:
-                    r = 0x63c0
-                elif self.sam.counter == 1:
-                    r = 0x63c1
-                elif self.sam.counter == 2:
-                    r = 0x63c2
-
         return r, ""
 
 class nPA_SE(Security_Environment):
@@ -113,6 +101,13 @@ class nPA_SE(Security_Environment):
         sw, resp = Security_Environment._set_SE(self, p2, data)
         
         if self.at.algorithm == "PACE":
+            if self.at.keyref_is_pin():
+                if self.sam.counter <= 0:
+                    print "Must use PUK to unblock"
+                    raise SwError(SW["WARN_NOINFO63"])
+                if self.sam.counter == 1 and not self.sam.active:
+                    print "Must use CAN to activate"
+                    return 0x63c1, ""
             self.eac_step = 0
         elif self.at.algorithm == "TA":
             if self.eac_step != 4:
