@@ -89,7 +89,7 @@ static int npa_add_pins(sc_pkcs15_card_t *p15card)
 	if (r != SC_SUCCESS)
 		goto err;
 
-	r = npa_add_pin(p15card, "MRZ", -1,
+	r = npa_add_pin(p15card, npa_secret_name(PACE_PIN_ID_MRZ), -1,
 			SC_PKCS15_PIN_FLAG_CASE_SENSITIVE
 			| SC_PKCS15_PIN_FLAG_INITIALIZED
 			| SC_PKCS15_PIN_FLAG_SO_PIN
@@ -99,7 +99,7 @@ static int npa_add_pins(sc_pkcs15_card_t *p15card)
 	if (r != SC_SUCCESS)
 		goto err;
 
-	r = npa_add_pin(p15card, "CAN", -1,
+	r = npa_add_pin(p15card, npa_secret_name(PACE_PIN_ID_CAN), -1,
 			SC_PKCS15_PIN_FLAG_CASE_SENSITIVE
 			| SC_PKCS15_PIN_FLAG_INITIALIZED
 			| SC_PKCS15_PIN_FLAG_SO_PIN
@@ -108,14 +108,14 @@ static int npa_add_pins(sc_pkcs15_card_t *p15card)
 	if (r != SC_SUCCESS)
 		goto err;
 
-	r = npa_add_pin(p15card, "eID PIN", 3,
+	r = npa_add_pin(p15card, npa_secret_name(PACE_PIN_ID_PIN), 3,
 			SC_PKCS15_PIN_FLAG_CASE_SENSITIVE
 			| SC_PKCS15_PIN_FLAG_INITIALIZED,
 			5, 6, PACE_PIN_ID_PIN, PACE_PIN_ID_PUK, mf);
 	if (r != SC_SUCCESS)
 		goto err;
 
-	r = npa_add_pin(p15card, "PUK", -1,
+	r = npa_add_pin(p15card, npa_secret_name(PACE_PIN_ID_PUK), -1,
 			SC_PKCS15_PIN_FLAG_CASE_SENSITIVE
 			| SC_PKCS15_PIN_FLAG_INITIALIZED
 			| SC_PKCS15_PIN_FLAG_UNBLOCKING_PIN

@@ -1892,7 +1892,7 @@ err:
 }
 
 static const char *MRZ_name = "MRZ";
-static const char *PIN_name = "PIN";
+static const char *PIN_name = "eID PIN";
 static const char *PUK_name = "PUK";
 static const char *CAN_name = "CAN";
 static const char *UNDEF_name = "UNDEF";
