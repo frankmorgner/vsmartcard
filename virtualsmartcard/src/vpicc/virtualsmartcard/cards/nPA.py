@@ -104,7 +104,7 @@ class nPA_SE(Security_Environment):
             if self.at.keyref_is_pin():
                 if self.sam.counter <= 0:
                     print "Must use PUK to unblock"
-                    raise SwError(SW["WARN_NOINFO63"])
+                    return 0x63c0, ""
                 if self.sam.counter == 1 and not self.sam.active:
                     print "Must use CAN to activate"
                     return 0x63c1, ""
@@ -167,7 +167,7 @@ class nPA_SE(Security_Environment):
         elif self.at.keyref_is_pin():
             if self.sam.counter <= 0:
                 print "Must use PUK to unblock"
-                raise SwError(SW["WARN_NOINFO63"])
+                return 0x63c0, ""
             if self.sam.counter == 1 and not self.sam.active:
                 print "Must use CAN to activate"
                 return 0x63c1, ""
