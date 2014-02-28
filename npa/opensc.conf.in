@@ -19,5 +19,23 @@ app default {
 	card_driver npa {
 		# The location of the driver library
 		module = @libdir@/libcardnpa.@DYN_LIB_EXT@;
-	# }
+	}
+
+
+	# PKCS #15
+	framework pkcs15 {
+		# additional settings per driver
+		#
+		# For pkcs15 emulators loaded from an external shared
+		# library/DLL, you need to specify the path name of the module
+		# and customize the card_atr example above correctly.
+		#
+		emulate npa {
+			# The location of the driver library
+			module = @libdir@/libpkcs15npa.@DYN_LIB_EXT@;
+
+			function = sc_pkcs15emu_npa_init_ex;
+			can = 222222;
+		}
+	}
 }
