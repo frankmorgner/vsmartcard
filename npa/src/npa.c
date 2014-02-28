@@ -602,6 +602,27 @@ static int npa_mse_set_at_pace(sc_card_t *card, int protocol,
     return r;
 }
 
+int npa_pace_get_tries_left(sc_card_t *card,
+        enum s_type pin_id, int *tries_left)
+{
+    int r;
+    u8 sw1, sw2;
+
+    if (tries_left) {
+        r = npa_mse_set_at_pace(card, 0, pin_id, 0, &sw1, &sw2);
+
+        if (r > 0 && (sw1 == 0x63) && ((sw2 & 0xc0) == 0xc0)) {
+            *tries_left = sw2 & 0x0f;
+        } else {
+            *tries_left = -1;
+        }
+    } else {
+        r = SC_ERROR_INVALID_ARGUMENTS;
+    }
+
+    return r;
+}
+
 
 #define ISO_GENERAL_AUTHENTICATE 0x86
 #define ISO_COMMAND_CHAINING 0x10

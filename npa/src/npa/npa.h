@@ -98,6 +98,11 @@ extern "C" {
 #define CAN_LEN       6
 /** @brief Minimum length of MRZ */
 #define MAX_MRZ_LEN       128
+/** @brief Number of retries for PIN */
+#define MAX_PIN_TRIES     3
+/** @brief Usage counter of PIN in suspended state */
+#define UC_PIN_SUSPENDED  1
+
 
 /**
  * @brief Names the type of the PACE secret
@@ -199,6 +204,18 @@ int perform_chip_authentication(sc_card_t *card);
 int npa_reset_retry_counter(sc_card_t *card,
         enum s_type pin_id, int ask_for_secret,
         const char *new, size_t new_len);
+
+/** 
+ * @brief Sends an MSE:Set AT to determine the number of remaining tries
+ *
+ * @param[in] card
+ * @param[in] pin_id         Type of secret (usually PIN or CAN). You may use <tt>enum s_type</tt> from \c <openssl/pace.h>.
+ * @param[in,out] tries_left Tries left or -1 if no specific number has been returned by the card (e.g. when there is no limit in retries).
+ * 
+ * @return \c SC_SUCCESS or error code if an error occurred
+ */
+int npa_pace_get_tries_left(sc_card_t *card,
+        enum s_type pin_id, int *tries_left);
 /** 
  * @brief Send APDU to unblock the PIN
  *
