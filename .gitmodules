@@ -1,3 +1,4 @@
 [submodule "npa/src/opensc"]
 	path = npa/src/opensc
 	url = git://github.com/OpenSC/OpenSC.git
+	ignore = dirty
