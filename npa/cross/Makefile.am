@@ -33,6 +33,7 @@ android: $(VIRTUALSMARTCARD_CONFIGURE)
 		--enable-libpcsclite --enable-vpcdhost=localhost \
 		PKG_CONFIG_SYSROOT_DIR=$(ANDROID_TARGETDIR) \
 		PKG_CONFIG_LIBDIR=$(ANDROID_TARGETDIR)/lib/pkgconfig \
+		PKG_CONFIG_PATH=$(ANDROID_TARGETDIR)/lib/pkgconfig \
 		CFLAGS=-I$(ANDROID_TOOL_DIR)/include \
 		LDFLAGS=-L$(ANDROID_TOOL_DIR)/lib
 	@echo Compiling virtual smartcard
@@ -68,6 +69,7 @@ $(LIBNPA): $(OPENPACE_MAKEFILE)
 		--enable-sm \
 		PKG_CONFIG_SYSROOT_DIR=$(TARGETDIR) \
 		PKG_CONFIG_LIBDIR=$(TARGETDIR)/lib/pkgconfig \
+		PKG_CONFIG_PATH=$(TARGETDIR)/lib/pkgconfig \
 		CFLAGS=-I$(TOOL_DIR)/include \
 		LDFLAGS=-L$(TOOL_DIR)/lib
 	@echo Compiling OpenSC
@@ -78,6 +80,7 @@ $(LIBNPA): $(OPENPACE_MAKEFILE)
 		--host=$(TOOL) --target=$(TOOL) \
 		PKG_CONFIG_SYSROOT_DIR=$(TARGETDIR) \
 		PKG_CONFIG_LIBDIR=$(TARGETDIR)/lib/pkgconfig \
+		PKG_CONFIG_PATH=$(TARGETDIR)/lib/pkgconfig \
 		OPENSC_LIBS="-L$(TARGETDIR)/lib -lopensc" \
 		CFLAGS=-I$(TOOL_DIR)/include \
 		LDFLAGS=-L$(TOOL_DIR)/lib
