@@ -99,7 +99,7 @@ $(OPENPACE_CONFIGURE): $(OPENPACE_CONFIGURE_AC)
 	cd $(OPENPACE) && autoreconf --verbose --install --symlink
 
 $(OPENPACE_MAKEFILE): $(OPENPACE_CONFIGURE)
-	cd $(OPENPACE) && ./configure
+	cd $(OPENPACE) && ./configure --enable-openssl-install
 
 
 
