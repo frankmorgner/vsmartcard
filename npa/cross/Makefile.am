@@ -63,6 +63,8 @@ $(LIBNPA): $(OPENPACE_MAKEFILE)
 		TARGETDIR=$(TARGETDIR) \
 		LIBEAC=$(LIBEAC)
 	@echo Configuring OpenSC
+	grep _sc_match_atr $(OPENSC)/src/libopensc/libopensc.exports || echo _sc_match_atr >> $(OPENSC)/src/libopensc/libopensc.exports
+	grep sc_apdu_get_octets $(OPENSC)/src/libopensc/libopensc.exports || echo sc_apdu_get_octets >> $(OPENSC)/src/libopensc/libopensc.exports
 	cd $(OPENSC) && ./configure \
 		--prefix=/ \
 		--host=$(TOOL) --target=$(TOOL) \
