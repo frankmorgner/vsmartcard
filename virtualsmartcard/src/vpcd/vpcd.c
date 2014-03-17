@@ -254,6 +254,11 @@ struct vicc_ctx * vicc_init(const char *hostname, unsigned short port)
         return NULL;
     }
 
+#ifdef _WIN32
+    WSADATA wsaData;
+    WSAStartup(MAKEWORD(2, 2), &wsaData);
+#endif
+
     if (hostname) {
         ctx->hostname = strdup(hostname);
         if (!ctx->hostname) {
@@ -291,6 +296,9 @@ int vicc_exit(struct vicc_ctx *ctx)
                 r -= 1;
             }
         }
+#ifdef _WIN32
+        WSACleanup();
+#endif
     }
 
     return r;
