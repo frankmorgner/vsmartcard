@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <UMDF_VERSION_MAJOR Condition="'$(OVERRIDE_UMDF_VERSION_MAJOR)'!='true'">1</UMDF_VERSION_MAJOR>
+    <UMDF_VERSION_MINOR Condition="'$(OVERRIDE_UMDF_VERSION_MINOR)'!='true'">9</UMDF_VERSION_MINOR>
+    <KMDF_VERSION_MAJOR Condition="'$(OVERRIDE_KMDF_VERSION_MAJOR)'!='true'">1</KMDF_VERSION_MAJOR>
+    <KMDF_VERSION_MINOR Condition="'$(OVERRIDE_KMDF_VERSION_MINOR)'!='true'">9</KMDF_VERSION_MINOR>
+    <TARGETNAME Condition="'$(OVERRIDE_TARGETNAME)'!='true'">vpcd</TARGETNAME>
+    <TARGETTYPE Condition="'$(OVERRIDE_TARGETTYPE)'!='true'">DYNLINK</TARGETTYPE>
+    <USE_ATL Condition="'$(OVERRIDE_USE_ATL)'!='true'">1</USE_ATL>
+    <ATL_VER Condition="'$(OVERRIDE_ATL_VER)'!='true'">71</ATL_VER>
+    <USE_MSVCRT Condition="'$(OVERRIDE_USE_MSVCRT)'!='true'">1</USE_MSVCRT>
+    <C_DEFINES Condition="'$(OVERRIDE_C_DEFINES)'!='true'">$(C_DEFINES)  /D_UNICODE /DUNICODE</C_DEFINES>
+    <WIN32_WINNT_VERSION Condition="'$(OVERRIDE_WIN32_WINNT_VERSION)'!='true'">$(LATEST_WIN32_WINNT_VERSION)</WIN32_WINNT_VERSION>
+    <_NT_TARGET_VERSION Condition="'$(OVERRIDE__NT_TARGET_VERSION)'!='true'">$(_NT_TARGET_VERSION_WIN7)</_NT_TARGET_VERSION>
+    <NTDDI_VERSION Condition="'$(OVERRIDE_NTDDI_VERSION)'!='true'">$(LATEST_NTDDI_VERSION)</NTDDI_VERSION>
+    <DLLENTRY Condition="'$(OVERRIDE_DLLENTRY)'!='true'">_DllMainCRTStartup</DLLENTRY>
+    <DLLDEF Condition="'$(OVERRIDE_DLLDEF)'!='true'">exports.def</DLLDEF>
+    <SOURCES Condition="'$(OVERRIDE_SOURCES)'!='true'">vpcd.rc                          driver.cpp                       device.cpp					     queue.cpp					     memory.cpp					     DllMain.cpp					     VirtualSCReader.idl</SOURCES>
+    <INCLUDES Condition="'$(OVERRIDE_INCLUDES)'!='true'">$(INCLUDES);                             $(SDK_INC_PATH);                         $(DDK_INC_PATH);                         $(UMDF_INC_PATH)\10;</INCLUDES>
+    <MSC_WARNING_LEVEL Condition="'$(OVERRIDE_MSC_WARNING_LEVEL)'!='true'">/W4 /WX</MSC_WARNING_LEVEL>
+    <TARGETLIBS Condition="'$(OVERRIDE_TARGETLIBS)'!='true'">$(SDK_LIB_PATH)\strsafe.lib              $(SDK_LIB_PATH)\kernel32.lib             $(SDK_LIB_PATH)\ole32.lib                $(SDK_LIB_PATH)\oleaut32.lib             $(SDK_LIB_PATH)\uuid.lib                 $(SDK_LIB_PATH)\user32.lib               $(SDK_LIB_PATH)\advapi32.lib             $(SDK_LIB_PATH)\shlwapi.lib              $(SDK_LIB_PATH)\ws2_32.lib</TARGETLIBS>
+    <NTTARGETFILE1 Condition="'$(OVERRIDE_NTTARGETFILE1)'!='true'">$(OBJ_PATH)\$(O)\vpcd.inf</NTTARGETFILE1>
+    <TARGET_DESTINATION Condition="'$(OVERRIDE_TARGET_DESTINATION)'!='true'">wudf</TARGET_DESTINATION>
+  </PropertyGroup>
+  <ItemGroup>
+    <InvokedTargetsList Include="$(OBJ_PATH)\$(O)\vpcd.inf">
+      <Pass>1</Pass>
+      <Condition>
+      </Condition>
+    </InvokedTargetsList>
+  </ItemGroup>
+</Project>
