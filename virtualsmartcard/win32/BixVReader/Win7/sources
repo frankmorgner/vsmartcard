@@ -1,0 +1,79 @@
+#
+# UMDF_VERSION_MAJOR controls the headers that the driver uses.
+# UMDF_VERSION_MAJOR + UMDF_VERSION_MINOR control which version 
+# of UMDF the driver is bound to in the INF and which 
+# update coinstaller it requires (through stampinf). 
+#
+
+UMDF_VERSION_MAJOR=1
+UMDF_VERSION_MINOR=9
+
+KMDF_VERSION_MAJOR=1
+KMDF_VERSION_MINOR=9
+
+
+TARGETNAME=BixVReader
+TARGETTYPE=DYNLINK
+
+USE_ATL     = 1
+USE_STL		= 1
+ATL_VER     = 71
+USE_MSVCRT  = 1
+USE_NATIVE_EH	= 1
+
+C_DEFINES = $(C_DEFINES)  /D_UNICODE /DUNICODE
+
+WIN32_WINNT_VERSION=$(LATEST_WIN32_WINNT_VERSION)
+_NT_TARGET_VERSION=$(_NT_TARGET_VERSION_WIN7)
+NTDDI_VERSION=$(LATEST_NTDDI_VERSION)
+
+DLLENTRY=_DllMainCRTStartup
+DLLDEF=..\exports.def
+
+SOURCES=\
+    ..\BixVReader.rc                 \
+    ..\driver.cpp                  \
+    ..\device.cpp					\
+    ..\reader.cpp					\
+    ..\pipereader.cpp					\
+    ..\tcpipreader.cpp					\
+    ..\..\..\src\vpcd\vpcd.c					\
+    ..\vpcdreader.cpp					\
+    ..\queue.cpp					\
+    ..\memory.cpp					\
+	..\sectionLocker.cpp					\
+    ..\DllMain.cpp					\
+    ..\VirtualSCReader.idl
+
+INCLUDES= $(INCLUDES);                  \
+          $(SDK_INC_PATH);              \
+          $(DDK_INC_PATH);              \
+          $(UMDF_INC_PATH)\10; 
+          
+MSC_WARNING_LEVEL=/W4 /WX
+
+TARGETLIBS=\
+        $(SDK_LIB_PATH)\strsafe.lib     \
+        $(SDK_LIB_PATH)\kernel32.lib    \
+        $(SDK_LIB_PATH)\ole32.lib       \
+        $(SDK_LIB_PATH)\oleaut32.lib    \
+        $(SDK_LIB_PATH)\uuid.lib        \
+        $(SDK_LIB_PATH)\user32.lib      \
+        $(SDK_LIB_PATH)\advapi32.lib    \
+        $(SDK_LIB_PATH)\shlwapi.lib     \
+        $(SDK_LIB_PATH)\Ws2_32.lib      \
+
+NTTARGETFILE1=$(OBJ_PATH)\$(O)\BixVReader.inf
+
+
+#
+# This sets up the WPP preprocessor and tells it to scan internal.h to find
+# the trace function definition that's in there.
+#
+
+#RUN_WPP= $(SOURCES) -dll -scan:internal.h
+
+
+TARGET_DESTINATION=wudf
+
+
