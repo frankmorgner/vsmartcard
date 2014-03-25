@@ -159,8 +159,12 @@ Reader`_ for details.
 
 
 ********************************************************************************
-Running the Virtual Smart Card
+Using the Virtual Smart Card
 ********************************************************************************
+
+The protocol between |vpcd| and |vpicc| as well as details on extending |vpicc|
+with a different card emulator are covered in :ref:`virtualsmartcard-api`. Here
+we will focus on configuring and running the provided modules.
 
 ================================================================================
 Configuring |vpcd| on Unix

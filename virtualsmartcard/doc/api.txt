@@ -4,6 +4,8 @@
 .. |SWs| replace:: :abbr:`SWs (status bytes SW 1 and SW 2)`
 .. |SAM| replace:: :abbr:`SAM (Secure Access Module)`
 
+.. _virtualsmartcard-api:
+
 *****************************
 Creating a Virtual Smart Card
 *****************************
@@ -12,8 +14,6 @@ Creating a Virtual Smart Card
 (configurably via :file:`/etc/reader.conf.d/vpcd`). So you can connect
 virtually any program to the virtual smart card reader, as long as you respect
 the following protocol:
-
-.. _vpcd-commands:
 
 ============= ==================== ============= =============
 |vpcd|                             |vpicc|

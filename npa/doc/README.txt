@@ -131,9 +131,9 @@ To complete this step-by-step guide, here is how to install nPA Smart Card Libra
 
 .. _npa-usage:
 
-=====
-Usage
-=====
+********************************************************************************
+Using the nPA Smart Card Library
+********************************************************************************
 
 The API to libnpa is documented in :ref:`npa-api`. It includes a simple
 programming example. Here we will focus on the command line interface to the
@@ -158,9 +158,9 @@ the bytes. Example APDUs can be found in :file:`apdus`.
 
 .. program-output:: npa-tool --help
 
-----------------------
+======================
 Linking against libnpa
-----------------------
+======================
 
 Following the section Installation_ above, you have installed OpenSSL,
 OpenPACE, OpenSC and the nPA Smart Card Library to `$PREFIX` which points to

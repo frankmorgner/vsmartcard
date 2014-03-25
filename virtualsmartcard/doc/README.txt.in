@@ -159,8 +159,12 @@ Reader`_ for details.
 
 
 ********************************************************************************
-Running the @PACKAGE_NAME@
+Using the @PACKAGE_NAME@
 ********************************************************************************
+
+The protocol between |vpcd| and |vpicc| as well as details on extending |vpicc|
+with a different card emulator are covered in :ref:`virtualsmartcard-api`. Here
+we will focus on configuring and running the provided modules.
 
 ================================================================================
 Configuring |vpcd| on Unix
