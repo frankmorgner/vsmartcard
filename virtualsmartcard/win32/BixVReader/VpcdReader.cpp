@@ -13,8 +13,13 @@ int VpcdReader::portBase;
 
 VpcdReader::VpcdReader() {
 	rpcType=2;
-	state=SCARD_ABSENT;
+	state = SCARD_ABSENT;
 	cardPresent = false;
+	InitializeCriticalSection(&ioSection);
+}
+
+VpcdReader::~VpcdReader() {
+	DeleteCriticalSection(&ioSection);
 }
 void VpcdReader::init(wchar_t *section) {
 	portBase=GetPrivateProfileInt(L"Driver",L"RPC_PORT_BASE",VPCDPORT,L"BixVReader.ini");	
@@ -24,12 +29,19 @@ void VpcdReader::init(wchar_t *section) {
 
 bool VpcdReader::CheckATR() {
 	bool r = false;
-	struct vicc_ctx *vicc_ctx = (struct vicc_ctx *) ctx;
 
+	{
+	SectionLocker lock(ioSection);
 	if (vicc_present((struct vicc_ctx *) ctx) == 1) {
-		signalInsertion();
 		r = true;
-	} else {
+	}
+	}
+
+
+	if (r) {
+		signalInsertion();
+	}
+	else {
 		signalRemoval();
 	}
 
@@ -41,7 +53,10 @@ bool VpcdReader::QueryTransmit(BYTE *APDU,int APDUlen,BYTE *Resp,int *Resplen) {
 	bool r = false;
 
 	if (APDU && APDUlen && Resp && Resplen) {
-		rapdu_len = vicc_transmit((struct vicc_ctx *) ctx, APDUlen, APDU, &rapdu);
+		{
+			SectionLocker lock(ioSection);
+			rapdu_len = vicc_transmit((struct vicc_ctx *) ctx, APDUlen, APDU, &rapdu);
+		}
 		if (rapdu_len > 0) {
 			memcpy(Resp, rapdu, rapdu_len);
 			*Resplen = rapdu_len;
@@ -61,7 +76,10 @@ bool VpcdReader::QueryATR(BYTE *ATR,DWORD *ATRsize,bool reset) {
 	bool r = false;
 
 	if (ATR && ATRsize) {
-		atr_len = vicc_getatr((struct vicc_ctx *) ctx, &atr);
+		{
+			SectionLocker lock(ioSection);
+			atr_len = vicc_getatr((struct vicc_ctx *) ctx, &atr);
+		}
 		if (atr_len > 0) {
 			/* TODO do length checking on length of ATR when ATRsize is
 			 * correctly initialized by Reader.cpp */
@@ -70,7 +88,10 @@ bool VpcdReader::QueryATR(BYTE *ATR,DWORD *ATRsize,bool reset) {
 			free(atr);
 			r = true;
 			if (reset)
+			{
+				SectionLocker lock(ioSection);
 				vicc_reset((struct vicc_ctx *) ctx);
+			}
 		} else {
 			signalRemoval();
 		}
@@ -81,7 +102,10 @@ bool VpcdReader::QueryATR(BYTE *ATR,DWORD *ATRsize,bool reset) {
 
 DWORD VpcdReader::startServer() {
 	breakSocket = false;
-	ctx = vicc_init(NULL, port);
+	{
+		SectionLocker lock(ioSection);
+		ctx = vicc_init(NULL, port);
+	}
 	while (!breakSocket) {
 		CheckATR();
 		Sleep(1000);
@@ -92,8 +116,11 @@ DWORD VpcdReader::startServer() {
 void VpcdReader::shutdown() {
 	breakSocket=true;
 	WaitForSingleObject(serverThread,10000);
-	serverThread=NULL;
-	vicc_exit((struct vicc_ctx *) ctx);
+	serverThread = NULL;
+	{
+		SectionLocker lock(ioSection);
+		vicc_exit((struct vicc_ctx *) ctx);
+	}
 	state=SCARD_ABSENT;
 	ctx = NULL;
 	if (waitRemoveIpr!=NULL) {

@@ -93,6 +93,7 @@ public:
 	bool cardPresent;
 
 	VpcdReader();
+	~VpcdReader();
 	bool QueryTransmit(BYTE *APDU,int APDUlen,BYTE *Resp,int *Resplen);
 	bool QueryATR(BYTE *ATR,DWORD *ATRsize,bool reset=false);
 	bool CheckATR();
@@ -101,4 +102,6 @@ public:
 	void init(wchar_t *section);
 	void signalRemoval(void);
 	void signalInsertion(void);
+
+	CRITICAL_SECTION ioSection;
 };
