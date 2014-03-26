@@ -15,6 +15,8 @@ Creating a Virtual Smart Card
 virtually any program to the virtual smart card reader, as long as you respect
 the following protocol:
 
+.. _vpcd-commands:
+
 ============= ==================== ============= =============
 |vpcd|                             |vpicc|
 ---------------------------------- ---------------------------

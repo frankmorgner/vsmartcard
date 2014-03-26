@@ -35,12 +35,12 @@ Currently the Virtual Smart Card supports the following types of smart cards:
 - German electronic passport (ePass) with complete support for |BAC|
 - Cryptoflex smart card (incomplete)
       
-The |vpcd| is a smart card driver for PCSC-Lite_. It allows
-smart card applications to access the |vpicc| through the PC/SC API.  By
-default |vpcd| opens slots for communication with multiple |vpicc|'s on
-localhost from port 35963 to port 35972. But the |vpicc| does not need to run
-on the same machine as the |vpcd|, they can connect over the internet for
-example.
+The |vpcd| is a smart card reader driver for PCSC-Lite_ and the windows smart
+card service. It allows smart card applications to access the |vpicc| through
+the PC/SC API.  By default |vpcd| opens slots for communication with multiple
+|vpicc|'s on localhost from port 35963 to port 35972. But the |vpicc| does not
+need to run on the same machine as the |vpcd|, they can connect over the
+internet for example.
 
 Although the Virtual Smart Card is a software emulator, you can use
 :ref:`pcsc-relay` to make it accessible to an external contact-less smart card
@@ -216,11 +216,14 @@ options of |vpicc|.
 
 .. program-output:: vicc --help
 
+On Windows you can start |vpicc| with :command:`python.exe src/vpicc/vicc.in`
+or :command:`python.exe vicc`.
+
 When |vpcd| and |vpicc| are connected you should be able to access the card
-through the PC/SC API via :command:`pcscd`. You can use the
-:command:`opensc-explorer` or :command:`pcsc_scan` for testing. In
-Virtual Smart Card's root directory we also provide scripts for testing with
-:ref:`libnpa` and PCSC-Lite's smart card reader driver tester.
+through the PC/SC API. You can use the :command:`opensc-explorer` or
+:command:`pcsc_scan` for testing. In Virtual Smart Card's root directory we also
+provide scripts for testing with :ref:`libnpa` and PCSC-Lite's smart card
+reader driver tester.
 
 
 .. include:: questions.txt
