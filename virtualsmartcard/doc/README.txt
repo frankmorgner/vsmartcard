@@ -143,15 +143,16 @@ Virtual Smart Card Reader`_ with a |vpcd| interface. To build the |vpcd| we use
    install package in :file:`BixVReader-package`. It contains `BixVReader.inf`
    and the required libraries, especially `BixVReader.dll`.
 
-3. In a console with administrator rights go to this directory and execute::
+3. Copy :file:`win32\\BixVReader\\BixVReader.ini` into the :envvar:`%SystemRoot%`
+   directory.
 
-   "C:\Program Files\Windows Kits\8.1\Tools\x86\devcon.exe" install BixVReader.inf root\BixVReader
+4. In a console with administrator rights go to :file:`BixVReader-package` and
+   execute::
+
+   "C:\Program Files\Windows Kits\8.1\Tools\x86\devcon.exe" install BixVReader.inf root\BixVirtualReader
    
    You can adjust the path to ``devcon.exe`` with your version of the WDK and
    your target architecture.
-
-4. Copy :file:`win32\\BixVReader\\BixVReader.ini` into the :envvar:`%SystemRoot%`
-   directory.
 
 For debugging |vpcd| and building the driver with an older version of Visual
 Studio or WDK please see `Fabio Ottavi's UMDF Driver for a Virtual Smart Card
