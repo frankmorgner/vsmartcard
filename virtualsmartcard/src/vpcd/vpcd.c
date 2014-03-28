@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2013 Frank Morgner
+ * Copyright (C) 2009-2014 Frank Morgner
  *
  * This file is part of virtualsmartcard.
  *
@@ -17,6 +17,7 @@
  * virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "vpcd.h"
+#include "lock.h"
 
 #if HAVE_CONFIG_H
 #include "config.h"
@@ -65,7 +66,6 @@ static ssize_t recvall(int sock, void *buffer, size_t size);
 
 static int opensock(unsigned short port);
 static int connectsock(const char *hostname, unsigned short port);
-
 
 ssize_t sendall(int sock, const void *buffer, size_t size)
 {
@@ -249,46 +249,56 @@ int vicc_eject(struct vicc_ctx *ctx)
 
 struct vicc_ctx * vicc_init(const char *hostname, unsigned short port)
 {
+    struct vicc_ctx *r = NULL;
+
     struct vicc_ctx *ctx = malloc(sizeof *ctx);
     if (!ctx) {
-        return NULL;
+        goto err;
     }
+
+    ctx->hostname = NULL;
+    ctx->io_lock = NULL;
+    ctx->server_sock = -1;
+    ctx->client_sock = -1;
+    ctx->port = port;
 
 #ifdef _WIN32
     WSADATA wsaData;
     WSAStartup(MAKEWORD(2, 2), &wsaData);
 #endif
 
+    ctx->io_lock = create_lock();
+    if (!ctx->io_lock) {
+        goto err;
+    }
+
     if (hostname) {
         ctx->hostname = strdup(hostname);
         if (!ctx->hostname) {
-            free(ctx);
-            return NULL;
+            goto err;
         }
-
-        ctx->server_sock = -1;
-
         ctx->client_sock = connectsock(hostname, port);
     } else {
-        ctx->hostname = NULL;
-
         ctx->server_sock = opensock(port);
         if (ctx->server_sock < 0) {
-            free(ctx);
-            return NULL;
+            goto err;
         }
-
-        ctx->client_sock = -1;
     }
-    ctx->port = port;
+    r = ctx;
 
-    return ctx;
+err:
+    if (!r) {
+        vicc_exit(ctx);
+    }
+
+    return r;
 }
 
 int vicc_exit(struct vicc_ctx *ctx)
 {
     int r = vicc_eject(ctx);
     if (ctx) {
+        free_lock(ctx->io_lock);
         free(ctx->hostname);
         if (ctx->server_sock > 0) {
             ctx->server_sock = close(ctx->server_sock);
@@ -308,12 +318,16 @@ ssize_t vicc_transmit(struct vicc_ctx *ctx,
         size_t apdu_len, const unsigned char *apdu,
         unsigned char **rapdu)
 {
-    ssize_t r;
+    ssize_t r = -1;
 
-    r = sendToVICC(ctx, apdu_len, apdu);
+    if (ctx && lock(ctx->io_lock)) {
+        r = sendToVICC(ctx, apdu_len, apdu);
 
-    if (r > 0)
-        r = recvFromVICC(ctx, rapdu);
+        if (r > 0)
+            r = recvFromVICC(ctx, rapdu);
+
+        unlock(ctx->io_lock);
+    }
 
     if (r <= 0)
         vicc_eject(ctx);
@@ -360,15 +374,36 @@ ssize_t vicc_getatr(struct vicc_ctx *ctx, unsigned char **atr) {
 
 int vicc_poweron(struct vicc_ctx *ctx) {
     unsigned char i = VPCD_CTRL_ON;
-    return sendToVICC(ctx, VPCD_CTRL_LEN, &i);
+    int r = 0;
+
+    if (ctx && lock(ctx->io_lock)) {
+        r = sendToVICC(ctx, VPCD_CTRL_LEN, &i);
+        unlock(ctx->io_lock);
+    }
+
+    return r;
 }
 
 int vicc_poweroff(struct vicc_ctx *ctx) {
     unsigned char i = VPCD_CTRL_OFF;
-    return sendToVICC(ctx, VPCD_CTRL_LEN, &i);
+    int r = 0;
+
+    if (ctx && lock(ctx->io_lock)) {
+        r = sendToVICC(ctx, VPCD_CTRL_LEN, &i);
+        unlock(ctx->io_lock);
+    }
+
+    return r;
 }
 
 int vicc_reset(struct vicc_ctx *ctx) {
     unsigned char i = VPCD_CTRL_RESET;
-    return sendToVICC(ctx, VPCD_CTRL_LEN, &i);
+    int r = 0;
+
+    if (ctx && lock(ctx->io_lock)) {
+        r = sendToVICC(ctx, VPCD_CTRL_LEN, &i);
+        unlock(ctx->io_lock);
+    }
+
+    return r;
 }

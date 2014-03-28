@@ -30,6 +30,7 @@ AM_PATH_PYTHON
 AC_PROG_CXX
 AM_PROG_CC_C_O
 PKG_PROG_PKG_CONFIG
+AX_PTHREAD
 AC_ARG_VAR([HELP2MAN],
            [absolute path to help2man used for man page generation of vicc])
 AC_PATH_PROG(HELP2MAN, help2man, not found)
@@ -205,6 +206,8 @@ Compiler flags:       ${CFLAGS}
 Preprocessor flags:   ${CPPFLAGS}
 Linker flags:         ${LDFLAGS}
 Libraries:            ${LIBS}
+PTHREAD_LIBS:         ${PTHREAD_LIBS}
+PTHREAD_CFLAGS:       ${PTHREAD_CFLAGS}
 PCSC_CFLAGS:          ${PCSC_CFLAGS}
 PCSC_LIBS:            ${PCSC_LIBS}
 BUNDLE_HOST:          ${BUNDLE_HOST}

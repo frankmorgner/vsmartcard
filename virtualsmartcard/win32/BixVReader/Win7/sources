@@ -38,6 +38,7 @@ SOURCES=\
     ..\pipereader.cpp					\
     ..\tcpipreader.cpp					\
     ..\..\..\src\vpcd\vpcd.c					\
+    ..\..\..\src\vpcd\lock.c					\
     ..\vpcdreader.cpp					\
     ..\queue.cpp					\
     ..\memory.cpp					\

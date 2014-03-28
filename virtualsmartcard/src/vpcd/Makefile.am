@@ -1,10 +1,10 @@
 VPCD_LIB = $(LIB_PREFIX)vpcd.$(DYN_LIB_EXT)
 
-libvpcd_la_SOURCES = ifd-vpcd.c vpcd.c
+libvpcd_la_SOURCES = ifd-vpcd.c vpcd.c lock.c
 libvpcd_la_LDFLAGS = -no-undefined
 libvpcd_la_CFLAGS = $(PCSC_CFLAGS)
 
-noinst_HEADERS = vpcd.h
+noinst_HEADERS = vpcd.h lock.h
 
 EXTRA_DIST = reader.conf.in
 

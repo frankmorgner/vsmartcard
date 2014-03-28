@@ -31,6 +31,7 @@ struct vicc_ctx {
         int client_sock;
         char *hostname;
         unsigned short port;
+        void *io_lock;
 };
 
 #ifdef __cplusplus
