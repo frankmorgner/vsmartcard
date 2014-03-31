@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.64])
 AC_INIT([Virtual Smart Card], [0.7], [http://sourceforge.net/projects/vsmartcard/support], [virtualsmartcard], [http://vsmartcard.sourceforge.net/virtualsmartcard/README.html])
-AC_CONFIG_SRCDIR([src/vpcd/ifd-vpcd.c])
+AC_CONFIG_SRCDIR([src/vpcd/vpcd.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE
@@ -47,7 +47,7 @@ m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
 # --enable-libpcsclite
 AC_ARG_ENABLE(libpcsclite,
-	AC_HELP_STRING([--enable-libpcsclite=DIR],[Build a lightweight version of
+	AC_HELP_STRING([--enable-libpcsclite],[Build a lightweight version of
 					libpcsclite, conflicts with PCSC-Lite @<:@default=no@:>@]),
 	[libpcsclite="${enableval}"], [libpcsclite=no])
 if test "${libpcsclite}" = no ; then
@@ -102,8 +102,8 @@ if test "${libpcsclite}" = no ; then
 	fi
 else
     builddir="`pwd`"
-	PCSC_CFLAGS="-DNO_LOG -I${builddir}/${srcdir}/src/libpcsclite/PCSC -I${builddir}/${srcdir}/src/libpcsclite"
-	PCSC_LIBS="$builddir/src/libpcsclite/libpcsclite.la"
+	PCSC_CFLAGS="-DNO_LOG -I${builddir}/${srcdir}/src/pcsclite-vpcd/PCSC -I${builddir}/${srcdir}/src/pcsclite-vpcd"
+	PCSC_LIBS="$builddir/src/pcsclite-vpcd/libpcsclite.la"
 	AC_SUBST(PCSC_CFLAGS)
 	AC_SUBST(PCSC_LIBS)
 fi
@@ -226,7 +226,8 @@ AC_CONFIG_FILES([Makefile
                  npa-example-data/dh/Makefile
                  npa-example-data/ecdh/Makefile
                  src/Makefile
-                 src/libpcsclite/Makefile
+                 src/pcsclite-vpcd/Makefile
+                 src/ifd-vpcd/Makefile
                  src/vpcd/Makefile
                  src/vpicc/Makefile
                  ])

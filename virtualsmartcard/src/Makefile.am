@@ -1,5 +1,5 @@
-SUBDIRS  = vpcd vpicc
+SUBDIRS  = vpcd vpicc ifd-vpcd
 
 if BUILD_LIBPCSCLITE
-SUBDIRS += libpcsclite
+SUBDIRS += pcsclite-vpcd
 endif
