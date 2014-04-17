@@ -11,4 +11,4 @@ Currently the following projects are part of Virtual Smart Card Architecture:
 - USB CCID Emulator
 - nPA Smart Card Library
 
-Please refer to [our project's website](http://vsmartcard.sourceforge.net/) for more information.
+Please refer to [our project's website](http://frankmorgner.github.io/vsmartcard) for more information.

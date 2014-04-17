@@ -9,4 +9,4 @@ You can find the latest release of Virtual Smart Card on `Sourceforge
 
 Alternatively, you can clone our git repository::
 
-    git clone http://git.code.sf.net/p/vsmartcard/git vsmartcard
+    git clone https://github.com/frankmorgner/vsmartcard.git

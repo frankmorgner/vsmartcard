@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.64])
-AC_INIT([Virtual Smart Card], [0.7], [http://sourceforge.net/projects/vsmartcard/support], [virtualsmartcard], [http://vsmartcard.sourceforge.net/virtualsmartcard/README.html])
+AC_INIT([Virtual Smart Card], [0.7], [https://github.com/frankmorgner/vsmartcard/issues], [virtualsmartcard], [http://frankmorgner.github.io/vsmartcard/virtualsmartcard/README.html])
 AC_CONFIG_SRCDIR([src/vpcd/vpcd.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])

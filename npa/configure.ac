@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.63])
-AC_INIT([nPA Smart Card Library], [0.6], [http://sourceforge.net/projects/vsmartcard/support], [npa], [http://vsmartcard.sourceforge.net/npa/README.html])
+AC_INIT([nPA Smart Card Library], [0.6], [https://github.com/frankmorgner/vsmartcard/issues], [npa], [http://frankmorgner.github.io/vsmartcard/npa/README.html])
 AC_CONFIG_SRCDIR([src/npa.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])

@@ -332,7 +332,7 @@ You can download the latest release of the |vsmartcard| `here
 
 Alternatively, you can clone our git repository::
 
-    git clone http://git.code.sf.net/p/vsmartcard/git vsmartcard
+    git clone https://github.com/frankmorgner/vsmartcard.git
 
 
 References
