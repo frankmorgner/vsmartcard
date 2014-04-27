@@ -36,6 +36,53 @@
 #include <npa/boxing.h>
 #include <npa/iso-sm.h>
 #include <npa/npa.h>
+
+static int
+perform_pseudo_apdu_EstablishPACEChannel(sc_apdu_t *apdu)
+{
+    struct establish_pace_channel_input  pace_input;
+    struct establish_pace_channel_output pace_output;
+    int r;
+
+    memset(&pace_input, 0, sizeof pace_input);
+    memset(&pace_output, 0, sizeof pace_output);
+
+    r = boxing_buf_to_pace_input(reader->ctx, apdu->data, apdu->datalen,
+            &pace_input);
+    if (r < 0)
+        goto err;
+
+    r = perform_pace(card, pace_input, &pace_output,
+            EAC_TR_VERSION_2_02);
+    if (r < 0)
+        goto err;
+
+    r = boxing_pace_output_to_buf(reader->ctx, &pace_output, &apdu->resp,
+            &apdu->resplen);
+
+err:
+    free((unsigned char *) pace_input.chat);
+    free((unsigned char *) pace_input.certificate_description);
+    free((unsigned char *) pace_input.pin);
+    free(pace_output.ef_cardaccess);
+    free(pace_output.recent_car);
+    free(pace_output.previous_car);
+    free(pace_output.id_icc);
+    free(pace_output.id_pcd);
+
+    return r;
+}
+
+static int
+perform_pseudo_apdu_GetReaderPACECapabilities(sc_apdu_t *apdu)
+{
+    unsigned long sc_reader_t_capabilities = SC_READER_CAP_PACE_GENERIC
+        | SC_READER_CAP_PACE_EID | SC_READER_CAP_PACE_ESIGN;
+
+
+    return boxing_pace_capabilities_to_buf(reader->ctx,
+            sc_reader_t_capabilities, &apdu->resp, &apdu->resplen);
+}
 #else
 int sm_stop(struct sc_card *card) { return SC_SUCCESS; }
 #endif
@@ -46,10 +93,6 @@ static int
 perform_PC_to_RDR_IccPowerOn(const __u8 *in, size_t inlen, __u8 **out, size_t *outlen);
 static int
 perform_PC_to_RDR_IccPowerOff(const __u8 *in, size_t inlen, __u8 **out, size_t *outlen);
-static int
-perform_pseudo_apdu_EstablishPACEChannel(sc_apdu_t *apdu);
-static int
-perform_pseudo_apdu_GetReaderPACECapabilities(sc_apdu_t *apdu);
 static int
 perform_pseudo_apdu(sc_reader_t *reader, sc_apdu_t *apdu);
 static int
@@ -424,8 +467,10 @@ perform_PC_to_RDR_IccPowerOn(const __u8 *in, size_t inlen, __u8 **out, size_t *o
     }
 
     if (sc_result >= 0) {
+#ifdef WITH_PACE
 #ifndef DISABLE_GLOBAL_BOXING_INITIALIZATION
         sc_initialize_boxing_cmds(ctx);
+#endif
 #endif
         return get_RDR_to_PC_SlotStatus(request->bSeq,
                 sc_result, out, outlen, card->atr.value, card->atr.len);
@@ -472,53 +517,6 @@ static const struct sw iso_sw_ref_data_not_found = {0x6A, 0x88};
 static const struct sw iso_sw_inconsistent_data = {0x6A, 0x87};
 static const struct sw iso_sw_func_not_supported = {0x6A, 0x81};
 static const struct sw iso_sw_ins_not_supported = {0x6D, 0x00};
-
-static int
-perform_pseudo_apdu_EstablishPACEChannel(sc_apdu_t *apdu)
-{
-    struct establish_pace_channel_input  pace_input;
-    struct establish_pace_channel_output pace_output;
-    int r;
-
-    memset(&pace_input, 0, sizeof pace_input);
-    memset(&pace_output, 0, sizeof pace_output);
-
-    r = boxing_buf_to_pace_input(reader->ctx, apdu->data, apdu->datalen,
-            &pace_input);
-    if (r < 0)
-        goto err;
-
-    r = perform_pace(card, pace_input, &pace_output,
-            EAC_TR_VERSION_2_02);
-    if (r < 0)
-        goto err;
-
-    r = boxing_pace_output_to_buf(reader->ctx, &pace_output, &apdu->resp,
-            &apdu->resplen);
-
-err:
-    free((unsigned char *) pace_input.chat);
-    free((unsigned char *) pace_input.certificate_description);
-    free((unsigned char *) pace_input.pin);
-    free(pace_output.ef_cardaccess);
-    free(pace_output.recent_car);
-    free(pace_output.previous_car);
-    free(pace_output.id_icc);
-    free(pace_output.id_pcd);
-
-    return r;
-}
-
-static int
-perform_pseudo_apdu_GetReaderPACECapabilities(sc_apdu_t *apdu)
-{
-    unsigned long sc_reader_t_capabilities = SC_READER_CAP_PACE_GENERIC
-        | SC_READER_CAP_PACE_EID | SC_READER_CAP_PACE_ESIGN;
-
-
-    return boxing_pace_capabilities_to_buf(reader->ctx,
-            sc_reader_t_capabilities, &apdu->resp, &apdu->resplen);
-}
 
 #define min(a,b) (a<b?a:b)
 static int
@@ -581,19 +579,29 @@ perform_pseudo_apdu(sc_reader_t *reader, sc_apdu_t *apdu)
                             break;
                         case 0x01:
                             /* GetReaderPACECapabilities */
+#ifdef WITH_PACE
                             LOG_TEST_RET(ctx,
                                     perform_pseudo_apdu_GetReaderPACECapabilities(apdu),
                                     "Could not get reader's PACE Capabilities");
                             apdu->sw1 = iso_sw_ok.sw1;
                             apdu->sw2 = iso_sw_ok.sw2;
+#else
+                            apdu->sw1 = 0x6D;
+                            apdu->sw2 = 0x00;
+#endif
                             break;
                         case 0x02:
                             /* EstablishPACEChannel */
+#ifdef WITH_PACE
                             LOG_TEST_RET(ctx,
                                     perform_pseudo_apdu_EstablishPACEChannel(apdu),
                                     "Could not perform PACE");
                             apdu->sw1 = iso_sw_ok.sw1;
                             apdu->sw2 = iso_sw_ok.sw2;
+#else
+                            apdu->sw1 = 0x6D;
+                            apdu->sw2 = 0x00;
+#endif
                             break;
                         case 0x03:
                             /* DestroyPACEChannel */

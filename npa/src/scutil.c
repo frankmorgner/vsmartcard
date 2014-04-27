@@ -222,13 +222,16 @@ int write_binary_rec(sc_card_t *card, unsigned char sfid,
     int r;
     size_t write = MAX_SM_APDU_DATA_SIZE, wrote = 0;
     sc_apdu_t apdu;
+#ifdef ENABLE_SM
     struct iso_sm_ctx *iso_sm_ctx = card->sm_ctx.info.cmd_data;
+#endif
 
     if (!card) {
         r = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
     }
 
+#ifdef ENABLE_SM
     if (write > SC_MAX_APDU_BUFFER_SIZE-2
             || (card->sm_ctx.sm_mode == SM_MODE_TRANSMIT
                 && write > (((SC_MAX_APDU_BUFFER_SIZE-2
@@ -241,6 +244,7 @@ int write_binary_rec(sc_card_t *card, unsigned char sfid,
         sc_format_apdu(card, &apdu, SC_APDU_CASE_3_EXT,
                 ISO_WRITE_BINARY, ISO_P1_FLAG_SFID|sfid, 0);
     else
+#endif
         sc_format_apdu(card, &apdu, SC_APDU_CASE_3_SHORT,
                 ISO_WRITE_BINARY, ISO_P1_FLAG_SFID|sfid, 0);
 
