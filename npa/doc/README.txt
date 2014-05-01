@@ -189,6 +189,6 @@ Notes and References
 
 .. target-notes::
 
-.. _OpenPACE: http://openpace.sourceforge.net
+.. _OpenPACE: https://github.com/frankmorgner/openpace
 .. _OpenSC: https://github.com/OpenSC/OpenSC
 .. _OpenSSL: http://www.openssl.org

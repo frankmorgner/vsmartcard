@@ -242,6 +242,6 @@ Notes and References
 .. _PyCrypto: http://pycrypto.org/
 .. _PBKDF2: https://www.dlitz.net/software/python-pbkdf2/
 .. _PIP: http://www.pythonware.com/products/pil/
-.. _OpenPACE: http://openpace.sourceforge.net
+.. _OpenPACE: https://github.com/frankmorgner/openpace
 .. _`Fabio Ottavi's UMDF Driver for a Virtual Smart Card Reader`: http://www.codeproject.com/Articles/134010/An-UMDF-Driver-for-a-Virtual-Smart-Card-Reader
 .. _`Windows Driver Kit 8.1 and Visual Studio 2013`: http://msdn.microsoft.com/en-us/windows/hardware/hh852365.aspx
