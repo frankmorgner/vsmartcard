@@ -98,7 +98,7 @@ OPENPACE_CONFIGURE=$(OPENPACE)/configure
 OPENPACE_MAKEFILE=$(OPENPACE)/Makefile
 
 $(OPENPACE_CONFIGURE_AC):
-	git clone git://openpace.git.sourceforge.net/gitroot/openpace/openpace $(OPENPACE)
+	git clone https://github.com/frankmorgner/openpace.git $(OPENPACE)
 
 $(OPENPACE_CONFIGURE): $(OPENPACE_CONFIGURE_AC)
 	cd $(OPENPACE) && autoreconf --verbose --install --symlink
