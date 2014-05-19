@@ -47,6 +47,7 @@ class CardGenerator(object):
         self.mf = mf
         self.sam = sam
         self.password = None
+        self.datagroups = {}
     
     def __generate_iso_card(self):
         default_pin = "1234"
@@ -166,22 +167,22 @@ class CardGenerator(object):
         eid=DF(parent=self.mf, fid=0xffff, dfname='\xe8\x07\x04\x00\x7f\x00\x07\x03\x02')
         eid.extra_fci_data = '\xab\x75\x84\x01\xa4\xaf\x70\xa0\x10\xb4\x06\x95\x01\x20\x83\x01\x04\xb4\x06\x95\x01\x20\x83\x01\x06\xa0\x54\xa4\x14\x95\x01\x80\x7f\x4c\x0e\x06\x09\x04\x00\x7f\x00\x07\x03\x01\x02\x01\x53\x01\x00\xaf\x22\xa4\x18\x95\x01\x80\x7f\x4c\x12\x06\x09\x04\x00\x7f\x00\x07\x03\x01\x02\x02\x53\x05\x00\x00\x00\x00\x00\xa4\x06\x95\x01\x80\x83\x01\x47\xa4\x18\x95\x01\x80\x7f\x4c\x12\x06\x09\x04\x00\x7f\x00\x07\x03\x01\x02\x02\x53\x05\x00\x00\x00\x00\x10\x7a\x06\x8a\x01\x05\x9e\x01\x03'
         # FIXME access control for eid application
-        DocumentType = 'ID'
-        IssuingState = 'DE'
-        DateOfExpiry = '20201031'
-        GivenNames = 'ERIKA'
-        FamilyNames = 'MUSTERMANN'
-        ReligiousArtisticName = ''
-        AcademicTitle = ''
-        DateOfBirth = '19640812'
-        PlaceOfBirth = 'BERLIN'
-        Nationality = 'DE'
-        Sex = 'F'
-        Country = 'D'
-        City = 'KOLN'
-        ZIP = '51147'
-        Street = 'HEIDESTRASSE 17'
-        CommunityID = '\x12\x34\x56\x78\x90\x12\x34'
+        DocumentType = self.datagroups["DocumentType"] if "DocumentType" in self.datagroups else 'ID'
+        IssuingState = self.datagroups["IssuingState"] if "IssuingState" in self.datagroups else 'DE'
+        DateOfExpiry = self.datagroups["DateOfExpiry"] if "DateOfExpiry" in self.datagroups else '20201031'
+        GivenNames = self.datagroups["GivenNames"] if "GivenNames" in self.datagroups else 'ERIKA'
+        FamilyNames = self.datagroups["FamilyNames"] if "FamilyNames" in self.datagroups else 'MUSTERMANN'
+        ReligiousArtisticName = self.datagroups["ReligiousArtisticName"] if "ReligiousArtisticName" in self.datagroups else ''
+        AcademicTitle = self.datagroups["AcademicTitle"] if "AcademicTitle" in self.datagroups else ''
+        DateOfBirth = self.datagroups["DateOfBirth"] if "DateOfBirth" in self.datagroups else '19640812'
+        PlaceOfBirth = self.datagroups["PlaceOfBirth"] if "PlaceOfBirth" in self.datagroups else 'BERLIN'
+        Nationality = self.datagroups["Nationality"] if "Nationality" in self.datagroups else 'DE'
+        Sex = self.datagroups["Sex"] if "Sex" in self.datagroups else 'F'
+        Country = self.datagroups["Country"] if "Country" in self.datagroups else 'D'
+        City = self.datagroups["City"] if "City" in self.datagroups else 'KOLN'
+        ZIP = self.datagroups["ZIP"] if "ZIP" in self.datagroups else '51147'
+        Street = self.datagroups["Street"] if "Street" in self.datagroups else 'HEIDESTRASSE 17'
+        CommunityID = eval(self.datagroups["CommunityID"])  if "CommunityID" in self.datagroups else '\x12\x34\x56\x78\x90\x12\x34'
         dg1 =  pack([(0x61, 0, [(0x13, 0, DocumentType)])], True)
         dg2 =  pack([(0x62, 0, [(0x13, 0, IssuingState)])], True)
         dg3 =  pack([(0x63, 0, [(0x12, 0, DateOfExpiry)])], True)
@@ -193,11 +194,11 @@ class CardGenerator(object):
         dg9 =  pack([(0x69, 0, [(0xA1, 0, [(0x0C, 0, PlaceOfBirth)])])], True)
         dg10 = pack([(0x6A, 0, [(0x13, 0, Nationality)])], True)
         dg11 = pack([(0x6B, 0, [(0x13, 0, Sex)])], True)
-        dg12 = ''
-        dg13 = ''
-        dg14 = ''
-        dg15 = ''
-        dg16 = ''
+        dg12 = self.datagroups["dg12"] if "dg12" in self.datagroups else ''
+        dg13 = self.datagroups["dg13"] if "dg13" in self.datagroups else ''
+        dg14 = self.datagroups["dg14"] if "dg14" in self.datagroups else ''
+        dg15 = self.datagroups["dg15"] if "dg15" in self.datagroups else ''
+        dg16 = self.datagroups["dg16"] if "dg16" in self.datagroups else ''
         dg17 = pack([(0x71, 0, [(0x30, 0, [
                 (0xAA, 0, [(0x0C, 0, Street)]),
                 (0xAB, 0, [(0x0C, 0, City)]),
@@ -205,9 +206,9 @@ class CardGenerator(object):
                 (0xAE, 0, [(0x13, 0, ZIP)])
                 ])])], True)
         dg18 = pack([(0x72, 0, [(0x04, 0, CommunityID)])], True)
-        dg19 = ''
-        dg20 = ''
-        dg21 = ''
+        dg19 = self.datagroups["dg19"] if "dg19" in self.datagroups else ''
+        dg20 = self.datagroups["dg20"] if "dg20" in self.datagroups else ''
+        dg21 = self.datagroups["dg21"] if "dg21" in self.datagroups else ''
         eid.append(TransparentStructureEF(parent=eid, fid=0x0101, shortfid=0x01, data=dg1))
         eid.append(TransparentStructureEF(parent=eid, fid=0x0102, shortfid=0x02, data=dg2))
         eid.append(TransparentStructureEF(parent=eid, fid=0x0103, shortfid=0x03, data=dg3))
@@ -310,6 +311,16 @@ class CardGenerator(object):
         db["version"] = "0.1"
         db.close()
 
+    def readDatagroups(self, datasetfile):
+        """Read Datagroups from file"""
+        with open(datasetfile, 'r') as f:
+		for line in f:
+			if not line.startswith("#"):
+				line=line.replace(" =", "=")
+				line=line.replace("= ", "=")
+				splitLine = line.split("=")
+				self.datagroups[splitLine[0]] = splitLine[1]
+	f.close()
                           
 if __name__ == "__main__":
     from optparse import OptionParser
