@@ -629,7 +629,7 @@ class VirtualICC(object):
     the vpcd, which forwards it to the application.
     """ 
     
-    def __init__(self, filename, card_type, host, port, readernum=None, ef_cardsecurity=None, ef_cardaccess=None, ca_key=None, cvca=None, disable_checks=False, logginglevel=logging.INFO):
+    def __init__(self, filename, datasetfile, card_type, host, port, readernum=None, ef_cardsecurity=None, ef_cardaccess=None, ca_key=None, cvca=None, disable_checks=False, logginglevel=logging.INFO):
         from os.path import exists
         
         logging.basicConfig(level = logginglevel, 
@@ -647,7 +647,17 @@ class VirtualICC(object):
             else:
                 logging.info("Creating new card which will be saved in %s.",
                               self.filename)
-        
+
+        #If a dataset file is specified, read the card's data groups from disk
+        if datasetfile != None:
+        if exists(datasetfile):
+                logging.info("Reading Data Groups from file %s.",
+                            datasetfile)
+                self.cardGenerator.readDatagroups(datasetfile)
+        else:
+                logging.info("Data Set File %s not found, using default values for datagroups.",
+                            self.datasetfile)
+
         MF, SAM = self.cardGenerator.getCard()
         
         #Generate an OS object of the correct card_type
