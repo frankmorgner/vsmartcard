@@ -153,8 +153,9 @@ and this error code is NOT related to wrong or missing code signing as given sta
 
 Hint 4:
 The Win7 (64 Bit) build does not need to be signed, during installation Windows will prompt a warning, just allow its installation.
+Since Win8 it is mandatory to sign the code
 In case WDK test signing should be used, simply use VS build-in Driver Signing settings. Context menu for "BixVReader-package" -> properties -> Driver Signing -> Sign Mode = "Test Sign".
-Import the WDKTestCert into your windows keystore. 
+Import the WDKTestCert certificate located in file name `BixVReader-package.cer` into your windows keystore (e.g. on local computer) and then install the driver
 Please read Microsoft "Kernel-Mode Code Signing Walkthrough". It is a very good document for better understanding.
 
 1. In Visual Studio select :menuselection:`File --> Open --> Convert
