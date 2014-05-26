@@ -1,0 +1,22 @@
+# This is an example dataset file vor the virtual smartcard.
+# Datagroups are just given in plain ascii, separated by =.
+# CommunityID has to be given as hex values enclosed with ' '.
+# The File is passed to the virtual smartcard emulator via
+# command line option -d, with or without path.
+#
+DocumentType=ID
+IssuingState=D
+DateOfExpiry=20201031
+GivenNames = Gertrud
+FamilyNames=Mueller
+ReligiousArtisticName=ǏǐǑǒǓǔǞǟǤǥǦǧǨǩǪǫǬǭǮǯǰǴǵǺǻǼǽǾǿȘșȚțȞȟȪȫȮȯȰ
+AcademicTitle=
+DateOfBirth=19530304
+PlaceOfBirth= BERLIN FRIEDENAU
+Nationality=DE
+Sex=F
+Country=D
+City=BREMEN
+ZIP=28195
+Street =STADTMUSIKANTENWEG 12a
+CommunityID='\x02\x76\x03\x02\x54\x00\x21'
