@@ -45,16 +45,6 @@ parser.add_argument("-f", "--file",
         action="store",
         type=argparse.FileType('r'),
         help="load a saved smart card image")
-parser.add_argument("-d", "--datasetfile",
-        action="store",
-        help="Load the smartcard's data groups (DGs) from the specified dataset file. For DGs not in dataset file default values are used. \
-The data groups in the data set file must have the following syntax: \
---------------------------------------------------- Datagroupname=Datagroupvalue \
---------------------------------------------------- \
-For Example: GivenNames=GERTRUD. \
-The following Dataset Elements may be used in the dataset file: \
-DocumentType, IssuingState, DateOfExpiry, GivenNames, FamilyNames, ReligiousArtisticName, AcademicTitle, DateOfBirth, PlaceOfBirth, Nationality, Sex, Country, City, ZIP, Street, CommunityID, dg12, dg13, dg14, dg15, dg16, dg19, dg20, dg21.\
-")
 parser.add_argument("-H", "--hostname",
         action="store",
         type=str,
@@ -97,6 +87,16 @@ npa.add_argument("--ca-key",
         action="store",
         type=argparse.FileType('rb'),
         help="the chip's private key for CA (default: randomly generated, invalidates signature of EF.CardSecurity)")
+npa.add_argument("-d", "--datasetfile",
+        action="store",
+        help="Load the smartcard's data groups (DGs) from the specified dataset file. For DGs not in dataset file default values are used. \
+The data groups in the data set file must have the following syntax: \
+--------------------------------------------------- Datagroupname=Datagroupvalue \
+--------------------------------------------------- \
+For Example: GivenNames=GERTRUD. \
+The following Dataset Elements may be used in the dataset file: \
+DocumentType, IssuingState, DateOfExpiry, GivenNames, FamilyNames, ReligiousArtisticName, AcademicTitle, DateOfBirth, PlaceOfBirth, Nationality, Sex, Country, City, ZIP, Street, CommunityID, dg12, dg13, dg14, dg15, dg16, dg19, dg20, dg21.\
+")
 
 
 args = parser.parse_args()
