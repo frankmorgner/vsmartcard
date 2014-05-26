@@ -65,6 +65,7 @@ lib_LTLIBRARIES = libnpa.la libcardnpa.la libpkcs15npa.la
 
 noinst_HEADERS = \
 		 sslutil.h \
+		 card-npa.h \
 		 iso-sm-internal.h \
 		 ccid-types.h
 
