@@ -650,13 +650,13 @@ class VirtualICC(object):
 
         #If a dataset file is specified, read the card's data groups from disk
         if datasetfile != None:
-        if exists(datasetfile):
+            if exists(datasetfile):
                 logging.info("Reading Data Groups from file %s.",
-                            datasetfile)
+                        datasetfile)
                 self.cardGenerator.readDatagroups(datasetfile)
         else:
-                logging.info("Data Set File %s not found, using default values for datagroups.",
-                            self.datasetfile)
+            logging.info("Data Set File %s not found, using default values for datagroups.",
+                    self.datasetfile)
 
         MF, SAM = self.cardGenerator.getCard()
         
