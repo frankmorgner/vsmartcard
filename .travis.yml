@@ -17,5 +17,5 @@ script:
     - cd /tmp && git clone https://github.com/frankmorgner/openpace && cd openpace && autoreconf -vsi && ./configure --enable-openssl-install --prefix=$PREFIX && make install && cd $TRAVIS_BUILD_DIR
     - cd npa/src/opensc && cp configure.ac.in configure.ac && autoreconf -vsi && ./configure --prefix=$PREFIX --enable-sm && make install && cd ../../..
 #    - cd npa && autoreconf -vsi && ./configure OPENSC_LIBS="-L$PREFIX/lib -lopensc -lcrypto" && make
-#   # Build ccid 
-#    - cd ccid && autoreconf -vsi && ./configure OPENSC_LIBS="-L$PREFIX/lib -lopensc" && make
+    # Build ccid
+    - cd ccid && autoreconf -vsi && ./configure OPENSSL_CFLAGS="-I$PREFIX/include" OPENSSL_LIBS="-L$PREFIX/lib -lcrypto" OPENSC_LIBS="-L$PREFIX/lib -lopensc" && make
