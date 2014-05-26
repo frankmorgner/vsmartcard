@@ -51,7 +51,7 @@ INCLUDES= $(INCLUDES);                  \
           $(DDK_INC_PATH);              \
           $(UMDF_INC_PATH)\10; 
           
-MSC_WARNING_LEVEL=/W4 /WX
+MSC_WARNING_LEVEL=/W4
 
 TARGETLIBS=\
         $(SDK_LIB_PATH)\strsafe.lib     \
