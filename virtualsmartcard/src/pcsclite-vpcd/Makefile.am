@@ -3,7 +3,7 @@ EXTRA_DIST 				= PCSC/pcsclite.h.in libpcsclite.pc.in
 lib_LTLIBRARIES         = libpcsclite.la
 
 libpcsclite_la_CPPFLAGS = $(PCSC_CFLAGS) -I$(srcdir)/../ifd-vpcd -I$(srcdir)/../vpcd
-libpcsclite_la_LDFLAGS  = -no-undefined
+libpcsclite_la_LDFLAGS  = -no-undefined -version-info 1:0:0
 libpcsclite_la_SOURCES  = winscard.c debug.c strlcpy.c error.c
 libpcsclite_la_LIBADD   = $(top_builddir)/src/ifd-vpcd/libifdvpcd.la
 
