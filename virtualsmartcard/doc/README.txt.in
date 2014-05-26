@@ -132,56 +132,44 @@ Building and installing |vpcd| on Windows
 ================================================================================
 
 For the Windows integration we extended `Fabio Ottavi's UMDF Driver for a
-Virtual Smart Card Reader`_ with a |vpcd| interface. To build the |vpcd| we use
-`Windows Driver Kit 8.1 and Visual Studio 2013`_:
+Virtual Smart Card Reader`_ with a |vpcd| interface. To build |vpcd| for
+Windows we use `Windows Driver Kit 8.1 and Visual Studio 2013`_:
 
-Hint 1:
-With VS2013 and WDK 8.1 no WinXP driver can be build.
-To do this for WinXP, an older VS with WDK 7.1.0 is required.
-
-Hint 2:
-That UMDF Driver for a Virtual Smart Card Reader is written as Win 32 bit code.
-The Win7 source can be compiled as Win7 64 Bit, but C/C++ builder option needs to be changed!
-For that go to project properties of "BixVReader" (not for "BixVReader-package"), move to C/C++ settings
-and switch off the option "/WX (Treat Linker Warnings as Errors)".
-Otherwise some warnings gets escalated to errors and build will fail on 64 bit.
-
-Hint 3:
-In configuration manager ensure, that both projects are set to same platform = x64 or Win32, no mix with the other !!!
-Any mix will result into device manager error code 31 for that driver
-and this error code is NOT related to wrong or missing code signing as given standard answer in internet.
-
-Hint 4:
-The Win7 (64 Bit) build does not need to be signed, during installation Windows will prompt a warning, just allow its installation.
-Since Win8 it is mandatory to sign the code
-In case WDK test signing should be used, simply use VS build-in Driver Signing settings. Context menu for "BixVReader-package" -> properties -> Driver Signing -> Sign Mode = "Test Sign".
-Import the WDKTestCert certificate located in file name `BixVReader-package.cer` into your windows keystore (e.g. on local computer) and then install the driver
-Please read Microsoft "Kernel-Mode Code Signing Walkthrough". It is a very good document for better understanding.
 
 1. In Visual Studio select :menuselection:`File --> Open --> Convert
    Sources/Dirs...` and choose the vpcd's :file:`sources` either in the
-   :file:`WinXP` or :file:`Win7` folder.
+   :file:`WinXP` [#footnote1]_ or :file:`Win7` folder.
 
+   When successfully imported, ensure with the configuration manager, that both
+   of the created projects are built for the same platform (x64 or Win32).
 
 2. If you can successfully :guilabel:`Build the solution`, you can find the
    install package in :file:`BixVReader-package`. It contains `BixVReader.inf`
-   and the required libraries, especially `BixVReader.dll`.
-   For 32 bit driver the WudfUpdate_01009.dll will be 1795 KB
-   For 64 bit driver the WudfUpdate_01009.dll will be 2102 KB.
+   and the required libraries, especially `BixVReader.dll` and
+   `WudfUpdate_01009.dll` [#footnote2]_.
 
 3. Copy :file:`win32\\BixVReader\\BixVReader.ini` into the :envvar:`%SystemRoot%`
    directory.
 
 4. In a console with administrator rights go to :file:`BixVReader-package` and
-   execute::
+   install the driver::
 
-on 32 bit system with 32 bit driver:
    "C:\Program Files\Windows Kits\8.1\Tools\x86\devcon.exe" install BixVReader.inf root\BixVirtualReader
-on 64 bit system with 64 bit driver:
-   "C:\Program Files\Windows Kits\8.1\Tools\x64\devcon.exe" install BixVReader.inf root\BixVirtualReader
    
    You can adjust the path to ``devcon.exe`` with your version of the WDK and
-   your target architecture.
+   your target architecture (e.g., use ``...\x64\devcon.exe`` for a 64 bit
+   driver).
+
+   For Win7 and older, code signing is optional and will yield a warning during
+   installation when missing. Simply click continue to install the driver anyway.
+
+   To activate the WDK test signing, use VS build-in Driver Signing settings.
+   Right click :guilabel:`BixVReader-package` :menuselection:`Properties -->
+   Driver Signing --> Sign Mode --> Test Sign`.  Import the WDKTestCert
+   certificate :file:`BixVReader-package.cer` into your windows keystore (e.g.
+   on local computer) and then install the driver. See
+   `Microsoft's Kernel-Mode Code Signing Walkthrough`_ for
+   details.
 
 For debugging |vpcd| and building the driver with an older version of Visual
 Studio or WDK please see `Fabio Ottavi's UMDF Driver for a Virtual Smart Card
@@ -245,10 +233,11 @@ options of |vpicc|.
 .. program-output:: vicc --help
 
 On Windows you can start |vpicc| with :command:`python.exe src/vpicc/vicc.in`
-or :command:`python.exe vicc`.
-
-Notice! actually on Windows |vpicc| can not run in mode `-t nPA` due to some missing python binding, refer to |openPACE|.
-
+or :command:`python.exe vicc`. Note emulating the German ID card
+(:option:`--type nPA`) when running |vpicc| on Windows is currently not
+supported, because OpenPACE's Python bindings are untested for Windows.
+However, it is possible to connect an emulated ID card running on Linux to a
+|vpcd| running on Windows.
 
 When |vpcd| and |vpicc| are connected you should be able to access the card
 through the PC/SC API. You can use the :command:`opensc-explorer` or
@@ -266,6 +255,9 @@ Notes and References
 
 .. target-notes::
 
+.. [#footnote1] With VS 2013 and WDK 8.1 no Windows XP driver can be build. You need to use an older version of VS with WDK 7.1.0.
+.. [#footnote2] Note that WudfUpdate_01009.dll for 32 bit will be around 1795 KB and for 64 bit around 2102 KB big.
+
 .. _cyberflex-shell: https://github.com/henryk/cyberflex-shell
 .. _PCSC-lite: http://pcsclite.alioth.debian.org/
 .. _Python: http://www.python.org/
@@ -276,3 +268,4 @@ Notes and References
 .. _OpenPACE: https://github.com/frankmorgner/openpace
 .. _`Fabio Ottavi's UMDF Driver for a Virtual Smart Card Reader`: http://www.codeproject.com/Articles/134010/An-UMDF-Driver-for-a-Virtual-Smart-Card-Reader
 .. _`Windows Driver Kit 8.1 and Visual Studio 2013`: http://msdn.microsoft.com/en-us/windows/hardware/hh852365.aspx
+.. _`Microsoft's Kernel-Mode Code Signing Walkthrough`: http://msdn.microsoft.com/en-us/library/windows/hardware/dn653569%28v=vs.85%29.aspx
