@@ -32,6 +32,11 @@
 #include "config.h"
 
 #include <npa/scutil.h>
+
+static sc_context_t *ctx = NULL;
+static sc_card_t *card = NULL;
+static sc_reader_t *reader = NULL;
+
 #ifdef WITH_PACE
 #include <npa/boxing.h>
 #include <npa/iso-sm.h>
@@ -110,10 +115,6 @@ static int
 perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outlen);
 static int
 perform_unknown(const __u8 *in, size_t inlen, __u8 **out, size_t *outlen);
-
-static sc_context_t *ctx = NULL;
-static sc_card_t *card = NULL;
-static sc_reader_t *reader = NULL;
 
 unsigned int skipfirst = 0;
 
