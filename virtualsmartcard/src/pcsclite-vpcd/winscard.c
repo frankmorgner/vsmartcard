@@ -541,7 +541,7 @@ PCSC_API LONG SCardListReaders(SCARDCONTEXT hContext, LPCSTR mszGroups, LPSTR ms
 
 
     SET_R_TEST( autoallocate(mszReaders, pcchReaders,
-                (MAX_READERNAME+1)*PCSCLITE_MAX_READERS_CONTEXTS,
+                (MAX_READERNAME+1)*PCSCLITE_MAX_READERS_CONTEXTS+1,
                 (void **) &readers));
 
 
@@ -559,6 +559,12 @@ PCSC_API LONG SCardListReaders(SCARDCONTEXT hContext, LPCSTR mszGroups, LPSTR ms
         /* copy null character */
         readerslen++;
     }
+
+    /* write a null character as final delimiter */
+    if (readers) {
+        readers[readerslen] = '\0';
+    }
+    readerslen++;
 
     *pcchReaders = readerslen;
 
