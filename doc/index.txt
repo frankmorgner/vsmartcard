@@ -6,6 +6,9 @@
 Welcome to the |vsmartcard| documentation!
 ################################################################################
 
+.. image:: https://travis-ci.org/frankmorgner/vsmartcard.png?branch=master
+  :target: https://travis-ci.org/frankmorgner/vsmartcard
+
 Welcome to the |vsmartcard|. |vsmartcard| is an umbrella project for various
 projects concerned with the emulation of different types of smart card readers
 or smart cards themselves.
