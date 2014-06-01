@@ -190,6 +190,9 @@ the standard installation of OpenSC without |PACE|::
     PREFIX=/tmp/install
     VSMARTCARD=$PWD/vsmartcard
     git clone https://github.com/frankmorgner/vsmartcard.git $VSMARTCARD
+    cd $VSMARTCARD
+    git submodule init
+    git submodule update
     cd $VSMARTCARD/ccid/src/opensc
     autoreconf --verbose --install
     ./configure --prefix=$PREFIX
