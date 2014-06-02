@@ -78,32 +78,33 @@ static LONG autoallocate(void *buf, LPDWORD len, DWORD max, void **rbuf)
 
 static void initialize_globals(void)
 {
-    DWORD Lun, Channel = VPCDPORT;
+    uint32_t index;
+    DWORD Channel = VPCDPORT;
     const char *hostname_old = hostname;
 
     hostname = VPCDHOST;
-    for (Lun = 0;
-            Lun < PCSCLITE_MAX_READERS_CONTEXTS && Lun < vicc_max_slots;
-            Lun++) {
-        IFDHCreateChannel (Lun, Channel);
+    for (index = 0;
+            index < PCSCLITE_MAX_READERS_CONTEXTS && index < vicc_max_slots;
+            index++) {
+        IFDHCreateChannel ((DWORD) index, Channel);
     }
     hostname = hostname_old;
 }
 
 static void release_globals(void)
 {
-    DWORD Lun;
-    for (Lun = 0;
-            Lun < PCSCLITE_MAX_READERS_CONTEXTS && Lun < vicc_max_slots;
-            Lun++) {
-        IFDHCloseChannel (Lun);
+    uint32_t index;
+    for (index = 0;
+            index < PCSCLITE_MAX_READERS_CONTEXTS && index < vicc_max_slots;
+            index++) {
+        IFDHCloseChannel ((DWORD) index);
     }
     memset(cards, 0, sizeof cards);
 }
 
 static LONG handle2card(SCARDHANDLE hCard, struct card **card)
 {
-    DWORD index = hCard;
+    uint32_t index = (uint32_t) hCard;
 
     if (!card)
         return SCARD_F_INTERNAL_ERROR;
@@ -116,7 +117,7 @@ static LONG handle2card(SCARDHANDLE hCard, struct card **card)
     return SCARD_S_SUCCESS;
 }
 
-LONG handle2reader(DWORD index, LPSTR mszReaderName, LPDWORD pcchReaderLen)
+LONG handle2reader(DWORD Lun, LPSTR mszReaderName, LPDWORD pcchReaderLen)
 {
     LONG r;
     char *reader;
@@ -131,14 +132,14 @@ LONG handle2reader(DWORD index, LPSTR mszReaderName, LPDWORD pcchReaderLen)
 
     if (reader) {
         /* caller wants to have the string */
-        length = snprintf(reader, *pcchReaderLen, reader_format_str, (uint32_t) index);
+        length = snprintf(reader, *pcchReaderLen, reader_format_str, (uint32_t) Lun);
         if (length > *pcchReaderLen) {
             r = SCARD_E_INSUFFICIENT_BUFFER;
             goto err;
         }
     } else {
         /* caller wants to have the length */
-        length = snprintf(reader, 0, reader_format_str, (uint32_t) index);
+        length = snprintf(reader, 0, reader_format_str, (uint32_t) Lun);
     }
 
     if (length < 0) {
@@ -155,7 +156,7 @@ err:
 
 static LONG reader2card(LPCSTR szReader, struct card **card, LPSCARDHANDLE phCard)
 {
-    DWORD index;
+    uint32_t index;
 
     if (!card)
         return SCARD_F_INTERNAL_ERROR;
@@ -166,7 +167,7 @@ static LONG reader2card(LPCSTR szReader, struct card **card, LPSCARDHANDLE phCar
 
     *card = &cards[index];
     if (phCard)
-        *phCard = index;
+        *phCard = (DWORD) index;
 
     return SCARD_S_SUCCESS;
 }
@@ -529,7 +530,7 @@ PCSC_API LONG SCardSetAttrib(SCARDHANDLE hCard, DWORD dwAttrId, LPCBYTE pbAttr, 
 
 PCSC_API LONG SCardListReaders(SCARDCONTEXT hContext, LPCSTR mszGroups, LPSTR mszReaders, LPDWORD pcchReaders)
 {
-    DWORD Lun;
+    uint32_t index;
     DWORD readerslen = 0, readerlen;
     LONG r;
     char *readers;
@@ -546,12 +547,12 @@ PCSC_API LONG SCardListReaders(SCARDCONTEXT hContext, LPCSTR mszGroups, LPSTR ms
 
 
     /* write reader names */
-    for (Lun = 0; Lun < PCSCLITE_MAX_READERS_CONTEXTS; Lun++) {
+    for (index = 0; index < PCSCLITE_MAX_READERS_CONTEXTS; index++) {
         /* what memory we have left */
         readerlen = *pcchReaders - readerslen;
 
         /* get the current readername */
-        SET_R_TEST( handle2reader(Lun, readers ? readers+readerslen : NULL,
+        SET_R_TEST( handle2reader(index, readers ? readers+readerslen : NULL,
                     &readerlen));
 
         /* readerlen has been set to the correct value */
