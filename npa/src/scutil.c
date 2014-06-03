@@ -140,6 +140,7 @@ int print_avail(int verbose)
         return 1;
     }
     ctx->debug = verbose;
+	ctx->enable_default_driver = 1;
 
     r = list_readers(ctx);
 
