@@ -114,6 +114,8 @@ The file :file:`utils.py` was taken from Henryk Plötz's cyberflex-shell_.
 .. include:: download.txt
 
 
+.. _vicc_install:
+
 .. include:: autotools.txt
 
 Depending on your usage of the |vpicc| you might or might not need

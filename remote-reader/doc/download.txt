@@ -1,0 +1,12 @@
+.. highlight:: sh
+
+********
+Download
+********
+
+You can find the latest release of Remote Smart Card Reader on `Sourceforge
+<http://sourceforge.net/projects/vsmartcard/files>`_.
+
+Alternatively, you can clone our git repository::
+
+    git clone https://github.com/frankmorgner/vsmartcard.git
