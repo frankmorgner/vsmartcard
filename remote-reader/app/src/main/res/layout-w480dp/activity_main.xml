@@ -1,0 +1,73 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context="com.vsmartcard.remotesmartcardreader.app.MainActivity">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="@string/vpcd_config_info"
+        android:id="@+id/textViewInfo"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/buttonDisConnect" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/editTextHostname"
+        android:hint="@string/hint_vpcd_hostname"
+        android:inputType="textUri"
+        android:layout_below="@+id/textViewInfo"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_toLeftOf="@+id/editTextPort" />
+
+    <EditText
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:ems="10"
+        android:id="@+id/editTextPort"
+        android:hint="@string/hint_vpcd_port"
+        android:layout_below="@+id/textViewInfo"
+        android:layout_toLeftOf="@+id/buttonDisConnect" />
+
+    <Button
+        android:layout_width="160dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/buttonDisConnect"
+        android:onClick="buttonOnClickDisConnect"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/progressBar"
+        android:layout_below="@+id/buttonDisConnect"
+        android:layout_alignRight="@+id/buttonDisConnect"
+        android:layout_alignEnd="@+id/buttonDisConnect" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:id="@+id/textViewLog"
+        android:typeface="monospace"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/editTextHostname" />
+
+</RelativeLayout>

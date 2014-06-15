@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Remote Smart Card Reader</string>
+
+    <string name="button_test_configuration">Connect</string>
+    <string name="button_stop_testing">Disconnect</string>
+
+    <string name="hint_vpcd_port">port</string>
+    <string name="hint_vpcd_hostname">VPCD hostname</string>
+
+    <string name="vpcd_config_info">Settings for <a href="http://frankmorgner.github.io/vsmartcard/virtualsmartcard/README.html">remote smart card reader driver (VPCD)</a> of the host computer.</string>
+
+    <string name="status_error">Error</string>
+    <string name="status_disconnected">Disconnected</string>
+    <string name="status_connected_to">Connected to</string>
+    <string name="status_atr">ATR</string>
+    <string name="status_capdu">C-APDU</string>
+    <string name="status_rapdu">R-APDU</string>
+    <string name="status_on">On</string>
+    <string name="status_off">Off</string>
+    <string name="status_reset">Reset</string>
+    <string name="status_unknown">Unknown Event</string>
+    <string name="status_tag_discovered">Contact-less card discovered.</string>
+    <string name="status_dummy_start">Using a dummy card to test the connection.</string>
+
+    <string name="menu_copy_to_clipboard">Copy</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="verbose">Verbose logging</string>
+    <string name="error_tag_lost">Data transmission failed. Is the card still present?</string>
+
+</resources>
