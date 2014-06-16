@@ -9,6 +9,7 @@ or smart cards themselves.
 Currently the following projects are part of Virtual Smart Card Architecture: 
 
 - Virtual Smart Card
+- Remote Smart Card Reader
 - PC/SC Relay
 - USB CCID Emulator
 - nPA Smart Card Library
