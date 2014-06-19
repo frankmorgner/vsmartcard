@@ -158,6 +158,7 @@ the bytes. Example APDUs can be found in :file:`apdus`.
 
 .. program-output:: npa-tool --help
 
+
 ======================
 Linking against libnpa
 ======================
@@ -178,6 +179,47 @@ Alternatively you can specify libraries and flags by hand::
     cc example.c -I$VSMARTCARD/npa/src/opensc \
         -I$PREFIX/include \
         -L$PREFIX/lib -lnpa -lopensc -lcrypto"
+
+
+********************************************************************************
+Using the German identity card with OpenSC
+********************************************************************************
+
+.. versionadded:: 0.6
+    Added external card driver and PKCS#15 emulator for supporting nPA in
+    OpenSC.
+
+To let OpenSC recognize the German ID card we implemented an external card
+driver. We supply a sample :file:`opensc.conf` which adds our driver to all
+components of OpenSC.
+
+The card driver recognizes the PIN verification method by it's ID. MRZ, CAN,
+eID-PIN and PUK are verified using |PACE| (ID ``0x01``, ``0x02``, ``0x03`` and
+``0x04``). The eSign PIN (ID ``0x83``) is verified using a standard ISO-7816-4
+VERIFY command. Here, for example, we show how to verify the eID-PIN "123456"
+with :command:`opensc-explorer`::
+
+    OPENSC_CONF=$VSMARTCARD/npa/opensc.conf opensc-explorer
+    OpenSC [3F00]> verify CHV3 313233343536
+    Code correct.
+
+Since the German ID card does not contain any PKCS#15 data we emulate the data
+structures with an other external library. Currently, the PKCS#15 emulator does
+not support private key and certificate objects for qualified electronic
+signature but only the PIN objects. For example, you can change the eID-PIN
+using the :command:`pkcs15-tool`::
+
+    OPENSC_CONF=$VSMARTCARD/npa/opensc.conf pkcs15-tool --change-pin --auth-id 03 \
+        --pin=123456 --new-pin=abcdef            # yes, an ASCII eID-PIN is allowed
+
+When the eID-PIN was verified incorrectly three times, it is blocked and must
+be unblocked with the PUK. But unlike traditional cards the German ID card does
+suspend the eID-PIN after the second try of verification. To unlock the last
+retry, the CAN is required.  Since the suspended state is not captured by
+OpenSC we handle it transparently within the driver. If the eID-PIN shall be
+verified and it is suspended, the card driver will verify the CAN first. If no
+CAN is given in :file:`opensc.conf`, the driver will request it on the standard
+input.
 
 
 .. include:: questions.txt
