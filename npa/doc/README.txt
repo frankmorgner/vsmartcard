@@ -191,7 +191,15 @@ Using the German identity card with OpenSC
 
 To let OpenSC recognize the German ID card we implemented an external card
 driver. We supply a sample :file:`opensc.conf` which adds our driver to all
-components of OpenSC.
+components of OpenSC. Load it by setting :envvar:`OPENSC_CONF`::
+
+    export OPENSC_CONF=$VSMARTCARD/npa/opensc.conf
+
+On Windows you need to use :command:`set` instead of :command:`export`. In
+:file:`npa-0.6_win32` do the following::
+
+    cd bin
+    set OPENSC_CONF=..\etc\opensc.conf
 
 The card driver recognizes the PIN verification method by it's ID. MRZ, CAN,
 eID-PIN and PUK are verified using |PACE| (ID ``0x01``, ``0x02``, ``0x03`` and
@@ -199,7 +207,7 @@ eID-PIN and PUK are verified using |PACE| (ID ``0x01``, ``0x02``, ``0x03`` and
 VERIFY command. Here, for example, we show how to verify the eID-PIN "123456"
 with :command:`opensc-explorer`::
 
-    OPENSC_CONF=$VSMARTCARD/npa/opensc.conf opensc-explorer
+    opensc-explorer
     OpenSC [3F00]> verify CHV3 313233343536
     Code correct.
 
@@ -209,8 +217,8 @@ not support private key and certificate objects for qualified electronic
 signature but only the PIN objects. For example, you can change the eID-PIN
 using the :command:`pkcs15-tool`::
 
-    OPENSC_CONF=$VSMARTCARD/npa/opensc.conf pkcs15-tool --change-pin --auth-id 03 \
-        --pin=123456 --new-pin=abcdef            # yes, an ASCII eID-PIN is allowed
+    pkcs15-tool --change-pin --auth-id 03 \
+        --pin=123456 --new-pin=abcdef     # yes, an ASCII eID-PIN is allowed
 
 When the eID-PIN was verified incorrectly three times, it is blocked and must
 be unblocked with the PUK. But unlike traditional cards the German ID card does
