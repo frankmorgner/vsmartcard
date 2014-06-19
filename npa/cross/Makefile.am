@@ -1,3 +1,5 @@
+EXTRA_DIST=opensc.conf_win32
+
 all-local:
 	@echo Use \`$(MAKE) win\` to cross compile for Windows
 	@echo Use \`$(MAKE) android\` to cross compile for Android
@@ -15,6 +17,7 @@ win:
 		TARGETDIR=$(WIN_TARGETDIR) \
 		LIBEAC=$(WIN_TARGETDIR)/bin/libeac-0.dll \
 		LIBNPA=$(WIN_TARGETDIR)/bin/libnpa-0.dll
+	cp opensc.conf_win32 $(WIN_TARGETDIR)/etc/opensc.conf
 
 
 

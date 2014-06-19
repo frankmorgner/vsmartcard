@@ -1,0 +1,41 @@
+app default {
+
+	# What card drivers to load at start-up
+	#
+	# A special value of 'internal' will load all
+	# statically linked drivers. If an unknown (ie. not
+	# internal) driver is supplied, a separate configuration
+	# configuration block has to be written for the driver.
+	# Default: internal
+	# NOTE: When "internal" keyword is used, must be last entry
+	#
+	card_drivers = npa, internal;
+
+	# Card driver configuration blocks.
+	#
+	# For card drivers loaded from an external shared library/DLL,
+	# you need to specify the path name of the module
+	#
+	card_driver npa {
+		# The location of the driver library
+		module = libcardnpa-0.dll;
+	}
+
+
+	# PKCS #15
+	framework pkcs15 {
+		# additional settings per driver
+		#
+		# For pkcs15 emulators loaded from an external shared
+		# library/DLL, you need to specify the path name of the module
+		# and customize the card_atr example above correctly.
+		#
+		emulate npa {
+			# The location of the driver library
+			module = libpkcs15npa-0.dll;
+
+			function = sc_pkcs15emu_npa_init_ex;
+			can = 222222;
+		}
+	}
+}
