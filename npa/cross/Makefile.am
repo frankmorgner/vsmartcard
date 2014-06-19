@@ -55,7 +55,7 @@ clean-local:
 
 cross: $(LIBNPA)
 
-$(LIBNPA): $(OPENPACE_MAKEFILE)
+$(LIBNPA): $(OPENPACE_MAKEFILE) $(OPENSC_CONFIGURE)
 	@echo Compiling OpenPACE
 	$(MAKE) -C $(OPENPACE)/cross cross \
 		TOOL=$(TOOL) \
