@@ -87,6 +87,10 @@ other computer, the :ref:`vicc` in relay mode can be used:
     \end{pgfonlayer}
 
 
+
+.. include:: relay-note.txt
+
+
 ********************
 Download and Install
 ********************

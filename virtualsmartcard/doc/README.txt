@@ -48,35 +48,26 @@ reader.
 
 The file :file:`utils.py` was taken from Henryk Plötz's cyberflex-shell_.
 
-.. tikz:: Virtual Smart Card used with PCSC-Lite
+.. tikz:: Virtual Smart Card used with PCSC-Lite or WinSCard
     :stringsubst:
     :libs: arrows, calc, fit, patterns, plotmarks, shapes.geometric, shapes.misc, shapes.symbols, shapes.arrows, shapes.callouts, shapes.multipart, shapes.gates.logic.US, shapes.gates.logic.IEC, er, automata, backgrounds, chains, topaths, trees, petri, mindmap, matrix, calendar, folding, fadings, through, positioning, scopes, decorations.fractals, decorations.shapes, decorations.text, decorations.pathmorphing, decorations.pathreplacing, decorations.footprints, decorations.markings, shadows
  
     \input{%(wd)s/bilder/tikzstyles.tex}
 	\node (pcsclite)
-    [klein, aktivbox, shape=rectangle split, rectangle split parts=3, inner xsep=3em]
-	{PCSC-Lite
-	\nodepart{second}
-	\footnotesize \texttt{libpcsclite}
-	\nodepart{third}
-    \footnotesize \texttt{pcscd}
+    [klein, aktivbox, inner xsep=.7cm, text width=3cm]
+	{PC/SC Framework\\\
+    (native)
 	};
-    \node (pcsc) [box, kleiner, at=(pcsclite.two west)] {PC/SC};
-    \node (sca) [aktivbox, klein, left=of pcsc, align=center] {Smart Card\\Application};
-    \node (vpcd) [box, at=(pcsclite.three east)] {\texttt{vpcd}};
-	\node (vicc) [aktivbox, right=of vpcd] {\texttt{vicc}};
+    \node (sca) [aktivbox, klein, left=of pcsclite] {Smart Card\\Application};
+    \node (vpcd) [box, at=(pcsclite.east), xshift=-.3cm] {\texttt{vpcd}};
+	\node (vicc) [aktivbox, right=of pcsclite] {\texttt{vicc}};
 
     \begin{pgfonlayer}{background}
         \path[linie]
-        (sca) edge (pcsc)
+        (sca) edge (pcsclite)
         (vpcd) edge (vicc)
         ;
     \end{pgfonlayer}
-
-.. versionadded:: 0.7
-    We implemented |vpcd| as user mode device driver for Windows so that
-    |vpicc| can directly be used in Windows' smart card applications that use
-    PC/SC.
 
 .. versionadded:: 0.7
     The Virtual Smart Card optionally brings its own standalone implementation of
@@ -90,25 +81,19 @@ The file :file:`utils.py` was taken from Henryk Plötz's cyberflex-shell_.
  
     \input{%(wd)s/bilder/tikzstyles.tex}
 	\node (pcsclite)
-    [box, shape=rectangle split, rectangle split parts=2, inner xsep=3em]
-	{Virtual Smart Card
-	\nodepart{second}
-	\footnotesize \texttt{libpcsclite} with \texttt{vpcd}
+    [klein, box, text width=4cm]
+	{Virtual Smart Card's\\
+    PC/SC Framework
 	};
-    \node (pcsc) [box, kleiner, at=(pcsclite.two west)] {PC/SC};
-    \node (sca) [aktivbox, klein, left=of pcsc, align=center] {Smart Card\\Application};
-	\node (vicc) [aktivbox, right=of pcsclite.two east] {\texttt{vicc}};
+    \node (sca) [aktivbox, klein, left=of pcsclite] {Smart Card\\Application};
+	\node (vicc) [aktivbox, right=of pcsclite] {\texttt{vicc}};
 
     \begin{pgfonlayer}{background}
         \path[linie]
-        (sca) edge (pcsc)
-        (pcsclite.two east) edge (vicc)
+        (sca) edge (pcsclite)
+        (pcsclite) edge (vicc)
         ;
     \end{pgfonlayer}
-
-
-
-.. include:: relay-note.txt
 
 
 .. include:: download.txt
@@ -132,6 +117,11 @@ the following:
 ================================================================================
 Building and installing |vpcd| on Windows
 ================================================================================
+
+.. versionadded:: 0.7
+    We implemented |vpcd| as user mode device driver for Windows so that
+    |vpicc| can directly be used in Windows' smart card applications that use
+    PC/SC.
 
 For the Windows integration we extended `Fabio Ottavi's UMDF Driver for a
 Virtual Smart Card Reader`_ with a |vpcd| interface. To build |vpcd| for
