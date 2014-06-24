@@ -54,34 +54,55 @@ static const u8 boxing_p2_EstablishPACEChannel      = 0x02;
 static const u8 boxing_p2_DestroyPACEChannel        = 0x03;
 static const u8 boxing_p2_PC_to_RDR_Secure          = 0x10;
 
+struct sc_asn1_entry g_boolean[] = {
+    { "boolean",
+        SC_ASN1_BOOLEAN, SC_ASN1_TAG_BOOLEAN, SC_ASN1_ALLOC, NULL, NULL },
+    { NULL , 0 , 0 , 0 , NULL , NULL }
+};
+struct sc_asn1_entry g_int_as_octet_string[] = {
+    { "int as octet string",
+        SC_ASN1_OCTET_STRING, SC_ASN1_TAG_INTEGER, SC_ASN1_ALLOC, NULL, NULL },
+    { NULL , 0 , 0 , 0 , NULL , NULL }
+};
+struct sc_asn1_entry g_octet_string[] = {
+    { "octet string",
+        SC_ASN1_OCTET_STRING, SC_ASN1_TAG_OCTET_STRING, SC_ASN1_ALLOC, NULL, NULL },
+    { NULL , 0 , 0 , 0 , NULL , NULL }
+};
+struct sc_asn1_entry g_numeric_string_as_octet_string[] = {
+    { "utf8string",
+        SC_ASN1_OCTET_STRING, SC_ASN1_TAG_NUMERICSTRING, SC_ASN1_ALLOC, NULL, NULL },
+    { NULL , 0 , 0 , 0 , NULL , NULL }
+};
+
 static const struct sc_asn1_entry g_EstablishPACEChannelInput_data[] = {
     { "passwordID",
         /* use an OCTET STRING to avoid a conversion to int */
-        SC_ASN1_OCTET_STRING, SC_ASN1_CTX|0x01, 0, NULL, NULL },
+        SC_ASN1_STRUCT, SC_ASN1_CTX|0x01|SC_ASN1_CONS, 0, NULL, NULL },
     { "transmittedPassword",
-        SC_ASN1_OCTET_STRING, SC_ASN1_CTX|0x02, SC_ASN1_OPTIONAL|SC_ASN1_ALLOC, NULL, NULL },
+        SC_ASN1_STRUCT, SC_ASN1_CTX|0x02|SC_ASN1_CONS, SC_ASN1_OPTIONAL|SC_ASN1_ALLOC, NULL, NULL },
     { "cHAT",
-        SC_ASN1_OCTET_STRING, SC_ASN1_CTX|0x03, SC_ASN1_OPTIONAL|SC_ASN1_ALLOC, NULL, NULL },
+        SC_ASN1_STRUCT, SC_ASN1_CTX|0x03|SC_ASN1_CONS, SC_ASN1_OPTIONAL|SC_ASN1_ALLOC, NULL, NULL },
     { "certificateDescription",
-        SC_ASN1_OCTET_STRING, SC_ASN1_CTX|0x04, SC_ASN1_OPTIONAL|SC_ASN1_ALLOC, NULL, NULL },
+        SC_ASN1_STRUCT, SC_ASN1_CTX|0x04|SC_ASN1_CONS, SC_ASN1_OPTIONAL|SC_ASN1_ALLOC, NULL, NULL },
     { "hashOID",
         /* use an OCTET STRING to avoid a conversion to struct sc_object_id */
-        SC_ASN1_OCTET_STRING, SC_ASN1_CTX|0x05, SC_ASN1_OPTIONAL|SC_ASN1_ALLOC, NULL, NULL },
+        SC_ASN1_STRUCT, SC_ASN1_CTX|0x05|SC_ASN1_CONS, SC_ASN1_OPTIONAL|SC_ASN1_ALLOC, NULL, NULL },
     { NULL , 0 , 0 , 0 , NULL , NULL }
 };
 static const struct sc_asn1_entry g_EstablishPACEChannelOutput_data[] = {
     { "errorCode",
-        SC_ASN1_OCTET_STRING, SC_ASN1_CTX|0x01, 0, NULL, NULL },
+        SC_ASN1_STRUCT, SC_ASN1_CTX|0x01|SC_ASN1_CONS, 0, NULL, NULL },
     { "statusMSESetAT",
-        SC_ASN1_OCTET_STRING, SC_ASN1_CTX|0x02, 0, NULL, NULL },
+        SC_ASN1_STRUCT, SC_ASN1_CTX|0x02|SC_ASN1_CONS, 0, NULL, NULL },
     { "efCardAccess",
-        SC_ASN1_OCTET_STRING, SC_ASN1_CTX|0x03, SC_ASN1_ALLOC, NULL, NULL },
+        SC_ASN1_STRUCT, SC_ASN1_CTX|0x03|SC_ASN1_CONS, SC_ASN1_ALLOC, NULL, NULL },
     { "idPICC",
-        SC_ASN1_OCTET_STRING, SC_ASN1_CTX|0x04, SC_ASN1_OPTIONAL|SC_ASN1_ALLOC, NULL, NULL },
+        SC_ASN1_STRUCT, SC_ASN1_CTX|0x04|SC_ASN1_CONS, SC_ASN1_OPTIONAL|SC_ASN1_ALLOC, NULL, NULL },
     { "curCAR",
-        SC_ASN1_OCTET_STRING, SC_ASN1_CTX|0x05, SC_ASN1_OPTIONAL|SC_ASN1_ALLOC, NULL, NULL },
+        SC_ASN1_STRUCT, SC_ASN1_CTX|0x05|SC_ASN1_CONS, SC_ASN1_OPTIONAL|SC_ASN1_ALLOC, NULL, NULL },
     { "prevCAR",
-        SC_ASN1_OCTET_STRING, SC_ASN1_CTX|0x06, SC_ASN1_OPTIONAL|SC_ASN1_ALLOC, NULL, NULL },
+        SC_ASN1_STRUCT, SC_ASN1_CTX|0x06|SC_ASN1_CONS, SC_ASN1_OPTIONAL|SC_ASN1_ALLOC, NULL, NULL },
     { NULL , 0 , 0 , 0 , NULL , NULL }
 };
 static const struct sc_asn1_entry g_EstablishPACEChannel[] = {
@@ -101,6 +122,15 @@ int boxing_pace_input_to_buf(sc_context_t *ctx,
     struct sc_asn1_entry EstablishPACEChannel[
         sizeof g_EstablishPACEChannel/
         sizeof *g_EstablishPACEChannel];
+    struct sc_asn1_entry passwordID[
+        sizeof g_int_as_octet_string/
+        sizeof *g_int_as_octet_string];
+    struct sc_asn1_entry transmittedPassword[
+        sizeof g_numeric_string_as_octet_string/
+        sizeof *g_numeric_string_as_octet_string];
+    struct sc_asn1_entry cHAT[
+        sizeof g_octet_string/
+        sizeof *g_octet_string];
 
     sc_copy_asn1_entry(g_EstablishPACEChannel,
             EstablishPACEChannel);
@@ -109,20 +139,41 @@ int boxing_pace_input_to_buf(sc_context_t *ctx,
 
     sc_copy_asn1_entry(g_EstablishPACEChannelInput_data,
             EstablishPACEChannelInput_data);
+
     sc_format_asn1_entry(EstablishPACEChannelInput_data+0,
+            passwordID, 0, 1);
+    sc_copy_asn1_entry(g_octet_string,
+            passwordID);
+    sc_format_asn1_entry(passwordID,
             (unsigned char *) &input->pin_id, &pin_id_len, 1);
-    if (input->pin)
+
+    if (input->pin) {
         sc_format_asn1_entry(EstablishPACEChannelInput_data+1,
+                transmittedPassword,
+                0, 1);
+        sc_copy_asn1_entry(g_octet_string,
+                transmittedPassword);
+        sc_format_asn1_entry(transmittedPassword,
                 (unsigned char *) input->pin,
                 (size_t *) &input->pin_length, 1);
-    if (input->chat)
+    }
+
+    if (input->chat) {
         sc_format_asn1_entry(EstablishPACEChannelInput_data+2,
+                cHAT,
+                0, 1);
+        sc_copy_asn1_entry(g_octet_string,
+                cHAT);
+        sc_format_asn1_entry(cHAT,
                 (unsigned char *) input->chat,
                 (size_t *) &input->chat_length, 1);
-    if (input->certificate_description)
+    }
+
+    if (input->certificate_description) {
         sc_format_asn1_entry(EstablishPACEChannelInput_data+3,
                 (unsigned char *) input->certificate_description,
                 (size_t *) &input->certificate_description_length, 1);
+    }
 
     return sc_asn1_encode(ctx, EstablishPACEChannel, asn1, asn1_len);
 }
@@ -138,6 +189,16 @@ int boxing_buf_to_pace_input(sc_context_t *ctx,
     struct sc_asn1_entry EstablishPACEChannel[
         sizeof g_EstablishPACEChannel/
         sizeof *g_EstablishPACEChannel];
+    struct sc_asn1_entry passwordID[
+        sizeof g_int_as_octet_string/
+        sizeof *g_int_as_octet_string];
+    struct sc_asn1_entry transmittedPassword[
+        sizeof g_numeric_string_as_octet_string/
+        sizeof *g_numeric_string_as_octet_string];
+    struct sc_asn1_entry cHAT[
+        sizeof g_octet_string/
+        sizeof *g_octet_string];
+    /* FIXME handle hashOID */
 
     sc_copy_asn1_entry(g_EstablishPACEChannel,
             EstablishPACEChannel);
@@ -146,15 +207,37 @@ int boxing_buf_to_pace_input(sc_context_t *ctx,
 
     sc_copy_asn1_entry(g_EstablishPACEChannelInput_data,
             EstablishPACEChannelInput_data);
+
     sc_format_asn1_entry(EstablishPACEChannelInput_data+0,
+            passwordID, 0, 0);
+    sc_copy_asn1_entry(g_int_as_octet_string,
+            passwordID);
+    sc_format_asn1_entry(passwordID,
             &input->pin_id, &pin_id_len, 0);
-    sc_format_asn1_entry(EstablishPACEChannelInput_data+1,
-            (unsigned char *) &input->pin, &input->pin_length, 0);
-    sc_format_asn1_entry(EstablishPACEChannelInput_data+2,
-            (unsigned char *) &input->chat, &input->chat_length, 0);
-    sc_format_asn1_entry(EstablishPACEChannelInput_data+3,
-            (unsigned char *) &input->certificate_description,
-            &input->certificate_description_length, 0);
+
+    if (input->pin) {
+        sc_format_asn1_entry(EstablishPACEChannelInput_data+1,
+                transmittedPassword, 0, 0);
+        sc_copy_asn1_entry(g_octet_string,
+                transmittedPassword);
+        sc_format_asn1_entry(transmittedPassword,
+                (unsigned char *) &input->pin, &input->pin_length, 0);
+    }
+
+    if (input->chat) {
+        sc_format_asn1_entry(EstablishPACEChannelInput_data+2,
+                cHAT, 0, 0);
+        sc_copy_asn1_entry(g_octet_string,
+                cHAT);
+        sc_format_asn1_entry(cHAT,
+                (unsigned char *) &input->chat, &input->chat_length, 0);
+    }
+
+    if (input->certificate_description) {
+        sc_format_asn1_entry(EstablishPACEChannelInput_data+3,
+                (unsigned char *) &input->certificate_description,
+                &input->certificate_description_length, 0);
+    }
 
     LOG_TEST_RET(ctx,
             sc_asn1_decode(ctx, EstablishPACEChannel, asn1, asn1_len, NULL, NULL),
@@ -179,6 +262,21 @@ int boxing_pace_output_to_buf(sc_context_t *ctx,
     struct sc_asn1_entry EstablishPACEChannel[
         sizeof g_EstablishPACEChannel/
         sizeof *g_EstablishPACEChannel];
+    struct sc_asn1_entry errorCode[
+        sizeof g_octet_string/
+        sizeof *g_octet_string];
+    struct sc_asn1_entry statusMSESetAT[
+        sizeof g_octet_string/
+        sizeof *g_octet_string];
+    struct sc_asn1_entry idPICC[
+        sizeof g_octet_string/
+        sizeof *g_octet_string];
+    struct sc_asn1_entry curCAR[
+        sizeof g_octet_string/
+        sizeof *g_octet_string];
+    struct sc_asn1_entry prevCAR[
+        sizeof g_octet_string/
+        sizeof *g_octet_string];
 
     sc_copy_asn1_entry(g_EstablishPACEChannel,
             EstablishPACEChannel);
@@ -187,22 +285,52 @@ int boxing_pace_output_to_buf(sc_context_t *ctx,
 
     sc_copy_asn1_entry(g_EstablishPACEChannelOutput_data,
             EstablishPACEChannelOutput_data);
+
     sc_format_asn1_entry(EstablishPACEChannelOutput_data+0,
+            errorCode, 0, 1);
+    sc_copy_asn1_entry(g_octet_string,
+            errorCode);
+    sc_format_asn1_entry(errorCode,
             (unsigned char *) &output->result, &result_len, 1);
+
     sc_format_asn1_entry(EstablishPACEChannelOutput_data+1,
+            statusMSESetAT, 0, 1);
+    sc_copy_asn1_entry(g_octet_string,
+            statusMSESetAT);
+    sc_format_asn1_entry(statusMSESetAT,
             &status_mse_set_at, &status_mse_set_at_len, 1);
-    if (output->ef_cardaccess)
-        sc_format_asn1_entry(EstablishPACEChannelOutput_data+2, 
+
+    if (output->ef_cardaccess) {
+        sc_format_asn1_entry(EstablishPACEChannelOutput_data+2,
                 output->ef_cardaccess, (size_t *) &output->ef_cardaccess_length, 1);
-    if (output->id_icc)
+    }
+
+    if (output->id_icc) {
         sc_format_asn1_entry(EstablishPACEChannelOutput_data+3,
+                idPICC, 0, 1);
+        sc_copy_asn1_entry(g_octet_string,
+                idPICC);
+        sc_format_asn1_entry(idPICC,
                 output->id_icc, (size_t *) &output->id_icc_length, 1);
-    if (output->recent_car)
+    }
+
+    if (output->recent_car) {
         sc_format_asn1_entry(EstablishPACEChannelOutput_data+4,
+                curCAR, 0, 1);
+        sc_copy_asn1_entry(g_octet_string,
+                curCAR);
+        sc_format_asn1_entry(curCAR,
                 output->recent_car, (size_t *) &output->recent_car_length, 1);
-    if (output->previous_car)
+    }
+
+    if (output->previous_car) {
         sc_format_asn1_entry(EstablishPACEChannelOutput_data+5,
+            prevCAR, 0, 1);
+        sc_copy_asn1_entry(g_octet_string,
+                prevCAR);
+        sc_format_asn1_entry(prevCAR,
             output->previous_car, (size_t *) &output->previous_car_length, 1);
+    }
 
     return sc_asn1_encode(ctx, EstablishPACEChannel, asn1, asn1_len);
 }
@@ -220,6 +348,21 @@ int boxing_buf_to_pace_output(sc_context_t *ctx,
     struct sc_asn1_entry EstablishPACEChannel[
         sizeof g_EstablishPACEChannel/
         sizeof *g_EstablishPACEChannel];
+    struct sc_asn1_entry errorCode[
+        sizeof g_octet_string/
+        sizeof *g_octet_string];
+    struct sc_asn1_entry statusMSESetAT[
+        sizeof g_octet_string/
+        sizeof *g_octet_string];
+    struct sc_asn1_entry idPICC[
+        sizeof g_octet_string/
+        sizeof *g_octet_string];
+    struct sc_asn1_entry curCAR[
+        sizeof g_octet_string/
+        sizeof *g_octet_string];
+    struct sc_asn1_entry prevCAR[
+        sizeof g_octet_string/
+        sizeof *g_octet_string];
 
     sc_copy_asn1_entry(g_EstablishPACEChannel,
             EstablishPACEChannel);
@@ -229,17 +372,42 @@ int boxing_buf_to_pace_output(sc_context_t *ctx,
     sc_copy_asn1_entry(g_EstablishPACEChannelOutput_data,
             EstablishPACEChannelOutput_data);
     sc_format_asn1_entry(EstablishPACEChannelOutput_data+0,
-            &output->result,        &result_len, 0);
+            errorCode, 0, 0);
     sc_format_asn1_entry(EstablishPACEChannelOutput_data+1,
-            &status_mse_set_at,     &status_mse_set_at_len, 0);
+            statusMSESetAT, 0, 0);
     sc_format_asn1_entry(EstablishPACEChannelOutput_data+2,
             &output->ef_cardaccess, &output->ef_cardaccess_length, 0);
     sc_format_asn1_entry(EstablishPACEChannelOutput_data+3,
-            &output->id_icc,        &output->id_icc_length, 0);
+            idPICC, 0, 0);
     sc_format_asn1_entry(EstablishPACEChannelOutput_data+4,
-            &output->recent_car,    &output->recent_car_length, 0);
+            curCAR, 0, 0);
     sc_format_asn1_entry(EstablishPACEChannelOutput_data+5,
-            &output->previous_car,  &output->previous_car_length, 0);
+            prevCAR, 0, 0);
+
+    sc_copy_asn1_entry(g_octet_string,
+            errorCode);
+    sc_format_asn1_entry(errorCode,
+            &output->result, &result_len, 0);
+
+    sc_copy_asn1_entry(g_octet_string,
+            statusMSESetAT);
+    sc_format_asn1_entry(statusMSESetAT,
+            &status_mse_set_at, &status_mse_set_at_len, 0);
+
+    sc_copy_asn1_entry(g_octet_string,
+            idPICC);
+    sc_format_asn1_entry(idPICC,
+            &output->id_icc, &output->id_icc_length, 0);
+
+    sc_copy_asn1_entry(g_octet_string,
+            curCAR);
+    sc_format_asn1_entry(curCAR,
+            &output->recent_car, &output->recent_car_length, 0);
+
+    sc_copy_asn1_entry(g_octet_string,
+            prevCAR);
+    sc_format_asn1_entry(prevCAR,
+            &output->previous_car, &output->previous_car_length, 0);
 
     LOG_TEST_RET(ctx,
             sc_asn1_decode(ctx, EstablishPACEChannel,
@@ -569,13 +737,13 @@ err:
 
 struct sc_asn1_entry g_PACECapabilities_data[] = {
     { "capabilityPACE",
-        SC_ASN1_BOOLEAN, SC_ASN1_CTX|0x01, SC_ASN1_ALLOC, NULL, NULL },
+        SC_ASN1_STRUCT, SC_ASN1_CTX|0x01|SC_ASN1_CONS, SC_ASN1_ALLOC, NULL, NULL },
     { "capabilityEID",
-        SC_ASN1_BOOLEAN, SC_ASN1_CTX|0x02, SC_ASN1_ALLOC, NULL, NULL },
+        SC_ASN1_STRUCT, SC_ASN1_CTX|0x02|SC_ASN1_CONS, SC_ASN1_ALLOC, NULL, NULL },
     { "capabilityESign",
-        SC_ASN1_BOOLEAN, SC_ASN1_CTX|0x03, SC_ASN1_ALLOC, NULL, NULL },
+        SC_ASN1_STRUCT, SC_ASN1_CTX|0x03|SC_ASN1_CONS, SC_ASN1_ALLOC, NULL, NULL },
     { "capabilityDestroy",
-        SC_ASN1_BOOLEAN, SC_ASN1_CTX|0x04, SC_ASN1_ALLOC, NULL, NULL },
+        SC_ASN1_STRUCT, SC_ASN1_CTX|0x04|SC_ASN1_CONS, SC_ASN1_ALLOC, NULL, NULL },
     { NULL , 0 , 0 , 0 , NULL , NULL }
 };
 struct sc_asn1_entry g_PACECapabilities[] = {
@@ -588,14 +756,25 @@ int boxing_buf_to_pace_capabilities(sc_context_t *ctx,
         const unsigned char *asn1, size_t asn1_len,
         unsigned long *sc_reader_t_capabilities)
 {
-    int capabilityPACE = 0, capabilityEID = 0, capabilityESign = 0,
-        capabilityDestroy = 0;
+    int pace = 0, eid = 0, esign = 0, destroy = 0;
     struct sc_asn1_entry PACECapabilities_data[
         sizeof g_PACECapabilities_data/
         sizeof *g_PACECapabilities_data];
     struct sc_asn1_entry PACECapabilities[
         sizeof g_PACECapabilities/
         sizeof *g_PACECapabilities];
+    struct sc_asn1_entry capabilityPACE[
+        sizeof g_boolean/
+        sizeof *g_boolean];
+    struct sc_asn1_entry capabilityEID[
+        sizeof g_boolean/
+        sizeof *g_boolean];
+    struct sc_asn1_entry capabilityESign[
+        sizeof g_boolean/
+        sizeof *g_boolean];
+    struct sc_asn1_entry capabilityDestroy[
+        sizeof g_boolean/
+        sizeof *g_boolean];
 
     sc_copy_asn1_entry(g_PACECapabilities,
             PACECapabilities);
@@ -605,13 +784,33 @@ int boxing_buf_to_pace_capabilities(sc_context_t *ctx,
     sc_copy_asn1_entry(g_PACECapabilities_data,
             PACECapabilities_data);
     sc_format_asn1_entry(PACECapabilities_data+0,
-            &capabilityPACE, NULL, 0);
+            &capabilityPACE, NULL, 1);
     sc_format_asn1_entry(PACECapabilities_data+1,
-            &capabilityEID, NULL, 0);
+            &capabilityEID, NULL, 1);
     sc_format_asn1_entry(PACECapabilities_data+2,
-            &capabilityESign, NULL, 0);
+            &capabilityESign, NULL, 1);
     sc_format_asn1_entry(PACECapabilities_data+3,
-            &capabilityDestroy, NULL, 0);
+            &capabilityDestroy, NULL, 1);
+
+    sc_copy_asn1_entry(g_boolean,
+            capabilityPACE);
+    sc_format_asn1_entry(capabilityPACE+0,
+            &pace, NULL, 0);
+
+    sc_copy_asn1_entry(g_boolean,
+            capabilityEID);
+    sc_format_asn1_entry(capabilityEID+0,
+            &eid, NULL, 0);
+
+    sc_copy_asn1_entry(g_boolean,
+            capabilityESign);
+    sc_format_asn1_entry(capabilityESign+0,
+            &esign, NULL, 0);
+
+    sc_copy_asn1_entry(g_boolean,
+            capabilityDestroy);
+    sc_format_asn1_entry(capabilityDestroy+0,
+            &destroy, NULL, 0);
 
     LOG_TEST_RET(ctx,
             sc_asn1_decode(ctx, PACECapabilities,
@@ -624,13 +823,13 @@ int boxing_buf_to_pace_capabilities(sc_context_t *ctx,
      * assume that PIN verification/modification is available. */
     *sc_reader_t_capabilities = SC_READER_CAP_PIN_PAD;
 
-    if (capabilityPACE)
+    if (pace)
         *sc_reader_t_capabilities |= SC_READER_CAP_PACE_GENERIC;
-    if (capabilityEID)
+    if (eid)
         *sc_reader_t_capabilities |= SC_READER_CAP_PACE_EID;
-    if (capabilityESign)
+    if (esign)
         *sc_reader_t_capabilities |= SC_READER_CAP_PACE_ESIGN;
-    if (capabilityDestroy)
+    if (destroy)
         *sc_reader_t_capabilities |= SC_READER_CAP_PACE_DESTROY_CHANNEL;
 
     return SC_SUCCESS;
@@ -647,6 +846,18 @@ int boxing_pace_capabilities_to_buf(sc_context_t *ctx,
     struct sc_asn1_entry PACECapabilities[
         sizeof g_PACECapabilities/
         sizeof *g_PACECapabilities];
+    struct sc_asn1_entry capabilityPACE[
+        sizeof g_boolean/
+        sizeof *g_boolean];
+    struct sc_asn1_entry capabilityEID[
+        sizeof g_boolean/
+        sizeof *g_boolean];
+    struct sc_asn1_entry capabilityESign[
+        sizeof g_boolean/
+        sizeof *g_boolean];
+    struct sc_asn1_entry capabilityDestroy[
+        sizeof g_boolean/
+        sizeof *g_boolean];
 
     sc_copy_asn1_entry(g_EstablishPACEChannel,
             PACECapabilities);
@@ -655,30 +866,38 @@ int boxing_pace_capabilities_to_buf(sc_context_t *ctx,
 
     sc_copy_asn1_entry(g_PACECapabilities_data,
             PACECapabilities_data);
-    if (sc_reader_t_capabilities & SC_READER_CAP_PACE_GENERIC)
-        sc_format_asn1_entry(PACECapabilities_data+0, 
-                &yes, NULL, 1);
-    else
-        sc_format_asn1_entry(PACECapabilities_data+0, 
-                &no, NULL, 1);
-    if (sc_reader_t_capabilities & SC_READER_CAP_PACE_EID)
-        sc_format_asn1_entry(PACECapabilities_data+1, 
-                &yes, NULL, 1);
-    else
-        sc_format_asn1_entry(PACECapabilities_data+1, 
-                &no, NULL, 1);
-    if (sc_reader_t_capabilities & SC_READER_CAP_PACE_ESIGN)
-        sc_format_asn1_entry(PACECapabilities_data+2, 
-                &yes, NULL, 1);
-    else
-        sc_format_asn1_entry(PACECapabilities_data+2, 
-                &no, NULL, 1);
-    if (sc_reader_t_capabilities & SC_READER_CAP_PACE_DESTROY_CHANNEL)
-        sc_format_asn1_entry(PACECapabilities_data+3, 
-                &yes, NULL, 1);
-    else
-        sc_format_asn1_entry(PACECapabilities_data+3, 
-                &no, NULL, 1);
+    sc_format_asn1_entry(PACECapabilities_data+0,
+            &capabilityPACE, NULL, 1);
+    sc_format_asn1_entry(PACECapabilities_data+1,
+            &capabilityEID, NULL, 1);
+    sc_format_asn1_entry(PACECapabilities_data+2,
+            &capabilityESign, NULL, 1);
+    sc_format_asn1_entry(PACECapabilities_data+3,
+            &capabilityDestroy, NULL, 1);
+
+    sc_copy_asn1_entry(g_boolean,
+            capabilityPACE);
+    sc_format_asn1_entry(capabilityPACE,
+            sc_reader_t_capabilities & SC_READER_CAP_PACE_GENERIC
+            ? &yes : &no, NULL, 1);
+
+    sc_copy_asn1_entry(g_boolean,
+            capabilityEID);
+    sc_format_asn1_entry(capabilityEID,
+            sc_reader_t_capabilities & SC_READER_CAP_PACE_EID
+            ? &yes : &no, NULL, 1);
+
+    sc_copy_asn1_entry(g_boolean,
+            capabilityESign);
+    sc_format_asn1_entry(capabilityESign,
+            sc_reader_t_capabilities & SC_READER_CAP_PACE_ESIGN
+            ? &yes : &no, NULL, 1);
+
+    sc_copy_asn1_entry(g_boolean,
+            capabilityDestroy);
+    sc_format_asn1_entry(capabilityDestroy,
+            sc_reader_t_capabilities & SC_READER_CAP_PACE_DESTROY_CHANNEL
+            ? &yes : &no, NULL, 1);
 
     return sc_asn1_encode(ctx, PACECapabilities, asn1, asn1_len);
 }
