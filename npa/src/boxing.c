@@ -142,7 +142,7 @@ int boxing_pace_input_to_buf(sc_context_t *ctx,
 
     sc_format_asn1_entry(EstablishPACEChannelInput_data+0,
             passwordID, 0, 1);
-    sc_copy_asn1_entry(g_octet_string,
+    sc_copy_asn1_entry(g_int_as_octet_string,
             passwordID);
     sc_format_asn1_entry(passwordID,
             (unsigned char *) &input->pin_id, &pin_id_len, 1);
