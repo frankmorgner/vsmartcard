@@ -151,7 +151,7 @@ int boxing_pace_input_to_buf(sc_context_t *ctx,
         sc_format_asn1_entry(EstablishPACEChannelInput_data+1,
                 transmittedPassword,
                 0, 1);
-        sc_copy_asn1_entry(g_octet_string,
+        sc_copy_asn1_entry(g_numeric_string_as_octet_string,
                 transmittedPassword);
         sc_format_asn1_entry(transmittedPassword,
                 (unsigned char *) input->pin,
@@ -218,7 +218,7 @@ int boxing_buf_to_pace_input(sc_context_t *ctx,
     if (input->pin) {
         sc_format_asn1_entry(EstablishPACEChannelInput_data+1,
                 transmittedPassword, 0, 0);
-        sc_copy_asn1_entry(g_octet_string,
+        sc_copy_asn1_entry(g_numeric_string_as_octet_string,
                 transmittedPassword);
         sc_format_asn1_entry(transmittedPassword,
                 (unsigned char *) &input->pin, &input->pin_length, 0);
