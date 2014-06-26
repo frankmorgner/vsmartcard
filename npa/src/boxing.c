@@ -56,12 +56,12 @@ static const u8 boxing_p2_PC_to_RDR_Secure          = 0x10;
 
 struct sc_asn1_entry g_boolean[] = {
     { "boolean",
-        SC_ASN1_BOOLEAN, SC_ASN1_TAG_BOOLEAN, SC_ASN1_ALLOC, NULL, NULL },
+        SC_ASN1_BOOLEAN, SC_ASN1_TAG_BOOLEAN, 0, NULL, NULL },
     { NULL , 0 , 0 , 0 , NULL , NULL }
 };
 struct sc_asn1_entry g_int_as_octet_string[] = {
     { "int as octet string",
-        SC_ASN1_OCTET_STRING, SC_ASN1_TAG_INTEGER, SC_ASN1_ALLOC, NULL, NULL },
+        SC_ASN1_OCTET_STRING, SC_ASN1_TAG_INTEGER, 0, NULL, NULL },
     { NULL , 0 , 0 , 0 , NULL , NULL }
 };
 struct sc_asn1_entry g_octet_string[] = {
@@ -84,7 +84,7 @@ static const struct sc_asn1_entry g_EstablishPACEChannelInput_data[] = {
     { "cHAT",
         SC_ASN1_STRUCT, SC_ASN1_CTX|0x03|SC_ASN1_CONS, SC_ASN1_OPTIONAL|SC_ASN1_ALLOC, NULL, NULL },
     { "certificateDescription",
-        SC_ASN1_STRUCT, SC_ASN1_CTX|0x04|SC_ASN1_CONS, SC_ASN1_OPTIONAL|SC_ASN1_ALLOC, NULL, NULL },
+        SC_ASN1_OCTET_STRING, SC_ASN1_CTX|0x04|SC_ASN1_CONS, SC_ASN1_OPTIONAL|SC_ASN1_ALLOC, NULL, NULL },
     { "hashOID",
         /* use an OCTET STRING to avoid a conversion to struct sc_object_id */
         SC_ASN1_STRUCT, SC_ASN1_CTX|0x05|SC_ASN1_CONS, SC_ASN1_OPTIONAL|SC_ASN1_ALLOC, NULL, NULL },
@@ -96,7 +96,7 @@ static const struct sc_asn1_entry g_EstablishPACEChannelOutput_data[] = {
     { "statusMSESetAT",
         SC_ASN1_STRUCT, SC_ASN1_CTX|0x02|SC_ASN1_CONS, 0, NULL, NULL },
     { "efCardAccess",
-        SC_ASN1_STRUCT, SC_ASN1_CTX|0x03|SC_ASN1_CONS, SC_ASN1_ALLOC, NULL, NULL },
+        SC_ASN1_OCTET_STRING, SC_ASN1_CTX|0x03|SC_ASN1_CONS, SC_ASN1_ALLOC, NULL, NULL },
     { "idPICC",
         SC_ASN1_STRUCT, SC_ASN1_CTX|0x04|SC_ASN1_CONS, SC_ASN1_OPTIONAL|SC_ASN1_ALLOC, NULL, NULL },
     { "curCAR",
