@@ -64,6 +64,12 @@ static int npa_init(sc_card_t * card)
     struct npa_drv_data *drv_data;
 
     if (card) {
+#if 0
+        /* we wait for https://github.com/OpenSC/OpenSC/pull/260 to be
+         * integrated before switching extended length on, here */
+        card->max_recv_size = 0xFFFF+1;
+        card->max_send_size = 0xFFFF;
+#endif
         drv_data = calloc(1, sizeof *drv_data);
         card->drv_data = drv_data;
         if (drv_data) {
