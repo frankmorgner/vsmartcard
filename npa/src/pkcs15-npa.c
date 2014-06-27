@@ -252,7 +252,8 @@ err:
 const char *sc_driver_version(void)
 {
     /** TODO fix the version check in opensc/src/libopensc/pkcs15-syn.c:271
-	 * here we choose 0.9.3 simply to pass the bogus check */
+	 * here we choose 0.9.3 simply to pass the bogus check, see
+	 * https://github.com/OpenSC/OpenSC/pull/258 */
     static const char version[] = "0.9.3";
     return version;
 }
