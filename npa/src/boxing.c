@@ -388,11 +388,15 @@ int boxing_buf_to_pace_output(sc_context_t *ctx,
             errorCode);
     sc_format_asn1_entry(errorCode,
             &output->result, &result_len, 0);
+    /* we already allocated memory for the result */
+    errorCode->flags = 0;
 
     sc_copy_asn1_entry(g_octet_string,
             statusMSESetAT);
     sc_format_asn1_entry(statusMSESetAT,
             &status_mse_set_at, &status_mse_set_at_len, 0);
+    /* we already allocated memory for the result */
+    statusMSESetAT->flags = 0;
 
     sc_copy_asn1_entry(g_octet_string,
             idPICC);
