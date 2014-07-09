@@ -51,7 +51,7 @@ source_suffix = '.txt'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Virtual Smart Card Architecture'
+project = u'vsmartcard'
 copyright = u'2009-%d by Dominik Oepen and Frank Morgner' % date.today().year
 
 # The version info for the project you're documenting, acts as replacement for
