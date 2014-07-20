@@ -95,8 +95,17 @@ other computer, the :ref:`vicc` in relay mode can be used:
 Download and Install
 ********************
 
-The Remote Smart Card Reader is not (yet) available in
-any App Store. To use it you need to fetch it from source::
+The Remote Smart Card Reader is available on F-Droid_.
+
+.. qr code generated via http://www.qrcode-monkey.de
+
+.. image:: remote-reader-qrcode.png
+    :target: https://f-droid.org/repository/browse/?fdid=com.vsmartcard.remotesmartcardreader.app  
+    :alt: Remote Smart Card Reader on F-Droid
+    :width: 265px
+    :height: 265px
+
+To manually compile the app you need to fetch the sources::
 
     git clone https://github.com/frankmorgner/vsmartcard.git
 
@@ -116,3 +125,4 @@ Notes and References
 
 .. _OpenSC: https://github.com/OpenSC/OpenSC
 .. _Android Studio: http://developer.android.com/sdk/installing/studio.html
+.. _F-Droid: https://f-droid.org/repository/browse/?fdid=com.vsmartcard.remotesmartcardreader.app
