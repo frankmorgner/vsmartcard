@@ -239,6 +239,6 @@ Notes and References
 
 .. target-notes::
 
-.. _OpenPACE: https://frankmorgner.github.io/vsmartcard/
+.. _OpenPACE: https://frankmorgner.github.io/openpace/
 .. _OpenSC: https://github.com/OpenSC/OpenSC
 .. _OpenSSL: http://www.openssl.org
