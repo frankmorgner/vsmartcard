@@ -224,7 +224,8 @@ class SAM(object):
         else:
             cipher = get_referenced_cipher(p1)     
         
-        reference = vsCrypto.append_padding(cipher, self.last_challenge)
+        blocklen = vsCrypto.get_cipher_blocklen(cipher)
+        reference = vsCrypto.append_padding(blocklen, self.last_challenge)
         reference = vsCrypto.encrypt(cipher, key, reference)
         if(reference == data):
             #Invalidate last challenge
@@ -371,7 +372,8 @@ if __name__ == "__main__":
     print("Counter = " + str(MyCard.counter))
     sw, challenge = MyCard.get_challenge(0x00, 0x00, "")
     print("Before encryption: " + challenge)
-    padded = vsCrypto.append_padding("DES3-ECB", challenge)
+    blocklen = vsCrypto.get_cipher_blocklen("DES3-ECB")
+    padded = vsCrypto.append_padding(blocklen, challenge)
     sw, result_data = MyCard.internal_authenticate(0x00, 0x00, padded)
     print("Internal Authenticate status code: %x" % sw)
 
