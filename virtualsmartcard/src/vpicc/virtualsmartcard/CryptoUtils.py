@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2011 Dominik Oepen
+# Copyright (C) 2014 Dominik Oepen
 # 
 # This file is part of virtualsmartcard.
 # 
