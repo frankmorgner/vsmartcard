@@ -90,6 +90,7 @@ static int npa_finish(sc_card_t * card)
     struct npa_drv_data *drv_data;
 
     if (card) {
+        sm_stop(card);
         drv_data = card->drv_data;
         if (drv_data) {
             free(drv_data->ef_cardaccess);
