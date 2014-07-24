@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2011 Dominik Oepen
+# Copyright (C) 2014 Dominik Oepen
 # 
 # This file is part of virtualsmartcard.
 # 
@@ -604,21 +604,3 @@ def test_pbkdf2():
     if result != expected:
         raise RuntimeError("self-test failed")
     print "PBKDF2 self test successfull"
-    
-if __name__ == "__main__":
-    too_short = binascii.a2b_hex("".join("89 45 19 BF".split()))
-    padded = append_padding(8, too_short)
-    print "Padded data: " + hexdump(padded)
-    unpadded = strip_padding(8, padded)
-    print "Without padding: " + hexdump(unpadded)
-    
-    teststring = "DEADBEEFistatsyksdvhwohfwoehcowc8hw8rogfq8whv75tsgohsav8wress"
-    foo = append_padding(16, teststring)
-    assert(strip_padding(16, foo) == teststring)
-
-    testpass = "SomeRandomPassphrase"
-    protectedString = protect_string(teststring, testpass)
-    unprotectedString = read_protected_string(protectedString, testpass)
-    assert(teststring == unprotectedString)
-    
-    #test_pbkdf2()

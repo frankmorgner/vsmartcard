@@ -9,7 +9,8 @@ env:
         -PREFIX=/tmp/install
 script:
     #Build virtualsmartcard
-    - cd virtualsmartcard && autoreconf -vsi && ./configure && make && cd ..
+    - cd virtualsmartcard && autoreconf -vsi && ./configure && make
+    - cd src/vpicc/ && export PYTHONPATH=$PYTHONPATH:`pwd` && python -m unittest discover -s virtualsmartcard.tests -p *_test.py -v && cd $TRAVIS_BUILD_DIR
     # Build pcsc-relay, which requires libnfc
     - cd /tmp && git clone https://code.google.com/p/libnfc && cd libnfc && autoreconf -i && ./configure --prefix=$PREFIX && make install && cd $TRAVIS_BUILD_DIR
     - cd pcsc-relay && autoreconf -vsi && ./configure && make && cd ..
