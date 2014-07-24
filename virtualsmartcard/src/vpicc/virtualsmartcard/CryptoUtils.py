@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License along with
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 #
-import sys, binascii, random, logging, unittest
+import sys, binascii, random, logging
 from Crypto.Cipher import DES3, DES, AES, ARC4#@UnusedImport
 from struct import pack
 from binascii import b2a_hex, a2b_hex
@@ -604,24 +604,3 @@ def test_pbkdf2():
     if result != expected:
         raise RuntimeError("self-test failed")
     print "PBKDF2 self test successfull"
-    
-class TestCryptoUtils(unittest.TestCase):
-
-    def setUp(self):
-        self.teststring = "DEADBEEFistatsyksdvhwohfwoehcowc8hw8rogfq8whv75tsgohsav8wress"
-        self.testpass = "SomeRandomPassphrase"
-
-    def test_padding(self):
-        padded = append_padding(16, self.teststring)
-        unpadded = strip_padding(16, padded)
-        self.assertEqual(unpadded, self.teststring)
-
-    def test_protect_string(self):
-        protectedString = protect_string(self.teststring, self.testpass)
-        unprotectedString = read_protected_string(protectedString, self.testpass)
-        self.assertEqual(self.teststring, unprotectedString)
-
-
-if __name__ == "__main__":
-    unittest.main()    
-    #test_pbkdf2()
