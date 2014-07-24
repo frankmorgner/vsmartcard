@@ -20,6 +20,21 @@
 #include "config.h"
 #endif
 
+#include "libopensc/internal.h"
+
+#if !defined(HAVE_SC_APDU_GET_OCTETS) || !defined(HAVE_SC_APDU_SET_RESP)
+/* Pull request for exporting sc_apdu_get_octets is pending. */
+#include "libopensc/apdu.c"
+#endif
+
+#ifndef HAVE__SC_MATCH_ATR
+/* I hate to do this, but to include _sc_match_atr we need to satisfy all
+ * dependencies of card.c */
+#include "common/libscdl.c"
+#include "libopensc/sc.c"
+#include "libopensc/card.c"
+#endif
+
 #include <libopensc/log.h>
 #include <npa/iso-sm.h>
 #include <npa/scutil.h>

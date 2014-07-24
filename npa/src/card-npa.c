@@ -26,10 +26,6 @@
 #include <npa/npa.h>
 #include <string.h>
 
-#ifndef HAVE_SC_APDU_GET_OCTETS
-#include "libopensc/card.c"
-#endif
-
 struct npa_drv_data {
     unsigned char *can;
     size_t can_length;

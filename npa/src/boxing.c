@@ -25,6 +25,7 @@
 #include <libopensc/opensc.h>
 #include <libopensc/pace.h>
 #include <npa/boxing.h>
+#include <npa/scutil.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -37,13 +38,6 @@
 #define _BSD_SOURCE             /* See feature_test_macros(7) */
 #endif
 #include <endian.h>
-#endif
-
-#if HAVE_SC_APDU_GET_OCTETS
-#include "libopensc/internal.h"
-#else
-/* Pull request for exporting sc_apdu_get_octets is pending. */
-#include "libopensc/apdu.c"
 #endif
 
 static const u8 boxing_cla                          = 0xff;

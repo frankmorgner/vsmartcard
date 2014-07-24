@@ -116,5 +116,36 @@ int read_binary_rec(sc_card_t *card, unsigned char sfid,
 int write_binary_rec(sc_card_t *card, unsigned char sfid,
         u8 *ef, size_t ef_len);
 
+/*
+ * OPENSC functions that do not get exported (sometimes)
+ */
+
+/**
+ * Returns the encoded APDU in newly created buffer.
+ * @param  ctx     sc_context_t object
+ * @param  apdu    sc_apdu_t object with the APDU to encode
+ * @param  buf     pointer to the newly allocated buffer
+ * @param  len     length of the encoded APDU
+ * @param  proto   protocol to be used
+ * @return SC_SUCCESS on success and an error code otherwise
+ */
+int sc_apdu_get_octets(sc_context_t *ctx, const sc_apdu_t *apdu, u8 **buf,
+	size_t *len, unsigned int proto);
+
+/**
+ * Sets the status bytes and return data in the APDU
+ * @param  ctx     sc_context_t object
+ * @param  apdu    the apdu to which the data should be written
+ * @param  buf     returned data
+ * @param  len     length of the returned data
+ * @return SC_SUCCESS on success and an error code otherwise
+ */
+int sc_apdu_set_resp(sc_context_t *ctx, sc_apdu_t *apdu, const u8 *buf,
+	size_t len);
+
+/* Returns an index number if a match was found, -1 otherwise. table has to
+ * be null terminated. */
+int _sc_match_atr(struct sc_card *card, struct sc_atr_table *table, int *type_out);
+
 #endif
 /* @} */
