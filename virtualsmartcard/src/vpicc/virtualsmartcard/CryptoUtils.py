@@ -513,10 +513,6 @@ def crypt(word, salt=None, iterations=None):
     rawhash = PBKDF2(word, salt, iterations).read(24)
     # return salt + "$" + b64encode(rawhash, "./") DO: Original return line
     return salt + "$" + rawhash
-# Add crypt as a static method of the PBKDF2 class
-# This makes it easier to do "from PBKDF2 import PBKDF2" and still use
-# crypt.
-PBKDF2.crypt = staticmethod(crypt)
 
 def _makesalt():
     """Return a 48-bit pseudorandom salt for crypt().
@@ -525,82 +521,3 @@ def _makesalt():
     """
     binarysalt = "".join([pack("@H", randint(0, 0xffff)) for i in range(3)])
     return b64encode(binarysalt, "./")
-
-def test_pbkdf2():
-    """Module self-test"""
-    
-    #
-    # Test vectors from RFC 3962
-    #
-
-    # Test 1
-    result = PBKDF2("password", "ATHENA.MIT.EDUraeburn", 1).read(16)
-    expected = a2b_hex("cdedb5281bb2f801565a1122b2563515")
-    if result != expected:
-        raise RuntimeError("self-test failed")
-
-    # Test 2
-    result = PBKDF2("password", "ATHENA.MIT.EDUraeburn", 1200).hexread(32)
-    expected = ("5c08eb61fdf71e4e4ec3cf6ba1f5512b"
-                "a7e52ddbc5e5142f708a31e2e62b1e13")
-    if result != expected:
-        raise RuntimeError("self-test failed")
-
-    # Test 3
-    result = PBKDF2("X"*64, "pass phrase equals block size", 1200).hexread(32)
-    expected = ("139c30c0966bc32ba55fdbf212530ac9"
-                "c5ec59f1a452f5cc9ad940fea0598ed1")
-    if result != expected:
-        raise RuntimeError("self-test failed")
-    
-    # Test 4
-    result = PBKDF2("X"*65, "pass phrase exceeds block size", 1200).hexread(32)
-    expected = ("9ccad6d468770cd51b10e6a68721be61"
-                "1a8b4d282601db3b36be9246915ec82a")
-    if result != expected:
-        raise RuntimeError("self-test failed")
-    
-    #
-    # Other test vectors
-    #
-    
-    # Chunked read
-    f = PBKDF2("kickstart", "workbench", 256)
-    result = f.read(17)
-    result += f.read(17)
-    result += f.read(1)
-    result += f.read(2)
-    result += f.read(3)
-    expected = PBKDF2("kickstart", "workbench", 256).read(40)
-    if result != expected:
-        raise RuntimeError("self-test failed")
-    
-    #
-    # crypt() test vectors
-    #
-
-    # crypt 1
-    result = crypt("cloadm", "exec")
-    expected = '$p5k2$$exec$r1EWMCMk7Rlv3L/RNcFXviDefYa0hlql'
-    if result != expected:
-        raise RuntimeError("self-test failed")
-    
-    # crypt 2
-    result = crypt("gnu", '$p5k2$c$u9HvcT4d$.....')
-    expected = '$p5k2$c$u9HvcT4d$Sd1gwSVCLZYAuqZ25piRnbBEoAesaa/g'
-    if result != expected:
-        raise RuntimeError("self-test failed")
-
-    # crypt 3
-    result = crypt("dcl", "tUsch7fU", iterations=13)
-    expected = "$p5k2$d$tUsch7fU$nqDkaxMDOFBeJsTSfABsyn.PYUXilHwL"
-    if result != expected:
-        raise RuntimeError("self-test failed")
-    
-    # crypt 4 (unicode)
-    result = crypt(u'\u0399\u03c9\u03b1\u03bd\u03bd\u03b7\u03c2',
-        '$p5k2$$KosHgqNo$9mjN8gqjt02hDoP0c2J0ABtLIwtot8cQ')
-    expected = '$p5k2$$KosHgqNo$9mjN8gqjt02hDoP0c2J0ABtLIwtot8cQ'
-    if result != expected:
-        raise RuntimeError("self-test failed")
-    print "PBKDF2 self test successfull"
