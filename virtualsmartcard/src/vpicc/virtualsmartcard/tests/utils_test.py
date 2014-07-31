@@ -1,14 +1,34 @@
+#
+# Copyright (C) 2014 Dominik Oepen
+#
+# This file is part of virtualsmartcard.
+#
+# virtualsmartcard is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# virtualsmartcard is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+
 import unittest
 from virtualsmartcard.utils import C_APDU, R_APDU, hexdump
 
 class TestUtils(unittest.TestCase):
-    
+
     def test_CAPDU(self):
         a = C_APDU(1, 2, 3, 4) # case 1
         b = C_APDU(1, 2, 3, 4, 5) # case 2
         c = C_APDU((1, 2, 3), cla = 0x23, data = "hallo") # case 3
         d = C_APDU(1, 2, 3, 4, 2, 4, 6, 0) # case 4
-        
+
         print()
         print(a)
         print(b)
@@ -19,14 +39,14 @@ class TestUtils(unittest.TestCase):
         print(repr(b))
         print(repr(c))
         print(repr(d))
-        
+
         print()
         for i in a, b, c, d:
             print(hexdump(i.render()))
-        
+
         print()
         g = C_APDU(0x00, 0xb0, 0x9c, 0x00, 0x00, 0x00, 0x00) #case 2 extended length
-        
+
         print()
         print(g)
         print(repr(g))
