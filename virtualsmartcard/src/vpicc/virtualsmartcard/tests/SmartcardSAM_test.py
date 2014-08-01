@@ -26,6 +26,8 @@ class TestSmartcardSAM(unittest.TestCase):
     def setUp(self):
         self.password = "DUMMYKEYDUMMYKEY"
         self.myCard = SAM("1234", "1234567890")
+        self.secEnv = Security_Environment(None, self.myCard) #TODO: Set CRTs
+        self.secEnv.ht.algorithm = "SHA"
 
     def test_incorrect_pin(self):
         with self.assertRaises(SwError):
@@ -58,9 +60,14 @@ class TestSmartcardSAM(unittest.TestCase):
         print ("After external authenticate: " + result_data)
         self.assertEquals(sw, SW["NORMAL"])
 
+    def test_security_environment(self):
+        print "Testvektor = %s" % self.password
+        hash = self.secEnv.hash(0x90, 0x80, self.password)
+        #The API should be changed so that the hash function returns SW_NORMAL
+
 if __name__ == "__main__":
     unittest.main()
-    #SE = Security_Environment(None)
+
     #testvektor = "foobar"
     #print "Testvektor = %s" % testvektor
     #sw, hash = SE.hash(0x90,0x80,testvektor)
