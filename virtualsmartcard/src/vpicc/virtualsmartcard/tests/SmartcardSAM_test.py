@@ -28,6 +28,7 @@ class TestSmartcardSAM(unittest.TestCase):
         self.myCard = SAM("1234", "1234567890")
         self.secEnv = Security_Environment(None, self.myCard) #TODO: Set CRTs
         self.secEnv.ht.algorithm = "SHA"
+        self.secEnv.ct.algorithm = "AES-CBC"
 
     def test_incorrect_pin(self):
         with self.assertRaises(SwError):
@@ -64,23 +65,28 @@ class TestSmartcardSAM(unittest.TestCase):
         print "Testvektor = %s" % self.password
         hash = self.secEnv.hash(0x90, 0x80, self.password)
         #The API should be changed so that the hash function returns SW_NORMAL
+        #print "SW after hashing = %s" % sw
+        print "Hash = %s" % hash
+        self.secEnv.ct.key = hash[:16]
+        crypted = self.secEnv.encipher(0x00, 0x00, self.password)
+        #The API should be changed so that the encipher function returns SW_NORMAL
+        #print "SW after encryption = %s" % sw
+        plain = self.secEnv.decipher(0x00, 0x00, crypted)
+        #The API should be changed so that the decipher function returns SW_NORMAL
+        #print "SW after decryption = %s" % sw
+        print "Testvektor after en- and deciphering: %s" % plain
+        #self.assertEqual(plain, self.password)
+        #secEnv.decipher doesn't strip padding. Should it?
+        self.secEnv.ct.algorithm = "RSA" #should this really be secEnv.ct? probably rather secEnv.dst
+        self.secEnv.dst.keylength = 1024
+        sw, pk = self.secEnv.generate_public_key_pair(0x00, 0x00, "")
+        #print "SW after keygen = %s" % swerror
+        #print "Public Key = %s" % pk
+
 
 if __name__ == "__main__":
     unittest.main()
 
-    #testvektor = "foobar"
-    #print "Testvektor = %s" % testvektor
-    #sw, hash = SE.hash(0x90,0x80,testvektor)
-    #print "SW after hashing = %s" % sw
-    #print "Hash = %s" % hash
-    #sw, crypted = SE.encipher(0x00, 0x00, testvektor)
-    #print "SW after encryption = %s" % sw
-    #sw, plain = SE.decipher(0x00, 0x00, crypted)
-    #print "SW after encryption = %s" % sw
-    #print "Testvektor after en- and deciphering: %s" % plain
-    #sw, pk = SE.generate_public_key_pair(0x02, 0x00, "")
-    #print "SW after keygen = %s" % sw
-    #print "Public Key = %s" % pk
     #CF = CryptoflexSE(None)
     #print CF.generate_public_key_pair(0x00, 0x80, "\x01\x00\x01\x00")
     #print MyCard._get_referenced_key(0x01)
