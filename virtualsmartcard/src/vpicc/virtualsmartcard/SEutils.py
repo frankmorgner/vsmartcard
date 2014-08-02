@@ -709,7 +709,7 @@ class Security_Environment(object):
         else:
             raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
 
-        result = bertlv_pack((0x7F49, len(pk), pk))
+        result = bertlv_pack([[0x7F49, len(pk), pk]])
         #TODO: Internally store key pair
 
         if p1 & 0x02 == 0x02:
