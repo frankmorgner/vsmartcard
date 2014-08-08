@@ -44,14 +44,6 @@ static const unsigned char df_esign_aid[]  = { 0xa0, 0x00, 0x00, 0x01, 0x67, 0x4
 static const unsigned char df_esign_path[] = { 0x3f, 0x00, 0x50, 0x15, 0x1f, 0xff};
 static const unsigned char ef_cardaccess_path[] = { 0x3f, 0x00, 0x01, 0x1c};
 
-void npa_get_cache(struct sc_card *card,
-        unsigned char pin_id, const unsigned char **pin, size_t *pin_length,
-        unsigned char **ef_cardaccess, size_t *ef_cardaccess_length);
-
-void npa_set_cache(struct sc_card *card,
-        unsigned char pin_id, const unsigned char *pin, size_t pin_length,
-        const unsigned char *ef_cardaccess, size_t ef_cardaccess_length);
-
 #ifdef  __cplusplus
 }
 #endif

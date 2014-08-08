@@ -26,13 +26,6 @@
 #include <npa/npa.h>
 #include <string.h>
 
-struct npa_drv_data {
-    unsigned char *can;
-    size_t can_length;
-    unsigned char *ef_cardaccess;
-    size_t ef_cardaccess_length;
-};
-
 static struct sc_atr_table npa_atrs[] = {
     {"3B:8A:80:01:80:31:F8:73:F7:41:E0:82:90:00:75", NULL, "German ID card (neuer Personalausweis, nPA)", SC_CARD_TYPE_NPA, 0, NULL},
     {"3B:84:80:01:00:00:90:00:95", NULL, "German ID card (Test neuer Personalausweis)", SC_CARD_TYPE_NPA_TEST, 0, NULL},
@@ -57,8 +50,6 @@ static int npa_match_card(sc_card_t * card)
 
 static int npa_init(sc_card_t * card)
 {
-    struct npa_drv_data *drv_data;
-
     if (card) {
 #if 0
         /* we wait for https://github.com/OpenSC/OpenSC/pull/260 to be
@@ -66,15 +57,6 @@ static int npa_init(sc_card_t * card)
         card->max_recv_size = 0xFFFF+1;
         card->max_send_size = 0xFFFF;
 #endif
-        drv_data = calloc(1, sizeof *drv_data);
-        card->drv_data = drv_data;
-        if (drv_data) {
-            drv_data->can = NULL;
-            drv_data->can_length = 0;
-            drv_data->ef_cardaccess = NULL;
-            drv_data->ef_cardaccess_length = 0;
-        }
-
         card->caps |= SC_CARD_CAP_APDU_EXT | SC_CARD_CAP_RNG;
         memset(&card->sm_ctx, 0, sizeof card->sm_ctx);
 #ifdef DISABLE_GLOBAL_BOXING_INITIALIZATION
@@ -87,18 +69,7 @@ static int npa_init(sc_card_t * card)
 
 static int npa_finish(sc_card_t * card)
 {
-    struct npa_drv_data *drv_data;
-
-    if (card) {
-        sm_stop(card);
-        drv_data = card->drv_data;
-        if (drv_data) {
-            free(drv_data->ef_cardaccess);
-            free(drv_data->can);
-            free(drv_data);
-        }
-        card->drv_data = NULL;
-    }
+    sm_stop(card);
 
     return SC_SUCCESS;
 }
@@ -163,9 +134,6 @@ static int npa_pace_verify(struct sc_card *card,
         pace_input.pin = pin->data;
         pace_input.pin_length = pin->len;
     }
-    npa_get_cache(card, pace_input.pin_id, &pace_input.pin,
-            &pace_input.pin_length, &pace_output.ef_cardaccess,
-            &pace_output.ef_cardaccess_length);
 
     r = perform_pace(card, pace_input, &pace_output, EAC_TR_VERSION_2_02);
 
@@ -191,8 +159,6 @@ static int npa_pace_verify(struct sc_card *card,
         pace_input.pin_id = PACE_PIN_ID_CAN;
         pace_input.pin = NULL;
         pace_input.pin_length = 0;
-        npa_get_cache(card, pace_input.pin_id, &pace_input.pin,
-                &pace_input.pin_length, NULL, NULL);
 
         r = perform_pace(card, pace_input, &pace_output, EAC_TR_VERSION_2_02);
 
@@ -232,10 +198,6 @@ static int npa_pace_verify(struct sc_card *card,
                    npa_secret_name(pin_reference));
        }
     }
-
-    npa_set_cache(card, pace_input.pin_id, pace_input.pin,
-            pace_input.pin_length, pace_output.ef_cardaccess,
-            pace_output.ef_cardaccess_length);
 
     free(pace_output.ef_cardaccess);
     free(pace_output.recent_car);
@@ -322,7 +284,7 @@ static int npa_pin_cmd(struct sc_card *card,
                 case NPA_PIN_ID_ESIGN_PIN:
                     if (card->reader->capabilities & SC_READER_CAP_PACE_ESIGN) {
                         sc_log(card->ctx, "Found a comfort reader (CAT-K).\n");
-                        sc_log(card->ctx, "Will verify cached CAN first.\n");
+                        sc_log(card->ctx, "Will verify CAN first.\n");
                         r = npa_pace_verify(card, PACE_PIN_ID_CAN, NULL,
                                 esign_chat, sizeof esign_chat, tries_left);
                         if (r != SC_SUCCESS)
@@ -397,52 +359,4 @@ const char *sc_driver_version(void)
      * our version info against OpenSC's PACKAGE_VERSION. For this reason we
      * tell OpenSC that everything is fine, here. */
     return sc_get_version();
-}
-
-void npa_get_cache(struct sc_card *card,
-        unsigned char pin_id, const unsigned char **pin, size_t *pin_length,
-        unsigned char **ef_cardaccess, size_t *ef_cardaccess_length)
-{
-    struct npa_drv_data *drv_data;
-	if (card && card->drv_data) {
-		drv_data = card->drv_data;
-        if (pin_id == PACE_PIN_ID_CAN && pin && pin_length && !*pin) {
-            /* set CAN if *pin is NULL */
-            *pin = drv_data->can;
-            *pin_length = drv_data->can_length;
-			sc_log(card->ctx, "Using the cached CAN\n");
-        }
-        if (ef_cardaccess && ef_cardaccess_length && !*ef_cardaccess) {
-            /* set EF.CardAccess if *ef_cardaccess is NULL */
-            *ef_cardaccess = drv_data->ef_cardaccess;
-            *ef_cardaccess_length = drv_data->ef_cardaccess_length;
-        }
-	}
-}
-
-void npa_set_cache(struct sc_card *card,
-        unsigned char pin_id, const unsigned char *pin, size_t pin_length,
-        const unsigned char *ef_cardaccess, size_t ef_cardaccess_length)
-{
-    unsigned char *p;
-    struct npa_drv_data *drv_data;
-    if (card && card->drv_data) {
-        drv_data = card->drv_data;
-        if (pin_id == PACE_PIN_ID_CAN && pin) {
-            p = realloc(drv_data->can, pin_length);
-            if (p) {
-                memcpy(p, pin, pin_length);
-                drv_data->can = p;
-                drv_data->can_length = pin_length;
-            }
-        }
-        if (ef_cardaccess) {
-            p = realloc(drv_data->ef_cardaccess, ef_cardaccess_length);
-            if (p) {
-                memcpy(p, ef_cardaccess, ef_cardaccess_length);
-                drv_data->ef_cardaccess = p;
-                drv_data->ef_cardaccess_length = ef_cardaccess_length;
-            }
-        }
-    }
 }

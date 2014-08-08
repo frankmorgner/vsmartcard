@@ -46,7 +46,8 @@ static int npa_add_pin(sc_pkcs15_card_t *p15card,
 	   	const char *label, int max_tries,
 		unsigned int flags, size_t  min_length,
 	   	size_t max_length, unsigned char reference,
-		unsigned char auth_id, const struct sc_path *path)
+		unsigned char auth_id, const struct sc_path *path,
+		const char *pin, size_t pin_length)
 {
 	struct sc_pkcs15_auth_info pin_info;
 	struct sc_pkcs15_object pin_obj;
@@ -75,10 +76,14 @@ static int npa_add_pin(sc_pkcs15_card_t *p15card,
 	pin_info.attrs.pin.max_length = max_length;
 	pin_info.attrs.pin.reference = reference;
 
+	if (pin && pin_length) {
+		sc_pkcs15_pincache_add(p15card, &pin_obj, pin, pin_length);
+	}
+
 	return sc_pkcs15emu_add_pin_obj(p15card, &pin_obj, &pin_info);
 }
 
-static int npa_add_pins(sc_pkcs15_card_t *p15card)
+static int npa_add_pins(sc_pkcs15_card_t *p15card, const char *can)
 {
 	int r;
 	const sc_path_t *mf = sc_get_mf_path();
@@ -95,7 +100,7 @@ static int npa_add_pins(sc_pkcs15_card_t *p15card)
 			| SC_PKCS15_PIN_FLAG_SO_PIN
 			| SC_PKCS15_PIN_FLAG_UNBLOCK_DISABLED
 		   	| SC_PKCS15_PIN_FLAG_CHANGE_DISABLED,
-			90, 90, PACE_PIN_ID_MRZ, 0, mf);
+			90, 90, PACE_PIN_ID_MRZ, 0, mf, NULL, 0);
 	if (r != SC_SUCCESS)
 		goto err;
 
@@ -104,14 +109,16 @@ static int npa_add_pins(sc_pkcs15_card_t *p15card)
 			| SC_PKCS15_PIN_FLAG_INITIALIZED
 			| SC_PKCS15_PIN_FLAG_SO_PIN
 			| SC_PKCS15_PIN_FLAG_UNBLOCK_DISABLED,
-			6, 6, PACE_PIN_ID_CAN, 0, mf);
+			6, 6, PACE_PIN_ID_CAN, 0, mf, can, can ? strlen(can) : 0);
 	if (r != SC_SUCCESS)
 		goto err;
+	/* TODO */
+	/*r = sc_pkcs15_pincache_add(p15card, pin_obj, pinbuf, *pinsize);*/
 
 	r = npa_add_pin(p15card, npa_secret_name(PACE_PIN_ID_PIN), 3,
 			SC_PKCS15_PIN_FLAG_CASE_SENSITIVE
 			| SC_PKCS15_PIN_FLAG_INITIALIZED,
-			5, 6, PACE_PIN_ID_PIN, PACE_PIN_ID_PUK, mf);
+			5, 6, PACE_PIN_ID_PIN, PACE_PIN_ID_PUK, mf, NULL, 0);
 	if (r != SC_SUCCESS)
 		goto err;
 
@@ -122,7 +129,7 @@ static int npa_add_pins(sc_pkcs15_card_t *p15card)
 			| SC_PKCS15_PIN_FLAG_UNBLOCK_DISABLED
 			| SC_PKCS15_PIN_FLAG_UNBLOCKING_PIN
 			| SC_PKCS15_PIN_FLAG_CHANGE_DISABLED,
-			10, 10, PACE_PIN_ID_PUK, 0, mf);
+			10, 10, PACE_PIN_ID_PUK, 0, mf, NULL, 0);
 	if (r != SC_SUCCESS)
 		goto err;
 
@@ -131,7 +138,7 @@ static int npa_add_pins(sc_pkcs15_card_t *p15card)
 			| SC_PKCS15_PIN_FLAG_LOCAL
 			| SC_PKCS15_PIN_FLAG_INTEGRITY_PROTECTED
 			| SC_PKCS15_PIN_FLAG_INITIALIZED,
-			6, 6, NPA_PIN_ID_ESIGN_PIN, PACE_PIN_ID_PUK, &df_esign);
+			6, 6, NPA_PIN_ID_ESIGN_PIN, PACE_PIN_ID_PUK, &df_esign, NULL, 0);
 	if (r != SC_SUCCESS)
 		goto err;
 
@@ -191,9 +198,6 @@ static int npa_get_cert(sc_pkcs15_card_t *p15card, const char *can)
 		pace_input.pin = (const unsigned char *) can;
 		pace_input.pin_length = strlen(can);
 	}
-    npa_get_cache(p15card->card, pace_input.pin_id, &pace_input.pin,
-            &pace_input.pin_length, &pace_output.ef_cardaccess,
-            &pace_output.ef_cardaccess_length);
 
     r = perform_pace(p15card->card, pace_input, &pace_output, EAC_TR_VERSION_2_02);
     if (r != SC_SUCCESS)
@@ -229,15 +233,13 @@ int sc_pkcs15emu_npa_init_ex(sc_pkcs15_card_t *p15card,
 	if (r != SC_SUCCESS)
 		goto err;
 
-	r = npa_add_pins(p15card);
-	if (r != SC_SUCCESS)
-		goto err;
-
 	if (opts) {
 		can = scconf_get_str(opts->blk, "can", NULL);
-		npa_set_cache(p15card->card, PACE_PIN_ID_CAN,
-			   	(const unsigned char *) can, strlen(can), NULL, 0);
 	}
+
+	r = npa_add_pins(p15card, can);
+	if (r != SC_SUCCESS)
+		goto err;
 
 	r = npa_get_cert(p15card, can);
 	if (r != SC_SUCCESS) {
