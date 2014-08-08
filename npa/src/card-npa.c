@@ -361,7 +361,13 @@ err:
     SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_NORMAL, r);
 }
 
-static struct sc_card_driver *npa_get_driver(void)
+static int npa_logout(sc_card_t *card)
+{
+    sm_stop(card);
+    return sc_select_file(card, sc_get_mf_path(), NULL);
+}
+
+struct sc_card_driver *npa_get_driver(void)
 {
     struct sc_card_driver *iso_drv = sc_get_iso7816_driver();
 
@@ -370,6 +376,7 @@ static struct sc_card_driver *npa_get_driver(void)
     npa_ops.init = npa_init;
     npa_ops.finish = npa_finish;
     npa_ops.pin_cmd = npa_pin_cmd;
+    npa_ops.logout = npa_logout;
 
     return &npa_drv;
 }
