@@ -31,6 +31,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 
 public class VPCDWorker implements Runnable, Closeable {
+    public static int DEFAULT_PORT = 35963;
     private int port;
     private String hostname;
     private SCReader reader;

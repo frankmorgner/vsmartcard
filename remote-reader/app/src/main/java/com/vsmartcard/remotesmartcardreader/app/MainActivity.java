@@ -22,20 +22,19 @@ package com.vsmartcard.remotesmartcardreader.app;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.net.Uri;
 import android.nfc.NfcAdapter;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.os.Bundle;
 import android.text.Editable;
 import android.text.Layout;
-import android.text.method.LinkMovementMethod;
 import android.text.method.ScrollingMovementMethod;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -43,7 +42,6 @@ import android.widget.TextView;
 import com.vsmartcard.remotesmartcardreader.app.screaders.DummyReader;
 import com.vsmartcard.remotesmartcardreader.app.screaders.NFCReader;
 import com.vsmartcard.remotesmartcardreader.app.screaders.SCReader;
-import android.text.ClipboardManager;
 
 public class MainActivity extends Activity {
 
@@ -115,7 +113,6 @@ public class MainActivity extends Activity {
     private boolean testing;
     private String hostname;
     private String port;
-    private String savedLog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -193,7 +190,13 @@ public class MainActivity extends Activity {
     }
 
     private void vpcdConnect(SCReader scReader) {
-        vpcdTest = new VPCDWorker(hostname, Integer.parseInt(port), scReader, handler);
+        int p = VPCDWorker.DEFAULT_PORT;
+        try {
+            p = Integer.parseInt(port);
+        } catch (NumberFormatException e) {
+            textViewVPCDStatus.append(getResources().getString(R.string.status_default_port)+"\n");
+        }
+        vpcdTest = new VPCDWorker(hostname, p, scReader, handler);
         new Thread(vpcdTest).start();
     }
 
@@ -249,14 +252,37 @@ public class MainActivity extends Activity {
     @Override
     public void onResume() {
         super.onResume();
+        Intent intent = getIntent();
         // Check to see that the Activity started due to a discovered tag
-        if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(getIntent().getAction())) {
-            NFCReader nfcReader = NFCReader.processIntent(getIntent());
+        if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(intent.getAction())) {
+            NFCReader nfcReader = NFCReader.processIntent(intent);
             if (nfcReader != null) {
                 textViewVPCDStatus.append(getResources().getString(R.string.status_tag_discovered)+"\n");
                 forceConnect(nfcReader);
             } else {
-                super.onNewIntent(getIntent());
+                super.onNewIntent(intent);
+            }
+        } else {
+            // Check to see that the Activity started due to a configuration URI
+            if (Intent.ACTION_VIEW.equals(intent.getAction())) {
+                testing = false;
+                vpcdDisconnect();
+                Uri uri = intent.getData();
+                String h = "";
+                String p = "";
+                if (uri.getScheme().equals(getResources().getString(R.string.scheme_vpcd))) {
+                    h = uri.getHost();
+                    int _p = uri.getPort();
+                    if (_p > 0) {
+                        p = Integer.toString(_p);
+                    }
+                } else {
+                    h = uri.getQueryParameter("host");
+                    p = uri.getQueryParameter("port");
+                }
+                editTextVPCDHost.setText(h);
+                editTextVPCDPort.setText(p);
+                super.onNewIntent(intent);
             }
         }
     }

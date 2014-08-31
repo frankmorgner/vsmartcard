@@ -14,7 +14,10 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name="com.vsmartcard.remotesmartcardreader.app.MainActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:exported="true"
+            android:launchMode="singleTask" >
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -27,6 +30,29 @@
             <meta-data
                 android:name="android.nfc.action.TECH_DISCOVERED"
                 android:resource="@xml/nfc_tech_filter" />
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="@string/scheme_vpcd" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="@string/scheme_http"
+                    android:host="frankmorgner.github.io"
+                    android:pathPattern="/vsmartcard/remote-reader/README.html" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="@string/scheme_https"
+                    android:host="frankmorgner.github.io"
+                    android:pathPattern="/vsmartcard/remote-reader/README.html" />
+            </intent-filter>
 
         </activity>
     </application>
