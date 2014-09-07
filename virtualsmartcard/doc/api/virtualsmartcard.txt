@@ -4,6 +4,7 @@ virtualsmartcard Package
 .. toctree::
 
     virtualsmartcard.cards
+    virtualsmartcard.tests
     virtualsmartcard.CardGenerator
     virtualsmartcard.ConstantDefinitions
     virtualsmartcard.CryptoUtils
