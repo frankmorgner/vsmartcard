@@ -224,6 +224,13 @@ options of |vpicc|.
 
 .. program-output:: vicc --help
 
+.. versionadded:: 0.7
+    We implemented :command:`vpcd-config` which tries to guess the local IP
+    address and outputs |vpcd|'s configuration. |vpicc|'s options should be
+    chosen accordingly (:option:`--hostname` and :option:`--port`)
+    :command:`vpcd-config` also prints a QR code for configuration of the
+    :ref:`remote-reader`.
+
 On Windows you can start |vpicc| with :command:`python.exe src/vpicc/vicc.in`
 or :command:`python.exe vicc`. Note emulating the German ID card
 (:option:`--type nPA`) when running |vpicc| on Windows is currently not

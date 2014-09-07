@@ -28,8 +28,8 @@
 /* pcscd allows at most 16 readers. We will use 10.
  * See PCSCLITE_MAX_READERS_CONTEXTS in pcsclite.h */
 #define VICC_MAX_SLOTS \
-        PCSCLITE_MAX_READERS_CONTEXTS > 6 ? \
-        PCSCLITE_MAX_READERS_CONTEXTS-6 : 1
+        (PCSCLITE_MAX_READERS_CONTEXTS > 6 ? \
+        PCSCLITE_MAX_READERS_CONTEXTS-6 : 1)
 const unsigned char vicc_max_slots = VICC_MAX_SLOTS;
 
 static struct vicc_ctx *ctx[VICC_MAX_SLOTS];

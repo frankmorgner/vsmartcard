@@ -124,6 +124,22 @@ else
 fi
 
 
+HAVE_QRENCODE=yes
+PKG_CHECK_EXISTS([libqrencode],
+				 [PKG_CHECK_MODULES([QRENCODE], [libqrencode])],
+				 [AC_MSG_WARN([libqrencode not found by pkg-config])])
+CPPFLAGS="$CPPFLAGS $QRENCODE_CFLAGS -I${srcdir}/src/opensc/src"
+LIBS="$LDFLAGS $QRENCODE_LIBS"
+AC_CHECK_HEADERS(qrencode.h, [], [ HAVE_QRENCODE=no ])
+AC_MSG_CHECKING([for QRcode_encodeString])
+AC_TRY_LINK_FUNC(QRcode_encodeString, [ AC_MSG_RESULT([yes]) ], [ HAVE_QRENCODE=no ])
+AM_CONDITIONAL(HAVE_QRENCODE, test "${HAVE_QRENCODE}" = "yes")
+AM_COND_IF(HAVE_QRENCODE, [AC_DEFINE(HAVE_QRENCODE, 1, [enable QR support])])
+CPPFLAGS="$saved_CPPFLAGS"
+LIBS="$saved_LIBS"
+
+
+
 PACKAGE_SUMMARY="Smart card emulator written in Python"
 AC_SUBST(PACKAGE_SUMMARY)
 
@@ -210,6 +226,8 @@ PTHREAD_LIBS:         ${PTHREAD_LIBS}
 PTHREAD_CFLAGS:       ${PTHREAD_CFLAGS}
 PCSC_CFLAGS:          ${PCSC_CFLAGS}
 PCSC_LIBS:            ${PCSC_LIBS}
+QRENCODE_CFLAGS:      ${QRENCODE_CFLAGS}
+QRENCODE_LIBS:        ${QRENCODE_LIBS}
 BUNDLE_HOST:          ${BUNDLE_HOST}
 LIB_PREFIX:           ${LIB_PREFIX}
 DYN_LIB_EXT:          ${DYN_LIB_EXT}
@@ -230,5 +248,6 @@ AC_CONFIG_FILES([Makefile
                  src/ifd-vpcd/Makefile
                  src/vpcd/Makefile
                  src/vpicc/Makefile
+                 src/vpcd-config/Makefile
                  ])
 AC_OUTPUT

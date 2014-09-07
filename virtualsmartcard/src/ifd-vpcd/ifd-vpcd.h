@@ -23,7 +23,7 @@
 extern "C" {
 #endif
 
-extern const unsigned char VICC_MAX_SLOTS;
+extern const unsigned char vicc_max_slots;
 extern const char *hostname;
 
 #ifdef  __cplusplus
