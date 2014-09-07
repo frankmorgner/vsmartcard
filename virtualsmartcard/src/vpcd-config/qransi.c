@@ -30,6 +30,8 @@ int qransi (const char *encodable)
   int x, y, width;
   unsigned char *data;
   QRcode * code = QRcode_encodeString(encodable, 0, level, QR_MODE_8, 1);
+  if (!code)
+    return 1;
   width = code->width;
   data = code->data;
   whiteRow(padding, width);
@@ -41,5 +43,6 @@ int qransi (const char *encodable)
     printf("\n");
   }
   whiteRow(padding, width);
+  QRcode_free(code);
   return 0;
 }
