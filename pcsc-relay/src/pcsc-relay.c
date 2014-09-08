@@ -228,6 +228,7 @@ int main (int argc, char **argv)
 
 
 err:
+    cmdline_parser_free (&args_info);
     cleanup();
 
     /*if (r != SCARD_S_SUCCESS) {*/

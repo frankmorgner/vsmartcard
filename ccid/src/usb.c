@@ -1580,5 +1580,6 @@ main (int argc, char **argv)
     fflush (stdout);
     fflush (stderr);
     (void) ep0_thread (&fd);
+    cmdline_parser_free(&cmdline);
     return 0;
 }
