@@ -113,6 +113,12 @@ We use `Android Studio`_ to build and deploy the application. Use
 :menuselection:`File --> Open` to select :file:`vsmartcard/remote-reader`.
 Attach your smartphone and choose :menuselection:`Run --> Run 'app'`.
 
+On the host system, where the smart card at the phone's NFC interface is relayed to,
+|vpcd| needs to be installed. It can be installed on Windows and Unix. On the
+host computer, :command:`vpcd-config` prints a QR code to configure the Remote
+Smart Card Reader. Scan the configuration with the bar code scanner of your
+choice.
+
 
 .. include:: questions.txt
 
