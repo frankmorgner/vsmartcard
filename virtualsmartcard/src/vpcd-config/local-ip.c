@@ -8,10 +8,17 @@
 #include<stdio.h> //printf
 #include<string.h>    //memset
 #include<errno.h> //errno
+#include<string.h>
+#ifdef _WIN32
+#include<winsock2.h>
+#include<WS2tcpip.h>
+#define close(s) closesocket(s)
+#else
 #include<sys/socket.h>    //socket
 #include<netinet/in.h> //sockaddr_in
 #include<arpa/inet.h> //getsockname
 #include<unistd.h>    //close
+#endif
 
 #define ERROR_STRING "Unable to guess local IP address"
 
@@ -23,7 +30,12 @@ const char *local_ip (void)
     socklen_t namelen = sizeof(name);
     struct sockaddr_in serv;
     static char buffer[20];
-    int sock = socket ( AF_INET, SOCK_DGRAM, 0);
+	int sock = -1;
+#ifdef _WIN32
+    WSADATA wsaData;
+    WSAStartup(MAKEWORD(2, 2), &wsaData);
+#endif
+    sock = socket ( AF_INET, SOCK_DGRAM, 0);
     if(sock < 0) {
         perror(ERROR_STRING);
         return NULL;
@@ -42,6 +54,9 @@ const char *local_ip (void)
     ip = buffer;
 
 err:
+#ifdef _WIN32
+    WSACleanup();
+#endif
     if (!ip)
         printf("%s: %s\n" , ERROR_STRING, strerror(errno));
     if (sock > 0)

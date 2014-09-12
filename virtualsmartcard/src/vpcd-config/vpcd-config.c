@@ -19,17 +19,23 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-
+#include <stdio.h>
 #include "vpcd.h"
 
 extern const char *local_ip (void);
 
+#ifdef _WIN32
+#define VICC_MAX_SLOTS 1
+#include <process.h>
+#include <string.h>
+#else
 /* pcscd allows at most 16 readers. We will use 10.
  * See PCSCLITE_MAX_READERS_CONTEXTS in pcsclite.h */
 #include <pcsclite.h>
 #define VICC_MAX_SLOTS \
-        (PCSCLITE_MAX_READERS_CONTEXTS > 6 ? \
-        PCSCLITE_MAX_READERS_CONTEXTS-6 : 1)
+    (PCSCLITE_MAX_READERS_CONTEXTS > 6 ? \
+     PCSCLITE_MAX_READERS_CONTEXTS-6 : 1)
+#endif
 
 #define ERROR_STRING "Unable to guess local IP address"
 
@@ -46,14 +52,33 @@ void print_qrcode(const char *uri)
 
 #else
 
+#define QR_SERVICE_URL "https://api.qrserver.com/v1/create-qr-code/?data="
+
+#ifdef _WIN32
+
+#define IE_PATH "\"C:\\Program Files\\Internet Explorer\\IExplore.exe\" "
 void print_qrcode(const char *uri)
 {
-    printf("https://api.qrserver.com/v1/create-qr-code/?data=%s\n", uri);
+    char command[200];
+    memset(command, 0, sizeof command);
+    strcpy(command, IE_PATH);
+    strcat(command, QR_SERVICE_URL);
+    strcat(command, uri);
+    system(command);
 }
+
+#else
+
+void print_qrcode(const char *uri)
+{
+    printf("%s%s\n", QR_SERVICE_URL, uri);
+}
+
+#endif
+
 #endif
 
 
- 
 int main ( int argc , char *argv[] )
 {
     char slot;
@@ -65,16 +90,17 @@ int main ( int argc , char *argv[] )
     if (!ip)
         goto err;
 
-    for (slot = 1; slot < VICC_MAX_SLOTS; slot++) {
-        port = VPCDPORT+slot-1;
+    for (slot = 0; slot < VICC_MAX_SLOTS; slot++) {
+        port = VPCDPORT+slot;
         printf("VPCD hostname:  %s\n", ip);
         printf("VPCD port:      %d\n", port);
-        printf("On your NFC phone with the Remote Smart Card Reader app scan this code:\n", port);
+        printf("On your NFC phone with the Remote Smart Card Reader app scan this code:\n");
         sprintf(uri, "vpcd://%s:%d", ip, port);
         print_qrcode(uri);
-        puts("");
+        if (slot < VICC_MAX_SLOTS-1)
+            puts("");
     }
- 
+
     fail = 0;
 
 err:
