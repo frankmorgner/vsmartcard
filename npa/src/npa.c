@@ -300,9 +300,11 @@ npa_sm_ctx_create(EAC_CTX *ctx, const unsigned char *certificate_description,
     } else
         out->certificate_description = NULL;
 
-    out->id_icc = BUF_MEM_create_init(id_icc, id_icc_length);
-    if (!out->id_icc)
-        goto err;
+    if (id_icc && id_icc_length) {
+        out->id_icc = BUF_MEM_create_init(id_icc, id_icc_length);
+        if (!out->id_icc)
+            goto err;
+    }
 
     out->eph_pub_key = NULL;
     out->auxiliary_data = NULL;
@@ -1582,17 +1584,32 @@ int perform_terminal_authentication(sc_card_t *card,
     size_t cert_len = 0;
     CVC_CERT *cvc_cert = NULL;
     BUF_MEM *nonce = NULL, *signature = NULL;
+    struct iso_sm_ctx *isosmctx = NULL;
+    struct npa_sm_ctx *eacsmctx = NULL;
 
-    if (!card || !card->sm_ctx.info.cmd_data || !certs_lens || !certs) {
+    if (!card || !certs_lens || !certs) {
         r = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
     }
-    struct iso_sm_ctx *isosmctx = card->sm_ctx.info.cmd_data;
+    if (!card->sm_ctx.info.cmd_data) {
+        card->sm_ctx.info.cmd_data = iso_sm_ctx_create();
+    }
+    if (!card->sm_ctx.info.cmd_data) {
+        r = SC_ERROR_INTERNAL;
+        goto err;
+    }
+
+    isosmctx = card->sm_ctx.info.cmd_data;
     if (!isosmctx->priv_data) {
-        r = SC_ERROR_INVALID_ARGUMENTS;
+        isosmctx->priv_data = npa_sm_ctx_create(EAC_CTX_new(), NULL, 0, NULL, 0);
+        /* XXX this is only a hack... */
+        card->caps |= SC_CARD_CAP_APDU_EXT;
+    }
+    if (!isosmctx->priv_data) {
+        r = SC_ERROR_INTERNAL;
         goto err;
     }
-    struct npa_sm_ctx *eacsmctx = isosmctx->priv_data;
+    eacsmctx = isosmctx->priv_data;
 
 
     while (*certs && *certs_lens) {

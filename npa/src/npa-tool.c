@@ -676,9 +676,8 @@ main (int argc, char **argv)
                 pace_input.pin_length = strlen(puk);
             }
         } else {
-            fprintf(stderr, "Please specify whether to do PACE with "
-                    "PIN, CAN, MRZ or PUK.\n");
-            exit(1);
+            fprintf(stderr, "Skipping PIN verification\n");
+            goto nopace;
         }
 
         r = perform_pace(card, pace_input, &pace_output, tr_version);
@@ -687,6 +686,7 @@ main (int argc, char **argv)
         printf("Established PACE channel with %s.\n",
                 npa_secret_name(pace_input.pin_id));
 
+nopace:
         if (cmdline.cv_certificate_given || cmdline.private_key_given) {
             r = perform_terminal_authentication(card,
                     (const unsigned char **) certs, certs_lens,
