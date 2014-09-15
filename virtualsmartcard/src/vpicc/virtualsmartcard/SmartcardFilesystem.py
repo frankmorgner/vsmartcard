@@ -237,9 +237,8 @@ class File(object):
         """
         The constructor is supposed to be involved by creation of a DF or EF.
         """
-        if (fid>0xFFFF or fid<0 or fid in [FID["EFDIR"], FID["EFATR"],
-                FID["PATHSELECTION"], FID["RESERVED"]] or filedescriptor>0xFF or
-                lifecycle>0xFF):
+        if (fid>0xFFFF or fid<0 or fid in [FID["PATHSELECTION"],
+            FID["RESERVED"]] or filedescriptor>0xFF or lifecycle>0xFF):
             raise SwError(SW["ERR_INCORRECTPARAMETERS"])
         self.lifecycle = lifecycle
         self.parent = parent
