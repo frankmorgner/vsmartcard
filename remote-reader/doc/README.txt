@@ -10,7 +10,7 @@ Remote Smart Card Reader
 
 .. sidebar:: Summary
 
-    Use an Android smartphone with NFC as contact-less smart card reader
+    Use an Android phone as contact-less smart card reader
 
     :Author:
         `Frank Morgner <morgner@informatik.hu-berlin.de>`_
@@ -24,7 +24,7 @@ hardware as contact-less smart card reader. On the host computer, a special
 smart card driver, |vpcd| must be installed. The Remote Smart Card Reader
 establishes a connection to |vpcd| over the network when a contact-less card is
 detected. Since |vpcd| integrates seamlessly into the PC/SC framework of the
-host system, so the contact-less card can be accessed by a typical smart card
+host system, the contact-less card can be accessed by a typical smart card
 application, for example OpenSC_.
 
 .. tikz:: Remote Smart Card Reader used to access a contact-less card
