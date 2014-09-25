@@ -49,22 +49,30 @@ public class NFCReader implements SCReader {
     private static int TIMEOUT = 10000;
     @Override
     public void powerOn() throws IOException {
-        card.connect();
-        card.setTimeout(TIMEOUT);
+        if (!card.isConnected()) {
+            card.connect();
+            card.setTimeout(TIMEOUT);
+        }
+    }
+
+    private static byte[] SELECT_MF = {(byte) 0x00, (byte) 0xa4, (byte) 0x00, (byte) 0x0C};
+    private void selectMFifConnected() throws IOException {
+        if (card != null && card.isConnected()) {
+            byte[] response = card.transceive(SELECT_MF);
+            if (response.length == 2 && response[0] == 0x90 && response[1] == 0x00) {
+                Log.d(this.getClass().getName(), "Resetting the card by selecting the MF results in " + Hex.getHexString(response));
+            }
+        }
     }
 
     @Override
     public void powerOff() throws IOException {
-        card.close();
+        selectMFifConnected();
     }
 
-    private static byte[] SELECT_MF = {(byte) 0x00, (byte) 0xa4, (byte) 0x00, (byte) 0x0C};
     @Override
     public void reset() throws IOException {
-        byte[] response = card.transceive(SELECT_MF);
-        if (response.length == 2 && response[0] == 0x90 && response[1] == 0x00) {
-            Log.d(this.getClass().getName(), "Resetting the card by selecting the MF results in " + Hex.getHexString(response));
-        }
+        selectMFifConnected();
     }
 
     /* calculation based on https://code.google.com/p/ifdnfc/source/browse/src/atr.c */
@@ -77,10 +85,10 @@ public class NFCReader implements SCReader {
 
         /* copy historical bytes if available */
         byte[] atr = new byte[4+historicalBytes.length+1];
-        atr[0] = (byte)0x3b;
+        atr[0] = (byte) 0x3b;
         atr[1] = (byte) (0x80+historicalBytes.length);
         atr[2] = (byte) 0x80;
-        atr[3] = (byte)0x01;
+        atr[3] = (byte) 0x01;
         System.arraycopy(historicalBytes, 0, atr, 4, historicalBytes.length);
 
         /* calculate TCK */
