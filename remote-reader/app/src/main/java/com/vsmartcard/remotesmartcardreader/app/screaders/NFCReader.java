@@ -113,6 +113,7 @@ public class NFCReader implements SCReader {
             Tag tag = (Tag) intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
             if (tag != null) {
                 nfcReader = new NFCReader(IsoDep.get(tag));
+                intent.removeExtra(NfcAdapter.EXTRA_TAG);
             }
         }
 
