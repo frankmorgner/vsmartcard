@@ -105,7 +105,6 @@ public class MainActivity extends Activity {
     private EditText editTextVPCDHost;
     private EditText editTextVPCDPort;
     private TextView textViewVPCDStatus;
-    private TextView textViewInfo;
     private Button button;
     private ProgressBar spinner;
     private VPCDHandler handler;
@@ -119,7 +118,6 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        textViewInfo = (TextView) findViewById(R.id.textViewInfo);
         editTextVPCDHost = (EditText) findViewById(R.id.editTextHostname);
         editTextVPCDPort = (EditText) findViewById(R.id.editTextPort);
         textViewVPCDStatus = (TextView) findViewById(R.id.textViewLog);
@@ -168,7 +166,6 @@ public class MainActivity extends Activity {
         testing = false;
         vpcdDisconnect();
     }
-
 
     public void buttonOnClickDisConnect(View view) {
         if (testing) {

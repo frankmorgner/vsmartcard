@@ -9,23 +9,21 @@
     <string name="hint_vpcd_port">port</string>
     <string name="hint_vpcd_hostname">VPCD hostname</string>
 
-    <string name="vpcd_config_info">Settings for <a href="http://frankmorgner.github.io/vsmartcard/virtualsmartcard/README.html">remote smart card reader driver (VPCD)</a> of the host computer.</string>
+    <string name="vpcd_config_info">Settings for <a href="http://frankmorgner.github.io/vsmartcard/virtualsmartcard/README.html">remote smart card reader driver (VPCD)</a> of the host computer. Tap a contact-less card when configured.</string>
 
     <string name="status_error">Error</string>
-    <string name="status_disconnected">Disconnected</string>
+    <string name="status_disconnected">Disconnected from VPCD</string>
     <string name="status_connected_to">Connected to</string>
     <string name="status_atr">ATR</string>
     <string name="status_capdu">C-APDU</string>
     <string name="status_rapdu">R-APDU</string>
-    <string name="status_on">On</string>
-    <string name="status_off">Off</string>
-    <string name="status_reset">Reset</string>
-    <string name="status_unknown">Unknown Event</string>
-    <string name="status_tag_discovered">Contact-less card discovered.</string>
-    <string name="status_dummy_start">Using a dummy card to test the connection.</string>
-    <string name="status_default_port">Using default port.</string>
-
-    <string name="menu_copy_to_clipboard">Copy</string>
+    <string name="status_on">Powered up the card</string>
+    <string name="status_off">Powered down the card (cold reset)</string>
+    <string name="status_reset">Resetted the card (warm reset)</string>
+    <string name="status_unknown">Unable to perform unknown Event</string>
+    <string name="status_tag_discovered">Contact-less card discovered</string>
+    <string name="status_dummy_start">Using a dummy card to test the connection</string>
+    <string name="status_default_port">Using default port</string>
 
     <string name="action_settings">Settings</string>
     <string name="verbose">Verbose logging</string>

@@ -89,6 +89,7 @@ public class VPCDWorker implements Runnable, Closeable {
                         case VPCD_CTRL_ON:
                             reader.powerOn();
                             messageSender.sendOn();
+                            messageSender.sendATR(Hex.getHexString(reader.getATR()));
                             break;
                         case VPCD_CTRL_RESET:
                             reader.reset();
@@ -96,7 +97,6 @@ public class VPCDWorker implements Runnable, Closeable {
                             break;
                         case VPCD_CTRL_ATR:
                             out = reader.getATR();
-                            //messageSender.sendATR(Hex.getHexString(out));
                             break;
                         default:
                             throw new IOException("Unhandled command from VPCD.");
@@ -114,8 +114,6 @@ public class VPCDWorker implements Runnable, Closeable {
             if (doRun) {
                 e.printStackTrace();
                 messageSender.sendError(e.getMessage());
-            } else {
-                messageSender.sendDisconnected("");
             }
         }
     }
@@ -167,8 +165,12 @@ public class VPCDWorker implements Runnable, Closeable {
     }
 
     private void vpcdDisconnect() throws IOException {
+        if (reader != null) {
+            reader.eject();
+        }
         if  (socket != null) {
             socket.close();
+            messageSender.sendDisconnected("");
         }
     }
 }
