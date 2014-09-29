@@ -33,46 +33,38 @@ public class NFCReader implements SCReader {
 
     private IsoDep card;
 
-    public NFCReader(IsoDep sc) {
+    public NFCReader(IsoDep sc) throws IOException {
         this.card = sc;
+        sc.connect();
+        card.setTimeout(TIMEOUT);
     }
     @Override
     public void eject() throws IOException {
         card.close();
     }
 
-    @Override
-    public boolean present() {
-        return card.isConnected();
-    }
-
     private static int TIMEOUT = 10000;
     @Override
-    public void powerOn() throws IOException {
-        if (!card.isConnected()) {
-            card.connect();
-            card.setTimeout(TIMEOUT);
-        }
+    public void powerOn() {
+        /* should already be connected... */
     }
 
     private static byte[] SELECT_MF = {(byte) 0x00, (byte) 0xa4, (byte) 0x00, (byte) 0x0C};
-    private void selectMFifConnected() throws IOException {
-        if (card != null && card.isConnected()) {
-            byte[] response = card.transceive(SELECT_MF);
-            if (response.length == 2 && response[0] == 0x90 && response[1] == 0x00) {
-                Log.d(this.getClass().getName(), "Resetting the card by selecting the MF results in " + Hex.getHexString(response));
-            }
+    private void selectMF() throws IOException {
+        byte[] response = card.transceive(SELECT_MF);
+        if (response.length == 2 && response[0] == 0x90 && response[1] == 0x00) {
+            Log.d(this.getClass().getName(), "Resetting the card by selecting the MF results in " + Hex.getHexString(response));
         }
     }
 
     @Override
     public void powerOff() throws IOException {
-        selectMFifConnected();
+        selectMF();
     }
 
     @Override
     public void reset() throws IOException {
-        selectMFifConnected();
+        selectMF();
     }
 
     /* calculation based on https://code.google.com/p/ifdnfc/source/browse/src/atr.c */
@@ -110,9 +102,13 @@ public class NFCReader implements SCReader {
         NFCReader nfcReader = null;
 
         if (intent.getExtras() != null) {
-            Tag tag = (Tag) intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+            Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
             if (tag != null) {
-                nfcReader = new NFCReader(IsoDep.get(tag));
+                try {
+                    nfcReader = new NFCReader(IsoDep.get(tag));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 intent.removeExtra(NfcAdapter.EXTRA_TAG);
             }
         }

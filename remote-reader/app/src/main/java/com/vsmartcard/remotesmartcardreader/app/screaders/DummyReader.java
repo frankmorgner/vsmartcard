@@ -26,11 +26,6 @@ public class DummyReader implements SCReader {
     }
 
     @Override
-    public boolean present() {
-        return true;
-    }
-
-    @Override
     public void powerOn() {
     }
 

@@ -25,7 +25,6 @@ public interface SCReader {
 
     public void eject() throws IOException;
 
-    public boolean present();
     public void powerOn() throws IOException;
     public void powerOff() throws IOException;
     public void reset() throws IOException;
