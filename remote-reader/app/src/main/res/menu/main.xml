@@ -8,4 +8,9 @@
         android:icon="@drawable/ic_action_copy"
         app:showAsAction="ifRoom" />
 
+    <item android:id="@+id/action_delete"
+        android:title="@string/action_delete"
+        android:icon="@drawable/ic_action_delete"
+        app:showAsAction="ifRoom" />
+
 </menu>

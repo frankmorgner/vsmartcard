@@ -173,6 +173,9 @@ public class MainActivity extends Activity {
                 Toast.makeText(getApplicationContext(), "Log copied to clipboard.",
                         Toast.LENGTH_LONG).show();
                 return true;
+            case R.id.action_delete:
+                textViewVPCDStatus.setText("");
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
