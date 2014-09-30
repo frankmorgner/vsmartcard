@@ -13,6 +13,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
+        android:scrollHorizontally="true"
         android:text="@string/vpcd_config_info"
         android:id="@+id/textViewInfo"
         android:layout_alignParentTop="true"
@@ -59,18 +60,21 @@
         android:layout_alignParentEnd="true"
         android:layout_alignTop="@+id/buttonDisConnect" />
 
-    <TextView
+    <HorizontalScrollView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:id="@+id/textViewLog"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:typeface="monospace"
-        android:textIsSelectable="true"
-        android:layout_below="@+id/buttonDisConnect" />
+        android:layout_below="@+id/buttonDisConnect" >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:id="@+id/textViewLog"
+            android:typeface="monospace" />
+    </HorizontalScrollView>
 
 </RelativeLayout>

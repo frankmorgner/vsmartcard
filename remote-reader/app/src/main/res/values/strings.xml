@@ -26,6 +26,8 @@
     <string name="status_default_port">Using default port</string>
 
     <string name="action_settings">Settings</string>
+    <string name="action_copy">Copy Log</string>
+
     <string name="verbose">Verbose logging</string>
     <string name="error_tag_lost">Data transmission failed. Is the card still present?</string>
 
