@@ -35,7 +35,7 @@ application, for example OpenSC_.
 	\node (pcsc) [klein, aktivbox, inner xsep=.75cm, align=center] {PC/SC\\Framework};
     \node (sca) [aktivbox, klein, left=.75cm of pcsc, align=center] {Smart Card\\Application};
     \node (vpcd) [box, at=(pcsc.east), kleiner] {\texttt{vpcd}};
-    \node (phone) [right=1cm of vpcd] {\includegraphics[width=3cm]{%(wd)s/bilder/smartphone.pdf}};
+    \node (phone) [right=2cm of vpcd] {\includegraphics[width=3cm]{%(wd)s/bilder/smartphone.pdf}};
     \node (app) [at=(phone.center)] {\includegraphics[width=2.8cm, height=4.9cm]{%(wd)s/bilder/remote-reader.png}};
     \node (card) [right=0cm of phone, rotate=45] {\includegraphics[width=2cm]{%(wd)s/bilder/smartcard.pdf}};
 
@@ -44,7 +44,7 @@ application, for example OpenSC_.
         \node [at=(box.north west)] {\includegraphics[width=1cm]{%(wd)s/bilder/computer-tango.pdf}};
         \path[linie]
         (sca) edge (pcsc)
-        (vpcd) edge (app)
+        (vpcd) edge node {\includegraphics[width=1.5cm]{%(wd)s/bilder/simplecloud.pdf}} (app)
         ;
         \draw [rfid] (phone.center) -- (card.center) ;
     \end{pgfonlayer}
@@ -80,9 +80,9 @@ other computer, the :ref:`vicc` in relay mode can be used:
         \node [at=(box2.north west)] {\includegraphics[width=1cm]{%(wd)s/bilder/computer-tango.pdf}};
         \path[linie]
         (sca) edge (pcsc)
-        (vpcd) edge [out=south, in=north] (vicc)
+        (vpcd) edge [out=south, in=north] node {\includegraphics[width=1.5cm]{%(wd)s/bilder/simplecloud.pdf}} (vicc)
         (vicc) edge (pcsc2)
-        (pcsc2) edge (reader)
+        (pcsc2) edge [usb] (reader.center)
         ;
     \end{pgfonlayer}
 

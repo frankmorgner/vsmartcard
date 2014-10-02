@@ -60,12 +60,12 @@ The file :file:`utils.py` was taken from Henryk Plötz's cyberflex-shell_.
 	};
     \node (sca) [aktivbox, klein, left=of pcsclite] {Smart Card\\Application};
     \node (vpcd) [box, at=(pcsclite.east), xshift=-.3cm] {\texttt{vpcd}};
-	\node (vicc) [aktivbox, right=of pcsclite] {\texttt{vicc}};
+	\node (vicc) [aktivbox, right=2cm of pcsclite] {\texttt{vicc}};
 
     \begin{pgfonlayer}{background}
         \path[linie]
         (sca) edge (pcsclite)
-        (vpcd) edge (vicc)
+        (vpcd) edge node {\includegraphics[width=1.2cm]{%(wd)s/bilder/simplecloud.pdf}} (vicc)
         ;
     \end{pgfonlayer}
 
@@ -86,12 +86,12 @@ The file :file:`utils.py` was taken from Henryk Plötz's cyberflex-shell_.
     PC/SC Framework
 	};
     \node (sca) [aktivbox, klein, left=of pcsclite] {Smart Card\\Application};
-	\node (vicc) [aktivbox, right=of pcsclite] {\texttt{vicc}};
+	\node (vicc) [aktivbox, right=2cm of pcsclite] {\texttt{vicc}};
 
     \begin{pgfonlayer}{background}
         \path[linie]
         (sca) edge (pcsclite)
-        (pcsclite) edge (vicc)
+        (pcsclite) edge node {\includegraphics[width=1.5cm]{%(wd)s/bilder/simplecloud.pdf}} (vicc)
         ;
     \end{pgfonlayer}
 
