@@ -533,7 +533,7 @@ PCSC_API LONG SCardListReaders(SCARDCONTEXT hContext, LPCSTR mszGroups, LPSTR ms
     uint32_t index;
     DWORD readerslen = 0, readerlen;
     LONG r;
-    char *readers;
+    char *readers = NULL;
 
     if (!pcchReaders) {
         r = SCARD_E_INVALID_PARAMETER;
