@@ -8,10 +8,10 @@ or smart cards themselves.
 
 Currently the following projects are part of Virtual Smart Card Architecture: 
 
-- Virtual Smart Card
-- Remote Smart Card Reader
-- PC/SC Relay
-- USB CCID Emulator
-- nPA Smart Card Library
+- [Virtual Smart Card](http://frankmorgner.github.io/vsmartcard/virtualsmartcard/README.html)
+- [Remote Smart Card Reader](http://frankmorgner.github.io/vsmartcard/remote-reader/README.html)
+- [PC/SC Relay](http://frankmorgner.github.io/vsmartcard/pcsc-relay/README.html)
+- [USB CCID Emulator](http://frankmorgner.github.io/vsmartcard/ccid/README.html)
+- [nPA Smart Card Library](http://frankmorgner.github.io/vsmartcard/npa/README.html)
 
 Please refer to [our project's website](http://frankmorgner.github.io/vsmartcard) for more information.
