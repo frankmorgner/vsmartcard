@@ -38,6 +38,7 @@ public class NFCReader implements SCReader {
         sc.connect();
         card.setTimeout(TIMEOUT);
     }
+
     @Override
     public void eject() throws IOException {
         card.close();
@@ -98,21 +99,27 @@ public class NFCReader implements SCReader {
         return card.transceive(apdu);
     }
 
-    public static NFCReader processIntent(Intent intent) {
+    public static NFCReader get(Intent intent) {
         NFCReader nfcReader = null;
 
         if (intent.getExtras() != null) {
             Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
             if (tag != null) {
-                try {
-                    nfcReader = new NFCReader(IsoDep.get(tag));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                nfcReader = NFCReader.get(tag);
                 intent.removeExtra(NfcAdapter.EXTRA_TAG);
             }
         }
 
+        return nfcReader;
+    }
+
+    public static NFCReader get(Tag tag) {
+        NFCReader nfcReader = null;
+        try {
+            nfcReader = new NFCReader(IsoDep.get(tag));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return nfcReader;
     }
 }

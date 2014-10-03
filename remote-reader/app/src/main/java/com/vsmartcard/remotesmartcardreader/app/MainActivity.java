@@ -26,6 +26,8 @@ import android.content.ClipboardManager;
 import android.content.Intent;
 import android.net.Uri;
 import android.nfc.NfcAdapter;
+import android.nfc.Tag;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -49,7 +51,7 @@ import com.vsmartcard.remotesmartcardreader.app.screaders.DummyReader;
 import com.vsmartcard.remotesmartcardreader.app.screaders.NFCReader;
 import com.vsmartcard.remotesmartcardreader.app.screaders.SCReader;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements NfcAdapter.ReaderCallback {
 
     class VPCDHandler extends Handler {
         VPCDHandler(Looper looper) {
@@ -181,6 +183,36 @@ public class MainActivity extends Activity {
         }
     }
 
+    private void enableReaderMode() {
+        //mNfcAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            Bundle bundle = new Bundle();
+            bundle.putInt(NfcAdapter.EXTRA_READER_PRESENCE_CHECK_DELAY, 2000);
+            NfcAdapter.getDefaultAdapter(this).enableReaderMode(this, this,
+                    NfcAdapter.FLAG_READER_NFC_A | NfcAdapter.FLAG_READER_NFC_B | NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK,
+                    bundle);
+        }
+    }
+
+    @Override
+    public void onTagDiscovered(Tag tag) {
+        NFCReader nfcReader = NFCReader.get(tag);
+        if (nfcReader != null) {
+            /* avoid updating UI components since this may end up on a non ui thread */
+            vpcdDisconnect();
+            vpcdConnect(nfcReader);
+        }
+    }
+
+    private void disableReaderMode() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            NfcAdapter nfc = NfcAdapter.getDefaultAdapter(this);
+            if (nfc != null) {
+                nfc.disableReaderMode(this);
+            }
+        }
+    }
+
     private static String saved_status_key = "textViewVPCDStatus";
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
@@ -199,6 +231,7 @@ public class MainActivity extends Activity {
 
         testing = false;
         vpcdDisconnect();
+        disableReaderMode();
     }
 
     public void buttonOnClickDisConnect(View view) {
@@ -286,7 +319,7 @@ public class MainActivity extends Activity {
         Intent intent = getIntent();
         // Check to see that the Activity started due to a discovered tag
         if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(intent.getAction())) {
-            NFCReader nfcReader = NFCReader.processIntent(intent);
+            NFCReader nfcReader = NFCReader.get(intent);
             if (nfcReader != null) {
                 textViewVPCDStatus.append(getResources().getString(R.string.status_tag_discovered)+"\n");
                 forceConnect(nfcReader);
@@ -316,6 +349,7 @@ public class MainActivity extends Activity {
                 super.onNewIntent(intent);
             }
         }
+        enableReaderMode();
     }
 
     @Override
