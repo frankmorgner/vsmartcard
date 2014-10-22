@@ -95,7 +95,7 @@ The data groups in the data set file must have the following syntax: \
 --------------------------------------------------- \
 For Example: GivenNames=GERTRUD. \
 The following Dataset Elements may be used in the dataset file: \
-DocumentType, IssuingState, DateOfExpiry, GivenNames, FamilyNames, ReligiousArtisticName, AcademicTitle, DateOfBirth, PlaceOfBirth, Nationality, Sex, Country, City, ZIP, Street, CommunityID, dg12, dg13, dg14, dg15, dg16, dg19, dg20, dg21.\
+DocumentType, IssuingState, DateOfExpiry, GivenNames, FamilyNames, ReligiousArtisticName, AcademicTitle, DateOfBirth, PlaceOfBirth, Nationality, Sex, BirthName, Country, City, ZIP, Street, CommunityID, ResidencePermit1, ResidencePermit2, dg12, dg14, dg15, dg16, dg21.\
 ")
 
 
