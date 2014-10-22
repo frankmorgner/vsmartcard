@@ -136,7 +136,7 @@ option "read-dg12"      -
     "Read DG 12  (Optional Data)"
     flag off
 option "read-dg13"      -
-    "Read DG 13"
+    "Read DG 13  (Birth Name)"
     flag off
 option "read-dg14"      -
     "Read DG 14"
