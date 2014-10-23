@@ -8,8 +8,8 @@
 # which indicates in eID service "Attribute not on chip"
 # since first versions of nPA / eAT did not have those data groups
 # example: BirthName=<NotOnChip>
-# This is applicable for Nationality and BirthName
-# but may be used for other data groups as well
+# This is applicable for ReligiousArtisticName, Nationality, BirthName, ResidencePermit1
+# It may be used for other data groups as well, but makes no sence there
 #
 # Notice: Leading and trailing spaces in value (after equal sign) are part of value string!!!!
 #
