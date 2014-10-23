@@ -27,6 +27,7 @@ PlaceOfBirth=BERLIN FRIEDENAU
 Nationality=DE
 Sex=F
 BirthName=Schultze
+# helper switch "PlaceOfResidence=<NotOnChip>" can be used to bypass Country, City, ZIP and Street block
 Country=D
 City=BREMEN
 ZIP=28195
