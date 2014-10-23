@@ -1,22 +1,38 @@
-# This is an example dataset file vor the virtual smartcard.
+# This is an example dataset file for the virtual smartcard.
 # Datagroups are just given in plain ascii, separated by =.
 # CommunityID has to be given as hex values enclosed with ' '.
 # The File is passed to the virtual smartcard emulator via
 # command line option -d, with or without path.
 #
+# Identifier '<NotOnChip>' as parameter value will trigger R-APDU "ERR_FILENOTFOUND" (0x6A82)
+# which indicates in eID service "Attribute not on chip"
+# since first versions of nPA / eAT did not have those data groups
+# example: BirthName=<NotOnChip>
+# This is applicable for Nationality and BirthName
+# but may be used for other data groups as well
+#
+# Notice: Leading and trailing spaces in value (after equal sign) are part of value string!!!!
+#
+
+# DocumentType "ID" will be nPA, "AR" (and other) will be eAT
 DocumentType=ID
 IssuingState=D
 DateOfExpiry=20201031
-GivenNames = Gertrud
+GivenNames=Gertrud
 FamilyNames=Mueller
 ReligiousArtisticName=ǏǐǑǒǓǔǞǟǤǥǦǧǨǩǪǫǬǭǮǯǰǴǵǺǻǼǽǾǿȘșȚțȞȟȪȫȮȯȰ
 AcademicTitle=
 DateOfBirth=19530304
-PlaceOfBirth= BERLIN FRIEDENAU
+PlaceOfBirth=BERLIN FRIEDENAU
 Nationality=DE
 Sex=F
+BirthName=Schultze
 Country=D
 City=BREMEN
 ZIP=28195
-Street =STADTMUSIKANTENWEG 12a
+Street=STADTMUSIKANTENWEG 12a
 CommunityID='\x02\x76\x03\x02\x54\x00\x21'
+
+# ResidencePermit1 and ResidencePermit2 are part of eAT only
+ResidencePermit1=Nebenbestimmungen I Text...(up to 750 characters)
+ResidencePermit2=Nebenbestimmungen II Text.....(up to 250 characters)
