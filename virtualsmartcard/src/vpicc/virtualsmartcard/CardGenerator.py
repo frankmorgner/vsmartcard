@@ -169,8 +169,9 @@ class CardGenerator(object):
         eid=DF(parent=self.mf, fid=0xffff, dfname='\xe8\x07\x04\x00\x7f\x00\x07\x03\x02')
         eid.extra_fci_data = '\xab\x75\x84\x01\xa4\xaf\x70\xa0\x10\xb4\x06\x95\x01\x20\x83\x01\x04\xb4\x06\x95\x01\x20\x83\x01\x06\xa0\x54\xa4\x14\x95\x01\x80\x7f\x4c\x0e\x06\x09\x04\x00\x7f\x00\x07\x03\x01\x02\x01\x53\x01\x00\xaf\x22\xa4\x18\x95\x01\x80\x7f\x4c\x12\x06\x09\x04\x00\x7f\x00\x07\x03\x01\x02\x02\x53\x05\x00\x00\x00\x00\x00\xa4\x06\x95\x01\x80\x83\x01\x47\xa4\x18\x95\x01\x80\x7f\x4c\x12\x06\x09\x04\x00\x7f\x00\x07\x03\x01\x02\x02\x53\x05\x00\x00\x00\x00\x10\x7a\x06\x8a\x01\x05\x9e\x01\x03'
         # FIXME access control for eid application
+
         DocumentType = self.datagroups["DocumentType"] if "DocumentType" in self.datagroups else 'ID'
-        IssuingState = self.datagroups["IssuingState"] if "IssuingState" in self.datagroups else 'DE'
+        IssuingState = self.datagroups["IssuingState"] if "IssuingState" in self.datagroups else 'D'
         DateOfExpiry = self.datagroups["DateOfExpiry"] if "DateOfExpiry" in self.datagroups else '20201031'
         GivenNames = self.datagroups["GivenNames"] if "GivenNames" in self.datagroups else 'ERIKA'
         FamilyNames = self.datagroups["FamilyNames"] if "FamilyNames" in self.datagroups else 'MUSTERMANN'
@@ -180,58 +181,160 @@ class CardGenerator(object):
         PlaceOfBirth = self.datagroups["PlaceOfBirth"] if "PlaceOfBirth" in self.datagroups else 'BERLIN'
         Nationality = self.datagroups["Nationality"] if "Nationality" in self.datagroups else 'DE'
         Sex = self.datagroups["Sex"] if "Sex" in self.datagroups else 'F'
+        BirthName = self.datagroups["BirthName"] if "BirthName" in self.datagroups else 'Mein Geburtsname'
+        # PlaceOfResidence variable is only a helper to get a switch for <NotOnChip>
+        PlaceOfResidence = self.datagroups["PlaceOfResidence"] if "PlaceOfResidence" in self.datagroups else ''
         Country = self.datagroups["Country"] if "Country" in self.datagroups else 'D'
-        City = self.datagroups["City"] if "City" in self.datagroups else 'KOLN'
+        City = self.datagroups["City"] if "City" in self.datagroups else 'KÖLN'
         ZIP = self.datagroups["ZIP"] if "ZIP" in self.datagroups else '51147'
         Street = self.datagroups["Street"] if "Street" in self.datagroups else 'HEIDESTRASSE 17'
-        CommunityID = eval(self.datagroups["CommunityID"])  if "CommunityID" in self.datagroups else '\x12\x34\x56\x78\x90\x12\x34'
-        dg1 =  pack([(0x61, 0, [(0x13, 0, DocumentType)])], True)
-        dg2 =  pack([(0x62, 0, [(0x13, 0, IssuingState)])], True)
-        dg3 =  pack([(0x63, 0, [(0x12, 0, DateOfExpiry)])], True)
-        dg4 =  pack([(0x64, 0, [(0x0C, 0, GivenNames)])], True)
-        dg5 =  pack([(0x65, 0, [(0x0C, 0, FamilyNames)])], True)
-        dg6 =  pack([(0x66, 0, [(0x0C, 0, ReligiousArtisticName)])], True)
-        dg7 =  pack([(0x67, 0, [(0x0C, 0, AcademicTitle)])], True)
-        dg8 =  pack([(0x68, 0, [(0x12, 0, DateOfBirth)])], True)
-        dg9 =  pack([(0x69, 0, [(0xA1, 0, [(0x0C, 0, PlaceOfBirth)])])], True)
-        dg10 = pack([(0x6A, 0, [(0x13, 0, Nationality)])], True)
-        dg11 = pack([(0x6B, 0, [(0x13, 0, Sex)])], True)
-        dg12 = self.datagroups["dg12"] if "dg12" in self.datagroups else ''
-        dg13 = self.datagroups["dg13"] if "dg13" in self.datagroups else ''
-        dg14 = self.datagroups["dg14"] if "dg14" in self.datagroups else ''
-        dg15 = self.datagroups["dg15"] if "dg15" in self.datagroups else ''
-        dg16 = self.datagroups["dg16"] if "dg16" in self.datagroups else ''
-        dg17 = pack([(0x71, 0, [(0x30, 0, [
-                (0xAA, 0, [(0x0C, 0, Street)]),
-                (0xAB, 0, [(0x0C, 0, City)]),
-                (0xAD, 0, [(0x13, 0, Country)]),
-                (0xAE, 0, [(0x13, 0, ZIP)])
-                ])])], True)
-        dg18 = pack([(0x72, 0, [(0x04, 0, CommunityID)])], True)
-        dg19 = self.datagroups["dg19"] if "dg19" in self.datagroups else ''
-        dg20 = self.datagroups["dg20"] if "dg20" in self.datagroups else ''
-        dg21 = self.datagroups["dg21"] if "dg21" in self.datagroups else ''
-        eid.append(TransparentStructureEF(parent=eid, fid=0x0101, shortfid=0x01, data=dg1))
-        eid.append(TransparentStructureEF(parent=eid, fid=0x0102, shortfid=0x02, data=dg2))
-        eid.append(TransparentStructureEF(parent=eid, fid=0x0103, shortfid=0x03, data=dg3))
-        eid.append(TransparentStructureEF(parent=eid, fid=0x0104, shortfid=0x04, data=dg4))
-        eid.append(TransparentStructureEF(parent=eid, fid=0x0105, shortfid=0x05, data=dg5))
-        eid.append(TransparentStructureEF(parent=eid, fid=0x0106, shortfid=0x06, data=dg6))
-        eid.append(TransparentStructureEF(parent=eid, fid=0x0107, shortfid=0x07, data=dg7))
-        eid.append(TransparentStructureEF(parent=eid, fid=0x0108, shortfid=0x08, data=dg8))
-        eid.append(TransparentStructureEF(parent=eid, fid=0x0109, shortfid=0x09, data=dg9))
-        eid.append(TransparentStructureEF(parent=eid, fid=0x010a, shortfid=0x0a, data=dg10))
-        eid.append(TransparentStructureEF(parent=eid, fid=0x010b, shortfid=0x0b, data=dg11))
-        eid.append(TransparentStructureEF(parent=eid, fid=0x010c, shortfid=0x0c, data=dg12))
-        eid.append(TransparentStructureEF(parent=eid, fid=0x010d, shortfid=0x0d, data=dg13))
-        eid.append(TransparentStructureEF(parent=eid, fid=0x010e, shortfid=0x0e, data=dg14))
-        eid.append(TransparentStructureEF(parent=eid, fid=0x010f, shortfid=0x0f, data=dg15))
-        eid.append(TransparentStructureEF(parent=eid, fid=0x0110, shortfid=0x10, data=dg16))
-        eid.append(TransparentStructureEF(parent=eid, fid=0x0111, shortfid=0x11, data=dg17))
-        eid.append(TransparentStructureEF(parent=eid, fid=0x0112, shortfid=0x12, data=dg18))
-        eid.append(TransparentStructureEF(parent=eid, fid=0x0113, shortfid=0x13, data=dg19))
-        eid.append(TransparentStructureEF(parent=eid, fid=0x0114, shortfid=0x14, data=dg20))
-        eid.append(TransparentStructureEF(parent=eid, fid=0x0115, shortfid=0x15, data=dg21))
+        CommunityID = eval(self.datagroups["CommunityID"]) if "CommunityID" in self.datagroups else '\x02\x76\x03\x78\x90\x02\x76'
+        # ResidencePermit1 and ResidencePermit2 are part of eAT only
+        ResidencePermit1 = self.datagroups["ResidencePermit1"] if "ResidencePermit1" in self.datagroups else 'ResidencePermit1 field up to 750 characters'
+        ResidencePermit2 = self.datagroups["ResidencePermit2"] if "ResidencePermit2" in self.datagroups else 'ResidencePermit1 field up to 250 characters'
+
+        # Currently, those data groups are for further usage:
+        dg12_param = self.datagroups["dg12"] if "dg12" in self.datagroups else ''
+        dg14_param = self.datagroups["dg14"] if "dg14" in self.datagroups else ''
+        dg15_param = self.datagroups["dg15"] if "dg15" in self.datagroups else ''
+        dg16_param = self.datagroups["dg16"] if "dg16" in self.datagroups else ''
+        dg21_param = self.datagroups["dg21"] if "dg21" in self.datagroups else ''
+
+	# "Attribute not on Chip" makes sence only for ReligiousArtisticName, Nationality, BirthName, ResidencePermit1 and ResidencePermit2, refer to BSI TR-03127
+        if (DocumentType.rstrip() != "<NotOnChip>"):
+	        dg1 =  pack([(0x61, 0, [(0x13, 0, DocumentType)])], True)
+        else:
+	        dg1 = None
+        if (IssuingState.rstrip() != "<NotOnChip>"):
+		dg2 =  pack([(0x62, 0, [(0x13, 0, IssuingState)])], True)
+        else:
+		dg2 = None
+        if (DateOfExpiry.rstrip() != "<NotOnChip>"):
+		dg3 =  pack([(0x63, 0, [(0x12, 0, DateOfExpiry)])], True)
+        else:
+		dg3 = None
+        if (GivenNames.rstrip() != "<NotOnChip>"):
+		dg4 =  pack([(0x64, 0, [(0x0C, 0, GivenNames)])], True)
+        else:
+		dg4 = None
+        if (FamilyNames.rstrip() != "<NotOnChip>"):
+		dg5 =  pack([(0x65, 0, [(0x0C, 0, FamilyNames)])], True)
+        else:
+		dg5 = None
+        if (ReligiousArtisticName.rstrip() != "<NotOnChip>"):
+		dg6 =  pack([(0x66, 0, [(0x0C, 0, ReligiousArtisticName)])], True)
+        else:
+		dg6 = None
+        if (AcademicTitle.rstrip() != "<NotOnChip>"):
+		dg7 =  pack([(0x67, 0, [(0x0C, 0, AcademicTitle)])], True)
+        else:
+		dg7 = None
+        if (DateOfBirth.rstrip() != "<NotOnChip>"):
+		dg8 =  pack([(0x68, 0, [(0x12, 0, DateOfBirth)])], True)
+        else:
+		dg8 = None
+        if (PlaceOfBirth.rstrip() != "<NotOnChip>"):
+		dg9 =  pack([(0x69, 0, [(0xA1, 0, [(0x0C, 0, PlaceOfBirth)])])], True)
+        else:
+		dg9 = None
+        if (Nationality.rstrip() != "<NotOnChip>"):
+		dg10 = pack([(0x6A, 0, [(0x13, 0, Nationality)])], True)
+        else:
+		dg10 = None
+        if (Sex.rstrip() != "<NotOnChip>"):
+		dg11 = pack([(0x6B, 0, [(0x13, 0, Sex)])], True)
+        else:
+		dg11 = None
+        if (dg12_param.rstrip() != "<NotOnChip>"):
+		dg12 = dg12_param
+        else:
+		dg12 = None
+        if (BirthName.rstrip() != "<NotOnChip>"):
+		dg13 = pack([(0x6D, 0, [(0x0C, 0, BirthName)])], True)
+        else:
+		dg13 = None
+        if (dg14_param.rstrip() != "<NotOnChip>"):
+		dg14 = dg14_param
+        else:
+		dg14 = None
+        if (dg15_param.rstrip() != "<NotOnChip>"):
+		dg15 = dg15_param
+        else:
+		dg15 = None
+        if (dg16_param.rstrip() != "<NotOnChip>"):
+		dg16 = dg16_param
+        else:
+		dg16 = None
+        if (PlaceOfResidence.rstrip() != "<NotOnChip>"):
+		dg17 = pack([(0x71, 0, [(0x30, 0, [
+					(0xAA, 0, [(0x0C, 0, Street)]),
+					(0xAB, 0, [(0x0C, 0, City)]),
+					(0xAD, 0, [(0x13, 0, Country)]),
+					(0xAE, 0, [(0x13, 0, ZIP)])
+					])])], True)
+        else:
+		dg17 = None
+	#FIXME: Dataset file with CommunityID =<NotOnChip> still not works while assigning of non hex value due to eval()
+        if (CommunityID.rstrip() != "<NotOnChip>"):
+		dg18 = pack([(0x72, 0, [(0x04, 0, CommunityID)])], True)
+        else:
+		dg18 = None
+        if (ResidencePermit1.rstrip() != "<NotOnChip>"):
+		dg19 = pack([(0x73, 0, [(0xA1, 0, [(0x0C, 0, ResidencePermit1)])])], True)
+        else:
+		dg19 = None
+        if (ResidencePermit1.rstrip() != "<NotOnChip>"):
+		dg20 = pack([(0x74, 0, [(0xA1, 0, [(0x0C, 0, ResidencePermit2)])])], True)
+        else:
+		dg20 = None
+        if (dg21_param.rstrip() != "<NotOnChip>"):
+		dg21 = dg21_param
+        else:
+		dg21 = None
+
+	# If eid.append is not done for a DG, it results into required SwError() with FileNotFound "6A82" APDU return code
+        if dg1:
+        	eid.append(TransparentStructureEF(parent=eid, fid=0x0101, shortfid=0x01, data=dg1))
+        if dg2:
+        	eid.append(TransparentStructureEF(parent=eid, fid=0x0102, shortfid=0x02, data=dg2))
+        if dg3:
+        	eid.append(TransparentStructureEF(parent=eid, fid=0x0103, shortfid=0x03, data=dg3))
+        if dg4:
+        	eid.append(TransparentStructureEF(parent=eid, fid=0x0104, shortfid=0x04, data=dg4))
+        if dg5:
+        	eid.append(TransparentStructureEF(parent=eid, fid=0x0105, shortfid=0x05, data=dg5))
+        if dg6:
+        	eid.append(TransparentStructureEF(parent=eid, fid=0x0106, shortfid=0x06, data=dg6))
+        if dg7:
+        	eid.append(TransparentStructureEF(parent=eid, fid=0x0107, shortfid=0x07, data=dg7))
+        if dg8:
+        	eid.append(TransparentStructureEF(parent=eid, fid=0x0108, shortfid=0x08, data=dg8))
+        if dg9:
+        	eid.append(TransparentStructureEF(parent=eid, fid=0x0109, shortfid=0x09, data=dg9))
+        if dg10:
+        	eid.append(TransparentStructureEF(parent=eid, fid=0x010a, shortfid=0x0a, data=dg10))
+        if dg11:
+        	eid.append(TransparentStructureEF(parent=eid, fid=0x010b, shortfid=0x0b, data=dg11))
+        if dg12:
+        	eid.append(TransparentStructureEF(parent=eid, fid=0x010c, shortfid=0x0c, data=dg12))
+        if dg13:
+        	eid.append(TransparentStructureEF(parent=eid, fid=0x010d, shortfid=0x0d, data=dg13))
+        if dg14:
+        	eid.append(TransparentStructureEF(parent=eid, fid=0x010e, shortfid=0x0e, data=dg14))
+        if dg15:
+        	eid.append(TransparentStructureEF(parent=eid, fid=0x010f, shortfid=0x0f, data=dg15))
+        if dg16:
+        	eid.append(TransparentStructureEF(parent=eid, fid=0x0110, shortfid=0x10, data=dg16))
+        if dg17:
+        	eid.append(TransparentStructureEF(parent=eid, fid=0x0111, shortfid=0x11, data=dg17))
+        if dg18:
+        	eid.append(TransparentStructureEF(parent=eid, fid=0x0112, shortfid=0x12, data=dg18))
+        if dg19:
+        	eid.append(TransparentStructureEF(parent=eid, fid=0x0113, shortfid=0x13, data=dg19))
+        if dg20:
+        	eid.append(TransparentStructureEF(parent=eid, fid=0x0114, shortfid=0x14, data=dg20))
+        if dg21:
+		eid.append(TransparentStructureEF(parent=eid, fid=0x0115, shortfid=0x15, data=dg21))
         self.mf.append(eid)
 
         self.sam = nPA_SAM(pin="111111", can="222222", mrz="IDD<<T220001293<<<<<<<<<<<<<<<6408125<2010315D<<<<<<<<<<<<<<MUSTERMANN<<ERIKA<<<<<<<<<<<<<", puk="3333333333", mf=self.mf)
@@ -317,11 +420,12 @@ class CardGenerator(object):
         """Read Datagroups from file"""
         with open(datasetfile, 'r') as f:
 		for line in f:
-			if not line.startswith("#"):
+			if (not line.startswith("#")) and (not len(line.strip()) == 0):
+				# spaces after equal sign are allowed to get strings with leading spaces!
 				line=line.replace(" =", "=")
-				line=line.replace("= ", "=")
 				splitLine = line.split("=")
-				self.datagroups[splitLine[0]] = splitLine[1]
+				# we don't want to have the newline char from dataset file as part of the value!!
+				self.datagroups[splitLine[0]] = splitLine[1].rstrip("\n\r")
 	f.close()
                           
 if __name__ == "__main__":
