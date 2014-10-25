@@ -506,7 +506,7 @@ class NPAOS(Iso7816OS):
         self.ins2handler[0x2c] = self.SAM.reset_retry_counter
 
         # different ATR (Answer To Reset) values depending on used Chip version
-        # It's just a playground, because in past eID client 'Open eCard App' did not recognize the card correctly with newest ATR values
+        # It's just a playground, because in past one of all those eID clients did not recognize the card correctly with newest ATR values
         self.atr = '\x3B\x8A\x80\x01\x80\x31\xF8\x73\xF7\x41\xE0\x82\x90\x00\x75'
         #self.atr = '\x3B\x8A\x80\x01\x80\x31\xB8\x73\x84\x01\xE0\x82\x90\x00\x06'
         #self.atr = '\x3B\x88\x80\x01\x00\x00\x00\x00\x00\x00\x00\x00\x09'
