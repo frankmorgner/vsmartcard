@@ -185,7 +185,7 @@ class CardGenerator(object):
         # PlaceOfResidence variable is only a helper to get a switch for <NotOnChip>
         PlaceOfResidence = self.datagroups["PlaceOfResidence"] if "PlaceOfResidence" in self.datagroups else ''
         Country = self.datagroups["Country"] if "Country" in self.datagroups else 'D'
-        City = self.datagroups["City"] if "City" in self.datagroups else 'KOLN'
+        City = self.datagroups["City"] if "City" in self.datagroups else 'KÖLN'
         ZIP = self.datagroups["ZIP"] if "ZIP" in self.datagroups else '51147'
         Street = self.datagroups["Street"] if "Street" in self.datagroups else 'HEIDESTRASSE 17'
         CommunityID = eval(self.datagroups["CommunityID"]) if "CommunityID" in self.datagroups else '\x02\x76\x03\x78\x90\x02\x76'
