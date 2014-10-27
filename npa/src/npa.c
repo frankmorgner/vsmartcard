@@ -1581,11 +1581,13 @@ int perform_terminal_authentication(sc_card_t *card,
 {
     int r;
     const unsigned char *cert = NULL;
-    size_t cert_len = 0;
+    size_t cert_len = 0, ef_cardaccess_length = 0;
     CVC_CERT *cvc_cert = NULL;
     BUF_MEM *nonce = NULL, *signature = NULL;
     struct iso_sm_ctx *isosmctx = NULL;
     struct npa_sm_ctx *eacsmctx = NULL;
+    unsigned char *ef_cardaccess = NULL;
+    EAC_CTX *eac_ctx = NULL;
 
     if (!card || !certs_lens || !certs) {
         r = SC_ERROR_INVALID_ARGUMENTS;
@@ -1601,13 +1603,37 @@ int perform_terminal_authentication(sc_card_t *card,
 
     isosmctx = card->sm_ctx.info.cmd_data;
     if (!isosmctx->priv_data) {
-        isosmctx->priv_data = npa_sm_ctx_create(EAC_CTX_new(), NULL, 0, NULL, 0);
-        /* XXX this is only a hack... */
+        r = get_ef_card_access(card, &ef_cardaccess, &ef_cardaccess_length);
+        if (r < 0) {
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not get EF.CardAccess.");
+            goto err;
+        }
+
+        bin_log(card->ctx, SC_LOG_DEBUG_NORMAL, "EF.CardAccess", ef_cardaccess,
+                ef_cardaccess_length);
+
+        /* XXX Card capabilities should be determined by the OpenSC card driver. We
+         * set it here to be able to use the nPA without patching OpenSC. By
+         * now we have read the EF.CardAccess so the assumption to have an nPA
+         * seems valid. */
         card->caps |= SC_CARD_CAP_APDU_EXT;
-    }
-    if (!isosmctx->priv_data) {
-        r = SC_ERROR_INTERNAL;
-        goto err;
+
+        eac_ctx = EAC_CTX_new();
+        if (!eac_ctx
+                || !EAC_CTX_init_ef_cardaccess(ef_cardaccess,
+                    ef_cardaccess_length, eac_ctx)) {
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not parse EF.CardAccess.");
+            ssl_error(card->ctx);
+            r = SC_ERROR_INTERNAL;
+            goto err;
+        }
+
+        isosmctx->priv_data = npa_sm_ctx_create(eac_ctx, NULL, 0, NULL, 0);
+        if (!isosmctx->priv_data) {
+            r = SC_ERROR_INTERNAL;
+            goto err;
+        }
+        eac_ctx = NULL;
     }
     eacsmctx = isosmctx->priv_data;
 
@@ -1708,6 +1734,8 @@ int perform_terminal_authentication(sc_card_t *card,
 err:
     if (cvc_cert)
         CVC_CERT_free(cvc_cert);
+    free(ef_cardaccess);
+    EAC_CTX_clear_free(eac_ctx);
     BUF_MEM_clear_free(nonce);
     BUF_MEM_clear_free(signature);
 
