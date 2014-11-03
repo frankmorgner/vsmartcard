@@ -63,6 +63,7 @@ public class MainActivity extends Activity implements NfcAdapter.ReaderCallback 
                 case MessageSender.MESSAGE_CONNECTED:
                     textViewVPCDStatus.append(getResources().getString(R.string.status_connected_to)+" "+message.obj+"\n");
                     spinner.setVisibility(View.INVISIBLE);
+                    updateLabels();
                     break;
                 case MessageSender.MESSAGE_DISCONNECTED:
                     textViewVPCDStatus.append(getResources().getString(R.string.status_disconnected)+"\n");
