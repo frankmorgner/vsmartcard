@@ -56,7 +56,7 @@ The file :file:`utils.py` was taken from Henryk Plötz's cyberflex-shell_.
 	\node (pcsclite)
     [klein, aktivbox, inner xsep=.7cm, text width=3cm]
 	{PC/SC Framework\\\
-    (native)
+    (\texttt{pcscd} or \texttt{SCardSvr})
 	};
     \node (sca) [aktivbox, klein, left=of pcsclite] {Smart Card\\Application};
     \node (vpcd) [box, at=(pcsclite.east), xshift=-.3cm] {\texttt{vpcd}};
@@ -180,12 +180,12 @@ we will focus on configuring and running the provided modules.
 Configuring |vpcd| on Unix
 ================================================================================
 
-The configuration file from |vpcd| is usually placed into
-:file:`/etc/reader.conf.d/`. The PC/SC daemon should read it and load the
-|vpcd| on startup. In debug mode :command:`pcscd -f -d` should say something
-like "Attempting startup of Virtual PCD". For older versions of PCSC-Lite you
+The configuration file of |vpcd| is usually placed into
+:file:`/etc/reader.conf.d/`. For older versions of PCSC-Lite you
 need to run :command:`update-reader.conf` to update :command:`pcscd`'s main
-configuration file.
+configuration file. The PC/SC daemon should read it and load the
+|vpcd| on startup. In debug mode :command:`pcscd -f -d` should say something
+like "Attempting startup of Virtual PCD" when loading |vpcd|.
 
 By default, |vpcd| opens a socket for |vpicc| and waits for incoming
 connections.  The port to open should be specified in ``CHANNELID`` and
@@ -202,9 +202,11 @@ needs to be started with :option:`--reversed` in this case.
 Configuring |vpcd| on Windows
 ================================================================================
 
-The configuration file `BixVReader.ini` from |vpcd| is usually placed into
-:file:`C:\\Windows` (:envvar:`%SystemRoot%`). The PC/SC daemon should read it and load the
-|vpcd| on startup. The Windows Device Manager should list the :guilabel:`Bix Virtual Smart Card Reader`.
+The configuration file `BixVReader.ini` of |vpcd| is usually placed into
+:file:`C:\\Windows` (:envvar:`SystemRoot`). The user mode device driver
+framework (:command:`WUDFHost.exe`) should read it automatically and load the
+|vpcd| on startup. The Windows Device Manager :command:`mmc devmgmt.msc` should
+list the :guilabel:`Bix Virtual Smart Card Reader`.
 
 |vpcd| opens a socket for |vpicc| and waits for incoming
 connections. The port to open should be specified in ``TCP_PORT``:
