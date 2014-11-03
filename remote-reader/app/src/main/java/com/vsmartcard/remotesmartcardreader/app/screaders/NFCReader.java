@@ -44,7 +44,7 @@ public class NFCReader implements SCReader {
         card.close();
     }
 
-    private static int TIMEOUT = 10000;
+    private static int TIMEOUT = 2500;
     @Override
     public void powerOn() {
         /* should already be connected... */
@@ -105,7 +105,16 @@ public class NFCReader implements SCReader {
         if (intent.getExtras() != null) {
             Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
             if (tag != null) {
-                nfcReader = NFCReader.get(tag);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    /* Disconnect from the tag here. The reader mode will capture the tag again */
+                    try {
+                        IsoDep.get(tag).close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    nfcReader = NFCReader.get(tag);
+                }
                 intent.removeExtra(NfcAdapter.EXTRA_TAG);
             }
         }

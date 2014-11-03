@@ -184,13 +184,14 @@ public class MainActivity extends Activity implements NfcAdapter.ReaderCallback 
     }
 
     private void enableReaderMode() {
-        //mNfcAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             Bundle bundle = new Bundle();
             bundle.putInt(NfcAdapter.EXTRA_READER_PRESENCE_CHECK_DELAY, 2000);
             NfcAdapter.getDefaultAdapter(this).enableReaderMode(this, this,
                     NfcAdapter.FLAG_READER_NFC_A | NfcAdapter.FLAG_READER_NFC_B | NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK,
                     bundle);
+        } else {
+            //NfcAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
         }
     }
 
@@ -321,7 +322,6 @@ public class MainActivity extends Activity implements NfcAdapter.ReaderCallback 
         if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(intent.getAction())) {
             NFCReader nfcReader = NFCReader.get(intent);
             if (nfcReader != null) {
-                textViewVPCDStatus.append(getResources().getString(R.string.status_tag_discovered)+"\n");
                 forceConnect(nfcReader);
             } else {
                 super.onNewIntent(intent);
