@@ -44,7 +44,7 @@ public class NFCReader implements SCReader {
         card.close();
     }
 
-    private static int TIMEOUT = 2500;
+    public static int TIMEOUT = 2500;
     @Override
     public void powerOn() {
         /* should already be connected... */
