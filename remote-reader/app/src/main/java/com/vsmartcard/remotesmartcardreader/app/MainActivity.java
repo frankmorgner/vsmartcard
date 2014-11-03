@@ -201,6 +201,7 @@ public class MainActivity extends Activity implements NfcAdapter.ReaderCallback 
         if (nfcReader != null) {
             /* avoid updating UI components since this may end up on a non ui thread */
             vpcdDisconnect();
+            testing = true;
             vpcdConnect(nfcReader);
         }
     }
