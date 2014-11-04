@@ -15,6 +15,7 @@ win:
 		TOOL=$(WIN_TOOL) \
 		TOOL_DIR=$(WIN_TOOL_DIR) \
 		TARGETDIR=$(WIN_TARGETDIR) \
+		LDFLAGS="-static-libgcc" \
 		LIBEAC=$(WIN_TARGETDIR)/bin/libeac-0.dll \
 		LIBNPA=$(WIN_TARGETDIR)/bin/libnpa-0.dll
 	cp opensc.conf_win32 $(WIN_TARGETDIR)/etc/opensc.conf
@@ -64,6 +65,7 @@ $(LIBNPA): $(OPENPACE_MAKEFILE) $(OPENSC_CONFIGURE)
 		TOOL=$(TOOL) \
 		TOOL_DIR=$(TOOL_DIR) \
 		TARGETDIR=$(TARGETDIR) \
+		LDFLAGS="$${LDFLAGS}" \
 		LIBEAC=$(LIBEAC)
 	@echo Configuring OpenSC
 	grep _sc_match_atr $(OPENSC)/src/libopensc/libopensc.exports || echo _sc_match_atr >> $(OPENSC)/src/libopensc/libopensc.exports
@@ -76,7 +78,7 @@ $(LIBNPA): $(OPENPACE_MAKEFILE) $(OPENSC_CONFIGURE)
 		PKG_CONFIG_LIBDIR=$(TARGETDIR)/lib/pkgconfig \
 		PKG_CONFIG_PATH=$(TARGETDIR)/lib/pkgconfig \
 		CFLAGS=-I$(TOOL_DIR)/include \
-		LDFLAGS=-L$(TOOL_DIR)/lib
+		LDFLAGS="$${LDFLAGS} -L$(TOOL_DIR)/lib"
 	@echo Compiling OpenSC
 	$(MAKE) -C $(OPENSC) install DESTDIR=$(TARGETDIR)
 	@echo Configuring libnpa
@@ -88,7 +90,7 @@ $(LIBNPA): $(OPENPACE_MAKEFILE) $(OPENSC_CONFIGURE)
 		PKG_CONFIG_PATH=$(TARGETDIR)/lib/pkgconfig \
 		OPENSC_LIBS="-L$(TARGETDIR)/lib -lopensc" \
 		CFLAGS=-I$(TOOL_DIR)/include \
-		LDFLAGS=-L$(TOOL_DIR)/lib
+		LDFLAGS="$${LDFLAGS} -L$(TOOL_DIR)/lib"
 	@echo Compiling libnpa
 	env CROSS_COMPILE=$(CROSS_COMPILE) \
 		$(MAKE) -C $(top_builddir) install DESTDIR=$(TARGETDIR)
