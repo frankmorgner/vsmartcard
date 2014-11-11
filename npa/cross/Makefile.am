@@ -70,6 +70,7 @@ $(LIBNPA): $(OPENPACE_MAKEFILE) $(OPENSC_CONFIGURE)
 	@echo Configuring OpenSC
 	grep _sc_match_atr $(OPENSC)/src/libopensc/libopensc.exports || echo _sc_match_atr >> $(OPENSC)/src/libopensc/libopensc.exports
 	grep sc_apdu_get_octets $(OPENSC)/src/libopensc/libopensc.exports || echo sc_apdu_get_octets >> $(OPENSC)/src/libopensc/libopensc.exports
+	grep sc_pkcs15_pincache_add $(OPENSC)/src/libopensc/libopensc.exports || echo sc_pkcs15_pincache_add >> $(OPENSC)/src/libopensc/libopensc.exports
 	cd $(OPENSC) && ./configure \
 		--prefix=/ \
 		--host=$(TOOL) --target=$(TOOL) \
@@ -77,7 +78,7 @@ $(LIBNPA): $(OPENPACE_MAKEFILE) $(OPENSC_CONFIGURE)
 		PKG_CONFIG_SYSROOT_DIR=$(TARGETDIR) \
 		PKG_CONFIG_LIBDIR=$(TARGETDIR)/lib/pkgconfig \
 		PKG_CONFIG_PATH=$(TARGETDIR)/lib/pkgconfig \
-		CFLAGS=-I$(TOOL_DIR)/include \
+		CFLAGS="-I$(TOOL_DIR)/include -I$(TARGETDIR)/include" \
 		LDFLAGS="$${LDFLAGS} -L$(TOOL_DIR)/lib"
 	@echo Compiling OpenSC
 	$(MAKE) -C $(OPENSC) install DESTDIR=$(TARGETDIR)
@@ -89,7 +90,7 @@ $(LIBNPA): $(OPENPACE_MAKEFILE) $(OPENSC_CONFIGURE)
 		PKG_CONFIG_LIBDIR=$(TARGETDIR)/lib/pkgconfig \
 		PKG_CONFIG_PATH=$(TARGETDIR)/lib/pkgconfig \
 		OPENSC_LIBS="-L$(TARGETDIR)/lib -lopensc" \
-		CFLAGS=-I$(TOOL_DIR)/include \
+		CFLAGS="-I$(TOOL_DIR)/include -I$(TARGETDIR)/include" \
 		LDFLAGS="$${LDFLAGS} -L$(TOOL_DIR)/lib"
 	@echo Compiling libnpa
 	env CROSS_COMPILE=$(CROSS_COMPILE) \
