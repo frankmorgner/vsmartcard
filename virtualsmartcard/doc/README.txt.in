@@ -111,6 +111,7 @@ the following:
 - PyCrypto_
 - PBKDF2_
 - PIP_
+- readline_ or PyReadline_
 - OpenPACE_ (nPA emulation)
 
 
@@ -265,6 +266,8 @@ Notes and References
 .. _pyscard: http://pyscard.sourceforge.net/
 .. _PyCrypto: http://pycrypto.org/
 .. _PBKDF2: https://www.dlitz.net/software/python-pbkdf2/
+.. _readline: https://docs.python.org/3.3/library/readline.html
+.. _PyReadline: https://pypi.python.org/pypi/pyreadline
 .. _PIP: http://www.pythonware.com/products/pil/
 .. _OpenPACE: https://github.com/frankmorgner/openpace
 .. _`Fabio Ottavi's UMDF Driver for a Virtual Smart Card Reader`: http://www.codeproject.com/Articles/134010/An-UMDF-Driver-for-a-Virtual-Smart-Card-Reader

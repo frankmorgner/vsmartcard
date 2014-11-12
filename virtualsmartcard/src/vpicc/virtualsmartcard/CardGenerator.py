@@ -17,7 +17,7 @@
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import sys, getpass, anydbm, readline, logging
+import sys, getpass, anydbm, logging
 from pickle import loads, dumps
 from virtualsmartcard.TLVutils import pack, unpack
 from virtualsmartcard.utils import inttostring
@@ -25,6 +25,10 @@ from virtualsmartcard.SmartcardFilesystem import MF, DF, TransparentStructureEF
 from virtualsmartcard.ConstantDefinitions import FDB, ALGO_MAPPING
 from virtualsmartcard.CryptoUtils import protect_string, read_protected_string
 from virtualsmartcard.SmartcardSAM import SAM
+try:
+    import readline
+except ImportError:
+    import pyreadline as readline
 
 # pgp directory
 #self.mf.append(DF(parent=self.mf,
