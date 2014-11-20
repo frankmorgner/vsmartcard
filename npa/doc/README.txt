@@ -59,6 +59,12 @@ compatible with OpenSC.
         (libnpa) edge (openpace);
     \end{pgfonlayer}
 
+The nPA Smart Card Library has the following dependencies:
+
+- OpenPACE_
+- OpenSC_
+- OpenSSL_
+
 
 .. include:: download.txt
 
@@ -66,12 +72,6 @@ compatible with OpenSC.
 .. _npa-install:
 
 .. include:: autotools.txt
-
-The nPA Smart Card Library has the following dependencies:
-
-- OpenPACE_
-- OpenSC_
-- OpenSSL_
 
 
 ====================================

@@ -95,6 +95,16 @@ The file :file:`utils.py` was taken from Henryk Plötz's cyberflex-shell_.
         ;
     \end{pgfonlayer}
 
+Depending on your usage of the |vpicc| you may need to install the following:
+
+- Python_
+- pyscard_
+- PyCrypto_
+- PBKDF2_
+- PIP_
+- readline_ or PyReadline_
+- OpenPACE_ (nPA emulation)
+
 
 .. include:: download.txt
 
@@ -102,16 +112,6 @@ The file :file:`utils.py` was taken from Henryk Plötz's cyberflex-shell_.
 .. _vicc_install:
 
 .. include:: autotools.txt
-
-Depending on your usage of the |vpicc| you might or might not need
-the following:
-
-- Python_
-- pyscard_
-- PyCrypto_
-- PBKDF2_
-- PIP_
-- OpenPACE_ (nPA emulation)
 
 
 ================================================================================
@@ -125,7 +125,8 @@ Building and installing |vpcd| on Windows
 
 For the Windows integration we extended `Fabio Ottavi's UMDF Driver for a
 Virtual Smart Card Reader`_ with a |vpcd| interface. To build |vpcd| for
-Windows we use `Windows Driver Kit 8.1 and Visual Studio 2013`_:
+Windows we use `Windows Driver Kit 8.1 and Visual Studio 2013`_. If you choose
+to download the `Windows binaries`_, you may directly jump to step 3.
 
 
 1. In Visual Studio select :menuselection:`File --> Open --> Convert
@@ -221,8 +222,13 @@ Currently it is not possible to configure the Windows driver to connect to an
 Running |vpicc|
 ================================================================================
 
-The command :command:`vicc --help` gives an overview about the command line
-options of |vpicc|.
+The compiled `Windows binaries`_ of |vpicc| include OpenPACE. The other
+dependencies listed above need to be installed seperately. You can start the
+|vpicc| via :command:`python.exe vicc.py`. On all other systems an executable
+script :command:`vicc` is installed using the autotools.
+
+The |vpicc| option :option:`--help` gives an overview about the command line
+switches:
 
 .. program-output:: vicc --help
 
@@ -232,13 +238,6 @@ options of |vpicc|.
     chosen accordingly (:option:`--hostname` and :option:`--port`)
     :command:`vpcd-config` also prints a QR code for configuration of the
     :ref:`remote-reader`.
-
-On Windows you can start |vpicc| with :command:`python.exe src/vpicc/vicc.in`
-or :command:`python.exe vicc`. Note emulating the German ID card
-(:option:`--type nPA`) when running |vpicc| on Windows is currently not
-supported, because OpenPACE's Python bindings are untested for Windows.
-However, it is possible to connect an emulated ID card running on Linux to a
-|vpcd| running on Windows.
 
 When |vpcd| and |vpicc| are connected you should be able to access the card
 through the PC/SC API. You can use the :command:`opensc-explorer` or
@@ -265,8 +264,11 @@ Notes and References
 .. _pyscard: http://pyscard.sourceforge.net/
 .. _PyCrypto: http://pycrypto.org/
 .. _PBKDF2: https://www.dlitz.net/software/python-pbkdf2/
+.. _readline: https://docs.python.org/3.3/library/readline.html
+.. _PyReadline: https://pypi.python.org/pypi/pyreadline
 .. _PIP: http://www.pythonware.com/products/pil/
 .. _OpenPACE: https://github.com/frankmorgner/openpace
 .. _`Fabio Ottavi's UMDF Driver for a Virtual Smart Card Reader`: http://www.codeproject.com/Articles/134010/An-UMDF-Driver-for-a-Virtual-Smart-Card-Reader
 .. _`Windows Driver Kit 8.1 and Visual Studio 2013`: http://msdn.microsoft.com/en-us/windows/hardware/hh852365.aspx
 .. _`Microsoft's Kernel-Mode Code Signing Walkthrough`: http://msdn.microsoft.com/en-us/library/windows/hardware/dn653569%28v=vs.85%29.aspx
+.. _`Windows binaries`: https://github.com/frankmorgner/vsmartcard/releases/download/virtualsmartcard-0.7/virtualsmartcard-0.7_win32.zip

@@ -4,6 +4,11 @@
 Installation
 ************
 
+
+=======================================
+Installation on Linux, Unix and similar
+=======================================
+
 The @PACKAGE_NAME@ uses the GNU Build System to compile and install. If you are
 unfamiliar with it, please have a look at :file:`INSTALL`. If you can not find
 it, you are probably working bleeding edge in the repository.  Run the

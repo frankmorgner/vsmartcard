@@ -126,12 +126,6 @@ tools.
     \texttt{/dev/gadget/ep3-bulk}\\};
 
 
-
-.. include:: download.txt
-
-
-.. include:: autotools.txt
-
 Running the @PACKAGE_NAME@ has the following dependencies:
 
 - Linux Kernel with GadgetFS_
@@ -141,6 +135,12 @@ Running the @PACKAGE_NAME@ has the following dependencies:
 Whereas using the @PACKAGE_NAME@ on the host system as smart card reader only
 needs a usable PC/SC middleware with USB CCID driver. This is the case for most
 modern Windows and Unix-like systems by default.
+
+
+.. include:: download.txt
+
+
+.. include:: autotools.txt
 
 
 =================

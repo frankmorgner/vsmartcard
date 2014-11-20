@@ -40,6 +40,10 @@ With PC/SC Relay you can relay a contact-less or contact based smart card
 over a long distance. Also you can use it in combination with the :ref:`vicc`
 to completely emulate an ISO/IEC 14443 smart card.
 
+PC/SC Relay has the following dependencies:
+
+- PC/SC middleware
+- libnfc_
 
 
 .. include:: relay-note.txt
@@ -50,10 +54,6 @@ to completely emulate an ISO/IEC 14443 smart card.
 
 .. include:: autotools.txt
 
-PC/SC Relay has the following dependencies:
-
-- PC/SC middleware
-- libnfc_
 
 ===============
 Hints on libnfc

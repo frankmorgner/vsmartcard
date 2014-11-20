@@ -332,7 +332,9 @@ Download
 --------
 
 You can download the latest release of the |vsmartcard| `here
-<http://sourceforge.net/projects/vsmartcard/files>`_.
+<https://github.com/frankmorgner/vsmartcard/releases>`_. Older releases are
+still available at the `old project
+location <http://sourceforge.net/projects/vsmartcard/files>`_.
 
 Alternatively, you can clone our git repository::
 
