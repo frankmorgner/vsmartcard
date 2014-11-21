@@ -29,7 +29,7 @@ ccid-emulator.ggo: ccid-emulator.ggo.in
 	$(do_subst) < $< > $(srcdir)/$@
 
 
-ccid-emulator.1:
+$(abs_builddir)/ccid-emulator.1:
 	$(HELP2MAN) \
 		--output=$@ \
 		--no-info \

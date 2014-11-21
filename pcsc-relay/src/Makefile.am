@@ -16,7 +16,7 @@ MAINTAINERCLEANFILES = $(BUILT_SOURCES) npa-tool.ggo $(dist_man1_MANS)
 dist_man1_MANS		= pcsc-relay.1
 
 
-pcsc-relay.1:
+$(abs_builddir)/pcsc-relay.1:
 	$(HELP2MAN) \
 		--output=$@ \
 		--no-info \
