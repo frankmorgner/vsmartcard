@@ -13,7 +13,7 @@ EXTRA_DIST  = ccid-emulator.ggo ccid-emulator.ggo.in
 EXTRA_DIST += $(shell find $(top_srcdir)/src/opensc/src -path '*/.git' -prune -o -type f -a -name '*.h' -print)
 MAINTAINERCLEANFILES = $(BUILT_SOURCES) ccid-emulator.ggo $(dist_man1_MANS)
 
-dist_man1_MANS		= ccid-emulator.1
+dist_man1_MANS		= $(abs_builddir)/ccid-emulator.1
 
 ccid_emulator_SOURCES = ccid.c usbstring.c usb.c $(BUILT_SOURCES)
 ccid_emulator_LDADD =  $(OPENSSL_LIBS) $(PTHREAD_LIBS)
