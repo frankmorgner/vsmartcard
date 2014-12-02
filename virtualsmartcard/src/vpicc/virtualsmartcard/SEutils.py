@@ -70,7 +70,7 @@ class ControlReferenceTemplate:
         
         :param config: a TLV string containing the configuration for the CRT. 
         """
-        
+        error = False
         structure = unpack(config)
         for tlv in structure:
             tag, length, value = tlv    
@@ -83,9 +83,12 @@ class ControlReferenceTemplate:
             elif tag == 0x95:
                 self.usage_qualifier = value
             else:
-                raise SwError(SW["ERR_REFNOTUSABLE"])
+                error = True
  
-        return SW["NORMAL"], "" 
+        if error:
+            raise SwError(SW["ERR_REFNOTUSABLE"])
+        else:
+            return SW["NORMAL"], "" 
             
     def __set_algo(self, data):
         """
