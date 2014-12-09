@@ -242,7 +242,10 @@ class Iso7816OS(SmartcardOS):
             if le > len(data):
                 sw = SW["WARN_EOFBEFORENEREAD"]
 
-        result = data[:le]
+        if le != None:
+            result = data[:le]
+        else:
+            result = data[:0]
         if sm:
             sw, result = self.SAM.protect_result(sw, result)
 
@@ -534,7 +537,10 @@ class NPAOS(Iso7816OS):
             if le > len(data) and le != MAX_EXTENDED_LE and le != MAX_SHORT_LE:
                 sw = SW["WARN_EOFBEFORENEREAD"]
 
-        result = data[:le]
+        if le != None:
+            result = data[:le]
+        else:
+            result = data[:0]
         if sm:
             try:
                 sw, result = self.SAM.protect_result(sw, result)
