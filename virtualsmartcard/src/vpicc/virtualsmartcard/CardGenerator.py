@@ -382,16 +382,19 @@ class CardGenerator(object):
 
     def loadCard(self, filename):
         """Load a card from disk"""
-        db = anydbm.open(filename, 'r')
-
         if self.password is None:
             self.password = getpass.getpass("Please enter your password:")
 
-        serializedMF = read_protected_string(db["mf"], self.password)
-        serializedSAM = read_protected_string(db["sam"], self.password)
+        db = anydbm.open(filename, 'r')
+        try:
+            serializedMF = read_protected_string(db["mf"], self.password)
+            serializedSAM = read_protected_string(db["sam"], self.password)
+            self.type = db["type"]
+        finally:
+            db.close()
+
         self.sam = loads(serializedSAM)
         self.mf = loads(serializedMF)
-        self.type = db["type"]
 
     def saveCard(self, filename):
         """Save the currently running card to disk"""
@@ -413,11 +416,13 @@ class CardGenerator(object):
         protectedSAM = protect_string(sam_string, self.password)
 
         db = anydbm.open(filename, 'c')
-        db["mf"] = protectedMF
-        db["sam"] = protectedSAM
-        db["type"] = self.type
-        db["version"] = "0.1"
-        db.close()
+        try:
+            db["mf"] = protectedMF
+            db["sam"] = protectedSAM
+            db["type"] = self.type
+            db["version"] = "0.1"
+        finally:
+            db.close()
 
 if __name__ == "__main__":
     from optparse import OptionParser
