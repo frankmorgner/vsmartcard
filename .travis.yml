@@ -1,22 +1,23 @@
 language: C
 before_install: sudo apt-get update
-install: sudo apt-get install help2man gengetopt libpcsclite-dev libusb-dev
+install: sudo apt-get install help2man gengetopt libpcsclite-dev libusb-dev swig python-dev
 compiler:
     - gcc
 env:
     global:
         -PKG_CONFIG_PATH=/tmp/install/lib/pkgconfig
         -PREFIX=/tmp/install
+        -PYTHONPATH=$PYTHONPATH:$PREFIX/lib/python2.7/site-packages/
 script:
+    # Build libnpa, which requires OpenPACE and OpenSC
+    - cd /tmp && git clone https://github.com/frankmorgner/openpace && cd openpace && autoreconf -vsi && ./configure --enable-openssl-install --enable-python --prefix=$PREFIX && make install && cd $TRAVIS_BUILD_DIR
+    - cd npa/src/opensc && autoreconf -vsi && ./configure --prefix=$PREFIX --enable-sm && make install && cd ../../..
+    - cd npa && autoreconf -vsi && ./configure OPENSC_LIBS="-L$PREFIX/lib -lopensc -lcrypto" && make && cd ..
     #Build virtualsmartcard
     - cd virtualsmartcard && autoreconf -vsi && ./configure && make
-    - cd src/vpicc/ && export PYTHONPATH=$PYTHONPATH:`pwd` && python -m unittest discover -s virtualsmartcard.tests -p *_test.py -v && cd $TRAVIS_BUILD_DIR
+    - cd src/vpicc/ && export PYTHONPATH=$PYTHONPATH:`pwd` && export LD_LIBRARY_PATH=$PREFIX/lib/ && python -m unittest discover -s virtualsmartcard.tests -p *_test.py -v && cd $TRAVIS_BUILD_DIR
     # Build pcsc-relay, which requires libnfc
     - cd /tmp && git clone https://code.google.com/p/libnfc && cd libnfc && autoreconf -i && ./configure --prefix=$PREFIX && make install && cd $TRAVIS_BUILD_DIR
     - cd pcsc-relay && autoreconf -vsi && ./configure && make && cd ..
-    # Build libnpa, which requires OpenPACE and OpenSC
-    - cd /tmp && git clone https://github.com/frankmorgner/openpace && cd openpace && autoreconf -vsi && ./configure --enable-openssl-install --prefix=$PREFIX && make install && cd $TRAVIS_BUILD_DIR
-    - cd npa/src/opensc && autoreconf -vsi && ./configure --prefix=$PREFIX --enable-sm && make install && cd ../../..
-    - cd npa && autoreconf -vsi && ./configure OPENSC_LIBS="-L$PREFIX/lib -lopensc -lcrypto" && make && cd ..
     # Build ccid
     - cd ccid && autoreconf -vsi && ./configure OPENSSL_CFLAGS="-I$PREFIX/include" OPENSSL_LIBS="-L$PREFIX/lib -lcrypto" OPENSC_LIBS="-L$PREFIX/lib -lopensc" && make
