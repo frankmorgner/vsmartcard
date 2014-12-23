@@ -434,7 +434,6 @@ class CardGenerator(object):
                     splitLine = line.split("=")
                     # we don't want to have the newline char from dataset file as part of the value!!
                     self.datagroups[splitLine[0]] = splitLine[1].rstrip("\n\r")
-                    f.close()
 
 if __name__ == "__main__":
     from optparse import OptionParser
