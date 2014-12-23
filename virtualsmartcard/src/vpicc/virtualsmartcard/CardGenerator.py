@@ -408,7 +408,7 @@ class CardGenerator(object):
 
         if self.mf == None or self.sam == None:
             raise ValueError("Card Generator wasn't set up properly" +\
-                 "(missing MF or SAM).")
+                             "(missing MF or SAM).")
 
         mf_string = dumps(self.mf)
         sam_string = dumps(self.sam)
@@ -427,14 +427,14 @@ class CardGenerator(object):
     def readDatagroups(self, datasetfile):
         """Read Datagroups from file"""
         with open(datasetfile, 'r') as f:
-               for line in f:
-                       if (not line.startswith("#")) and (not len(line.strip()) == 0):
-                               # spaces after equal sign are allowed to get strings with leading spaces!
-                               line=line.replace(" =", "=")
-                               splitLine = line.split("=")
-                               # we don't want to have the newline char from dataset file as part of the value!!
-                               self.datagroups[splitLine[0]] = splitLine[1].rstrip("\n\r")
-       f.close()
+            for line in f:
+                if (not line.startswith("#")) and (not len(line.strip()) == 0):
+                    # spaces after equal sign are allowed to get strings with leading spaces!
+                    line=line.replace(" =", "=")
+                    splitLine = line.split("=")
+                    # we don't want to have the newline char from dataset file as part of the value!!
+                    self.datagroups[splitLine[0]] = splitLine[1].rstrip("\n\r")
+                    f.close()
 
 if __name__ == "__main__":
     from optparse import OptionParser
