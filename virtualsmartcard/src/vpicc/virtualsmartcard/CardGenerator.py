@@ -1,18 +1,18 @@
 #
 # Copyright (C) 2011 Dominik Oepen
-# 
+#
 # This file is part of virtualsmartcard.
-# 
+#
 # virtualsmartcard is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
 # Software Foundation, either version 3 of the License, or (at your option) any
 # later version.
-# 
+#
 # virtualsmartcard is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 # FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 # more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along with
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 #
@@ -39,52 +39,52 @@ except ImportError:
 #self.mf.append(DF(parent=self.mf,
     #fid=2, dfname='\xa0\x00\x00\x03\x08\x00\x00\x10\x00'))
 #self.mf.append(DF(parent=self.mf,
-    #fid=3, dfname='\xa0\x00\x00\x03\x08\x00\x00\x10\x00\x01\x00'))  
+    #fid=3, dfname='\xa0\x00\x00\x03\x08\x00\x00\x10\x00\x01\x00'))
 
 class CardGenerator(object):
-    """This class is used to generate the SAM and filesystem for the 
+    """This class is used to generate the SAM and filesystem for the
     different supported card types. It is also able used for persistent storage
     (in encrypted form) of the card on disks. """
-    
+
     def __init__(self, card_type=None, sam=None, mf=None):
         self.type = card_type
         self.mf = mf
         self.sam = sam
         self.password = None
         self.datagroups = {}
-    
+
     def __generate_iso_card(self):
         default_pin = "1234"
         default_cardno = "1234567890"
-        
+
         logging.warning("Using default SAM parameters. PIN=%s, Card Nr=%s"
                         % (default_pin, default_cardno))
         #TODO: Use user provided data
         self.sam = SAM(default_pin, default_cardno)
-        
+
         self.mf = MF(filedescriptor=FDB["DF"])
         self.sam.set_MF(self.mf)
-           
+
     def __generate_ePass(self):
-        """Generate the MF and SAM of an ICAO passport. This method is 
+        """Generate the MF and SAM of an ICAO passport. This method is
         responsible for generating the filesystem and filling it with content.
         Therefore it must interact with the user by prompting for the MRZ and
         optionally for the path to a photo."""
         from PIL import Image
         from virtualsmartcard.cards.ePass import PassportSAM
-            
+
         #TODO: Sanity checks
         MRZ = raw_input("Please enter the MRZ as one string: ")
 
         readline.set_completer_delims("")
         readline.parse_and_bind("tab: complete")
-        
+
         picturepath = raw_input("Please enter the path to an image: ")
         picturepath = picturepath.strip()
-        
+
         #MRZ1 = "P<UTOERIKSSON<<ANNA<MARIX<<<<<<<<<<<<<<<<<<<"
         #MRZ2 = "L898902C<3UTO6908061F9406236ZE184226B<<<<<14"
-        #MRZ = MRZ1 + MRZ2        
+        #MRZ = MRZ1 + MRZ2
 
         try:
             im = Image.open(picturepath)
@@ -96,10 +96,10 @@ class CardGenerator(object):
             logging.warning("Failed to open file: " + picturepath)
             pic_width = 0
             pic_height = 0
-            picture = None  
+            picture = None
 
         mf = MF()
-        
+
         #We need a MF with Application DF \xa0\x00\x00\x02G\x10\x01
         df = DF(parent=mf, fid=4, dfname='\xa0\x00\x00\x02G\x10\x01',
                 bertlv_data=[])
@@ -120,13 +120,13 @@ class CardGenerator(object):
         #EF.DG2
         if picture != None:
             IIB = "\x00\x01" + inttostring(pic_width, 2) +\
-                    inttostring(pic_height, 2) + 6 * "\x00" 
+                    inttostring(pic_height, 2) + 6 * "\x00"
             length = 32 + len(picture) #32 is the length of IIB + FIB
             FIB = inttostring(length, 4) + 16 * "\x00"
             FRH = "FAC" + "\x00" + "010" + "\x00" +\
                     inttostring(14 + length, 4) + inttostring(1, 2)
             picture = FRH + FIB + IIB + picture
-            DG2 = pack([(0xA1, 8, "\x87\x02\x01\x01\x88\x02\x05\x01"), 
+            DG2 = pack([(0xA1, 8, "\x87\x02\x01\x01\x88\x02\x05\x01"),
                     (0x5F2E, len(picture), picture)])
             DG2 = pack([(0x02, 1, "\x01"), (0x7F60, len(DG2), DG2)])
             DG2 = pack([(0x7F61, len(DG2), DG2)])
@@ -143,7 +143,7 @@ class CardGenerator(object):
 
         self.mf = mf
         self.sam = PassportSAM(self.mf)
-    
+
     def __generate_nPA(self):
         from virtualsmartcard.cards.nPA import nPA_SAM
         for oid_base, x_list, y_list, algo in [
@@ -353,7 +353,7 @@ class CardGenerator(object):
                        filedescriptor=0x01,
                        data="\x00\x00\x00\x01\x00\x01\x00\x00")) #EF.ICCSN
         self.sam = CryptoflexSAM(self.mf)
-        
+
     def generateCard(self):
         """Generate a new card"""
         if self.type == 'iso7816':
@@ -366,34 +366,36 @@ class CardGenerator(object):
             self.__generate_nPA()
         else:
             return (None, None)
-    
+
     def getCard(self):
         """Get the MF and SAM from the current card"""
         if self.sam is None or self.mf is None:
             self.generateCard()
         return self.mf, self.sam
-    
+
     def setCard(self, mf=None, sam=None):
         """Set the MF and SAM of the current card"""
         if mf != None:
             self.mf = mf
         if sam != None:
             self.sam = sam
-        
-    
+
     def loadCard(self, filename):
         """Load a card from disk"""
-        db = anydbm.open(filename, 'r')
-        
         if self.password is None:
             self.password = getpass.getpass("Please enter your password:")
-        
-        serializedMF = read_protected_string(db["mf"], self.password)
-        serializedSAM = read_protected_string(db["sam"], self.password)
+
+        db = anydbm.open(filename, 'r')
+        try:
+            serializedMF = read_protected_string(db["mf"], self.password)
+            serializedSAM = read_protected_string(db["sam"], self.password)
+            self.type = db["type"]
+        finally:
+            db.close()
+
         self.sam = loads(serializedSAM)
         self.mf = loads(serializedMF)
-        self.type = db["type"]
-            
+
     def saveCard(self, filename):
         """Save the currently running card to disk"""
         if self.password is None:
@@ -403,35 +405,36 @@ class CardGenerator(object):
                 raise ValueError("Passwords did not match. Will now exit")
             else:
                 self.password = passwd1
-        
+
         if self.mf == None or self.sam == None:
             raise ValueError("Card Generator wasn't set up properly" +\
-                 "(missing MF or SAM).")
-        
+                             "(missing MF or SAM).")
+
         mf_string = dumps(self.mf)
         sam_string = dumps(self.sam)
         protectedMF = protect_string(mf_string, self.password)
         protectedSAM = protect_string(sam_string, self.password)
-        
+
         db = anydbm.open(filename, 'c')
-        db["mf"] = protectedMF
-        db["sam"] = protectedSAM
-        db["type"] = self.type
-        db["version"] = "0.1"
-        db.close()
+        try:
+            db["mf"] = protectedMF
+            db["sam"] = protectedSAM
+            db["type"] = self.type
+            db["version"] = "0.1"
+        finally:
+            db.close()
 
     def readDatagroups(self, datasetfile):
         """Read Datagroups from file"""
         with open(datasetfile, 'r') as f:
-		for line in f:
-			if (not line.startswith("#")) and (not len(line.strip()) == 0):
-				# spaces after equal sign are allowed to get strings with leading spaces!
-				line=line.replace(" =", "=")
-				splitLine = line.split("=")
-				# we don't want to have the newline char from dataset file as part of the value!!
-				self.datagroups[splitLine[0]] = splitLine[1].rstrip("\n\r")
-	f.close()
-                          
+            for line in f:
+                if (not line.startswith("#")) and (not len(line.strip()) == 0):
+                    # spaces after equal sign are allowed to get strings with leading spaces!
+                    line=line.replace(" =", "=")
+                    splitLine = line.split("=")
+                    # we don't want to have the newline char from dataset file as part of the value!!
+                    self.datagroups[splitLine[0]] = splitLine[1].rstrip("\n\r")
+
 if __name__ == "__main__":
     from optparse import OptionParser
     parser = OptionParser()
@@ -447,8 +450,8 @@ if __name__ == "__main__":
     if options.filename == None:
         logging.error("You have to provide a filename using the -f option")
         sys.exit()
-    
+
     generator = CardGenerator(options.type)
     generator.generateCard()
     generator.saveCard(options.filename)
-    
+

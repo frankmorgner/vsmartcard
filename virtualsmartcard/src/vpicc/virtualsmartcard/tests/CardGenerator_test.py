@@ -17,9 +17,10 @@
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import unittest
-import tempfile
+import anydbm
 import os
+import tempfile
+import unittest
 from virtualsmartcard.CardGenerator import CardGenerator
 
 class TestNPACardGenerator(unittest.TestCase):
@@ -29,15 +30,13 @@ class TestNPACardGenerator(unittest.TestCase):
         self.nPA_generator = CardGenerator('nPA')
         self.nPA_generator.password = "TestPassword"
 
-    def tearDown(self):
-        os.unlink(self.filename)
-
     def test_nPA_creation(self):
         self.nPA_generator.generateCard()
         self.nPA_generator.saveCard(self.filename)
         mf, sam = self.nPA_generator.getCard()
         self.assertIsNotNone(mf)
         self.assertIsNotNone(sam)
+        os.unlink(self.filename)
 
     def test_load_nPA_from_file_nPA_from_file(self):
         self.nPA_generator.generateCard()
@@ -48,6 +47,11 @@ class TestNPACardGenerator(unittest.TestCase):
         mf, sam = local_generator.getCard()
         self.assertIsNotNone(mf)
         self.assertIsNotNone(sam)
+        os.unlink(self.filename)
+
+    def test_load_nonexistent_file(self):
+        with self.assertRaises(anydbm.error):
+            self.nPA_generator.loadCard(self.filename)
 
 if __name__ == '__main__':
     unittest.main()
