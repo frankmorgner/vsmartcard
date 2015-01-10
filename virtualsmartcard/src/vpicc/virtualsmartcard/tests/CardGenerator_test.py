@@ -21,28 +21,31 @@ import anydbm
 import os
 import tempfile
 import unittest
+
 from virtualsmartcard.CardGenerator import CardGenerator
 
-class TestNPACardGenerator(unittest.TestCase):
+class ISO7816GeneratorTest(unittest.TestCase):
+
+    card_type = 'iso7816'
 
     def setUp(self):
         self.filename = tempfile.mktemp()
-        self.nPA_generator = CardGenerator('nPA')
-        self.nPA_generator.password = "TestPassword"
+        self.card_generator = CardGenerator(self.card_type)
+        self.card_generator.password = "TestPassword"
 
-    def test_nPA_creation(self):
-        self.nPA_generator.generateCard()
-        self.nPA_generator.saveCard(self.filename)
-        mf, sam = self.nPA_generator.getCard()
+    def test_card_creation(self):
+        self.card_generator.generateCard()
+        self.card_generator.saveCard(self.filename)
+        mf, sam = self.card_generator.getCard()
         self.assertIsNotNone(mf)
         self.assertIsNotNone(sam)
         os.unlink(self.filename)
 
-    def test_load_nPA_from_file_nPA_from_file(self):
-        self.nPA_generator.generateCard()
-        self.nPA_generator.saveCard(self.filename)
-        local_generator= CardGenerator('nPA')
-        local_generator.password = self.nPA_generator.password
+    def test_load_card_from_file(self):
+        self.card_generator.generateCard()
+        self.card_generator.saveCard(self.filename)
+        local_generator= CardGenerator(self.card_type)
+        local_generator.password = self.card_generator.password
         local_generator.loadCard(self.filename)
         mf, sam = local_generator.getCard()
         self.assertIsNotNone(mf)
@@ -51,7 +54,36 @@ class TestNPACardGenerator(unittest.TestCase):
 
     def test_load_nonexistent_file(self):
         with self.assertRaises(anydbm.error):
-            self.nPA_generator.loadCard(self.filename)
+            self.card_generator.loadCard(self.filename)
+
+    def test_get_and_set_card(self):
+        self.card_generator.generateCard()
+        mf, sam = self.card_generator.getCard()
+        local_generator= CardGenerator(self.card_type)
+        local_generator.setCard(mf, sam)
+
+class TestNPACardGenerator(ISO7816GeneratorTest):
+
+    card_type = 'nPA'
+
+    def test_readDatagroups(self):
+        path = os.path.dirname(__file__)
+        datagroupsFile = path + "/Example_Dataset_Mueller_Gertrud.txt"
+        self.card_generator.readDatagroups(datagroupsFile)
+        mf, sam = self.card_generator.getCard()
+        self.assertIsNotNone(mf)
+        self.assertIsNotNone(sam)
+
+class CryptoflexGeneratorTest(ISO7816GeneratorTest):
+
+    card_type = 'cryptoflex'
+
+# Not tested because an ePass card currently cannot be generated without user
+# interaction.
+#
+#class ePassGeneratorTest(ISO7816GeneratorTest):
+#
+#   card_type = 'ePass'
 
 if __name__ == '__main__':
     unittest.main()
