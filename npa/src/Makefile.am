@@ -27,11 +27,6 @@ libcardnpa_la_LIBADD = $(OPENSC_LIBS) libnpa.la
 libcardnpa_la_CFLAGS = $(OPENSSL_CFLAGS) $(OPENPACE_CFLAGS) $(OPENSC_CFLAGS)
 libcardnpa_la_LDFLAGS = -no-undefined
 
-libpkcs15npa_la_SOURCES = pkcs15-npa.c
-libpkcs15npa_la_LIBADD = $(OPENSC_LIBS) libcardnpa.la libnpa.la
-libpkcs15npa_la_CFLAGS = $(OPENSSL_CFLAGS) $(OPENPACE_CFLAGS) $(OPENSC_CFLAGS)
-libpkcs15npa_la_LDFLAGS = -no-undefined
-
 npa_tool_SOURCES = npa-tool.c $(BUILT_SOURCES)
 npa_tool_LDADD = libnpa.la $(OPENSC_LIBS) $(OPENPACE_LIBS) $(OPENSSL_LIBS)
 npa_tool_CFLAGS = $(OPENSSL_CFLAGS) $(OPENPACE_CFLAGS) $(OPENSC_CFLAGS)
@@ -61,7 +56,7 @@ $(abs_builddir)/npa-tool.1: npa-tool.ggo
 bin_PROGRAMS = npa-tool
 noinst_PROGRAMS = example
 
-lib_LTLIBRARIES = libnpa.la libcardnpa.la libpkcs15npa.la
+lib_LTLIBRARIES = libnpa.la libcardnpa.la
 
 noinst_HEADERS = \
 		 sslutil.h \

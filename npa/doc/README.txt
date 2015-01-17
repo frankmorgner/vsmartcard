@@ -196,7 +196,7 @@ components of OpenSC. Load it by setting :envvar:`OPENSC_CONF`::
     export OPENSC_CONF=$VSMARTCARD/npa/opensc.conf
 
 On Windows you need to use :command:`set` instead of :command:`export`. In
-:file:`npa-0.6_win32` do the following::
+:file:`npa-0.7_win32` do the following::
 
     cd bin
     set OPENSC_CONF=..\etc\opensc.conf
@@ -211,15 +211,6 @@ with :command:`opensc-explorer`::
     OpenSC [3F00]> verify CHV3 313233343536
     Code correct.
 
-Since the German ID card does not contain any PKCS#15 data we emulate the data
-structures with an other external library. Currently, the PKCS#15 emulator does
-not support private key and certificate objects for qualified electronic
-signature but only the PIN objects. For example, you can change the eID-PIN
-using the :command:`pkcs15-tool`::
-
-    pkcs15-tool --change-pin --auth-id 03 \
-        --pin=123456 --new-pin=abcdef     # yes, an ASCII eID-PIN is allowed
-
 When the eID-PIN was verified incorrectly three times, it is blocked and must
 be unblocked with the PUK. But unlike traditional cards the German ID card does
 suspend the eID-PIN after the second try of verification. To unlock the last
@@ -227,7 +218,16 @@ retry, the CAN is required.  Since the suspended state is not captured by
 OpenSC we handle it transparently within the driver. If the eID-PIN shall be
 verified and it is suspended, the card driver will verify the CAN first. If no
 CAN is given in :file:`opensc.conf`, the driver will request it on the standard
-input.
+input. You can use |npa-tool| to unblock or resume the eID-PIN.
+
+The German ID card is capable of creating a qualified electronic signature.
+Therefor, the card must be initialized by a trust center with the user's
+consent. Today this means, that the user need to register for `sign-me`_. The
+process also initializes the QES-PIN, which unlocks the signature key. Below,
+you can see two examples how to create a signature::
+
+    pkcs15-crypt --sign --sha-256 --input $SHA256_FILE --pin $QES_PIN
+    pkcs11-tool --module opensc-pkcs11.so --sign --pin $QES_PIN --input-file $SHA256_FILE
 
 
 .. include:: questions.txt
@@ -242,3 +242,4 @@ Notes and References
 .. _OpenPACE: https://frankmorgner.github.io/openpace/
 .. _OpenSC: https://github.com/OpenSC/OpenSC
 .. _OpenSSL: http://www.openssl.org
+.. _sign-me: https://www.bundesdruckerei.de/en/798-sign-me

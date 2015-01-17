@@ -19,23 +19,22 @@ app default {
 	card_driver npa {
 		# The location of the driver library
 		module = @libdir@/libcardnpa.@DYN_LIB_EXT@;
-	}
 
+		# German ID card requires the CAN to be verified before QES PIN. This,
+		# however, is not part of the PKCS#15 profile of the card. So for
+		# verifying the PIN we actually need both. The CAN may be given here.
+		# If the CAN is not given here, it will be prompted on the command line
+		# or on the reader.
+		can = 222222;
 
-	# PKCS #15
-	framework pkcs15 {
-		# additional settings per driver
-		#
-		# For pkcs15 emulators loaded from an external shared
-		# library/DLL, you need to specify the path name of the module
-		# and customize the card_atr example above correctly.
-		#
-		emulate npa {
-			# The location of the driver library
-			module = @libdir@/libpkcs15npa.@DYN_LIB_EXT@;
-
-			function = sc_pkcs15emu_npa_init_ex;
-			can = 222222;
-		}
+		# QES is only possible with a Comfort Reader (CAT-K), which holds a
+		# cryptographic key to authenticate itself as signature terminal (ST).
+		# We usually will use the reader's capability to sign the data.
+		# However, during developement you may specify soft certificates and
+		# keys for a ST below.
+		# The following example EAC PKI can be found in npa-example-data
+		st_dv_certificate = ZZSTDVCA00001.cvcert;
+		st_certificate = ZZSTTERM00001.cvcert;
+		st_key = ZZSTTERM00001.pkcs8;
 	}
 }

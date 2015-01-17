@@ -171,7 +171,7 @@ class nPA_SE(Security_Environment):
             if self.sam.counter == 1 and not self.sam.active:
                 print "Must use CAN to activate"
                 return 0x63c1, ""
-            self.PACE_SEC = PACE_SEC(self.sam.PIN, eac.PACE_PIN)
+            self.PACE_SEC = PACE_SEC(self.sam.eid_pin, eac.PACE_PIN)
             self.sam.counter -= 1
             if self.sam.counter <= 1:
                 self.sam.active = False
@@ -372,6 +372,7 @@ class nPA_SE(Security_Environment):
             if 1 != eac.TA_STEP6_verify(self.eac_ctx, self.at.iv, id_picc,
                     auxiliary_data, data):
                 eac.print_ossl_err()
+                print "Could not verify Terminal's signature"
                 raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
 
             print "Terminal's signature verified"
@@ -449,13 +450,18 @@ class nPA_SE(Security_Environment):
         
         return sw, return_data
 
+    def compute_digital_signature(self, p1, p2, data):
+        # TODO Signing with brainpoolP256r1 or any other key needs some more effort ;-)
+        return '\x0D\xB2\x9B\xB9\x5E\x97\x7D\x42\x73\xCF\xA5\x45\xB7\xED\x5C\x39\x3F\xCE\xCD\x4A\xDE\xDC\x2B\x85\x23\x9F\x66\x52\x10\xC2\x67\xDC\xA6\x35\x94\x2D\x24\xED\xEB\xC8\x34\x6C\x4B\xD1\xA1\x15\xB4\x48\x3A\xA4\x4A\xCE\xFF\xED\x97\x0E\x07\xF3\x72\xF0\xFB\xA3\x62\x8C'
+
 
 class nPA_SAM(SAM):
 
-    def __init__(self, pin, can, mrz, puk, mf, default_se = nPA_SE):
-        SAM.__init__(self, pin, None, mf)
+    def __init__(self, eid_pin, can, mrz, puk, qes_pin, mf, default_se = nPA_SE):
+        SAM.__init__(self, qes_pin, None, mf)
         self.active = True
         self.current_SE = default_se(self.mf, self)
+        self.eid_pin = eid_pin
         self.can = can
         self.mrz = mrz
         self.puk = puk
@@ -479,8 +485,8 @@ class nPA_SAM(SAM):
                 # TODO allow terminals to change the PIN with permission "CAN allowed"
                 if not self.current_SE.at.keyref_is_pin():
                     raise SwError(SW["ERR_CONDITIONNOTSATISFIED"]) 
-                self.PIN = data
-                print "Changed PIN to %r" % self.PIN
+                self.eid_pin = data
+                print "Changed PIN to %r" % self.eid_pin
             else:
                 raise SwError(SW["ERR_DATANOTFOUND"])
         elif p1 == 0x03:
@@ -528,26 +534,24 @@ class nPA_SAM(SAM):
         return SW["NORMAL"], self.last_challenge
 
     def verify(self, p1, p2, data):
-        if (p1 != 0x80 or p2 != 0x00):
-            raise SwError(SW["ERR_INCORRECTP1P2"])
-
-        if self.current_SE.eac_step == 6:
-            structure = unpack(data)
-            for tag, length, value in structure:
-                if tag == 6 and ALGO_MAPPING[value] == "DateOfExpiry":
-                    # hell yes, this is a valid nPA
-                    # TODO actually check it...
-                    return SW["NORMAL"], ""
-                if tag == 6 and ALGO_MAPPING[value] == "DateOfBirth":
-                    # hell yes, we are old enough
-                    # TODO actually check it...
-                    return SW["NORMAL"], ""
-                if tag == 6 and ALGO_MAPPING[value] == "CommunityID":
-                    # well OK, we are living there
-                    # TODO actually check it...
-                    return SW["NORMAL"], ""
-
-        raise SwError(SW["WARN_NOINFO63"])
+        if p1 == 0x80 and p2 == 0x00:
+            if self.current_SE.eac_step == 6:
+                structure = unpack(data)
+                for tag, length, value in structure:
+                    if tag == 6 and ALGO_MAPPING[value] == "DateOfExpiry":
+                        # hell yes, this is a valid nPA
+                        # TODO actually check it...
+                        return SW["NORMAL"], ""
+                    if tag == 6 and ALGO_MAPPING[value] == "DateOfBirth":
+                        # hell yes, we are old enough
+                        # TODO actually check it...
+                        return SW["NORMAL"], ""
+                    if tag == 6 and ALGO_MAPPING[value] == "CommunityID":
+                        # well OK, we are living there
+                        # TODO actually check it...
+                        return SW["NORMAL"], ""
+        else:
+            return SAM.verify(self, p1, p2, data)
 
     def parse_SM_CAPDU(self, CAPDU, header_authentication):
         if hasattr(self.current_SE, "new_encryption_ctx"):

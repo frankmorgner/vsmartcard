@@ -97,6 +97,14 @@ For Example: GivenNames=GERTRUD. \
 The following Dataset Elements may be used in the dataset file: \
 DocumentType, IssuingState, DateOfExpiry, GivenNames, FamilyNames, ReligiousArtisticName, AcademicTitle, DateOfBirth, PlaceOfBirth, Nationality, Sex, BirthName, Country, City, ZIP, Street, CommunityID, ResidencePermit1, ResidencePermit2, dg12, dg14, dg15, dg16, dg21.\
 ")
+npa.add_argument("--esign-cert",
+        action="store",
+        type=argparse.FileType('rb'),
+        help="the card holder's certificate for QES")
+npa.add_argument("--esign-ca-cert",
+        action="store",
+        type=argparse.FileType('rb'),
+        help="the CA's certificate for QES")
 
 
 args = parser.parse_args()
@@ -107,6 +115,8 @@ ef_cardsecurity_data = None
 ef_cardaccess_data = None
 ca_key_data = None
 cvca = None
+esign_ca_cert = None
+esign_cert = None
 if (args.ef_cardsecurity):
     ef_cardsecurity_data = args.ef_cardsecurity.read()
     args.ef_cardsecurity.close()
@@ -119,6 +129,12 @@ if (args.ca_key):
 if (args.cvca):
     cvca = args.cvca.read()
     args.cvca.close()
+if (args.esign_cert):
+    esign_cert = args.esign_cert.read()
+    args.esign_cert.close()
+if (args.esign_ca_cert):
+    esign_ca_cert = args.esign_ca_cert.read()
+    args.esign_ca_cert.close()
 
 if not args.verbose:
     logginglevel = logging.CRITICAL
@@ -139,5 +155,7 @@ else:
 vicc = VirtualICC(args.file, args.datasetfile, args.type,
         hostname, args.port, readernum=args.reader,
         ef_cardaccess=ef_cardaccess_data, ef_cardsecurity=ef_cardsecurity_data,
-        ca_key=ca_key_data, cvca=cvca, disable_checks=args.disable_ta_checks, logginglevel=logginglevel)
+        ca_key=ca_key_data, cvca=cvca, disable_checks=args.disable_ta_checks,
+        esign_ca_cert=esign_ca_cert, esign_cert=esign_cert,
+        logginglevel=logginglevel)
 vicc.run()

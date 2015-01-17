@@ -297,3 +297,41 @@ int write_binary_rec(sc_card_t *card, unsigned char sfid,
 err:
     return r;
 }
+
+int fread_to_eof(const char *file, unsigned char **buf, size_t *buflen)
+{
+    FILE *input = NULL;
+    int r = 0;
+    unsigned char *p;
+
+    if (!buflen || !buf)
+        goto err;
+
+#define MAX_READ_LEN 0xfff
+    p = realloc(*buf, MAX_READ_LEN);
+    if (!p)
+        goto err;
+    *buf = p;
+
+    input = fopen(file, "rb");
+    if (!input) {
+        fprintf(stderr, "Could not open %s.\n", file);
+        goto err;
+    }
+
+    *buflen = 0;
+    while (feof(input) == 0 && *buflen < MAX_READ_LEN) {
+        *buflen += fread(*buf+*buflen, 1, MAX_READ_LEN-*buflen, input);
+        if (ferror(input)) {
+            fprintf(stderr, "Could not read %s.\n", file);
+            goto err;
+        }
+    }
+
+    r = 1;
+err:
+    if (input)
+        fclose(input);
+
+    return r;
+}

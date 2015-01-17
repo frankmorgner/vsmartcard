@@ -1842,15 +1842,15 @@ static int get_ef_card_security(sc_card_t *card,
     return read_binary_rec(card, SFID_EF_CARDSECURITY, ef_security, length_ef_security);
 }
 
-int perform_chip_authentication(sc_card_t *card)
+int perform_chip_authentication(sc_card_t *card,
+        unsigned char **ef_cardsecurity, size_t *ef_cardsecurity_len)
 {
     int r;
     BUF_MEM *picc_pubkey = NULL, *nonce = NULL, *token = NULL,
             *eph_pub_key = NULL;
-    unsigned char *ef_cardsecurity = NULL;
-    size_t ef_cardsecurity_len;
 
-    if (!card || !card->sm_ctx.info.cmd_data) {
+    if (!card || !card->sm_ctx.info.cmd_data
+            || !ef_cardsecurity || !ef_cardsecurity_len) {
         r = SC_ERROR_INVALID_ARGUMENTS;
         goto err;
     }
@@ -1863,12 +1863,14 @@ int perform_chip_authentication(sc_card_t *card)
 
 
     /* Passive Authentication */
-    r = get_ef_card_security(card, &ef_cardsecurity, &ef_cardsecurity_len);
-    if (r < 0) {
-        sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not get EF.CardSecurity.");
-        goto err;
+    if (!*ef_cardsecurity && !*ef_cardsecurity_len) {
+        r = get_ef_card_security(card, ef_cardsecurity, ef_cardsecurity_len);
+        if (r < 0 || !ef_cardsecurity || !ef_cardsecurity_len) {
+            sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not get EF.CardSecurity.");
+            goto err;
+        }
     }
-    picc_pubkey = CA_get_pubkey(eacsmctx->ctx, ef_cardsecurity, ef_cardsecurity_len);
+    picc_pubkey = CA_get_pubkey(eacsmctx->ctx, *ef_cardsecurity, *ef_cardsecurity_len);
     if (!picc_pubkey) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not verify EF.CardSecurity.");
         ssl_error(card->ctx);
@@ -1924,10 +1926,6 @@ int perform_chip_authentication(sc_card_t *card)
     }
 
 err:
-    if (ef_cardsecurity) {
-        OPENSSL_cleanse(ef_cardsecurity, ef_cardsecurity_len);
-        free(ef_cardsecurity);
-    }
     BUF_MEM_clear_free(picc_pubkey);
     BUF_MEM_clear_free(nonce);
     BUF_MEM_clear_free(token);

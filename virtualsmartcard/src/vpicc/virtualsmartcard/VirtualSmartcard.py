@@ -503,7 +503,7 @@ class RelayOS(SmartcardOS):
 
 
 class NPAOS(Iso7816OS):
-    def __init__(self, mf, sam, ins2handler=None, maxle=MAX_EXTENDED_LE, ef_cardsecurity=None, ef_cardaccess=None, ca_key=None, cvca=None, disable_checks=False):
+    def __init__(self, mf, sam, ins2handler=None, maxle=MAX_EXTENDED_LE, ef_cardsecurity=None, ef_cardaccess=None, ca_key=None, cvca=None, disable_checks=False, esign_key=None, esign_ca_cert=None, esign_cert=None):
         Iso7816OS.__init__(self, mf, sam, ins2handler, maxle)
         self.ins2handler[0x86] = self.SAM.general_authenticate
         self.ins2handler[0x2c] = self.SAM.reset_retry_counter
@@ -526,6 +526,13 @@ class NPAOS(Iso7816OS):
             self.SAM.current_SE.cvca = cvca
         if ca_key:
             self.SAM.current_SE.ca_key = ca_key
+        esign = self.mf.select('dfname', '\xA0\x00\x00\x01\x67\x45\x53\x49\x47\x4E')
+        if esign_ca_cert:
+            ef = esign.select('fid', 0xC000)
+            ef.data = esign_ca_cert
+        if esign_cert:
+            ef = esign.select('fid', 0xC001)
+            ef.data = esign_cert
 
 
     def formatResult(self, seekable, le, data, sw, sm):
@@ -642,7 +649,7 @@ class VirtualICC(object):
     the vpcd, which forwards it to the application.
     """ 
     
-    def __init__(self, filename, datasetfile, card_type, host, port, readernum=None, ef_cardsecurity=None, ef_cardaccess=None, ca_key=None, cvca=None, disable_checks=False, logginglevel=logging.INFO):
+    def __init__(self, filename, datasetfile, card_type, host, port, readernum=None, ef_cardsecurity=None, ef_cardaccess=None, ca_key=None, cvca=None, disable_checks=False, esign_key=None, esign_ca_cert=None, esign_cert=None, logginglevel=logging.INFO):
         from os.path import exists
         
         logging.basicConfig(level = logginglevel, 
@@ -674,7 +681,7 @@ class VirtualICC(object):
         if card_type == "iso7816" or card_type == "ePass":
             self.os = Iso7816OS(MF, SAM)
         elif card_type == "nPA":
-            self.os = NPAOS(MF, SAM, ef_cardsecurity=ef_cardsecurity, ef_cardaccess=ef_cardaccess, ca_key=ca_key, cvca=cvca, disable_checks=disable_checks)
+            self.os = NPAOS(MF, SAM, ef_cardsecurity=ef_cardsecurity, ef_cardaccess=ef_cardaccess, ca_key=ca_key, cvca=cvca, disable_checks=disable_checks, esign_key=esign_key, esign_ca_cert=esign_ca_cert, esign_cert=esign_cert)
         elif card_type == "cryptoflex":
             self.os = CryptoflexOS(MF, SAM)
         elif card_type == "relay":
