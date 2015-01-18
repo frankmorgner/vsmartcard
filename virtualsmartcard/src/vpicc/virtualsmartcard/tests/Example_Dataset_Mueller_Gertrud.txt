@@ -1,1 +1,0 @@
-../../../../npa-example-data/Example_Dataset_Mueller_Gertrud.txt

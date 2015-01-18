@@ -68,7 +68,7 @@ class TestNPACardGenerator(ISO7816GeneratorTest):
 
     def test_readDatagroups(self):
         path = os.path.dirname(__file__)
-        datagroupsFile = path + "/Example_Dataset_Mueller_Gertrud.txt"
+        datagroupsFile = path + "/../../../../npa-example-data/Example_Dataset_Mueller_Gertrud.txt"
         self.card_generator.readDatagroups(datagroupsFile)
         mf, sam = self.card_generator.getCard()
         self.assertIsNotNone(mf)
