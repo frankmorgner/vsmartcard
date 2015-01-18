@@ -147,5 +147,7 @@ int sc_apdu_set_resp(sc_context_t *ctx, sc_apdu_t *apdu, const u8 *buf,
  * be null terminated. */
 int _sc_match_atr(struct sc_card *card, struct sc_atr_table *table, int *type_out);
 
+int fread_to_eof(const char *file, unsigned char **buf, size_t *buflen);
+
 #endif
 /* @} */

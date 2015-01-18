@@ -180,10 +180,13 @@ int perform_terminal_authentication(sc_card_t *card,
  * Switches the SM context of \c card to the new established keys.
  *
  * @param[in] card
+ * @param[in,out] ef_cardsecurity
+ * @param[in,out] ef_cardsecurity_len
  *
  * @return \c SC_SUCCESS or error code if an error occurred
  */
-int perform_chip_authentication(sc_card_t *card);
+int perform_chip_authentication(sc_card_t *card,
+        unsigned char **ef_cardsecurity, size_t *ef_cardsecurity_len);
 
 /** 
  * @brief Sends a reset retry counter APDU

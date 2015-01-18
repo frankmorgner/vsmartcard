@@ -397,8 +397,6 @@ class Security_Environment(object):
             p1 = CAPDU.p1
         if p2 == None:
             p2 = CAPDU.p2
-        if le == None:
-            le = CAPDU.le
         # FIXME
         #if expected != "":
             #raise SwError(SW["ERR_SECMESSOBJECTSMISSING"])
