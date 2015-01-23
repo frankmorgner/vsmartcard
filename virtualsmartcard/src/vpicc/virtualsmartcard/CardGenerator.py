@@ -195,7 +195,7 @@ class CardGenerator(object):
         CommunityID = self.datagroups["CommunityID"] if "CommunityID" in self.datagroups else '02760378900276'
         if (CommunityID.rstrip() != "<NotOnChip>"):
             # the plain CommunityID integer value has to be translated into its binary representation. '0276...' will be '\x02\x76\...'
-            CommunityID = binascii.unhexlify(CommunityID)
+            CommunityID_Binary = binascii.unhexlify(CommunityID)
         # ResidencePermit1 and ResidencePermit2 are part of eAT only
         ResidencePermit1 = self.datagroups["ResidencePermit1"] if "ResidencePermit1" in self.datagroups else 'ResidencePermit1 field up to 750 characters'
         ResidencePermit2 = self.datagroups["ResidencePermit2"] if "ResidencePermit2" in self.datagroups else 'ResidencePermit1 field up to 250 characters'
@@ -282,7 +282,7 @@ class CardGenerator(object):
         else:
 		dg17 = None
         if (CommunityID.rstrip() != "<NotOnChip>"):
-		dg18 = pack([(0x72, 0, [(0x04, 0, CommunityID)])], True)
+		dg18 = pack([(0x72, 0, [(0x04, 0, CommunityID_Binary)])], True)
         else:
 		dg18 = None
         if (ResidencePermit1.rstrip() != "<NotOnChip>"):
