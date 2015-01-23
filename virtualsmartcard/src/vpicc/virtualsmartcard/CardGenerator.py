@@ -17,7 +17,7 @@
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import sys, getpass, anydbm, logging
+import sys, getpass, anydbm, logging, binascii
 from pickle import loads, dumps
 from virtualsmartcard.TLVutils import pack, unpack
 from virtualsmartcard.utils import inttostring
@@ -192,7 +192,10 @@ class CardGenerator(object):
         City = self.datagroups["City"] if "City" in self.datagroups else 'KOLN'
         ZIP = self.datagroups["ZIP"] if "ZIP" in self.datagroups else '51147'
         Street = self.datagroups["Street"] if "Street" in self.datagroups else 'HEIDESTRASSE 17'
-        CommunityID = eval(self.datagroups["CommunityID"]) if "CommunityID" in self.datagroups else '\x02\x76\x03\x78\x90\x02\x76'
+        CommunityID = self.datagroups["CommunityID"] if "CommunityID" in self.datagroups else '02760378900276'
+        if (CommunityID.rstrip() != "<NotOnChip>"):
+            # the plain CommunityID integer value has to be translated into its binary representation. '0276...' will be '\x02\x76\...'
+            CommunityID = binascii.unhexlify(CommunityID)
         # ResidencePermit1 and ResidencePermit2 are part of eAT only
         ResidencePermit1 = self.datagroups["ResidencePermit1"] if "ResidencePermit1" in self.datagroups else 'ResidencePermit1 field up to 750 characters'
         ResidencePermit2 = self.datagroups["ResidencePermit2"] if "ResidencePermit2" in self.datagroups else 'ResidencePermit1 field up to 250 characters'
@@ -204,7 +207,7 @@ class CardGenerator(object):
         dg16_param = self.datagroups["dg16"] if "dg16" in self.datagroups else ''
         dg21_param = self.datagroups["dg21"] if "dg21" in self.datagroups else ''
 
-	# "Attribute not on Chip" makes sence only for ReligiousArtisticName, Nationality, BirthName, ResidencePermit1 and ResidencePermit2, refer to BSI TR-03127
+        # "Attribute not on Chip" makes sence only for ReligiousArtisticName, Nationality, BirthName, ResidencePermit1 and ResidencePermit2, refer to BSI TR-03127
         if (DocumentType.rstrip() != "<NotOnChip>"):
 	        dg1 =  pack([(0x61, 0, [(0x13, 0, DocumentType)])], True)
         else:
@@ -278,7 +281,6 @@ class CardGenerator(object):
 					])])], True)
         else:
 		dg17 = None
-	#FIXME: Dataset file with CommunityID =<NotOnChip> still not works while assigning of non hex value due to eval()
         if (CommunityID.rstrip() != "<NotOnChip>"):
 		dg18 = pack([(0x72, 0, [(0x04, 0, CommunityID)])], True)
         else:
@@ -296,7 +298,7 @@ class CardGenerator(object):
         else:
 		dg21 = None
 
-	# If eid.append is not done for a DG, it results into required SwError() with FileNotFound "6A82" APDU return code
+        # If eid.append is not done for a DG, it results into required SwError() with FileNotFound "6A82" APDU return code
         if dg1:
         	eid.append(TransparentStructureEF(parent=eid, fid=0x0101, shortfid=0x01, data=dg1))
         if dg2:
@@ -458,6 +460,7 @@ class CardGenerator(object):
                     splitLine = line.split("=")
                     # we don't want to have the newline char from dataset file as part of the value!!
                     self.datagroups[splitLine[0]] = splitLine[1].rstrip("\n\r")
+                    logging.info("Dataset value for "+splitLine[0].rstrip()+": '"+splitLine[1].rstrip("\n\r")+"'")
 
 if __name__ == "__main__":
     from optparse import OptionParser
