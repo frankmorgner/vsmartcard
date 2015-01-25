@@ -358,7 +358,7 @@ main (int argc, char **argv)
                             npa_secret_name(pace_input.pin_id));
                     exit(2);
                 }
-                if (strlen(can) > pace_input.pin_length) {
+                if (strlen(pin) > pace_input.pin_length) {
                     fprintf(stderr, "%s too big, only %u digits allowed.\n",
                             npa_secret_name(pace_input.pin_id),
                             (unsigned int) pace_input.pin_length);
