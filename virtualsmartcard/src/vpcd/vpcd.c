@@ -113,8 +113,10 @@ static int opensock(unsigned short port)
                 sizeof server_sockaddr) != 0)
         return -1;
 
-    if (listen(sock, 0) != 0)
+    if (listen(sock, 0) != 0) {
+		close(sock);
         return -1;
+    }
 
     return sock;
 }
