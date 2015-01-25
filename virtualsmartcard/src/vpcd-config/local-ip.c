@@ -59,7 +59,7 @@ err:
 #endif
     if (!ip)
         printf("%s: %s\n" , ERROR_STRING, strerror(errno));
-    if (sock > 0)
+    if (sock >= 0)
         close(sock);
 
     return ip;
