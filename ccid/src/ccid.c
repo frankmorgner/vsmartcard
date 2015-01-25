@@ -1354,7 +1354,7 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
     }
 
     new_pin.min_length = curr_pin.min_length = wPINMaxExtraDigit >> 8;
-    new_pin.min_length = curr_pin.max_length = wPINMaxExtraDigit & 0x00ff;
+    new_pin.max_length = curr_pin.max_length = wPINMaxExtraDigit & 0x00ff;
 	if (new_pin.min_length > new_pin.max_length) {
 		/* If maximum length is smaller than minimum length, suppose minimum
 		 * length defines the exact length of the pin. */
