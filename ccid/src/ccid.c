@@ -279,9 +279,6 @@ static __u8 get_bError(int sc_result)
 {
     if (sc_result < 0) {
         switch (sc_result) {
-            case SC_SUCCESS:
-                return CCID_BERROR_OK;
-
             case SC_ERROR_KEYPAD_TIMEOUT:
                 return CCID_BERROR_PIN_TIMEOUT;
 
