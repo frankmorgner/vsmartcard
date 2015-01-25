@@ -295,7 +295,7 @@ IFDHTransmitToICC (DWORD Lun, SCARD_IO_HEADER SendPci, PUCHAR TxBuffer,
     r = IFD_SUCCESS;
 
 err:
-    if (r != IFD_SUCCESS)
+    if (r != IFD_SUCCESS && RxLength)
         *RxLength = 0;
 
     free(rapdu);

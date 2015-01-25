@@ -1739,7 +1739,10 @@ err:
     BUF_MEM_clear_free(nonce);
     BUF_MEM_clear_free(signature);
 
-    SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_NORMAL, r);
+    if (card)
+        SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_NORMAL, r);
+    else
+        return r;
 }
 
 static int npa_mse_set_at_ca(sc_card_t *card, int protocol)
@@ -1931,7 +1934,10 @@ err:
     BUF_MEM_clear_free(token);
     BUF_MEM_clear_free(eph_pub_key);
 
-    SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_NORMAL, r);
+    if (card)
+        SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_NORMAL, r);
+    else
+        return r;
 }
 
 static const char *MRZ_name = "MRZ";

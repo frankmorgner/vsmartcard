@@ -588,7 +588,7 @@ static int boxing_pin_cmd_to_buf(sc_context_t *ctx,
 
 err:
     free(pinapdu);
-    if (r < 0 && *pc_to_rdr_secure) {
+    if (r < 0 && pc_to_rdr_secure && *pc_to_rdr_secure) {
         free(*pc_to_rdr_secure);
         *pc_to_rdr_secure = NULL;
     }
@@ -925,8 +925,9 @@ void sc_detect_boxing_cmds(sc_reader_t *reader)
             || apdu.sw2 != 0x00
             || boxing_buf_to_pace_capabilities(reader->ctx,
                 apdu.resp, apdu.resplen, &capabilities) != SC_SUCCESS) {
-        sc_debug(reader->ctx, SC_LOG_DEBUG_NORMAL,
-                "%s does not support boxing commands", reader->name);
+        if (reader)
+            sc_debug(reader->ctx, SC_LOG_DEBUG_NORMAL,
+                    "%s does not support boxing commands", reader->name);
     } else {
         if (capabilities & SC_READER_CAP_PIN_PAD
                 && !(reader->capabilities & SC_READER_CAP_PIN_PAD)) {

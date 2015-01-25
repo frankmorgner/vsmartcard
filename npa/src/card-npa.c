@@ -219,7 +219,7 @@ static void npa_cache_or_free(sc_card_t *card,
 {
     struct npa_drv_data *drv_data;
 
-    if (card->drv_data) {
+    if (card && card->drv_data) {
         drv_data = card->drv_data;
 
         if (ef_cardaccess && ef_cardaccess_length
