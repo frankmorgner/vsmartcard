@@ -726,7 +726,7 @@ perform_PC_to_RDR_GetParamters(const __u8 *in, size_t inlen, __u8** out, size_t 
             result->bProtocolNum = 1;
             result->dwLength = __constant_cpu_to_le32(sizeof *t1);
 
-            t1 = (abProtocolDataStructure_T1_t *) result + sizeof *result;
+            t1 = (abProtocolDataStructure_T1_t *) (result + sizeof *result);
             /* values taken from OpenPGP-card
              * FIXME analyze ATR to get values */
             t1->bmFindexDindex     =
