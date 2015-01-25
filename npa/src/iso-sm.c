@@ -148,6 +148,7 @@ static int format_le(size_t le, struct sc_asn1_entry *le_entry,
     p = realloc(*lebuf, *le_len);
     if (!p)
         return SC_ERROR_OUT_OF_MEMORY;
+    *lebuf = p;
 
     switch (*le_len) {
         case 1:
@@ -165,7 +166,6 @@ static int format_le(size_t le, struct sc_asn1_entry *le_entry,
         default:
             return SC_ERROR_INVALID_ARGUMENTS;
     }
-    *lebuf = p;
 
     sc_format_asn1_entry(le_entry, *lebuf, le_len, SC_ASN1_PRESENT);
 
