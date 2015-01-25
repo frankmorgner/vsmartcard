@@ -308,6 +308,7 @@ int vicc_exit(struct vicc_ctx *ctx)
                 r -= 1;
             }
         }
+        free(ctx);
 #ifdef _WIN32
         WSACleanup();
 #endif
