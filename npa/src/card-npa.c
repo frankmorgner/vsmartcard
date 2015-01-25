@@ -281,6 +281,7 @@ static int npa_unlock_esign(sc_card_t *card)
             && (!st_key || !st_key_len)) {
         sc_log(card->ctx, "QES requires a comfort reader (CAT-K) or a ST certificate.\n");
         r = SC_ERROR_NOT_SUPPORTED;
+        goto err;
     }
 
     /* FIXME set flags with opensc.conf */
