@@ -159,8 +159,7 @@ int print_avail(int verbose)
 
     r = list_readers(ctx);
 
-    if (ctx)
-        sc_release_context(ctx);
+    sc_release_context(ctx);
 
     return r;
 }

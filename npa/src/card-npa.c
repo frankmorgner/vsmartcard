@@ -95,7 +95,7 @@ static int npa_load_options(sc_context_t *ctx, struct npa_drv_data *drv_data)
         goto err;
     }
 
-    for (i = 0; ctx->conf_blocks && ctx->conf_blocks[i] != NULL; i++) {
+    for (i = 0; ctx->conf_blocks; i++) {
         found_blocks = scconf_find_blocks(ctx->conf, ctx->conf_blocks[i],
                     "card_driver", "npa");
         if (!found_blocks)
