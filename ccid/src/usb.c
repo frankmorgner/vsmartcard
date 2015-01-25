@@ -863,7 +863,7 @@ static void *interrupt (void *param)
     }
     pthread_cleanup_push (close_fd, &status_fd);
 
-    int result;
+    int result = 0;
     RDR_to_PC_NotifySlotChange_t *slotchange;
     do {
         /* original LinuxThreads cancelation didn't work right */

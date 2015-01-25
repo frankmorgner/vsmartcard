@@ -329,7 +329,7 @@ npa_sm_start(sc_card_t *card, EAC_CTX *eac_ctx,
         const unsigned char *id_icc, size_t id_icc_length)
 {
     int r;
-    struct iso_sm_ctx *sctx;
+    struct iso_sm_ctx *sctx = NULL;
 
     if (!eac_ctx || !eac_ctx->key_ctx) {
         r = SC_ERROR_INVALID_ARGUMENTS;
