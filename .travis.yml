@@ -29,22 +29,8 @@ addons:
   coverity_scan:
     project:
       name: "frankmorgner/vsmartcard"
-      description: "<Your project description here>"
+      description: "Umbrella project for various projects concerned with the emulation of different types of smart card readers or smart cards themselves"
     notification_email: morgner@informatik.hu-berlin.de
-    build_command_prepend:
-      # Build libnpa, which requires OpenPACE and OpenSC
-      - cd /tmp && git clone https://github.com/frankmorgner/openpace && cd openpace && autoreconf -vsi && ./configure --enable-openssl-install --enable-python --prefix=$PREFIX && make install && cd $TRAVIS_BUILD_DIR
-      - cd npa/src/opensc && autoreconf -vsi && ./configure --prefix=$PREFIX --enable-sm && make install && cd ../../..
-      - cd npa && autoreconf -vsi && ./configure OPENSC_LIBS="-L$PREFIX/lib -lopensc -lcrypto" && cd ..
-      #Build virtualsmartcard
-      - cd virtualsmartcard && autoreconf -vsi && ./configure
-      # Build pcsc-relay, which requires libnfc
-      - cd /tmp && git clone https://code.google.com/p/libnfc && cd libnfc && autoreconf -i && ./configure --prefix=$PREFIX && cd $TRAVIS_BUILD_DIR
-      - cd pcsc-relay && autoreconf -vsi && ./configure && cd ..
-      # Build ccid
-      - cd ccid && autoreconf -vsi && ./configure OPENSSL_CFLAGS="-I$PREFIX/include" OPENSSL_LIBS="-L$PREFIX/lib -lcrypto" OPENSC_LIBS="-L$PREFIX/lib -lopensc" && cd ..
-    build_command:
-      - make -C npa
-      - make -C virtualsmartcard
-      - make -C pcsc-relay
+    build_command_prepend: "cd /tmp && git clone https://github.com/frankmorgner/openpace && cd openpace && autoreconf -vsi && ./configure --enable-openssl-install --enable-python --prefix=$PREFIX && make install && cd $TRAVIS_BUILD_DIR && cd npa/src/opensc && autoreconf -vsi && ./configure --prefix=$PREFIX --enable-sm && make install && cd ../../..  && cd npa && autoreconf -vsi && ./configure OPENSC_LIBS="-L$PREFIX/lib -lopensc -lcrypto" && cd ..  && cd virtualsmartcard && autoreconf -vsi && ./configure && cd /tmp && git clone https://code.google.com/p/libnfc && cd libnfc && autoreconf -i && ./configure --prefix=$PREFIX && cd $TRAVIS_BUILD_DIR && cd pcsc-relay && autoreconf -vsi && ./configure && cd ..  && cd ccid && autoreconf -vsi && ./configure OPENSSL_CFLAGS="-I$PREFIX/include" OPENSSL_LIBS="-L$PREFIX/lib -lcrypto" OPENSC_LIBS="-L$PREFIX/lib -lopensc" && cd .."
+    build_command: "make -C npa && make -C virtualsmartcard && make -C pcsc-relay"
     branch_pattern: coverity_scan
