@@ -1,29 +1,59 @@
 language: C
-before_install: sudo apt-get update
-install: sudo apt-get install help2man gengetopt libpcsclite-dev libusb-dev swig python-dev
-compiler:
-    - gcc
+
+matrix:
+  include:
+    #- compiler: clang
+    - compiler: gcc
+    #- compiler: gcc
+    #  env: HOST=i686-w64-mingw32
+
 env:
-    global:
-        - PKG_CONFIG_PATH=/tmp/install/lib/pkgconfig
-        - PREFIX=/tmp/install
-        - PYTHONPATH=$PYTHONPATH:$PREFIX/lib/python2.7/site-packages/
-        # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
-        #   via the "travis encrypt" command using the project repo's public key
-        - secure: "M+eNZPASDoFdWZUeSyu4whvPKaOwd0AlCmGWKc7SRbQPD8x8Ao8y3+kr++YonsWBnDUqQSNg3v4uWsJOo2Q57qMQ+FYcNlEjrYpXXSRdH4BnYnTH1WfNnTce7N5Bln9wxE+khe7cZJcxy+gvd+YiutQvHjT+bTzrs2MtHD0Odlw="
-script:
-    # Build libnpa, which requires OpenPACE and OpenSC
-    - cd /tmp && git clone https://github.com/frankmorgner/openpace && cd openpace && autoreconf -vsi && ./configure --enable-openssl-install --enable-python --prefix=$PREFIX && make install && cd $TRAVIS_BUILD_DIR
-    - cd npa/src/opensc && autoreconf -vsi && ./configure --prefix=$PREFIX --enable-sm && make install && cd ../../..
-    - cd npa && autoreconf -vsi && ./configure OPENSC_LIBS="-L$PREFIX/lib -lopensc -lcrypto" && make && cd ..
-    #Build virtualsmartcard
-    - cd virtualsmartcard && autoreconf -vsi && ./configure && make
-    - cd src/vpicc/ && export PYTHONPATH=$PYTHONPATH:`pwd` && export LD_LIBRARY_PATH=$PREFIX/lib/ && python -m unittest discover -s virtualsmartcard.tests -p *_test.py -v && cd $TRAVIS_BUILD_DIR
-    # Build pcsc-relay, which requires libnfc
-    - cd /tmp && git clone https://code.google.com/p/libnfc && cd libnfc && autoreconf -i && ./configure --prefix=$PREFIX && make install && cd $TRAVIS_BUILD_DIR
-    - cd pcsc-relay && autoreconf -vsi && ./configure && make && cd ..
-    # Build ccid
-    - cd ccid && autoreconf -vsi && ./configure OPENSSL_CFLAGS="-I$PREFIX/include" OPENSSL_LIBS="-L$PREFIX/lib -lcrypto" OPENSC_LIBS="-L$PREFIX/lib -lopensc" && make
+  global:
+    - PKG_CONFIG_PATH=/tmp/install/lib/pkgconfig
+    - PREFIX=/tmp/install
+    - PYTHONPATH=$PYTHONPATH:$PREFIX/lib/python2.7/site-packages/
+    # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+    #   via the "travis encrypt" command using the project repo's public key
+    - secure: "M+eNZPASDoFdWZUeSyu4whvPKaOwd0AlCmGWKc7SRbQPD8x8Ao8y3+kr++YonsWBnDUqQSNg3v4uWsJOo2Q57qMQ+FYcNlEjrYpXXSRdH4BnYnTH1WfNnTce7N5Bln9wxE+khe7cZJcxy+gvd+YiutQvHjT+bTzrs2MtHD0Odlw="
+
+before_install:
+  - sudo apt-get update
+
+install:
+  - sudo apt-get install help2man gengetopt libpcsclite-dev libusb-dev swig python-dev
+  - if [ ! -z "$HOST" ]; then
+      sudo apt-get install mingw-w64 binutils-mingw-w64-i686 gcc-mingw-w64-i686;
+    fi
+
+before_script:
+  # libnpa requires OpenPACE and OpenSC
+  - if [ ! -z "$HOST" ]; then
+      unset CC;
+      unset CXX;
+      unset RANLIB;
+      unset AR;
+      unset AS;
+      unset LD;
+      unset DLLTOOL;
+      unset NM;
+      unset OBJDUMP;
+      unset PKG_CONFIG;
+      unset RC;
+      unset STRIP;
+    fi
+  - git clone https://github.com/frankmorgner/openpace && cd openpace && autoreconf -vsi && ./configure --enable-openssl-install --enable-python --prefix=$PREFIX && make install
+  - cd $TRAVIS_BUILD_DIR/npa/src/opensc && autoreconf -vsi && ./configure --host=$HOST --prefix=$PREFIX --enable-sm && make install
+  # Configure libnpa
+  - cd $TRAVIS_BUILD_DIR/npa && autoreconf -vsi && ./configure --host=$HOST OPENSC_LIBS="-L$PREFIX/lib -lopensc -lcrypto"
+  # Configure virtualsmartcard
+  - cd $TRAVIS_BUILD_DIR/virtualsmartcard && autoreconf -vsi && ./configure --host=$HOST
+  # pcsc-relay requires libnfc
+  - git clone https://code.google.com/p/libnfc && cd libnfc && autoreconf -i && ./configure --host=$HOST --prefix=$PREFIX && make install
+  # Configure pcsc-relay
+  - cd $TRAVIS_BUILD_DIR/pcsc-relay && autoreconf -vsi && ./configure --host=$HOST
+  - if [ -z "$HOST" ]; then
+      cd $TRAVIS_BUILD_DIR/ccid && autoreconf -vsi && ./configure OPENSSL_CFLAGS="-I$PREFIX/include" OPENSSL_LIBS="-L$PREFIX/lib -lcrypto" OPENSC_LIBS="-L$PREFIX/lib -lopensc";
+    fi
 
 addons:
   coverity_scan:
@@ -31,6 +61,21 @@ addons:
       name: "frankmorgner/vsmartcard"
       description: "Umbrella project for various projects concerned with the emulation of different types of smart card readers or smart cards themselves"
     notification_email: morgner@informatik.hu-berlin.de
-    build_command_prepend: cd /tmp && git clone https://github.com/frankmorgner/openpace && cd openpace && autoreconf -vsi && ./configure --enable-openssl-install --enable-python --prefix=$PREFIX && make install && cd $TRAVIS_BUILD_DIR && cd npa/src/opensc && autoreconf -vsi && ./configure --prefix=$PREFIX --enable-sm && make install && cd ../../..  && cd npa && autoreconf -vsi && ./configure OPENSC_LIBS="-L$PREFIX/lib -lopensc -lcrypto" && cd ..  && cd virtualsmartcard && autoreconf -vsi && ./configure && cd /tmp && git clone https://code.google.com/p/libnfc && cd libnfc && autoreconf -i && ./configure --prefix=$PREFIX && cd $TRAVIS_BUILD_DIR && cd pcsc-relay && autoreconf -vsi && ./configure && cd ..  && cd ccid && autoreconf -vsi && ./configure OPENSSL_CFLAGS="-I$PREFIX/include" OPENSSL_LIBS="-L$PREFIX/lib -lcrypto" OPENSC_LIBS="-L$PREFIX/lib -lopensc" && cd ..
-    build_command: "make -C npa && make -C virtualsmartcard && make -C pcsc-relay"
+    build_command: make -C $TRAVIS_BUILD_DIR/npa -C $TRAVIS_BUILD_DIR/virtualsmartcard -C $TRAVIS_BUILD_DIR/ccid -C $TRAVIS_BUILD_DIR/pcsc-relay
     branch_pattern: coverity_scan
+
+script:
+  # Build libnpa
+  - make -C $TRAVIS_BUILD_DIR/npa
+  # Build virtualsmartcard
+  - make -C $TRAVIS_BUILD_DIR/virtualsmartcard
+  # Verify virtualsmartcard
+  - if [ -z "$HOST" ]; then
+      cd $TRAVIS_BUILD_DIR/virtualsmartcard/src/vpicc && export PYTHONPATH=$PYTHONPATH:`pwd` && export LD_LIBRARY_PATH=$PREFIX/lib/ && python -m unittest discover -s virtualsmartcard.tests -p *_test.py -v;
+    fi
+  # Build pcsc-relay
+  - make -C $TRAVIS_BUILD_DIR/pcsc-relay
+  # Build ccid
+  - if [ -z "$HOST" ]; then
+      make -C $TRAVIS_BUILD_DIR/ccid;
+    fi
