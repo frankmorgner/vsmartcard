@@ -110,8 +110,10 @@ static int opensock(unsigned short port)
     server_sockaddr.sin_addr.s_addr = htonl(INADDR_ANY);
 
     if (bind(sock, (struct sockaddr *) &server_sockaddr,
-                sizeof server_sockaddr) != 0)
+                sizeof server_sockaddr) != 0) {
+        close(sock);
         return -1;
+    }
 
     if (listen(sock, 0) != 0) {
 		close(sock);
