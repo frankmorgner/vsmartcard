@@ -1,6 +1,6 @@
 #Virtual Smart Card Architecture
 
-[![Build Status Image](https://travis-ci.org/frankmorgner/vsmartcard.png?branch=master)](https://travis-ci.org/frankmorgner/vsmartcard)
+[![Build Status Image](https://travis-ci.org/frankmorgner/vsmartcard.png?branch=master)](https://travis-ci.org/frankmorgner/vsmartcard) [![Coverity Scan Build Status](https://scan.coverity.com/projects/3987/badge.svg)](https://scan.coverity.com/projects/3987)
 
 Virtual Smart Card Architecture is an umbrella project for various
 projects concerned with the emulation of different types of smart card readers
