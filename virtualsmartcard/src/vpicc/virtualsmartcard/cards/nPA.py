@@ -34,13 +34,13 @@ class nPA_AT_CRT(ControlReferenceTemplate):
     PACE_CAN = 0x02
     PACE_PIN = 0x03
     PACE_PUK = 0x04
-    DateOfBirth = None
-    DateOfExpiry = None
-    CommunityID = None
 
     def __init__(self):
         ControlReferenceTemplate.__init__(self, CRT_TEMPLATE["AT"])
         self.chat = None
+        DateOfBirth = None
+        DateOfExpiry = None
+        CommunityID = None
 
     def keyref_is_mrz(self):
         if self.keyref_secret_key == '%c'% self.PACE_MRZ:
@@ -72,32 +72,26 @@ class nPA_AT_CRT(ControlReferenceTemplate):
                 tag, length, value = tlv
                 if tag == 0x7f4c:
                     self.chat = CHAT(bertlv_pack([[tag, length, value]]))
-                    print(self.chat)
                 elif tag == 0x67:
                     self.auxiliary_data = bertlv_pack([[tag, length, value]])
-                    # extract reference values for DocumentValiditaCheck, AgeVerificatiobCheck and PlaceVerificationCheck
-                    # first we have up to three objects, one for each reference value
-                    for subtlv in value:
-                        subtag, sublength, subvalue = subtlv
-                        # extract oid value which is given within TagID = 6
-                        oidtlv = tlv_find_tag(subvalue, 6)
-                        for oiddetails in oidtlv:
-                            oidtag, oidlength, oidvalue = oiddetails
-                            # extract finally the reference value which is given within TagID = 83
-                            valtlv = tlv_find_tag(subvalue, 83)
-                            val = decodeDiscretionaryDataObjects(valtlv)
-                            if ALGO_MAPPING[oidvalue] == "DateOfBirth":
-                                logging.info("ALGO_MAPPING[oid] == DateOfBirth matched")
-                                nPA_AT_CRT.DateOfBirth = int(val[0])
-                                logging.info("extracted value for reference DateOfBirth: " + str(nPA_AT_CRT.DateOfBirth))
-                            elif ALGO_MAPPING[oidvalue] == "DateOfExpiry":
-                                logging.info("ALGO_MAPPING[oid] == DateOfExpiry matched")
-                                nPA_AT_CRT.DateOfExpiry = int(val[0])
-                                logging.info("extracted value for reference DateOfExpiry: " + str(nPA_AT_CRT.DateOfExpiry))
-                            elif ALGO_MAPPING[oidvalue] == "CommunityID":
-                                logging.info("ALGO_MAPPING[oid] == CommunityID matched")
-                                nPA_AT_CRT.CommunityID = binascii.hexlify(val[0])
-                                logging.info("extracted value for reference CommunityID: " + str(nPA_AT_CRT.CommunityID))
+                    # extract reference values for verifying
+                    # DateOfBirth, DateOfExpiry and CommunityID
+                    for ddo in decodeDiscretionaryDataObjects(value):
+                        try:
+                            oidvalue = ddo[0][2]
+                            reference = ddo[1][2]
+                            mapped_algo = ALGO_MAPPING[oidvalue]
+                            if mapped_algo == "DateOfBirth":
+                                self.DateOfBirth = int(reference)
+                                logging.info("Found reference DateOfBirth: " + str(self.DateOfBirth))
+                            elif mapped_algo == "DateOfExpiry":
+                                self.DateOfExpiry = int(reference)
+                                logging.info("Found reference DateOfExpiry: " + str(self.DateOfExpiry))
+                            elif mapped_algo == "CommunityID":
+                                self.CommunityID = binascii.hexlify(reference)
+                                logging.info("Found reference CommunityID: " + str(self.CommunityID))
+                        except:
+                            pass
                 elif tag == 0x80 or tag == 0x84 or tag == 0x83 or tag == 0x91:
                     # handled by ControlReferenceTemplate.parse_SE_config
                     pass
@@ -563,90 +557,53 @@ class nPA_SAM(SAM):
     def verify(self, p1, p2, data):
         if p1 == 0x80 and p2 == 0x00:
             if self.current_SE.eac_step == 6:
-                structure = unpack(data)
-                for tag, length, value in structure:
-                    if tag == 6 and ALGO_MAPPING[value] == "DateOfExpiry":
-                        logging.info("Doing verify command for DocumentValidityCheck with reference value: " + str(nPA_AT_CRT.DateOfExpiry))
-                        # extract DateOfExpiry DG3 value
-                        dg3 = self.mf.select('filedescriptor' , 0x38).select('fid', 0x0103).data
-                        dg_structure = unpack(dg3)
-                        # dg_structure is a TLV object with a sub TLV in value part
-                        for data in dg_structure:
-                            datatag, datalength, datavalue = data
-                            # datavalue contains now the datagroup value
-                            dg_entry = tlv_find_tag(datavalue, 18)
-                            for detail in dg_entry:
-                                dgtag, dglength, dgvalue = detail
-                                logging.info("dg3 DateOfExpiry value: " + str(dgvalue))
-                                dg3_DateOfExpiry = int(dgvalue)
-                        # Verification result OK ==SW["NORMAL"]  / Failed = SW["WARN_NOINFO63"]
-                        logging.info("is reference DateOfExpiry < dg3_DateOfExpiry ?")
-                        logging.info("is " + str(nPA_AT_CRT.DateOfExpiry) + " < " + str(dg3_DateOfExpiry) + " ?") 
-                        if nPA_AT_CRT.DateOfExpiry < dg3_DateOfExpiry:
-                            logging.info("Verify result: OK")
+                # data should only contain exactly OID
+                [(tag, _, value)] = structure = unpack(data)
+                if tag == 6:
+                    mapped_algo = ALGO_MAPPING[value]
+                    eid = self.mf.select('dfname', '\xe8\x07\x04\x00\x7f\x00\x07\x03\x02')
+                    if mapped_algo == "DateOfExpiry":
+                        [(_, _, [(_, _, mine)])] = unpack(eid.select('fid', 0x0103).data)
+                        logging.info("DateOfExpiry: " + str(mine)
+                                + "; reference: " + str(self.current_SE.at.DateOfExpiry))
+                        if self.current_SE.at.DateOfExpiry < mine:
+                            print("Date of expiry verified")
                             return SW["NORMAL"], ""
                         else:
-                            logging.info("Verify result: Failed")
+                            print("Date of expiry not verified (expired)")
                             return SW["WARN_NOINFO63"], ""
-					   
-                    if tag == 6 and ALGO_MAPPING[value] == "DateOfBirth":
-                        logging.info("Doing verify command for AgeVerificationCheck with reference value: " + str(nPA_AT_CRT.DateOfBirth))
-                        # extract DateOfBirth DG8 value
-                        dg8 = self.mf.select('filedescriptor' , 0x38).select('fid', 0x0108).data
-                        dg_structure = unpack(dg8)
-                        # dg_structure is a TLV object with a sub TLV in value part
-                        for data in dg_structure:
-                            datatag, datalength, datavalue = data
-                            # datavalue contains now the datagroup value
-                            dg_entry = tlv_find_tag(datavalue, 18)
-                            for detail in dg_entry:
-                                dgtag, dglength, dgvalue = detail
-                                logging.info("dg8 DateOfBirth value: " + str(dgvalue))
-                                dg8_DateOfBirth = int(dgvalue)
-                        # !!! TODO FixMe validation against incomplete birth date in dg8_DateOfBirth where "XX" is a missing part !!!
-                        # case1: YYYY-MM-DD (normal)
-                        # case2: YYYY-MM-XX --> will be mapped to last day of the given month
-                        # case3: YYYY-XX-XX --> will be mapped to YYYY-12-31
-                        # Verification result OK ==SW["NORMAL"]  / Failed = SW["WARN_NOINFO63"]
-                        if len(str(dg8_DateOfBirth))==6:
-                            logging.info("Verify result: Failed because of missing implementation for validation against incomplete birth date")
-                            return SW["WARN_NOINFO63"], ""
-                        elif len(str(dg8_DateOfBirth))==4:
-                            logging.info("Incomplete birth date with 'year' found only. Will map it to 'YYYY-12-31'")
-                            dg8_DateOfBirth = int(str(dg8_DateOfBirth) + "1231")
-
-                        logging.info("is reference DateOfBirth > dg8_DateOfBirth ?")
-                        logging.info("is " + str(nPA_AT_CRT.DateOfBirth) + " > " + str(dg8_DateOfBirth) + " ?") 
-                        if nPA_AT_CRT.DateOfBirth > dg8_DateOfBirth:
-                           logging.info("Verify result: OK")
-                           return SW["NORMAL"], ""
-                        else:
-                           logging.info("Verify result: Failed")
-                           return SW["WARN_NOINFO63"], ""
-
-                    if tag == 6 and ALGO_MAPPING[value] == "CommunityID":
-                        logging.info("Doing verify command for PlaceVerificationCheck with reference value: " + str(nPA_AT_CRT.CommunityID)) 
-                        # extract CommunityID DG18 value
-                        dg18 = self.mf.select('filedescriptor' , 0x38).select('fid', 0x0112).data
-                        dg_structure = unpack(dg18)
-                        # dg_structure is a TLV object with a sub TLV in value part
-                        for data in dg_structure:
-                            datatag, datalength, datavalue = data
-                            # datavalue contains now the datagroup value
-                            dg_entry = tlv_find_tag(datavalue, 4)
-                            for detail in dg_entry:
-                                dgtag, dglength, dgvalue = detail
-                                dg18_CommunityID = binascii.hexlify(dgvalue)
-                                logging.info("dg18 CommunityID value: " + str(dg18_CommunityID))
-                        # Verification result OK ==SW["NORMAL"]  / Failed = SW["WARN_NOINFO63"]
-                        logging.info("does dg18_CommunityID starts with reference CommunityID ?")
-                        logging.info("does '" + str(dg18_CommunityID) + "' starts with '" + str(nPA_AT_CRT.CommunityID) + "' ?") 
-                        if dg18_CommunityID.startswith(nPA_AT_CRT.CommunityID):
-                            logging.info("Verify result: OK")
+                    elif mapped_algo == "DateOfBirth":
+                        [(_, _, [(_, _, mine)])] = unpack(eid.select('fid', 0x0108).data)
+                        # case1: YYYYMMDD -> good
+                        # case2: YYYYMM   -> mapped to last day of given month, i.e. YYYYMM31 ;-)
+                        # case3: YYYY     -> mapped to YYYY-12-31
+                        if len(str(mine)) == 6:
+                            mine = int(str(mine) + "31")
+                        elif len(str(mine)) == 4:
+                            mine = int(str(mine) + "1231")
+                        logging.info("DateOfBirth: " + str(mine)
+                                + "; reference: " + str(self.current_SE.at.DateOfExpiry))
+                        if self.current_SE.at.DateOfBirth < mine:
+                            print("Date of birth verified (old enough)")
                             return SW["NORMAL"], ""
                         else:
-                            logging.info("Verify result: Failed")
+                            print("Date of birth not verified (too young)")
                             return SW["WARN_NOINFO63"], ""
+                    elif mapped_algo == "CommunityID":
+                        [(_, _, [(_, _, mine)])] = unpack(eid.select('fid', 0x0112).data)
+                        mine = binascii.hexlify(mine)
+                        logging.info("CommunityID: " + str(mine)
+                                + "; reference: " + str(self.current_SE.at.CommunityID))
+                        if mine.startswith(self.current_SE.at.CommunityID):
+                            print("Community ID verified (living there)")
+                            return SW["NORMAL"], ""
+                        else:
+                            print("Community ID not verified (not living there)")
+                            return SW["WARN_NOINFO63"], ""
+                    else:
+                        return SwError(SW["ERR_DATANOTFOUND"])
+                else:
+                    return SwError(SW["ERR_DATANOTFOUND"])
 
         else:
             return SAM.verify(self, p1, p2, data)
@@ -657,8 +614,8 @@ class nPA_SAM(SAM):
                 protocol = "PACE"
             else:
                 protocol = "CA"
-            print "switching to new encryption context established in %s:" % protocol
-            print eac.EAC_CTX_print_private(self.current_SE.eac_ctx, 4)
+            logging.info("switching to new encryption context established in %s:" % protocol)
+            logging.info(eac.EAC_CTX_print_private(self.current_SE.eac_ctx, 4))
 
             eac.EAC_CTX_set_encryption_ctx(self.current_SE.eac_ctx, self.current_SE.new_encryption_ctx)
 
