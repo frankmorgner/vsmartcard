@@ -96,12 +96,12 @@ static int opensock(unsigned short port)
     if (sock < 0)
         return -1;
 
-    if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (void *) &yes, sizeof yes) != 0)
-		return -1;
+    if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (void *) &yes, sizeof yes) != 0) 
+        goto err;
 
 #if HAVE_DECL_SO_NOSIGPIPE
     if (setsockopt(sock, SOL_SOCKET, SO_NOSIGPIPE, (void *) &yes, sizeof yes) != 0)
-		return -1;
+        goto err;
 #endif
 
     memset(&server_sockaddr, 0, sizeof server_sockaddr);
@@ -110,17 +110,18 @@ static int opensock(unsigned short port)
     server_sockaddr.sin_addr.s_addr = htonl(INADDR_ANY);
 
     if (bind(sock, (struct sockaddr *) &server_sockaddr,
-                sizeof server_sockaddr) != 0) {
-        close(sock);
-        return -1;
-    }
+                sizeof server_sockaddr) != 0) 
+        goto err;
 
-    if (listen(sock, 0) != 0) {
-		close(sock);
-        return -1;
-    }
+    if (listen(sock, 0) != 0)
+        goto err;
 
     return sock;
+
+err:
+    close(sock);
+
+    return -1;
 }
 
 static int connectsock(const char *hostname, unsigned short port)
