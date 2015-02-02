@@ -223,11 +223,15 @@ input. You can use |npa-tool| to unblock or resume the eID-PIN.
 The German ID card is capable of creating a qualified electronic signature.
 Therefor, the card must be initialized by a trust center with the user's
 consent. Today this means, that the user need to register for `sign-me`_. The
-process also initializes the QES-PIN, which unlocks the signature key. Below,
-you can see two examples how to create a signature::
+process also initializes the QES-PIN, which unlocks the signature key. An
+intializesed card can be used for electronic signature, with a Comfort Reader
+(KAT-K) [#footnote1]_ that authenticates as signature terminal to the card.
+Below, you can see two examples how to create a signature::
 
-    pkcs15-crypt --sign --sha-256 --input $SHA256_FILE --pin $QES_PIN
-    pkcs11-tool --module opensc-pkcs11.so --sign --pin $QES_PIN --input-file $SHA256_FILE
+    # SHA256_FILE is set to a file of 32 bytes length
+    # QES PIN will be prompted by the reader
+    pkcs15-crypt --sign --sha-256 --input $SHA256_FILE
+    pkcs11-tool --module opensc-pkcs11.so --sign --input-file $SHA256_FILE
 
 
 .. include:: questions.txt
@@ -243,3 +247,6 @@ Notes and References
 .. _OpenSC: https://github.com/OpenSC/OpenSC
 .. _OpenSSL: http://www.openssl.org
 .. _sign-me: https://www.bundesdruckerei.de/en/798-sign-me
+.. _BSI TR-03119: https://www.bsi.bund.de/SharedDocs/Downloads/EN/BSI/Publications/TechGuidelines/TR03119/BSI-TR-03119_V1_pdf.pdf
+.. _Reiner SCT cyberJack RFID komfort: http://www.reiner-sct.com/produkte/chipkartenleser/cyberJack_RFID_komfort.html
+.. [#footnote1] A Comfort Reader is defined by `BSI TR-03119`_. Today the `Reiner SCT cyberJack RFID komfort`_ is the only reader that supports this configuration.
