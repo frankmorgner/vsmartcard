@@ -43,7 +43,7 @@ parser.add_argument("-v", "--verbose",
         help="Use (several times) to be more verbose")
 parser.add_argument("-f", "--file",
         action="store",
-        type=argparse.FileType('r'),
+        type=str,
         help="load a saved smart card image")
 parser.add_argument("-H", "--hostname",
         action="store",
