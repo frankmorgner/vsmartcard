@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.IsoDep;
+import android.os.Build;
 import android.util.Log;
 
 import com.vsmartcard.remotesmartcardreader.app.Hex;
