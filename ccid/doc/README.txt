@@ -25,6 +25,54 @@ standard USB CCID reader. USB CCID Emulator can be used as trusted intermediary
 enabling secure PIN entry and PIN modification. In combination with the |libnpa|
 also |PACE| can be performed by the emulator.
 
+.. tikz:: Portable smart card reader with trusted user interface
+    :stringsubst:
+    :libs: arrows, calc, fit, patterns, plotmarks, shapes.geometric, shapes.misc, shapes.symbols, shapes.arrows, shapes.callouts, shapes.multipart, shapes.gates.logic.US, shapes.gates.logic.IEC, er, automata, backgrounds, chains, topaths, trees, petri, mindmap, matrix, calendar, folding, fadings, through, positioning, scopes, decorations.fractals, decorations.shapes, decorations.text, decorations.pathmorphing, decorations.pathreplacing, decorations.footprints, decorations.markings, shadows
+
+    \input{%(wd)s/bilder/tikzstyles.tex}
+    \tikzstyle{bla}=[kleiner, text width=.45\textwidth]
+
+    \node (reader)
+    {\includegraphics[width=1cm]{%(wd)s/bilder/my_cardreader.pdf}};
+    \node (readertext) [right=0of reader, bla]
+    {Smartphone provides smart card reader via USB};
+    \node (display) [below=0of reader]
+    {\includegraphics[width=1cm]{%(wd)s/bilder/display.pdf}};
+    \node (displaytext) [right=0of display, bla]
+    {Secure display of service provider and purpose of transaction};
+    \node (keyboard) [below=0of display]
+    {\includegraphics[width=1cm]{%(wd)s/bilder/keyboard.pdf}};
+    \node (keyboardtext) [right=0of keyboard, bla]
+    {Secure PIN Entry};
+    \node (firewall) [below=0of keyboard]
+    {\includegraphics[width=1cm]{%(wd)s/bilder/Firewall.pdf}};
+    \node (firewalltext) [right=0of firewall, bla]
+    {Verification of terminal authentication and sanitiy checks};
+
+    \node (features) [fit=(display) (keyboard) (reader) (firewall)] {};
+
+    \node (moko) [left=0of features.west] {\includegraphics[height=4cm]{%(wd)s/bilder/phone-fic-neo-freerunner.pdf}};
+
+    \node (epa) [left=1.5of moko, yshift=-2cm]
+    {\includegraphics[width=3cm]{%(wd)s/bilder/nPA_VS.png}};
+    \node (pc)  [left=1.5of moko, yshift=1.5cm]
+    {\includegraphics[width=3cm]{%(wd)s/bilder/computer-tango.pdf}};
+
+    \begin{pgfonlayer}{background}
+
+        \node (mokobox) 
+        [box,
+        fit=(moko) (readertext) (displaytext) (keyboardtext) (firewalltext)
+        (features)] {};
+
+        \draw [usb]
+        (moko) -- (pc.center) ;
+        \draw [decorate, decoration={expanding waves, angle=20, segment length=6}, nichtrundelinie]
+        (moko) -- (epa) ;
+
+    \end{pgfonlayer}
+
+
 If the machine running :command:`ccid-emulator` is in USB device mode, a local
 reader is forwareded via USB to another machine. If in USB host mode, the USB
 CCID reader will locally be present.
@@ -49,6 +97,87 @@ PIN verification/modification and |PACE| can also be started by the application
 transmitting (SCardTransmit) specially crafted APDUs.  Only the alternative
 initialization of |PACE| using SCardControl requires patching the driver
 (available for libccid, see :file:`patches`). The pseudo APDUs with no need for
+
+.. tikz:: Implementation of a mobile smart card reader for the German ID card
+    :stringsubst:
+    :libs: arrows, calc, fit, patterns, plotmarks, shapes.geometric, shapes.misc, shapes.symbols, shapes.arrows, shapes.callouts, shapes.multipart, shapes.gates.logic.US, shapes.gates.logic.IEC, er, automata, backgrounds, chains, topaths, trees, petri, mindmap, matrix, calendar, folding, fadings, through, positioning, scopes, decorations.fractals, decorations.shapes, decorations.text, decorations.pathmorphing, decorations.pathreplacing, decorations.footprints, decorations.markings, shadows
+
+    \input{%(wd)s/bilder/tikzstyles.tex}
+    \tikzstyle{keks}=[to path={-- ++(.1,0) |- (\tikztotarget)}]
+
+    \tikzstyle{bla}=[shape=rectangle split, rectangle split parts=2,
+    every text node part/.style={align=center, klein}, text width=7cm,
+    every second node part/.style={kleiner}, inner sep=0pt]
+
+    \node (ccid-emulator)
+    {\texttt{ccid-emulator}};
+
+    \node (basis) [below=3of ccid-emulator]
+    {\includegraphics[keepaspectratio, height=2cm,
+        width=2cm]{%(wd)s/bilder/moko/basisleser_plain_klein.png}};
+    \node (basisbeschreibung) [below=0cm of basis, kleiner, text width=2cm]
+    {Reiner SCT RFID basis};
+
+    \node (npa) [left=1.5of basis]
+    {\includegraphics[keepaspectratio, height=3cm,
+        width=3cm]{%(wd)s/bilder/nPA_VS.png}};
+    \node (npabeschreibung) [below=0cm of npa, kleiner]
+    {German identity card};
+
+    \node (funktionenchat) [right=.6cm of ccid-emulator.east, anchor=text west, bla]
+    {
+        PACE
+        \nodepart{second}
+        \begin{itemize}
+
+        \item Display CHAT
+            \begin{itemize}
+                \item Display context (eID/eSign)
+                \item Display requested permissions
+            \end{itemize}
+
+            \item Display certificate description
+            \begin{itemize}
+                \item Identification of service provider
+                \item Display purpose of transaction
+            \end{itemize}
+
+            \item Secure PIN entry
+        \end{itemize}
+    };
+    \node (funktionenpace) [below=.5 of funktionenchat, bla]
+    {
+        Terminal Authentication
+        \nodepart{second}
+		\begin{itemize}
+            \item Verify authenticy of terminal
+            \item Check freshness of cv certificate
+        \end{itemize}
+    };
+
+    \begin{pgfonlayer}{background}
+        \node (box) [fit=(ccid-emulator) (basis) (basisbeschreibung)
+        (funktionenchat) (funktionenpace), box, inner sep=.5cm] {};
+        \node (boxbild) at (box.north west)
+        {\includegraphics[keepaspectratio, height=1.5cm,
+        width=1.5cm]{%(wd)s/bilder/moko/moko_reader.png}};
+        \node [right=0cm of boxbild.east, yshift=.3cm]
+        {Openmoko Neo FreeRunner};
+    \end{pgfonlayer}
+
+    \node (a) [above=1of npa]
+	{\includegraphics[keepaspectratio, height=3cm,
+	width=3cm]{%(wd)s/bilder/computer-tango.pdf}};
+
+
+    \begin{pgfonlayer}{background}
+        \path
+        (ccid-emulator) edge [doppelpfeil] (basis)
+        (basis) edge [rfid] (npa)
+        (a.center) edge [usb] (ccid-emulator)
+        (ccid-emulator.east) edge [pfeil, keks] (funktionenchat.text west)
+        (ccid-emulator.east) edge [pfeil, keks] (funktionenpace.text west);
+    \end{pgfonlayer}
 patches are defined as follows (see `BSI TR-03119 1.3`_ p. 33-34):
 
 +--------------------------+----------------------------------------------------------------------------+------------------------------------------------+
@@ -126,12 +255,6 @@ tools.
     \texttt{/dev/gadget/ep3-bulk}\\};
 
 
-
-.. include:: download.txt
-
-
-.. include:: autotools.txt
-
 Running the USB CCID Emulator has the following dependencies:
 
 - Linux Kernel with GadgetFS_
@@ -141,6 +264,12 @@ Running the USB CCID Emulator has the following dependencies:
 Whereas using the USB CCID Emulator on the host system as smart card reader only
 needs a usable PC/SC middleware with USB CCID driver. This is the case for most
 modern Windows and Unix-like systems by default.
+
+
+.. include:: download.txt
+
+
+.. include:: autotools.txt
 
 
 =================
