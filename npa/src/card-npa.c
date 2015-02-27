@@ -341,19 +341,19 @@ static int npa_init(sc_card_t * card)
     card->max_send_size = 0xFFFF;
     memset(&card->sm_ctx, 0, sizeof card->sm_ctx);
 
-    r = _sc_card_add_ec_alg(card, 192, flags, ext_flags);
+    r = _sc_card_add_ec_alg(card, 192, flags, ext_flags, NULL);
     if (r != SC_SUCCESS)
         goto err;
-    r = _sc_card_add_ec_alg(card, 224, flags, ext_flags);
+    r = _sc_card_add_ec_alg(card, 224, flags, ext_flags, NULL);
     if (r != SC_SUCCESS)
         goto err;
-    r = _sc_card_add_ec_alg(card, 256, flags, ext_flags);
+    r = _sc_card_add_ec_alg(card, 256, flags, ext_flags, NULL);
     if (r != SC_SUCCESS)
         goto err;
     /* nPA does not encode the proprietary fieldSize in PrivateECKeyAttributes,
      * which leaves it at 0 for OpenSC, so we need to add 0x00 as supported
      * field_length */
-    r = _sc_card_add_ec_alg(card, 0, flags, ext_flags);
+    r = _sc_card_add_ec_alg(card, 0, flags, ext_flags, NULL);
     if (r != SC_SUCCESS)
         goto err;
 
