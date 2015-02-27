@@ -95,6 +95,13 @@ The file :file:`utils.py` was taken from Henryk Plötz's cyberflex-shell_.
         ;
     \end{pgfonlayer}
 
+On Android, where a traditional PC/SC framework is not available, you can use
+our framework to make your real contact-less smart accessible through PKCS#11.
+For example, an email signing application can use the PKCS#11 interface of
+OpenSC, which is linked against our PC/SC implementation. Then an Android App
+(e.g. :ref:`remote-reader`) can connect as |vpicc| delegating all requests
+and responses via NFC to a contact-less smart card that signs the mail.
+
 Depending on your usage of the |vpicc| you may need to install the following:
 
 - Python_
