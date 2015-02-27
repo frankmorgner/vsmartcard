@@ -30,6 +30,7 @@
 #ifndef HAVE__SC_MATCH_ATR
 /* I hate to do this, but to include _sc_match_atr we need to satisfy all
  * dependencies of card.c */
+#include "common/compat_strlcpy.c"
 #include "common/libscdl.c"
 #include "libopensc/sc.c"
 #include "libopensc/card.c"

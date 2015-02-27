@@ -11,7 +11,7 @@ do_subst = $(SED) \
 
 BUILT_SOURCES = cmdline.h cmdline.c
 
-EXTRA_DIST  = npa-tool.ggo npa-tool.ggo.in opensc/src/libopensc/apdu.c opensc/src/libopensc/card.c
+EXTRA_DIST  = npa-tool.ggo npa-tool.ggo.in opensc/src/libopensc/apdu.c opensc/src/libopensc/card.c opensc/src/compat_strlcpy.c
 EXTRA_DIST += $(shell find -L $(top_srcdir)/src/opensc/src -path '*/.git' -prune -o -type f -a -name '*.h' -print)
 MAINTAINERCLEANFILES = $(BUILT_SOURCES) npa-tool.ggo $(dist_man1_MANS)
 
