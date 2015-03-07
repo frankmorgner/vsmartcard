@@ -2,3 +2,15 @@
 	path = npa/src/opensc
 	url = git://github.com/OpenSC/OpenSC.git
 	ignore = dirty
+[submodule "ACardEmulator/app/src/main/external/ykneo-openpgp"]
+	path = ACardEmulator/app/src/main/external/ykneo-openpgp
+	url = https://github.com/Yubico/ykneo-openpgp.git
+[submodule "ACardEmulator/app/src/main/external/ykneo-oath"]
+	path = ACardEmulator/app/src/main/external/ykneo-oath
+	url = https://github.com/Yubico/ykneo-oath.git
+[submodule "ACardEmulator/app/src/main/external/IsoApplet"]
+	path = ACardEmulator/app/src/main/external/IsoApplet
+	url = https://github.com/frankmorgner/IsoApplet.git
+[submodule "ACardEmulator/app/src/main/external/jcardsim"]
+	path = ACardEmulator/app/src/main/external/jcardsim
+	url = https://github.com/frankmorgner/jcardsim.git

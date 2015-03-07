@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<host-apdu-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/app_name"
+    android:requireDeviceUnlock="false">
+
+    <aid-group android:description="@string/applet_isoapplet" android:category="other">
+        <aid-filter android:name="@string/aid_isoapplet"/>
+    </aid-group>
+
+    <aid-group android:description="@string/applet_helloworld" android:category="other">
+        <aid-filter android:name="@string/aid_helloworld"/>
+    </aid-group>
+</host-apdu-service>
