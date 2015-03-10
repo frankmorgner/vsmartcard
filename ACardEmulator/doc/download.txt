@@ -4,7 +4,7 @@
 Download
 ********
 
-You can find the latest release of Remote Smart Card Reader on `Github
+You can find the latest release of Android Smart Card Emulator on `Github
 <https://github.com/frankmorgner/vsmartcard/releases>`_.
 
 Alternatively, you can clone our git repository::

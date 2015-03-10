@@ -55,6 +55,7 @@ Currently the following projects are part of |vsmartcard|:
 
    virtualsmartcard/README
    remote-reader/README
+   ACardEmulator/README
    pcsc-relay/README
    ccid/README
    npa/README
