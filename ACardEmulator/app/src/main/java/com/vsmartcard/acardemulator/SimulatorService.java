@@ -61,16 +61,6 @@ public class SimulatorService extends HostApduService {
             extra_error += "\n" + "Could not install " + name + " (AID: " + aid + ")";
         }
 
-        name = getResources().getString(R.string.applet_isoapplet);
-        aid = getResources().getString(R.string.aid_isoapplet);
-        try {
-            simulator.installApplet(AIDUtil.create(aid), IsoApplet.class);
-            extra_install += "\n" + name + " (AID: " + aid + ")";
-        } catch (Exception e) {
-            e.printStackTrace();
-            extra_error += "\n" + "Could not install " + name + " (AID: " + aid + ")";
-        }
-
         name = getResources().getString(R.string.applet_openpgp);
         aid = getResources().getString(R.string.aid_openpgp);
         try {
@@ -93,6 +83,16 @@ public class SimulatorService extends HostApduService {
             inst_params[0] = (byte) aid_bytes.length;
             System.arraycopy(aid_bytes, 0, inst_params, 1, aid_bytes.length);
             simulator.installApplet(AIDUtil.create(aid), YkneoOath.class, inst_params, (short) 0, (byte) inst_params.length);
+            extra_install += "\n" + name + " (AID: " + aid + ")";
+        } catch (Exception e) {
+            e.printStackTrace();
+            extra_error += "\n" + "Could not install " + name + " (AID: " + aid + ")";
+        }
+
+        name = getResources().getString(R.string.applet_isoapplet);
+        aid = getResources().getString(R.string.aid_isoapplet);
+        try {
+            simulator.installApplet(AIDUtil.create(aid), IsoApplet.class);
             extra_install += "\n" + name + " (AID: " + aid + ")";
         } catch (Exception e) {
             e.printStackTrace();
