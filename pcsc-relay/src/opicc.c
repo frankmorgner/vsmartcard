@@ -61,7 +61,7 @@ int picc_encode_rapdu(const unsigned char *inbuf, size_t inlen,
     *outlen = length;
 
     /* write length of R-APDU */
-    sprintf(p, "%0lX:", inlen);
+    sprintf(p, "%0lX:", (unsigned long) inlen);
 
     /* next points to the next byte to encode */
     next = inbuf;
