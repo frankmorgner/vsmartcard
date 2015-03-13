@@ -136,8 +136,6 @@ int main (int argc, char **argv)
     unsigned char outputBuffer[MAX_BUFFER_SIZE];
     size_t outputLength;
 
-    /*LONG r = SCARD_S_SUCCESS;*/
-
     struct gengetopt_args_info args_info;
 
 
@@ -150,6 +148,9 @@ int main (int argc, char **argv)
             break;
         case emulator_arg_libnfc:
             rfdriver = &driver_libnfc;
+            break;
+        case emulator_arg_vpcd:
+            rfdriver = &driver_vicc;
             break;
         default:
             exit(2);
@@ -230,11 +231,6 @@ int main (int argc, char **argv)
 err:
     cmdline_parser_free (&args_info);
     cleanup();
-
-    /*if (r != SCARD_S_SUCCESS) {*/
-        /*RELAY_ERROR("%s\n", stringify_error(r));*/
-        /*exit(1);*/
-    /*}*/
 
     exit(0);
 }
