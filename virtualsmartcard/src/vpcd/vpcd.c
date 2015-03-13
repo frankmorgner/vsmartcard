@@ -341,16 +341,16 @@ ssize_t vicc_transmit(struct vicc_ctx *ctx,
     return r;
 }
 
-int vicc_present(struct vicc_ctx *ctx) {
-    unsigned char *atr = NULL;
 
+int vicc_connect(struct vicc_ctx *ctx, long secs, long usecs)
+{
     if (!ctx)
         return 0;
 
     if (ctx->client_sock < 0) {
         if (ctx->server_sock) {
             /* server mode, try to accept a client */
-            ctx->client_sock = waitforclient(ctx->server_sock, 0, 0);
+            ctx->client_sock = waitforclient(ctx->server_sock, secs, usecs);
             if (!ctx->client_sock) {
                 ctx->client_sock = -1;
             }
@@ -363,9 +363,15 @@ int vicc_present(struct vicc_ctx *ctx) {
     if (ctx->client_sock < 0)
         /* not connected */
         return 0;
+    else
+        return 1;
+}
+
+int vicc_present(struct vicc_ctx *ctx) {
+    unsigned char *atr = NULL;
 
     /* get the atr to check if the card is still alive */
-    if (vicc_getatr(ctx, &atr) <= 0)
+    if (!vicc_connect(ctx, 0, 0) || vicc_getatr(ctx, &atr) <= 0)
         return 0;
 
     free(atr);

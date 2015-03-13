@@ -42,6 +42,12 @@ extern "C" {
 /** Standard port of the virtual smart card reader */
 #define VPCDPORT 35963
 
+/** how long to wait for a card in seconds */
+extern long vpcd_waitsecs;
+
+/** how long to wait for a card in microseconds */
+extern long vpcd_waitusecs;
+
 /**
  * @brief Initialize the module
  *
@@ -59,6 +65,7 @@ struct vicc_ctx * vicc_init(const char *hostname, unsigned short port);
 int vicc_exit(struct vicc_ctx *ctx);
 int vicc_eject(struct vicc_ctx *ctx);
 
+int vicc_connect(struct vicc_ctx *ctx, long secs, long usecs);
 int vicc_present(struct vicc_ctx *ctx);
 int vicc_poweron(struct vicc_ctx *ctx);
 int vicc_poweroff(struct vicc_ctx *ctx);
