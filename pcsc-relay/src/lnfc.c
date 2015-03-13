@@ -171,9 +171,12 @@ static int lnfc_disconnect(driver_data_t *driver_data)
 
 
     if (data) {
-        nfc_abort_command(data->pndTarget);
-        nfc_close(data->pndTarget);
-        nfc_exit(data->context);
+        if (data->pndTarget) {
+            nfc_abort_command(data->pndTarget);
+            nfc_close(data->pndTarget);
+        }
+        if (data->context)
+            nfc_exit(data->context);
         free(data);
     }
 
