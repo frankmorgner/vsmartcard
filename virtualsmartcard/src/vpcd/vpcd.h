@@ -42,12 +42,6 @@ extern "C" {
 /** Standard port of the virtual smart card reader */
 #define VPCDPORT 35963
 
-/** how long to wait for a card in seconds */
-extern long vpcd_waitsecs;
-
-/** how long to wait for a card in microseconds */
-extern long vpcd_waitusecs;
-
 /**
  * @brief Initialize the module
  *

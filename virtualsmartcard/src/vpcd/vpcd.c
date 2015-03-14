@@ -110,11 +110,15 @@ static int opensock(unsigned short port)
     server_sockaddr.sin_addr.s_addr = htonl(INADDR_ANY);
 
     if (bind(sock, (struct sockaddr *) &server_sockaddr,
-                sizeof server_sockaddr) != 0) 
+                sizeof server_sockaddr) != 0)  {
+        perror(NULL);
         goto err;
+    }
 
-    if (listen(sock, 0) != 0)
+    if (listen(sock, 0) != 0) {
+        perror(NULL);
         goto err;
+    }
 
     return sock;
 
@@ -327,9 +331,12 @@ ssize_t vicc_transmit(struct vicc_ctx *ctx,
     ssize_t r = -1;
 
     if (ctx && lock(ctx->io_lock)) {
-        r = sendToVICC(ctx, apdu_len, apdu);
+        if (apdu_len && apdu)
+            r = sendToVICC(ctx, apdu_len, apdu);
+        else
+            r = 1;
 
-        if (r > 0)
+        if (r > 0 && rapdu)
             r = recvFromVICC(ctx, rapdu);
 
         unlock(ctx->io_lock);
