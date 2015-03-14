@@ -29,7 +29,7 @@ $(abs_builddir)/pcsc-relay.1:
 bin_PROGRAMS = pcsc-relay
 bin_SCRIPTS = picc.py
 
-pcsc_relay_SOURCES = pcsc-relay.c pcsc.c vpcd.c vpcd-driver.c opicc.c lnfc.c lock.c $(BUILT_SOURCES)
+pcsc_relay_SOURCES = pcsc-relay.c pcsc.c vpcd.c vpcd-driver.c opicc.c lnfc.c vicc.c lock.c $(BUILT_SOURCES)
 pcsc_relay_LDADD = $(PCSC_LIBS) $(LIBNFC_LIBS)
 pcsc_relay_CFLAGS = $(PCSC_CFLAGS) $(LIBNFC_CFLAGS)
 

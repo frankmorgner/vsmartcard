@@ -3,7 +3,7 @@ description "Using an contact-less interface (currently OpenPICC or libnfc) @PAC
 
 option "emulator"   e
     "Contact-less emulator backend"
-    values="libnfc","openpicc" default="libnfc"
+    values="libnfc","vpcd","openpicc" default="libnfc"
     enum
     optional
 option "connector"  c

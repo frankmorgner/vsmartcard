@@ -27,8 +27,6 @@ import android.preference.PreferenceManager;
 
 import com.licel.jcardsim.base.Simulator;
 
-import net.pwendland.javacard.pki.isoapplet.FileNotFoundException;
-
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;

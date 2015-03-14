@@ -44,6 +44,7 @@ extern int verbose;
 
 extern struct rf_driver driver_openpicc;
 extern struct rf_driver driver_libnfc;
+extern struct rf_driver driver_vicc;
 
 struct sc_driver {
     int (*connect) (driver_data_t **driver_data);

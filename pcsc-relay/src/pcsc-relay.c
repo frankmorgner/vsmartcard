@@ -32,7 +32,13 @@
 #include "pcsc-relay.h"
 
 #ifndef MAX_BUFFER_SIZE
-#define MAX_BUFFER_SIZE         264 /**< Maximum Tx/Rx Buffer for short APDU */
+/** Maximum Tx/Rx Buffer for short APDU */
+#define MAX_BUFFER_SIZE 261
+#endif
+
+#ifndef MAX_EXT_BUFFER_SIZE
+/** Maximum Tx/Rx Buffer for extended APDU */
+#define MAX_EXT_BUFFER_SIZE 65538
 #endif
 
 int verbose = 0;
@@ -133,7 +139,7 @@ int main (int argc, char **argv)
     unsigned char *buf = NULL;
     size_t buflen;
 
-    unsigned char outputBuffer[MAX_BUFFER_SIZE];
+    unsigned char outputBuffer[MAX_EXT_BUFFER_SIZE];
     size_t outputLength;
 
     struct gengetopt_args_info args_info;
@@ -205,8 +211,12 @@ int main (int argc, char **argv)
 
     while(1) {
         /* get C-APDU */
-        if (!rfdriver->receive_capdu(rfdriver_data, &buf, &buflen))
-            goto err;
+        if (!rfdriver->receive_capdu(rfdriver_data, &buf, &buflen)) {
+            do {
+                INFO("Trying to recover by reconnecting to emulator\n");
+                sleep(10);
+            } while (!rfdriver->connect(&rfdriver_data));
+        }
         if (!buflen || !buf)
             continue;
 
@@ -223,8 +233,12 @@ int main (int argc, char **argv)
         /* send R-APDU */
         hexdump("R-APDU:\n", outputBuffer, outputLength);
 
-        if (!rfdriver->send_rapdu(rfdriver_data, outputBuffer, outputLength))
-            goto err;
+        if (!rfdriver->send_rapdu(rfdriver_data, outputBuffer, outputLength)) {
+            do {
+                INFO("Trying to recover by reconnecting to emulator\n");
+                sleep(10);
+            } while (!rfdriver->connect(&rfdriver_data));
+        }
     }
 
 

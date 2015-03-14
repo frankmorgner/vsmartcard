@@ -25,13 +25,21 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.nfc.cardemulation.HostApduService;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import com.licel.jcardsim.samples.HelloWorldApplet;
 import com.licel.jcardsim.smartcardio.CardSimulator;
 import com.licel.jcardsim.utils.AIDUtil;
 
 import net.pwendland.javacard.pki.isoapplet.IsoApplet;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetAddress;
+import java.net.Socket;
 
 import openpgpcard.OpenPGPApplet;
 import pkgYkneoOath.YkneoOath;
@@ -44,6 +52,13 @@ public class SimulatorService extends HostApduService {
     public static final String EXTRA_ERROR = "MSG_ERROR";
     public static final String EXTRA_DESELECT = "MSG_DESELECT";
     public static final String EXTRA_INSTALL = "MSG_INSTALL";
+    public static final int DEFAULT_PORT = 35963;
+    private int port = DEFAULT_PORT;
+    private static final String hostname = "192.168.42.158";
+    private static Socket socket;
+    private static InputStream inputStream;
+    private static OutputStream outputStream;
+    private static final boolean useVPCD = false;
 
     private static CardSimulator simulator = null;
 
@@ -111,8 +126,25 @@ public class SimulatorService extends HostApduService {
     public void onCreate () {
         super.onCreate();
 
-        if (simulator == null)
-            createSimulator();
+        Log.d("", "Begin transaction");
+        if (useVPCD) {
+            if  (socket == null) {
+                try {
+                    if (android.os.Build.VERSION.SDK_INT > 9) {
+                        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+                        StrictMode.setThreadPolicy(policy);
+                    }
+                    vpcdConnect();
+                    sendPowerOn();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    vpcdDisconnect();
+                }
+            }
+        } else {
+            if (simulator == null)
+                createSimulator();
+        }
     }
 
     @Override
@@ -123,10 +155,16 @@ public class SimulatorService extends HostApduService {
 
         i.putExtra(EXTRA_CAPDU, Util.byteArrayToHexString(capdu));
         try {
-            rapdu = simulator.transmitCommand(capdu);
-            i.putExtra(EXTRA_RAPDU, Util.byteArrayToHexString(rapdu));
+            if (useVPCD) {
+                rapdu = transmit(capdu);
+            } else {
+                rapdu = simulator.transmitCommand(capdu);
+            }
+            if (rapdu != null)
+                i.putExtra(EXTRA_RAPDU, Util.byteArrayToHexString(rapdu));
         } catch (Exception e) {
             e.printStackTrace();
+            vpcdDisconnect();
             extra_error += "Internal error";
         }
 
@@ -142,16 +180,111 @@ public class SimulatorService extends HostApduService {
     public void onDeactivated(int reason) {
         Intent i = new Intent(TAG);
 
+        Log.d("", "End transaction");
         switch (reason) {
             case DEACTIVATION_LINK_LOSS:
                 i.putExtra(EXTRA_DESELECT, "link lost");
+                if (useVPCD)
+                    try {
+                        sendPowerOff();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        vpcdDisconnect();
+                    }
                 break;
             case DEACTIVATION_DESELECTED:
                 i.putExtra(EXTRA_DESELECT, "deactivated");
+                if (useVPCD)
+                    try {
+                        sendReset();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        vpcdDisconnect();
+                    }
                 break;
+        }
+        if (useVPCD) {
+            //vpcdDisconnect();
         }
 
         LocalBroadcastManager.getInstance(this).sendBroadcast(i);
     }
 
+    private byte[] receiveFromVPCD() throws IOException {
+        /* convert length from network byte order.
+        Note that Java always uses network byte order internally. */
+        int length1 = inputStream.read();
+        int length2 = inputStream.read();
+        if (length1 == -1 || length2 == -1) {
+            // EOF
+            return null;
+        }
+        int length = (length1 << 8) + length2;
+
+        byte[] data = new byte[length];
+
+        int offset = 0;
+        while (length > 0) {
+            int read = inputStream.read(data, offset, length);
+            if (read == -1) {
+                // EOF
+                return null;
+            }
+            offset += read;
+            length -= read;
+        }
+
+        return data;
+    }
+
+    private byte[] transmit(byte[] capdu) throws IOException {
+        sendToVPCD(capdu);
+        return receiveFromVPCD();
+    }
+
+    private void sendPowerOff() throws IOException {
+        Log.d("", "Power Off");
+        sendToVPCD(new byte[] {0x00});
+    }
+    private void sendPowerOn() throws IOException {
+        Log.d("", "Power On");
+        sendToVPCD(new byte[] {0x01});
+    }
+    private void sendReset() throws IOException {
+        Log.d("", "Reset");
+        sendToVPCD(new byte[] {0x02});
+    }
+
+    private void sendToVPCD(byte[] data) throws IOException {
+        /* convert length to network byte order.
+        Note that Java always uses network byte order internally. */
+        byte[] length = new byte[2];
+        length[0] = (byte) (data.length >> 8);
+        length[1] = (byte) (data.length & 0xff);
+        outputStream.write(length);
+
+        outputStream.write(data, 0, data.length);
+
+        outputStream.flush();
+    }
+
+    private void vpcdConnect() throws IOException {
+        Log.d("", "Connecting to " + hostname + ":" + Integer.toString(port));
+        socket = new Socket(InetAddress.getByName(hostname), port);
+        outputStream = socket.getOutputStream();
+        inputStream = socket.getInputStream();
+    }
+
+    private void vpcdDisconnect() {
+        Log.d("", "Disconnecting");
+        if  (socket != null) {
+            try {
+                socket.close();
+            } catch (IOException e) {
+                // ignore
+            } finally {
+                socket = null;
+            }
+        }
+    }
 }
