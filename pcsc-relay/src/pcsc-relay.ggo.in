@@ -11,20 +11,38 @@ option "connector"  c
     values="pcsc","vicc" default="pcsc"
     enum
     optional
+option "foreground" f
+    "Stay in foreground"
+    flag on
+option "verbose"    v
+    "Use (several times) to be more verbose"
+    multiple
+    optional
+
+section "PC/SC connector"
 option "reader"     r
     "Number of the PC/SC reader to use (-1 for autodetect)"
     int default="-1"
     optional
-option "port"       p
-    "Port to listen for virtual smart card"
+
+section "Virtual Smart Card connector"
+option "vpcd-port"       p
+    "Port for communicating virtual smart card"
     int default="35963"
     optional
-option "foreground" f
-    "Stay in foreground"
-    flag off
-option "verbose"    v
-    "Use (several times) to be more verbose"
-    multiple
+option "vpcd-hostname"       n
+    "Hostname for connecting to virtual smart card"
+    string default="wait for an incoming connection"
+    optional
+
+section "Virtual Smart Card Reader emulator"
+option "vicc-port"       P
+    "Port to listen for virtual smart card reader"
+    int default="35963"
+    optional
+option "vicc-hostname"       N
+    "Hostname for connecting to virtual smart card reader"
+    string default="wait for an incoming connection"
     optional
 
 text "

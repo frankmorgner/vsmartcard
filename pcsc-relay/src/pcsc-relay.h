@@ -58,6 +58,9 @@ extern struct sc_driver driver_pcsc;
 extern unsigned int readernum;
 extern struct sc_driver driver_vpcd;
 extern unsigned int vpcdport;
+extern char *vpcdhostname;
+extern unsigned int viccport;
+extern char *vicchostname;
 
 void hexdump(const char *label, unsigned char *buf, size_t len);
 

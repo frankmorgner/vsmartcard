@@ -28,6 +28,11 @@
 
 
 
+unsigned int viccport = VPCDPORT;
+char *vicchostname = NULL;
+
+
+
 static int _vicc_connect(driver_data_t **driver_data)
 {
     struct vicc_ctx *ctx;
@@ -37,7 +42,7 @@ static int _vicc_connect(driver_data_t **driver_data)
         return 0;
 
 
-    ctx = vicc_init(NULL, vpcdport);
+    ctx = vicc_init(vicchostname, viccport);
     if (!ctx) {
         RELAY_ERROR("Could not initialize connection to VPCD\n");
         return 0;
@@ -45,7 +50,7 @@ static int _vicc_connect(driver_data_t **driver_data)
     *driver_data = ctx;
 
     INFO("Waiting for VPCD on port %hu for %ld seconds\n",
-            (unsigned short) vpcdport, secs);
+            (unsigned short) viccport, secs);
     if (vicc_connect(ctx, secs, 0))
         return 1;
 

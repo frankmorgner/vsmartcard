@@ -173,7 +173,12 @@ int main (int argc, char **argv)
         default:
             exit(2);
     }
-    vpcdport = args_info.port_arg;
+    vpcdport = args_info.vpcd_port_arg;
+    if (args_info.vpcd_hostname_given)
+        vpcdhostname = args_info.vpcd_hostname_arg;
+    viccport = args_info.vicc_port_arg;
+    if (args_info.vicc_hostname_given)
+        vicchostname = args_info.vicc_hostname_arg;
 
     verbose = args_info.verbose_given;
 
