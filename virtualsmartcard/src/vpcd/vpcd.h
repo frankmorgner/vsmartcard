@@ -26,6 +26,13 @@ typedef int ssize_t;
 #include <unistd.h>
 #endif
 
+#define VPCD_CTRL_LEN 	1
+
+#define VPCD_CTRL_OFF   0
+#define VPCD_CTRL_ON    1
+#define VPCD_CTRL_RESET 2
+#define VPCD_CTRL_ATR	4
+
 struct vicc_ctx {
         int server_sock;
         int client_sock;

@@ -20,8 +20,4 @@
         <aid-filter android:name="@string/aid_isoapplet"/>
     </aid-group>
 
-    <aid-group android:description="@string/applet_paccess" android:category="other">
-        <aid-filter android:name="@string/aid_paccess"/>
-    </aid-group>
-
 </host-apdu-service>

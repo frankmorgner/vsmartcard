@@ -51,13 +51,6 @@ typedef WORD uint16_t;
 #include <string.h>
 #include <sys/types.h>
 
-#define VPCD_CTRL_LEN 	1
-
-#define VPCD_CTRL_OFF   0
-#define VPCD_CTRL_ON    1
-#define VPCD_CTRL_RESET 2
-#define VPCD_CTRL_ATR	4
-
 static ssize_t sendToVICC(struct vicc_ctx *ctx, size_t size, const unsigned char *buffer);
 static ssize_t recvFromVICC(struct vicc_ctx *ctx, unsigned char **buffer);
 

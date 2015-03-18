@@ -90,14 +90,14 @@ static int vicc_receive_capdu(driver_data_t *driver_data,
             goto err;
         }
 
-        if (size == 1) {
+        if (size == VPCD_CTRL_LEN) {
             switch (*capdu[0]) {
-                case 0x00:
-                case 0x01:
-                case 0x02:
+                case VPCD_CTRL_OFF:
+                case VPCD_CTRL_ON:
+                case VPCD_CTRL_RESET:
                     // ignore reset, power on, power off
                     break;
-                case 0x03:
+                case VPCD_CTRL_ATR:
                     if (vicc_transmit(ctx, sizeof atr, atr, NULL) < 0) {
                         RELAY_ERROR("could not send ATR\n");
                         goto err;
