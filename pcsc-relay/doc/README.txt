@@ -25,6 +25,7 @@ backends are supported:
 
 - `Hardware supported by libnfc`_
 - OpenPICC_
+- :ref:`acardemulator`
 
 Command APDUs are received with the contact-less interface and relayed. The
 Response APDUs are then sent back via RFID. The contact-less data will be
@@ -36,6 +37,52 @@ relayed to one of the following:
 - to a :ref:`vicc` that directly connects to :command:`pcsc-relay`. The virtual
   smart card's native interface is used and (despite its name) PC/SC Relay
   does not need to access PC/SC in this case.
+
+.. tikz:: Debug, Analyze and Emulate with PC/SC Relay
+    :stringsubst:
+    :libs: arrows, calc, fit, patterns, plotmarks, shapes.geometric, shapes.misc, shapes.symbols, shapes.arrows, shapes.callouts, shapes.multipart, shapes.gates.logic.US, shapes.gates.logic.IEC, er, automata, backgrounds, chains, topaths, trees, petri, mindmap, matrix, calendar, folding, fadings, through, positioning, scopes, decorations.fractals, decorations.shapes, decorations.text, decorations.pathmorphing, decorations.pathreplacing, decorations.footprints, decorations.markings, shadows
+
+    \input{%(wd)s/bilder/tikzstyles.tex}
+    \node (pcsc-relay) {\texttt{pcsc-relay}};
+
+    \node [kleiner, right=2cm of pcsc-relay, yshift=.9cm]
+    (libnfc) {Libnfc Devices};
+    \node [kleiner, right=2cm of pcsc-relay, yshift=.3cm]
+    (openpicc) {OpenPICC};
+    \node [kleiner, right=2cm of pcsc-relay, yshift=-.3cm]
+    (vpcd) {Virtual Smart Card Reader};
+    \node [kleiner, right=2cm of pcsc-relay, yshift=-.9cm]
+    (acardemulator) {Android Smart Card Emulator};
+
+    \node [kleiner, left=2cm of pcsc-relay, yshift=.9cm]
+    (contactbased) {Contact-based Smart Card};
+    \node [kleiner, left=2cm of pcsc-relay, yshift=.3cm]
+    (contactless) {Contact-less Smart Card};
+    \node [kleiner, left=2cm of pcsc-relay, yshift=-.3cm]
+    (virtual) {Virtual Smart Card};
+    \node [kleiner, left=2cm of pcsc-relay, yshift=-.9cm]
+    (remotereader) {Remote Smart Card Reader};
+
+    \node [above=.3cm of pcsc-relay, kleiner, xshift=1.2cm]
+    (capdu) {Command APDU};
+    \node [below=.3cm of pcsc-relay, kleiner, xshift=-1.2cm]
+    (rapdu) {Response APDU};
+    \draw (rapdu.east) edge [pfeil] +(1,0);
+    \draw (capdu.west) edge [pfeil] +(-1,0);
+
+    \begin{pgfonlayer}{background}
+    \path[line width=.5cm,color=hublue!20]
+    (pcsc-relay.mid) edge [out=180, in=0] (contactbased.east)
+    edge [out=180, in=0] (contactless.east)
+    edge [out=180, in=0] (virtual.east)
+    edge [out=180, in=0] (remotereader.east)
+    edge [out=0, in=180] (libnfc.west)
+    edge [out=0, in=180] (openpicc.west)
+    edge [out=0, in=180] (vpcd.west)
+    edge [out=0, in=180] (acardemulator.west)
+    ;
+    \end{pgfonlayer}
+
 
 With PC/SC Relay you can relay a contact-less or contact based smart card
 over a long distance. Also you can use it in combination with the :ref:`vicc`
