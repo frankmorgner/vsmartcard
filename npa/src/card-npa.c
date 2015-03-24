@@ -90,12 +90,12 @@ static int npa_load_options(sc_context_t *ctx, struct npa_drv_data *drv_data)
     scconf_block **found_blocks, *block;
     const char *file;
 
-    if (!ctx || !drv_data) {
+    if (!ctx || !drv_data || !ctx->conf_blocks) {
         r = SC_ERROR_INTERNAL;
         goto err;
     }
 
-    for (i = 0; ctx->conf_blocks; i++) {
+    for (i = 0; ctx->conf_blocks[i]; i++) {
         found_blocks = scconf_find_blocks(ctx->conf, ctx->conf_blocks[i],
                     "card_driver", "npa");
         if (!found_blocks)
