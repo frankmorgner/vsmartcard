@@ -97,87 +97,6 @@ PIN verification/modification and |PACE| can also be started by the application
 transmitting (SCardTransmit) specially crafted APDUs.  Only the alternative
 initialization of |PACE| using SCardControl requires patching the driver
 (available for libccid, see :file:`patches`). The pseudo APDUs with no need for
-
-.. tikz:: Implementation of a mobile smart card reader for the German ID card
-    :stringsubst:
-    :libs: arrows, calc, fit, patterns, plotmarks, shapes.geometric, shapes.misc, shapes.symbols, shapes.arrows, shapes.callouts, shapes.multipart, shapes.gates.logic.US, shapes.gates.logic.IEC, er, automata, backgrounds, chains, topaths, trees, petri, mindmap, matrix, calendar, folding, fadings, through, positioning, scopes, decorations.fractals, decorations.shapes, decorations.text, decorations.pathmorphing, decorations.pathreplacing, decorations.footprints, decorations.markings, shadows
-
-    \input{%(wd)s/bilder/tikzstyles.tex}
-    \tikzstyle{keks}=[to path={-- ++(.1,0) |- (\tikztotarget)}]
-
-    \tikzstyle{bla}=[shape=rectangle split, rectangle split parts=2,
-    every text node part/.style={align=center, klein}, text width=7cm,
-    every second node part/.style={kleiner}, inner sep=0pt]
-
-    \node (ccid-emulator)
-    {\texttt{ccid-emulator}};
-
-    \node (basis) [below=3of ccid-emulator]
-    {\includegraphics[keepaspectratio, height=2cm,
-        width=2cm]{%(wd)s/bilder/moko/basisleser_plain_klein.png}};
-    \node (basisbeschreibung) [below=0cm of basis, kleiner, text width=2cm]
-    {Reiner SCT RFID basis};
-
-    \node (npa) [left=1.5of basis]
-    {\includegraphics[keepaspectratio, height=3cm,
-        width=3cm]{%(wd)s/bilder/nPA_VS.png}};
-    \node (npabeschreibung) [below=0cm of npa, kleiner]
-    {German identity card};
-
-    \node (funktionenchat) [right=.6cm of ccid-emulator.east, anchor=text west, bla]
-    {
-        PACE
-        \nodepart{second}
-        \begin{itemize}
-
-        \item Display CHAT
-            \begin{itemize}
-                \item Display context (eID/eSign)
-                \item Display requested permissions
-            \end{itemize}
-
-            \item Display certificate description
-            \begin{itemize}
-                \item Identification of service provider
-                \item Display purpose of transaction
-            \end{itemize}
-
-            \item Secure PIN entry
-        \end{itemize}
-    };
-    \node (funktionenpace) [below=.5 of funktionenchat, bla]
-    {
-        Terminal Authentication
-        \nodepart{second}
-		\begin{itemize}
-            \item Verify authenticy of terminal
-            \item Check freshness of cv certificate
-        \end{itemize}
-    };
-
-    \begin{pgfonlayer}{background}
-        \node (box) [fit=(ccid-emulator) (basis) (basisbeschreibung)
-        (funktionenchat) (funktionenpace), box, inner sep=.5cm] {};
-        \node (boxbild) at (box.north west)
-        {\includegraphics[keepaspectratio, height=1.5cm,
-        width=1.5cm]{%(wd)s/bilder/moko/moko_reader.png}};
-        \node [right=0cm of boxbild.east, yshift=.3cm]
-        {Openmoko Neo FreeRunner};
-    \end{pgfonlayer}
-
-    \node (a) [above=1of npa]
-	{\includegraphics[keepaspectratio, height=3cm,
-	width=3cm]{%(wd)s/bilder/computer-tango.pdf}};
-
-
-    \begin{pgfonlayer}{background}
-        \path
-        (ccid-emulator) edge [doppelpfeil] (basis)
-        (basis) edge [rfid] (npa)
-        (a.center) edge [usb] (ccid-emulator)
-        (ccid-emulator.east) edge [pfeil, keks] (funktionenchat.text west)
-        (ccid-emulator.east) edge [pfeil, keks] (funktionenpace.text west);
-    \end{pgfonlayer}
 patches are defined as follows (see `BSI TR-03119 1.3`_ p. 33-34):
 
 +--------------------------+----------------------------------------------------------------------------+------------------------------------------------+
@@ -264,6 +183,87 @@ Running the USB CCID Emulator has the following dependencies:
 Whereas using the USB CCID Emulator on the host system as smart card reader only
 needs a usable PC/SC middleware with USB CCID driver. This is the case for most
 modern Windows and Unix-like systems by default.
+
+.. tikz:: Implementation of a mobile smart card reader for the German ID card
+    :stringsubst:
+    :libs: arrows, calc, fit, patterns, plotmarks, shapes.geometric, shapes.misc, shapes.symbols, shapes.arrows, shapes.callouts, shapes.multipart, shapes.gates.logic.US, shapes.gates.logic.IEC, er, automata, backgrounds, chains, topaths, trees, petri, mindmap, matrix, calendar, folding, fadings, through, positioning, scopes, decorations.fractals, decorations.shapes, decorations.text, decorations.pathmorphing, decorations.pathreplacing, decorations.footprints, decorations.markings, shadows
+
+    \input{%(wd)s/bilder/tikzstyles.tex}
+    \tikzstyle{keks}=[to path={-- ++(.1,0) |- (\tikztotarget)}]
+
+    \tikzstyle{bla}=[shape=rectangle split, rectangle split parts=2,
+    every text node part/.style={align=center, klein}, text width=7cm,
+    every second node part/.style={kleiner}, inner sep=0pt]
+
+    \node (ccid-emulator)
+    {\texttt{ccid-emulator}};
+
+    \node (basis) [below=3of ccid-emulator]
+    {\includegraphics[keepaspectratio, height=2cm,
+        width=2cm]{%(wd)s/bilder/moko/basisleser_plain_klein.png}};
+    \node (basisbeschreibung) [below=0cm of basis, kleiner, text width=2cm]
+    {Reiner SCT RFID basis};
+
+    \node (npa) [left=1.5of basis]
+    {\includegraphics[keepaspectratio, height=3cm,
+        width=3cm]{%(wd)s/bilder/nPA_VS.png}};
+    \node (npabeschreibung) [below=0cm of npa, kleiner]
+    {German identity card};
+
+    \node (funktionenchat) [right=.6cm of ccid-emulator.east, anchor=text west, bla]
+    {
+        PACE
+        \nodepart{second}
+        \begin{itemize}
+
+        \item Display CHAT
+            \begin{itemize}
+                \item Display context (eID/eSign)
+                \item Display requested permissions
+            \end{itemize}
+
+            \item Display certificate description
+            \begin{itemize}
+                \item Identification of service provider
+                \item Display purpose of transaction
+            \end{itemize}
+
+            \item Secure PIN entry
+        \end{itemize}
+    };
+    \node (funktionenpace) [below=.5 of funktionenchat, bla]
+    {
+        Terminal Authentication
+        \nodepart{second}
+		\begin{itemize}
+            \item Verify authenticy of terminal
+            \item Check freshness of cv certificate
+        \end{itemize}
+    };
+
+    \begin{pgfonlayer}{background}
+        \node (box) [fit=(ccid-emulator) (basis) (basisbeschreibung)
+        (funktionenchat) (funktionenpace), box, inner sep=.5cm] {};
+        \node (boxbild) at (box.north west)
+        {\includegraphics[keepaspectratio, height=1.5cm,
+        width=1.5cm]{%(wd)s/bilder/moko/moko_reader.png}};
+        \node [right=0cm of boxbild.east, yshift=.3cm]
+        {Openmoko Neo FreeRunner};
+    \end{pgfonlayer}
+
+    \node (a) [above=1of npa]
+	{\includegraphics[keepaspectratio, height=3cm,
+	width=3cm]{%(wd)s/bilder/computer-tango.pdf}};
+
+
+    \begin{pgfonlayer}{background}
+        \path
+        (ccid-emulator) edge [doppelpfeil] (basis)
+        (basis) edge [rfid] (npa)
+        (a.center) edge [usb] (ccid-emulator)
+        (ccid-emulator.east) edge [pfeil, keks] (funktionenchat.text west)
+        (ccid-emulator.east) edge [pfeil, keks] (funktionenpace.text west);
+    \end{pgfonlayer}
 
 
 .. include:: download.txt
