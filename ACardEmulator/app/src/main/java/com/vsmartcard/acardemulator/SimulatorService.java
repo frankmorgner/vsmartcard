@@ -46,19 +46,21 @@ import pkgYkneoOath.YkneoOath;
 
 public class SimulatorService extends HostApduService {
 
+    private static final boolean useVPCD = false;
+    public static final int DEFAULT_PORT = 35963;
+    private static final String hostname = "192.168.42.158";
+    private int port = DEFAULT_PORT;
+
+    private static Socket socket;
+    private static InputStream inputStream;
+    private static OutputStream outputStream;
+
     public static final String TAG = "com.vsmartcard.acardemulator.SimulatorService";
     public static final String EXTRA_CAPDU = "MSG_CAPDU";
     public static final String EXTRA_RAPDU = "MSG_RAPDU";
     public static final String EXTRA_ERROR = "MSG_ERROR";
     public static final String EXTRA_DESELECT = "MSG_DESELECT";
     public static final String EXTRA_INSTALL = "MSG_INSTALL";
-    public static final int DEFAULT_PORT = 35963;
-    private int port = DEFAULT_PORT;
-    private static final String hostname = "192.168.42.158";
-    private static Socket socket;
-    private static InputStream inputStream;
-    private static OutputStream outputStream;
-    private static final boolean useVPCD = false;
 
     private static CardSimulator simulator = null;
 

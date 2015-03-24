@@ -21,7 +21,7 @@ PC/SC Relay
 
 Welcome to PC/SC Relay. The purpose of PC/SC Relay is to relay a smart
 card using an contact-less interface. Currently the following contact-less
-backends are supported:
+emulators are supported:
 
 - `Hardware supported by libnfc`_
 - OpenPICC_
@@ -58,10 +58,10 @@ relayed to one of the following:
     (contactbased) {Contact-based Smart Card};
     \node [kleiner, left=2cm of pcsc-relay, yshift=.3cm]
     (contactless) {Contact-less Smart Card};
-    \node [kleiner, left=2cm of pcsc-relay, yshift=-.3cm]
-    (virtual) {Virtual Smart Card};
     \node [kleiner, left=2cm of pcsc-relay, yshift=-.9cm]
     (remotereader) {Remote Smart Card Reader};
+    \node [kleiner, left=2cm of pcsc-relay, yshift=-.3cm]
+    (virtual) {Virtual Smart Card};
 
     \node [above=.3cm of pcsc-relay, kleiner, xshift=1.2cm]
     (capdu) {Command APDU};
@@ -210,6 +210,36 @@ configure PC/SC Relay to use it::
     ./configure PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig
 
 
+====================================
+Hints on Android Smart Card Emulator
+====================================
+
+The Android Smart Card Emulator is build around the host card emulation mode of
+Android 4.4 and later. This mode activates the app if the terminal issues a
+SELECT command with one of the app's application identifiers. The app registers
+for the following AIDs (:file:`ACardEmulator/app/src/main/res/xml/aid_list.xml`):
+
+.. literalinclude:: ../../ACardEmulator/app/src/main/res/xml/aid_list.xml
+    :language: xml
+    :emphasize-lines: 8,12,16,20
+
+If used together with PC/SC Relay you need to change these application
+identifiers to match the emulated card. Otherwise the app will not be activated
+when it should relay command APDUs to PC/SC Relay.
+
+And while you are already modifying the Android Smart Card Emulator you may also
+want to activate `useVPCD` and change `hostname` and `port` to configure the
+connection to PC/SC Relay
+(:file:`ACardEmulator/app/src/main/java/com/vsmartcard/acardemulator/SimulatorService.java`):
+
+.. literalinclude:: ../../ACardEmulator/app/src/main/java/com/vsmartcard/acardemulator/SimulatorService.java
+    :language: java
+    :lines: 47-52
+    :emphasize-lines: 3,5-6
+
+Compiling and installing Android Smart Card Emulator is covered in its :ref:`acardemulator_install` section.
+
+
 =========================
 Hints on PC/SC middleware
 =========================
@@ -230,6 +260,30 @@ Usage
 *****
 
 .. program-output:: pcsc-relay --help
+
+Below we explain what option to choose for the emulator which receives a
+command APDU and transmits a response APDU back to the terminal:
+
+=================================================== ==============
+Option                                              ``--emulator``
+=================================================== ==============
+Emulation hardware supported via libnfc             ``libnfc``
+Emulation with OpenPICC                             ``openpicc``
+Android Smart Card Emulator                         ``vpcd``
+Virtual Smart Card                                  ``vpcd``
+=================================================== ==============
+
+Below we explain what option to choose for the connector which calculates
+a response APDU from a given command APDU:
+
+=================================================== ===============
+Option                                              ``--connector``
+=================================================== ===============
+Contact-based Smart Card in PC/SC Reader            ``pcsc``
+Contact-less Smart Card in PC/SC Reader             ``pcsc``
+Contact-less Smart Card in Remote Smart Card Reader ``vicc``
+Virtual Smart Card                                  ``vicc``
+=================================================== ===============
 
 
 .. include:: questions.txt

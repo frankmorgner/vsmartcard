@@ -51,6 +51,8 @@ The Android Smart Card Emulator has the following dependencies:
 For emulating a contact-less smart card with a desktop or notebook, have a look at :ref:`pcsc-relay`.
 
 
+.. _acardemulator_install:
+
 ********************
 Download and Install
 ********************
