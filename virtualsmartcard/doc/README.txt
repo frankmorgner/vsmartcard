@@ -219,7 +219,7 @@ list the :guilabel:`Bix Virtual Smart Card Reader`.
 |vpcd| opens a socket for |vpicc| and waits for incoming
 connections. The port to open should be specified in ``TCP_PORT``:
 
-.. literalinclude:: BixVReader.ini
+.. literalinclude:: ../win32/BixVReader/BixVReader.ini
     :emphasize-lines: 8
 
 Currently it is not possible to configure the Windows driver to connect to an
