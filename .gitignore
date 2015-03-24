@@ -1,10 +1,13 @@
 *~
 *.swp
+tags
 
 *.lo
 *.o
 
 *.so
+*.exe
+*.dll
 
 *.lai
 *.la
@@ -41,6 +44,7 @@ npa/doc/Doxyfile
 npa/doc/html
 npa/doc/npa.tag
 npa/doc/xml/
+doc
 
 *.ggo
 cmdline.c
@@ -59,5 +63,14 @@ npa/src/example
 npa/src/npa-tool
 pcsc-relay/src/pcsc-relay
 virtualsmartcard/src/vpicc/vicc
+virtualsmartcard/src/vpcd-config/vpcd-config
 
 *.pc
+
+virtualsmartcard/doc/api/*
+
+virtualsmartcard/src/pcsclite-vpcd/pcsclite.h
+virtualsmartcard/win32/vpcd-config/Debug
+virtualsmartcard/win32/vpcd-config/vpcd-config.v12.suo
+npa/opensc.conf
+remote-reader/build/*
