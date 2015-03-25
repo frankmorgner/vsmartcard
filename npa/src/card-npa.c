@@ -653,7 +653,19 @@ err:
 
 static int npa_logout(sc_card_t *card)
 {
+    struct sc_apdu apdu;
+
     sm_stop(card);
+
+    if (card->reader->capabilities & SC_READER_CAP_PACE_GENERIC) {
+        /* If PACE is done between reader and card, SM is transparent to us as
+         * it ends at the reader. With CLA=0x0C we provoque a SM error to
+         * disable SM on the reader. */
+        sc_format_apdu(card, &apdu, SC_APDU_CASE_1, 0xA4, 0x00, 0x00);
+        apdu.cla = 0x0C;
+        sc_transmit_apdu(card, &apdu);
+        /* ignore result */
+    }
     return sc_select_file(card, sc_get_mf_path(), NULL);
 }
 
