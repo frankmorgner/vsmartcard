@@ -1256,7 +1256,8 @@ int perform_pace(sc_card_t *card,
         eac_ctx = EAC_CTX_new();
         if (!eac_ctx
                 || !EAC_CTX_init_ef_cardaccess(pace_output->ef_cardaccess,
-                    pace_output->ef_cardaccess_length, eac_ctx)) {
+                    pace_output->ef_cardaccess_length, eac_ctx)
+                || !eac_ctx->pace_ctx) {
             sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Could not parse EF.CardAccess.");
             ssl_error(card->ctx);
             r = SC_ERROR_INTERNAL;
