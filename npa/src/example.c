@@ -25,6 +25,7 @@
 #include "config.h"
 #endif
 
+#include <libopensc/sm.h>
 #include <npa/iso-sm.h>
 #include <npa/npa.h>
 #include <npa/scutil.h>
@@ -127,7 +128,7 @@ err:
     if (pace_output.id_pcd)
         free(pace_output.id_pcd);
 
-    sm_stop(card);
+    sc_sm_stop(card);
     sc_reset(card, 1);
     sc_disconnect_card(card);
     sc_release_context(ctx);

@@ -21,6 +21,7 @@
 #include "iso-sm-internal.h"
 #include "libopensc/internal.h"
 #include "libopensc/pace.h"
+#include "libopensc/sm.h"
 #include "card-npa.h"
 #include <npa/boxing.h>
 #include <npa/npa.h>
@@ -377,7 +378,7 @@ err:
 
 static int npa_finish(sc_card_t * card)
 {
-    sm_stop(card);
+    sc_sm_stop(card);
     npa_drv_data_free(card->drv_data);
     card->drv_data = NULL;
     EAC_cleanup();
@@ -655,7 +656,7 @@ static int npa_logout(sc_card_t *card)
 {
     struct sc_apdu apdu;
 
-    sm_stop(card);
+    sc_sm_stop(card);
 
     if (card->reader->capabilities & SC_READER_CAP_PACE_GENERIC) {
         /* If PACE is done between reader and card, SM is transparent to us as

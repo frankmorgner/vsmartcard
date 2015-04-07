@@ -118,18 +118,6 @@ struct iso_sm_ctx *iso_sm_ctx_create(void);
  */
 int iso_sm_start(struct sc_card *card, struct iso_sm_ctx *sctx);
 
-/**
- * @brief Stops SM and frees allocated ressources.
- *
- * Calls \a card->sm_ctx.ops.close() if available and \c card->sm_ctx.sm_mode
- * is \c SM_MODE_TRANSMIT
- *
- * @param[in] card
- *
- * @return \c SC_SUCCESS or error code if an error occurred
- */
-int sm_stop(struct sc_card *card);
-
 #ifdef  __cplusplus
 }
 #endif

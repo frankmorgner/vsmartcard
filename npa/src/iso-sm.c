@@ -720,20 +720,6 @@ int iso_sm_start(struct sc_card *card, struct iso_sm_ctx *sctx)
     return SC_SUCCESS;
 }
 
-int sm_stop(struct sc_card *card)
-{
-    int r = SC_SUCCESS;
-
-    if (card) {
-        if (card->sm_ctx.sm_mode == SM_MODE_TRANSMIT
-                && card->sm_ctx.ops.close)
-            r = card->sm_ctx.ops.close(card);
-        card->sm_ctx.sm_mode = SM_MODE_NONE;
-    }
-
-    return r;
-}
-
 #else
 
 int iso_sm_close(struct sc_card *card)
@@ -756,11 +742,6 @@ void iso_sm_ctx_clear_free(struct iso_sm_ctx *sctx)
 }
 
 int iso_sm_start(struct sc_card *card, struct iso_sm_ctx *sctx)
-{
-    return SC_ERROR_NOT_SUPPORTED;
-}
-
-int sm_stop(struct sc_card *card)
 {
     return SC_ERROR_NOT_SUPPORTED;
 }

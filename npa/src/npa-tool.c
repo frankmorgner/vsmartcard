@@ -25,6 +25,7 @@
 #include <eac/pace.h>
 #include <libopensc/log.h>
 #include <libopensc/opensc.h>
+#include <libopensc/sm.h>
 #include <npa/boxing.h>
 #include <npa/iso-sm.h>
 #include <npa/npa.h>
@@ -790,7 +791,7 @@ err:
     if (templates)
         ASN1_AUXILIARY_DATA_free(templates);
 
-    sm_stop(card);
+    sc_sm_stop(card);
     sc_reset(card, 1);
     sc_disconnect_card(card);
     sc_release_context(ctx);
