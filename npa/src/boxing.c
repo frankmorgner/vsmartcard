@@ -33,6 +33,10 @@
 /* FIXME might not always work */
 #define htole16(x) (x)
 #define htole32(x) (x)
+#elif __APPLE__
+#include <libkern/OSByteOrder.h>
+#define htole16(x) OSSwapHostToLittleInt16(x)
+#define htole32(x) OSSwapHostToLittleInt32(x)
 #else
 #ifndef _BSD_SOURCE
 #define _BSD_SOURCE             /* See feature_test_macros(7) */

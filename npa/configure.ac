@@ -159,7 +159,7 @@ AC_TYPE_UINT8_T
 # Checks for library functions.
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
-AC_CHECK_FUNCS([getline memmove memset strerror gettimeofday strtol])
+AC_CHECK_FUNCS([getline memmove memset strerror gettimeofday strtol strlcpy])
 
 AC_SUBST(DYN_LIB_EXT)
 case "$host" in
