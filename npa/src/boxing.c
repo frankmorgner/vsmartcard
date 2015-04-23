@@ -929,9 +929,25 @@ void sc_detect_boxing_cmds(sc_reader_t *reader)
             || apdu.sw2 != 0x00
             || boxing_buf_to_pace_capabilities(reader->ctx,
                 apdu.resp, apdu.resplen, &capabilities) != SC_SUCCESS) {
-        if (reader)
+        if (reader) {
             sc_debug(reader->ctx, SC_LOG_DEBUG_NORMAL,
                     "%s does not support boxing commands", reader->name);
+            memset(&apdu, 0, sizeof(apdu));
+            apdu.cse     = SC_APDU_CASE_3;
+            apdu.cla     = 0x00;
+            apdu.ins     = 0xA4;
+            apdu.p1      = 8;
+            apdu.p2      = 0x0C;
+            apdu.data    = rbuf;
+            rbuf[0] = 0x3F;
+            rbuf[1] = 0x00;
+            apdu.datalen = 2;
+            apdu.lc      = 2;
+            apdu.resp    = NULL;
+            apdu.resplen = 0;
+            apdu.le      = 0;
+            reader->ops->transmit(reader, &apdu);
+        }
     } else {
         if (capabilities & SC_READER_CAP_PIN_PAD
                 && !(reader->capabilities & SC_READER_CAP_PIN_PAD)) {
