@@ -6,6 +6,37 @@ all-local:
 
 
 
+OSX_TOOLS_DIR = "$(shell xcode-select -p)/Platforms/MacOSX.platform/Developer/SDKs"
+OSX_TOOL_DIR ?= "$(OSX_TOOLS_DIR)/$(shell ls -1 $(OSX_TOOLS_DIR) | sort -n -k2 -t. -r | head -1)/usr"
+OSX_TARGETDIR = $(abs_top_builddir)/$(PACKAGE_TARNAME)-$(PACKAGE_VERSION)_osx
+osx: $(OPENPACE_MAKEFILE) $(OPENSC_CONFIGURE)
+	@echo Compiling OpenPACE
+	$(MAKE) -C $(OPENPACE) osx
+	rm -rf $(OSX_TARGETDIR)
+	cp -r $(OPENPACE)/*_osx $(OSX_TARGETDIR)
+	@echo Configuring OpenSC
+	grep _sc_card_add_ec_alg $(OPENSC)/src/libopensc/libopensc.exports || echo _sc_card_add_ec_alg >> $(OPENSC)/src/libopensc/libopensc.exports
+	grep _sc_card_add_rsa_alg $(OPENSC)/src/libopensc/libopensc.exports || echo _sc_card_add_rsa_alg >> $(OPENSC)/src/libopensc/libopensc.exports
+	grep _sc_match_atr $(OPENSC)/src/libopensc/libopensc.exports || echo _sc_match_atr >> $(OPENSC)/src/libopensc/libopensc.exports
+	grep sc_apdu_get_octets $(OPENSC)/src/libopensc/libopensc.exports || echo sc_apdu_get_octets >> $(OPENSC)/src/libopensc/libopensc.exports
+	grep sc_pkcs15_pincache_add $(OPENSC)/src/libopensc/libopensc.exports || echo sc_pkcs15_pincache_add >> $(OPENSC)/src/libopensc/libopensc.exports
+	@echo Compiling OpenSC
+	cd $(OPENSC) && OPENSSL_LIBS="-L$(OSX_TARGETDIR)/lib -lcrypto" OPENSSL_CFLAGS="-I$(OSX_TARGETDIR)/include" MacOSX/build
+	cp $(OPENSC)/*.pkg $(OSX_TARGETDIR)
+	@echo Configuring libnpa
+	cd $(top_builddir) && ./configure --prefix=/usr/local \
+		PKG_CONFIG_SYSROOT_DIR=$(OSX_TARGETDIR) \
+		PKG_CONFIG_LIBDIR=$(OSX_TARGETDIR)/usr/local/lib/pkgconfig \
+		PKG_CONFIG_PATH=$(OSX_TARGETDIR)/usr/local/lib/pkgconfig \
+		OPENSC_LIBS="-L$(OPENSC)/target/Library/OpenSC/lib -lopensc" \
+		CFLAGS="-arch i386 -arch x86_64"
+	@echo Compiling libnpa
+	make -C $(top_builddir) install DESTDIR=$(OSX_TARGETDIR)
+	cp $(top_builddir)/opensc.conf $(OSX_TARGETDIR)
+	hdiutil create -srcfolder $(OSX_TARGETDIR) -volname "$(PACKAGE_STRING) for Mac OS X" $(PACKAGE_TARNAME)-$(PACKAGE_VERSION)_osx.dmg
+
+
+
 WIN_TOOL ?= i686-w64-mingw32
 WIN_TOOL_DIR ?= /usr/$(WIN_TOOL)
 WIN_TARGETDIR = $(abs_top_builddir)/$(PACKAGE_TARNAME)-$(PACKAGE_VERSION)_win32
@@ -68,6 +99,8 @@ $(LIBNPA): $(OPENPACE_MAKEFILE) $(OPENSC_CONFIGURE)
 		LDFLAGS="$${LDFLAGS}" \
 		LIBEAC=$(LIBEAC)
 	@echo Configuring OpenSC
+	grep _sc_card_add_ec_alg $(OPENSC)/src/libopensc/libopensc.exports || echo _sc_card_add_ec_alg >> $(OPENSC)/src/libopensc/libopensc.exports
+	grep _sc_card_add_rsa_alg $(OPENSC)/src/libopensc/libopensc.exports || echo _sc_card_add_rsa_alg >> $(OPENSC)/src/libopensc/libopensc.exports
 	grep _sc_match_atr $(OPENSC)/src/libopensc/libopensc.exports || echo _sc_match_atr >> $(OPENSC)/src/libopensc/libopensc.exports
 	grep sc_apdu_get_octets $(OPENSC)/src/libopensc/libopensc.exports || echo sc_apdu_get_octets >> $(OPENSC)/src/libopensc/libopensc.exports
 	grep sc_pkcs15_pincache_add $(OPENSC)/src/libopensc/libopensc.exports || echo sc_pkcs15_pincache_add >> $(OPENSC)/src/libopensc/libopensc.exports

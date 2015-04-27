@@ -31,6 +31,9 @@ win:
 android:
 	make -C cross $@
 
+osx:
+	make -C cross $@
+
 all-local: opensc.conf
 
 clean-local:
