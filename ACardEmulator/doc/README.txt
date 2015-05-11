@@ -50,6 +50,12 @@ The Android Smart Card Emulator has the following dependencies:
 
 For emulating a contact-less smart card with a desktop or notebook, have a look at :ref:`pcsc-relay`.
 
+Please note that the currently emulated applets are verifying the PIN by
+transmitting it without any protection between card and terminal. You may want
+to have a look at Erik Nelson's `Virtual Keycard`_. His project patches the
+MUSCLE applet to use the PACE protocol for PIN verification. It also comes with
+a driver for OpenSC (i.e. can be accessed via PKCS#11, Minidriver/CSP or tokend).
+
 
 .. _acardemulator_install:
 
@@ -85,4 +91,5 @@ Notes and References
 .. _OpenPGP Applet: https://developers.yubico.com/ykneo-openpgp/
 .. _OATH Applet: https://developers.yubico.com/ykneo-oath/
 .. _ISO Applet: http://www.pwendland.net/IsoApplet/
+.. _Virtual Keycard: https://github.com/eriknellessen/Virtual-Keycard
 .. _Android Studio: http://developer.android.com/sdk/installing/studio.html
