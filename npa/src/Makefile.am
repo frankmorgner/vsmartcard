@@ -23,7 +23,7 @@ libnpa_la_CFLAGS = $(OPENSSL_CFLAGS) $(OPENPACE_CFLAGS) $(OPENSC_CFLAGS)
 libnpa_la_LDFLAGS = -no-undefined
 
 libcardnpa_la_SOURCES = card-npa.c
-libcardnpa_la_LIBADD = $(OPENSC_LIBS) libnpa.la
+libcardnpa_la_LIBADD = $(OPENSC_LIBS) $(OPENPACE_LIBS) libnpa.la
 libcardnpa_la_CFLAGS = $(OPENSSL_CFLAGS) $(OPENPACE_CFLAGS) $(OPENSC_CFLAGS)
 libcardnpa_la_LDFLAGS = -no-undefined
 
