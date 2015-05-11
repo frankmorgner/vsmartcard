@@ -99,7 +99,7 @@ cross: $(LIBNPA)
 
 $(LIBNPA): $(OPENPACE_MAKEFILE) $(OPENSC_CONFIGURE)
 	@echo Compiling OpenPACE
-	$(MAKE) -C $(OPENPACE)/cross cross \
+	env ac_cv_func_malloc_0_nonnull=yes $(MAKE) -C $(OPENPACE)/cross cross \
 		TOOL=$(TOOL) \
 		TOOL_DIR=$(TOOL_DIR) \
 		TARGETDIR=$(TARGETDIR) \
