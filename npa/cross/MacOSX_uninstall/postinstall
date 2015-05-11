@@ -1,0 +1,20 @@
+#!/bin/bash
+
+if [ -L "/Library/OpenSC/etc/opensc.conf" ]
+then
+	if [ "$(readlink /Library/OpenSC/etc/opensc.conf)" == "/Library/nPA/etc/opensc.conf" ]
+	then
+		rm /Library/OpenSC/etc/opensc.conf
+		mv /Library/OpenSC/etc/opensc.conf.orig /Library/OpenSC/etc/opensc.conf
+	fi
+fi
+
+# Remove symlinks to commands
+for file in /Library/nPA/bin/*; do
+	test -L "/usr/local/bin/$(basename $file)" && rm -f "/usr/local/bin/$(basename $file)"
+done
+
+# Remove installed files
+rm -rf /Library/nPA
+
+echo "nPA Smart Card Library has been removed from your system. See you again!"

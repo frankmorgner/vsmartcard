@@ -12,7 +12,7 @@ OSX_TARGETDIR = $(abs_top_builddir)/$(PACKAGE_TARNAME)-$(PACKAGE_VERSION)_osx
 osx: $(OPENPACE_MAKEFILE) $(OPENSC_CONFIGURE)
 	@echo Compiling OpenPACE
 	$(MAKE) -C $(OPENPACE) osx
-	rm -rf $(OSX_TARGETDIR)
+	rm -rf $(OSX_TARGETDIR) dmg $(top_builddir)/$(PACKAGE_TARNAME)-$(PACKAGE_VERSION)_osx.dmg
 	cp -r $(OPENPACE)/*_osx $(OSX_TARGETDIR)
 	@echo Configuring OpenSC
 	grep _sc_card_add_ec_alg $(OPENSC)/src/libopensc/libopensc.exports || echo _sc_card_add_ec_alg >> $(OPENSC)/src/libopensc/libopensc.exports
@@ -21,19 +21,26 @@ osx: $(OPENPACE_MAKEFILE) $(OPENSC_CONFIGURE)
 	grep sc_apdu_get_octets $(OPENSC)/src/libopensc/libopensc.exports || echo sc_apdu_get_octets >> $(OPENSC)/src/libopensc/libopensc.exports
 	grep sc_pkcs15_pincache_add $(OPENSC)/src/libopensc/libopensc.exports || echo sc_pkcs15_pincache_add >> $(OPENSC)/src/libopensc/libopensc.exports
 	@echo Compiling OpenSC
-	cd $(OPENSC) && OPENSSL_LIBS="-L$(OSX_TARGETDIR)/lib -lcrypto" OPENSSL_CFLAGS="-I$(OSX_TARGETDIR)/include" MacOSX/build
-	cp $(OPENSC)/*.pkg $(OSX_TARGETDIR)
+	cd $(OPENSC) && OPENSSL_LIBS="-L$(OSX_TARGETDIR)/Library/OpenPACE/lib -lcrypto" OPENSSL_CFLAGS="-I$(OSX_TARGETDIR)/Library/OpenPACE/include" MacOSX/build
 	@echo Configuring libnpa
-	cd $(top_builddir) && ./configure --prefix=/usr/local \
+	cd $(top_builddir) && ./configure --prefix=/Library/nPA \
 		PKG_CONFIG_SYSROOT_DIR=$(OSX_TARGETDIR) \
-		PKG_CONFIG_LIBDIR=$(OSX_TARGETDIR)/usr/local/lib/pkgconfig \
-		PKG_CONFIG_PATH=$(OSX_TARGETDIR)/usr/local/lib/pkgconfig \
+		PKG_CONFIG_PATH=$(OSX_TARGETDIR)/Library/OpenPACE/lib/pkgconfig \
 		OPENSC_LIBS="-L$(OPENSC)/target/Library/OpenSC/lib -lopensc" \
 		CFLAGS="-arch i386 -arch x86_64"
 	@echo Compiling libnpa
 	make -C $(top_builddir) install DESTDIR=$(OSX_TARGETDIR)
-	cp $(top_builddir)/opensc.conf $(OSX_TARGETDIR)
-	hdiutil create -srcfolder $(OSX_TARGETDIR) -volname "$(PACKAGE_STRING) for Mac OS X" $(PACKAGE_TARNAME)-$(PACKAGE_VERSION)_osx.dmg
+	mkdir -p $(OSX_TARGETDIR)/Library/nPA/etc
+	cp $(top_builddir)/opensc.conf $(OSX_TARGETDIR)/Library/nPA/etc/opensc.conf
+	rm -rf $(OSX_TARGETDIR)/Library/OpenPACE
+	pkgbuild --root $(OSX_TARGETDIR) --scripts MacOSX_install --identifier com.vsmartcard.npa.mac --version $(PACKAGE_VERSION) --install-location / nPA-$(PACKAGE_VERSION)_install.pkg
+	pkgbuild --nopayload --identifier com.vsmartcard.npa.mac.uninstall --scripts MacOSX_uninstall Uninstall_nPA.pkg
+	mkdir -p dmg
+	cp *.pkg dmg
+	cp $(OPENPACE)/cross/*.pkg dmg
+	cp $(OPENSC)/OpenSC-*.pkg dmg
+	cp $(OPENSC)/Uninstall_OpenSC.pkg dmg
+	hdiutil create -srcfolder dmg -volname "$(PACKAGE_STRING) for Mac OS X" $(top_builddir)/$(PACKAGE_TARNAME)-$(PACKAGE_VERSION)_osx.dmg
 
 
 
