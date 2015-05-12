@@ -156,6 +156,7 @@ AC_CHECK_DECLS([MSG_NOSIGNAL], [], [], [#include <sys/socket.h>])
 # Checks for library functions.
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([memset select socket])
+AC_CHECK_FUNCS([strlcpy strlcat], [], [], [#include <string.h>])
 
 # Select OS specific versions of source files.
 AM_CONDITIONAL([BUILD_LIBPCSCLITE], [test "${libpcsclite}" = "yes"])
