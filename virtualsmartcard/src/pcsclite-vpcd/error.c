@@ -27,11 +27,12 @@
 #include "strlcpycat.h"
 
 #ifdef NO_LOG
-PCSC_API char* pcsc_stringify_error(const long pcscError)
+PCSC_API char* pcsc_stringify_error(const LONG pcscError)
 {
 	static char strError[] = "0x12345678";
+	unsigned long error = pcscError;
 
-	snprintf(strError, sizeof(strError), "0x%08lX", pcscError);
+	snprintf(strError, sizeof(strError), "0x%08lX", error);
 
 	return strError;
 }
