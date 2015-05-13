@@ -1,4 +1,4 @@
-EXTRA_DIST 				= PCSC/pcsclite.h.in libpcsclite.pc.in
+EXTRA_DIST 				= libpcsclite.pc.in
 
 lib_LTLIBRARIES         = libpcsclite.la
 
@@ -7,7 +7,7 @@ libpcsclite_la_LDFLAGS  = -no-undefined -version-info 1:0:0
 libpcsclite_la_SOURCES  = winscard.c debug.c strlcpy.c error.c
 libpcsclite_la_LIBADD   = $(top_builddir)/src/ifd-vpcd/libifdvpcd.la
 
-noinst_HEADERS = pcsclite.h strlcpycat.h misc.h
+noinst_HEADERS = strlcpycat.h misc.h
 
 nobase_include_HEADERS  = \
 						  PCSC/pcsclite.h \
@@ -19,8 +19,6 @@ pkgconfig_DATA = libpcsclite.pc
 libpcsclite.pc: libpcsclite.pc.in
 	$(do_subst) < $(srcdir)/libpcsclite.pc.in > libpcsclite.pc
 
-winscard.c: $(builddir)/pcsclite.h
-
 do_subst = $(SED) \
 		   -e 's,[@]PACKAGE_NAME[@],$(PACKAGE_NAME),g' \
 		   -e 's,[@]VERSION[@],$(PCSCVERSION),g' \
@@ -29,15 +27,5 @@ do_subst = $(SED) \
 		   -e 's,[@]libdir[@],$(libdir),g' \
 		   -e 's,[@]prefix[@],$(prefix),g'
 
-pcsclite.h: PCSC/pcsclite.h.in
-	$(do_subst) < $(srcdir)/PCSC/pcsclite.h.in > $(builddir)/pcsclite.h
-
-install-data-local:
-	$(INSTALL) -d $(DESTDIR)$(includedir)/PCSC
-	$(INSTALL_DATA) $(builddir)/pcsclite.h $(DESTDIR)$(includedir)/PCSC/pcsclite.h
-
-uninstall-local:
-	rm -f $(DESTDIR)$(includedir)/PCSC/pcsclite.h
-
 clean-local:
-	rm -f libpcsclite.pc pcsclite.h
+	rm -f libpcsclite.pc
