@@ -46,6 +46,7 @@ m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 # Checks for libraries.
 
 # --enable-libpcsclite
+infoplist=no
 AC_ARG_ENABLE(libpcsclite,
 	AC_HELP_STRING([--enable-libpcsclite],[Build a lightweight version of
 					libpcsclite, conflicts with PCSC-Lite @<:@default=no@:>@]),
@@ -53,7 +54,13 @@ AC_ARG_ENABLE(libpcsclite,
 if test "${libpcsclite}" = no ; then
 	PKG_CHECK_EXISTS([libpcsclite],
 					 [PKG_CHECK_MODULES([PCSC], [libpcsclite])],
-					 [AC_MSG_WARN([libpcsclite not found by pkg-config])])
+					 [AC_MSG_WARN([libpcsclite not found by pkg-config])
+					 case "$host" in
+						 *-*-darwin*)
+							PCSC_CFLAGS="-DNO_LOG -I`pwd`/${top_srcdir}/src/pcsclite-vpcd/PCSC"
+							PCSC_LIBS="--framework PCSC"
+					 esac
+					 ])
 
 	saved_CPPFLAGS="$CPPFLAGS"
 	CPPFLAGS="$CPPFLAGS $PCSC_CFLAGS"
@@ -71,12 +78,18 @@ if test "${libpcsclite}" = no ; then
 		if test "${prefix}" = NONE ; then
 			serialdropdir="`$PKG_CONFIG libpcsclite --variable=usbdropdir`/serial"
 			if test "${serialdropdir}" = "/serial" ; then
-				AC_MSG_ERROR([use --enable-serialdropdir=DIR])
+				case "$host" in
+					*-*-darwin*) serialdropdir=/usr/libexec/SmartCardServices/drivers/ifd-vpcd.bundle/Contents/MacOS; infoplist=yes ;;
+					*) AC_MSG_ERROR([use --enable-serialdropdir=DIR])
+				esac
 			fi
 		else
 			serialdropdir="${prefix}`$PKG_CONFIG libpcsclite --variable=usbdropdir`/serial"
 			if test "${serialdropdir}" = "${prefix}/serial" ; then
-				AC_MSG_ERROR([use --enable-serialdropdir=DIR])
+				case "$host" in
+					*-*-darwin*) serialdropdir=${prefix}/usr/libexec/SmartCardServices/drivers/ifd-vpcd.bundle/Contents/MacOS; infoplist=yes ;;
+					*) AC_MSG_ERROR([use --enable-serialdropdir=DIR])
+				esac
 			fi
 		fi
 	fi
@@ -91,12 +104,18 @@ if test "${libpcsclite}" = no ; then
 		if test "${prefix}" = NONE ; then
 			serialconfdir="`$PKG_CONFIG libpcsclite --variable=serialconfdir`"
 			if test "${serialconfdir}" = "" ; then
-				serialconfdir="/etc/reader.conf.d"
+				case "$host" in
+					*-*-darwin*) serialconfdir=/usr/libexec/SmartCardServices/drivers/ifd-vpcd.bundle/Contents; infoplist=yes ;;
+					*) serialconfdir="/etc/reader.conf.d"
+				esac
 			fi
 		else
 			serialconfdir="${prefix}`$PKG_CONFIG libpcsclite --variable=serialconfdir`"
 			if test "${serialconfdir}" = "${prefix}" ; then
-				serialconfdir="${prefix}/etc/reader.conf.d"
+				case "$host" in
+					*-*-darwin*) serialconfdir=${prefix}/usr/libexec/SmartCardServices/drivers/ifd-vpcd.bundle/Contents; infoplist=yes ;;
+					*) serialconfdir="${prefix}/etc/reader.conf.d"
+				esac
 			fi
 		fi
 	fi
@@ -160,6 +179,7 @@ AC_CHECK_FUNCS([strlcpy strlcat], [], [], [#include <string.h>])
 
 # Select OS specific versions of source files.
 AM_CONDITIONAL([BUILD_LIBPCSCLITE], [test "${libpcsclite}" = "yes"])
+AM_CONDITIONAL([BUILD_INFOPLIST], [test "${infoplist}" = "yes"])
 AC_SUBST(BUNDLE_HOST)
 AC_SUBST(DYN_LIB_EXT)
 AC_SUBST(LIB_PREFIX)
@@ -213,6 +233,8 @@ Driver directory:     ${serialdropdir}
 Python site-packages: $(eval eval eval echo "${pythondir}")
 
 Build libpcsclite:    ${libpcsclite}
+Build Info.plist:     ${infoplist}
+Build reader.conf:    ${readerconf}
 VPCD hostname: 	      ${vpcdhost}
 
 

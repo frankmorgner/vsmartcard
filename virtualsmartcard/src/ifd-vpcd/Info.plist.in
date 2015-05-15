@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleExecutable</key>
+	<string>@TARGET_LIB@</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>ifd-vpcd</string>
+	<key>CFBundlePackageType</key>
+	<string>BNDL</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>@VERSION@</string>
+
+	<key>ifdManufacturerString</key>
+	<string>Virtual Smart Card Architecture</string>
+	<key>ifdProductString</key>
+	<string>Virtual PCD</string>
+
+	<key>ifdCapabilities</key>
+	<string>0x00000000</string>
+	<key>ifdProtocolSupport</key>
+	<string>0x00000001</string>
+	<key>ifdVersionNumber</key>
+	<string>0x00000001</string>
+
+	<key>ifdVendorID</key>
+	<array>
+		<string>0x18d1</string>
+	</array>
+
+	<key>ifdProductID</key>
+	<array>
+		<string>0x4ee1</string>
+	</array>
+
+	<key>ifdFriendlyName</key>
+	<array>
+		<string>@VPCDHOST@:0x8C7B</string>
+	</array>
+
+	<key>Copyright</key>
+	<string>This driver is protected by terms of the GNU General Public License version 3, or (at your option) any later version.</string>
+</dict>
+</plist>
