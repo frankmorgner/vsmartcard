@@ -57,7 +57,10 @@ if test "${libpcsclite}" = no ; then
 					 [AC_MSG_WARN([libpcsclite not found by pkg-config])
 					 case "$host" in
 						 *-*-darwin*)
-							PCSC_CFLAGS="-DNO_LOG -I`pwd`/${top_srcdir}/src/pcsclite-vpcd/PCSC"
+							SDKS_PATH="$(xcode-select -p)/Platforms/MacOSX.platform/Developer/SDKs"                                                                   
+							SDK_PATH="${SDK_PATH:-$SDKS_PATH/$(ls -1 ${SDKS_PATH} | sort -n -t. -k2 -r | head -1)}"
+							# and set the PC/SC include path
+							PCSC_CFLAGS="-I$SDK_PATH/System/Library/Frameworks/PCSC.framework/Versions/Current/Headers -DNO_LOG -DRESPONSECODE_DEFINED_IN_WINTYPES_H -I`pwd`/${top_srcdir}/MacOSX"
 							PCSC_LIBS="--framework PCSC"
 					 esac
 					 ])
@@ -65,7 +68,7 @@ if test "${libpcsclite}" = no ; then
 	saved_CPPFLAGS="$CPPFLAGS"
 	CPPFLAGS="$CPPFLAGS $PCSC_CFLAGS"
 	AC_CHECK_HEADERS(ifdhandler.h,,
-			[ AC_MSG_ERROR([ifdhandler.h not found, install libpcsclite or use ./configure PCSC_CFLAGS=...]) ])
+			[ AC_MSG_ERROR([ifdhandler.h not found, install libpcsclite or use ./configure PCSC_CFLAGS=...])], [#include <wintypes.h>])
 	CPPFLAGS="$saved_CPPFLAGS"
 
 
@@ -272,5 +275,6 @@ AC_CONFIG_FILES([Makefile
                  src/vpcd/Makefile
                  src/vpicc/Makefile
                  src/vpcd-config/Makefile
+                 MacOSX/Makefile
                  ])
 AC_OUTPUT

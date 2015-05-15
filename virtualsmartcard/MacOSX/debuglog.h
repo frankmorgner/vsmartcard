@@ -1,0 +1,1 @@
+../src/pcsclite-vpcd/PCSC/debuglog.h

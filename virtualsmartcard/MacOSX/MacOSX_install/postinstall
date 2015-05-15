@@ -1,0 +1,15 @@
+#!/bin/bash
+
+mkdir -p /usr/libexec/SmartCardServices/drivers
+ln -sf /Library/VirtualSmartCard/usr/libexec/SmartCardServices/drivers/ifd-vpcd.bundle /usr/libexec/SmartCardServices/drivers
+
+for f in /Library/VirtualSmartCard/bin/*
+do
+	ln -sf $f /usr/local/bin
+done
+
+mkdir -p /usr/local/lib/python2.7/site-packages
+for f in /Library/VirtualSmartCard/lib/python2.7/site-packages/*
+do
+	ln -sf $f /usr/local/lib/python2.7/site-packages
+done

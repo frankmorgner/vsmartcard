@@ -1,0 +1,25 @@
+#!/bin/bash
+
+if [ -L "/usr/libexec/SmartCardServices/drivers/ifd-vpcd.bundle" ]
+then
+	if [ "$(readlink /usr/libexec/SmartCardServices/drivers/ifd-vpcd.bundle)" == "/Library/VirtualSmartCard/usr/libexec/SmartCardServices/drivers/ifd-vpcd.bundle" ]
+	then
+		rm /usr/libexec/SmartCardServices/drivers/ifd-vpcd.bundle
+	fi
+fi
+
+# Remove symlinks to commands
+for file in /Library/VirtualSmartCard/bin/*; do
+	test -L "/usr/local/bin/$(basename $file)" && rm -f "/usr/local/bin/$(basename $file)"
+done
+
+# Remove symlinks to files
+for file in /Library/VirtualSmartCard/lib/python2.7/site-packages/*
+do
+	test -L "/usr/local/lib/python2.7/site-packages/$(basename $file)" && rm -rf "/usr/local/lib/python2.7/site-packages/$(basename $file)"
+done
+
+# Remove installed files
+rm -rf /Library/VirtualSmartCard
+
+echo "Virtual Smart Card has been removed from your system. See you again!"

@@ -20,6 +20,7 @@
 #include "vpcd.h"
 #include <debuglog.h>
 #include <errno.h>
+#include <wintypes.h>
 #include <ifdhandler.h>
 #include <stdio.h>
 #include <stdlib.h>
