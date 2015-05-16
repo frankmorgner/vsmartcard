@@ -118,6 +118,8 @@ IFDHControl (DWORD Lun, DWORD dwControlCode, PUCHAR TxBuffer, DWORD TxLength,
             (unsigned char *) TxBuffer, (unsigned int) TxLength,
             (unsigned char *) RxBuffer, (unsigned int) RxLength,
             (unsigned int *) pdwBytesReturned, "");
+    if (pdwBytesReturned)
+        *pdwBytesReturned = 0;
     return IFD_ERROR_NOT_SUPPORTED;
 }
 
@@ -143,12 +145,13 @@ IFDHGetCapabilities (DWORD Lun, DWORD Tag, PDWORD Length, PUCHAR Value)
     unsigned char *atr = NULL;
     ssize_t size;
     size_t slot = Lun & 0xffff;
-    if (slot >= vicc_max_slots) {
-        return IFD_COMMUNICATION_ERROR;
-    }
+    RESPONSECODE r = IFD_COMMUNICATION_ERROR;
+
+    if (slot >= vicc_max_slots)
+        goto err;
 
     if (!Length || !Value)
-        return IFD_COMMUNICATION_ERROR;
+        goto err;
 
     switch (Tag) {
         case TAG_IFD_ATR:
@@ -156,18 +159,18 @@ IFDHGetCapabilities (DWORD Lun, DWORD Tag, PDWORD Length, PUCHAR Value)
             size = vicc_getatr(ctx[slot], &atr);
             if (size < 0) {
                 Log1(PCSC_LOG_ERROR, "could not get ATR");
-                return IFD_COMMUNICATION_ERROR;
+                goto err;
             }
             if (size == 0) {
                 Log1(PCSC_LOG_ERROR, "Virtual ICC removed");
-                return IFD_ICC_NOT_PRESENT;
+                goto err;
             }
             Log2(PCSC_LOG_DEBUG, "Got ATR (%d bytes)", size);
 
             if (*Length < size) {
                 free(atr);
                 Log1(PCSC_LOG_ERROR, "Not enough memory for ATR");
-                return IFD_COMMUNICATION_ERROR;
+                goto err;
             }
 
             memcpy(Value, atr, size);
@@ -178,7 +181,7 @@ IFDHGetCapabilities (DWORD Lun, DWORD Tag, PDWORD Length, PUCHAR Value)
         case TAG_IFD_SLOTS_NUMBER:
             if (*Length < 1) {
                 Log1(PCSC_LOG_ERROR, "Invalid input data");
-                return IFD_COMMUNICATION_ERROR;
+                goto err;
             }
 
             *Value  = vicc_max_slots;
@@ -194,10 +197,17 @@ IFDHGetCapabilities (DWORD Lun, DWORD Tag, PDWORD Length, PUCHAR Value)
 
         default:
             Log2(PCSC_LOG_DEBUG, "unknown tag %d", (int)Tag);
-            return IFD_ERROR_TAG;
+            r = IFD_ERROR_TAG;
+            goto err;
     }
 
-    return IFD_SUCCESS;
+    r = IFD_SUCCESS;
+
+err:
+    if (r != IFD_SUCCESS && Length)
+        *Length = 0;
+
+    return r;
 }
 
 RESPONSECODE
@@ -223,14 +233,17 @@ RESPONSECODE
 IFDHPowerICC (DWORD Lun, DWORD Action, PUCHAR Atr, PDWORD AtrLength)
 {
     size_t slot = Lun & 0xffff;
+    RESPONSECODE r = IFD_COMMUNICATION_ERROR;
+
     if (slot >= vicc_max_slots) {
-        return IFD_COMMUNICATION_ERROR;
+        goto err;
     }
+
     switch (Action) {
         case IFD_POWER_DOWN:
             if (vicc_poweroff(ctx[slot]) < 0) {
                 Log1(PCSC_LOG_ERROR, "could not powerdown");
-                return IFD_COMMUNICATION_ERROR;
+                goto err;
             }
 
             /* XXX see bug #312754 on https://alioth.debian.org/projects/pcsclite */
@@ -242,21 +255,30 @@ IFDHPowerICC (DWORD Lun, DWORD Action, PUCHAR Atr, PDWORD AtrLength)
         case IFD_POWER_UP:
             if (vicc_poweron(ctx[slot]) < 0) {
                 Log1(PCSC_LOG_ERROR, "could not powerup");
-                return IFD_COMMUNICATION_ERROR;
+                goto err;
             }
             break;
         case IFD_RESET:
             if (vicc_reset(ctx[slot]) < 0) {
                 Log1(PCSC_LOG_ERROR, "could not reset");
-                return IFD_COMMUNICATION_ERROR;
+                goto err;
             }
             break;
         default:
             Log2(PCSC_LOG_ERROR, "%0lX not supported", Action);
-            return IFD_NOT_SUPPORTED;
+            r = IFD_NOT_SUPPORTED;
+            goto err;
     }
 
-    return IFDHGetCapabilities (Lun, TAG_IFD_ATR, AtrLength, Atr);
+    r = IFD_SUCCESS;
+
+err:
+    if (r != IFD_SUCCESS && AtrLength)
+        *AtrLength = 0;
+    else
+        r = IFDHGetCapabilities (Lun, TAG_IFD_ATR, AtrLength, Atr);
+
+    return r;
 }
 
 RESPONSECODE
@@ -268,8 +290,9 @@ IFDHTransmitToICC (DWORD Lun, SCARD_IO_HEADER SendPci, PUCHAR TxBuffer,
     ssize_t size;
     RESPONSECODE r = IFD_COMMUNICATION_ERROR;
     size_t slot = Lun & 0xffff;
+
     if (slot >= vicc_max_slots) {
-        return IFD_COMMUNICATION_ERROR;
+        goto err;
     }
 
     if (!RxLength || !RecvPci) {
