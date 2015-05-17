@@ -237,7 +237,13 @@ IFDHGetCapabilities (DWORD Lun, DWORD Tag, PDWORD Length, PUCHAR Value)
             }
             Log2(PCSC_LOG_DEBUG, "Got ATR (%d bytes)", size);
 
+#ifndef __APPLE__
             if (*Length < size) {
+#else
+            /* Apple's new SmartCardServices on OS X 10.10 doesn't set the
+             * length correctly so we only check for the maximum  */
+            if (MAX_ATR_SIZE < size) {
+#endif
                 free(atr);
                 Log1(PCSC_LOG_ERROR, "Not enough memory for ATR");
                 goto err;
