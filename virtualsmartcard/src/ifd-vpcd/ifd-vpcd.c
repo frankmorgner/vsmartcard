@@ -258,7 +258,24 @@ IFDHGetCapabilities (DWORD Lun, DWORD Tag, PDWORD Length, PUCHAR Value)
             *Length = 1;
             break;
 
+        case TAG_IFD_THREAD_SAFE:
+            if (*Length < 1) {
+                Log1(PCSC_LOG_ERROR, "Invalid input data");
+                goto err;
+            }
+
+            /* We are not thread safe due to
+             * the global hostname and ctx */
+            *Value  = 0;
+            *Length = 1;
+            break;
+
         case TAG_IFD_SLOT_THREAD_SAFE:
+            if (*Length < 1) {
+                Log1(PCSC_LOG_ERROR, "Invalid input data");
+                goto err;
+            }
+
             /* driver supports access to multiple slots of the same reader at
              * the same time */
             *Value  = 1;
