@@ -4,10 +4,10 @@ lib_LTLIBRARIES         = libpcsclite.la
 
 libpcsclite_la_CPPFLAGS = $(PCSC_CFLAGS) -I$(srcdir)/../ifd-vpcd -I$(srcdir)/../vpcd
 libpcsclite_la_LDFLAGS  = -no-undefined -version-info 1:0:0
-libpcsclite_la_SOURCES  = winscard.c debug.c strlcpy.c error.c
+libpcsclite_la_SOURCES  = winscard.c error.c
 libpcsclite_la_LIBADD   = $(top_builddir)/src/ifd-vpcd/libifdvpcd.la
 
-noinst_HEADERS = strlcpycat.h misc.h
+noinst_HEADERS = misc.h
 
 nobase_include_HEADERS  = \
 						  PCSC/pcsclite.h \

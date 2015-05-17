@@ -60,7 +60,7 @@ if test "${libpcsclite}" = no ; then
 							SDKS_PATH="$(xcode-select -p)/Platforms/MacOSX.platform/Developer/SDKs"                                                                   
 							SDK_PATH="${SDK_PATH:-$SDKS_PATH/$(ls -1 ${SDKS_PATH} | sort -n -t. -k2 -r | head -1)}"
 							# and set the PC/SC include path
-							PCSC_CFLAGS="-I$SDK_PATH/System/Library/Frameworks/PCSC.framework/Versions/Current/Headers -DNO_LOG -DRESPONSECODE_DEFINED_IN_WINTYPES_H -I`pwd`/${top_srcdir}/MacOSX"
+							PCSC_CFLAGS="-I$SDK_PATH/System/Library/Frameworks/PCSC.framework/Versions/Current/Headers -DRESPONSECODE_DEFINED_IN_WINTYPES_H -I`pwd`/${top_srcdir}/MacOSX"
 							PCSC_LIBS="--framework PCSC"
 					 esac
 					 ])
@@ -69,6 +69,7 @@ if test "${libpcsclite}" = no ; then
 	CPPFLAGS="$CPPFLAGS $PCSC_CFLAGS"
 	AC_CHECK_HEADERS(ifdhandler.h,,
 			[ AC_MSG_ERROR([ifdhandler.h not found, install libpcsclite or use ./configure PCSC_CFLAGS=...])], [#include <wintypes.h>])
+	AC_CHECK_HEADERS([debuglog.h])
 	CPPFLAGS="$saved_CPPFLAGS"
 
 
@@ -167,7 +168,7 @@ AC_SUBST(PACKAGE_SUMMARY)
 
 
 # Checks for header files.
-AC_CHECK_HEADERS([arpa/inet.h stdint.h stdlib.h string.h sys/socket.h sys/time.h unistd.h])
+AC_CHECK_HEADERS([arpa/inet.h stdint.h stdlib.h string.h sys/socket.h sys/time.h unistd.h syslog.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_SIZE_T

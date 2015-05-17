@@ -16,11 +16,16 @@
  * You should have received a copy of the GNU General Public License along with
  * virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
  */
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "ifd-vpcd.h"
 #include "vpcd.h"
-#include <debuglog.h>
-#include <errno.h>
+
 #include <wintypes.h>
+
+#include <errno.h>
 #include <ifdhandler.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,6 +37,71 @@
         (PCSCLITE_MAX_READERS_CONTEXTS > 6 ? \
         PCSCLITE_MAX_READERS_CONTEXTS-6 : 1)
 const unsigned char vicc_max_slots = VICC_MAX_SLOTS;
+
+#ifdef HAVE_DEBUGLOG_H
+
+#include <debuglog.h>
+
+#else
+
+enum {
+	PCSC_LOG_DEBUG = 0,
+	PCSC_LOG_INFO,
+	PCSC_LOG_ERROR,
+	PCSC_LOG_CRITICAL
+};
+
+#ifdef HAVE_SYSLOG_H
+
+#include <stdarg.h>
+#include <syslog.h>
+
+void log_msg(const int priority, const char *fmt, ...)
+{
+	char debug_buffer[160]; /* up to 2 lines of 80 characters */
+	va_list argptr;
+	int syslog_level;
+
+	switch(priority) {
+		case PCSC_LOG_CRITICAL:
+			syslog_level = LOG_CRIT;
+			break;
+		case PCSC_LOG_ERROR:
+			syslog_level = LOG_ERR;
+			break;
+		case PCSC_LOG_INFO:
+			syslog_level = LOG_INFO;
+			break;
+		default:
+			syslog_level = LOG_DEBUG;
+	}
+
+	va_start(argptr, fmt);
+	(void)vsnprintf(debug_buffer, sizeof debug_buffer, fmt, argptr);
+	va_end(argptr);
+
+	syslog(syslog_level, "%s", debug_buffer);
+}
+#define Log0(priority) log_msg(priority, "%s:%d:%s()", __FILE__, __LINE__, __FUNCTION__)
+#define Log1(priority, fmt) log_msg(priority, "%s:%d:%s() " fmt, __FILE__, __LINE__, __FUNCTION__)
+#define Log2(priority, fmt, data) log_msg(priority, "%s:%d:%s() " fmt, __FILE__, __LINE__, __FUNCTION__, data)
+#define Log3(priority, fmt, data1, data2) log_msg(priority, "%s:%d:%s() " fmt, __FILE__, __LINE__, __FUNCTION__, data1, data2)
+#define Log4(priority, fmt, data1, data2, data3) log_msg(priority, "%s:%d:%s() " fmt, __FILE__, __LINE__, __FUNCTION__, data1, data2, data3)
+#define Log5(priority, fmt, data1, data2, data3, data4) log_msg(priority, "%s:%d:%s() " fmt, __FILE__, __LINE__, __FUNCTION__, data1, data2, data3, data4)
+#define Log9(priority, fmt, data1, data2, data3, data4, data5, data6, data7, data8) log_msg(priority, "%s:%d:%s() " fmt, __FILE__, __LINE__, __FUNCTION__, data1, data2, data3, data4, data5, data6, data7, data8)
+
+#else
+
+#define Log0(priority) do { } while(0)
+#define Log1(priority, fmt) do { } while(0)
+#define Log2(priority, fmt, data) do { } while(0)
+#define Log3(priority, fmt, data1, data2) do { } while(0)
+#define Log4(priority, fmt, data1, data2, data3) do { } while(0)
+#define Log5(priority, fmt, data1, data2, data3, data4) do { } while(0)
+#define Log9(priority, fmt, data1, data2, data3, data4, data5, data6, data7, data8) do { } while(0)
+
+#endif
+#endif
 
 static struct vicc_ctx *ctx[VICC_MAX_SLOTS];
 const char *hostname = NULL;
