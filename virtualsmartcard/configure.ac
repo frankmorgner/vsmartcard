@@ -134,7 +134,7 @@ fi
 
 # --enable-vpcdhost
 AC_ARG_ENABLE(vpcdhost,
-	AC_HELP_STRING([--enable-vpcdhost=ADRESS],[Default address to connect to when
+	AC_HELP_STRING([--enable-vpcdhost=ADDRESS],[Default address to connect to when
 					communicating with vicc. Use "/dev/null" if vpcd shall open
 					the socket and wait for an incoming connection.
 					@<:@default=/dev/null@:>@]),
@@ -145,6 +145,16 @@ if test "${vpcdhost}" = "/dev/null"; then
 else
 	AC_DEFINE_UNQUOTED(VPCDHOST, "${vpcdhost}", [address of vicc])
 fi
+
+
+# --enable-vpcdslots
+AC_ARG_ENABLE(vpcdslots,
+	AC_HELP_STRING([--enable-vpcdslots=COUNT],[Default number of slots to open.
+					vpcd will open one socket for each slot incrementing the
+					port number each time. @<:@default=2@:>@]),
+	[vpcdslots="${enableval}"], [vpcdslots=2])
+AC_SUBST(vpcdslots)
+AC_DEFINE_UNQUOTED(VPCDSLOTS, ${vpcdslots}, [number of vpcd slots])
 
 
 HAVE_QRENCODE=yes
@@ -240,6 +250,7 @@ Build libpcsclite:    ${libpcsclite}
 Build Info.plist:     ${infoplist}
 Build reader.conf:    ${readerconf}
 VPCD hostname: 	      ${vpcdhost}
+VPCD slot count:      ${vpcdslots}
 
 
 Host:                 ${host}

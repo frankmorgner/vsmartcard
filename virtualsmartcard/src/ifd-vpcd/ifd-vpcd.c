@@ -33,7 +33,7 @@
 
 /* pcscd allows at most 16 readers. Apple's SmartCardServices on OS X 10.10
  * freaks out if more than 8 slots are registered. We want only two slots... */
-#define VICC_MAX_SLOTS (2 <= PCSCLITE_MAX_READERS_CONTEXTS ? 2 : PCSCLITE_MAX_READERS_CONTEXTS)
+#define VICC_MAX_SLOTS (VPCDSLOTS <= PCSCLITE_MAX_READERS_CONTEXTS ? VPCDSLOTS : PCSCLITE_MAX_READERS_CONTEXTS)
 const unsigned char vicc_max_slots = VICC_MAX_SLOTS;
 
 #ifdef HAVE_DEBUGLOG_H
