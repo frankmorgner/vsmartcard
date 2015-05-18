@@ -23,6 +23,7 @@ vpicc_PYTHON = virtualsmartcard/CardGenerator.py \
 vpicccards_PYTHON = virtualsmartcard/cards/__init__.py \
            virtualsmartcard/cards/ePass.py \
            virtualsmartcard/cards/nPA.py \
+           virtualsmartcard/cards/Relay.py \
            virtualsmartcard/cards/cryptoflex.py
 
 do_subst = $(SED) \
