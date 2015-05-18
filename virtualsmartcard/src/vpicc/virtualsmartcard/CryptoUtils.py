@@ -25,6 +25,7 @@ import string, re
 
 try:
     # Use PyCrypto (if available)
+    from Crypto.Cipher import DES3, DES, AES, ARC4#@UnusedImport
     from Crypto.Hash import HMAC, SHA as SHA1
 
 except ImportError:
@@ -263,7 +264,6 @@ def calculate_MAC(session_key, message, iv=CYBERFLEX_IV):
     Cyberflex MAC is the last Block of the input encrypted with DES3-CBC
     """
     
-    from Crypto.Cipher import DES3
     cipher = DES3.new(session_key, DES3.MODE_CBC, iv)
     padded = append_padding(8, message, 0x01)
     block_count = len(padded) / cipher.block_size
