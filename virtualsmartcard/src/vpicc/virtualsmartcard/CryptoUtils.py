@@ -17,7 +17,6 @@
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 #
 import sys, binascii, random, logging
-from Crypto.Cipher import DES3, DES, AES, ARC4#@UnusedImport
 from struct import pack
 from binascii import b2a_hex, a2b_hex
 from random import randint
@@ -264,6 +263,7 @@ def calculate_MAC(session_key, message, iv=CYBERFLEX_IV):
     Cyberflex MAC is the last Block of the input encrypted with DES3-CBC
     """
     
+    from Crypto.Cipher import DES3
     cipher = DES3.new(session_key, DES3.MODE_CBC, iv)
     padded = append_padding(8, message, 0x01)
     block_count = len(padded) / cipher.block_size
