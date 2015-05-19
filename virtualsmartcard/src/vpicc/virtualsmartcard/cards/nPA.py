@@ -17,16 +17,78 @@
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 
 from virtualsmartcard.SmartcardSAM import SAM
+from virtualsmartcard.VirtualSmartcard import Iso7816OS
 from virtualsmartcard.SEutils import ControlReferenceTemplate, Security_Environment
 from virtualsmartcard.SWutils import SwError, SW
-from virtualsmartcard.ConstantDefinitions import CRT_TEMPLATE, SM_Class, ALGO_MAPPING
+from virtualsmartcard.ConstantDefinitions import CRT_TEMPLATE, SM_Class, ALGO_MAPPING, MAX_EXTENDED_LE, MAX_SHORT_LE
 from virtualsmartcard.TLVutils import unpack, bertlv_pack, decodeDiscretionaryDataObjects, tlv_find_tag
 from virtualsmartcard.SmartcardFilesystem import make_property
-from virtualsmartcard.utils import inttostring
+from virtualsmartcard.utils import inttostring, R_APDU
 import virtualsmartcard.CryptoUtils as vsCrypto
 from chat import CHAT, CVC, PACE_SEC, EAC_CTX
 import eac
 import logging, binascii
+
+
+class NPAOS(Iso7816OS):
+    def __init__(self, mf, sam, ins2handler=None, maxle=MAX_EXTENDED_LE, ef_cardsecurity=None, ef_cardaccess=None, ca_key=None, cvca=None, disable_checks=False, esign_key=None, esign_ca_cert=None, esign_cert=None):
+        Iso7816OS.__init__(self, mf, sam, ins2handler, maxle)
+        self.ins2handler[0x86] = self.SAM.general_authenticate
+        self.ins2handler[0x2c] = self.SAM.reset_retry_counter
+
+        # different ATR (Answer To Reset) values depending on used Chip version
+        # It's just a playground, because in past one of all those eID clients did not recognize the card correctly with newest ATR values
+        self.atr = '\x3B\x8A\x80\x01\x80\x31\xF8\x73\xF7\x41\xE0\x82\x90\x00\x75'
+        #self.atr = '\x3B\x8A\x80\x01\x80\x31\xB8\x73\x84\x01\xE0\x82\x90\x00\x06'
+        #self.atr = '\x3B\x88\x80\x01\x00\x00\x00\x00\x00\x00\x00\x00\x09'
+        #self.atr = '\x3B\x87\x80\x01\x80\x31\xB8\x73\x84\x01\xE0\x19'
+
+        self.SAM.current_SE.disable_checks = disable_checks
+        if ef_cardsecurity:
+            ef = self.mf.select('fid', 0x011d)
+            ef.data = ef_cardsecurity
+        if ef_cardaccess:
+            ef = self.mf.select('fid', 0x011c)
+            ef.data = ef_cardaccess
+        if cvca:
+            self.SAM.current_SE.cvca = cvca
+        if ca_key:
+            self.SAM.current_SE.ca_key = ca_key
+        esign = self.mf.select('dfname', '\xA0\x00\x00\x01\x67\x45\x53\x49\x47\x4E')
+        if esign_ca_cert:
+            ef = esign.select('fid', 0xC000)
+            ef.data = esign_ca_cert
+        if esign_cert:
+            ef = esign.select('fid', 0xC001)
+            ef.data = esign_cert
+
+
+    def formatResult(self, seekable, le, data, sw, sm):
+        if seekable:
+            # when le = 0 then we want to have 0x9000. here we only have the
+            # effective le, which is either MAX_EXTENDED_LE or MAX_SHORT_LE,
+            # depending on the APDU. Note that the following distinguisher has
+            # one false positive
+            if le > len(data) and le != MAX_EXTENDED_LE and le != MAX_SHORT_LE:
+                sw = SW["WARN_EOFBEFORENEREAD"]
+
+        if le != None:
+            result = data[:le]
+        else:
+            result = data[:0]
+        if sm:
+            try:
+                sw, result = self.SAM.protect_result(sw, result)
+            except SwError as e:
+                logging.info(e.message)
+                import traceback
+                traceback.print_exception(*sys.exc_info())
+                sw = e.sw
+                result = ""
+                answer = self.formatResult(False, 0, result, sw, False)
+
+        return R_APDU(result, inttostring(sw)).render()
+
 
 class nPA_AT_CRT(ControlReferenceTemplate):
 
@@ -99,6 +161,7 @@ class nPA_AT_CRT(ControlReferenceTemplate):
                     raise SwError(SW["ERR_REFNOTUSABLE"])
 
         return r, ""
+
 
 class nPA_SE(Security_Environment):
 
