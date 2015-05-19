@@ -19,14 +19,62 @@
 from virtualsmartcard.SmartcardSAM import SAM
 from virtualsmartcard.SEutils import Security_Environment
 from virtualsmartcard.SWutils import SwError, SW
-from virtualsmartcard.utils import inttostring, stringtoint
+from virtualsmartcard.utils import inttostring, stringtoint, C_APDU, R_APDU
 from virtualsmartcard import TLVutils
+from virtualsmartcard.VirtualSmartcard import Iso7816OS
 
 from virtualsmartcard.SmartcardFilesystem import MF, TransparentStructureEF, \
     RecordStructureEF, DF, EF
-from virtualsmartcard.ConstantDefinitions import FDB
+from virtualsmartcard.ConstantDefinitions import FDB, MAX_SHORT_LE
 
 import struct, logging
+
+
+class CryptoflexOS(Iso7816OS):  
+    def __init__(self, mf, sam, ins2handler=None, maxle=MAX_SHORT_LE):
+        Iso7816OS.__init__(self, mf, sam, ins2handler, maxle)
+        self.atr = '\x3B\xE2\x00\x00\x40\x20\x49\x06'
+
+    def execute(self, msg):
+        def notImplemented(*argz, **args):
+            raise SwError(SW["ERR_INSNOTSUPPORTED"])
+
+        try:
+            c = C_APDU(msg)
+        except ValueError as e:
+            logging.debug("Failed to parse APDU %s", msg)
+            return self.formatResult(False, 0, 0, "", SW["ERR_INCORRECTPARAMETERS"])
+
+        try:
+            sw, result = self.ins2handler.get(c.ins, notImplemented)(c.p1, c.p2, c.data)
+            #print type(result)
+        except SwError as e:
+            logging.info(e.message)
+            #traceback.print_exception(*sys.exc_info())
+            sw = e.sw
+            result = ""
+
+        r = self.formatResult(c.ins, c.le, result, sw)
+        return r
+
+    def formatResult(self, ins, le, data, sw):
+        if le == 0 and len(data):
+            # cryptoflex does not inpterpret le==0 as maxle
+            self.lastCommandSW = sw
+            self.lastCommandOffcut = data
+            r = R_APDU(inttostring(SW["ERR_WRONGLENGTH"] +\
+                    min(0xff, len(data)))).render()
+        else:
+            if ins == 0xa4 and len(data):
+                # get response should be followed by select file
+                self.lastCommandSW = sw
+                self.lastCommandOffcut = data
+                r = R_APDU(inttostring(SW["NORMAL_REST"] +\
+                    min(0xff, len(data)))).render()
+            else:
+                r = Iso7816OS.formatResult(self, Iso7816OS.seekable(ins), le, data, sw, False)
+
+        return r
 
 class CryptoflexSE(Security_Environment):
     def __init__(self, MF, SAM):

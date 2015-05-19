@@ -350,53 +350,6 @@ class Iso7816OS(SmartcardOS):
         return answer
 
 
-class CryptoflexOS(Iso7816OS):  
-    def __init__(self, mf, sam, ins2handler=None, maxle=MAX_SHORT_LE):
-        Iso7816OS.__init__(self, mf, sam, ins2handler, maxle)
-        self.atr = '\x3B\xE2\x00\x00\x40\x20\x49\x06'
-
-    def execute(self, msg):
-        def notImplemented(*argz, **args):
-            raise SwError(SW["ERR_INSNOTSUPPORTED"])
-
-        try:
-            c = C_APDU(msg)
-        except ValueError as e:
-            logging.debug("Failed to parse APDU %s", msg)
-            return self.formatResult(False, 0, 0, "", SW["ERR_INCORRECTPARAMETERS"])
-
-        try:
-            sw, result = self.ins2handler.get(c.ins, notImplemented)(c.p1, c.p2, c.data)
-            #print type(result)
-        except SwError as e:
-            logging.info(e.message)
-            #traceback.print_exception(*sys.exc_info())
-            sw = e.sw
-            result = ""
-
-        r = self.formatResult(c.ins, c.le, result, sw)
-        return r
-
-    def formatResult(self, ins, le, data, sw):
-        if le == 0 and len(data):
-            # cryptoflex does not inpterpret le==0 as maxle
-            self.lastCommandSW = sw
-            self.lastCommandOffcut = data
-            r = R_APDU(inttostring(SW["ERR_WRONGLENGTH"] +\
-                    min(0xff, len(data)))).render()
-        else:
-            if ins == 0xa4 and len(data):
-                # get response should be followed by select file
-                self.lastCommandSW = sw
-                self.lastCommandOffcut = data
-                r = R_APDU(inttostring(SW["NORMAL_REST"] +\
-                    min(0xff, len(data)))).render()
-            else:
-                r = Iso7816OS.formatResult(self, Iso7816OS.seekable(ins), le, data, sw, False)
-
-        return r
-
-
 class NPAOS(Iso7816OS):
     def __init__(self, mf, sam, ins2handler=None, maxle=MAX_EXTENDED_LE, ef_cardsecurity=None, ef_cardaccess=None, ca_key=None, cvca=None, disable_checks=False, esign_key=None, esign_ca_cert=None, esign_cert=None):
         Iso7816OS.__init__(self, mf, sam, ins2handler, maxle)
@@ -578,6 +531,7 @@ class VirtualICC(object):
         elif card_type == "nPA":
             self.os = NPAOS(MF, SAM, ef_cardsecurity=ef_cardsecurity, ef_cardaccess=ef_cardaccess, ca_key=ca_key, cvca=cvca, disable_checks=disable_checks, esign_key=esign_key, esign_ca_cert=esign_ca_cert, esign_cert=esign_cert)
         elif card_type == "cryptoflex":
+            from virtualsmartcard.cards.cryptoflex import CryptoflexOS
             self.os = CryptoflexOS(MF, SAM)
         elif card_type == "relay":
             from virtualsmartcard.cards.Relay import RelayOS
