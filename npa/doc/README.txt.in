@@ -23,6 +23,7 @@
         GPL version 3
     :Tested Platforms:
         - Windows
+        - Mac OS X
         - Linux (Debian, Ubuntu, OpenMoko)
 
 The @PACKAGE_NAME@ offers an easy to use API for the new German identity card
