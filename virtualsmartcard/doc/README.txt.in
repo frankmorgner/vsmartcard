@@ -33,7 +33,7 @@ Currently the @PACKAGE_NAME@ supports the following types of smart cards:
 
 - Generic ISO-7816 smart card including secure messaging
 - German electronic identity card (nPA) with complete support for |EAC| (|PACE|, |TA|, |CA|)
-- German electronic passport (ePass) with complete support for |BAC|
+- Electronic passport (ePass/MRTD) with support for |BAC|
 - Cryptoflex smart card (incomplete)
       
 The |vpcd| is a smart card reader driver for PCSC-Lite_ and the windows smart
@@ -106,12 +106,10 @@ and responses via NFC to a contact-less smart card that signs the mail.
 Depending on your usage of the |vpicc| you may need to install the following:
 
 - Python_
-- pyscard_
-- PyCrypto_
-- PBKDF2_
-- PIP_
-- readline_ or PyReadline_
-- OpenPACE_ (nPA emulation)
+- pyscard_ (relaying a local smart card with :option:`--type=relay`)
+- PyCrypto_, PBKDF2_, PIL_, readline_ or PyReadline_ (emulation of electronic
+  passport with :option:`--type=ePass`)
+- OpenPACE_ (emulation of German identity card with :option:`--type=nPA`)
 
 
 .. include:: download.txt
@@ -274,7 +272,7 @@ Notes and References
 .. _PBKDF2: https://www.dlitz.net/software/python-pbkdf2/
 .. _readline: https://docs.python.org/3.3/library/readline.html
 .. _PyReadline: https://pypi.python.org/pypi/pyreadline
-.. _PIP: http://www.pythonware.com/products/pil/
+.. _PIL: http://www.pythonware.com/products/pil/
 .. _OpenPACE: https://github.com/frankmorgner/openpace
 .. _`Fabio Ottavi's UMDF Driver for a Virtual Smart Card Reader`: http://www.codeproject.com/Articles/134010/An-UMDF-Driver-for-a-Virtual-Smart-Card-Reader
 .. _`Windows Driver Kit 8.1 and Visual Studio 2013`: http://msdn.microsoft.com/en-us/windows/hardware/hh852365.aspx
