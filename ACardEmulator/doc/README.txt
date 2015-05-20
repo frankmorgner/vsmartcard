@@ -52,9 +52,9 @@ For emulating a contact-less smart card with a desktop or notebook, have a look 
 
 Please note that the currently emulated applets are verifying the PIN by
 transmitting it without any protection between card and terminal. You may want
-to have a look at Erik Nellesson's `Virtual Keycard`_. His project patches the
-MUSCLE applet to use the PACE protocol for PIN verification. It also comes with
-a driver for OpenSC (i.e. can be accessed via PKCS#11, Minidriver/CSP or tokend).
+to have a look at `Erik Nellesson's
+<http://sar.informatik.hu-berlin.de/research/publications/SAR-PR-2014-08/SAR-PR-2014-08_.pdf>`_
+`Virtual Keycard`_,which uses the PACE protocol for PIN verification.
 
 
 .. _acardemulator_install:
