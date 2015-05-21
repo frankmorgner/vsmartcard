@@ -29,16 +29,12 @@ import socket, struct, sys, signal, atexit, logging
 class SmartcardOS(object): 
     """Base class for a smart card OS"""
 
-    mf  = make_property("mf",  "master file")
-    SAM = make_property("SAM", "secure access module")
-
     def getATR(self):
         """Returns the ATR of the card as string of characters"""
         return ""
         
     def powerUp(self):
         """Powers up the card"""
-        self.mf.current = self.mf
         pass
 
     def powerDown(self):
@@ -47,7 +43,6 @@ class SmartcardOS(object):
 
     def reset(self):
         """Performs a warm reset of the card (no power down)"""
-        self.mf.current = self.mf
         pass
 
     def execute(self, msg):
@@ -59,6 +54,10 @@ class SmartcardOS(object):
 
 
 class Iso7816OS(SmartcardOS):  
+
+    mf  = make_property("mf",  "master file")
+    SAM = make_property("SAM", "secure access module")
+
     def __init__(self, mf, sam, ins2handler=None, extended_length=False):
         self.mf = mf
         self.SAM = sam
@@ -348,6 +347,12 @@ class Iso7816OS(SmartcardOS):
             answer = self.formatResult(False, 0, result, sw, sm)
 
         return answer
+
+    def powerUp(self):
+        self.mf.current = self.mf
+
+    def reset(self):
+        self.mf.current = self.mf
 
 
 

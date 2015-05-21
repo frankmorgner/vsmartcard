@@ -33,12 +33,6 @@ class HandlerTestOS(SmartcardOS):
 
     def getATR(self):
         return '\x3B\xD6\x18\x00\x80\xB1\x80\x6D\x1F\x03\x80\x51\x00\x61\x10\x30\x9E'
-        
-    def powerUp(self):
-        pass
-
-    def reset(self):
-        pass
 
     def __output_from_le(self, msg):
         le = (ord(msg[2])<<8)+ord(msg[3])
