@@ -104,6 +104,10 @@ class RelayOS(SmartcardOS):
             logging.error("Error disconnecting from card: %s", str(e))
             sys.exit()
 
+    def reset(self):
+        self.powerDown()
+        self.powerUp()
+
     def execute(self, msg):
         # sendCommandAPDU() expects a list of APDU bytes
         apdu = map(ord, msg)
