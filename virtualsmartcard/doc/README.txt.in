@@ -110,6 +110,8 @@ Depending on your usage of the |vpicc| you may need to install the following:
 - PyCrypto_, PBKDF2_, PIL_, readline_ or PyReadline_ (emulation of electronic
   passport with :option:`--type=ePass`)
 - OpenPACE_ (emulation of German identity card with :option:`--type=nPA`)
+- libqrencode_ (to print a QR code on the command line for `vpcd-config`; an
+  URL will be printed if libqrencode is not available)
 
 
 .. include:: download.txt
@@ -274,6 +276,7 @@ Notes and References
 .. _PyReadline: https://pypi.python.org/pypi/pyreadline
 .. _PIL: http://www.pythonware.com/products/pil/
 .. _OpenPACE: https://github.com/frankmorgner/openpace
+.. _libqrencode: https://fukuchi.org/works/qrencode/
 .. _`Fabio Ottavi's UMDF Driver for a Virtual Smart Card Reader`: http://www.codeproject.com/Articles/134010/An-UMDF-Driver-for-a-Virtual-Smart-Card-Reader
 .. _`Windows Driver Kit 8.1 and Visual Studio 2013`: http://msdn.microsoft.com/en-us/windows/hardware/hh852365.aspx
 .. _`Microsoft's Kernel-Mode Code Signing Walkthrough`: http://msdn.microsoft.com/en-us/library/windows/hardware/dn653569%28v=vs.85%29.aspx
