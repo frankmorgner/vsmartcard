@@ -166,8 +166,9 @@ LIBS="$LDFLAGS $QRENCODE_LIBS"
 AC_CHECK_HEADERS(qrencode.h, [], [ HAVE_QRENCODE=no ])
 AC_MSG_CHECKING([for QRcode_encodeString])
 AC_TRY_LINK_FUNC(QRcode_encodeString, [ AC_MSG_RESULT([yes]) ], [ HAVE_QRENCODE=no ])
-AM_CONDITIONAL(HAVE_QRENCODE, test "${HAVE_QRENCODE}" = "yes")
-AM_COND_IF(HAVE_QRENCODE, [AC_DEFINE(HAVE_QRENCODE, 1, [enable QR support])])
+if test "${HAVE_QRENCODE}" = "yes"; then
+	AC_DEFINE(HAVE_QRENCODE, 1, [enable QR support])
+fi
 CPPFLAGS="$saved_CPPFLAGS"
 LIBS="$saved_LIBS"
 
