@@ -81,7 +81,7 @@ class NPAOS(Iso7816OS):
                 sw, result = self.SAM.protect_result(sw, result)
             except SwError as e:
                 logging.info(e.message)
-                import traceback
+                import traceback, sys
                 traceback.print_exception(*sys.exc_info())
                 sw = e.sw
                 result = ""

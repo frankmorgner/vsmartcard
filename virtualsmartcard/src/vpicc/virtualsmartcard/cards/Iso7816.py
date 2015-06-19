@@ -303,7 +303,7 @@ class Iso7816OS(SmartcardOS):
             answer = self.formatResult(Iso7816OS.seekable(c.ins), c.effective_Le, result, sw, sm)
         except SwError as e:
             logging.info(e.message)
-            import traceback
+            import traceback, sys
             traceback.print_exception(*sys.exc_info())
             sw = e.sw
             result = ""
