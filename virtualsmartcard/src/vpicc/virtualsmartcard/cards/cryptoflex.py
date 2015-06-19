@@ -27,7 +27,7 @@ from virtualsmartcard.SmartcardFilesystem import MF, TransparentStructureEF, \
     RecordStructureEF, DF, EF
 from virtualsmartcard.ConstantDefinitions import FDB, MAX_SHORT_LE
 
-import struct, logging
+import struct, logging, sys
 
 
 class CryptoflexOS(Iso7816OS):  
