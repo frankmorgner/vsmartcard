@@ -18,6 +18,7 @@
 #
 
 from virtualsmartcard.VirtualSmartcard import SmartcardOS
+import sys
 
 
 class Iso7816OS(SmartcardOS):  
