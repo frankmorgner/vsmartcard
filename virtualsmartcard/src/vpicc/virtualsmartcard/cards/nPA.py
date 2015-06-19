@@ -27,7 +27,7 @@ from virtualsmartcard.utils import inttostring, R_APDU
 import virtualsmartcard.CryptoUtils as vsCrypto
 from chat import CHAT, CVC, PACE_SEC, EAC_CTX
 import eac
-import logging, binascii
+import logging, binascii, sys
 
 
 class NPAOS(Iso7816OS):
