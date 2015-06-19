@@ -32,7 +32,8 @@
 Currently the @PACKAGE_NAME@ supports the following types of smart cards:
 
 - Generic ISO-7816 smart card including secure messaging
-- German electronic identity card (nPA) with complete support for |EAC| (|PACE|, |TA|, |CA|)
+- German electronic identity card (nPA) with complete support for |EAC|
+  (|PACE|, |TA|, |CA|)
 - Electronic passport (ePass/MRTD) with support for |BAC|
 - Cryptoflex smart card (incomplete)
       
@@ -100,8 +101,8 @@ On Android, where a traditional PC/SC framework is not available, you can use
 our framework to make your real contact-less smart accessible through PKCS#11.
 For example, an email signing application can use the PKCS#11 interface of
 OpenSC, which is linked against our PC/SC implementation. Then an Android App
-(e.g. :ref:`remote-reader`) can connect as |vpicc| delegating all requests
-and responses via NFC to a contact-less smart card that signs the mail.
+(e.g. :ref:`remote-reader`) can connect as |vpicc| delegating all requests and
+responses via NFC to a contact-less smart card that signs the mail.
 
 Depending on your usage of the |vpicc| you may need to install the following:
 
@@ -121,6 +122,23 @@ Depending on your usage of the |vpicc| you may need to install the following:
 
 .. include:: autotools.txt
 
+
+================================================================================
+Building and installing |vpcd| on Mac OS X
+================================================================================
+
+Mac OS X 10.9 and earlier is using PCSC-Lite as smart card service which allows
+using the standard routine for `installation on Unix<vicc_install>`.
+
+Mac OS X 10.10 (and later) ships with a proprietary implementation of the PC/SC
+layer instead of with PCSC-Lite. As far as we know, this means that smart card
+readers must be USB devices instead of directly allowing a more generic type of
+reader. To make |vpcd| work we simply configure it to pretend being a USB smart
+card reader with an :file:`Ìnfo.plist`::
+
+    ./configure --prefix=/ --enable-infoplist
+    make
+    make install
 
 ================================================================================
 Building and installing |vpcd| on Windows
@@ -185,6 +203,8 @@ The protocol between |vpcd| and |vpicc| as well as details on extending |vpicc|
 with a different card emulator are covered in :ref:`virtualsmartcard-api`. Here
 we will focus on configuring and running the provided modules.
 
+.. _vicc_config:
+
 ================================================================================
 Configuring |vpcd| on Unix
 ================================================================================
@@ -206,6 +226,40 @@ connections.  The port to open should be specified in ``CHANNELID`` and
 If the first part of the ``DEVICENAME`` is different from ``/dev/null``, |vpcd|
 will use this string as a hostname for connecting to a waiting |vpicc|. |vpicc|
 needs to be started with :option:`--reversed` in this case.
+
+================================================================================
+Configuring |vpcd| on Mac OS X
+================================================================================
+
+Mac OS X 10.9 and earlier is using PCSC-Lite as smart card service which allows
+using the standard routine for `configuration on Unix<vicc_config>`.
+
+On Mac OS X 10.10 you should have configured the generation of
+:file:`Info.plist` at compile time. Now do the following for registering |vpcd|
+as USB device:
+
+1. Choose an USB device (e.g. mass storage, phone, mouse, ...), which will be
+   used to start |vpcd|. Plug it into the computer.
+
+2. Run the following command to get the device's product and vendor ID::
+
+   system_profiler SPUSBDataType
+
+3. Change :file:`/usr/libexec/SmartCardServices/drivers/ifd-vpcd.bundle/Info.plist`
+   to match your product and vendor ID:
+
+.. literalinclude:: Info.plist
+    :emphasize-lines: 34,39
+
+   Note that ``ifdFriendlyName`` can be used in the same way as ``DEVICENAME``
+   `described above<vicc_config>`.
+
+4. Restart the PC/SC service::
+
+   sudo killall -SIGKILL -m .*com.apple.ifdreader
+
+Now, every time you plug in your USB device |vpcd| will be started. It will be
+stopped when you unplug the device.
 
 ================================================================================
 Configuring |vpcd| on Windows
