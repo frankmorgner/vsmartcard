@@ -85,4 +85,3 @@ Functions
 .. doxygenfunction:: iso_sm_ctx_create
 .. doxygenfunction:: iso_sm_ctx_clear_free
 .. doxygenfunction:: iso_sm_start
-.. doxygenfunction:: sm_stop

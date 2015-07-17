@@ -89,7 +89,7 @@ perform_pseudo_apdu_GetReaderPACECapabilities(sc_apdu_t *apdu)
             sc_reader_t_capabilities, &apdu->resp, &apdu->resplen);
 }
 #else
-int sm_stop(struct sc_card *card) { return SC_SUCCESS; }
+int sc_sm_stop(struct sc_card *card) { return SC_SUCCESS; }
 #endif
 
 static int
@@ -459,7 +459,7 @@ perform_PC_to_RDR_IccPowerOn(const __u8 *in, size_t inlen, __u8 **out, size_t *o
         sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "Card is already powered on.");
         sc_result = SC_SUCCESS;
     } else {
-        sm_stop(card);
+        sc_sm_stop(card);
         sc_result = sc_connect_card(reader, &card);
         card->caps |= SC_CARD_CAP_APDU_EXT;
     }

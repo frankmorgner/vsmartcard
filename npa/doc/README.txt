@@ -23,6 +23,7 @@ nPA Smart Card Library
         GPL version 3
     :Tested Platforms:
         - Windows
+        - Mac OS X
         - Linux (Debian, Ubuntu, OpenMoko)
 
 The nPA Smart Card Library offers an easy to use API for the new German identity card
