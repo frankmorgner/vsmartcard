@@ -63,6 +63,18 @@ to have a look at `Erik Nellesson's
 Download and Install
 ********************
 
+The Android Smart Card Emulator is available on F-Droid_.
+
+.. qr code generated via http://www.qrcode-monkey.de
+
+.. icon generated via https://romannurik.github.io/AndroidAssetStudio/icons-launcher.html#foreground.type=clipart&foreground.space.trim=0&foreground.space.pad=0.25&foreground.clipart=res%2Fclipart%2Ficons%2Fdevice_nfc.svg&foreColor=fdd017%2C0&crop=0&backgroundShape=hrect&backColor=ffffff%2C100&effects=shadow
+
+.. image:: acardemu-qrcode.png
+    :target: https://f-droid.org/repository/browse/?fdid=com.vsmartcard.acardemulator
+    :alt: Android Smart Card Emulator on F-Droid
+    :width: 265px
+    :height: 265px
+
 To manually compile the app you need to fetch the sources and initialize the
 submodules::
 
@@ -92,4 +104,5 @@ Notes and References
 .. _OATH Applet: https://developers.yubico.com/ykneo-oath/
 .. _ISO Applet: http://www.pwendland.net/IsoApplet/
 .. _Virtual Keycard: https://github.com/eriknellessen/Virtual-Keycard
+.. _F-Droid: https://f-droid.org/repository/browse/?fdid=com.vsmartcard.remotesmartcardreader.app
 .. _Android Studio: http://developer.android.com/sdk/installing/studio.html

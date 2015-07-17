@@ -99,6 +99,8 @@ The Remote Smart Card Reader is available on F-Droid_.
 
 .. qr code generated via http://www.qrcode-monkey.de
 
+.. icon generated via https://romannurik.github.io/AndroidAssetStudio/icons-launcher.html#foreground.type=clipart&foreground.space.trim=0&foreground.space.pad=0.25&foreground.clipart=res%2Fclipart%2Ficons%2Fnotification_tap_and_play.svg&foreColor=fdd017%2C0&crop=0&backgroundShape=hrect&backColor=ffffff%2C100&effects=shadow
+
 .. image:: remote-reader-qrcode.png
     :target: https://f-droid.org/repository/browse/?fdid=com.vsmartcard.remotesmartcardreader.app  
     :alt: Remote Smart Card Reader on F-Droid
