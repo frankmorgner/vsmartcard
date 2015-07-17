@@ -66,26 +66,25 @@ the |vpcd|. In :class:`~virtualsmartcard.VirtualSmartcard.VirtualICC` an |APDU|
 is only a buffer that is forwarded to the smart card OS. First we modify
 :class:`~virtualsmartcard.VirtualSmartcard.VirtualICC` to recognize a new type
 ``"cryptoflex"`` and to load
-:class:`~virtualsmartcard.VirtualSmartcard.CryptoflexOS`. The
+:class:`~virtualsmartcard.cards.cryptoflex.CryptoflexOS`. The
 :class:`~virtualsmartcard.CardGenerator` is used to create a file system and a
 |SAM| specific to the cryptoflex (we come back to this later).
 
 .. literalinclude:: virtualsmartcard/VirtualSmartcard.py
     :pyobject: VirtualICC.__init__
-    :emphasize-lines: 20,28-29
+    :emphasize-lines: 35-37
 
 Responses from our cryptoflex card look the same as for the 7816 card. But when
 a command was successfull (or not) there is a little difference in what is
 returned. So we need to edit
-:class:`~virtualsmartcard.VirtualSmartcard.CryptoflexOS.formatResult`, which is
+:class:`~virtualsmartcard.cards.cryptoflex.CryptoflexOS.formatResult`, which is
 called to encode the |SWs| and the resulting data.
 
-.. literalinclude:: virtualsmartcard/VirtualSmartcard.py
+.. literalinclude:: virtualsmartcard/cards/cryptoflex.py
     :pyobject: CryptoflexOS.formatResult
 
 Note that this also requires some insight knowledge about how
-:class:`~virtualsmartcard.VirtualSmartcard.Iso7816OS` works (see `above
-<Documentation to Virtual Smart Card>`_).
+:class:`~virtualsmartcard.VirtualSmartcard.Iso7816OS` works.
 
 The previously created |SAM| handles keys, encryption, secure messaging and so
 on (we will not go into more details here). The file system creates, selects
@@ -116,12 +115,12 @@ connect to an other smart card using PC/SC and forward it to |vpcd|.
 
 As before with the cryptoflex card, we let
 :class:`~virtualsmartcard.VirtualSmartcard.VirtualICC` recognize the new type
-``"relay"``. :class:`~virtualsmartcard.VirtualSmartcard.RelayOS` overwrites all
+``"relay"``. :class:`~virtualsmartcard.cards.Relay.RelayOS` overwrites all
 main functions from the template
 :class:`~virtualsmartcard.VirtualSmartcard.SmartcardOS`. Its functions correspond
 to the :ref:`commands sent by vpcd <vpcd-commands>`. If you know how to use
 `pyscard <http://pyscard.sourceforge.net/>`_ then the rest is pretty straight
 forward, but see yourself...
 
-.. literalinclude:: virtualsmartcard/VirtualSmartcard.py
+.. literalinclude:: virtualsmartcard/cards/Relay.py
     :pyobject: RelayOS
