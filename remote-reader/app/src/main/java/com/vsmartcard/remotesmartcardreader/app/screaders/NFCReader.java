@@ -54,7 +54,7 @@ public class NFCReader implements SCReader {
     private static final byte[] SELECT_MF = {(byte) 0x00, (byte) 0xa4, (byte) 0x00, (byte) 0x0C};
     private void selectMF() throws IOException {
         byte[] response = card.transceive(SELECT_MF);
-        if (response.length == 2 && response[0] == 0x90 && response[1] == 0x00) {
+        if (response.length == 2 && response[0] == (byte) 0x90 && response[1] == (byte) 0x00) {
             Log.d(this.getClass().getName(), "Resetting the card by selecting the MF results in " + Hex.getHexString(response));
         }
     }
