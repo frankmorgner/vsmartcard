@@ -32,9 +32,9 @@ import java.io.IOException;
 
 public class NFCReader implements SCReader {
 
-    private IsoDep card;
+    private final IsoDep card;
 
-    public NFCReader(IsoDep sc) throws IOException {
+    private NFCReader(IsoDep sc) throws IOException {
         this.card = sc;
         sc.connect();
         card.setTimeout(TIMEOUT);
@@ -45,13 +45,13 @@ public class NFCReader implements SCReader {
         card.close();
     }
 
-    public static int TIMEOUT = 2500;
+    public static final int TIMEOUT = 2500;
     @Override
     public void powerOn() {
         /* should already be connected... */
     }
 
-    private static byte[] SELECT_MF = {(byte) 0x00, (byte) 0xa4, (byte) 0x00, (byte) 0x0C};
+    private static final byte[] SELECT_MF = {(byte) 0x00, (byte) 0xa4, (byte) 0x00, (byte) 0x0C};
     private void selectMF() throws IOException {
         byte[] response = card.transceive(SELECT_MF);
         if (response.length == 2 && response[0] == 0x90 && response[1] == 0x00) {

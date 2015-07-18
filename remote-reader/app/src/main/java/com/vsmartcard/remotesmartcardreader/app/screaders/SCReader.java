@@ -23,18 +23,18 @@ import java.io.IOException;
 
 public interface SCReader {
 
-    public void eject() throws IOException;
+    void eject() throws IOException;
 
-    public void powerOn() throws IOException;
-    public void powerOff() throws IOException;
-    public void reset() throws IOException;
+    void powerOn() throws IOException;
+    void powerOff() throws IOException;
+    void reset() throws IOException;
 
     /**
      * Receive ATR from the smart card.
      *
      * @return ATR on success or null in case of an error
      */
-    public byte[] getATR();
+    byte[] getATR();
 
     /**
      * Send an APDU to the smart card
@@ -42,5 +42,5 @@ public interface SCReader {
      * @param apdu Data to be sent
      * @return response data or null in case of an error
      */
-    public byte[] transmit(byte[] apdu) throws IOException;
+    byte[] transmit(byte[] apdu) throws IOException;
 }

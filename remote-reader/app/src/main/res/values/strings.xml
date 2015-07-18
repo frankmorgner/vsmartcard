@@ -21,16 +21,11 @@
     <string name="status_off">Powered down the card (cold reset)</string>
     <string name="status_reset">Resetted the card (warm reset)</string>
     <string name="status_unknown">Unable to perform unknown Event</string>
-    <string name="status_tag_discovered">Contact-less card discovered</string>
     <string name="status_dummy_start">Using a dummy card to test the connection</string>
     <string name="status_default_port">Using default port</string>
 
-    <string name="action_settings">Settings</string>
     <string name="action_copy">Copy Log</string>
     <string name="action_delete">Clear Log</string>
-
-    <string name="verbose">Verbose logging</string>
-    <string name="error_tag_lost">Data transmission failed. Is the card still present?</string>
 
     <string name="scheme_http">http</string>
     <string name="scheme_https">https</string>

@@ -33,6 +33,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.Layout;
 import android.text.method.ScrollingMovementMethod;
@@ -218,9 +219,9 @@ public class MainActivity extends Activity implements NfcAdapter.ReaderCallback 
         }
     }
 
-    private static String saved_status_key = "textViewVPCDStatus";
+    private static final String saved_status_key = "textViewVPCDStatus";
     @Override
-    public void onRestoreInstanceState(Bundle savedInstanceState) {
+    public void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         textViewVPCDStatus.setText(savedInstanceState.getCharSequence(saved_status_key));
     }

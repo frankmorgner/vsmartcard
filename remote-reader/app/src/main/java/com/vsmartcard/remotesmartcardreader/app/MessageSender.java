@@ -22,7 +22,7 @@ package com.vsmartcard.remotesmartcardreader.app;
 import android.os.Handler;
 import android.os.Message;
 
-public class MessageSender {
+class MessageSender {
     public static final int MESSAGE_CONNECTED = 0;
     public static final int MESSAGE_DISCONNECTED = 1;
     public static final int MESSAGE_ERROR = 2;
@@ -32,7 +32,7 @@ public class MessageSender {
     public static final int MESSAGE_RESET = 6;
     public static final int MESSAGE_CAPDU = 7;
     public static final int MESSAGE_RAPDU = 8;
-    private Handler handler;
+    private final Handler handler;
 
     public MessageSender(Handler handler) {
         this.handler = handler;
@@ -56,7 +56,7 @@ public class MessageSender {
     }
 
     public void sendDisconnected(String details) {
-        sendMessage(MESSAGE_DISCONNECTED, details);
+        sendMessage(MESSAGE_DISCONNECTED, "");
     }
 
     public void sendError(String details) {

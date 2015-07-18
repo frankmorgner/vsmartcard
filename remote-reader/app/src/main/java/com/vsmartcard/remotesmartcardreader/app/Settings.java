@@ -24,7 +24,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
 
-public class Settings {
+class Settings {
 
     private static final String KEY_VPCD_HOST = "hostname";
     private static final String KEY_VPCD_PORT = "port";
@@ -44,19 +44,11 @@ public class Settings {
         editor.apply();
     }
 
-    private void setBoolean(String key, boolean value) {
-        Editor editor = settings.edit();
-        editor.putBoolean(key, value);
-        editor.apply();
-    }
-
-    public void setVPCDHost(String hostname) {
-        setString(KEY_VPCD_HOST, hostname);
-    }
-
-    public void setVPCDPort(String port) {
-        setString(KEY_VPCD_PORT, port);
-    }
+//    private void setBoolean(String key, boolean value) {
+//        Editor editor = settings.edit();
+//        editor.putBoolean(key, value);
+//        editor.apply();
+//    }
 
     public void setVPCDSettings(String hostname, String port) {
         Editor editor = settings.edit();

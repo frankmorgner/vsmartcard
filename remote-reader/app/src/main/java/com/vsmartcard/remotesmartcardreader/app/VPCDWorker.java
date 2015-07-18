@@ -30,16 +30,16 @@ import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 
-public class VPCDWorker implements Runnable, Closeable {
-    public static int DEFAULT_PORT = 35963;
-    private int port;
-    private String hostname;
-    private SCReader reader;
+class VPCDWorker implements Runnable, Closeable {
+    public static final int DEFAULT_PORT = 35963;
+    private final int port;
+    private final String hostname;
+    private final SCReader reader;
     private Socket socket;
     private InputStream inputStream;
     private OutputStream outputStream;
     private boolean doRun;
-    private MessageSender messageSender;
+    private final MessageSender messageSender;
 
     public VPCDWorker(String hostname, int port, SCReader reader, Handler handler) {
         this.hostname = hostname;
