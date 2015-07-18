@@ -74,3 +74,8 @@ virtualsmartcard/win32/vpcd-config/Debug
 virtualsmartcard/win32/vpcd-config/vpcd-config.v12.suo
 npa/opensc.conf
 remote-reader/build/*
+
+.DS_Store
+.idea
+.gradle
+local.properties
