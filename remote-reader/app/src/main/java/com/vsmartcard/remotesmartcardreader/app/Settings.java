@@ -41,13 +41,13 @@ public class Settings {
     private void setString(String key, String value) {
         Editor editor = settings.edit();
         editor.putString(key, value);
-        editor.commit();
+        editor.apply();
     }
 
     private void setBoolean(String key, boolean value) {
         Editor editor = settings.edit();
         editor.putBoolean(key, value);
-        editor.commit();
+        editor.apply();
     }
 
     public void setVPCDHost(String hostname) {
@@ -62,7 +62,7 @@ public class Settings {
         Editor editor = settings.edit();
         editor.putString(KEY_VPCD_HOST, hostname);
         editor.putString(KEY_VPCD_PORT, port);
-        editor.commit();
+        editor.apply();
     }
 
     public String getVPCDHost() {
