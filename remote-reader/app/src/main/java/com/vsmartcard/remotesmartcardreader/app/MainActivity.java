@@ -19,6 +19,7 @@
 
 package com.vsmartcard.remotesmartcardreader.app;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.ClipData;
@@ -51,6 +52,7 @@ import com.vsmartcard.remotesmartcardreader.app.screaders.DummyReader;
 import com.vsmartcard.remotesmartcardreader.app.screaders.NFCReader;
 import com.vsmartcard.remotesmartcardreader.app.screaders.SCReader;
 
+@TargetApi(Build.VERSION_CODES.KITKAT)
 public class MainActivity extends Activity implements NfcAdapter.ReaderCallback {
 
     class VPCDHandler extends Handler {
