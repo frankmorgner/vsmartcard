@@ -10,7 +10,7 @@
 	url = https://github.com/Yubico/ykneo-oath.git
 [submodule "ACardEmulator/app/src/main/external/IsoApplet"]
 	path = ACardEmulator/app/src/main/external/IsoApplet
-	url = https://github.com/frankmorgner/IsoApplet.git
+	url = https://github.com/philipWendland/IsoApplet.git
 [submodule "ACardEmulator/app/src/main/external/jcardsim"]
 	path = ACardEmulator/app/src/main/external/jcardsim
 	url = https://github.com/frankmorgner/jcardsim.git
