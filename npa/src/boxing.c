@@ -990,5 +990,7 @@ void sc_initialize_boxing_cmds(sc_context_t *ctx)
         reader = list_iterator_next(&ctx->readers);
         sc_detect_boxing_cmds(reader);
     }
+
+    list_iterator_stop(&ctx->readers);
 }
 #endif
