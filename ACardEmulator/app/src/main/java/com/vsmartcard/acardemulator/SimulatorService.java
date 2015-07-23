@@ -19,18 +19,16 @@
 
 package com.vsmartcard.acardemulator;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.nfc.cardemulation.HostApduService;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.licel.jcardsim.base.Simulator;
+import com.licel.jcardsim.base.SimulatorRuntime;
 import com.licel.jcardsim.samples.HelloWorldApplet;
-import com.licel.jcardsim.smartcardio.CardSimulator;
 import com.licel.jcardsim.utils.AIDUtil;
 
 import net.pwendland.javacard.pki.isoapplet.IsoApplet;
@@ -62,11 +60,11 @@ public class SimulatorService extends HostApduService {
     public static final String EXTRA_DESELECT = "MSG_DESELECT";
     public static final String EXTRA_INSTALL = "MSG_INSTALL";
 
-    private static CardSimulator simulator = null;
+    private static Simulator simulator = null;
 
     private void createSimulator() {
         String aid, name, extra_install = "", extra_error = "";
-        simulator = new CardSimulator();
+        simulator = new Simulator(new SimulatorRuntime());
 
         name = getResources().getString(R.string.applet_helloworld);
         aid = getResources().getString(R.string.aid_helloworld);

@@ -20,6 +20,14 @@ android {
     sourceSets {
         main.java.srcDirs += 'src/main/external/jcardsim/src/main/java'
         main.java.exclude('**/APDUScriptTool.java')
+        main.java.exclude('**/JavaxSmartCardInterface.java')
+        main.java.exclude('**/CardTerminalSimulator.java')
+        main.java.exclude('**/JCSCard*.java')
+        main.java.exclude('**/JCSTerminal.java')
+        main.java.exclude('**/JCSFactory.java')
+        main.java.exclude('**/CardSimulator.java')
+        main.java.exclude('**/CAD.java')
+        main.java.exclude('**/CardTerminalSimulator.java')
         main.java.srcDirs += 'src/main/external/IsoApplet/src'
         main.java.srcDirs += 'src/main/external/android-scio/src/main'
         main.java.srcDirs += 'src/main/external/ykneo-openpgp/applet/src'
