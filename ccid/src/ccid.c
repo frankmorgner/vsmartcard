@@ -213,7 +213,7 @@ int ccid_initialize(int reader_id, int verbose)
 
 void ccid_shutdown(void)
 {
-    sm_stop(card);
+    sc_sm_stop(card);
 
     if (card) {
         sc_disconnect_card(card);
