@@ -34,7 +34,7 @@ AX_PTHREAD
 AC_ARG_VAR([HELP2MAN],
            [absolute path to help2man used for man page generation of vicc])
 AC_PATH_PROG(HELP2MAN, help2man, not found)
-if test ! -r src/vpicc/vicc.1 -a "${HELP2MAN}" = "not found"
+if test ! -x "${HELP2MAN}"
 then
     AC_MSG_ERROR([Need help2man to generate man page for vicc])
 fi
