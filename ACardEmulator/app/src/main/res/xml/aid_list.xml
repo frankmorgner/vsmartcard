@@ -10,6 +10,7 @@
 
     <aid-group android:description="@string/applet_openpgp" android:category="other">
         <aid-filter android:name="@string/aid_openpgp"/>
+        <aid-filter android:name="@string/aid_partial_openpgp"/>
     </aid-group>
 
     <aid-group android:description="@string/applet_oath" android:category="other">
