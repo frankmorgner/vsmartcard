@@ -14,3 +14,6 @@
 [submodule "ACardEmulator/app/src/main/external/jcardsim"]
 	path = ACardEmulator/app/src/main/external/jcardsim
 	url = https://github.com/frankmorgner/jcardsim.git
+[submodule "ACardEmulator/app/src/main/external/MuscleApplet"]
+	path = ACardEmulator/app/src/main/external/MuscleApplet
+	url = https://github.com/martinpaljak/MuscleApplet.git

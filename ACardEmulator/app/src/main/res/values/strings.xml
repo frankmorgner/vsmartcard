@@ -21,5 +21,7 @@
     <string name="applet_openpgp">Yubico\'s OpenPGP Applet</string>
     <string name="aid_oath">A000000527210101</string>
     <string name="applet_oath">Yubico\'s OATH Applet</string>
+    <string name="aid_muscle">A00000000101</string>
+    <string name="applet_muscle">MUSCLE Applet</string>
 
 </resources>

@@ -58,6 +58,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/main/external/android-scio/src/main" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/external/ykneo-openpgp/applet/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/external/ykneo-oath/applet/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/external/MuscleApplet/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/jni" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/rs" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/androidTest/res" type="java-test-resource" />
