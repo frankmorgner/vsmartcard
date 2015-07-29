@@ -118,7 +118,12 @@ public class SimulatorService extends HostApduService {
         name = getResources().getString(R.string.applet_muscle);
         aid = getResources().getString(R.string.aid_muscle);
         try {
-            simulator.installApplet(AIDUtil.create(aid), CardEdge.class);
+
+            byte[] aid_bytes = Util.hexStringToByteArray(aid);
+            byte[] inst_params = new byte[aid.length()+1];
+            inst_params[0] = (byte) aid_bytes.length;
+            System.arraycopy(aid_bytes, 0, inst_params, 1, aid_bytes.length);
+            simulator.installApplet(AIDUtil.create(aid), CardEdge.class, inst_params, (short) 0, (byte) inst_params.length);
             extra_install += "\n" + name + " (AID: " + aid + ")";
         } catch (Exception e) {
             e.printStackTrace();

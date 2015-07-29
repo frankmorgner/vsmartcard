@@ -24,10 +24,11 @@ The emulator uses Android's |HCE| to fetch APDUs from a contact-less reader and
 delegate them to Java Card Applets. The app includes the Java Card simulation
 runtime of jCardSim_ as well as the following Java Card applets:
 
-- `Hello World applet`_ (application identifier ``F000000001``)
-- `OpenPGP applet`_ (application identifier ``D2760001240102000000000000010000``)
-- `OATH applet`_ (application identifier ``A000000527210101``)
-- `ISO applet`_ (application identifier ``F276A288BCFBA69D34F31001``)
+- `Hello World Applet`_ (application identifier ``F000000001``)
+- `OpenPGP Applet`_ (application identifier ``D2760001240102000000000000010000``)
+- `OATH Applet`_ (application identifier ``A000000527210101``)
+- `ISO Applet`_ (application identifier ``F276A288BCFBA69D34F31001``)
+- `MUSCLE Applet`_ (application identifier ``A00000000101``)
 
 .. tikz:: Simulate a contact-less smart card with Android Smart Card Emulator
     :stringsubst:
@@ -103,6 +104,7 @@ Notes and References
 .. _OpenPGP Applet: https://developers.yubico.com/ykneo-openpgp/
 .. _OATH Applet: https://developers.yubico.com/ykneo-oath/
 .. _ISO Applet: http://www.pwendland.net/IsoApplet/
+.. _MUSCLE Applet: https://github.com/martinpaljak/MuscleApplet/tree/d005f36209bdd7020bac0d783b228243126fd2f8
 .. _Virtual Keycard: https://github.com/eriknellessen/Virtual-Keycard
 .. _F-Droid: https://f-droid.org/repository/browse/?fdid=com.vsmartcard.remotesmartcardreader.app
 .. _Android Studio: http://developer.android.com/sdk/installing/studio.html
