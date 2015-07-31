@@ -32,14 +32,27 @@ AC_ARG_VAR([HELP2MAN],
 AC_PATH_PROG(HELP2MAN, help2man, not found)
 if test ! -r src/npa-tool.1 -a "${HELP2MAN}" = "not found"
 then
-    AC_MSG_ERROR([Need help2man to generate man page for npa-tool])
+    if test "${HELP2MAN}" = "not found"
+    then
+        AC_MSG_ERROR([Need help2man to generate man page for npa-tool])
+    fi
+else
+    # make sure these files are the most recent
+    touch src/npa-tool.1
 fi
 AC_ARG_VAR([GENGETOPT],
            [absolute path to gengetopt used for command line parsing of npa-tool])
 AC_PATH_PROG(GENGETOPT, gengetopt, not found)
-if test ! -r src/cmdline.h -a "${GENGETOPT}" = "not found"
+if test ! -r src/cmdline.h -o ! -r src/cmdline.c
 then
-    AC_MSG_ERROR([Need gengetopt for parsing command line of npa-tool])
+    if  "${GENGETOPT}" = "not found"
+    then
+        AC_MSG_ERROR([Need gengetopt for parsing command line of npa-tool])
+    fi
+else
+    # make sure these files are the most recent
+    touch scr/npa-tool.ggo
+    touch src/cmdline.h src/cmdline.h
 fi
 
 # If you need to see the details, just run make V=1.
