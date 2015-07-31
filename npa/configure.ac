@@ -51,7 +51,7 @@ then
     fi
 else
     # make sure these files are the most recent
-    touch scr/npa-tool.ggo
+    touch src/npa-tool.ggo
     touch src/cmdline.h src/cmdline.h
 fi
 
