@@ -45,7 +45,7 @@ AC_ARG_VAR([GENGETOPT],
 AC_PATH_PROG(GENGETOPT, gengetopt, not found)
 if test ! -r src/cmdline.h -o ! -r src/cmdline.c
 then
-    if  "${GENGETOPT}" = "not found"
+    if test "${GENGETOPT}" = "not found"
     then
         AC_MSG_ERROR([Need gengetopt for parsing command line of npa-tool])
     fi
