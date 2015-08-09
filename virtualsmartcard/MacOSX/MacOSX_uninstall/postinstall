@@ -1,10 +1,22 @@
 #!/bin/bash
 
-if [ -L "/usr/libexec/SmartCardServices/drivers/ifd-vpcd.bundle" ]
+# get the Mac OS X major version. Example: El Capitan 10.11 -> 10011
+MAC_VERSION=$(sw_vers -productVersion | awk -F '.' '{print $1 * 1000 + $2}')
+
+if [ 10011 -gt $MAC_VERSION ]
 then
-	if [ "$(readlink /usr/libexec/SmartCardServices/drivers/ifd-vpcd.bundle)" == "/Library/VirtualSmartCard/usr/libexec/SmartCardServices/drivers/ifd-vpcd.bundle" ]
+	# Mac OS X < 10.11
+	DROPDIR="/usr/libexec/SmartCardServices/drivers"
+else
+	# Mac OS X >= 10.11 (El Capitan)
+	DROPDIR="/usr/local/libexec/SmartCardServices/drivers"
+fi
+
+if [ -L "$DROPDIR" ]
+then
+	if [ "$(readlink $DROPDIR)" == "/Library/VirtualSmartCard/usr/libexec/SmartCardServices/drivers/ifd-vpcd.bundle" ]
 	then
-		rm /usr/libexec/SmartCardServices/drivers/ifd-vpcd.bundle
+		rm $DROPDIR
 	fi
 fi
 
