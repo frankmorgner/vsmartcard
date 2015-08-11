@@ -2,10 +2,10 @@ language: C
 
 matrix:
   include:
-    #- compiler: clang
+    - compiler: clang
     - compiler: gcc
-    #- compiler: gcc
-    #  env: HOST=i686-w64-mingw32
+#   - compiler: gcc
+#     env: HOST=i686-w64-mingw32
 
 env:
   global:
@@ -20,37 +20,68 @@ before_install:
   - sudo apt-get update
 
 install:
-  - sudo apt-get install help2man gengetopt libpcsclite-dev libusb-dev swig python-dev
-  - if [ ! -z "$HOST" ]; then
-      sudo apt-get install mingw-w64 binutils-mingw-w64-i686 gcc-mingw-w64-i686;
+  - if [ $TRAVIS_OS_NAME == linux ]; then
+      if [ -z "$HOST" ]; then
+        sudo ln -s /lib/x86_64-linux-gnu/libgcc_s.so.1 /lib/x86_64-linux-gnu/libgcc_s.so;
+        sudo apt-get -qq install libpcsclite-dev libusb-dev xutils-dev gengetopt help2man swig python-dev;
+      else
+        sudo apt-get -qq install libpcsclite-dev libusb-dev xutils-dev gengetopt help2man mingw-w64 binutils-mingw-w64-i686 gcc-mingw-w64-i686;
+      fi
     fi
 
 before_script:
-  # libnpa requires OpenPACE and OpenSC
-  - if [ ! -z "$HOST" ]; then
+  # libnpa requires OpenPACE
+  - git clone https://github.com/frankmorgner/openpace && cd openpace
+  - autoreconf -vis
+  - if [ -z "$HOST" ]; then
+      ./configure --prefix=$PREFIX --enable-openssl-install --enable-python;
+    else
+      export CROSS_COMPILE=$HOST-;
+      export ac_cv_func_malloc_0_nonnull=yes;
+      unset CC;
+      ./configure --prefix=$PREFIX --enable-openssl-install --host=$HOST --enable-openssl-install;
+      touch src/cvc-create.1 src/cvc-print.1;
+    fi
+  - make install
+  # libnpa requires OpenSC
+  - cd $TRAVIS_BUILD_DIR/npa/src/opensc
+  - grep _sc_card_add_ec_alg src/libopensc/libopensc.exports || echo _sc_card_add_ec_alg >> src/libopensc/libopensc.exports
+  - grep _sc_card_add_rsa_alg src/libopensc/libopensc.exports || echo _sc_card_add_rsa_alg >> src/libopensc/libopensc.exports
+  - grep _sc_match_atr src/libopensc/libopensc.exports || echo _sc_match_atr >> src/libopensc/libopensc.exports
+  - grep sc_apdu_get_octets src/libopensc/libopensc.exports || echo sc_apdu_get_octets >> src/libopensc/libopensc.exports
+  - grep sc_pkcs15_pincache_add src/libopensc/libopensc.exports || echo sc_pkcs15_pincache_add >> src/libopensc/libopensc.exports
+  - ./bootstrap
+  - if [ -z "$HOST" ]; then
+      ./configure --prefix=$PREFIX;
+    else
       unset CC;
       unset CXX;
-      unset RANLIB;
-      unset AR;
-      unset AS;
-      unset LD;
-      unset DLLTOOL;
-      unset NM;
-      unset OBJDUMP;
-      unset PKG_CONFIG;
-      unset RC;
-      unset STRIP;
+      export ac_cv_func_malloc_0_nonnull=yes;
+      ./configure --prefix=$PREFIX --host=$HOST LDFLAGS="-I$PREFIX/include" CFLAGS="-I$PREFIX/include" CXXFLAGS="-I$PREFIX/include" LIBS="-I$PREFIX/include";
+      cat config.log;
     fi
-  - git clone https://github.com/frankmorgner/openpace && cd openpace && autoreconf -vsi && ./configure --enable-openssl-install --enable-python --prefix=$PREFIX && make install
-  - cd $TRAVIS_BUILD_DIR/npa/src/opensc && autoreconf -vsi && ./configure --host=$HOST --prefix=$PREFIX --enable-sm && make install
+  - make install
   # Configure libnpa
-  - cd $TRAVIS_BUILD_DIR/npa && autoreconf -vsi && ./configure --host=$HOST OPENSC_LIBS="-L$PREFIX/lib -lopensc -lcrypto"
+  - cd $TRAVIS_BUILD_DIR/npa && autoreconf -vsi && env ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes ./configure --host=$HOST OPENSC_LIBS="-L$PREFIX/lib -lopensc -lcrypto" && touch src/npa-tool.1
   # Configure virtualsmartcard
-  - cd $TRAVIS_BUILD_DIR/virtualsmartcard && autoreconf -vsi && ./configure --host=$HOST
+  - cd $TRAVIS_BUILD_DIR/virtualsmartcard && autoreconf -vsi
+  - if [ -z "$HOST" ]; then
+      ./configure;
+    else
+      ./configure --host=$HOST --enable-libpcsclite;
+    fi
   # pcsc-relay requires libnfc
-  - git clone https://code.google.com/p/libnfc && cd libnfc && autoreconf -i && ./configure --host=$HOST --prefix=$PREFIX && make install
+  - git clone https://github.com/nfc-tools/libnfc.git && cd libnfc && autoreconf -vsi
+  - if [ -z "$HOST" ]; then
+      ./configure --prefix=$PREFIX;
+      make install;
+    fi
   # Configure pcsc-relay
-  - cd $TRAVIS_BUILD_DIR/pcsc-relay && autoreconf -vsi && ./configure --host=$HOST
+  - if [ -z "$HOST" ]; then
+      cd $TRAVIS_BUILD_DIR/pcsc-relay;
+      autoreconf -vsi;
+      ./configure --host=$HOST;
+    fi
   - if [ -z "$HOST" ]; then
       cd $TRAVIS_BUILD_DIR/ccid && autoreconf -vsi && ./configure OPENSSL_CFLAGS="-I$PREFIX/include" OPENSSL_LIBS="-L$PREFIX/lib -lcrypto" OPENSC_LIBS="-L$PREFIX/lib -lopensc";
     fi
@@ -74,7 +105,9 @@ script:
       cd $TRAVIS_BUILD_DIR/virtualsmartcard/src/vpicc && export PYTHONPATH=$PYTHONPATH:`pwd` && export LD_LIBRARY_PATH=$PREFIX/lib/ && python -m unittest discover -s virtualsmartcard.tests -p *_test.py -v;
     fi
   # Build pcsc-relay
-  - make -C $TRAVIS_BUILD_DIR/pcsc-relay
+  - if [ -z "$HOST" ]; then
+      make -C $TRAVIS_BUILD_DIR/pcsc-relay;
+    fi
   # Build ccid
   - if [ -z "$HOST" ]; then
       make -C $TRAVIS_BUILD_DIR/ccid;
