@@ -21,12 +21,6 @@ if BUILD_LIBPCSCLITE
 
 noinst_LTLIBRARIES = libifdvpcd.la
 
-ifd-vpcd.c: pcsclite.h
-
-.PHONY: pcsclite.h
-pcsclite.h:
-	$(MAKE) -C $(builddir)/../pcsclite-vpcd pcsclite.h
-
 else
 
 lib_LTLIBRARIES = libifdvpcd.la
