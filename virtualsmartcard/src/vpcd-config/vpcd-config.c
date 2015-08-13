@@ -29,12 +29,7 @@ extern const char *local_ip (void);
 #include <process.h>
 #include <string.h>
 #else
-/* pcscd allows at most 16 readers. We will use 10.
- * See PCSCLITE_MAX_READERS_CONTEXTS in pcsclite.h */
-#include <pcsclite.h>
-#define VICC_MAX_SLOTS \
-    (PCSCLITE_MAX_READERS_CONTEXTS > 6 ? \
-     PCSCLITE_MAX_READERS_CONTEXTS-6 : 1)
+#define VICC_MAX_SLOTS VPCDSLOTS
 #endif
 
 #define ERROR_STRING "Unable to guess local IP address"
