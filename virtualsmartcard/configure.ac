@@ -20,6 +20,17 @@ ifdef(
 	]
 )
 
+dnl Check for windows build
+case "${host}" in
+    *-mingw*|*-winnt*)
+        WIN32="yes"
+        ;;
+    *-cygwin*)
+        WIN32="yes"
+        ;;
+esac
+AM_CONDITIONAL([WIN32], [test "${WIN32}" = "yes"])
+
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_INSTALL
