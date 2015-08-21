@@ -45,7 +45,7 @@ npa-tool.ggo: npa-tool.ggo.in
 	$(do_subst) < $< > $(srcdir)/$@
 
 
-$(abs_builddir)/npa-tool.1: npa-tool.ggo
+$(abs_builddir)/npa-tool.1: npa-tool.ggo.in
 	$(HELP2MAN) \
 		--output=$@ \
 		--no-info \
