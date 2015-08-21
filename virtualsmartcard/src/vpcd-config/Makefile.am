@@ -1,4 +1,4 @@
-EXTRA_DIST 	        = qransi.c
+EXTRA_DIST 	        = qransi.c inet_ntop.c
 
 bin_PROGRAMS        = vpcd-config
 

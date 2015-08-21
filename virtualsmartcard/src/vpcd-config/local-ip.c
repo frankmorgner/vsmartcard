@@ -5,6 +5,9 @@
  * Use getsockname and a udp connection
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include<stdio.h> //printf
 #include<string.h>    //memset
 #include<errno.h> //errno
@@ -12,6 +15,9 @@
 #ifdef _WIN32
 #include<winsock2.h>
 #include<ws2tcpip.h>
+#if defined(HAVE_DECL_INET_NTOP) && ! HAVE_DECL_INET_NTOP
+#include"inet_ntop.c"
+#endif
 #define close(s) closesocket(s)
 #else
 #include<sys/socket.h>    //socket

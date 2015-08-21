@@ -203,6 +203,15 @@ AC_TYPE_SIZE_T
 AC_TYPE_UINT16_T
 AC_CHECK_DECLS([SO_NOSIGPIPE], [], [], [#include <sys/socket.h>])
 AC_CHECK_DECLS([MSG_NOSIGNAL], [], [], [#include <sys/socket.h>])
+if test "${WIN32}" = "yes"
+then
+	saved_CPPFLAGS="$CPPFLAGS"
+	CPPFLAGS="$CPPFLAGS -D_WIN32_WINNT=0x0600"
+	AC_CHECK_DECLS([inet_ntop], [], [], [#include <ws2tcpip.h>])
+	CPPFLAGS="$saved_CPPFLAGS"
+else
+	AC_CHECK_DECLS([inet_ntop], [], [], [#include <arpa/inet.h>])
+fi
  
 # Checks for library functions.
 AC_FUNC_MALLOC
