@@ -4,14 +4,16 @@ matrix:
   include:
     - compiler: clang
     - compiler: gcc
-#   - compiler: gcc
-#     env: HOST=i686-w64-mingw32
+    - compiler: gcc
+      env: HOST=i686-w64-mingw32
 
 env:
   global:
     - PKG_CONFIG_PATH=/tmp/install/lib/pkgconfig
     - PREFIX=/tmp/install
     - PYTHONPATH=$PYTHONPATH:$PREFIX/lib/python2.7/site-packages/
+    - ac_cv_func_malloc_0_nonnull=yes
+    - ac_cv_func_realloc_0_nonnull=yes
     # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
     #   via the "travis encrypt" command using the project repo's public key
     - secure: "M+eNZPASDoFdWZUeSyu4whvPKaOwd0AlCmGWKc7SRbQPD8x8Ao8y3+kr++YonsWBnDUqQSNg3v4uWsJOo2Q57qMQ+FYcNlEjrYpXXSRdH4BnYnTH1WfNnTce7N5Bln9wxE+khe7cZJcxy+gvd+YiutQvHjT+bTzrs2MtHD0Odlw="
@@ -37,7 +39,6 @@ before_script:
       ./configure --prefix=$PREFIX --enable-openssl-install --enable-python;
     else
       export CROSS_COMPILE=$HOST-;
-      export ac_cv_func_malloc_0_nonnull=yes;
       unset CC;
       ./configure --prefix=$PREFIX --enable-openssl-install --host=$HOST --enable-openssl-install;
       touch src/cvc-create.1 src/cvc-print.1;
@@ -56,13 +57,18 @@ before_script:
     else
       unset CC;
       unset CXX;
-      export ac_cv_func_malloc_0_nonnull=yes;
       ./configure --prefix=$PREFIX --host=$HOST LDFLAGS="-I$PREFIX/include" CFLAGS="-I$PREFIX/include" CXXFLAGS="-I$PREFIX/include" LIBS="-I$PREFIX/include";
-      cat config.log;
     fi
   - make install
   # Configure libnpa
-  - cd $TRAVIS_BUILD_DIR/npa && autoreconf -vsi && env ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes ./configure --host=$HOST OPENSC_LIBS="-L$PREFIX/lib -lopensc -lcrypto" && touch src/npa-tool.1
+  - cd $TRAVIS_BUILD_DIR/npa
+  - autoreconf -vsi
+  - if [ -z "$HOST" ]; then
+      ./configure OPENSC_LIBS="-L$PREFIX/lib -lopensc -lcrypto";
+    else
+      ./configure --host=$HOST OPENSC_LIBS="-L$PREFIX/lib -lopensc -lcrypto";
+      touch src/npa-tool.1;
+    fi
   # Configure virtualsmartcard
   - cd $TRAVIS_BUILD_DIR/virtualsmartcard && autoreconf -vsi
   - if [ -z "$HOST" ]; then
