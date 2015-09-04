@@ -24,21 +24,23 @@ Virtual Smart Card
   :License:
       GPL version 3
   :Tested Platforms:
-      - Linux (Debian, Ubuntu, OpenMoko)
       - Windows
+      - Mac OS X
+      - Linux (Debian, Ubuntu, OpenMoko)
 
 Virtual Smart Card emulates a smart card and makes it accessible through PC/SC.
 Currently the Virtual Smart Card supports the following types of smart cards:
 
 - Generic ISO-7816 smart card including secure messaging
-- German electronic identity card (nPA) with complete support for |EAC| (|PACE|, |TA|, |CA|)
-- German electronic passport (ePass) with complete support for |BAC|
+- German electronic identity card (nPA) with complete support for |EAC|
+  (|PACE|, |TA|, |CA|)
+- Electronic passport (ePass/MRTD) with support for |BAC|
 - Cryptoflex smart card (incomplete)
       
 The |vpcd| is a smart card reader driver for PCSC-Lite_ and the windows smart
 card service. It allows smart card applications to access the |vpicc| through
 the PC/SC API.  By default |vpcd| opens slots for communication with multiple
-|vpicc|'s on localhost from port 35963 to port 35972. But the |vpicc| does not
+|vpicc|'s on localhost on port 35963 and port 35964. But the |vpicc| does not
 need to run on the same machine as the |vpcd|, they can connect over the
 internet for example.
 
@@ -99,18 +101,18 @@ On Android, where a traditional PC/SC framework is not available, you can use
 our framework to make your real contact-less smart accessible through PKCS#11.
 For example, an email signing application can use the PKCS#11 interface of
 OpenSC, which is linked against our PC/SC implementation. Then an Android App
-(e.g. :ref:`remote-reader`) can connect as |vpicc| delegating all requests
-and responses via NFC to a contact-less smart card that signs the mail.
+(e.g. :ref:`remote-reader`) can connect as |vpicc| delegating all requests and
+responses via NFC to a contact-less smart card that signs the mail.
 
 Depending on your usage of the |vpicc| you may need to install the following:
 
 - Python_
-- pyscard_
-- PyCrypto_
-- PBKDF2_
-- PIP_
-- readline_ or PyReadline_
-- OpenPACE_ (nPA emulation)
+- pyscard_ (relaying a local smart card with :option:`--type=relay`)
+- PyCrypto_, PBKDF2_, PIL_, readline_ or PyReadline_ (emulation of electronic
+  passport with :option:`--type=ePass`)
+- OpenPACE_ (emulation of German identity card with :option:`--type=nPA`)
+- libqrencode_ (to print a QR code on the command line for `vpcd-config`; an
+  URL will be printed if libqrencode is not available)
 
 
 .. include:: download.txt
@@ -120,6 +122,23 @@ Depending on your usage of the |vpicc| you may need to install the following:
 
 .. include:: autotools.txt
 
+
+================================================================================
+Building and installing |vpcd| on Mac OS X
+================================================================================
+
+Mac OS X 10.9 and earlier is using PCSC-Lite as smart card service which allows
+using the standard routine for :ref:`installation on Unix<vicc_install>`.
+
+Mac OS X 10.10 (and later) ships with a proprietary implementation of the PC/SC
+layer instead of with PCSC-Lite. As far as we know, this means that smart card
+readers must be USB devices instead of directly allowing a more generic type of
+reader. To make |vpcd| work we simply configure it to pretend being a USB smart
+card reader with an :file:`Ìnfo.plist`::
+
+    ./configure --prefix=/ --enable-infoplist
+    make
+    make install
 
 ================================================================================
 Building and installing |vpcd| on Windows
@@ -184,6 +203,8 @@ The protocol between |vpcd| and |vpicc| as well as details on extending |vpicc|
 with a different card emulator are covered in :ref:`virtualsmartcard-api`. Here
 we will focus on configuring and running the provided modules.
 
+.. _vicc_config:
+
 ================================================================================
 Configuring |vpcd| on Unix
 ================================================================================
@@ -207,6 +228,40 @@ will use this string as a hostname for connecting to a waiting |vpicc|. |vpicc|
 needs to be started with :option:`--reversed` in this case.
 
 ================================================================================
+Configuring |vpcd| on Mac OS X
+================================================================================
+
+Mac OS X 10.9 and earlier is using PCSC-Lite as smart card service which allows
+using the standard routine for :ref:`configuration on Unix<vicc_config>`.
+
+On Mac OS X 10.10 you should have configured the generation of
+:file:`Info.plist` at compile time. Now do the following for registering |vpcd|
+as USB device:
+
+1. Choose an USB device (e.g. mass storage, phone, mouse, ...), which will be
+   used to start |vpcd|. Plug it into the computer.
+
+2. Run the following command to get the device's product and vendor ID::
+
+    system_profiler SPUSBDataType
+
+3. Change :file:`/usr/libexec/SmartCardServices/drivers/ifd-vpcd.bundle/Info.plist`
+   to match your product and vendor ID:
+
+.. literalinclude:: Info.plist
+    :emphasize-lines: 34,39
+
+Note that ``ifdFriendlyName`` can be used in the same way as ``DEVICENAME``
+:ref:`described above<vicc_config>`.
+
+4. Restart the PC/SC service::
+
+    sudo killall -SIGKILL -m .*com.apple.ifdreader
+
+Now, every time you plug in your USB device |vpcd| will be started. It will be
+stopped when you unplug the device.
+
+================================================================================
 Configuring |vpcd| on Windows
 ================================================================================
 
@@ -219,7 +274,7 @@ list the :guilabel:`Bix Virtual Smart Card Reader`.
 |vpcd| opens a socket for |vpicc| and waits for incoming
 connections. The port to open should be specified in ``TCP_PORT``:
 
-.. literalinclude:: ../win32/BixVReader/BixVReader.ini
+.. literalinclude:: ../../virtualsmartcard/win32/BixVReader/BixVReader.ini
     :emphasize-lines: 8
 
 Currently it is not possible to configure the Windows driver to connect to an
@@ -273,8 +328,9 @@ Notes and References
 .. _PBKDF2: https://www.dlitz.net/software/python-pbkdf2/
 .. _readline: https://docs.python.org/3.3/library/readline.html
 .. _PyReadline: https://pypi.python.org/pypi/pyreadline
-.. _PIP: http://www.pythonware.com/products/pil/
+.. _PIL: http://www.pythonware.com/products/pil/
 .. _OpenPACE: https://github.com/frankmorgner/openpace
+.. _libqrencode: https://fukuchi.org/works/qrencode/
 .. _`Fabio Ottavi's UMDF Driver for a Virtual Smart Card Reader`: http://www.codeproject.com/Articles/134010/An-UMDF-Driver-for-a-Virtual-Smart-Card-Reader
 .. _`Windows Driver Kit 8.1 and Visual Studio 2013`: http://msdn.microsoft.com/en-us/windows/hardware/hh852365.aspx
 .. _`Microsoft's Kernel-Mode Code Signing Walkthrough`: http://msdn.microsoft.com/en-us/library/windows/hardware/dn653569%28v=vs.85%29.aspx

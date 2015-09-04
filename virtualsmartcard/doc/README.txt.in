@@ -128,7 +128,7 @@ Building and installing |vpcd| on Mac OS X
 ================================================================================
 
 Mac OS X 10.9 and earlier is using PCSC-Lite as smart card service which allows
-using the standard routine for `installation on Unix<vicc_install>`.
+using the standard routine for :ref:`installation on Unix<vicc_install>`.
 
 Mac OS X 10.10 (and later) ships with a proprietary implementation of the PC/SC
 layer instead of with PCSC-Lite. As far as we know, this means that smart card
@@ -232,7 +232,7 @@ Configuring |vpcd| on Mac OS X
 ================================================================================
 
 Mac OS X 10.9 and earlier is using PCSC-Lite as smart card service which allows
-using the standard routine for `configuration on Unix<vicc_config>`.
+using the standard routine for :ref:`configuration on Unix<vicc_config>`.
 
 On Mac OS X 10.10 you should have configured the generation of
 :file:`Info.plist` at compile time. Now do the following for registering |vpcd|
@@ -243,7 +243,7 @@ as USB device:
 
 2. Run the following command to get the device's product and vendor ID::
 
-   system_profiler SPUSBDataType
+    system_profiler SPUSBDataType
 
 3. Change :file:`/usr/libexec/SmartCardServices/drivers/ifd-vpcd.bundle/Info.plist`
    to match your product and vendor ID:
@@ -251,12 +251,12 @@ as USB device:
 .. literalinclude:: Info.plist
     :emphasize-lines: 34,39
 
-   Note that ``ifdFriendlyName`` can be used in the same way as ``DEVICENAME``
-   `described above<vicc_config>`.
+Note that ``ifdFriendlyName`` can be used in the same way as ``DEVICENAME``
+:ref:`described above<vicc_config>`.
 
 4. Restart the PC/SC service::
 
-   sudo killall -SIGKILL -m .*com.apple.ifdreader
+    sudo killall -SIGKILL -m .*com.apple.ifdreader
 
 Now, every time you plug in your USB device |vpcd| will be started. It will be
 stopped when you unplug the device.
@@ -274,7 +274,7 @@ list the :guilabel:`Bix Virtual Smart Card Reader`.
 |vpcd| opens a socket for |vpicc| and waits for incoming
 connections. The port to open should be specified in ``TCP_PORT``:
 
-.. literalinclude:: ../win32/BixVReader/BixVReader.ini
+.. literalinclude:: ../../virtualsmartcard/win32/BixVReader/BixVReader.ini
     :emphasize-lines: 8
 
 Currently it is not possible to configure the Windows driver to connect to an
