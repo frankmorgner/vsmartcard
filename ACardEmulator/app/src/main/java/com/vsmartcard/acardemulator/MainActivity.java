@@ -19,15 +19,18 @@
 
 package com.vsmartcard.acardemulator;
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.text.Html;
 import android.text.Layout;
 import android.text.method.ScrollingMovementMethod;
 import android.view.Menu;
@@ -83,6 +86,8 @@ public class MainActivity extends ActionBarActivity {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(SimulatorService.TAG);
         bManager.registerReceiver(bReceiver, intentFilter);
+
+        showStartupMessage();
     }
 
     @Override
@@ -107,6 +112,9 @@ public class MainActivity extends ActionBarActivity {
             case R.id.action_delete:
                 textViewVPCDStatus.setText("");
                 return true;
+            case R.id.action_help:
+                showStartupMessage();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -124,5 +132,17 @@ public class MainActivity extends ActionBarActivity {
     public void onSaveInstanceState(Bundle savedInstanceState) {
         savedInstanceState.putCharSequence(saved_status_key, textViewVPCDStatus.getText());
         super.onSaveInstanceState(savedInstanceState);
+    }
+
+    private void showStartupMessage() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.startup_message)
+                .setTitle(R.string.startup_title)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                    }
+                });;
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 }

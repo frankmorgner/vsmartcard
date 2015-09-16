@@ -13,4 +13,9 @@
         android:icon="@drawable/ic_action_delete"
         app:showAsAction="withText" />
 
+    <item android:id="@+id/action_help"
+    android:title="@string/action_help"
+    android:icon="@android:drawable/ic_menu_help"
+    app:showAsAction="withText" />
+
 </menu>
