@@ -36,7 +36,7 @@ extern "C"
 #ifndef __COREFOUNDATION_CFPLUGINCOM__
     typedef uint32_t ULONG;
     typedef void *LPVOID;
-    typedef int16_t BOOL;
+    //typedef int16_t BOOL;
 #endif
 
     typedef ULONG *PULONG;
@@ -81,7 +81,7 @@ extern "C"
 	typedef LPCSTR LPCTSTR;
 
 	/* types unused by pcsc-lite */
-	typedef short BOOL;
+	//typedef short BOOL;
 	typedef unsigned short WORD;
 	typedef ULONG *PULONG;
 
