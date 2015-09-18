@@ -1,0 +1,35 @@
+platform:
+  - x86
+  - x64
+
+environment:
+  matrix:
+    - VSVER: 14
+    - VSVER: 12
+    - VSVER: 10
+
+matrix:
+  allow_failures:
+    # The imported project "C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\WDKConversion\PreConfiguration.props" was not found.
+    - platform: x86
+      VSVER: 10
+
+install:
+  - date /T & time /T
+  - ps: >-
+      If ($env:Platform -Match "x86") {
+        $env:VCVARS_PLATFORM="x86"
+        $env:MSBUILD_PLATFORM="Win32"
+      } Else {
+        $env:VCVARS_PLATFORM="amd64"
+        $env:MSBUILD_PLATFORM="x64"
+      }
+  - ps: $env:VSCOMNTOOLS=(Get-Content ("env:VS" + "$env:VSVER" + "0COMNTOOLS"))
+  - echo "Using Visual Studio %VSVER%.0 at %VSCOMNTOOLS%"
+  - call "%VSCOMNTOOLS%\..\..\VC\vcvarsall.bat" %VCVARS_PLATFORM%
+  - ps: $env:PATH="${env:ProgramFiles(x86)}\Windows Kits\8.1\bin\x86;${env:PATH}"
+  - NMake2MSBuild.exe virtualsmartcard\win32\BixVReader\WinXP\sources
+  - ProjectUpgradeTool.exe virtualsmartcard\win32\BixVReader\WinXP
+
+build_script:
+  - msbuild virtualsmartcard\win32\BixVReader\WinXP\BixVReader.sln /p:Configuration="Win7 Debug" /p:Platform=%MSBUILD_PLATFORM%
