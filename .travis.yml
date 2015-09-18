@@ -4,8 +4,8 @@ matrix:
   include:
     - compiler: clang
     - compiler: gcc
-    - compiler: gcc
-      env: HOST=i686-w64-mingw32
+    - compiler: i686-w64-mingw32-gcc
+    - compiler: x86_64-w64-mingw32-gcc
 
 env:
   global:
@@ -22,12 +22,15 @@ before_install:
   - sudo apt-get update
 
 install:
+  - if [ "$CC" == i686-w64-mingw32-gcc -o "$CC" == x86_64-w64-mingw32-gcc ]; then
+      export HOST=${CC%%-gcc};
+    fi
   - if [ $TRAVIS_OS_NAME == linux ]; then
       if [ -z "$HOST" ]; then
         sudo ln -s /lib/x86_64-linux-gnu/libgcc_s.so.1 /lib/x86_64-linux-gnu/libgcc_s.so;
         sudo apt-get -qq install libpcsclite-dev libusb-dev xutils-dev gengetopt help2man swig python-dev;
       else
-        sudo apt-get -qq install libpcsclite-dev libusb-dev xutils-dev gengetopt help2man mingw-w64 binutils-mingw-w64-i686 gcc-mingw-w64-i686;
+        sudo apt-get -qq install libpcsclite-dev libusb-dev xutils-dev gengetopt help2man binutils-mingw-w64 gcc-mingw-w64;
       fi
     fi
 
@@ -36,11 +39,10 @@ before_script:
   - git clone https://github.com/frankmorgner/openpace && cd openpace
   - autoreconf -vis
   - if [ -z "$HOST" ]; then
-      ./configure --prefix=$PREFIX --enable-openssl-install --enable-python;
+      ./configure --prefix=$PREFIX --enable-openssl-install --enable-python || cat config.log;
     else
       export CROSS_COMPILE=$HOST-;
-      unset CC;
-      ./configure --prefix=$PREFIX --enable-openssl-install --host=$HOST --enable-openssl-install;
+      ./configure --prefix=$PREFIX --enable-openssl-install --host=$HOST --enable-openssl-install || cat config.log;
       touch src/cvc-create.1 src/cvc-print.1;
     fi
   - make install
@@ -53,43 +55,41 @@ before_script:
   - grep sc_pkcs15_pincache_add src/libopensc/libopensc.exports || echo sc_pkcs15_pincache_add >> src/libopensc/libopensc.exports
   - ./bootstrap
   - if [ -z "$HOST" ]; then
-      ./configure --prefix=$PREFIX;
+      ./configure --prefix=$PREFIX || cat config.log;
     else
-      unset CC;
-      unset CXX;
-      ./configure --prefix=$PREFIX --host=$HOST LDFLAGS="-I$PREFIX/include" CFLAGS="-I$PREFIX/include" CXXFLAGS="-I$PREFIX/include" LIBS="-I$PREFIX/include";
+      ./configure --prefix=$PREFIX --host=$HOST LDFLAGS="-I$PREFIX/include" CFLAGS="-I$PREFIX/include" CXXFLAGS="-I$PREFIX/include" LIBS="-I$PREFIX/include" || cat config.log;
     fi
   - make install
   # Configure libnpa
   - cd $TRAVIS_BUILD_DIR/npa
   - autoreconf -vsi
   - if [ -z "$HOST" ]; then
-      ./configure OPENSC_LIBS="-L$PREFIX/lib -lopensc -lcrypto";
+      ./configure OPENSC_LIBS="-L$PREFIX/lib -lopensc -lcrypto" || cat config.log;
     else
-      ./configure --host=$HOST OPENSC_LIBS="-L$PREFIX/lib -lopensc -lcrypto";
+      ./configure --host=$HOST OPENSC_LIBS="-L$PREFIX/lib -lopensc -lcrypto" || cat config.log;
       touch src/npa-tool.1;
     fi
   # Configure virtualsmartcard
   - cd $TRAVIS_BUILD_DIR/virtualsmartcard && autoreconf -vsi
   - if [ -z "$HOST" ]; then
-      ./configure;
+      ./configure || cat config.log;
     else
-      ./configure --host=$HOST --enable-libpcsclite;
+      ./configure --host=$HOST --enable-libpcsclite || cat config.log;
     fi
   # pcsc-relay requires libnfc
   - git clone https://github.com/nfc-tools/libnfc.git && cd libnfc && autoreconf -vsi
   - if [ -z "$HOST" ]; then
-      ./configure --prefix=$PREFIX;
+      ./configure --prefix=$PREFIX || cat config.log;
       make install;
     fi
   # Configure pcsc-relay
   - if [ -z "$HOST" ]; then
       cd $TRAVIS_BUILD_DIR/pcsc-relay;
       autoreconf -vsi;
-      ./configure --host=$HOST;
+      ./configure --host=$HOST || cat config.log;
     fi
   - if [ -z "$HOST" ]; then
-      cd $TRAVIS_BUILD_DIR/ccid && autoreconf -vsi && ./configure OPENSSL_CFLAGS="-I$PREFIX/include" OPENSSL_LIBS="-L$PREFIX/lib -lcrypto" OPENSC_LIBS="-L$PREFIX/lib -lopensc";
+      cd $TRAVIS_BUILD_DIR/ccid && autoreconf -vsi && ./configure OPENSSL_CFLAGS="-I$PREFIX/include" OPENSSL_LIBS="-L$PREFIX/lib -lcrypto" OPENSC_LIBS="-L$PREFIX/lib -lopensc" || cat config.log;
     fi
 
 addons:
