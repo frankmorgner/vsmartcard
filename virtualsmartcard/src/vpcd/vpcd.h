@@ -21,8 +21,10 @@
 
 #ifdef _WIN32
 #include <stddef.h>
+#include <winsock2.h>
 typedef int ssize_t;
 #else
+#define SOCKET int
 #include <unistd.h>
 #endif
 
@@ -34,8 +36,8 @@ typedef int ssize_t;
 #define VPCD_CTRL_ATR	4
 
 struct vicc_ctx {
-        int server_sock;
-        int client_sock;
+        SOCKET server_sock;
+        SOCKET client_sock;
         char *hostname;
         unsigned short port;
         void *io_lock;

@@ -43,6 +43,7 @@ typedef WORD uint16_t;
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <unistd.h>
+#define INVALID_SOCKET -1
 #endif
 
 #include <errno.h>
@@ -54,40 +55,47 @@ typedef WORD uint16_t;
 static ssize_t sendToVICC(struct vicc_ctx *ctx, size_t size, const unsigned char *buffer);
 static ssize_t recvFromVICC(struct vicc_ctx *ctx, unsigned char **buffer);
 
-static ssize_t sendall(int sock, const void *buffer, size_t size);
-static ssize_t recvall(int sock, void *buffer, size_t size);
+static ssize_t sendall(SOCKET sock, const void *buffer, size_t size);
+static ssize_t recvall(SOCKET sock, void *buffer, size_t size);
 
-static int opensock(unsigned short port);
-static int connectsock(const char *hostname, unsigned short port);
+static SOCKET opensock(unsigned short port);
+static SOCKET connectsock(const char *hostname, unsigned short port);
 
-ssize_t sendall(int sock, const void *buffer, size_t size)
+ssize_t sendall(SOCKET sock, const void *buffer, size_t size)
 {
     size_t sent;
     ssize_t r;
 
+    /* FIXME we should actually check the length instead of simply casting from
+     * size_t to ssize_t (or int), which have both the same width! */
 	for (sent = 0; sent < size; sent += r) {
-		r = send(sock, (void *) (((unsigned char *) buffer)+sent), size-sent, MSG_NOSIGNAL);
+        r = send(sock, (void *) (((unsigned char *) buffer)+sent),
+                ((int) size)-sent, MSG_NOSIGNAL);
 
 		if (r < 0)
 			return r;
 	}
 
-    return sent;
+    return (ssize_t) sent;
 }
 
-ssize_t recvall(int sock, void *buffer, size_t size) {
-    return recv(sock, buffer, size, MSG_WAITALL|MSG_NOSIGNAL);
+ssize_t recvall(SOCKET sock, void *buffer, size_t size) {
+    return recv(sock, buffer,
+#ifdef _WIN32
+            (int)
+#endif
+            size, MSG_WAITALL|MSG_NOSIGNAL);
 }
 
-static int opensock(unsigned short port)
+static SOCKET opensock(unsigned short port)
 {
-    int sock;
+    SOCKET sock;
     socklen_t yes = 1;
     struct sockaddr_in server_sockaddr;
 
     sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock < 0)
-        return -1;
+    if (sock == INVALID_SOCKET)
+        return INVALID_SOCKET;
 
     if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (void *) &yes, sizeof yes) != 0) 
         goto err;
@@ -118,13 +126,13 @@ static int opensock(unsigned short port)
 err:
     close(sock);
 
-    return -1;
+    return INVALID_SOCKET;
 }
 
-static int connectsock(const char *hostname, unsigned short port)
+static SOCKET connectsock(const char *hostname, unsigned short port)
 {
 	struct addrinfo hints, *res = NULL, *cur;
-	int sock = -1;
+	SOCKET sock = INVALID_SOCKET;
     char _port[10];
 
     if (snprintf(_port, sizeof _port, "%hu", port) < 0)
@@ -141,10 +149,14 @@ static int connectsock(const char *hostname, unsigned short port)
 
 	for (cur = res; cur; cur = cur->ai_next) {
 		sock = socket(cur->ai_family, cur->ai_socktype, cur->ai_protocol);
-		if (sock < 0)
+		if (sock == INVALID_SOCKET)
 			continue;
 
-		if (connect(sock, cur->ai_addr, cur->ai_addrlen) != -1)
+		if (connect(sock, cur->ai_addr,
+#ifdef _WIN32
+                    (int)
+#endif
+                    cur->ai_addrlen) != -1)
 			break;
 
 		close(sock);
@@ -155,7 +167,7 @@ err:
 	return sock;
 }
 
-int waitforclient(int server, long secs, long usecs)
+SOCKET waitforclient(SOCKET server, long secs, long usecs)
 {
     fd_set rfds;
     struct sockaddr_in client_sockaddr;
@@ -166,7 +178,7 @@ int waitforclient(int server, long secs, long usecs)
 #if _WIN32
     /* work around clumsy define of FD_SET in winsock2.h */
 #pragma warning(disable:4127)
-    FD_SET((SOCKET) server, &rfds);
+    FD_SET(server, &rfds);
 #pragma warning(default:4127)
 #else
     FD_SET(server, &rfds);
@@ -175,14 +187,14 @@ int waitforclient(int server, long secs, long usecs)
     tv.tv_sec = secs;
     tv.tv_usec = usecs;
 
-    if (select(server+1, &rfds, NULL, NULL, &tv) == -1)
-        return -1;
+    if (select((int) server+1, &rfds, NULL, NULL, &tv) == -1)
+        return INVALID_SOCKET;
 
     if (FD_ISSET(server, &rfds))
         return accept(server, (struct sockaddr *) &client_sockaddr,
                 &client_socklen);
 
-    return 0;
+    return INVALID_SOCKET;
 }
 
 static ssize_t sendToVICC(struct vicc_ctx *ctx, size_t length, const unsigned char* buffer)
@@ -244,7 +256,7 @@ int vicc_eject(struct vicc_ctx *ctx)
         if (close(ctx->client_sock) < 0) {
             r -= 1;
         }
-        ctx->client_sock = -1;
+        ctx->client_sock = INVALID_SOCKET;
     }
     return r;
 }
@@ -260,8 +272,8 @@ struct vicc_ctx * vicc_init(const char *hostname, unsigned short port)
 
     ctx->hostname = NULL;
     ctx->io_lock = NULL;
-    ctx->server_sock = -1;
-    ctx->client_sock = -1;
+    ctx->server_sock = INVALID_SOCKET;
+    ctx->client_sock = INVALID_SOCKET;
     ctx->port = port;
 
 #ifdef _WIN32
@@ -282,7 +294,7 @@ struct vicc_ctx * vicc_init(const char *hostname, unsigned short port)
         ctx->client_sock = connectsock(hostname, port);
     } else {
         ctx->server_sock = opensock(port);
-        if (ctx->server_sock < 0) {
+        if (ctx->server_sock == INVALID_SOCKET) {
             goto err;
         }
     }
@@ -304,7 +316,7 @@ int vicc_exit(struct vicc_ctx *ctx)
         free(ctx->hostname);
         if (ctx->server_sock > 0) {
             ctx->server_sock = close(ctx->server_sock);
-            if (ctx->server_sock < 0) {
+            if (ctx->server_sock == INVALID_SOCKET) {
                 r -= 1;
             }
         }
@@ -347,12 +359,12 @@ int vicc_connect(struct vicc_ctx *ctx, long secs, long usecs)
     if (!ctx)
         return 0;
 
-    if (ctx->client_sock < 0) {
+    if (ctx->client_sock == INVALID_SOCKET) {
         if (ctx->server_sock) {
             /* server mode, try to accept a client */
             ctx->client_sock = waitforclient(ctx->server_sock, secs, usecs);
             if (!ctx->client_sock) {
-                ctx->client_sock = -1;
+                ctx->client_sock = INVALID_SOCKET;
             }
         } else {
             /* client mode, try to connect (again) */
@@ -360,7 +372,7 @@ int vicc_connect(struct vicc_ctx *ctx, long secs, long usecs)
         }
     }
 
-    if (ctx->client_sock < 0)
+    if (ctx->client_sock == INVALID_SOCKET)
         /* not connected */
         return 0;
     else
