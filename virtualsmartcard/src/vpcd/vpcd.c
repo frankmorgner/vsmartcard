@@ -70,7 +70,10 @@ ssize_t sendall(SOCKET sock, const void *buffer, size_t size)
      * size_t to ssize_t (or int), which have both the same width! */
 	for (sent = 0; sent < size; sent += r) {
         r = send(sock, (void *) (((unsigned char *) buffer)+sent),
-                ((int) size)-sent, MSG_NOSIGNAL);
+#ifdef _WIN32
+                (int)
+#endif
+                (size-sent), MSG_NOSIGNAL);
 
 		if (r < 0)
 			return r;

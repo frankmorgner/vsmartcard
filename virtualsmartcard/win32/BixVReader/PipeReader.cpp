@@ -144,7 +144,7 @@ DWORD PipeReader::startServer() {
 	swprintf(temp,L"\\\\.\\pipe\\%s",pipeEventName);
 	HANDLE _eventpipe=CreateNamedPipe(temp,PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED,PIPE_TYPE_BYTE,PIPE_UNLIMITED_INSTANCES,0,0,0,&sa);
 	wchar_t log[300];
-	swprintf(log,L"[BixVReader]Pipe created:%s:%08x",pipeName,_pipe);
+	swprintf(log,L"[BixVReader]Pipe created:%s:%08Ix",pipeName,_pipe);
 	OutputDebugString(log);
 
 	while (true) {
