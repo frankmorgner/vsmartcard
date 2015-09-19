@@ -19,10 +19,17 @@
 #ifndef _VPCD_H_
 #define _VPCD_H_
 
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #ifdef _WIN32
 #include <stddef.h>
 #include <winsock2.h>
+#ifndef HAVE_CONFIG_H
+/* we assume that ./configure has not defined ssize_t for us */
 typedef int ssize_t;
+#endif
 #else
 #define SOCKET int
 #include <unistd.h>

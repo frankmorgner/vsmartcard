@@ -200,6 +200,7 @@ AC_CHECK_HEADERS([arpa/inet.h stdint.h stdlib.h string.h sys/socket.h sys/time.h
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_SIZE_T
+AC_TYPE_SSIZE_T
 AC_TYPE_UINT16_T
 AC_CHECK_DECLS([SO_NOSIGPIPE], [], [], [#include <sys/socket.h>])
 AC_CHECK_DECLS([MSG_NOSIGNAL], [], [], [#include <sys/socket.h>])
