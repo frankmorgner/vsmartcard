@@ -20,6 +20,10 @@
 #include <config.h>
 #endif
 
+#ifdef _WIN32
+#define sleep(s) Sleep((s*1000))
+#endif
+
 #include "ifd-vpcd.h"
 #include "vpcd.h"
 #include <ifdhandler.h>
