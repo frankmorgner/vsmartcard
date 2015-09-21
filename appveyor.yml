@@ -33,3 +33,4 @@ install:
 
 build_script:
   - msbuild virtualsmartcard\win32\BixVReader\WinXP\BixVReader.sln /p:Configuration="Win7 Debug" /p:Platform=%MSBUILD_PLATFORM%
+  - msbuild virtualsmartcard\win32\vpcd-config\vpcd-config.sln /p:Configuration="Debug" /p:Platform=Win32
