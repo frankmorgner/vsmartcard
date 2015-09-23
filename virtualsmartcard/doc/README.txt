@@ -177,7 +177,8 @@ to download the `Windows binaries`_, you may directly jump to step 3.
    
    You can adjust the path to ``devcon.exe`` with your version of the WDK and
    your target architecture (e.g., use ``...\x64\devcon.exe`` for a 64 bit
-   driver).
+   driver). You can also download `DevCon's source code`_ and compile it
+   yourself.
 
    For Win7 and older, code signing is optional and will yield a warning during
    installation when missing. Simply click continue to install the driver anyway.
@@ -192,7 +193,8 @@ to download the `Windows binaries`_, you may directly jump to step 3.
 
 For debugging |vpcd| and building the driver with an older version of Visual
 Studio or WDK please see `Fabio Ottavi's UMDF Driver for a Virtual Smart Card
-Reader`_ for details.
+Reader`_ for details. All of Fabio's card connectors (pipe reader/TCP/IP
+reader) are still active by default.
 
 
 ********************************************************************************
@@ -333,5 +335,6 @@ Notes and References
 .. _libqrencode: https://fukuchi.org/works/qrencode/
 .. _`Fabio Ottavi's UMDF Driver for a Virtual Smart Card Reader`: http://www.codeproject.com/Articles/134010/An-UMDF-Driver-for-a-Virtual-Smart-Card-Reader
 .. _`Windows Driver Kit 8.1 and Visual Studio 2013`: http://msdn.microsoft.com/en-us/windows/hardware/hh852365.aspx
+.. _`DevCon's source code`: https://github.com/Microsoft/Windows-driver-samples/tree/master/setup/devcon
 .. _`Microsoft's Kernel-Mode Code Signing Walkthrough`: http://msdn.microsoft.com/en-us/library/windows/hardware/dn653569%28v=vs.85%29.aspx
 .. _`Windows binaries`: https://github.com/frankmorgner/vsmartcard/releases/download/virtualsmartcard-0.7/virtualsmartcard-0.7_win32.zip
