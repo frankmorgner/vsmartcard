@@ -18,7 +18,7 @@
 #
 
 from virtualsmartcard.VirtualSmartcard import SmartcardOS
-import smartcard, logging, sys
+import smartcard, logging, sys, atexit
 
 
 class RelayOS(SmartcardOS):
