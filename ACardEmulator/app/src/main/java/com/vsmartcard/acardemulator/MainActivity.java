@@ -27,10 +27,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.text.Html;
 import android.text.Layout;
 import android.text.method.ScrollingMovementMethod;
 import android.view.Menu;
@@ -73,6 +73,22 @@ public class MainActivity extends ActionBarActivity {
             }
         }
     };
+    private AlertDialog dialog;
+    final String PREFS = "ACardEmulatorPrefs";
+    final String PREF_LASTVERSION = "last version";
+    private static String SAVED_STATUS = "textViewVPCDStatus";
+
+    private void showStartupMessage() {
+        if (dialog == null)
+            dialog = new AlertDialog.Builder(this)
+                    .setMessage(R.string.startup_message)
+                    .setTitle(R.string.startup_title)
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                        }
+                    }).create();
+        dialog.show();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,13 +97,16 @@ public class MainActivity extends ActionBarActivity {
 
         textViewVPCDStatus = (TextView) findViewById(R.id.textViewLog);
         textViewVPCDStatus.setMovementMethod(new ScrollingMovementMethod());
+        SharedPreferences settings = getSharedPreferences(PREFS, 0);
+        if (settings.getInt(PREF_LASTVERSION, 0) != BuildConfig.VERSION_CODE) {
+            showStartupMessage();
+            settings.edit().putInt(PREF_LASTVERSION, BuildConfig.VERSION_CODE).commit();
+        }
 
         LocalBroadcastManager bManager = LocalBroadcastManager.getInstance(this);
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(SimulatorService.TAG);
         bManager.registerReceiver(bReceiver, intentFilter);
-
-        showStartupMessage();
     }
 
     @Override
@@ -120,29 +139,21 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-
-
-    private static String saved_status_key = "textViewVPCDStatus";
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        textViewVPCDStatus.setText(savedInstanceState.getCharSequence(saved_status_key));
+        textViewVPCDStatus.setText(savedInstanceState.getCharSequence(SAVED_STATUS));
     }
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-        savedInstanceState.putCharSequence(saved_status_key, textViewVPCDStatus.getText());
+        savedInstanceState.putCharSequence(SAVED_STATUS, textViewVPCDStatus.getText());
         super.onSaveInstanceState(savedInstanceState);
     }
 
-    private void showStartupMessage() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(R.string.startup_message)
-                .setTitle(R.string.startup_title)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                    }
-                });;
-        AlertDialog dialog = builder.create();
-        dialog.show();
+    @Override
+    protected void onPause() {
+        if (dialog != null)
+            dialog.dismiss();
+        super.onPause();
     }
 }
