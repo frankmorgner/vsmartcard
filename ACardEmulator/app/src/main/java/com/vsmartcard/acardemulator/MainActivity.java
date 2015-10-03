@@ -28,13 +28,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
-import android.os.Bundle;
-import android.text.Layout;
-import android.text.method.ScrollingMovementMethod;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,6 +42,7 @@ import android.widget.Toast;
 public class MainActivity extends ActionBarActivity {
 
     private TextView textViewVPCDStatus;
+    private ScrollView scrollView;
     private BroadcastReceiver bReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -59,14 +60,7 @@ public class MainActivity extends ActionBarActivity {
                     textViewVPCDStatus.append(getResources().getString(R.string.status_error) + ": " + error + "\n");
                 if (rapdu != null) {
                     textViewVPCDStatus.append(getResources().getString(R.string.status_rapdu) + ": " + rapdu + "\n");
-                    Layout layout = textViewVPCDStatus.getLayout();
-                    if (layout != null) {
-                        int scrollAmount = layout.getLineTop(textViewVPCDStatus.getLineCount()) - textViewVPCDStatus.getHeight();
-                        if (scrollAmount > 0)
-                            textViewVPCDStatus.scrollTo(0, scrollAmount);
-                        else
-                            textViewVPCDStatus.scrollTo(0, 0);
-                    }
+                    scrollView.fullScroll(View.FOCUS_DOWN);
                 }
                 if (deselect != null)
                     textViewVPCDStatus.append(getResources().getString(R.string.status_disconnected) + ": " + deselect + "\n");
@@ -96,7 +90,7 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         textViewVPCDStatus = (TextView) findViewById(R.id.textViewLog);
-        textViewVPCDStatus.setMovementMethod(new ScrollingMovementMethod());
+        scrollView = (ScrollView) findViewById(R.id.scrollView);
         SharedPreferences settings = getSharedPreferences(PREFS, 0);
         if (settings.getInt(PREF_LASTVERSION, 0) != BuildConfig.VERSION_CODE) {
             showStartupMessage();
