@@ -110,6 +110,7 @@ $(LIBNPA): $(OPENPACE_MAKEFILE) $(OPENSC_CONFIGURE)
 	grep _sc_card_add_ec_alg $(OPENSC)/src/libopensc/libopensc.exports || echo _sc_card_add_ec_alg >> $(OPENSC)/src/libopensc/libopensc.exports
 	grep _sc_card_add_rsa_alg $(OPENSC)/src/libopensc/libopensc.exports || echo _sc_card_add_rsa_alg >> $(OPENSC)/src/libopensc/libopensc.exports
 	grep _sc_match_atr $(OPENSC)/src/libopensc/libopensc.exports || echo _sc_match_atr >> $(OPENSC)/src/libopensc/libopensc.exports
+	grep sc_apdu_set_resp $(OPENSC)/src/libopensc/libopensc.exports || echo sc_apdu_set_resp >> $(OPENSC)/src/libopensc/libopensc.exports
 	grep sc_apdu_get_octets $(OPENSC)/src/libopensc/libopensc.exports || echo sc_apdu_get_octets >> $(OPENSC)/src/libopensc/libopensc.exports
 	grep sc_pkcs15_pincache_add $(OPENSC)/src/libopensc/libopensc.exports || echo sc_pkcs15_pincache_add >> $(OPENSC)/src/libopensc/libopensc.exports
 	cd $(OPENSC) && ./configure \
