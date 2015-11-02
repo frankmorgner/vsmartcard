@@ -106,7 +106,7 @@ if test "x$WITH_PACE" == xno ; then
     AC_TRY_LINK_FUNC(sc_bytes2apdu, [ AC_MSG_RESULT([yes]) ],
     [ AC_MSG_ERROR([libopensc >= 0.12.1 not found, use ./configure OPENSC_LIBS=...]) ])
 fi
-AC_CHECK_FUNCS([sc_apdu_set_resp sc_apdu_get_octets _sc_match_atr list_iterator_next])
+AC_CHECK_FUNCS([sc_apdu_set_resp sc_apdu_get_octets _sc_match_atr])
 CPPFLAGS="$saved_CPPFLAGS"
 LIBS="$saved_LIBS"
 
