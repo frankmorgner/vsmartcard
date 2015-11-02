@@ -6,14 +6,6 @@
 Welcome to the |vsmartcard| documentation!
 ################################################################################
 
-.. image:: https://travis-ci.org/frankmorgner/vsmartcard.png?branch=master
-    :target: https://travis-ci.org/frankmorgner/vsmartcard
-    :alt: Build Status Image
-
-.. image:: https://scan.coverity.com/projects/3987/badge.svg
-    :target: https://scan.coverity.com/projects/3987
-    :alt: Coverity Scan Build Status
-
 Welcome to the |vsmartcard|. |vsmartcard| is an umbrella project for various
 projects concerned with the emulation of different types of smart card readers
 or smart cards themselves.
@@ -69,6 +61,18 @@ have a look at these programming guides and try yourself:
 
    virtualsmartcard/api
    npa/api
+
+.. image:: https://img.shields.io/travis/frankmorgner/vsmartcard/master.svg?label=Travis%20CI%20build
+    :target: https://travis-ci.org/frankmorgner/vsmartcard
+    :alt: Travis CI Build Status Image
+
+.. image:: https://img.shields.io/appveyor/ci/frankmorgner/vsmartcard/master.svg?label=AppVeyor%20build
+    :target: https://ci.appveyor.com/project/frankmorgner/vsmartcard
+    :alt: AppVeyor CI Build Status Image
+
+.. image:: https://img.shields.io/coverity/scan/3987.svg?label=Coverity%20scan
+    :target: https://scan.coverity.com/projects/3987
+    :alt: Coverity Scan Status
 
 
 Download
