@@ -63,6 +63,105 @@ static size_t sc_apdu_get_length(const sc_apdu_t *apdu, unsigned int proto)
 	return ret;
 }
 
+/** Encodes a APDU as an octet string
+ *  @param  ctx     sc_context_t object (used for logging)
+ *  @param  apdu    APDU to be encoded as an octet string
+ *  @param  proto   protocol version to be used
+ *  @param  out     output buffer of size outlen.
+ *  @param  outlen  size of hte output buffer
+ *  @return SC_SUCCESS on success and an error code otherwise
+ */
+static int sc_apdu2bytes(sc_context_t *ctx, const sc_apdu_t *apdu,
+	unsigned int proto, u8 *out, size_t outlen)
+{
+	u8     *p = out;
+
+	size_t len = sc_apdu_get_length(apdu, proto);
+
+	if (out == NULL || outlen < len)
+		return SC_ERROR_INVALID_ARGUMENTS;
+	/* CLA, INS, P1 and P2 */
+	*p++ = apdu->cla;
+	*p++ = apdu->ins;
+	*p++ = apdu->p1;
+	*p++ = apdu->p2;
+	/* case depend part */
+	switch (apdu->cse) {
+	case SC_APDU_CASE_1:
+		/* T0 needs an additional 0x00 byte */
+		if (proto == SC_PROTO_T0)
+			*p = (u8)0x00;
+		break;
+	case SC_APDU_CASE_2_SHORT:
+		*p = (u8)apdu->le;
+		break;
+	case SC_APDU_CASE_2_EXT:
+		if (proto == SC_PROTO_T0)
+			/* T0 extended APDUs look just like short APDUs */
+			*p = (u8)apdu->le;
+		else {
+			/* in case of T1 always use 3 bytes for length */
+			*p++ = (u8)0x00;
+			*p++ = (u8)(apdu->le >> 8);
+			*p = (u8)apdu->le;
+		}
+		break;
+	case SC_APDU_CASE_3_SHORT:
+		*p++ = (u8)apdu->lc;
+		memcpy(p, apdu->data, apdu->lc);
+		break;
+	case SC_APDU_CASE_3_EXT:
+		if (proto == SC_PROTO_T0) {
+			/* in case of T0 the command is transmitted in chunks
+			 * < 255 using the ENVELOPE command ... */
+			if (apdu->lc > 255) {
+				/* ... so if Lc is greater than 255 bytes
+				 * an error has occurred on a higher level */
+				sc_log(ctx, "invalid Lc length for CASE 3 extended APDU (need ENVELOPE)");
+				return SC_ERROR_INVALID_ARGUMENTS;
+			}
+		}
+		else {
+			/* in case of T1 always use 3 bytes for length */
+			*p++ = (u8)0x00;
+			*p++ = (u8)(apdu->lc >> 8);
+			*p++ = (u8)apdu->lc;
+		}
+		memcpy(p, apdu->data, apdu->lc);
+		break;
+	case SC_APDU_CASE_4_SHORT:
+		*p++ = (u8)apdu->lc;
+		memcpy(p, apdu->data, apdu->lc);
+		p += apdu->lc;
+		/* in case of T0 no Le byte is added */
+		if (proto != SC_PROTO_T0)
+			*p = (u8)apdu->le;
+		break;
+	case SC_APDU_CASE_4_EXT:
+		if (proto == SC_PROTO_T0) {
+			/* again a T0 extended case 4 APDU looks just
+			 * like a short APDU, the additional data is
+			 * transferred using ENVELOPE and GET RESPONSE */
+			*p++ = (u8)apdu->lc;
+			memcpy(p, apdu->data, apdu->lc);
+		}
+		else {
+			*p++ = (u8)0x00;
+			*p++ = (u8)(apdu->lc >> 8);
+			*p++ = (u8)apdu->lc;
+			memcpy(p, apdu->data, apdu->lc);
+			p += apdu->lc;
+			/* only 2 bytes are use to specify the length of the
+			 * expected data */
+			*p++ = (u8)(apdu->le >> 8);
+			*p = (u8)apdu->le;
+		}
+		break;
+	}
+
+	return SC_SUCCESS;
+}
+
 int sc_apdu_get_octets(sc_context_t *ctx, const sc_apdu_t *apdu, u8 **buf,
 	size_t *len, unsigned int proto)
 {
