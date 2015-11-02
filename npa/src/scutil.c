@@ -22,18 +22,183 @@
 
 #include "libopensc/internal.h"
 
-#if !defined(HAVE_SC_APDU_GET_OCTETS) || !defined(HAVE_SC_APDU_SET_RESP)
-/* Pull request for exporting sc_apdu_get_octets is pending. */
-#include "libopensc/apdu.c"
+#ifndef HAVE_SC_APDU_GET_OCTETS
+/* copied from opensc/src/libopensc/apdu.c */
+
+/** Calculates the length of the encoded APDU in octets.
+ *  @param  apdu   the APDU
+ *  @param  proto  the desired protocol
+ *  @return length of the encoded APDU
+ */
+static size_t sc_apdu_get_length(const sc_apdu_t *apdu, unsigned int proto)
+{
+	size_t ret = 4;
+
+	switch (apdu->cse) {
+	case SC_APDU_CASE_1:
+		if (proto == SC_PROTO_T0)
+			ret++;
+		break;
+	case SC_APDU_CASE_2_SHORT:
+		ret++;
+		break;
+	case SC_APDU_CASE_2_EXT:
+		ret += (proto == SC_PROTO_T0 ? 1 : 3);
+		break;
+	case SC_APDU_CASE_3_SHORT:
+		ret += 1 + apdu->lc;
+		break;
+	case SC_APDU_CASE_3_EXT:
+		ret += apdu->lc + (proto == SC_PROTO_T0 ? 1 : 3);
+		break;
+	case SC_APDU_CASE_4_SHORT:
+		ret += apdu->lc + (proto != SC_PROTO_T0 ? 2 : 1);
+		break;
+	case SC_APDU_CASE_4_EXT:
+		ret += apdu->lc + (proto == SC_PROTO_T0 ? 1 : 5);
+		break;
+	default:
+		return 0;
+	}
+	return ret;
+}
+
+int sc_apdu_get_octets(sc_context_t *ctx, const sc_apdu_t *apdu, u8 **buf,
+	size_t *len, unsigned int proto)
+{
+	size_t	nlen;
+	u8	*nbuf;
+
+	if (apdu == NULL || buf == NULL || len == NULL)
+		return SC_ERROR_INVALID_ARGUMENTS;
+
+	/* get the estimated length of encoded APDU */
+	nlen = sc_apdu_get_length(apdu, proto);
+	if (nlen == 0)
+		return SC_ERROR_INTERNAL;
+	nbuf = malloc(nlen);
+	if (nbuf == NULL)
+		return SC_ERROR_OUT_OF_MEMORY;
+	/* encode the APDU in the buffer */
+	if (sc_apdu2bytes(ctx, apdu, proto, nbuf, nlen) != SC_SUCCESS) {
+		free(nbuf);
+		return SC_ERROR_INTERNAL;
+	}
+	*buf = nbuf;
+	*len = nlen;
+
+	return SC_SUCCESS;
+}
+#endif
+
+#ifndef HAVE_SC_APDU_SET_RESP
+/* copied from opensc/src/libopensc/card.c */
+
+#include <string.h>
+
+int sc_apdu_set_resp(sc_context_t *ctx, sc_apdu_t *apdu, const u8 *buf,
+	size_t len)
+{
+	if (len < 2) {
+		/* no SW1 SW2 ... something went terrible wrong */
+		sc_log(ctx, "invalid response: SW1 SW2 missing");
+		return SC_ERROR_INTERNAL;
+	}
+	/* set the SW1 and SW2 status bytes (the last two bytes of
+	 * the response */
+	apdu->sw1 = (unsigned int)buf[len - 2];
+	apdu->sw2 = (unsigned int)buf[len - 1];
+	len -= 2;
+	/* set output length and copy the returned data if necessary */
+	if (len <= apdu->resplen)
+		apdu->resplen = len;
+
+	if (apdu->resplen != 0)
+		memcpy(apdu->resp, buf, apdu->resplen);
+
+	return SC_SUCCESS;
+}
 #endif
 
 #ifndef HAVE__SC_MATCH_ATR
-/* I hate to do this, but to include _sc_match_atr we need to satisfy all
- * dependencies of card.c */
-#include "common/compat_strlcpy.c"
-#include "common/libscdl.c"
-#include "libopensc/sc.c"
-#include "libopensc/card.c"
+/* copied from opensc/src/libopensc/card.c */
+
+static int match_atr_table(sc_context_t *ctx, struct sc_atr_table *table, struct sc_atr *atr)
+{
+	u8 *card_atr_bin;
+	size_t card_atr_bin_len;
+	char card_atr_hex[3 * SC_MAX_ATR_SIZE];
+	size_t card_atr_hex_len;
+	unsigned int i = 0;
+
+	if (ctx == NULL || table == NULL || atr == NULL)
+		return -1;
+	card_atr_bin = atr->value;
+	card_atr_bin_len = atr->len;
+	sc_bin_to_hex(card_atr_bin, card_atr_bin_len, card_atr_hex, sizeof(card_atr_hex), ':');
+	card_atr_hex_len = strlen(card_atr_hex);
+
+	sc_log(ctx, "ATR     : %s", card_atr_hex);
+
+	for (i = 0; table[i].atr != NULL; i++) {
+		const char *tatr = table[i].atr;
+		const char *matr = table[i].atrmask;
+		size_t tatr_len = strlen(tatr);
+		u8 mbin[SC_MAX_ATR_SIZE], tbin[SC_MAX_ATR_SIZE];
+		size_t mbin_len, tbin_len, s, matr_len;
+		size_t fix_hex_len = card_atr_hex_len;
+		size_t fix_bin_len = card_atr_bin_len;
+
+		sc_log(ctx, "ATR try : %s", tatr);
+
+		if (tatr_len != fix_hex_len) {
+			sc_log(ctx, "ignored - wrong length");
+			continue;
+		}
+		if (matr != NULL) {
+			sc_log(ctx, "ATR mask: %s", matr);
+
+			matr_len = strlen(matr);
+			if (tatr_len != matr_len)
+				continue;
+			tbin_len = sizeof(tbin);
+			sc_hex_to_bin(tatr, tbin, &tbin_len);
+			mbin_len = sizeof(mbin);
+			sc_hex_to_bin(matr, mbin, &mbin_len);
+			if (mbin_len != fix_bin_len) {
+				sc_log(ctx, "length of atr and atr mask do not match - ignored: %s - %s", tatr, matr);
+				continue;
+			}
+			for (s = 0; s < tbin_len; s++) {
+				/* reduce tatr with mask */
+				tbin[s] = (tbin[s] & mbin[s]);
+				/* create copy of card_atr_bin masked) */
+				mbin[s] = (card_atr_bin[s] & mbin[s]);
+			}
+			if (memcmp(tbin, mbin, tbin_len) != 0)
+				continue;
+		} else {
+			if (strncasecmp(tatr, card_atr_hex, tatr_len) != 0)
+				continue;
+		}
+		return i;
+	}
+	return -1;
+}
+
+int _sc_match_atr(sc_card_t *card, struct sc_atr_table *table, int *type_out)
+{
+	int res;
+
+	if (card == NULL)
+		return -1;
+	res = match_atr_table(card->ctx, table, &card->atr);
+	if (res < 0)
+		return res;
+	if (type_out != NULL)
+		*type_out = table[res].type;
+	return res;
+}
 #endif
 
 #include <libopensc/log.h>

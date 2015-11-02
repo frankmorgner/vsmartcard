@@ -74,7 +74,7 @@ AC_MSG_CHECKING([for sc_sm_stop])
 AC_TRY_LINK_FUNC(sc_sm_stop,
                  [ AC_MSG_RESULT([yes]) ],
                  [ AC_MSG_ERROR([Cannot link against libopensc with SM]) ])
-AC_CHECK_FUNCS([sc_apdu_get_octets _sc_match_atr list_iterator_next])
+AC_CHECK_FUNCS([sc_apdu_set_resp sc_apdu_get_octets _sc_match_atr list_iterator_next])
 
 CPPFLAGS="$saved_CPPFLAGS"
 LIBS="$saved_LIBS"
