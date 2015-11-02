@@ -58,7 +58,7 @@ int initialize(int reader_id, int verbose,
     }
 
     (*ctx)->debug = verbose;
-	(*ctx)->enable_default_driver = 1;
+	(*ctx)->flags |= SC_CTX_FLAG_ENABLE_DEFAULT_DRIVER;
 
     reader_count = sc_ctx_get_reader_count(*ctx);
 
@@ -156,7 +156,7 @@ int print_avail(int verbose)
         return 1;
     }
     ctx->debug = verbose;
-	ctx->enable_default_driver = 1;
+	ctx->flags |= SC_CTX_FLAG_ENABLE_DEFAULT_DRIVER;
 
     r = list_readers(ctx);
 
