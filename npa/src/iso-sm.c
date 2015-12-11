@@ -612,7 +612,7 @@ static int iso_add_sm(struct iso_sm_ctx *sctx, sc_card_t *card,
 
     if ((apdu->cla & 0x0C) == 0x0C) {
         sc_debug(card->ctx, SC_LOG_DEBUG_VERBOSE, "Given APDU is already protected with some secure messaging. Closing own SM context.");
-        SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, iso_sm_close(card),
+        SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, sc_sm_stop(card),
                 "Could not close ISO SM session");
         return SC_ERROR_SM_NOT_APPLIED;
     }
