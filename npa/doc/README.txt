@@ -18,7 +18,7 @@ nPA Smart Card Library
     Access the German electronic identity card (neuer Personalausweis/nPA)
 
     :Author:
-        `Frank Morgner <morgner@informatik.hu-berlin.de>`_
+        `Frank Morgner <frankmorgner@gmail.com>`_
     :License:
         GPL version 3
     :Tested Platforms:

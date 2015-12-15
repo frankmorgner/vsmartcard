@@ -13,7 +13,7 @@ Android Smart Card Emulator
     Use an Android phone as contact-less smart card
 
     :Author:
-        `Frank Morgner <morgner@informatik.hu-berlin.de>`_
+        `Frank Morgner <frankmorgner@gmail.com>`_
     :License:
         GPL version 3
     :Tested Platform:

@@ -1,7 +1,7 @@
 /*
  * boxing.c: interface related to boxing commands with pseudo APDUs
  *
- * Copyright (C) 2013  Frank Morgner  <morgner@informatik.hu-berlin.de>
+ * Copyright (C) 2013  Frank Morgner  <frankmorgner@gmail.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public

@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2009 by Dominik Oepen <oepen@informatik.hu-berlin.de>.
- * Copyright (C) 2010-2012 by Frank Morgner <morgner@informatik.hu-berlin.de>.
+ * Copyright (C) 2010-2012 by Frank Morgner <frankmorgner@gmail.com>.
  *
  * This file is part of pcsc-relay.
  *

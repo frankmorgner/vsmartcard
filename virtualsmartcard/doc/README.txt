@@ -19,7 +19,7 @@ Virtual Smart Card
     Smart card emulator written in Python
 
   :Authors:
-      - `Frank Morgner <morgner@informatik.hu-berlin.de>`_
+      - `Frank Morgner <frankmorgner@gmail.com>`_
       - `Dominik Oepen <oepen@informatik.hu-berlin.de>`_
   :License:
       GPL version 3

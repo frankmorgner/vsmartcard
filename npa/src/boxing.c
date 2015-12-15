@@ -1,7 +1,7 @@
 /*
  * boxing.c: implementation related to boxing commands with pseudo APDUs
  *
- * Copyright (C) 2013  Frank Morgner  <morgner@informatik.hu-berlin.de>
+ * Copyright (C) 2013  Frank Morgner  <frankmorgner@gmail.com>
  *
  * This file is part of libnpa.
  *
