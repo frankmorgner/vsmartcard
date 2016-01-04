@@ -1,5 +1,10 @@
 2016-01-04  Frank Morgner <frankmorgner@gmail.com>
 
+	* npa/ChangeLog, npa/src/Makefile.am: added missing files from
+	OpenSC
+
+2016-01-04  Frank Morgner <frankmorgner@gmail.com>
+
 	* npa/src/Makefile.am: fixed build location of manual files
 
 2015-12-15  Frank Morgner <morgner@informatik.hu-berlin.de>
