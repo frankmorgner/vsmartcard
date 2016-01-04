@@ -1,3 +1,209 @@
+2016-01-04  Frank Morgner <frankmorgner@gmail.com>
+
+	* npa/src/Makefile.am: fixed build location of manual files
+
+2015-12-15  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/AUTHORS, npa/doc/README.txt, npa/doc/README.txt.in,
+	npa/src/boxing.c, npa/src/card-npa.c, npa/src/npa-tool.c,
+	npa/src/npa-tool.ggo.in, npa/src/npa/boxing.h: Updated mail address
+
+2015-12-11  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/src/iso-sm.c: fixed wiping SM state when receiving protected
+	APDU
+
+2015-11-02  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/src/scutil.c: again, include source files from OpenSC (unused) dependencies are satisfied with dummy implementations
+
+2015-11-02  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/src/scutil.c: added missing sc_apdu2bytes
+
+2015-11-02  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/cross/Makefile.am: export sc_apdu_set_resp from OpenSC
+
+2015-11-02  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/configure.ac, npa/src/Makefile.am, npa/src/scutil.c: copy code
+	from OpenSC instead of including its source files
+
+2015-11-02  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/cross/Makefile.am: we need sc_apdu_set_resp to avoid including
+	apdu.c
+
+2015-11-02  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/src/opensc, npa/src/scutil.c: updated OpenSC
+
+2015-09-03  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/src/npa-tool.c: Adapt to changes of
+
+	https://github.com/frankmorgner/openpace/commit/c2256ad61a1c8c9148b1ab5e76bdb752c73d9455This should also fix a bug where the commandline input of the lookup
+	directories given via npa-tool is overwritten with OpenPACE's
+	default.
+
+2015-08-21  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/src/Makefile.am: fixed manpage build dependency
+
+2015-07-31  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/configure.ac: test for strings with `test`
+
+2015-07-31  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/configure.ac: fixed typo
+
+2015-07-31  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/configure.ac: make sure built files are most recent closes #61
+
+2015-07-17  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/doc/README.txt, npa/doc/api.txt: sm_stop is now part of OpenSC
+	as sc_sm_stop
+
+2015-07-22  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/src/boxing.c: stop iterating
+
+2015-05-19  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/doc/README.txt.in: added Mac OS X to the compatibility list
+
+2015-05-11  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/cross/Makefile.am: fixed cross compiling for windows
+
+2015-05-11  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/src/Makefile.am: fixed missing openpace libs
+
+2015-05-11  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/cross/MacOSX_install/postinstall,
+	npa/cross/MacOSX_uninstall/postinstall, npa/cross/Makefile.am: build
+	OS X installer
+
+2015-05-11  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/src/opensc: updated OpenSC
+
+2015-04-27  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/Makefile.am, npa/cross/Makefile.am: build universal binaries
+	for Mac OS X
+
+2015-04-23  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/src/boxing.c: if boxing is not supported, select MF resets the state of the card which may be confused by the commands
+	with CLA=FF (and is more lightweight than an actual reset)
+
+2015-04-14  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/src/opensc: updated OpenSC
+
+2015-04-13  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/configure.ac, npa/src/boxing.c: fixed compilation on Mac OS X
+
+2015-04-07  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/configure.ac, npa/src/card-npa.c, npa/src/example.c,
+	npa/src/iso-sm.c, npa/src/npa-tool.c, npa/src/npa/iso-sm.h,
+	npa/src/opensc: moved sm_stop() to OpenSC as sc_sm_stop()
+
+2015-04-01  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/src/npa.c: catch non initialized pace context
+
+2015-03-31  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/src/opensc: updated OpenSC
+
+2015-03-25  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/src/card-npa.c: fixed logging out with PACE reader
+
+2015-03-24  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/src/card-npa.c: fixed handling scconf_block
+
+2015-02-28  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/src/Makefile.am, npa/src/scutil.c: fixed undefined reference
+	to strlcpy
+
+2015-02-27  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/src/card-npa.c, npa/src/opensc: updated OpenSC
+
+2015-02-02  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/doc/README.txt, npa/doc/README.txt.in: clearification on QES
+
+2015-01-25  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/src/npa-tool.c: fixed check for pin length
+
+2015-01-25  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/src/boxing.c, npa/src/card-npa.c, npa/src/npa.c: fixed
+	potentially dereferencing null pointer
+
+2015-01-25  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/src/iso-sm.c: fixed memory leak
+
+2015-01-25  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/src/card-npa.c, npa/src/scutil.c: removed unused check
+
+2015-01-25  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/src/scutil.c: fixed handling of bad arguments
+
+2015-01-25  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/src/npa.c: fixed uninitialized value
+
+2015-01-25  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/src/card-npa.c: fixed handling of missing st keys
+
+2015-01-18  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/doc/README.txt, npa/doc/README.txt.in, npa/opensc.conf.in,
+	npa/src/Makefile.am, npa/src/card-npa.c, npa/src/card-npa.h,
+	npa/src/npa-tool.c, npa/src/npa.c, npa/src/npa/npa.h,
+	npa/src/npa/scutil.h, npa/src/pkcs15-npa.c, npa/src/scutil.c: added
+	support for QES with German ID card libnpa: requires an ID card that is initialized for QES. Today, this
+	means you need to register at sign-me.  virtualsmartcard: We don't actually create a real signature, because
+	PyCrypto can't handle ECDSA, let alone brainpoolP256r1. We only
+	return a 64 byte buffer.
+
+2014-11-22  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/src/Makefile.am: use absolute path of manuals
+
+2014-11-21  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/src/Makefile.am: fixed building of manuals
+
+2014-11-20  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/configure.ac: version bump
+
+2014-11-20  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/doc/README.txt, npa/doc/README.txt.in, npa/doc/autotools.txt,
+	npa/doc/download.txt: updated documentation
+
 2014-11-11  Frank Morgner <morgner@informatik.hu-berlin.de>
 
 	* npa/Makefile.am: perform git2cl on local project only
