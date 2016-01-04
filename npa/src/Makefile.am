@@ -15,7 +15,7 @@ EXTRA_DIST  = npa-tool.ggo npa-tool.ggo.in opensc/src/common/simclist.c
 EXTRA_DIST += $(shell find -L $(top_srcdir)/src/opensc/src -path '*/.git' -prune -o -type f -a -name '*.h' -print)
 MAINTAINERCLEANFILES = $(BUILT_SOURCES) npa-tool.ggo $(dist_man1_MANS)
 
-dist_man1_MANS		= $(abs_builddir)/npa-tool.1
+dist_man1_MANS		= $(builddir)/npa-tool.1
 
 libnpa_la_SOURCES = iso-sm.c scutil.c npa.c boxing.c
 libnpa_la_LIBADD = $(OPENSC_LIBS) $(OPENPACE_LIBS) $(OPENSSL_LIBS)
@@ -45,7 +45,7 @@ npa-tool.ggo: npa-tool.ggo.in
 	$(do_subst) < $< > $(srcdir)/$@
 
 
-$(abs_builddir)/npa-tool.1: npa-tool.ggo.in
+npa-tool.1: npa-tool.ggo.in
 	$(HELP2MAN) \
 		--output=$@ \
 		--no-info \
