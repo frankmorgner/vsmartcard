@@ -69,7 +69,7 @@ MAKE_STANDALONE_TOOLCHAIN ?= $${HOME}/.local/opt/android-ndk-r9/build/tools/make
 
 android: $(VIRTUALSMARTCARD_CONFIGURE)
 	test -d $(ANDROID_TOOL_DIR) \
-		|| $(MAKE_STANDALONE_TOOLCHAIN) --install-dir=$(ANDROID_TOOL_DIR) --arch=$(ANDROID_ARCH)
+		|| $(MAKE_STANDALONE_TOOLCHAIN) --install-dir=$(ANDROID_TOOL_DIR) --arch=$(ANDROID_ARCH)  --platform=android-16
 	cd $(VIRTUALSMARTCARD) && env PATH=$(ANDROID_TOOL_DIR)/bin:$${PATH} ./configure \
 		--prefix=/ \
 		--host=$(ANDROID_TOOL) --target=$(ANDROID_TOOL) \
@@ -77,8 +77,8 @@ android: $(VIRTUALSMARTCARD_CONFIGURE)
 		PKG_CONFIG_SYSROOT_DIR=$(ANDROID_TARGETDIR) \
 		PKG_CONFIG_LIBDIR=$(ANDROID_TARGETDIR)/lib/pkgconfig \
 		PKG_CONFIG_PATH=$(ANDROID_TARGETDIR)/lib/pkgconfig \
-		CFLAGS=-I$(ANDROID_TOOL_DIR)/include \
-		LDFLAGS=-L$(ANDROID_TOOL_DIR)/lib
+		CFLAGS="-I$(ANDROID_TOOL_DIR)/include -fPIE" \
+		LDFLAGS="-L$(ANDROID_TOOL_DIR)/lib -fPIE -pie"
 	@echo Compiling virtual smartcard
 	env PATH=$(ANDROID_TOOL_DIR)/bin:$${PATH} $(MAKE) -C $(VIRTUALSMARTCARD) install DESTDIR=$(ANDROID_TARGETDIR)
 	env PATH=$(ANDROID_TOOL_DIR)/bin:$${PATH} $(MAKE) cross \
@@ -105,6 +105,7 @@ $(LIBNPA): $(OPENPACE_MAKEFILE) $(OPENSC_CONFIGURE)
 		TOOL_DIR=$(TOOL_DIR) \
 		TARGETDIR=$(TARGETDIR) \
 		LDFLAGS="$${LDFLAGS}" \
+		CFLAGS="$${CFLAGS}" \
 		LIBEAC=$(LIBEAC)
 	@echo Configuring OpenSC
 	grep _sc_card_add_ec_alg $(OPENSC)/src/libopensc/libopensc.exports || echo _sc_card_add_ec_alg >> $(OPENSC)/src/libopensc/libopensc.exports
@@ -120,7 +121,7 @@ $(LIBNPA): $(OPENPACE_MAKEFILE) $(OPENSC_CONFIGURE)
 		PKG_CONFIG_SYSROOT_DIR=$(TARGETDIR) \
 		PKG_CONFIG_LIBDIR=$(TARGETDIR)/lib/pkgconfig \
 		PKG_CONFIG_PATH=$(TARGETDIR)/lib/pkgconfig \
-		CFLAGS="-I$(TOOL_DIR)/include -I$(TARGETDIR)/include" \
+		CFLAGS="$${CFLAGS} -I$(TOOL_DIR)/include -I$(TARGETDIR)/include" \
 		LDFLAGS="$${LDFLAGS} -L$(TOOL_DIR)/lib"
 	@echo Compiling OpenSC
 	$(MAKE) -C $(OPENSC) install DESTDIR=$(TARGETDIR)
@@ -132,7 +133,7 @@ $(LIBNPA): $(OPENPACE_MAKEFILE) $(OPENSC_CONFIGURE)
 		PKG_CONFIG_LIBDIR=$(TARGETDIR)/lib/pkgconfig \
 		PKG_CONFIG_PATH=$(TARGETDIR)/lib/pkgconfig \
 		OPENSC_LIBS="-L$(TARGETDIR)/lib -lopensc" \
-		CFLAGS="-I$(TOOL_DIR)/include -I$(TARGETDIR)/include" \
+		CFLAGS="$${CFLAGS} -I$(TOOL_DIR)/include -I$(TARGETDIR)/include" \
 		LDFLAGS="$${LDFLAGS} -L$(TOOL_DIR)/lib"
 	@echo Compiling libnpa
 	env CROSS_COMPILE=$(CROSS_COMPILE) \
