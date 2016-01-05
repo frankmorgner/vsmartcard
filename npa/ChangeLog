@@ -1,3 +1,20 @@
+2016-01-04  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/cross/Makefile.am: renamed android distribution directory
+
+2016-01-04  Frank Morgner <morgner@informatik.hu-berlin.de>
+
+	* npa/cross/Makefile.am: Building with PIE for Android 4.1+
+
+2016-01-04  Frank Morgner <frankmorgner@gmail.com>
+
+	* npa/certs/Makefile.am: uninstall CV and X.509 certificates
+
+2016-01-04  Frank Morgner <frankmorgner@gmail.com>
+
+	* npa/ChangeLog, npa/certs/Makefile.am: install CVC and X.509
+	directory if needed
+
 2016-01-04  Frank Morgner <frankmorgner@gmail.com>
 
 	* npa/ChangeLog, npa/src/Makefile.am: added missing files from
