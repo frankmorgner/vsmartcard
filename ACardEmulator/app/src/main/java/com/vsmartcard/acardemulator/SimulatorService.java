@@ -31,8 +31,6 @@ import com.licel.jcardsim.base.SimulatorRuntime;
 import com.licel.jcardsim.samples.HelloWorldApplet;
 import com.licel.jcardsim.utils.AIDUtil;
 
-import net.pwendland.javacard.pki.isoapplet.IsoApplet;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -41,6 +39,8 @@ import java.net.Socket;
 
 import openpgpcard.OpenPGPApplet;
 import pkgYkneoOath.YkneoOath;
+import net.pwendland.javacard.pki.isoapplet.IsoApplet;
+import com.mysmartlogon.gidsApplet.GidsApplet;
 
 public class SimulatorService extends HostApduService {
 
@@ -108,6 +108,16 @@ public class SimulatorService extends HostApduService {
         aid = getResources().getString(R.string.aid_isoapplet);
         try {
             simulator.installApplet(AIDUtil.create(aid), IsoApplet.class);
+            extra_install += "\n" + name + " (AID: " + aid + ")";
+        } catch (Exception e) {
+            e.printStackTrace();
+            extra_error += "\n" + "Could not install " + name + " (AID: " + aid + ")";
+        }
+
+        name = getResources().getString(R.string.applet_gidsapplet);
+        aid = getResources().getString(R.string.aid_gidsapplet);
+        try {
+            simulator.installApplet(AIDUtil.create(aid), GidsApplet.class);
             extra_install += "\n" + name + " (AID: " + aid + ")";
         } catch (Exception e) {
             e.printStackTrace();

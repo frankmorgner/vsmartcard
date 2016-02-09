@@ -14,6 +14,10 @@
     <string name="action_delete">Clear Log</string>
     <string name="action_help">Show Help</string>
 
+    <string name="aid_gidsapplet">A000000397425446590201</string>
+    <string name="aid_gidsapplet_truncated1">A0000003974254465902</string>
+    <string name="aid_gidsapplet_truncated2">A00000039742544659</string>
+    <string name="applet_gidsapplet">My Smart Logon\'s GIDS Applet</string>
     <string name="aid_isoapplet">F276A288BCFBA69D34F31001</string>
     <string name="applet_isoapplet">Philip Wendland\'s ISO Applet</string>
     <string name="aid_helloworld">F000000001</string>
@@ -30,6 +34,7 @@
         <b>OpenPGP Applet</b> <small>(AID D2760001240102000000000000010000)</small>\n
         <b>OATH Applet</b> <small>(AID A000000527210101)</small>\n
         <b>ISO Applet</b> <small>(AID F276A288BCFBA69D34F31001)</small>\n
+        <b>GIDS Applet</b> <small>(AID A000000397425446590201)</small>\n
         \n
         Place your device on a contact-less reader. When the reader issues a SELECT command for one of the application identifiers above, the emulator creates the appropriate applet. The emulated applet will then handle all subsequent APDUs.</string>
 
