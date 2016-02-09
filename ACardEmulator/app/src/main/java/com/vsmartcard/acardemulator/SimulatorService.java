@@ -30,7 +30,6 @@ import com.licel.jcardsim.base.Simulator;
 import com.licel.jcardsim.base.SimulatorRuntime;
 import com.licel.jcardsim.samples.HelloWorldApplet;
 import com.licel.jcardsim.utils.AIDUtil;
-import com.musclecard.CardEdge.CardEdge;
 
 import net.pwendland.javacard.pki.isoapplet.IsoApplet;
 
@@ -109,21 +108,6 @@ public class SimulatorService extends HostApduService {
         aid = getResources().getString(R.string.aid_isoapplet);
         try {
             simulator.installApplet(AIDUtil.create(aid), IsoApplet.class);
-            extra_install += "\n" + name + " (AID: " + aid + ")";
-        } catch (Exception e) {
-            e.printStackTrace();
-            extra_error += "\n" + "Could not install " + name + " (AID: " + aid + ")";
-        }
-
-        name = getResources().getString(R.string.applet_muscle);
-        aid = getResources().getString(R.string.aid_muscle);
-        try {
-
-            byte[] aid_bytes = Util.hexStringToByteArray(aid);
-            byte[] inst_params = new byte[aid.length()+1];
-            inst_params[0] = (byte) aid_bytes.length;
-            System.arraycopy(aid_bytes, 0, inst_params, 1, aid_bytes.length);
-            simulator.installApplet(AIDUtil.create(aid), CardEdge.class, inst_params, (short) 0, (byte) inst_params.length);
             extra_install += "\n" + name + " (AID: " + aid + ")";
         } catch (Exception e) {
             e.printStackTrace();

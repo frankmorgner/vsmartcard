@@ -21,8 +21,4 @@
         <aid-filter android:name="@string/aid_isoapplet"/>
     </aid-group>
 
-    <aid-group android:description="@string/applet_muscle" android:category="other">
-        <aid-filter android:name="@string/aid_muscle"/>
-    </aid-group>
-
 </host-apdu-service>

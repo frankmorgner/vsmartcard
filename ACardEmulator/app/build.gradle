@@ -22,7 +22,6 @@ android {
         main.java.srcDirs += 'src/main/external/android-scio/src/main'
         main.java.srcDirs += 'src/main/external/ykneo-openpgp/applet/src'
         main.java.srcDirs += 'src/main/external/ykneo-oath/applet/src'
-        main.java.srcDirs += 'src/main/external/MuscleApplet/src'
     }
 }
 
