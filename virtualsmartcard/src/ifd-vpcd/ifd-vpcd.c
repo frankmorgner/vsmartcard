@@ -148,7 +148,7 @@ IFDHCreateChannelByName (DWORD Lun, LPSTR DeviceName)
             if (hostname_len < sizeof _hostname)
                 memcpy(_hostname, DeviceName, hostname_len);
             else {
-                Log3(PCSC_LOG_ERROR, "Not enough memory to hold hostname (have %u, need %u)", sizeof _hostname, hostname_len);
+                Log3(PCSC_LOG_ERROR, "Not enough memory to hold hostname (have %zu, need %zu)", sizeof _hostname, hostname_len);
                 goto err;
             }
             _hostname[hostname_len] = '\0';
@@ -233,7 +233,7 @@ IFDHGetCapabilities (DWORD Lun, DWORD Tag, PDWORD Length, PUCHAR Value)
                 Log1(PCSC_LOG_ERROR, "Virtual ICC removed");
                 goto err;
             }
-            Log2(PCSC_LOG_DEBUG, "Got ATR (%d bytes)", size);
+            Log2(PCSC_LOG_DEBUG, "Got ATR (%zd bytes)", size);
 
 #ifndef __APPLE__
             if (*Length < size) {

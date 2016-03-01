@@ -145,7 +145,7 @@ static int list_readers(sc_context_t *ctx)
         } else {
             strncpy(card_atr, "[no card present]", sizeof card_atr);
         }
-        printf("%-4d %-7s %s\n", i, reader->driver->short_name, reader->name);
+        printf("%-4zu %-7s %s\n", i, reader->driver->short_name, reader->name);
         printf("             ATR: %s\n", card_atr);
 	}
 
