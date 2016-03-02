@@ -19,6 +19,8 @@
 import sys, binascii, random, logging
 from struct import pack
 from binascii import b2a_hex, a2b_hex
+from base64 import b64encode
+from hashlib import pbkdf2_hmac
 from random import randint
 from virtualsmartcard.utils import inttostring, hexdump
 import string, re
@@ -271,196 +273,6 @@ def calculate_MAC(session_key, message, iv=CYBERFLEX_IV):
    
     return crypted[len(padded) - cipher.block_size : ]
 
-###########################################################################
-# PBKDF2.py - PKCS#5 v2.0 Password-Based Key Derivation
-#
-# Copyright (C) 2007, 2008 Dwayne C. Litzenberger <dlitz@dlitz.net>
-# All rights reserved.
-# 
-# Permission to use, copy, modify, and distribute this software and its
-# documentation for any purpose and without fee is hereby granted,
-# provided that the above copyright notice appear in all copies and that
-# both that copyright notice and this permission notice appear in
-# supporting documentation.
-# 
-# THE AUTHOR PROVIDES THIS SOFTWARE ``AS IS'' AND ANY EXPRESSED OR 
-# IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
-# OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  
-# IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, 
-# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
-# NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
-# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
-# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
-# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
-# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#
-# Country of origin: Canada
-#
-###########################################################################
-# Sample PBKDF2 usage:
-#   from Crypto.Cipher import AES
-#   from PBKDF2 import PBKDF2
-#   import os
-#
-#   salt = os.urandom(8)    # 64-bit salt
-#   key = PBKDF2("This passphrase is a secret.", salt).read(32) # 256-bit key
-#   iv = os.urandom(16)     # 128-bit IV
-#   cipher = AES.new(key, AES.MODE_CBC, iv)
-#     ...
-#
-# Sample crypt() usage:
-#   from PBKDF2 import crypt
-#   pwhash = crypt("secret")
-#   alleged_pw = raw_input("Enter password: ")
-#   if pwhash == crypt(alleged_pw, pwhash):
-#       print "Password good"
-#   else:
-#       print "Invalid password"
-#
-###########################################################################
-# History:
-#
-#  2007-07-27 Dwayne C. Litzenberger <dlitz@dlitz.net>
-#   - Initial Release (v1.0)
-#
-#  2007-07-31 Dwayne C. Litzenberger <dlitz@dlitz.net>
-#   - Bugfix release (v1.1)
-#   - SECURITY: The PyCrypto XOR cipher (used, if available, in the _strxor
-#   function in the previous release) silently truncates all keys to 64
-#   bytes.  The way it was used in the previous release, this would only be
-#   problem if the pseudorandom function that returned values larger than
-#   64 bytes (so SHA1, SHA256 and SHA512 are fine), but I don't like
-#   anything that silently reduces the security margin from what is
-#   expected.
-#  
-# 2008-06-17 Dwayne C. Litzenberger <dlitz@dlitz.net>
-#   - Compatibility release (v1.2)
-#   - Add support for older versions of Python (2.2 and 2.3).
-#
-###########################################################################
-
-__version__ = "1.2"
-
-def strxor(a, b):
-    return "".join([chr(ord(x) ^ ord(y)) for (x, y) in zip(a, b)])
-
-def b64encode(data, chars="+/"):
-    tt = string.maketrans("+/", chars)
-    return data.encode('base64').replace("\n", "").translate(tt)
-
-class PBKDF2(object):
-    """PBKDF2.py : PKCS#5 v2.0 Password-Based Key Derivation
-    
-    This implementation takes a passphrase and a salt (and optionally an
-    iteration count, a digest module, and a MAC module) and provides a
-    file-like object from which an arbitrarily-sized key can be read.
-
-    If the passphrase and/or salt are unicode objects, they are encoded as
-    UTF-8 before they are processed.
-
-    The idea behind PBKDF2 is to derive a cryptographic key from a
-    passphrase and a salt.
-    
-    PBKDF2 may also be used as a strong salted password hash.  The
-    'crypt' function is provided for that purpose.
-    
-    Remember: Keys generated using PBKDF2 are only as strong as the
-    passphrases they are derived from.
-    """
-
-    def __init__(self, passphrase, salt, iterations=1000,
-                 digestmodule=SHA1, macmodule=HMAC):
-        self.__macmodule = macmodule
-        self.__digestmodule = digestmodule
-        self._setup(passphrase, salt, iterations, self._pseudorandom)
-
-    def _pseudorandom(self, key, msg):
-        """Pseudorandom function.  e.g. HMAC-SHA1"""
-        return self.__macmodule.new(key=key, msg=msg,
-            digestmod=self.__digestmodule).digest()
-    
-    def read(self, bytes):
-        """Read the specified number of key bytes."""
-        if self.closed:
-            raise ValueError("file-like object is closed")
-
-        size = len(self.__buf)
-        blocks = [self.__buf]
-        i = self.__blockNum
-        while size < bytes:
-            i += 1
-            if i > 0xffffffffL or i < 1:
-                # We could return "" here, but 
-                raise OverflowError("derived key too long")
-            block = self.__f(i)
-            blocks.append(block)
-            size += len(block)
-        buf = "".join(blocks)
-        retval = buf[:bytes]
-        self.__buf = buf[bytes:]
-        self.__blockNum = i
-        return retval
-    
-    def __f(self, i):
-        # i must fit within 32 bits
-        assert 1 <= i <= 0xffffffffL
-        U = self.__prf(self.__passphrase, self.__salt + pack("!L", i))
-        result = U
-        for j in xrange(2, 1+self.__iterations):
-            U = self.__prf(self.__passphrase, U)
-            result = strxor(result, U)
-        return result
-    
-    def hexread(self, octets):
-        """Read the specified number of octets. Return them as hexadecimal.
-
-        Note that len(obj.hexread(n)) == 2*n.
-        """
-        return b2a_hex(self.read(octets))
-
-    def _setup(self, passphrase, salt, iterations, prf):
-        # Sanity checks:
-        
-        # passphrase and salt must be str or unicode (in the latter
-        # case, we convert to UTF-8)
-        if isinstance(passphrase, unicode):
-            passphrase = passphrase.encode("UTF-8")
-        if not isinstance(passphrase, str):
-            raise TypeError("passphrase must be str or unicode")
-        if isinstance(salt, unicode):
-            salt = salt.encode("UTF-8")
-        if not isinstance(salt, str):
-            raise TypeError("salt must be str or unicode")
-
-        # iterations must be an integer >= 1
-        if not isinstance(iterations, (int, long)):
-            raise TypeError("iterations must be an integer")
-        if iterations < 1:
-            raise ValueError("iterations must be at least 1")
-        
-        # prf must be callable
-        if not callable(prf):
-            raise TypeError("prf must be callable")
-
-        self.__passphrase = passphrase
-        self.__salt = salt
-        self.__iterations = iterations
-        self.__prf = prf
-        self.__blockNum = 0
-        self.__buf = ""
-        self.closed = False
-    
-    def close(self):
-        """Close the stream."""
-        if not self.closed:
-            del self.__passphrase
-            del self.__salt
-            del self.__iterations
-            del self.__prf
-            del self.__blockNum
-            del self.__buf
-            self.closed = True
-
 def crypt(word, salt=None, iterations=None):
     """PBKDF2-based unix crypt(3) replacement.
     
@@ -510,7 +322,7 @@ def crypt(word, salt=None, iterations=None):
         salt = "$p5k2$$" + salt
     else:
         salt = "$p5k2$%x$%s" % (iterations, salt)
-    rawhash = PBKDF2(word, salt, iterations).read(24)
+    rawhash = pbkdf2_hmac('sha1', salt, word, iterations, 24)
     # return salt + "$" + b64encode(rawhash, "./") DO: Original return line
     return salt + "$" + rawhash
 
