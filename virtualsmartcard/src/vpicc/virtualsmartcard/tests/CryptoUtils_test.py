@@ -31,6 +31,8 @@ class TestCryptoUtils(unittest.TestCase):
         # printable characters only but that would break backwards
         # compatibility with the (buggy) legacy implementation
         self.protectedTestString = "2470356b322424504f63775949487224ffa330e33b2d76b82e91a4c88ff722414d3522bcbdb8a4a45cd7c61963b52825e1361354d5b5efbcfeabfb66fa3f97dfecd5e57617b8e0172017785f4001e9653366363763323639363965313261386363623738326435326639653563633339".decode('hex')
+        self.salt = "POcwYIHr"
+        self.cryptedWord = "2470356b322424504f63775949487224993c1d36e308d941d0fa240d18f4097ce8d0995226f04800".decode('hex')
 
     def test_padding(self):
         padded = append_padding(16, self.teststring)
@@ -45,6 +47,10 @@ class TestCryptoUtils(unittest.TestCase):
     def test_unprotect_string(self):
         unprotectedString = read_protected_string(self.protectedTestString, self.testpass)
         self.assertEqual(unprotectedString, self.teststring)
+
+    def test_crypt(self):
+        cryptedWord = crypt(self.teststring, self.salt, 400)
+        self.assertEqual(cryptedWord, self.cryptedWord)
 
 if __name__ == "__main__":
     unittest.main()
