@@ -1,24 +1,24 @@
 #
 # Copyright (C) 2011 Frank Morgner
-# 
+#
 # This file is part of virtualsmartcard.
-# 
+#
 # virtualsmartcard is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
 # Software Foundation, either version 3 of the License, or (at your option) any
 # later version.
-# 
+#
 # virtualsmartcard is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 # FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 # more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along with
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#TODO: use bertlv_pack for fdm
-#TODO: zu lange daten abschneiden und trotzdem tlv laenge beibehalten
+# TODO: use bertlv_pack for fdm
+# TODO: zu lange daten abschneiden und trotzdem tlv laenge beibehalten
 
 from pickle import dumps, loads
 import logging
@@ -27,7 +27,8 @@ from virtualsmartcard.TLVutils import *
 from virtualsmartcard.SWutils import SW, SwError
 from virtualsmartcard.utils import stringtoint, inttostring, hexdump
 
-def isEqual(list): 
+
+def isEqual(list):
     """Returns True, if all items are equal, otherwise False"""
     if len(list) > 1:
         for item in list:
@@ -37,7 +38,7 @@ def isEqual(list):
     return True
 
 
-def walk(start, path): 
+def walk(start, path):
     """Walks a path of fids and returns the last file (EF or DF).
 
     :param start: DF, where to look for the first fid
@@ -56,7 +57,7 @@ def walk(start, path):
     return start
 
 
-def getfile_byrefdataobj(mf, refdataobjs): 
+def getfile_byrefdataobj(mf, refdataobjs):
     """Returns a list of files according to the given list of reference data
     objects.
 
@@ -74,7 +75,8 @@ def getfile_byrefdataobj(mf, refdataobjs):
         elif length <= 2:
             newvalue = stringtoint(newvalue)
             if length == 1:
-                if newvalue & 5 != 0 or (newvalue >> 3) == 0 or (newvalue>>3) == (0xff>>3):
+                if (newvalue & 5 != 0 or (newvalue >> 3) == 0 or
+                        (newvalue >> 3) == (0xff >> 3)):
                     raise SwError(SW["ERR_INCORRECTPARAMETERS"])
                 else:
                     file = mf.select('shortfid', newvalue >> 3)
@@ -99,22 +101,23 @@ def getfile_byrefdataobj(mf, refdataobjs):
     return result
 
 
-def write(old, newlist, offsets, datacoding, maxsize=None): 
+def write(old, newlist, offsets, datacoding, maxsize=None):
     """Returns the status bytes and the result of a write operation according to
     the given data coding.
 
     :param old: string of old data
     :param newlist: a list of new data string
     :param offsets: a list of offsets, each for one new data strings
-    :param datacoding: DCB["ONETIMEWRITE"] (replace) or DCB["WRITEOR"] (logical or)
-        or DCB["WRITEAND"] (logical and) or DCB["PROPRIETARY"] (logical xor)
+    :param datacoding: DCB["ONETIMEWRITE"] (replace) or DCB["WRITEOR"]
+                       (logical or) or DCB["WRITEAND"] (logical and) or
+                       DCB["PROPRIETARY"] (logical xor)
     :param maxsize: the maximum number of bytes in the result
     """
-    result    = old
+    result = old
     listindex = 0
     while listindex < len(offsets) and listindex < len(newlist):
-        offset   = offsets[listindex]
-        new      = newlist[listindex]
+        offset = offsets[listindex]
+        new = newlist[listindex]
         writenow = len(new)
 
         if offset > len(result):
@@ -123,15 +126,15 @@ def write(old, newlist, offsets, datacoding, maxsize=None):
             raise SwError(SW["ERR_NOTENOUGHMEMORY"], old)
 
         if datacoding == DCB["ONETIMEWRITE"]:
-            result = (result[ 0 : offset ] +
-                    new[ 0 : writenow ] +
-                    result[ offset+writenow : len(result) ])
+            result = (result[0:offset] +
+                      new[0:writenow] +
+                      result[offset + writenow:len(result)])
 
         else:
             if offset + writenow > len(old):
                 raise SwError(SW["ERR_NOTENOUGHMEMORY"], old)
 
-            newindex    = 0
+            newindex = 0
             resultindex = offset + newindex
             while newindex < writenow:
                 if datacoding == DCB["WRITEOR"]:
@@ -145,8 +148,8 @@ def write(old, newlist, offsets, datacoding, maxsize=None):
                     newpiece = chr(
                             ord(result[resultindex]) ^ ord(new[newindex]))
                 result = (result[0:resultindex] + newpiece +
-                    result[resultindex+1:len(result)])
-                newindex    = newindex + 1
+                          result[resultindex+1:len(result)])
+                newindex = newindex + 1
                 resultindex = resultindex + 1
 
         listindex = listindex + 1
@@ -154,29 +157,28 @@ def write(old, newlist, offsets, datacoding, maxsize=None):
     return result
 
 
-def get_indexes(items, reference=REF["IDENTIFIER_FIRST"], index_current=0): 
+def get_indexes(items, reference=REF["IDENTIFIER_FIRST"], index_current=0):
     """
     Returns all indexes of the list, which are specified by 'reference' and by
     the current index 'index_current' (-1 for no current item) in the correct
     order. I. e.:
 
-    REF["IDENTIFIER_FIRST"]    : all indexes from first to the last item
-    REF["IDENTIFIER_LAST"]     : all indexes from the last to first item
-    REF["IDENTIFIER_NEXT"]     : all indexes from the next to the last item
-    REF["IDENTIFIER_PREVIOUS"] : all indexes from the previous to the first item
+    REF["IDENTIFIER_FIRST"]: all indexes from first to the last item
+    REF["IDENTIFIER_LAST"]: all indexes from the last to first item
+    REF["IDENTIFIER_NEXT"]: all indexes from the next to the last item
+    REF["IDENTIFIER_PREVIOUS"]: all indexes from the previous to the first item
     """
-    if (reference in [REF["IDENTIFIER_FIRST"],
-        REF["IDENTIFIER_LAST"]]
-        or index_current == -1):
+    if (reference in [REF["IDENTIFIER_FIRST"], REF["IDENTIFIER_LAST"]] or
+            index_current == -1):
         # Read first occurrence OR
         # Read last occurrence OR
         # No current record (and next/previous occurrence)
         indexes = range(0, len(items))
-        if (reference == REF["IDENTIFIER_LAST"]
-                or reference == REF["IDENTIFIER_PREVIOUS"]):
+        if (reference == REF["IDENTIFIER_LAST"] or
+                reference == REF["IDENTIFIER_PREVIOUS"]):
             # Read last occurrence OR
             # No current record and previous occurrence
-            indexes.reverse();
+            indexes.reverse()
     elif reference == REF["IDENTIFIER_PREVIOUS"]:
         # Read previous occurrence
         indexes = range(0, index_current)
@@ -187,7 +189,7 @@ def get_indexes(items, reference=REF["IDENTIFIER_FIRST"], index_current=0):
     return indexes
 
 
-def prettyprint_anything(indent, thing): 
+def prettyprint_anything(indent, thing):
     """
     Returns a recursively generated string representation of an object and its
     attributes.
@@ -196,18 +198,20 @@ def prettyprint_anything(indent, thing):
     indent = indent + "  "
     for (attribute, newvalue) in thing.__dict__.items():
         if isinstance(newvalue, int):
-            s = s + "\n" + indent + attribute + (16-len(attribute))*" " + "0x%x" % (newvalue)
+            s = s + "\n" + indent + attribute + (16-len(attribute)) * " " +\
+                "0x%x" % (newvalue)
         elif isinstance(newvalue, str):
-            s = s + "\n" + indent + attribute + (16-len(attribute))*" " + "length %d:" % len(newvalue)
+            s = s + "\n" + indent + attribute + (16-len(attribute)) * " " +\
+                "length %d:" % len(newvalue)
             s = s + "\n" + indent + hexdump(newvalue, len(indent))
         elif isinstance(newvalue, list):
-            s = s + "\n" + indent + attribute + (16-len(attribute))*" "
+            s = s + "\n" + indent + attribute + (16 - len(attribute)) * " "
             for item in newvalue:
                 s = s + "\n" + prettyprint_anything(indent + "  ", item)
     return s
 
 
-def make_property(prop, doc): 
+def make_property(prop, doc):
     """
     Assigns a property to the calling object. This is used to decorate instance
     variables with docstrings.
@@ -219,26 +223,33 @@ def make_property(prop, doc):
             doc)
 
 
-
 class File(object):
     """Template class for a smartcard file."""
-    bertlv_data    = make_property("bertlv_data", "list of (tag, length, value)-tuples of BER-TLV coded data objects (encrypted)")
-    lifecycle      = make_property("lifecycle", "life cycle byte")
-    parent         = make_property("parent ", "parent DF")
-    fid            = make_property("fid", "file identifier")
+    bertlv_data = make_property("bertlv_data", "list of (tag, length, "
+                                               "value)-tuples of BER-TLV "
+                                               "coded data objects "
+                                               "(encrypted)")
+    lifecycle = make_property("lifecycle", "life cycle byte")
+    parent = make_property("parent ", "parent DF")
+    fid = make_property("fid", "file identifier")
     filedescriptor = make_property("filedescriptor", "file descriptor byte")
-    simpletlv_data = make_property("simpletlv_data", "list of (tag, length, value)-tuples of SIMPLE-TLV coded data objects (encrypted)")
+    simpletlv_data = make_property("simpletlv_data", "list of (tag, length, "
+                                                     "value)-tuples of "
+                                                     "SIMPLE-TLV coded data "
+                                                     "objects (encrypted)")
+
     def __init__(self, parent, fid, filedescriptor,
-            lifecycle=LCB["ACTIVATED"], 
-            simpletlv_data=None,
-            bertlv_data=None,
-            SAM=None,
-            extra_fci_data=''):
+                 lifecycle=LCB["ACTIVATED"],
+                 simpletlv_data=None,
+                 bertlv_data=None,
+                 SAM=None,
+                 extra_fci_data=''):
         """
         The constructor is supposed to be involved by creation of a DF or EF.
         """
-        if (fid>0xFFFF or fid<0 or fid in [FID["PATHSELECTION"],
-            FID["RESERVED"]] or filedescriptor>0xFF or lifecycle>0xFF):
+        if (fid > 0xFFFF or fid < 0 or fid in
+                [FID["PATHSELECTION"], FID["RESERVED"]] or
+                filedescriptor > 0xFF or lifecycle > 0xFF):
             raise SwError(SW["ERR_INCORRECTPARAMETERS"])
         self.lifecycle = lifecycle
         self.parent = parent
@@ -251,21 +262,23 @@ class File(object):
         self.extra_fci_data = extra_fci_data
         if simpletlv_data:
             if not isinstance(simpletlv_data, list):
-                raise TypeError("must be a list of (tag, length, value)-tuples")
+                raise TypeError("must be a list of (tag, length, "
+                                "value)-tuples")
             self.simpletlv_data = simpletlv_data
         if bertlv_data:
             if not isinstance(bertlv_data, list):
-                raise TypeError("must be a list of (tag, length, value)-tuples")
+                raise TypeError("must be a list of (tag, length, "
+                                "value)-tuples")
             self.bertlv_data = bertlv_data
 
     def decrypt(self, path, data):
-        if self.SAM == None: #WARNING: Fails silent
+        if self.SAM is None:  # WARNING: Fails silent
             return data
         else:
             return self.SAM.FSencrypt(path, data)
-    
+
     def encrypt(self, path, data):
-        if self.SAM == None: #WARNING: Fails silent
+        if self.SAM is None:  # WARNING: Fails silent
             return data
         else:
             return self.SAM.FSdecrypt(path, data)
@@ -277,7 +290,7 @@ class File(object):
 
     def getpath(self):
         """Returns the path to this file beginning with the MF's fid."""
-        if self.parent == None:
+        if self.parent is None:
             return inttostring(self.fid, 2)
         else:
             return self.parent.getpath() + inttostring(self.fid, 2)
@@ -341,7 +354,7 @@ class File(object):
                 if t == tag:
                     # TODO: what if multiple tags can be found?
                     value = write(oldvalue, [newvalue], [0], newlength,
-                            self.datacoding)
+                                  self.datacoding)
                     tlv_data[i] = (tag, len(value), value)
                     tagfound = True
             if not tagfound:
@@ -385,22 +398,25 @@ class File(object):
         raise SwError(SW["ERR_INCOMPATIBLEWITHFILE"])
 
 
-
-class DF(File): 
+class DF(File):
     """Class for a dedicated file"""
-    data    = make_property("data", "unknown")
+    data = make_property("data", "unknown")
     content = make_property("content", "list of files of the DF")
-    dfname  = make_property("dfname", "string with up to 16 bytes. DF name, which can also be used as application identifier.")
-    def __init__(self, parent, fid, filedescriptor=FDB["NOTSHAREABLEFILE"]|FDB["DF"],
-            lifecycle=LCB["ACTIVATED"], 
-            simpletlv_data=None, bertlv_data=None, dfname=None, data=""):
+    dfname = make_property("dfname", "string with up to 16 bytes. DF name,"
+                                     "which can also be used as application"
+                                     "identifier.")
+
+    def __init__(self, parent, fid,
+                 filedescriptor=FDB["NOTSHAREABLEFILE"] | FDB["DF"],
+                 lifecycle=LCB["ACTIVATED"],
+                 simpletlv_data=None, bertlv_data=None, dfname=None, data=""):
         """
         See File for more.
         """
         File.__init__(self, parent, fid, filedescriptor, lifecycle,
-                simpletlv_data, bertlv_data)
+                      simpletlv_data, bertlv_data)
         if dfname:
-            if len(dfname)>16:
+            if len(dfname) > 16:
                 raise SwError(SW["ERR_INCORRECTPARAMETERS"])
             self.dfname = dfname
         self.content = []
@@ -450,15 +466,17 @@ class DF(File):
         for f in self.content:
             if f.fid == file.fid:
                 raise SwError(SW["ERR_FILEEXISTS"])
-            if hasattr(f, 'dfname') and hasattr(file, 'dfname') and f.dfname == file.dfname:
+            if (hasattr(f, 'dfname') and hasattr(file, 'dfname') and
+                    f.dfname == file.dfname):
                 raise SwError(SW["ERR_DFNAMEEXISTS"])
-            if hasattr(f, 'shortfid') and hasattr(file, 'shortfid') and f.shortfid == file.shortfid:
+            if (hasattr(f, 'shortfid') and hasattr(file, 'shortfid') and
+                    f.shortfid == file.shortfid):
                 raise SwError(SW["ERR_FILEEXISTS"])
 
         self.content.append(file)
 
     def select(self, attribute, value, reference=REF["IDENTIFIER_FIRST"],
-            index_current=0):
+               index_current=0):
         """
         Returns the first file of the DF, that has the 'attribute' with the
         specified 'value'. For partial DF name selection you must specify the
@@ -469,15 +487,18 @@ class DF(File):
 
         for i in indexes:
             file = self.content[i]
-            if (hasattr(file, attribute) and ((getattr(file, attribute)==value)
-                    or (attribute == 'dfname' and getattr(file,
-                        attribute).startswith(value)))):
+            if (hasattr(file, attribute) and
+                    ((getattr(file, attribute) == value) or
+                        (attribute == 'dfname' and
+                            getattr(file, attribute).startswith(value)))):
                 return file
         # not found
         if isinstance(value, int):
-            logging.debug("file (%s=%x) not found in:\n%s" % (attribute, value, self))
+            logging.debug("file (%s=%x) not found in:\n%s" %
+                          (attribute, value, self))
         elif isinstance(value, str):
-            logging.debug("file (%s=%r) not found in:\n%s" % (attribute, value, self))
+            logging.debug("file (%s=%r) not found in:\n%s" %
+                          (attribute, value, self))
         raise SwError(SW["ERR_FILENOTFOUND"])
 
     def remove(self, file):
@@ -485,25 +506,28 @@ class DF(File):
         self.content.remove(file)
 
 
-
-class MF(DF): 
+class MF(DF):
     """Class for a master file"""
-    current   = make_property("current", "the currently selected file")
-    firstSFT  = make_property("firstSFT", "string of length 1. The first software function table from the historical bytes.")
-    secondSFT = make_property("secondSFT", "string of length 1. The second software function table from the historical bytes.")
-    def __init__(self, filedescriptor=FDB["NOTSHAREABLEFILE"]|FDB["DF"],
-        lifecycle=LCB["ACTIVATED"], 
-        simpletlv_data=None, bertlv_data=None, dfname=None):
+    current = make_property("current", "the currently selected file")
+    firstSFT = make_property("firstSFT", "string of length 1. The first"
+                                         "software function table from the"
+                                         "historical bytes.")
+    secondSFT = make_property("secondSFT", "string of length 1. The second"
+                                           "software function table from the"
+                                           "historical bytes.")
+
+    def __init__(self, filedescriptor=FDB["NOTSHAREABLEFILE"] | FDB["DF"],
+                 lifecycle=LCB["ACTIVATED"],
+                 simpletlv_data=None, bertlv_data=None, dfname=None):
         """The file identifier FID["MF"] is automatically added.
 
         See DF for more.
         """
         DF.__init__(self, None, FID["MF"], filedescriptor, lifecycle,
-            simpletlv_data, bertlv_data, dfname)
-        self.current   = self
-        self.firstSFT  = inttostring(MF.makeFirstSoftwareFunctionTable(), 1)
+                    simpletlv_data, bertlv_data, dfname)
+        self.current = self
+        self.firstSFT = inttostring(MF.makeFirstSoftwareFunctionTable(), 1)
         self.secondSFT = inttostring(MF.makeSecondSoftwareFunctionTable(), 1)
-
 
     @staticmethod
     def makeFirstSoftwareFunctionTable(
@@ -533,24 +557,22 @@ class MF(DF):
         if RecordIdentifierSupported:
             fsft |= 1
         return fsft
-    
 
     @staticmethod
-    def makeSecondSoftwareFunctionTable(DCB=DCB["ONETIMEWRITE"]|1): 
+    def makeSecondSoftwareFunctionTable(DCB=DCB["ONETIMEWRITE"] | 1):
         """
         The second software function table from the historical bytes contains
         the data coding byte.
         """
         return DCB
-    
-        
+
     def currentDF(self):
         """Returns the current DF."""
         if isinstance(self.current, EF):
             return self.current.parent
         else:
             return self.current
-        
+
     def currentEF(self):
         """Returns the current EF or None if not available."""
         if isinstance(self.current, EF):
@@ -565,8 +587,8 @@ class MF(DF):
         The result is not prepended with tag and length for neither TCP, FMD
         nor FCI template.
         """
-        fdm = [ chr(TAG["FILEIDENTIFIER"])+"\x02"+inttostring(file.fid, 2),
-                chr(TAG["LIFECYCLESTATUS"])+"\x01"+chr(file.lifecycle) ]
+        fdm = [chr(TAG["FILEIDENTIFIER"]) + "\x02" + inttostring(file.fid, 2),
+               chr(TAG["LIFECYCLESTATUS"]) + "\x01" + chr(file.lifecycle)]
         fdm.append(file.extra_fci_data)
 
         # TODO filesize and data objects
@@ -579,11 +601,11 @@ class MF(DF):
             if isinstance(file, TransparentStructureEF):
                 l = inttostring(len(file.data))
                 fdm.append("%c%c%s" % (TAG["BYTES_EXCLUDINGSTRUCTURE"],
-                    chr(len(l)), l))
+                           chr(len(l)), l))
                 fdm.append("%c%c%s" % (TAG["BYTES_INCLUDINGSTRUCTURE"],
-                    chr(len(l)), l))
+                           chr(len(l)), l))
                 fdm.append("%c\x02%c%c" % (TAG["FILEDISCRIPTORBYTE"],
-                    file.filedescriptor, file.datacoding))
+                           file.filedescriptor, file.datacoding))
 
             elif isinstance(file, RecordStructureEF):
                 l = 0
@@ -594,21 +616,23 @@ class MF(DF):
                     else:
                         l += len(r.data)
                 fdm.append("%c\x02%s" % (TAG["BYTES_EXCLUDINGSTRUCTURE"],
-                    inttostring(l, 2)))
+                           inttostring(l, 2)))
                 fdm.append("%c\x02%s" % (TAG["BYTES_INCLUDINGSTRUCTURE"],
-                    inttostring(l, 2)))
+                           inttostring(l, 2)))
                 l = len(records)
                 fdm.append("%c\x06%c%c%c%c%s" % (TAG["FILEDISCRIPTORBYTE"],
-                    file.filedescriptor, file.datacoding, file.maxrecordsize >>
-                    8, file.maxrecordsize & 0x00ff, inttostring(l, 2)))
+                           file.filedescriptor, file.datacoding,
+                           file.maxrecordsize >> 8,
+                           file.maxrecordsize & 0x00ff,
+                           inttostring(l, 2)))
 
         elif isinstance(file, DF):
             # TODO number of files == number of data bytes?
             fdm.append("%c\x01%c" % (TAG["FILEDISCRIPTORBYTE"],
-                file.filedescriptor))
+                       file.filedescriptor))
             if hasattr(file, 'dfname'):
                 fdm.append("%c%c%s" % (TAG["DFNAME"], len(file.dfname),
-                    file.dfname))
+                           file.dfname))
 
         else:
             raise TypeError
@@ -620,15 +644,15 @@ class MF(DF):
         Returns the file specified by 'p1' and 'data' from the select
         file command APDU.
         """
-        P1_FILE                 = 0x00
-        P1_CHILD_DF             = 0x01
-        P1_CHILD_EF             = 0x02
-        P1_PARENT_DF            = 0x03
-        P1_DF_NAME              = 0x04
-        P1_PATH_FROM_MF         = 0x08
-        P1_PATH_FROM_CURRENTDF  = 0x09
+        P1_FILE = 0x00
+        P1_CHILD_DF = 0x01
+        P1_CHILD_EF = 0x02
+        P1_PARENT_DF = 0x03
+        P1_DF_NAME = 0x04
+        P1_PATH_FROM_MF = 0x08
+        P1_PATH_FROM_CURRENTDF = 0x09
 
-        if (p1>>4) != 0 or p1 == P1_FILE:
+        if (p1 >> 4) != 0 or p1 == P1_FILE:
             # RFU OR
             # When P1='00', the card knows either because of a specific coding
             # of the file identifier or because of the context of execution of
@@ -657,13 +681,14 @@ class MF(DF):
                 index_current = -1
             else:
                 index_current = self.content.index(df)
-            selected = self.select('dfname', data, p2 &
-                    REF["REFERENCE_CONTROL_SELECT"], index_current)
+            selected = self.select('dfname', data,
+                                   p2 & REF["REFERENCE_CONTROL_SELECT"],
+                                   index_current)
         else:
             logging.debug("unknown selection method: p1 =%s" % p1)
             selected = None
 
-        if selected == None:
+        if selected is None:
             raise SwError(SW["ERR_FILENOTFOUND"])
 
         return selected
@@ -671,14 +696,14 @@ class MF(DF):
     def selectFile(self, p1, p2, data):
         """
         Function for instruction 0xa4. Takes the parameter bytes 'p1', 'p2' as
-        integers and 'data' as binary string. 
-        
+        integers and 'data' as binary string.
+
         :returns: the status bytes as two byte long integer and the response
             data as binary string.
         """
-        P2_FCI  = 0
-        P2_FCP  = 1 << 2
-        P2_FMD  = 2 << 2
+        P2_FCI = 0
+        P2_FCP = 1 << 2
+        P2_FMD = 2 << 2
         P2_NONE = 3 << 2
         file = self._selectFile(p1, p2, data)
 
@@ -703,7 +728,7 @@ class MF(DF):
         """
         Decodes 'p1', 'p2' and 'data' from a data unit command (i. e.
         read/write/update/search/erase binary) with *even* instruction code.
-        
+
         :returns: the specified TransparentStructureEF, a list of offsets and a
             list of data strings.
         """
@@ -729,7 +754,7 @@ class MF(DF):
         """
         Decodes 'p1', 'p2' and 'data' from a data unit command (i. e.
         read/write/update/search/erase binary) with *odd* instruction code.
-        
+
         :returns the specified TransparentStructureEF, a list of offsets and a
             list of data strings.
         """
@@ -744,7 +769,7 @@ class MF(DF):
         # or response data field, data shall be encapsulated in a
         # discretionary data object with tag '53' or '73'.
         tlv_data = bertlv_unpack(data)
-        offsets  = decodeOffsetDataObjects(tlv_data)
+        offsets = decodeOffsetDataObjects(tlv_data)
         datalist = decodeDiscretionaryDataObjects(tlv_data)
 
         if p1 == 0 and p2 >> 5 == 0:
@@ -758,8 +783,8 @@ class MF(DF):
     def readBinaryPlain(self, p1, p2, data):
         """
         Function for instruction 0xb0. Takes the parameter bytes 'p1', 'p2' as
-        integers and 'data' as binary string. 
-        
+        integers and 'data' as binary string.
+
         :returns: the status bytes as two byte long integer and the response
             data as binary string.
         """
@@ -772,7 +797,7 @@ class MF(DF):
         """
         Function for instruction 0xb1. Takes the parameter bytes 'p1', 'p2' as
         integers and 'data' as binary string.
-        
+
         :returns: the status bytes as two byte long integer and the response
             data as binary string.
         """
@@ -787,7 +812,7 @@ class MF(DF):
         """
         Function for instruction 0xd0. Takes the parameter bytes 'p1', 'p2' as
         integers and 'data' as binary string.
-        
+
         :returns: the status bytes as two byte long integer and the response
             data as binary string.
         """
@@ -811,7 +836,7 @@ class MF(DF):
         """
         Function for instruction 0xd6. Takes the parameter bytes 'p1', 'p2' as
         integers and 'data' as binary string.
-        
+
         :returns: the status bytes as two byte long integer and the response
             data as binary string.
         """
@@ -824,7 +849,7 @@ class MF(DF):
         """
         Function for instruction 0xd7. Takes the parameter bytes 'p1', 'p2' as
         integers and 'data' as binary string.
-        
+
         :returns: the status bytes as two byte long integer and the response
             data as binary string.
         """
@@ -859,8 +884,9 @@ class MF(DF):
         """
         Function for instruction 0x0e. Takes the parameter bytes 'p1', 'p2' as
         integers and 'data' as binary string.
-        
-        :returns: the status bytes as two byte long integer and the response data as binary string.
+
+        :returns: the status bytes as two byte long integer and the response
+                  data as binary string.
         """
         ef, offsets, datalist = self.dataUnitsDecodePlain(p1, p2, data)
         # If INS = '0E', then, if present, the command data field encodes
@@ -882,7 +908,7 @@ class MF(DF):
         """
         Function for instruction 0x0f. Takes the parameter bytes 'p1', 'p2' as
         integers and 'data' as binary string.
-        
+
         :returns: the status bytes as two byte long integer and the response
             data as binary string.
         """
@@ -912,9 +938,9 @@ class MF(DF):
         """
         Decodes 'p1' and 'p2' from a record handling command (i. e.
         read/write/update/append/search/erase record).
-        
+
         :returns: the specified RecordStructureEF, the number or identifier of
-            the record and a reference, that specifies which record to select 
+            the record and a reference, that specifies which record to select
             (i. e. the last 3 bits of 'p1').
         """
         if p1 == 0xff:
@@ -926,7 +952,7 @@ class MF(DF):
         shortfid = p2 >> 3
         if shortfid == 0:
             ef = self.currentEF()
-            if ef == None:
+            if ef is None:
                 raise SwError(SW["ERR_NOCURRENTEF"])
         elif shortfid == 0x1f:
             # RFU
@@ -942,7 +968,7 @@ class MF(DF):
         """
         Function for instruction 0xb2. Takes the parameter bytes 'p1', 'p2' as
         integers and 'data' as binary string.
-        
+
         :returns: the status bytes as two byte long integer and the response
             data as binary string.
         """
@@ -959,7 +985,7 @@ class MF(DF):
         """
         Function for instruction 0xb3. Takes the parameter bytes 'p1', 'p2' as
         integers and 'data' as binary string.
-        
+
         :returns: the status bytes as two byte long integer and the response
             data as binary string.
         """
@@ -972,14 +998,16 @@ class MF(DF):
         """
         Function for instruction 0xd2. Takes the parameter bytes 'p1', 'p2' as
         integers and 'data' as binary string.
-        
+
         :returns: the status bytes as two byte long integer and the response
             data as binary string.
         """
         ef, num_id, reference = self.recordHandlingDecode(p1, p2)
-        if reference not in [ REF["IDENTIFIER_FIRST"], REF["IDENTIFIER_LAST"],
-                REF["IDENTIFIER_NEXT"], REF["IDENTIFIER_PREVIOUS"],
-                REF["NUMBER"]]:
+        if reference not in [REF["IDENTIFIER_FIRST"],
+                             REF["IDENTIFIER_LAST"],
+                             REF["IDENTIFIER_NEXT"],
+                             REF["IDENTIFIER_PREVIOUS"],
+                             REF["NUMBER"]]:
             # RFU
             raise SwError(SW["ERR_INCORRECTPARAMETERS"])
         ef.writerecord(num_id, reference, 1, data)
@@ -990,14 +1018,16 @@ class MF(DF):
         """
         Function for instruction 0xdc. Takes the parameter bytes 'p1', 'p2' as
         integers and 'data' as binary string.
-        
+
         :returns: the status bytes as two byte long integer and the response
             data as binary string.
         """
         ef, num_id, reference = self.recordHandlingDecode(p1, p2)
-        if reference not in [ REF["IDENTIFIER_FIRST"], REF["IDENTIFIER_LAST"],
-                REF["IDENTIFIER_NEXT"], REF["IDENTIFIER_PREVIOUS"],
-                REF["NUMBER"]]:
+        if reference not in [REF["IDENTIFIER_FIRST"],
+                             REF["IDENTIFIER_LAST"],
+                             REF["IDENTIFIER_NEXT"],
+                             REF["IDENTIFIER_PREVIOUS"],
+                             REF["NUMBER"]]:
             # RFU
             raise SwError(SW["ERR_INCORRECTPARAMETERS"])
         ef.updaterecord(num_id, reference, 0, data)
@@ -1008,46 +1038,52 @@ class MF(DF):
         """
         Function for instruction 0xdd. Takes the parameter bytes 'p1', 'p2' as
         integers and 'data' as binary string.
-        
+
         :returns: the status bytes as two byte long integer and the response
             data as binary string.
         """
         ef, num_id, reference = self.recordHandlingDecode(p1, p2)
 
         P2_REPLACE = 0x04
-        P2_AND     = 0x05
-        P2_OR      = 0x06
-        #P2_XOR     = 0x07
+        P2_AND = 0x05
+        P2_OR = 0x06
+        # P2_XOR     = 0x07
         tlv_data = bertlv_unpack(data)
-        if reference in [ REF["IDENTIFIER_FIRST"], REF["IDENTIFIER_LAST"],
-                REF["IDENTIFIER_NEXT"], REF["IDENTIFIER_PREVIOUS"]]:
+        if reference in [REF["IDENTIFIER_FIRST"],
+                         REF["IDENTIFIER_LAST"],
+                         REF["IDENTIFIER_NEXT"],
+                         REF["IDENTIFIER_PREVIOUS"]]:
             # RFU
             raise SwError(SW["ERR_INCORRECTPARAMETERS"])
         elif reference == P2_REPLACE:
-            ef.writerecord(num_id, reference, decodeOffsetDataObjects(tlv_data)[0],
-                    decodeDiscretionaryDataObjects(tlv_data)[0],
-                    DCB["ONETIMEWRITE"])
+            ef.writerecord(num_id, reference,
+                           decodeOffsetDataObjects(tlv_data)[0],
+                           decodeDiscretionaryDataObjects(tlv_data)[0],
+                           DCB["ONETIMEWRITE"])
         elif reference == P2_AND:
-            ef.writerecord(num_id, reference, decodeOffsetDataObjects(tlv_data)[0],
-                    decodeDiscretionaryDataObjects(tlv_data)[0],
-                    DCB["WRITEAND"])
+            ef.writerecord(num_id, reference,
+                           decodeOffsetDataObjects(tlv_data)[0],
+                           decodeDiscretionaryDataObjects(tlv_data)[0],
+                           DCB["WRITEAND"])
         elif reference == P2_OR:
-            ef.writerecord(num_id, reference, decodeOffsetDataObjects(tlv_data)[0],
-                    decodeDiscretionaryDataObjects(tlv_data)[0],
-                    DCB["WRITEOR"])
+            ef.writerecord(num_id, reference,
+                           decodeOffsetDataObjects(tlv_data)[0],
+                           decodeDiscretionaryDataObjects(tlv_data)[0],
+                           DCB["WRITEOR"])
         else:
             # reference == P2_XOR:
-            ef.writerecord(num_id, reference, decodeOffsetDataObjects(tlv_data)[0],
-                    decodeDiscretionaryDataObjects(tlv_data)[0],
-                    DCB["PROPRIETARY"])
+            ef.writerecord(num_id, reference,
+                           decodeOffsetDataObjects(tlv_data)[0],
+                           decodeDiscretionaryDataObjects(tlv_data)[0],
+                           DCB["PROPRIETARY"])
 
         return SW["NORMAL"], ""
 
     def appendRecord(self, p1, p2, data):
         """
         Function for instruction 0xe2. Takes the parameter bytes 'p1', 'p2' as
-        integers and 'data' as binary string. 
-        
+        integers and 'data' as binary string.
+
         :returns: the status bytes as two byte long integer and the response
             data as binary string.
         """
@@ -1062,7 +1098,7 @@ class MF(DF):
         """
         Function for instruction 0x0c. Takes the parameter bytes 'p1', 'p2' as
         integers and 'data' as binary string.
-        
+
         :returns: the status bytes as two byte long integer and the response
             data as binary string.
         """
@@ -1080,22 +1116,22 @@ class MF(DF):
         """
         Decodes 'p1', 'p2' and 'data' from a data object handling command (i.
         e. get/put data) with *even* instruction code.
-        
+
         :returns: the specified file, True if the following list regards
             SIMPLE-TLV data objects False otherwise and a list of
             (tag, length, value)-tuples.
         """
-        if self.current == None:
+        if self.current is None:
             raise SwError(SW["ERR_NOCURRENTEF"])
         file = self.current
 
-        if (p1 == 0 and 0x40 <= p2 and p2 <= 0xfe) or (0x40 <= p1 and p2 != 0
-                and p2 != 0xff):
+        if ((p1 == 0 and 0x40 <= p2 and p2 <= 0xfe) or
+                (0x40 <= p1 and p2 != 0 and p2 != 0xff)):
             # If bit 1 of INS is set to 0 and P1 to '00', then P2 from '40' to
             # 'FE' shall be a BER-TLV tag on a single byte. OR
             # If bit 1 of INS is set to 0 and if P1-P2 lies from '4000' to
             # 'FFFF', then they shall be a BER-TLV tag on two bytes.
-            tlv_data = [((p1<<8) + p2, len(data), data)]
+            tlv_data = [((p1 << 8) + p2, len(data), data)]
             isSimpleTlv = False
         elif p1 == 0x02 and 0x01 <= p2 and p2 <= 0xfe:
             # If bit 1 of INS is set to 0 and P1 to '02', then P2 from '01' to
@@ -1129,8 +1165,8 @@ class MF(DF):
         """
         Decodes 'p1', 'p2' and 'data' from a data object handling command (i.
         e. get/put data) with *odd* instruction code.
-        
-        :returns: the specified file, True if the following list regards 
+
+        :returns: the specified file, True if the following list regards
             SIMPLE-TLV data objects False otherwise and a list of
             (tag, length, value)-tuples.
         """
@@ -1141,10 +1177,11 @@ class MF(DF):
             # data field provides a file reference data object (tag '51', see
             # 5.3.1.2) for identifying a file.
             file = getfile_byrefdataobj(self,
-                    tlv_find_tag(tlv_data, TAG["FILE_REFERENCE"])[0])
-            if file == None:
+                                        tlv_find_tag(tlv_data,
+                                                     TAG["FILE_REFERENCE"])[0])
+            if file is None:
                 file = self.currentEF()
-            if file == None:
+            if file is None:
                 raise SwError(SW["ERR_NOCURRENTEF"])
         elif p1 == 0 and (p2 >> 5) == 0:
             # If the first eleven bits of P1-P2 are set to 0 and if bits 5 to 1
@@ -1157,9 +1194,9 @@ class MF(DF):
             file = self.currentDF()
         else:
             # Otherwise, P1-P2 is a file identifier.
-            file = self.currentDF().select('fid', p1<<8 + p2)
+            file = self.currentDF().select('fid', p1 << 8 + p2)
 
-        if file == None:
+        if file is None:
             raise SwError(SW["ERR_FILENOTFOUND"])
         self.current = file
 
@@ -1169,14 +1206,17 @@ class MF(DF):
         """
         Function for instruction 0xca. Takes the parameter bytes 'p1', 'p2' as
         integers and 'data' as binary string.
-        
+
         :returns: the status bytes as two byte long integer and the response
             data as binary string.
         """
-        file, isSimpleTlv, tlvlist = self.dataObjectHandlingDecodePlain(p1, p2, data)
+        file, isSimpleTlv, tlvlist = self.dataObjectHandlingDecodePlain(p1,
+                                                                        p2,
+                                                                        data)
         # TODO oversized answers
         if len(tlvlist) > 0:
-            return SW["NORMAL"], file.getdata(isSimpleTlv, [(tlvlist[0][0], 0)])
+            return SW["NORMAL"], file.getdata(isSimpleTlv,
+                                              [(tlvlist[0][0], 0)])
         else:
             return SW["NORMAL"], file.getdata(isSimpleTlv, [])
 
@@ -1184,11 +1224,13 @@ class MF(DF):
         """
         Function for instruction 0xcb. Takes the parameter bytes 'p1', 'p2' as
         integers and 'data' as binary string.
-        
+
         :returns: the status bytes as two byte long integer and the response
             data as binary string.
         """
-        file, tlv_data = self.dataObjectHandlingDecodeEncapsulated(p1, p2, data)
+        file, tlv_data = self.dataObjectHandlingDecodeEncapsulated(p1,
+                                                                   p2,
+                                                                   data)
         # TODO oversized answers
         requestedTL = decodeTagList(tlv_data)
         if requestedTL == []:
@@ -1202,11 +1244,13 @@ class MF(DF):
         """
         Function for instruction 0xda. Takes the parameter bytes 'p1', 'p2' as
         integers and 'data' as binary string.
-        
+
         :returns: the status bytes as two byte long integer and the response
             data as binary string.
         """
-        file, isSimpleTlv, tlvlist = self.dataObjectHandlingDecodePlain(p1, p2, data)
+        file, isSimpleTlv, tlvlist = self.dataObjectHandlingDecodePlain(p1,
+                                                                        p2,
+                                                                        data)
         file.putdata(isSimpleTlv, tlvlist)
 
         return SW["NORMAL"], ""
@@ -1215,7 +1259,7 @@ class MF(DF):
         """
         Function for instruction 0xdb. Takes the parameter bytes 'p1', 'p2' as
         integers and 'data' as binary string.
-        
+
         :returns: the status bytes as two byte long integer and the response
             data as binary string.
         """
@@ -1223,7 +1267,6 @@ class MF(DF):
         file.putdata(False, tlvlist)
 
         return SW["NORMAL"], ""
-
 
     @staticmethod
     def create(p1, p2, data):
@@ -1237,45 +1280,54 @@ class MF(DF):
                 # TODO number of records on one or two bytes
                 raise SwError(SW["ERR_NOTSUPPORTED"])
             if l >= 3:
-                args["maxrecordsize"]  = stringtoint(value[2:])
+                args["maxrecordsize"] = stringtoint(value[2:])
             if l >= 2:
-                args["datacoding"]     = ord(value[1])
+                args["datacoding"] = ord(value[1])
             if l >= 1:
                 args["filedescriptor"] = ord(value[0])
+
         def shortfid2args(value, args):
             s = stringtoint(value)
             if (s & 7) == 0:
                 shortfid = s >> 3
                 if shortfid != 0:
                     args["shortfid"] = shortfid
+
         def unknown(tag, value):
             logging.debug("unknown tag 0x%x with %r" % (tag, value))
+
         tag2cmd = {
                 # TODO support other tags
-                TAG["FILEDISCRIPTORBYTE"]       : 'fdb2args(value, args)',
-                TAG["FILEIDENTIFIER"]           : 'args["fid"] = stringtoint(value)',
-                TAG["DFNAME"]                   : 'args["dfname"] = value',
-                TAG["SHORTFID"]                 : 'shortfid2args(value, args)',
-                TAG["LIFECYCLESTATUS"]          : 'args["lifecycle"] = stringtoint(value)',
-                TAG["BYTES_EXCLUDINGSTRUCTURE"] : 'args["data"] = chr(0)*stringtoint(value)',
-                TAG["BYTES_INCLUDINGSTRUCTURE"] : 'args["data"] = chr(0)*stringtoint(value)',
+                TAG["FILEDISCRIPTORBYTE"]: 'fdb2args(value, args)',
+                TAG["FILEIDENTIFIER"]: 'args["fid"] = stringtoint(value)',
+                TAG["DFNAME"]: 'args["dfname"] = value',
+                TAG["SHORTFID"]: 'shortfid2args(value, args)',
+                TAG["LIFECYCLESTATUS"]: 'args["lifecycle"] = ' + \
+                                        'stringtoint(value)',
+                TAG["BYTES_EXCLUDINGSTRUCTURE"]: 'args["data"] = chr(0) ' + \
+                                                 '* stringtoint(value)',
+                TAG["BYTES_INCLUDINGSTRUCTURE"]: 'args["data"] = chr(0) ' + \
+                                                 '* stringtoint(value)',
                 }
-        fcp_list = tlv_find_tags( bertlv_unpack(data),
-                [TAG["FILECONTROLINFORMATION"], TAG["FILECONTROLPARAMETERS"]])
+        fcp_list = tlv_find_tags(bertlv_unpack(data),
+                                 [TAG["FILECONTROLINFORMATION"],
+                                  TAG["FILECONTROLPARAMETERS"]])
         if not fcp_list:
             raise SwError(SW["ERR_INCORRECTPARAMETERS"])
 
         files = []
-        args = { "parent": None }
+        args = {"parent": None}
         if p1 != 0:
             args["filedescriptor"] = p1
         if (p2 >> 3) != 0:
             args["shortfid"] = p2 >> 3
         for T, _, tlv_data in fcp_list:
-            if T != TAG["FILECONTROLPARAMETERS"] and T != TAG["FILECONTROLINFORMATION"]:
+            if (T != TAG["FILECONTROLPARAMETERS"] and
+                    T != TAG["FILECONTROLINFORMATION"]):
                 raise ValueError
             for tag, _, value in tlv_data:
-                exec tag2cmd.get(tag, 'unknown(tag, value)') in locals(), globals()
+                exec tag2cmd.get(tag, 'unknown(tag, value)') in locals(),\
+                    globals()
 
             if (args["filedescriptor"] & FDB["DF"]) == FDB["DF"]:
                 # FIXME: data for DF
@@ -1287,8 +1339,8 @@ class MF(DF):
                     [FDB["EFSTRUCTURE_NOINFORMATIONGIVEN"],
                         FDB["EFSTRUCTURE_TRANSPARENT"]]):
                 file = TransparentStructureEF(**args)
-                file.writebinary( decodeOffsetDataObjects(tlv_data),
-                    decodeDiscretionaryDataObjects(tlv_data) )
+                file.writebinary(decodeOffsetDataObjects(tlv_data),
+                                 decodeDiscretionaryDataObjects(tlv_data))
             else:
                 file = RecordStructureEF(**args)
 
@@ -1300,12 +1352,12 @@ class MF(DF):
         """
         Function for instruction 0xe0. Takes the parameter bytes 'p1', 'p2' as
         integers and 'data' as binary string.
-        
+
         :returns: the status bytes as two byte long integer and the response
             data as binary string.
         """
         df = self.currentDF()
-        if df == None:
+        if df is None:
             raise SwError(SW["ERR_NOCURRENTEF"])
 
         for file in self.create(p1, p2, data):
@@ -1319,26 +1371,28 @@ class MF(DF):
         """
         Function for instruction 0xe4. Takes the parameter bytes 'p1', 'p2' as
         integers and 'data' as binary string.
-        
+
         :returns: the status bytes as two byte long integer and the response
             data as binary string.
         """
         file = self._selectFile(p1, p2, data)
         file.parent.content.remove(file)
-        # FIXME: free memory of file and remove its content from the security device
+        # FIXME: free memory of file and remove its content from the security
+        #        device
 
         return SW["NORMAL"], ""
 
 
-
-class EF(File): 
+class EF(File):
     """Template class for an elementary file."""
-    shortfid   = make_property("shortfid", "integer with 1<=shortfid<=30. Short EF identifier.")
+    shortfid = make_property("shortfid", "integer with 1<=shortfid<=30."
+                                         "Short EF identifier.")
     datacoding = make_property("datacoding", "integer. Data coding byte.")
+
     def __init__(self, parent, fid, filedescriptor,
-            lifecycle=LCB["ACTIVATED"], 
-            simpletlv_data=None, bertlv_data=None,
-            datacoding=DCB["ONETIMEWRITE"], shortfid=0):
+                 lifecycle=LCB["ACTIVATED"],
+                 simpletlv_data=None, bertlv_data=None,
+                 datacoding=DCB["ONETIMEWRITE"], shortfid=0):
         """
         The constructor is supposed to be involved creation of a by creation of
         a TransparentStructureEF or RecordStructureEF.
@@ -1353,26 +1407,27 @@ class EF(File):
                 raise SwError(SW["ERR_INCORRECTPARAMETERS"])
             self.shortfid = shortfid
         File.__init__(self, parent, fid, filedescriptor, lifecycle,
-                simpletlv_data,
-                bertlv_data)
+                      simpletlv_data,
+                      bertlv_data)
         self.datacoding = datacoding
 
 
-
-class TransparentStructureEF(EF): 
+class TransparentStructureEF(EF):
     """Class for an elementary file with transparent structure."""
     data = make_property("data", "string (encrypted). The file's data.")
-    def __init__(self, parent, fid, filedescriptor=FDB["EFSTRUCTURE_TRANSPARENT"],
-            lifecycle=LCB["ACTIVATED"], 
-            simpletlv_data=None, bertlv_data=None,
-            datacoding=DCB["ONETIMEWRITE"], shortfid=0, data=""):
+
+    def __init__(self, parent, fid,
+                 filedescriptor=FDB["EFSTRUCTURE_TRANSPARENT"],
+                 lifecycle=LCB["ACTIVATED"],
+                 simpletlv_data=None, bertlv_data=None,
+                 datacoding=DCB["ONETIMEWRITE"], shortfid=0, data=""):
         """
         See EF for more.
         """
         EF.__init__(self, parent, fid,
-                filedescriptor, lifecycle,
-                simpletlv_data, bertlv_data,
-                datacoding, shortfid)
+                    filedescriptor, lifecycle,
+                    simpletlv_data, bertlv_data,
+                    datacoding, shortfid)
         self.data = data
 
     def readbinary(self, offset):
@@ -1405,7 +1460,8 @@ class TransparentStructureEF(EF):
 
     def updatebinary(self, offsets, datalist):
         """
-        x.updatebinary(offsets, datalist) <==> x.writebinary(offsets, datalist, DCB["ONETIMEWRITE"])
+        x.updatebinary(offsets, datalist) <==>
+        x.writebinary(offsets, datalist, DCB["ONETIMEWRITE"])
         """
         return self.writebinary(offsets, datalist, DCB["ONETIMEWRITE"])
 
@@ -1415,9 +1471,9 @@ class TransparentStructureEF(EF):
         sequentially starting from 'erasefrom' ending at 'eraseto'.
         """
         data = self.data
-        if erasefrom == None:
+        if erasefrom is None:
             erasefrom = 0
-        if eraseto == None:
+        if eraseto is None:
             eraseto = len(data)
 
         if erasefrom > len(data):
@@ -1429,10 +1485,10 @@ class TransparentStructureEF(EF):
         self.data = data
 
 
-
-class Record(object): 
-    data       = make_property("data", "string. The record's data.")
-    identifier = make_property("identifier", "integer with 1<= identifier< = 0xfe. The record's identifier.")
+class Record(object):
+    data = make_property("data", "string. The record's data.")
+    identifier = make_property("identifier", "integer with 1 <= identifier <="
+                                             " 0xfe. The record's identifier.")
     """Class for a Record of an elementary of record structure"""
     def __init__(self, identifier=None, data=""):
         """
@@ -1450,17 +1506,20 @@ class Record(object):
     __repr__ = __str__
 
 
-
-class RecordStructureEF(EF): 
+class RecordStructureEF(EF):
     """Class for an elementary file with record structure."""
-    records       = make_property("records", "list of records (encrypted)")
-    maxrecordsize = make_property("maxrecordsize", "integer. maximum length of a record's data.")
-    recordpointer = make_property("recordpointer", "integer. Points to the current record (i. e. index of records).")
+    records = make_property("records", "list of records (encrypted)")
+    maxrecordsize = make_property("maxrecordsize", "integer. maximum length of"
+                                                   " a record's data.")
+    recordpointer = make_property("recordpointer", "integer. Points to the "
+                                                   "current record (i. e. "
+                                                   "index of records).")
+
     def __init__(self, parent, fid, filedescriptor,
-            lifecycle=LCB["ACTIVATED"], 
-            simpletlv_data=None,
-            bertlv_data=None, datacoding=DCB["ONETIMEWRITE"], shortfid=0,
-            maxrecordsize=0xffff, records=[]):
+                 lifecycle=LCB["ACTIVATED"],
+                 simpletlv_data=None,
+                 bertlv_data=None, datacoding=DCB["ONETIMEWRITE"], shortfid=0,
+                 maxrecordsize=0xffff, records=[]):
         """
         You should specify the appropriate file descriptor byte to specify
         which kind of record structured file you want to create (i. e.
@@ -1474,11 +1533,11 @@ class RecordStructureEF(EF):
         if not isinstance(records, list):
             raise TypeError("must be a list of Records")
         EF.__init__(self, parent, fid, filedescriptor, lifecycle,
-                simpletlv_data, bertlv_data,
-                datacoding, shortfid)
+                    simpletlv_data, bertlv_data,
+                    datacoding, shortfid)
         for r in records:
-            if len(r.data) > maxrecordsize or (self.hasFixedRecordSize() and
-                    len(r.data) < maxrecordsize):
+            if (len(r.data) > maxrecordsize or (self.hasFixedRecordSize() and
+                                                len(r.data) < maxrecordsize)):
                 raise SwError(SW["ERR_INCOMPATIBLEWITHFILE"])
         self.records = records
         self.resetRecordPointer()
@@ -1491,8 +1550,8 @@ class RecordStructureEF(EF):
     def isCyclic(self):
         """Returns True if the EF is of cyclic structure, False otherwise."""
         attr = self.filedescriptor & 0x07
-        if (attr==FDB["EFSTRUCTURE_CYCLIC_NOFURTHERINFO"] or
-                attr==FDB["EFSTRUCTURE_CYCLIC_SIMPLETLV"]):
+        if (attr == FDB["EFSTRUCTURE_CYCLIC_NOFURTHERINFO"] or
+                attr == FDB["EFSTRUCTURE_CYCLIC_SIMPLETLV"]):
             return True
         else:
             return False
@@ -1500,11 +1559,12 @@ class RecordStructureEF(EF):
     def hasSimpleTlv(self):
         """Returns True if the EF is of TLV structure, False otherwise."""
         attr = self.filedescriptor & 0x03
-        if (attr==FDB["EFSTRUCTURE_LINEAR_FIXED_SIMPLETLV"] or
-                attr==FDB["EFSTRUCTURE_LINEAR_VARIABLESIMPLETLV"] or
-                attr==FDB["EFSTRUCTURE_LINEAR_VARIABLESIMPLETLV"]):
+        if (attr == FDB["EFSTRUCTURE_LINEAR_FIXED_SIMPLETLV"] or
+                attr == FDB["EFSTRUCTURE_LINEAR_VARIABLESIMPLETLV"] or
+                attr == FDB["EFSTRUCTURE_LINEAR_VARIABLESIMPLETLV"]):
             return True
-        else: return False
+        else:
+            return False
 
     def hasFixedRecordSize(self):
         """Returns True if the records are of fixed size, False otherwise."""
@@ -1520,7 +1580,8 @@ class RecordStructureEF(EF):
         Returns a list of records.
 
         :param num_id:    The requested record's number or identifier
-        :param reference: Specifies which record to select (usually the last 3 bits of 'p1' of a record handling command)
+        :param reference: Specifies which record to select (usually the last 3
+                          bits of 'p1' of a record handling command)
         """
         if (reference >> 2) == 1:
             return self.__getRecordsByNumber(num_id, reference)
@@ -1532,10 +1593,10 @@ class RecordStructureEF(EF):
         Returns a list of records. Is to be involved by __getRecords.
 
         :param number: The requested record's number
-        :param reference: Specifies which record to select (usually the last 3 
+        :param reference: Specifies which record to select (usually the last 3
             bits of 'p1' of a record handling command)
         """
-        result  = []
+        result = []
         records = self.records
 
         if number == 0:
@@ -1569,12 +1630,12 @@ class RecordStructureEF(EF):
         :param reference: Specifies which record to select (usually the last 3
             bits of 'p1' of a record handling command)
         """
-        result  = []
+        result = []
         records = self.records
 
         indexes = get_indexes(records, reference, self.recordpointer)
         for i in indexes:
-            if (not self.hasSimpleTlv()) or records[i].identifier==id:
+            if (not self.hasSimpleTlv()) or records[i].identifier == id:
                 if result == []:
                     self.recordpointer = i
                 result.append(records[i])
@@ -1590,8 +1651,8 @@ class RecordStructureEF(EF):
         Returns a data string from the given 'offset'. 'num_id' and 'reference'
         specify the record (see __getRecords).
         """
-        records  = self.__getRecords(num_id, reference)
-        result   = []
+        records = self.__getRecords(num_id, reference)
+        result = []
         for r in records:
             if offset == 0:
                 result.append(r.data)
@@ -1605,7 +1666,7 @@ class RecordStructureEF(EF):
         return result
 
     def writerecord(self, num_id, reference, offset, data,
-            datacoding=None):
+                    datacoding=None):
         """
         Writes a data string to the 'offset' of a record using the given data
         coding byte.  'num_id' and 'reference' specify the record (see
@@ -1618,10 +1679,10 @@ class RecordStructureEF(EF):
 
         if datacoding:
             records[0].data = write(records[0].data, [data], [0], datacoding,
-                    self.maxrecordsize)
+                                    self.maxrecordsize)
         else:
             records[0].data = write(records[0].data, [data], [0],
-                    self.datacoding, self.maxrecordsize)
+                                    self.datacoding, self.maxrecordsize)
 
         if self.hasSimpleTlv():
             # identifier/tag could have changed
@@ -1629,9 +1690,11 @@ class RecordStructureEF(EF):
 
     def updaterecord(self, num_id, reference, offset, data):
         """
-        x.updaterecord(num_id, reference, offset, data) <==> x.writerecord(num_id, reference, offset, data, DCB["ONETIMEWRITE"])
+        x.updaterecord(num_id, reference, offset, data) <==>
+        x.writerecord(num_id, reference, offset, data, DCB["ONETIMEWRITE"])
         """
-        return self.writerecord(num_id, reference, offset, data, DCB["ONETIMEWRITE"])
+        return self.writerecord(num_id, reference, offset, data,
+                                DCB["ONETIMEWRITE"])
 
     def appendrecord(self, data):
         """
@@ -1669,4 +1732,3 @@ class RecordStructureEF(EF):
             r.data = ""
             r.identifier = None
         return SW["NORMAL"]
-
