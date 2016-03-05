@@ -29,6 +29,7 @@ install:
       if [ -z "$HOST" ]; then
         sudo ln -s /lib/x86_64-linux-gnu/libgcc_s.so.1 /lib/x86_64-linux-gnu/libgcc_s.so;
         sudo apt-get -qq install libpcsclite-dev libusb-dev xutils-dev gengetopt help2man swig python-dev;
+        pip install --user pycrypto;
       else
         sudo apt-get -qq install libpcsclite-dev libusb-dev xutils-dev gengetopt help2man binutils-mingw-w64 gcc-mingw-w64;
       fi
