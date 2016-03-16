@@ -20,13 +20,13 @@
 import unittest
 from virtualsmartcard.SmartcardSAM import *
 
-#Unit Tests
+
 class TestSmartcardSAM(unittest.TestCase):
 
     def setUp(self):
         self.password = "DUMMYKEYDUMMYKEY"
         self.myCard = SAM("1234", "1234567890")
-        self.secEnv = Security_Environment(None, self.myCard) #TODO: Set CRTs
+        self.secEnv = Security_Environment(None, self.myCard)  # TODO: Set CRTs
         self.secEnv.ht.algorithm = "SHA"
         self.secEnv.ct.algorithm = "AES-CBC"
 
@@ -54,20 +54,24 @@ class TestSmartcardSAM(unittest.TestCase):
         blocklen = vsCrypto.get_cipher_blocklen("DES3-ECB")
         padded = vsCrypto.append_padding(blocklen, challenge)
         sw, result_data = self.myCard.internal_authenticate(0x00, 0x00, padded)
-        sw, result_data = self.myCard.external_authenticate(0x00, 0x00, result_data)
+        sw, result_data = self.myCard.external_authenticate(0x00, 0x00,
+                                                            result_data)
         self.assertEquals(sw, SW["NORMAL"])
 
     def test_security_environment(self):
         hash = self.secEnv.hash(0x90, 0x80, self.password)
-        #The API should be changed so that the hash function returns SW_NORMAL
+        # The API should be changed so that the hash function returns SW_NORMAL
         self.secEnv.ct.key = hash[:16]
-        crypted = self.secEnv.encipher(0x00, 0x00, self.password)
-        #The API should be changed so that the encipher function returns SW_NORMAL
+        crypted = self.secEnv.encipher(0x00, 0x00,
+                                       self.password)
+        # The API should be changed so that encipher() returns SW_NORMAL
         plain = self.secEnv.decipher(0x00, 0x00, crypted)
-        #The API should be changed so that the decipher function returns SW_NORMAL
-        #self.assertEqual(plain, self.password)
-        #secEnv.decipher doesn't strip padding. Should it?
-        self.secEnv.ct.algorithm = "RSA" #should this really be secEnv.ct? probably rather secEnv.dst
+        # The API should be changed so that decipher() returns SW_NORMAL
+        # self.assertEqual(plain, self.password)
+        # secEnv.decipher doesn't strip padding. Should it?
+
+        # should this really be secEnv.ct? probably rather secEnv.dst
+        self.secEnv.ct.algorithm = "RSA"
         self.secEnv.dst.keylength = 1024
         sw, pk = self.secEnv.generate_public_key_pair(0x00, 0x00, "")
         self.assertEquals(sw, SW["NORMAL"])
@@ -76,6 +80,6 @@ class TestSmartcardSAM(unittest.TestCase):
 if __name__ == "__main__":
     unittest.main()
 
-    #CF = CryptoflexSE(None)
-    #print CF.generate_public_key_pair(0x00, 0x80, "\x01\x00\x01\x00")
-    #print MyCard._get_referenced_key(0x01)
+    # CF = CryptoflexSE(None)
+    # print CF.generate_public_key_pair(0x00, 0x80, "\x01\x00\x01\x00")
+    # print MyCard._get_referenced_key(0x01)
