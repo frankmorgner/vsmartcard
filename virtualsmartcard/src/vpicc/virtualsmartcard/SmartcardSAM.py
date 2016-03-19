@@ -153,10 +153,10 @@ class SAM(object):
         :param cipher: Public/private key object from used for encryption
         :param keytype: Type of the public key (e.g. RSA, DSA)
         """
-        if keytype not in range(0x07, 0x08):
+        if keytype not in (0x07, 0x08):
             raise SwError(SW["ERR_INCORRECTP1P2"])
         else:
-            self.cipher = type
+            self.cipher = keytype
             self.asym_key = cipher
 
     def verify(self, p1, p2, PIN):
