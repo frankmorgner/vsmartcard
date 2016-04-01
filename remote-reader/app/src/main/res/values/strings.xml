@@ -1,34 +1,31 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">Smart Card Reader</string>
 
-    <string name="app_name">Remote Smart Card Reader</string>
+    <string name="scheme_vpcd">vpcd</string>
 
-    <string name="button_test_configuration">Connect</string>
-    <string name="button_stop_testing">Disconnect</string>
+    <string name="hint_vpcd_port">VPCD Port</string>
+    <string name="hint_vpcd_hostname">VPCD Hostname</string>
 
-    <string name="hint_vpcd_port">port</string>
-    <string name="hint_vpcd_hostname">VPCD hostname</string>
+    <string name="vpcd_config_info">This app connects to the virtual smart card reader driver (VPCD) via the network. You need to install VPCD on your computer and configure the connection parameters here accordingly.</string>
+    <string-array name="strDelays">
+        <item>125 milliseconds</item>
+        <item>250 milliseconds</item>
+        <item>500 milliseconds</item>
+        <item>1 second</item>
+        <item>2 seconds</item>
+    </string-array>
+    <string-array name="intDelays">
+        <item>125</item>
+        <item>250</item>
+        <item>500</item>
+        <item>1000</item>
+        <item>2000</item>
+    </string-array>
 
-    <string name="vpcd_config_info">Settings for <a href="http://frankmorgner.github.io/vsmartcard/virtualsmartcard/README.html">remote smart card reader driver (VPCD)</a> of the host computer. Tap a contact-less card when configured.</string>
-
-    <string name="status_error">Error</string>
-    <string name="status_disconnected">Disconnected from VPCD</string>
-    <string name="status_connected_to">Connected to</string>
-    <string name="status_atr">ATR</string>
-    <string name="status_capdu">C-APDU</string>
-    <string name="status_rapdu">R-APDU</string>
-    <string name="status_on">Powered up the card</string>
-    <string name="status_off">Powered down the card (cold reset)</string>
-    <string name="status_reset">Resetted the card (warm reset)</string>
-    <string name="status_unknown">Unable to perform unknown Event</string>
-    <string name="status_dummy_start">Using a dummy card to test the connection</string>
-    <string name="status_default_port">Using default port</string>
-
+    <string name="action_settings">Settings</string>
     <string name="action_copy">Copy Log</string>
     <string name="action_delete">Clear Log</string>
 
-    <string name="scheme_http">http</string>
-    <string name="scheme_https">https</string>
-    <string name="scheme_vpcd">vpcd</string>
+    <string name="title_activity_settings">Settings</string>
 
 </resources>

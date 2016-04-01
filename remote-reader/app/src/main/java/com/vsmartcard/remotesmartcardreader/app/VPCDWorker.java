@@ -19,39 +19,46 @@
 
 package com.vsmartcard.remotesmartcardreader.app;
 
-import android.os.Handler;
+import android.os.AsyncTask;
+import android.support.annotation.Nullable;
 
+import com.example.android.common.logger.Log;
 import com.vsmartcard.remotesmartcardreader.app.screaders.SCReader;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 
-class VPCDWorker implements Runnable, Closeable {
+class VPCDWorker extends AsyncTask<VPCDWorker.VPCDWorkerParams, Void, Void> {
+
+    public static class VPCDWorkerParams {
+        final String hostname;
+        final int port;
+        final SCReader reader;
+        VPCDWorkerParams(String hostname, int port, SCReader reader) {
+            this.hostname = hostname;
+            this.port = port;
+            this.reader = reader;
+        }
+    }
+
     public static final int DEFAULT_PORT = 35963;
-    private final int port;
-    private final String hostname;
-    private final SCReader reader;
+    // default URI when used in emulator
+    public static final String DEFAULT_HOSTNAME = "10.0.2.2";
+
+    private SCReader reader;
     private Socket socket;
     private InputStream inputStream;
     private OutputStream outputStream;
-    private boolean doRun;
-    private final MessageSender messageSender;
 
-    public VPCDWorker(String hostname, int port, SCReader reader, Handler handler) {
-        this.hostname = hostname;
-        this.port = port;
-        this.reader = reader;
-        this.messageSender = new MessageSender(handler);
-    }
-
-    public void close() {
-        doRun = false;
+    @Override
+    protected void onCancelled () {
         try {
-            vpcdDisconnect();
+            if (socket != null)
+                // interrupt all blocking socket communication
+                socket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -64,36 +71,32 @@ class VPCDWorker implements Runnable, Closeable {
     private static final byte VPCD_CTRL_ATR = 4;
 
     @Override
-    public void run() {
-        android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
-        doRun = true;
-
+    public Void doInBackground(VPCDWorkerParams... params) {
         try {
-            vpcdConnect();
-            messageSender.sendConnected(hostname+":"+Integer.toString(port));
+            reader = params[0].reader;
+            Log.i(this.getClass().getName(), "Connecting to " + params[0].hostname + ":" + Integer.toString(params[0].port) + "...");
+            vpcdConnect(params[0].hostname, params[0].port);
+            Log.i(this.getClass().getName(), "Connected to VPCD");
 
-            while (doRun) {
-                byte[] in = receiveFromVPCD();
-                if (in == null) {
-                    doRun = false;
-                    break;
-                }
+            while (!isCancelled()) {
                 byte[] out = null;
+                byte[] in = receiveFromVPCD();
+                if (in == null)
+                    break;
 
                 if (in.length == VPCD_CTRL_LEN) {
                     switch (in[0]) {
                         case VPCD_CTRL_OFF:
                             reader.powerOff();
-                            messageSender.sendOff();
+                            Log.i(this.getClass().getName(), "Powered down the card (cold reset)");
                             break;
                         case VPCD_CTRL_ON:
                             reader.powerOn();
-                            messageSender.sendOn();
-                            messageSender.sendATR(Hex.getHexString(reader.getATR()));
+                            Log.i(this.getClass().getName(), "Powered up the card with ATR " + Hex.getHexString(reader.getATR()));
                             break;
                         case VPCD_CTRL_RESET:
                             reader.reset();
-                            messageSender.sendReset();
+                            Log.i(this.getClass().getName(), "Resetted the card (warm reset)");
                             break;
                         case VPCD_CTRL_ATR:
                             out = reader.getATR();
@@ -102,22 +105,29 @@ class VPCDWorker implements Runnable, Closeable {
                             throw new IOException("Unhandled command from VPCD.");
                     }
                 } else {
-                    messageSender.sendCAPDU(Hex.getHexString(in));
+                    Log.i(this.getClass().getName(), "C-APDU: " + Hex.getHexString(in));
                     out = reader.transmit(in);
-                    messageSender.sendRAPDU(Hex.getHexString(out));
+                    Log.i(this.getClass().getName(), "R-APDU: " + Hex.getHexString(out));
                 }
                 if (out != null) {
                     sendToVPCD(out);
                 }
             }
         } catch (Exception e) {
-            if (doRun) {
+            if (!isCancelled()) {
                 e.printStackTrace();
-                messageSender.sendError(e.getMessage());
+                Log.i(this.getClass().getName(), "ERROR: " + e.getMessage());
             }
         }
+        try {
+            vpcdDisconnect();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
+    @Nullable
     private byte[] receiveFromVPCD() throws IOException {
         /* convert length from network byte order.
         Note that Java always uses network byte order internally. */
@@ -158,7 +168,7 @@ class VPCDWorker implements Runnable, Closeable {
         outputStream.flush();
     }
 
-    private void vpcdConnect() throws IOException {
+    private void vpcdConnect(String hostname, int port) throws IOException {
         socket = new Socket(InetAddress.getByName(hostname), port);
         outputStream = socket.getOutputStream();
         inputStream = socket.getInputStream();
@@ -170,7 +180,7 @@ class VPCDWorker implements Runnable, Closeable {
         }
         if  (socket != null) {
             socket.close();
-            messageSender.sendDisconnected("");
+            Log.i(this.getClass().getName(), "Disconnected from VPCD");
         }
     }
 }

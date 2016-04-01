@@ -5,22 +5,23 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.NFC" />
 
-    <uses-feature android:name="android.hardware.nfc" android:required="true" />
+    <uses-feature
+        android:name="android.hardware.nfc"
+        android:required="true" />
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:supportsRtl="true"
         android:theme="@style/AppTheme" >
         <activity
             android:name="com.vsmartcard.remotesmartcardreader.app.MainActivity"
+            android:launchMode="singleTask"
             android:label="@string/app_name"
-            android:exported="true"
-            android:launchMode="singleTask" >
-
+            android:theme="@style/AppTheme.NoActionBar" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
@@ -30,30 +31,18 @@
             <meta-data
                 android:name="android.nfc.action.TECH_DISCOVERED"
                 android:resource="@xml/nfc_tech_filter" />
+        </activity>
+        <activity
+            android:name="com.vsmartcard.remotesmartcardreader.app.SettingsActivity"
+            android:label="@string/title_activity_settings" >
 
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <data android:scheme="@string/scheme_vpcd" />
+                <data
+                    android:scheme="@string/scheme_vpcd" />
             </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="@string/scheme_http"
-                    android:host="frankmorgner.github.io"
-                    android:pathPattern="/vsmartcard/remote-reader/README.html" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="@string/scheme_https"
-                    android:host="frankmorgner.github.io"
-                    android:pathPattern="/vsmartcard/remote-reader/README.html" />
-            </intent-filter>
-
         </activity>
     </application>
 

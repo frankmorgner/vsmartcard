@@ -52,9 +52,10 @@ application, for example OpenSC_.
 The Remote Smart Card Reader has the following dependencies:
 
 - NFC hardware built into the smartphone
-- Android 3.0 "Honeycomb" (or newer) or CyanogenMod 8 (or newer)
+- Android 4.4 "KitKat" (or newer) or CyanogenMod 11 (or newer)
 - permissions for a data connection (communication with |vpcd|) and for using
-  NFC (communication to the card)
+  NFC (communication to the card); scanning the configuration via QR code
+  requires permission to access the camera
 - |vpcd| :ref:`installed on the host computer<vicc_install>`
 
 For remotely accessing a traditional smart card reader on one computer from an

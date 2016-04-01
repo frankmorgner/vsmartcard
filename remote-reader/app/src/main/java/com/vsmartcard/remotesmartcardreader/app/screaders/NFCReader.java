@@ -19,12 +19,16 @@
 
 package com.vsmartcard.remotesmartcardreader.app.screaders;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.IsoDep;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
+import android.view.WindowManager;
 
 import com.vsmartcard.remotesmartcardreader.app.Hex;
 
@@ -33,19 +37,51 @@ import java.io.IOException;
 public class NFCReader implements SCReader {
 
     private final IsoDep card;
+    private Activity activity;
 
-    private NFCReader(IsoDep sc) throws IOException {
+    private NFCReader(IsoDep sc, Activity activity) throws IOException {
         this.card = sc;
         sc.connect();
         card.setTimeout(TIMEOUT);
+        this.activity = activity;
+        avoidScreenTimeout();
+    }
+
+    private void avoidScreenTimeout() {
+        if (activity != null) {
+            final Runnable run = new Runnable() {
+                public void run() {
+                    // avoid tag loss due to screen timeout
+                    activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                    Log.i(this.getClass().getName(), "Disabled screen timeout");
+                }
+            };
+            final Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(run);
+        }
+    }
+
+    private void resetScreenTimeout() {
+        if (activity != null) {
+            final Runnable run = new Runnable() {
+                public void run() {
+                    // reset screen properties
+                    activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                    Log.i(this.getClass().getName(), "Activated screen timeout");
+                }
+            };
+            final Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(run);
+        }
     }
 
     @Override
     public void eject() throws IOException {
         card.close();
+        resetScreenTimeout();
     }
 
-    public static final int TIMEOUT = 2500;
+    public static final int TIMEOUT = 500;
     @Override
     public void powerOn() {
         /* should already be connected... */
@@ -72,7 +108,12 @@ public class NFCReader implements SCReader {
     /* calculation based on https://code.google.com/p/ifdnfc/source/browse/src/atr.c */
     @Override
     public byte[] getATR() {
+        // get historical bytes for 14443-A
         byte[] historicalBytes = card.getHistoricalBytes();
+        if (historicalBytes == null) {
+            // get historical bytes for 14443-B
+            historicalBytes = card.getHiLayerResponse();
+        }
         if (historicalBytes == null) {
             historicalBytes = new byte[0];
         }
@@ -100,7 +141,7 @@ public class NFCReader implements SCReader {
         return card.transceive(apdu);
     }
 
-    public static NFCReader get(Intent intent) {
+    public static NFCReader get(Intent intent, Activity activity) {
         NFCReader nfcReader = null;
 
         if (intent.getExtras() != null) {
@@ -114,7 +155,7 @@ public class NFCReader implements SCReader {
                         e.printStackTrace();
                     }
                 } else {
-                    nfcReader = NFCReader.get(tag);
+                    nfcReader = NFCReader.get(tag, activity);
                 }
                 intent.removeExtra(NfcAdapter.EXTRA_TAG);
             }
@@ -123,10 +164,10 @@ public class NFCReader implements SCReader {
         return nfcReader;
     }
 
-    public static NFCReader get(Tag tag) {
+    public static NFCReader get(Tag tag, Activity activity) {
         NFCReader nfcReader = null;
         try {
-            nfcReader = new NFCReader(IsoDep.get(tag));
+            nfcReader = new NFCReader(IsoDep.get(tag), activity);
         } catch (IOException e) {
             e.printStackTrace();
         }

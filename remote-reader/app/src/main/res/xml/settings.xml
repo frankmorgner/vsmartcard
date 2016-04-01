@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="Virtual Smart Card Reader Driver">
+
+        <Preference
+            android:title="Reader Driver Available on Github"
+            android:summary="@string/vpcd_config_info">
+
+            <intent android:action="android.intent.action.VIEW"
+                android:data="https://frankmorgner.github.io/vsmartcard/virtualsmartcard/README.html" />
+        </Preference>
+
+        <Preference
+            android:title="Scan Configuration"
+            android:summary="Scan QR code from vpcd-config to import VPCD's hostname and port."
+            android:key="scan">
+        </Preference>
+
+        <EditTextPreference
+            android:key="hostname"
+            android:defaultValue="10.0.2.2"
+            android:title="@string/hint_vpcd_hostname"
+            android:hint="URL or IP address"
+            android:inputType="textUri" />
+
+        <EditTextPreference
+            android:key="port"
+            android:defaultValue="35963"
+            android:title="@string/hint_vpcd_port"
+            android:inputType="number"
+            android:hint="Default: 35963" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="Contactless Smart Card Communication">
+
+        <Preference
+            android:title="NFC System Settings"
+            android:summary="NFC needs to be enabled for contactless communication with the smart card"
+            android:key="nfcSettings">
+        </Preference>
+
+        <ListPreference
+            android:key="delay"
+            android:defaultValue="250"
+            android:title="Delay for Card Presence Check"
+            android:entries="@array/strDelays"
+            android:entryValues="@array/intDelays" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
