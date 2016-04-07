@@ -1,24 +1,27 @@
 #
 # Copyright (C) 2015 Frank Morgner
-# 
+#
 # This file is part of virtualsmartcard.
-# 
+#
 # virtualsmartcard is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
 # Software Foundation, either version 3 of the License, or (at your option) any
 # later version.
-# 
+#
 # virtualsmartcard is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 # FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 # more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along with
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import atexit
+import logging
+import smartcard
+import sys
 from virtualsmartcard.VirtualSmartcard import SmartcardOS
-import smartcard, logging, sys, atexit
 
 
 class RelayOS(SmartcardOS):
@@ -30,7 +33,8 @@ class RelayOS(SmartcardOS):
     """
     def __init__(self, readernum):
         """
-        Initialize the connection to the (physical) smart card via a given reader
+        Initialize the connection to the (physical) smart card via a given
+        reader
         """
 
         # See which readers are available
@@ -80,7 +84,7 @@ class RelayOS(SmartcardOS):
                 sys.exit()
 
         return "".join([chr(b) for b in atr])
-        
+
     def powerUp(self):
         # When powerUp is called multiple times the session is valid (and the
         # card is implicitly powered) we can check for an ATR. But when
