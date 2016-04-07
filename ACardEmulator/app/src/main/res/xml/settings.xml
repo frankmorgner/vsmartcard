@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="Java Card Emulator">
+
+        <Preference
+            android:title="NFC System Settings"
+            android:summary="NFC needs to be enabled for emulating a contactless smart card"
+            android:key="nfcSettings">
+        </Preference>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

@@ -37,5 +37,6 @@
         <b>GIDS Applet</b> <small>(AID A000000397425446590201)</small>\n
         \n
         Place your device on a contact-less reader. When the reader issues a SELECT command for one of the application identifiers above, the emulator creates the appropriate applet. The emulated applet will then handle all subsequent APDUs.</string>
+    <string name="action_settings">Settings</string>
 
 </resources>
