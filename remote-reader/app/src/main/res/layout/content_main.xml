@@ -10,7 +10,7 @@
 
     <fragment
     xmlns:android="http://schemas.android.com/apk/res/android"
-        android:name="com.vsmartcard.remotesmartcardreader.app.remotesmartcardreader.MyLogFragment"
+        android:name="com.vsmartcard.remotesmartcardreader.app.MyLogFragment"
         android:id="@+id/log_fragment"
         android:layout_margin="@dimen/text_margin"
         android:layout_width="match_parent"
