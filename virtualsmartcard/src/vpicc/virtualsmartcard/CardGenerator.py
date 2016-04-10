@@ -17,7 +17,6 @@
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import anydbm
 import binascii
 import getpass
 import logging
@@ -32,7 +31,6 @@ from virtualsmartcard.TLVutils import pack
 from virtualsmartcard.utils import inttostring
 from virtualsmartcard.SmartcardFilesystem import MF, DF, TransparentStructureEF
 from virtualsmartcard.ConstantDefinitions import FDB, ALGO_MAPPING
-from virtualsmartcard.CryptoUtils import protect_string, read_protected_string
 from virtualsmartcard.SmartcardSAM import SAM
 
 # pgp directory
@@ -693,50 +691,6 @@ class CardGenerator(object):
         if sam is not None:
             self.sam = sam
 
-    def loadCard(self, filename):
-        """Load a card from disk"""
-        if self.password is None:
-            self.password = getpass.getpass("Please enter your password:")
-
-        db = anydbm.open(filename, 'r')
-        try:
-            serializedMF = read_protected_string(db["mf"], self.password)
-            serializedSAM = read_protected_string(db["sam"], self.password)
-            self.type = db["type"]
-        finally:
-            db.close()
-
-        self.sam = loads(serializedSAM)
-        self.mf = loads(serializedMF)
-
-    def saveCard(self, filename):
-        """Save the currently running card to disk"""
-        if self.password is None:
-            passwd1 = getpass.getpass("Please enter your password:")
-            passwd2 = getpass.getpass("Please retype your password:")
-            if (passwd1 != passwd2):
-                raise ValueError("Passwords did not match. Will now exit")
-            else:
-                self.password = passwd1
-
-        if self.mf is None or self.sam is None:
-            raise ValueError("Card Generator wasn't set up properly" +
-                             "(missing MF or SAM).")
-
-        mf_string = dumps(self.mf)
-        sam_string = dumps(self.sam)
-        protectedMF = protect_string(mf_string, self.password)
-        protectedSAM = protect_string(sam_string, self.password)
-
-        db = anydbm.open(filename, 'c')
-        try:
-            db["mf"] = protectedMF
-            db["sam"] = protectedSAM
-            db["type"] = self.type
-            db["version"] = "0.1"
-        finally:
-            db.close()
-
     def readDatagroups(self, datasetfile):
         """Read Datagroups from file"""
         with open(datasetfile, 'r') as f:
@@ -759,15 +713,7 @@ if __name__ == "__main__":
                       default='iso7816',
                       choices=['iso7816', 'cryptoflex', 'ePass', 'nPA'],
                       help="Type of Smartcard [default: %default]")
-    parser.add_option("-f", "--file", action="store", type="string",
-                      dest="filename", default=None,
-                      help="Where to save the generated card")
     (options, args) = parser.parse_args()
-
-    if options.filename is None:
-        logging.error("You have to provide a filename using the -f option")
-        sys.exit()
 
     generator = CardGenerator(options.type)
     generator.generateCard()
-    generator.saveCard(options.filename)
