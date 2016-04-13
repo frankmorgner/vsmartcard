@@ -19,6 +19,7 @@
 
 package com.vsmartcard.acardemulator;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.nfc.cardemulation.HostApduService;
@@ -63,6 +64,7 @@ public class SimulatorService extends HostApduService {
     public static final String EXTRA_INSTALL = "MSG_INSTALL";
 
     private static Simulator simulator = null;
+    private static boolean do_destroy = false;
 
     private void createSimulator() {
         String aid, name, extra_install = "", extra_error = "";
@@ -148,6 +150,8 @@ public class SimulatorService extends HostApduService {
     @Override
     public void onCreate () {
         super.onCreate();
+        // force reloading applets if requested
+        do_destroy();
 
         Log.d("", "Begin transaction");
         if (useVPCD) {
@@ -168,6 +172,26 @@ public class SimulatorService extends HostApduService {
             if (simulator == null)
                 createSimulator();
         }
+    }
+
+    public static void destroySimulator(Context context) {
+        do_destroy = true;
+    }
+
+    private void do_destroy() {
+        if (do_destroy) {
+            simulator = null;
+            do_destroy = false;
+            Intent i = new Intent(TAG);
+            i.putExtra(EXTRA_DESELECT, "Uninstalled all applets.");
+            LocalBroadcastManager.getInstance(this).sendBroadcast(i);
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        do_destroy();
+        super.onDestroy();
     }
 
     @Override

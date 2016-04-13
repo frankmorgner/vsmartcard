@@ -29,20 +29,21 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends AppCompatActivity {
 
     private TextView textViewVPCDStatus;
-    private ScrollView scrollView;
     private BroadcastReceiver bReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -60,7 +61,6 @@ public class MainActivity extends ActionBarActivity {
                     textViewVPCDStatus.append(getResources().getString(R.string.status_error) + ": " + error + "\n");
                 if (rapdu != null) {
                     textViewVPCDStatus.append(getResources().getString(R.string.status_rapdu) + ": " + rapdu + "\n");
-                    scrollView.fullScroll(View.FOCUS_DOWN);
                 }
                 if (deselect != null)
                     textViewVPCDStatus.append(getResources().getString(R.string.status_disconnected) + ": " + deselect + "\n");
@@ -88,9 +88,21 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        assert fab != null;
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Scheduled re-installation of all applets...", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+                SimulatorService.destroySimulator(getApplicationContext());
+            }
+        });
 
         textViewVPCDStatus = (TextView) findViewById(R.id.textViewLog);
-        scrollView = (ScrollView) findViewById(R.id.scrollView);
         SharedPreferences settings = getSharedPreferences(PREFS, 0);
         if (settings.getInt(PREF_LASTVERSION, 0) != BuildConfig.VERSION_CODE) {
             showStartupMessage();

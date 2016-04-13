@@ -120,7 +120,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                     CharSequence aid = switchPreference.getSwitchTextOn();
                     preference.setSummary("Selectable with AID " + aid);
                 } else {
-                    preference.setSummary("Deactivated");
+                    preference.setSummary("Will not be installed");
                 }
             } else {
                 // For all other preferences, set the summary to the value's
