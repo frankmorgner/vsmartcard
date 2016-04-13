@@ -1,4 +1,4 @@
-package com.vsmartcard.remotesmartcardreader.app;
+package com.vsmartcard.acardemulator;
 
 import android.content.res.Configuration;
 import android.os.Bundle;

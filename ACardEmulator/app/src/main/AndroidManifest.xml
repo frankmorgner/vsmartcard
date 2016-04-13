@@ -22,6 +22,12 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name="com.vsmartcard.acardemulator.SettingsActivity"
+            android:label="@string/action_settings" >
+        >
+        </activity>
+
         <service android:name=".SimulatorService"
             android:exported="true"
             android:permission="android.permission.BIND_NFC_SERVICE">

@@ -17,28 +17,23 @@
  * RemoteSmartCardReader.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.vsmartcard.remotesmartcardreader.app;
+package com.vsmartcard.acardemulator;
 
 
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
-import android.provider.Settings;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.ActionBar;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.preference.SwitchPreference;
+import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
-import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -59,7 +54,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
         // Display the fragment as the main content.
         getFragmentManager().beginTransaction().replace(android.R.id.content,
-                new VPCDPreferenceFragment()).commit();
+                new VICCPreferenceFragment()).commit();
     }
 
     /**
@@ -119,6 +114,14 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                         index >= 0
                                 ? listPreference.getEntries()[index]
                                 : null);
+            } else if (preference instanceof SwitchPreference) {
+                SwitchPreference switchPreference = (SwitchPreference) preference;
+                if (stringValue == "true") {
+                    CharSequence aid = switchPreference.getSwitchTextOn();
+                    preference.setSummary("Selectable with AID " + aid);
+                } else {
+                    preference.setSummary("Deactivated");
+                }
             } else {
                 // For all other preferences, set the summary to the value's
                 // simple string representation.
@@ -143,10 +146,17 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
         // Trigger the listener immediately with the settings's
         // current value.
-        sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
-                PreferenceManager
-                        .getDefaultSharedPreferences(preference.getContext())
-                        .getString(preference.getKey(), ""));
+        if (preference instanceof SwitchPreference) {
+            sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
+                    PreferenceManager
+                            .getDefaultSharedPreferences(preference.getContext())
+                            .getBoolean(preference.getKey(), false));
+        } else {
+            sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
+                    PreferenceManager
+                            .getDefaultSharedPreferences(preference.getContext())
+                            .getString(preference.getKey(), ""));
+        }
     }
 
     /**
@@ -154,7 +164,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
      * activity is showing a two-pane settings UI.
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static class VPCDPreferenceFragment extends PreferenceFragment {
+    public static class VICCPreferenceFragment extends PreferenceFragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -165,26 +175,11 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             // to their values. When their values change, their summaries are
             // updated to reflect the new value, per the Android Design
             // guidelines.
-            bindPreferenceSummaryToValue(findPreference("hostname"));
-            bindPreferenceSummaryToValue(findPreference("port"));
-            bindPreferenceSummaryToValue(findPreference("delay"));
-
-            Preference nfcSettings = findPreference("nfcSettings");
-            nfcSettings.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                public boolean onPreferenceClick(Preference preference) {
-                    Intent viewIntent = new Intent(Settings.ACTION_NFC_SETTINGS);
-                    startActivity(viewIntent);
-                    return true;
-                }
-            });
-
-            Preference scan = findPreference("scan");
-            scan.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                public boolean onPreferenceClick(Preference preference) {
-                    new IntentIntegrator(getActivity()).initiateScan();
-                    return true;
-                }
-            });
+            bindPreferenceSummaryToValue(findPreference("activate_helloworld"));
+            bindPreferenceSummaryToValue(findPreference("activate_openpgp"));
+            bindPreferenceSummaryToValue(findPreference("activate_oath"));
+            bindPreferenceSummaryToValue(findPreference("activate_isoapplet"));
+            bindPreferenceSummaryToValue(findPreference("activate_gidsapplet"));
         }
         @Override
         public boolean onOptionsItemSelected(MenuItem item) {
@@ -196,52 +191,5 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             return super.onOptionsItemSelected(item);
         }
 
-    }
-
-    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
-        switch(requestCode) {
-            case IntentIntegrator.REQUEST_CODE:
-                if (resultCode != RESULT_CANCELED) {
-                    handleScannedURI(Uri.parse(scanResult.getContents()));
-                }
-                break;
-        }
-    }
-
-    private void handleScannedURI(Uri uri) {
-        try {
-            String h, p;
-            h = uri.getHost();
-            int _p = uri.getPort();
-            if (_p < 0) {
-                _p = VPCDWorker.DEFAULT_PORT;
-            }
-            p = Integer.toString(_p);
-            SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(this);
-            SP.edit().putString("hostname", h).apply();
-            SP.edit().putString("port", p).apply();
-        } catch (Exception e) {
-            Snackbar.make(this.getCurrentFocus(), "Could not import configuration", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show();
-        }
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        Intent intent = getIntent();
-        // Check to see that the Activity started due to a configuration URI
-        if (Intent.ACTION_VIEW.equals(intent.getAction())) {
-            Uri uri = intent.getData();
-            handleScannedURI(uri);
-            super.onNewIntent(intent);
-        }
-    }
-
-    @Override
-    public void onNewIntent(Intent intent) {
-        // onResume gets called after this to handle the intent
-        setIntent(intent);
     }
 }

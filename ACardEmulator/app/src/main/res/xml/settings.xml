@@ -4,11 +4,36 @@
     <PreferenceCategory
         android:title="Java Card Emulator">
 
-        <Preference
-            android:title="NFC System Settings"
-            android:summary="NFC needs to be enabled for emulating a contactless smart card"
-            android:key="nfcSettings">
-        </Preference>
+        <SwitchPreference
+            android:title="@string/applet_helloworld"
+            android:switchTextOn="@string/aid_helloworld"
+            android:key="activate_helloworld"
+            android:defaultValue="false"
+            />
+        <SwitchPreference
+            android:title="@string/applet_openpgp"
+            android:switchTextOn="@string/aid_openpgp"
+            android:key="activate_openpgp"
+            android:defaultValue="true"
+            />
+        <SwitchPreference
+            android:title="@string/applet_oath"
+            android:switchTextOn="@string/aid_oath"
+            android:key="activate_oath"
+            android:defaultValue="true"
+            />
+        <SwitchPreference
+            android:title="@string/applet_isoapplet"
+            android:switchTextOn="@string/aid_isoapplet"
+            android:key="activate_isoapplet"
+            android:defaultValue="true"
+            />
+        <SwitchPreference
+            android:title="@string/applet_gidsapplet"
+            android:switchTextOn="@string/aid_gidsapplet"
+            android:key="activate_gidsapplet"
+            android:defaultValue="true"
+            />
 
     </PreferenceCategory>
 

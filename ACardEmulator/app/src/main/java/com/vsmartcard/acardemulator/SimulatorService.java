@@ -20,9 +20,11 @@
 package com.vsmartcard.acardemulator;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.nfc.cardemulation.HostApduService;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -64,64 +66,75 @@ public class SimulatorService extends HostApduService {
 
     private void createSimulator() {
         String aid, name, extra_install = "", extra_error = "";
+        SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(this);
         simulator = new Simulator(new SimulatorRuntime());
 
-        name = getResources().getString(R.string.applet_helloworld);
-        aid = getResources().getString(R.string.aid_helloworld);
-        try {
-            simulator.installApplet(AIDUtil.create(aid), HelloWorldApplet.class);
-            extra_install += "\n" + name + " (AID: " + aid + ")";
-        } catch (Exception e) {
-            e.printStackTrace();
-            extra_error += "\n" + "Could not install " + name + " (AID: " + aid + ")";
+        if (SP.getBoolean("activate_helloworld", false)) {
+            name = getResources().getString(R.string.applet_helloworld);
+            aid = getResources().getString(R.string.aid_helloworld);
+            try {
+                simulator.installApplet(AIDUtil.create(aid), HelloWorldApplet.class);
+                extra_install += "\n" + name + " (AID: " + aid + ")";
+            } catch (Exception e) {
+                e.printStackTrace();
+                extra_error += "\n" + "Could not install " + name + " (AID: " + aid + ")";
+            }
         }
 
-        name = getResources().getString(R.string.applet_openpgp);
-        aid = getResources().getString(R.string.aid_openpgp);
-        try {
-            byte[] aid_bytes = Util.hexStringToByteArray(aid);
-            byte[] inst_params = new byte[aid.length()+1];
-            inst_params[0] = (byte) aid_bytes.length;
-            System.arraycopy(aid_bytes, 0, inst_params, 1, aid_bytes.length);
-            simulator.installApplet(AIDUtil.create(aid), OpenPGPApplet.class, inst_params, (short) 0, (byte) inst_params.length);
-            extra_install += "\n" + name + " (AID: " + aid + ")";
-        } catch (Exception e) {
-            e.printStackTrace();
-            extra_error += "\n" + "Could not install " + name + " (AID: " + aid + ")";
+        if (SP.getBoolean("activate_openpgp", false)) {
+            name = getResources().getString(R.string.applet_openpgp);
+            aid = getResources().getString(R.string.aid_openpgp);
+            try {
+                byte[] aid_bytes = Util.hexStringToByteArray(aid);
+                byte[] inst_params = new byte[aid.length() + 1];
+                inst_params[0] = (byte) aid_bytes.length;
+                System.arraycopy(aid_bytes, 0, inst_params, 1, aid_bytes.length);
+                simulator.installApplet(AIDUtil.create(aid), OpenPGPApplet.class, inst_params, (short) 0, (byte) inst_params.length);
+                extra_install += "\n" + name + " (AID: " + aid + ")";
+            } catch (Exception e) {
+                e.printStackTrace();
+                extra_error += "\n" + "Could not install " + name + " (AID: " + aid + ")";
+            }
         }
 
-        name = getResources().getString(R.string.applet_oath);
-        aid = getResources().getString(R.string.aid_oath);
-        try {
-            byte[] aid_bytes = Util.hexStringToByteArray(aid);
-            byte[] inst_params = new byte[aid.length()+1];
-            inst_params[0] = (byte) aid_bytes.length;
-            System.arraycopy(aid_bytes, 0, inst_params, 1, aid_bytes.length);
-            simulator.installApplet(AIDUtil.create(aid), YkneoOath.class, inst_params, (short) 0, (byte) inst_params.length);
-            extra_install += "\n" + name + " (AID: " + aid + ")";
-        } catch (Exception e) {
-            e.printStackTrace();
-            extra_error += "\n" + "Could not install " + name + " (AID: " + aid + ")";
+        if (SP.getBoolean("activate_oath", false)) {
+            name = getResources().getString(R.string.applet_oath);
+            aid = getResources().getString(R.string.aid_oath);
+            try {
+                byte[] aid_bytes = Util.hexStringToByteArray(aid);
+                byte[] inst_params = new byte[aid.length() + 1];
+                inst_params[0] = (byte) aid_bytes.length;
+                System.arraycopy(aid_bytes, 0, inst_params, 1, aid_bytes.length);
+                simulator.installApplet(AIDUtil.create(aid), YkneoOath.class, inst_params, (short) 0, (byte) inst_params.length);
+                extra_install += "\n" + name + " (AID: " + aid + ")";
+            } catch (Exception e) {
+                e.printStackTrace();
+                extra_error += "\n" + "Could not install " + name + " (AID: " + aid + ")";
+            }
         }
 
-        name = getResources().getString(R.string.applet_isoapplet);
-        aid = getResources().getString(R.string.aid_isoapplet);
-        try {
-            simulator.installApplet(AIDUtil.create(aid), IsoApplet.class);
-            extra_install += "\n" + name + " (AID: " + aid + ")";
-        } catch (Exception e) {
-            e.printStackTrace();
-            extra_error += "\n" + "Could not install " + name + " (AID: " + aid + ")";
+        if (SP.getBoolean("activate_isoapplet", false)) {
+            name = getResources().getString(R.string.applet_isoapplet);
+            aid = getResources().getString(R.string.aid_isoapplet);
+            try {
+                simulator.installApplet(AIDUtil.create(aid), IsoApplet.class);
+                extra_install += "\n" + name + " (AID: " + aid + ")";
+            } catch (Exception e) {
+                e.printStackTrace();
+                extra_error += "\n" + "Could not install " + name + " (AID: " + aid + ")";
+            }
         }
 
-        name = getResources().getString(R.string.applet_gidsapplet);
-        aid = getResources().getString(R.string.aid_gidsapplet);
-        try {
-            simulator.installApplet(AIDUtil.create(aid), GidsApplet.class);
-            extra_install += "\n" + name + " (AID: " + aid + ")";
-        } catch (Exception e) {
-            e.printStackTrace();
-            extra_error += "\n" + "Could not install " + name + " (AID: " + aid + ")";
+        if (SP.getBoolean("activate_gidsapplet", false)) {
+            name = getResources().getString(R.string.applet_gidsapplet);
+            aid = getResources().getString(R.string.aid_gidsapplet);
+            try {
+                simulator.installApplet(AIDUtil.create(aid), GidsApplet.class);
+                extra_install += "\n" + name + " (AID: " + aid + ")";
+            } catch (Exception e) {
+                e.printStackTrace();
+                extra_error += "\n" + "Could not install " + name + " (AID: " + aid + ")";
+            }
         }
 
         Intent i = new Intent(TAG);
