@@ -462,6 +462,18 @@ class VirtualICC(object):
         else:
             # use reversed connection mode
             try:
+                local_ip = [(s.connect(('8.8.8.8', 53)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]
+                custom_url = 'vicc://%s:%d' % (local_ip, port)
+                print('VICC hostname:  %s' % local_ip);
+                print('VICC port:      %d' % port)
+                print('On your NFC phone with the Android Smart Card Emulator app scan this code:')
+                try:
+                    import qrcode
+                    qr = qrcode.QRCode()
+                    qr.add_data(custom_url)
+                    qr.print_ascii()
+                except ImportError:
+                    print('https://api.qrserver.com/v1/create-qr-code/?data=%s' % custom_url)
                 (self.sock, self.server_sock, host) = self.openPort(port)
                 self.sock.settimeout(None)
             except socket.error as e:
