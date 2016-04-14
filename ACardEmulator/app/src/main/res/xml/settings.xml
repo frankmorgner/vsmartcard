@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <ListPreference
+        android:key="emulator"
+        android:title="Smart Card Emulator"
+        android:defaultValue="@string/vicc"
+        android:entries="@array/strEmulators"
+        android:entryValues="@array/strEmulators" />
+
     <PreferenceCategory
-        android:title="Java Card Emulator">
+        android:title="@string/jcardsim"
+        android:key="jc_settings"
+        >
 
         <SwitchPreference
             android:title="@string/applet_helloworld"
@@ -34,6 +43,35 @@
             android:key="activate_gidsapplet"
             android:defaultValue="true"
             />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/vicc"
+        android:key="vicc_settings"
+        >
+
+        <Preference
+            android:title="Virtual Smart Card Available on Github"
+            android:summary="@string/vicc_config_info">
+
+            <intent android:action="android.intent.action.VIEW"
+                android:data="https://frankmorgner.github.io/vsmartcard/virtualsmartcard/README.html" />
+        </Preference>
+
+        <EditTextPreference
+            android:key="hostname"
+            android:defaultValue="10.0.2.2"
+            android:title="@string/hint_vicc_hostname"
+            android:hint="URL or IP address"
+            android:inputType="textUri" />
+
+        <EditTextPreference
+            android:key="port"
+            android:defaultValue="35963"
+            android:title="@string/hint_vicc_port"
+            android:inputType="number"
+            android:hint="Default: 35963" />
 
     </PreferenceCategory>
 

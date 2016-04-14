@@ -38,5 +38,14 @@
         \n
         Place your device on a contact-less reader. When the reader issues a SELECT command for one of the application identifiers above, the emulator creates the appropriate applet. The emulated applet will then handle all subsequent APDUs.</string>
     <string name="action_settings">Settings</string>
+    <string-array name="strEmulators">
+        <item>@string/jcardsim</item>
+        <item>@string/vicc</item>
+    </string-array>
+    <string name="jcardsim">Builtin Java Card Simulator</string>
+    <string name="vicc">Remote Virtual Smart Card</string>
+    <string name="vicc_config_info">If you choose the virtual smart card (VICC) as emulator, you need to start the it on your computer with the `--reversed` flag and configure the connection parameters here accordingly.</string>
+    <string name="hint_vicc_port">VICC Port</string>
+    <string name="hint_vicc_hostname">VICC Hostname</string>
 
 </resources>

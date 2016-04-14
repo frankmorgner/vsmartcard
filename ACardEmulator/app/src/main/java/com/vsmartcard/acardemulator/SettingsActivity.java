@@ -175,11 +175,16 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             // to their values. When their values change, their summaries are
             // updated to reflect the new value, per the Android Design
             // guidelines.
+            bindPreferenceSummaryToValue(findPreference("emulator"));
+
             bindPreferenceSummaryToValue(findPreference("activate_helloworld"));
             bindPreferenceSummaryToValue(findPreference("activate_openpgp"));
             bindPreferenceSummaryToValue(findPreference("activate_oath"));
             bindPreferenceSummaryToValue(findPreference("activate_isoapplet"));
             bindPreferenceSummaryToValue(findPreference("activate_gidsapplet"));
+
+            bindPreferenceSummaryToValue(findPreference("hostname"));
+            bindPreferenceSummaryToValue(findPreference("port"));
         }
         @Override
         public boolean onOptionsItemSelected(MenuItem item) {

@@ -29,6 +29,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
@@ -96,9 +97,13 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Scheduled re-installation of all applets...", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-                SimulatorService.destroySimulator(getApplicationContext());
+                SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                String emulator = SP.getString("emulator", "");
+                if (emulator != getString(R.string.vicc)) {
+                    Snackbar.make(view, "Scheduled re-installation of all applets...", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                    SimulatorService.destroySimulator(getApplicationContext());
+                }
             }
         });
 

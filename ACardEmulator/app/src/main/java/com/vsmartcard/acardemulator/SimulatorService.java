@@ -47,10 +47,8 @@ import com.mysmartlogon.gidsApplet.GidsApplet;
 
 public class SimulatorService extends HostApduService {
 
-    private static final boolean useVPCD = false;
     public static final int DEFAULT_PORT = 35963;
-    private static final String hostname = "192.168.42.158";
-    private int port = DEFAULT_PORT;
+    private static final String DEFAULT_HOSTNAME = "10.0.2.2";
 
     private static Socket socket;
     private static InputStream inputStream;
@@ -65,6 +63,25 @@ public class SimulatorService extends HostApduService {
 
     private static Simulator simulator = null;
     private static boolean do_destroy = false;
+
+    private boolean useVPCD() {
+        SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(this);
+        String emulator = SP.getString("emulator", "");
+        if (emulator.equals(getString(R.string.vicc)))
+            return true;
+
+        return false;
+    }
+
+    private int port() {
+        SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(this);
+        return Integer.parseInt(SP.getString("port", Integer.toString(DEFAULT_PORT)));
+    }
+
+    private String hostname() {
+        SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(this);
+        return SP.getString("hostname", DEFAULT_HOSTNAME);
+    }
 
     private void createSimulator() {
         String aid, name, extra_install = "", extra_error = "";
@@ -154,7 +171,7 @@ public class SimulatorService extends HostApduService {
         do_destroy();
 
         Log.d("", "Begin transaction");
-        if (useVPCD) {
+        if (useVPCD()) {
             if  (socket == null) {
                 try {
                     if (android.os.Build.VERSION.SDK_INT > 9) {
@@ -202,7 +219,7 @@ public class SimulatorService extends HostApduService {
 
         i.putExtra(EXTRA_CAPDU, Util.byteArrayToHexString(capdu));
         try {
-            if (useVPCD) {
+            if (useVPCD()) {
                 rapdu = transmit(capdu);
             } else {
                 rapdu = simulator.transmitCommand(capdu);
@@ -231,7 +248,7 @@ public class SimulatorService extends HostApduService {
         switch (reason) {
             case DEACTIVATION_LINK_LOSS:
                 i.putExtra(EXTRA_DESELECT, "link lost");
-                if (useVPCD)
+                if (useVPCD())
                     try {
                         sendPowerOff();
                     } catch (IOException e) {
@@ -241,7 +258,7 @@ public class SimulatorService extends HostApduService {
                 break;
             case DEACTIVATION_DESELECTED:
                 i.putExtra(EXTRA_DESELECT, "deactivated");
-                if (useVPCD)
+                if (useVPCD())
                     try {
                         sendReset();
                     } catch (IOException e) {
@@ -250,7 +267,7 @@ public class SimulatorService extends HostApduService {
                     }
                 break;
         }
-        if (useVPCD) {
+        if (useVPCD()) {
             //vpcdDisconnect();
         }
 
@@ -316,6 +333,8 @@ public class SimulatorService extends HostApduService {
     }
 
     private void vpcdConnect() throws IOException {
+        String hostname = hostname();
+        int port = port();
         Log.d("", "Connecting to " + hostname + ":" + Integer.toString(port));
         socket = new Socket(InetAddress.getByName(hostname), port);
         outputStream = socket.getOutputStream();
