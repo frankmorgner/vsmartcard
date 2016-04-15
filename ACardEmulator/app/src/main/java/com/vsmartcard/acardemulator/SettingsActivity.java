@@ -21,9 +21,12 @@ package com.vsmartcard.acardemulator;
 
 
 import android.annotation.TargetApi;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -32,8 +35,12 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.SwitchPreference;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
+
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -185,7 +192,16 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
             bindPreferenceSummaryToValue(findPreference("hostname"));
             bindPreferenceSummaryToValue(findPreference("port"));
+
+            Preference scan = findPreference("scan");
+            scan.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                public boolean onPreferenceClick(Preference preference) {
+                    new IntentIntegrator(getActivity()).initiateScan();
+                    return true;
+                }
+            });
         }
+
         @Override
         public boolean onOptionsItemSelected(MenuItem item) {
             int id = item.getItemId();
@@ -195,6 +211,55 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             }
             return super.onOptionsItemSelected(item);
         }
+    }
 
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
+        switch(requestCode) {
+            case IntentIntegrator.REQUEST_CODE:
+                if (resultCode != RESULT_CANCELED) {
+                    handleScannedURI(Uri.parse(scanResult.getContents()));
+                }
+                break;
+        }
+    }
+
+    private void handleScannedURI(Uri uri) {
+        try {
+            String h, p;
+            h = uri.getHost();
+            int _p = uri.getPort();
+            if (_p < 0) {
+                _p = SimulatorService.DEFAULT_PORT;
+            }
+            p = Integer.toString(_p);
+            SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(this);
+            SP.edit().putString("hostname", h).apply();
+            SP.edit().putString("port", p).apply();
+            SP.edit().putString("emulator", getString(R.string.vicc)).apply();
+            getFragmentManager().beginTransaction().replace(android.R.id.content,
+                    new VICCPreferenceFragment()).commit();
+        } catch (Exception e) {
+            Snackbar.make(this.getCurrentFocus(), "Could not import configuration", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Intent intent = getIntent();
+        // Check to see that the Activity started due to a configuration URI
+        if (Intent.ACTION_VIEW.equals(intent.getAction())) {
+            Uri uri = intent.getData();
+            handleScannedURI(uri);
+            super.onNewIntent(intent);
+        }
+    }
+
+    @Override
+    public void onNewIntent(Intent intent) {
+        // onResume gets called after this to handle the intent
+        setIntent(intent);
     }
 }

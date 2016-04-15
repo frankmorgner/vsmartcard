@@ -27,6 +27,14 @@
         <activity
             android:name="com.vsmartcard.acardemulator.SettingsActivity"
             android:label="@string/action_settings" >
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data
+                    android:scheme="@string/scheme_vicc" />
+            </intent-filter>
         </activity>
 
         <service android:name="com.vsmartcard.acardemulator.SimulatorService"

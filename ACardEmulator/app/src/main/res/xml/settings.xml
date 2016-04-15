@@ -59,6 +59,12 @@
                 android:data="https://frankmorgner.github.io/vsmartcard/virtualsmartcard/README.html" />
         </Preference>
 
+        <Preference
+            android:title="Scan Configuration"
+            android:summary="Scan QR code to import VICC's hostname and port."
+            android:key="scan">
+        </Preference>
+
         <EditTextPreference
             android:key="hostname"
             android:defaultValue="10.0.2.2"

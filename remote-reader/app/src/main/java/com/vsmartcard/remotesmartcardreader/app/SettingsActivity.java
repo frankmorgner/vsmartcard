@@ -221,6 +221,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(this);
             SP.edit().putString("hostname", h).apply();
             SP.edit().putString("port", p).apply();
+            getFragmentManager().beginTransaction().replace(android.R.id.content,
+                    new VPCDPreferenceFragment()).commit();
         } catch (Exception e) {
             Snackbar.make(this.getCurrentFocus(), "Could not import configuration", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show();
