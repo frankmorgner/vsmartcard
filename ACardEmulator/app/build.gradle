@@ -27,6 +27,27 @@ android {
     }
 }
 
+android.applicationVariants.all { variant ->
+    def appName
+    //Check if an applicationName property is supplied; if not use the name of the parent project.
+    if (project.hasProperty("applicationName")) {
+        appName = applicationName
+    } else {
+        appName = parent.name
+    }
+
+    variant.outputs.each { output ->
+        def newApkName
+        //If there's no ZipAlign task it means that our artifact will be unaligned and we need to mark it as such.
+        if (output.zipAlign) {
+            newApkName = "${appName}-${output.baseName}-${variant.versionName}.apk"
+        } else {
+            newApkName = "${appName}-${output.baseName}-${variant.versionName}-unaligned.apk"
+        }
+        output.outputFile = new File(output.outputFile.parent, newApkName)
+    }
+}
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:23.0.1'
