@@ -21,7 +21,6 @@ package com.vsmartcard.acardemulator;
 
 
 import android.annotation.TargetApi;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -41,6 +40,7 @@ import android.view.MenuItem;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.vsmartcard.acardemulator.emulators.VICCEmulator;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -230,7 +230,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             h = uri.getHost();
             int _p = uri.getPort();
             if (_p < 0) {
-                _p = SimulatorService.DEFAULT_PORT;
+                _p = VICCEmulator.DEFAULT_PORT;
             }
             p = Integer.toString(_p);
             SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(this);

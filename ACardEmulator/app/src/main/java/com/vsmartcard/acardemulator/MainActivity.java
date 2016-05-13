@@ -48,12 +48,12 @@ public class MainActivity extends AppCompatActivity {
     private BroadcastReceiver bReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(SimulatorService.TAG)) {
-                String capdu = intent.getStringExtra(SimulatorService.EXTRA_CAPDU);
-                String rapdu = intent.getStringExtra(SimulatorService.EXTRA_RAPDU);
-                String error = intent.getStringExtra(SimulatorService.EXTRA_ERROR);
-                String deselect = intent.getStringExtra(SimulatorService.EXTRA_DESELECT);
-                String install = intent.getStringExtra(SimulatorService.EXTRA_INSTALL);
+            if (intent.getAction().equals(EmulatorService.TAG)) {
+                String capdu = intent.getStringExtra(EmulatorService.EXTRA_CAPDU);
+                String rapdu = intent.getStringExtra(EmulatorService.EXTRA_RAPDU);
+                String error = intent.getStringExtra(EmulatorService.EXTRA_ERROR);
+                String deselect = intent.getStringExtra(EmulatorService.EXTRA_DESELECT);
+                String install = intent.getStringExtra(EmulatorService.EXTRA_INSTALL);
                 if (install != null)
                     textViewVPCDStatus.append(getResources().getString(R.string.status_install) + ":" + install + "\n");
                 if (capdu != null)
@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
                 if (emulator != getString(R.string.vicc)) {
                     Snackbar.make(view, "Scheduled re-installation of all applets...", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
-                    SimulatorService.destroySimulator(getApplicationContext());
+                    EmulatorService.destroySimulator(getApplicationContext());
                 }
             }
         });
@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
 
         LocalBroadcastManager bManager = LocalBroadcastManager.getInstance(this);
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(SimulatorService.TAG);
+        intentFilter.addAction(EmulatorService.TAG);
         bManager.registerReceiver(bReceiver, intentFilter);
     }
 

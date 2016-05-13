@@ -37,7 +37,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name="com.vsmartcard.acardemulator.SimulatorService"
+        <service android:name=".EmulatorService"
             android:exported="true"
             android:permission="android.permission.BIND_NFC_SERVICE">
             <intent-filter>
