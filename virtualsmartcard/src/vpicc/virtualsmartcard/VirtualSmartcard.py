@@ -387,7 +387,7 @@ class VirtualICC(object):
     the vpcd, which forwards it to the application.
     """
 
-    def __init__(self, filename, datasetfile, card_type, host, port,
+    def __init__(self, datasetfile, card_type, host, port,
                  readernum=None, ef_cardsecurity=None, ef_cardaccess=None,
                  ca_key=None, cvca=None, disable_checks=False, esign_key=None,
                  esign_ca_cert=None, esign_cert=None,
@@ -398,17 +398,7 @@ class VirtualICC(object):
                             format="%(asctime)s  [%(levelname)s] %(message)s",
                             datefmt="%d.%m.%Y %H:%M:%S")
 
-        self.filename = None
         self.cardGenerator = CardGenerator(card_type)
-
-        # If a filename is specified, try to load the card from disk
-        if filename is not None:
-            self.filename = filename
-            if exists(filename):
-                self.cardGenerator.loadCard(self.filename)
-            else:
-                logging.info("Creating new card which will be saved in %s.",
-                             self.filename)
 
         # If a dataset file is specified, read the card's data groups from disk
         if datasetfile is not None:
@@ -584,6 +574,3 @@ class VirtualICC(object):
         self.sock.close()
         if self.server_sock:
             self.server_sock.close()
-        if self.filename is not None:
-            self.cardGenerator.setCard(self.os.mf, self.os.SAM)
-            self.cardGenerator.saveCard(self.filename)

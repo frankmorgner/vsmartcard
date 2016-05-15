@@ -17,7 +17,6 @@
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import anydbm
 import os
 import tempfile
 import unittest
@@ -30,32 +29,13 @@ class ISO7816GeneratorTest(unittest.TestCase):
     card_type = 'iso7816'
 
     def setUp(self):
-        self.filename = tempfile.mktemp()
         self.card_generator = CardGenerator(self.card_type)
-        self.card_generator.password = "TestPassword"
 
     def test_card_creation(self):
         self.card_generator.generateCard()
-        self.card_generator.saveCard(self.filename)
         mf, sam = self.card_generator.getCard()
         self.assertIsNotNone(mf)
         self.assertIsNotNone(sam)
-        os.unlink(self.filename)
-
-    def test_load_card_from_file(self):
-        self.card_generator.generateCard()
-        self.card_generator.saveCard(self.filename)
-        local_generator = CardGenerator(self.card_type)
-        local_generator.password = self.card_generator.password
-        local_generator.loadCard(self.filename)
-        mf, sam = local_generator.getCard()
-        self.assertIsNotNone(mf)
-        self.assertIsNotNone(sam)
-        os.unlink(self.filename)
-
-    def test_load_nonexistent_file(self):
-        with self.assertRaises(anydbm.error):
-            self.card_generator.loadCard(self.filename)
 
     def test_get_and_set_card(self):
         self.card_generator.generateCard()
@@ -69,9 +49,7 @@ class TestNPACardGenerator(ISO7816GeneratorTest):
     card_type = 'nPA'
 
     def setUp(self):
-        self.filename = tempfile.mktemp()
         self.card_generator = CardGenerator(self.card_type)
-        self.card_generator.password = "TestPassword"
         self.test_readDatagroups_file = "/../../../../npa-example-data/"\
                                         "Example_Dataset_Mueller_Gertrud.txt"
 

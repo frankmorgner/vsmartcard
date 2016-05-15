@@ -2,19 +2,19 @@
 #
 # Copyright (C) 2010-2012 Frank Morgner <frankmorgner@gmail.com>
 # Copyright (C) 2010 Dominik Oepen <oepen@informatik.hu-berlin.de>
-# 
+#
 # This file is part of virtualsmartcard.
-# 
+#
 # virtualsmartcard is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
 # Software Foundation, either version 3 of the License, or (at your option) any
 # later version.
-# 
+#
 # virtualsmartcard is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 # FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 # more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along with
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 #
@@ -152,10 +152,9 @@ if args.reversed:
 else:
     hostname = args.hostname
 
-vicc = VirtualICC(args.file, args.datasetfile, args.type,
-        hostname, args.port, readernum=args.reader,
-        ef_cardaccess=ef_cardaccess_data, ef_cardsecurity=ef_cardsecurity_data,
-        ca_key=ca_key_data, cvca=cvca, disable_checks=args.disable_ta_checks,
-        esign_ca_cert=esign_ca_cert, esign_cert=esign_cert,
-        logginglevel=logginglevel)
+vicc = VirtualICC(args.datasetfile, args.type, hostname, args.port,
+        readernum=args.reader, ef_cardaccess=ef_cardaccess_data,
+        ef_cardsecurity=ef_cardsecurity_data, ca_key=ca_key_data, cvca=cvca,
+        disable_checks=args.disable_ta_checks, esign_ca_cert=esign_ca_cert,
+        esign_cert=esign_cert, logginglevel=logginglevel)
 vicc.run()
