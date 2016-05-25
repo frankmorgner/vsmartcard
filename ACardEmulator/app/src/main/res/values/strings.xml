@@ -44,6 +44,14 @@
     </string-array>
     <string name="jcardsim">Builtin Java Card Simulator</string>
     <string name="vicc">Remote Virtual Smart Card</string>
+
+    <string-array name="strNFC">
+        <item>@string/nfc</item>
+        <item>@string/gear</item>
+    </string-array>
+    <string name="nfc">Builtin NFC</string>
+    <string name="gear">Samsung Accessory</string>
+
     <string name="vicc_config_info">If you choose the virtual smart card (VICC) as emulator, you need to start the it on your computer with the `--reversed` flag and configure the connection parameters here accordingly.</string>
     <string name="hint_vicc_port">VICC Port</string>
     <string name="hint_vicc_hostname">VICC Hostname</string>

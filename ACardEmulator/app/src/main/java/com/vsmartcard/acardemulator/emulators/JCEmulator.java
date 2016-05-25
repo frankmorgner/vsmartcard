@@ -9,7 +9,6 @@ import com.licel.jcardsim.base.SimulatorRuntime;
 import com.licel.jcardsim.samples.HelloWorldApplet;
 import com.licel.jcardsim.utils.AIDUtil;
 import com.mysmartlogon.gidsApplet.GidsApplet;
-import com.vsmartcard.acardemulator.EmulatorService;
 import com.vsmartcard.acardemulator.R;
 import com.vsmartcard.acardemulator.Util;
 
@@ -100,11 +99,11 @@ public class JCEmulator implements Emulator {
             }
         }
 
-        Intent i = new Intent(EmulatorService.TAG);
+        Intent i = new Intent(EmulatorSingleton.TAG);
         if (!extra_error.isEmpty())
-            i.putExtra(EmulatorService.EXTRA_ERROR, extra_error);
+            i.putExtra(EmulatorSingleton.EXTRA_ERROR, extra_error);
         if (!extra_install.isEmpty())
-            i.putExtra(EmulatorService.EXTRA_INSTALL, extra_install);
+            i.putExtra(EmulatorSingleton.EXTRA_INSTALL, extra_install);
         LocalBroadcastManager.getInstance(context).sendBroadcast(i);
     }
 

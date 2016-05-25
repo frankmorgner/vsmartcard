@@ -41,6 +41,8 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.vsmartcard.acardemulator.emulators.EmulatorSingleton;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -48,12 +50,12 @@ public class MainActivity extends AppCompatActivity {
     private BroadcastReceiver bReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(EmulatorService.TAG)) {
-                String capdu = intent.getStringExtra(EmulatorService.EXTRA_CAPDU);
-                String rapdu = intent.getStringExtra(EmulatorService.EXTRA_RAPDU);
-                String error = intent.getStringExtra(EmulatorService.EXTRA_ERROR);
-                String deselect = intent.getStringExtra(EmulatorService.EXTRA_DESELECT);
-                String install = intent.getStringExtra(EmulatorService.EXTRA_INSTALL);
+            if (intent.getAction().equals(EmulatorSingleton.TAG)) {
+                String capdu = intent.getStringExtra(EmulatorSingleton.EXTRA_CAPDU);
+                String rapdu = intent.getStringExtra(EmulatorSingleton.EXTRA_RAPDU);
+                String error = intent.getStringExtra(EmulatorSingleton.EXTRA_ERROR);
+                String deselect = intent.getStringExtra(EmulatorSingleton.EXTRA_DESELECT);
+                String install = intent.getStringExtra(EmulatorSingleton.EXTRA_INSTALL);
                 if (install != null)
                     textViewVPCDStatus.append(getResources().getString(R.string.status_install) + ":" + install + "\n");
                 if (capdu != null)
@@ -102,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
                 if (emulator != getString(R.string.vicc)) {
                     Snackbar.make(view, "Scheduled re-installation of all applets...", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
-                    EmulatorService.destroySimulator(getApplicationContext());
+                    EmulatorSingleton.destroyEmulator();
                 }
             }
         });
@@ -116,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
 
         LocalBroadcastManager bManager = LocalBroadcastManager.getInstance(this);
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(EmulatorService.TAG);
+        intentFilter.addAction(EmulatorSingleton.TAG);
         bManager.registerReceiver(bReceiver, intentFilter);
     }
 

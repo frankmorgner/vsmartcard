@@ -6,6 +6,13 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.NFC" />
     <uses-feature android:name="android.hardware.nfc.hce" android:required="true" />
+    
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="com.samsung.accessory.permission.ACCESSORY_FRAMEWORK" />
+    <uses-permission android:name="com.samsung.android.providers.context.permission.WRITE_USE_APP_FEATURE_SURVEY" />
+    <uses-permission android:name="com.samsung.WATCH_APP_TYPE.Companion" />
+    <uses-permission android:name="com.samsung.wmanager.ENABLE_NOTIFICATION" />
 
     <application
         android:allowBackup="true"
@@ -37,7 +44,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".EmulatorService"
+        <service android:name=".EmulatorHostApduService"
             android:exported="true"
             android:permission="android.permission.BIND_NFC_SERVICE">
             <intent-filter>
@@ -47,6 +54,24 @@
             <meta-data android:name="android.nfc.cardemulation.host_apdu_service"
                 android:resource="@xml/aid_list"/>
         </service>
+
+        <service android:name=".SmartcardProviderService" />
+        <receiver android:name="com.samsung.android.sdk.accessory.RegisterUponInstallReceiver" >
+            <intent-filter>
+                <action android:name="com.samsung.accessory.action.REGISTER_AGENT" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name="com.samsung.android.sdk.accessory.ServiceConnectionIndicationBroadcastReceiver" >
+            <intent-filter>
+                <action android:name="com.samsung.accessory.action.SERVICE_CONNECTION_REQUESTED" />
+            </intent-filter>
+        </receiver>
+        <meta-data
+            android:name="AccessoryServicesLocation"
+            android:value="/res/xml/accessoryservices.xml" />
+        <meta-data
+            android:name="GearAppType"
+            android:value="tpk" />
     </application>
 
 </manifest>

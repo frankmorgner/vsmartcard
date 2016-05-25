@@ -17,28 +17,19 @@
  * ACardEmulator.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.vsmartcard.acardemulator;
+package com.vsmartcard.acardemulator.emulators;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.nfc.cardemulation.HostApduService;
-import android.os.Bundle;
-import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.Socket;
+import com.vsmartcard.acardemulator.R;
+import com.vsmartcard.acardemulator.Util;
 
-import com.vsmartcard.acardemulator.emulators.Emulator;
-import com.vsmartcard.acardemulator.emulators.JCEmulator;
-import com.vsmartcard.acardemulator.emulators.VICCEmulator;
-
-public class EmulatorService extends HostApduService {
-
+public class EmulatorSingleton {
     public static final String TAG = "com.vsmartcard.acardemulator.EmulatorService";
     public static final String EXTRA_CAPDU = "MSG_CAPDU";
     public static final String EXTRA_RAPDU = "MSG_RAPDU";
@@ -49,22 +40,35 @@ public class EmulatorService extends HostApduService {
     private static Emulator emulator = null;
     private static boolean do_destroy = false;
 
-    @Override
-    public void onCreate () {
-        super.onCreate();
+    private static void destroyEmulatorIfRequested(Context context) {
+        if (do_destroy) {
+            emulator.destroy();
+            emulator = null;
+            do_destroy = false;
+            Intent i = new Intent(TAG);
+            i.putExtra(EXTRA_DESELECT, "Uninstalled all applets.");
+            LocalBroadcastManager.getInstance(context).sendBroadcast(i);
+        }
+    }
+
+    public static void destroyEmulator() {
+        do_destroy = true;
+    }
+
+    public static void createEmulator(Context context) {
         // force reloading applets if requested
-        do_destroy();
+        destroyEmulatorIfRequested(context);
 
         if (emulator == null) {
             Log.d("", "Begin transaction");
-            SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(this);
+            SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(context);
             String str_emulator = SP.getString("emulator", "");
-            if (str_emulator.equals(getString(R.string.vicc))) {
+            if (str_emulator.equals(context.getString(R.string.vicc))) {
                 emulator = new VICCEmulator(
                         SP.getString("hostname", VICCEmulator.DEFAULT_HOSTNAME),
                         Integer.parseInt(SP.getString("port", Integer.toString(VICCEmulator.DEFAULT_PORT))));
             } else {
-                emulator = new JCEmulator(this,
+                emulator = new JCEmulator(context,
                         SP.getBoolean("activate_helloworld", false),
                         SP.getBoolean("activate_openpgp", false),
                         SP.getBoolean("activate_oath", false),
@@ -74,55 +78,19 @@ public class EmulatorService extends HostApduService {
         }
     }
 
-    public static void destroySimulator(Context context) {
-        do_destroy = true;
-    }
-
-    private void do_destroy() {
-        if (do_destroy) {
-            emulator.destroy();
-            emulator = null;
-            do_destroy = false;
-            Intent i = new Intent(TAG);
-            i.putExtra(EXTRA_DESELECT, "Uninstalled all applets.");
-            LocalBroadcastManager.getInstance(this).sendBroadcast(i);
-        }
-    }
-
-    @Override
-    public void onDestroy() {
-        do_destroy();
-        super.onDestroy();
-    }
-
-    @Override
-    public byte[] processCommandApdu(byte[] capdu, Bundle extras) {
+    public static byte[] process(Context context, byte[] capdu) {
         byte[] rapdu = emulator.process(capdu);
 
         Intent i = new Intent(TAG);
         i.putExtra(EXTRA_CAPDU, Util.byteArrayToHexString(capdu));
         if (rapdu != null)
             i.putExtra(EXTRA_RAPDU, Util.byteArrayToHexString(rapdu));
-        LocalBroadcastManager.getInstance(this).sendBroadcast(i);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(i);
 
         return rapdu;
     }
 
-    @Override
-    public void onDeactivated(int reason) {
-        Intent i = new Intent(TAG);
-
-        Log.d("", "End transaction");
-        switch (reason) {
-            case DEACTIVATION_LINK_LOSS:
-                i.putExtra(EXTRA_DESELECT, "link lost");
-                emulator.deactivate();
-                break;
-            case DEACTIVATION_DESELECTED:
-                emulator.deactivate();
-                break;
-        }
-
-        LocalBroadcastManager.getInstance(this).sendBroadcast(i);
+    public static void deactivate() {
+        emulator.deactivate();
     }
 }
