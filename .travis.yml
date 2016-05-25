@@ -6,6 +6,9 @@ matrix:
     - compiler: gcc
     - compiler: i686-w64-mingw32-gcc
     - compiler: x86_64-w64-mingw32-gcc
+  allow_failures:
+    - compiler: i686-w64-mingw32-gcc
+    - compiler: x86_64-w64-mingw32-gcc
 
 env:
   global:
