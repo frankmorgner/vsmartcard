@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<manifest xmlns="http://tizen.org/ns/packages" api-version="2.3.1" package="com.vsmartcard.tcardemulator" version="1.0.0">
+    <profile name="wearable"/>
+    <service-application appid="com.vsmartcard.tcardemulator" exec="com.vsmartcard.tcardemulator" multiple="false" nodisplay="false" taskmanage="false" type="capp">
+        <label>Smart Card Emulator</label>
+        <icon>ic_launcher.png</icon>
+        <metadata key="http://tizen.org/metadata/nfc_cardemulation" value="/shared/res/wallet.xml"/>
+        <metadata key="accessory-services-location" value="/res/accessoryservices.xml"/>
+    </service-application>
+    <privileges>
+        <privilege>http://developer.samsung.com/tizen/privilege/accessoryprotocol</privilege>
+        <privilege>http://tizen.org/privilege/nfc.cardemulation</privilege>
+    </privileges>
+    <feature name="http://tizen.org/feature/network.nfc.card_emulation.hce">true</feature>
+</manifest>
