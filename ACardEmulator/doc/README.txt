@@ -20,15 +20,29 @@ Android Smart Card Emulator
         Android, CyanogenMod
 
 The Android Smart Card Emulator allows the emulation of a contact-less smart card.
-The emulator uses Android's |HCE| to fetch APDUs from a contact-less reader and
-delegate them to Java Card Applets. The app includes the Java Card simulation
-runtime of jCardSim_ as well as the following Java Card applets:
+The emulator uses Android's |HCE| to fetch APDUs from a contact-less reader.
+The app allows to process the Command APDUs either by delegating them to a
+remote virtual smart card or by a built-in Java Card simulator. The response
+APDUs are then returned to the smart card reader.
+
+With the built-in Java Card runtime of jCardSim_ the app includes the follwoing
+Applets:
 
 - `Hello World Applet`_ (application identifier ``F000000001``)
 - `OpenPGP Applet`_ (application identifier ``D2760001240102000000000000010000``)
 - `OATH Applet`_ (application identifier ``A000000527210101``)
 - `ISO Applet`_ (application identifier ``F276A288BCFBA69D34F31001``)
-- `MUSCLE Applet`_ (application identifier ``A00000000101``)
+- `GIDS Applet`_ (application identifier ``A000000397425446590201``)
+
+The remote interface can be used together with the :ref:`vicc`, which allows
+emulating the following cards:
+
+- Generic ISO-7816 smart card
+- German electronic identity card (nPA)
+- Electronic passport
+
+You may also attach your own simulation to the remote interface by implementing
+a simple interface through a socket communication.
 
 .. tikz:: Simulate a contact-less smart card with Android Smart Card Emulator
     :stringsubst:
@@ -104,7 +118,7 @@ Notes and References
 .. _OpenPGP Applet: https://developers.yubico.com/ykneo-openpgp/
 .. _OATH Applet: https://developers.yubico.com/ykneo-oath/
 .. _ISO Applet: http://www.pwendland.net/IsoApplet/
-.. _MUSCLE Applet: https://github.com/martinpaljak/MuscleApplet/tree/d005f36209bdd7020bac0d783b228243126fd2f8
+.. _GIDS Applet: https://github.com/vletoux/GidsApplet
 .. _Virtual Keycard: https://github.com/eriknellessen/Virtual-Keycard
 .. _F-Droid: https://f-droid.org/repository/browse/?fdid=com.vsmartcard.remotesmartcardreader.app
 .. _Android Studio: http://developer.android.com/sdk/installing/studio.html
