@@ -44,10 +44,10 @@ emulating the following cards:
 You may also attach your own simulation to the remote interface by implementing
 a simple interface through a socket communication.
 
-.. tikz:: Simulate a contact-less smart card with Android Smart Card Emulator
+.. tikz:: Simulate a contact-less Java Card with Android Smart Card Emulator
     :stringsubst:
     :libs: arrows, calc, fit, patterns, plotmarks, shapes.geometric, shapes.misc, shapes.symbols, shapes.arrows, shapes.callouts, shapes.multipart, shapes.gates.logic.US, shapes.gates.logic.IEC, er, automata, backgrounds, chains, topaths, trees, petri, mindmap, matrix, calendar, folding, fadings, through, positioning, scopes, decorations.fractals, decorations.shapes, decorations.text, decorations.pathmorphing, decorations.pathreplacing, decorations.footprints, decorations.markings, shadows
- 
+
     \input{%(wd)s/bilder/tikzstyles.tex}
     \node (reader) {\includegraphics[width=3cm]{%(wd)s/bilder/my_cardreader.pdf}};
     \node [below=0cm of reader, kleiner] {Contact-less Reader};
@@ -58,13 +58,31 @@ a simple interface through a socket communication.
         \draw [rfid] (reader.center) -- (phone.west) ;
     \end{pgfonlayer}
 
+.. tikz:: Simulate a contact-less smart card with a remote virtual smart card
+    :stringsubst:
+    :libs: arrows, calc, fit, patterns, plotmarks, shapes.geometric, shapes.misc, shapes.symbols, shapes.arrows, shapes.callouts, shapes.multipart, shapes.gates.logic.US, shapes.gates.logic.IEC, er, automata, backgrounds, chains, topaths, trees, petri, mindmap, matrix, calendar, folding, fadings, through, positioning, scopes, decorations.fractals, decorations.shapes, decorations.text, decorations.pathmorphing, decorations.pathreplacing, decorations.footprints, decorations.markings, shadows
+
+    \input{%(wd)s/bilder/tikzstyles.tex}
+    \node (reader) {\includegraphics[width=3cm]{%(wd)s/bilder/my_cardreader.pdf}};
+    \node [below=0cm of reader, kleiner] {Contact-less Reader};
+    \node (phone) [right=1cm of reader] {\includegraphics[width=3cm]{%(wd)s/bilder/smartphone.pdf}};
+    \node (app) [at=(phone.center)] {\includegraphics[width=2.8cm, height=4.9cm]{%(wd)s/bilder/ACardEmulator.png}};
+    \node (vicc) [aktivbox, right=2cm of phone, kleiner] {\texttt{vicc --reversed}};
+
+    \begin{pgfonlayer}{background}
+        \draw [rfid] (reader.center) -- (phone.west) ;
+        \path[linie] (phone) edge node {\includegraphics[width=1.5cm]{%(wd)s/bilder/simplecloud.pdf}} (vicc) ;
+    \end{pgfonlayer}
+
 The Android Smart Card Emulator has the following dependencies:
 
 - NFC hardware built into the smartphone for |HCE|
 - Android 4.4 "KitKat" (or newer) or CyanogenMod 11 (or newer)
-- permissions for a data connection (communication with |vicc|) and for using
-  NFC (communication to the reader); scanning the configuration via QR code
-  requires permission to access the camera
+- permissions for a data connection (communication with Virtual Smart Card) and
+  for using NFC (communication to the reader); scanning the configuration via
+  QR code requires permission to access the camera
+- Virtual Smart Card :ref:`installed on the host computer<vicc_install>` for
+  using the remote interface
 
 For emulating a contact-less smart card with a desktop or notebook, have a look at :ref:`pcsc-relay`.
 
