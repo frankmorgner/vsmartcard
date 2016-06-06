@@ -19,13 +19,11 @@ Remote Smart Card Reader
     :Tested Platform:
         Android, CyanogenMod
 
-The Remote Smart Card Reader allows a host computer to use the smartphone's NFC
-hardware as contact-less smart card reader. On the host computer, a special
-smart card driver, |vpcd| must be installed. The Remote Smart Card Reader
-establishes a connection to |vpcd| over the network when a contact-less card is
-detected. Since |vpcd| integrates seamlessly into the PC/SC framework of the
-host system, the contact-less card can be accessed by a typical smart card
-application, for example OpenSC_.
+Allow a host computer to use the smartphone's NFC hardware as contact-less
+smartcard reader. On the host computer a special smart card driver, |vpcd|, must
+be installed. The app establishes a connection to |vpcd| over the network when a
+contact-less card is detected.
+
 
 .. tikz:: Remote Smart Card Reader used to access a contact-less card
     :stringsubst:
@@ -52,7 +50,7 @@ application, for example OpenSC_.
 The Remote Smart Card Reader has the following dependencies:
 
 - NFC hardware built into the smartphone
-- Android 4.4 "KitKat" (or newer) or CyanogenMod 11 (or newer)
+- Android 4.4 "KitKat" or CyanogenMod 11 (or newer)
 - permissions for a data connection (communication with |vpcd|) and for using
   NFC (communication to the card); scanning the configuration via QR code
   requires permission to access the camera
