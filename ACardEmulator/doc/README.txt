@@ -62,6 +62,9 @@ The Android Smart Card Emulator has the following dependencies:
 
 - NFC hardware built into the smartphone for |HCE|
 - Android 4.4 "KitKat" (or newer) or CyanogenMod 11 (or newer)
+- permissions for a data connection (communication with |vicc|) and for using
+  NFC (communication to the reader); scanning the configuration via QR code
+  requires permission to access the camera
 
 For emulating a contact-less smart card with a desktop or notebook, have a look at :ref:`pcsc-relay`.
 
@@ -69,7 +72,7 @@ Please note that the currently emulated applets are verifying the PIN by
 transmitting it without any protection between card and terminal. You may want
 to have a look at `Erik Nellesson's
 <http://sar.informatik.hu-berlin.de/research/publications/SAR-PR-2014-08/SAR-PR-2014-08_.pdf>`_
-`Virtual Keycard`_,which uses the PACE protocol for PIN verification.
+`Virtual Keycard`_, which uses the PACE protocol for PIN verification.
 
 
 .. _acardemulator_install:
