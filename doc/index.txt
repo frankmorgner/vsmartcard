@@ -50,7 +50,6 @@ Currently the following projects are part of |vsmartcard|:
    ACardEmulator/README
    pcsc-relay/README
    ccid/README
-   npa/README
 
 Looking for a feature the included programs do not offer? Want to extend the
 functionality of some library? Apart from requesting a new feature, you can
@@ -60,7 +59,6 @@ have a look at these programming guides and try yourself:
    :maxdepth: 1
 
    virtualsmartcard/api
-   npa/api
 
 .. image:: https://img.shields.io/travis/frankmorgner/vsmartcard/master.svg?label=Travis%20CI%20build
     :target: https://travis-ci.org/frankmorgner/vsmartcard

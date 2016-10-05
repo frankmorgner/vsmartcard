@@ -19,6 +19,8 @@
 #include <asm/byteorder.h>
 #include <libopensc/log.h>
 #include <libopensc/opensc.h>
+#include <libopensc/reader-boxing.h>
+#include <sm/sm-eac.h>
 #include <openssl/evp.h>
 #include <stdarg.h>
 #include <stdint.h>
@@ -28,19 +30,17 @@
 #include <unistd.h>
 
 #include "ccid.h"
-#include "sslutil.h"
 #include "config.h"
 
 #include <npa/scutil.h>
 
+#ifndef HAVE_BOXING_BUF_TO_PACE_INPUT
+#include <libopensc/reader-boxing.c>
+#endif
+
 static sc_context_t *ctx = NULL;
 static sc_card_t *card = NULL;
 static sc_reader_t *reader = NULL;
-
-#ifdef WITH_PACE
-#include <npa/boxing.h>
-#include <npa/iso-sm.h>
-#include <npa/npa.h>
 
 static int
 perform_pseudo_apdu_EstablishPACEChannel(sc_apdu_t *apdu)
@@ -88,9 +88,6 @@ perform_pseudo_apdu_GetReaderPACECapabilities(sc_apdu_t *apdu)
     return boxing_pace_capabilities_to_buf(reader->ctx,
             sc_reader_t_capabilities, &apdu->resp, &apdu->resplen);
 }
-#else
-int sc_sm_stop(struct sc_card *card) { return SC_SUCCESS; }
-#endif
 
 static int
 perform_PC_to_RDR_GetSlotStatus(const __u8 *in, size_t inlen, __u8 **out, size_t *outlen);
@@ -577,29 +574,19 @@ perform_pseudo_apdu(sc_reader_t *reader, sc_apdu_t *apdu)
                             break;
                         case 0x01:
                             /* GetReaderPACECapabilities */
-#ifdef WITH_PACE
                             LOG_TEST_RET(ctx,
                                     perform_pseudo_apdu_GetReaderPACECapabilities(apdu),
                                     "Could not get reader's PACE Capabilities");
                             apdu->sw1 = iso_sw_ok.sw1;
                             apdu->sw2 = iso_sw_ok.sw2;
-#else
-                            apdu->sw1 = 0x6D;
-                            apdu->sw2 = 0x00;
-#endif
                             break;
                         case 0x02:
                             /* EstablishPACEChannel */
-#ifdef WITH_PACE
                             LOG_TEST_RET(ctx,
                                     perform_pseudo_apdu_EstablishPACEChannel(apdu),
                                     "Could not perform PACE");
                             apdu->sw1 = iso_sw_ok.sw1;
                             apdu->sw2 = iso_sw_ok.sw2;
-#else
-                            apdu->sw1 = 0x6D;
-                            apdu->sw2 = 0x00;
-#endif
                             break;
                         case 0x03:
                             /* DestroyPACEChannel */
@@ -949,7 +936,6 @@ write_pin(sc_apdu_t *apdu, struct sc_pin_cmd_pin *pin, uint8_t blocksize,
             blocksize - justify_offset, pin, encoding, sc_result);
 }
 
-#ifdef WITH_PACE
 static int
 perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
         const __u8 *abData, size_t abDatalen,
@@ -1197,23 +1183,6 @@ perform_PC_to_RDR_Secure_GetReadersPACECapabilities(__u8 **abDataOut,
 
     return SC_SUCCESS;
 }
-#else
-static int
-perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
-        const __u8 *abData, size_t abDatalen,
-        __u8 **abDataOut, size_t *abDataOutLen)
-{
-    sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "ccid compiled without PACE support.");
-    return SC_ERROR_NOT_SUPPORTED;
-}
-static int
-perform_PC_to_RDR_Secure_GetReadersPACECapabilities(__u8 **abDataOut,
-        size_t *abDataOutLen)
-{
-    sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "ccid compiled without PACE support.");
-    return SC_ERROR_NOT_SUPPORTED;
-}
-#endif
 
 static int
 perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outlen)
@@ -1394,7 +1363,6 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
                 0)) {
             sc_result = SC_ERROR_INTERNAL;
             sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Could not read PIN.\n");
-			ssl_error(ctx);
             goto err;
         }
     } else {
@@ -1406,7 +1374,6 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
                         0)) {
                 sc_result = SC_ERROR_INTERNAL;
                 sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Could not read current PIN.\n");
-				ssl_error(ctx);
                 goto err;
             }
         }
@@ -1417,7 +1384,6 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
                     modify->bConfirmPIN & CCID_PIN_CONFIRM_NEW)) {
             sc_result = SC_ERROR_INTERNAL;
             sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Could not read new PIN.\n");
-			ssl_error(ctx);
             goto err;
         }
     }

@@ -1,7 +1,3 @@
-[submodule "npa/src/opensc"]
-	path = npa/src/opensc
-	url = git://github.com/OpenSC/OpenSC.git
-	ignore = dirty
 [submodule "ACardEmulator/app/src/main/external/ykneo-openpgp"]
 	path = ACardEmulator/app/src/main/external/ykneo-openpgp
 	url = https://github.com/Yubico/ykneo-openpgp.git
@@ -17,3 +13,6 @@
 [submodule "ACardEmulator/app/src/main/external/GidsApplet"]
 	path = ACardEmulator/app/src/main/external/GidsApplet
 	url = https://github.com/vletoux/GidsApplet.git
+[submodule "ccid/src/OpenSC"]
+	path = ccid/src/OpenSC
+	url = https://github.com/frankmorgner/OpenSC

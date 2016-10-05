@@ -39,25 +39,8 @@ install:
     fi
 
 before_script:
-  # libnpa requires OpenPACE
-  - git clone https://github.com/frankmorgner/openpace && cd openpace
-  - autoreconf -vis
-  - if [ -z "$HOST" ]; then
-      ./configure --prefix=$PREFIX --enable-openssl-install --enable-python || cat config.log;
-    else
-      export CROSS_COMPILE=$HOST-;
-      ./configure --prefix=$PREFIX --enable-openssl-install --host=$HOST --enable-openssl-install || cat config.log;
-      touch src/cvc-create.1 src/cvc-print.1;
-    fi
-  - make install
-  # libnpa requires OpenSC
-  - cd $TRAVIS_BUILD_DIR/npa/src/opensc
-  - grep _sc_card_add_ec_alg src/libopensc/libopensc.exports || echo _sc_card_add_ec_alg >> src/libopensc/libopensc.exports
-  - grep _sc_card_add_rsa_alg src/libopensc/libopensc.exports || echo _sc_card_add_rsa_alg >> src/libopensc/libopensc.exports
-  - grep _sc_match_atr src/libopensc/libopensc.exports || echo _sc_match_atr >> src/libopensc/libopensc.exports
-  - grep sc_apdu_set_resp src/libopensc/libopensc.exports || echo sc_apdu_set_resp >> src/libopensc/libopensc.exports
-  - grep sc_apdu_get_octets src/libopensc/libopensc.exports || echo sc_apdu_get_octets >> src/libopensc/libopensc.exports
-  - grep sc_pkcs15_pincache_add src/libopensc/libopensc.exports || echo sc_pkcs15_pincache_add >> src/libopensc/libopensc.exports
+  # ccid requires OpenSC
+  - git clone https://github.com/frankmorgner/OpenSC && cd OpenSC
   - ./bootstrap
   - if [ -z "$HOST" ]; then
       ./configure --prefix=$PREFIX || cat config.log;
@@ -65,15 +48,6 @@ before_script:
       ./configure --prefix=$PREFIX --host=$HOST LDFLAGS="-I$PREFIX/include" CFLAGS="-I$PREFIX/include" CXXFLAGS="-I$PREFIX/include" LIBS="-I$PREFIX/include" || cat config.log;
     fi
   - make install
-  # Configure libnpa
-  - cd $TRAVIS_BUILD_DIR/npa
-  - autoreconf -vsi
-  - if [ -z "$HOST" ]; then
-      ./configure OPENSC_LIBS="-L$PREFIX/lib -lopensc -lcrypto" || cat config.log;
-    else
-      ./configure --host=$HOST OPENSC_LIBS="-L$PREFIX/lib -lopensc -lcrypto" || cat config.log;
-      touch src/npa-tool.1;
-    fi
   # Configure virtualsmartcard
   - cd $TRAVIS_BUILD_DIR/virtualsmartcard && autoreconf -vsi
   - if [ -z "$HOST" ]; then
@@ -94,7 +68,7 @@ before_script:
       ./configure --host=$HOST || cat config.log;
     fi
   - if [ -z "$HOST" ]; then
-      cd $TRAVIS_BUILD_DIR/ccid && autoreconf -vsi && ./configure OPENSSL_CFLAGS="-I$PREFIX/include" OPENSSL_LIBS="-L$PREFIX/lib -lcrypto" OPENSC_LIBS="-L$PREFIX/lib -lopensc" || cat config.log;
+      cd $TRAVIS_BUILD_DIR/ccid && autoreconf -vsi && ./configure OPENSC_LIBS="-L$PREFIX/lib -lopensc" || cat config.log;
     fi
 
 addons:
@@ -107,8 +81,6 @@ addons:
     branch_pattern: coverity_scan
 
 script:
-  # Build libnpa
-  - make -C $TRAVIS_BUILD_DIR/npa
   # Build virtualsmartcard
   - make -C $TRAVIS_BUILD_DIR/virtualsmartcard
   # Verify virtualsmartcard

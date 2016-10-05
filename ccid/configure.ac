@@ -75,43 +75,19 @@ CPPFLAGS="$saved_CPPFLAGS"
 LIBS="$saved_LIBS"
 
 # --enable-pace
-WITH_PACE=no
-AC_ARG_ENABLE(pace,
-              AS_HELP_STRING([--enable-pace], [Enable Password Authenticated Connection Establishment (PACE) @<:@detect@:>@]),
-              [enable_pace="${enableval}"], [enable_pace=detect])
 saved_CPPFLAGS="$CPPFLAGS"
 saved_LIBS="$LIBS"
-if test "x$enable_pace" != xno ; then
-    WITH_PACE=yes
-    PKG_CHECK_EXISTS([libnpa],
-                     [PKG_CHECK_MODULES([LIBNPA], [libnpa])],
-                     [AC_MSG_WARN([libnpa not found by pkg-config])])
-    CPPFLAGS="$CPPFLAGS $LIBNPA_CFLAGS -I${srcdir}/src/opensc/src"
-    LIBS="$LDFLAGS $LIBNPA_LIBS"
-    AC_CHECK_HEADERS(npa/npa.h, [], [ WITH_PACE=no ])
-    AC_MSG_CHECKING([for perform_pace])
-    AC_TRY_LINK_FUNC(perform_pace, [ AC_MSG_RESULT([yes]) ], [ WITH_PACE=no ])
-
-    if test x$WITH_PACE = xno -a x$enable_pace = xyes ; then
-        AC_MSG_ERROR([libnpa not found, use ./configure LIBNPA_CFLAGS=... LIBNPA_LIBS=...])
-    fi
-fi
-if test "x$WITH_PACE" == xno ; then
-    PKG_CHECK_EXISTS([libopensc],
-                     [PKG_CHECK_MODULES([OPENSC], [libopensc >= 0.12.1])],
-                     [AC_MSG_WARN([libopensc >= 0.12.1 not found by pkg-config])])
-    test -z "$OPENSC_LIBS" && OPENSC_LIBS="-lopensc $OPENSSL_LIBS"
-    LIBS="$LDFLAGS $OPENSC_LIBS"
-    AC_MSG_CHECKING([for sc_bytes2apdu])
-    AC_TRY_LINK_FUNC(sc_bytes2apdu, [ AC_MSG_RESULT([yes]) ],
-    [ AC_MSG_ERROR([libopensc >= 0.12.1 not found, use ./configure OPENSC_LIBS=...]) ])
-fi
-AC_CHECK_FUNCS([sc_apdu_set_resp sc_apdu_get_octets _sc_match_atr])
+PKG_CHECK_EXISTS([libopensc],
+                 [PKG_CHECK_MODULES([OPENSC], [libopensc >= 0.12.1])],
+                 [AC_MSG_WARN([libopensc >= 0.12.1 not found by pkg-config])])
+test -z "$OPENSC_LIBS" && OPENSC_LIBS="-lopensc $OPENSSL_LIBS"
+LIBS="$LDFLAGS $OPENSC_LIBS"
+AC_MSG_CHECKING([for sc_bytes2apdu])
+AC_TRY_LINK_FUNC(sc_bytes2apdu, [ AC_MSG_RESULT([yes]) ],
+[ AC_MSG_ERROR([libopensc >= 0.12.1 not found, use ./configure OPENSC_LIBS=...]) ])
+AC_CHECK_FUNCS([sc_apdu_set_resp sc_apdu_get_octets _sc_match_atr boxing_buf_to_pace_input])
 CPPFLAGS="$saved_CPPFLAGS"
 LIBS="$saved_LIBS"
-
-AM_CONDITIONAL(WITH_PACE, test "${WITH_PACE}" = "yes")
-AM_COND_IF(WITH_PACE, [AC_DEFINE(WITH_PACE, 1, [enable PACE support])])
 
 
 PACKAGE_SUMMARY="Emulate a USB CCID compliant smart card reader"
@@ -157,10 +133,6 @@ PTHREAD_LIBS:         ${PTHREAD_LIBS}
 OPENSC_LIBS:          ${OPENSC_LIBS}
 OPENSSL_CFLAGS:       ${OPENSSL_CFLAGS}
 OPENSSL_LIBS:         ${OPENSSL_LIBS}
-LIBNPA_CFLAGS:        ${LIBNPA_CFLAGS}
-LIBNPA_LIBS:          ${LIBNPA_LIBS}
-
-PACE support:         ${WITH_PACE}
 
 
 HELP2MAN:             ${HELP2MAN}

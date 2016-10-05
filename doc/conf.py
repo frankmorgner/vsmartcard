@@ -11,16 +11,13 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys, os, breathe, sphinx_bootstrap_theme
-from sphinxcontrib.doxylink import doxylink
+import sys, os, sphinx_bootstrap_theme
 from datetime import date
 
-os.system("make doc -C npa")
 os.system("make doc -C virtualsmartcard")
 os.system("make doc -C ccid")
 os.system("make doc -C pcsc-relay")
 
-os.environ['PATH'] = os.path.abspath('../npa/src') + os.pathsep + os.environ['PATH']
 os.environ['PATH'] = os.path.abspath('../pcsc-relay/src') + os.pathsep + os.environ['PATH']
 os.environ['PATH'] = os.path.abspath('../virtualsmartcard/src/vpicc') + os.pathsep + os.environ['PATH']
 
@@ -36,7 +33,7 @@ needs_sphinx = '1.1'
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ["breathe", "sphinxcontrib.doxylink", "sphinx.ext.autosummary", "sphinxcontrib.programoutput", "sphinx.ext.inheritance_diagram", "sphinxcontrib.tikz", 'sphinxcontrib.bibtex']
+extensions = ["sphinx.ext.autosummary", "sphinxcontrib.programoutput", "sphinx.ext.inheritance_diagram", "sphinxcontrib.tikz", 'sphinxcontrib.bibtex']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -247,8 +244,3 @@ man_pages = [
     ('index', 'virtualsmartcardarchitecture', u'Virtual Smartcard Architecture Documentation',
      [u'Dominik Oepen, Frank Morgner'], 1)
 ]
-
-breathe_projects = {"npa": "npa/xml"}
-breathe_default_project = "npa"
-
-doxylink = { 'npa' : ('npa/npa.tag', '_static/doxygen-npa/'), }
