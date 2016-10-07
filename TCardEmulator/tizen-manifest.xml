@@ -8,8 +8,8 @@
         <metadata key="accessory-services-location" value="/res/accessoryservices.xml"/>
     </service-application>
     <privileges>
-        <privilege>http://developer.samsung.com/tizen/privilege/accessoryprotocol</privilege>
         <privilege>http://tizen.org/privilege/nfc.cardemulation</privilege>
+        <privilege>http://developer.samsung.com/tizen/privilege/accessoryprotocol</privilege>
     </privileges>
     <feature name="http://tizen.org/feature/network.nfc.card_emulation.hce">true</feature>
 </manifest>

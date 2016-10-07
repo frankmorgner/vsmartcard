@@ -5,9 +5,13 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-unsigned char *rapdu = NULL;
-size_t rapdu_length = 0;
-gboolean rapdu_received = FALSE;
+typedef struct appdata {
+
+} appdata_s;
+
+//unsigned char *rapdu = NULL;
+//size_t rapdu_length = 0;
+//gboolean rapdu_received = FALSE;
 
 	static void
 hce_event_cb(nfc_se_h handle, nfc_hce_event_type_e event,
@@ -17,32 +21,40 @@ hce_event_cb(nfc_se_h handle, nfc_hce_event_type_e event,
 		case NFC_HCE_EVENT_DEACTIVATED:
 			// Do something when NFC_HCE_EVENT_DEACTIVATED event arrives
 			// When the event arrives, apdu and apdu len is NULL and 0
+			dlog_print(DLOG_DEBUG, LOG_TAG, "received NFC_HCE_EVENT_DEACTIVATED event on NFC handle %d", handle);
 			terminate_service_connection();
 			break;
 
 		case NFC_HCE_EVENT_ACTIVATED:
 			// Do something when NFC_HCE_EVENT_ACTIVATED event arrives
 			// When the event arrives, apdu and apdu len is NULL and 0
+			dlog_print(DLOG_DEBUG, LOG_TAG, "received NFC_HCE_EVENT_ACTIVATED event on NFC handle %d", handle);
 			find_peers();
 			break;
 
 		case NFC_HCE_EVENT_APDU_RECEIVED:
-			rapdu_received = FALSE;
-			send_data(apdu, apdu_len);
-			size_t count = 0;
-			while (!rapdu_received && count < 10) {
-				dlog_print(DLOG_INFO, LOG_TAG, "waiting for response");
-				usleep(100);
-				count++;
-			}
-			nfc_hce_send_apdu_response(handle, rapdu, rapdu_length);
-			rapdu_received = FALSE;
+//			rapdu_received = FALSE;
+			dlog_print(DLOG_DEBUG, LOG_TAG, "received NFC_HCE_EVENT_APDU_RECEIVED event on NFC handle %d", handle);
+			send_data(handle, apdu, apdu_len);
+//			size_t count_apdu = 0;
+//			while (!rapdu_received && count_apdu < 10) {
+//				dlog_print(DLOG_INFO, LOG_TAG, "waiting for response");
+//				usleep(100);
+//				count_apdu++;
+//			}
+//			nfc_hce_send_apdu_response(handle, rapdu, rapdu_length);
+//			rapdu_received = FALSE;
 			break;
 
 		default:
 			// Error handling
 			break;
 	}
+}
+
+void send_apdu_response(nfc_se_h handle, unsigned char *resp, unsigned int resp_len) {
+	dlog_print(DLOG_DEBUG, LOG_TAG, "sending data to nfc handle: %d", handle);
+	nfc_hce_send_apdu_response(handle, resp, resp_len);
 }
 
 	bool
@@ -76,6 +88,8 @@ service_app_create(void *data)
 	if (ret != NFC_ERROR_NONE) {
 		dlog_print(DLOG_ERROR, LOG_TAG, "nfc_manager_set_hce_event_cb failed : %d", ret);
 		goto err;
+	} else {
+		dlog_print(DLOG_DEBUG, LOG_TAG, "nfc_manager_set_hce_event_cb succeeded");
 	}
 
 	initialize_sap();
@@ -101,10 +115,10 @@ service_app_terminate(void *data)
 
 	terminate_service_connection();
 
-	free(rapdu);
-	rapdu = NULL;
-	rapdu_length = 0;
-	rapdu_received = FALSE;
+//	free(rapdu);
+//	rapdu = NULL;
+//	rapdu_length = 0;
+//	rapdu_received = FALSE;
 
 	return;
 }
@@ -118,19 +132,19 @@ service_app_control(app_control_h app_control, void *data)
 }
 
 	void
-service_app_low_memory_callback(void *data)
+service_app_low_memory(void *data)
 {
 	// Todo: add your code here
-	service_app_exit();
+	service_app_terminate(&data);
 
 	return;
 }
 
 	void
-service_app_low_battery_callback(void *data)
+service_app_low_battery(void *data)
 {
 	// Todo: add your code here
-	service_app_exit();
+	service_app_terminate(&data);
 
 	return;
 }
@@ -138,29 +152,30 @@ service_app_low_battery_callback(void *data)
 	int
 main(int argc, char* argv[])
 {
-	char ad[50] = {0,};
+	appdata_s ad = {};
 
 	service_app_event_callback_s event_callback;
 
 	event_callback.create = service_app_create;
 	event_callback.terminate = service_app_terminate;
 	event_callback.app_control = service_app_control;
-	event_callback.low_memory = service_app_low_memory_callback;
-	event_callback.low_battery = service_app_low_battery_callback;
+	event_callback.low_memory = service_app_low_memory;
+	event_callback.low_battery = service_app_low_battery;
 
-#if 1
-	initialize_sap();
-	find_peers();
-	rapdu_received = FALSE;
-	unsigned char apdu[] = {0x00, 0xa4, 0x00, 0x00};
-	send_data(apdu, sizeof apdu);
-	size_t count = 0;
-	while (!rapdu_received && count < 10) {
-		dlog_print(DLOG_INFO, LOG_TAG, "waiting for response");
-		usleep(100);
-		count++;
-	}
-#endif
 
-	return svc_app_main(argc, argv, &event_callback, ad);
+//#if 1
+//	initialize_sap();
+//	find_peers();
+//	rapdu_received = FALSE;
+//	unsigned char apdu[] = {0x00, 0xa4, 0x00, 0x00};
+//	send_data(apdu, sizeof apdu);
+//	size_t count = 0;
+//	while (!rapdu_received && count < 10) {
+//		dlog_print(DLOG_INFO, LOG_TAG, "waiting for response");
+//		usleep(100);
+//		count++;
+//	}
+//#endif
+
+	return svc_app_main(argc, argv, &event_callback, &ad);
 }

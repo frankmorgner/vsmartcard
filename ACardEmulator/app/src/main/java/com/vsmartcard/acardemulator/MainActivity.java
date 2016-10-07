@@ -120,6 +120,9 @@ public class MainActivity extends AppCompatActivity {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(EmulatorSingleton.TAG);
         bManager.registerReceiver(bReceiver, intentFilter);
+
+        Intent serviceIntent = new Intent(this.getApplicationContext(), SmartcardProviderService.class);
+        startService(serviceIntent);
     }
 
     @Override

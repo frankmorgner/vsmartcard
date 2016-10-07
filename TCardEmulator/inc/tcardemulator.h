@@ -9,18 +9,19 @@
 
 #include <stddef.h>
 #include <glib.h>
+#include <nfc.h>
 
-extern unsigned char *rapdu;
-extern size_t rapdu_length;
-extern gboolean rapdu_received;
+//extern unsigned char *rapdu;
+//extern size_t rapdu_length;
+//extern gboolean rapdu_received;
 
-#define HELLO_ACC_ASPID "/sample/hello"
+#define HELLO_ACC_ASPID "/com/vsmcartcard"
 #define HELLO_ACC_CHANNELID 104
 
 void     initialize_sap();
 gboolean find_peers();
 gboolean request_service_connection(void);
 gboolean terminate_service_connection(void);
-gboolean send_data(void *message, unsigned int message_len);
+gboolean send_data(nfc_se_h nfc_handle, void *message, unsigned int message_len);
 
 #endif /* __tcardemulator_H__ */

@@ -27,10 +27,10 @@
     ]>
 <resources>
 
-    <application name="HelloAccessoryProvider" >
+    <application name="VirtualSmartCardReader" >
         <serviceProfile
-            id="/sample/hello"
-            name="helloaccessory"
+            id="/com/vsmcartcard"
+            name="VirtualSmartCardReaderProvider"
             role="provider"
             serviceImpl="com.vsmartcard.acardemulator.SmartcardProviderService"
             version="1.0"

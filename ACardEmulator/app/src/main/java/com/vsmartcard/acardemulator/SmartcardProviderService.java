@@ -60,7 +60,7 @@ public class SmartcardProviderService extends SAAgent {
             EmulatorSingleton.createEmulator(this);
         } catch (SsdkUnsupportedException e) {
             // try to handle SsdkUnsupportedException
-            if (processUnsupportedException(e) == true) {
+            if (processUnsupportedException(e)) {
                 EmulatorSingleton.createEmulator(this);
                 return;
             }
@@ -73,6 +73,7 @@ public class SmartcardProviderService extends SAAgent {
              */
             stopSelf();
         }
+        findPeerAgents();
     }
 
     @Override
@@ -82,13 +83,23 @@ public class SmartcardProviderService extends SAAgent {
 
     @Override
     protected void onFindPeerAgentsResponse(SAPeerAgent[] peerAgents, int result) {
+        switch (result) {
+            case PEER_AGENT_FOUND:
+                break;
+            case FINDPEER_SERVICE_NOT_FOUND:
+                break;
+            case FINDPEER_DEVICE_NOT_CONNECTED:
+                break;
+            default:
+                break;
+        }
         Log.d(TAG, "onFindPeerAgentResponse : result =" + result);
     }
 
     @Override
     protected void onServiceConnectionRequested(SAPeerAgent peerAgent) {
         if (peerAgent != null) {
-            Toast.makeText(getBaseContext(), "connection accepted", Toast.LENGTH_SHORT).show();
+            //TODO: Check for keys and everything
             acceptServiceConnectionRequest(peerAgent);
         }
     }
@@ -98,6 +109,7 @@ public class SmartcardProviderService extends SAAgent {
         if (result == SAAgent.CONNECTION_SUCCESS) {
             if (socket != null) {
                 mConnectionHandler = (ServiceConnection) socket;
+                Toast.makeText(getBaseContext(), "connection established", Toast.LENGTH_SHORT).show();
             }
         } else if (result == SAAgent.CONNECTION_ALREADY_EXIST) {
             Log.e(TAG, "onServiceConnectionResponse, CONNECTION_ALREADY_EXIST");

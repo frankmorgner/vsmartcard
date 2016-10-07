@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-	<application name="com.vsmartcard.tcardemulator">
-		<serviceProfile id="/sample/hello" name="HelloAccessoryConsumer"
+	<application name="VirtualSmartCardReader">
+		<serviceProfile id="/com/vsmcartcard" name="VirtualSmartCardReaderConsumer"
 			role="consumer" version="1.0">
 			<supportedTransports>
 				<transport type="TRANSPORT_BT" />
