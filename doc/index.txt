@@ -51,6 +51,11 @@ Currently the following projects are part of |vsmartcard|:
    pcsc-relay/README
    ccid/README
 
+.. toctree::
+   :hidden:
+
+   npa/README
+
 Looking for a feature the included programs do not offer? Want to extend the
 functionality of some library? Apart from requesting a new feature, you can
 have a look at these programming guides and try yourself:
