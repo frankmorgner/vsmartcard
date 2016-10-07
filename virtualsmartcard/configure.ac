@@ -6,7 +6,7 @@ AC_INIT([Virtual Smart Card], [0.8], [https://github.com/frankmorgner/vsmartcard
 AC_CONFIG_SRCDIR([src/vpcd/vpcd.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE(foreign)
 
 dnl Add libtool support.
 ifdef(

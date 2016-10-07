@@ -25,7 +25,7 @@ The app allows to process the Command APDUs either by delegating them to a
 remote virtual smart card or by a built-in Java Card simulator. The response
 APDUs are then returned to the smart card reader.
 
-With the built-in Java Card runtime of jCardSim_ the app includes the follwoing
+With the built-in Java Card runtime of jCardSim_ the app includes the following
 Applets:
 
 - `Hello World Applet`_ (application identifier ``F000000001``)

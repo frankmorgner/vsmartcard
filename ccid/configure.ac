@@ -6,7 +6,7 @@ AC_INIT([USB CCID Emulator], [0.8], [https://github.com/frankmorgner/vsmartcard/
 AC_CONFIG_SRCDIR([src/ccid.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE(foreign)
 AC_USE_SYSTEM_EXTENSIONS
 LT_INIT
 
@@ -74,7 +74,6 @@ AC_TRY_LINK_FUNC(EVP_read_pw_string_min, [ AC_MSG_RESULT([yes]) ], [ AC_MSG_ERRO
 CPPFLAGS="$saved_CPPFLAGS"
 LIBS="$saved_LIBS"
 
-# --enable-pace
 saved_CPPFLAGS="$CPPFLAGS"
 saved_LIBS="$LIBS"
 PKG_CHECK_EXISTS([libopensc],

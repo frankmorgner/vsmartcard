@@ -1,6 +1,5 @@
 .. highlight:: sh
 
-.. |libnpa| replace:: :ref:`libnpa`
 .. |PACE| replace:: :abbr:`PACE (Password Authenticated Connection Establishment)`
 
 .. _ccid-emulator:
@@ -22,7 +21,7 @@
 
 The @PACKAGE_NAME@ forwards a locally present PC/SC smart card reader as a
 standard USB CCID reader. @PACKAGE_NAME@ can be used as trusted intermediary
-enabling secure PIN entry and PIN modification. In combination with the |libnpa|
+enabling secure PIN entry and PIN modification. In combination with OpenSC_
 also |PACE| can be performed by the emulator.
 
 .. tikz:: Portable smart card reader with trusted user interface
@@ -142,7 +141,7 @@ tools.
 	};
 	\draw [box] ($(ccid.text split)-(.05cm,0)$) -- ($(ccid.south)-(.05cm,0)$);
 
-	\node (opensc) [box, below=of ccid, kleiner] {\texttt{libnpa} or OpenSC};
+	\node (opensc) [box, below=of ccid, kleiner] {OpenSC};
 
     \node (controller) [klein, right=0of kernel.two east, schicht]
     {Driver for USB Controller};
@@ -178,7 +177,6 @@ Running the @PACKAGE_NAME@ has the following dependencies:
 
 - Linux Kernel with GadgetFS_
 - OpenSC_
-- |libnpa| (only if support for |PACE| is enabled)
 
 Whereas using the @PACKAGE_NAME@ on the host system as smart card reader only
 needs a usable PC/SC middleware with USB CCID driver. This is the case for most
@@ -312,7 +310,7 @@ loading the module, you maybe want to check out `this patch
 Hints on OpenSC
 ===============
 
-Without the |libnpa| the @PACKAGE_NAME@ needs the OpenSC components to be
+@PACKAGE_NAME@ needs the OpenSC components to be
 installed (especially :file:`libopensc.so`). Here is an example of how to get
 the standard installation of OpenSC without |PACE|::
 
@@ -333,10 +331,6 @@ configure the @PACKAGE_NAME@ to use it::
     cd $VSMARTCARD/ccid
     ./configure --prefix=$PREFIX OPENSC_LIBS="-L$PREFIX/lib -lopensc"
     make install && cd -
-
-If you want |PACE| support for the emulated smart card reader the process is
-similar. Install |libnpa| and it should be recognized automatically by the
-:file:`configure` script.
 
 
 *****
@@ -367,7 +361,7 @@ Notes and References
 .. target-notes::
 
 .. _`GadgetFS`: http://www.linux-usb.org/gadget/
-.. _`OpenSC`: http://www.opensc-project.org/opensc
+.. _`OpenSC`: https://github.com/frankmorgner/OpenSC
 .. _`libccid`: http://pcsclite.alioth.debian.org/ccid.html
 .. _`Windows USB CCID driver`: http://msdn.microsoft.com/en-us/windows/hardware/gg487509
 .. _`OpenMoko Wiki`: http://wiki.openmoko.org/wiki/Building_Gadget_USB_Module

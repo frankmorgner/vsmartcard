@@ -6,7 +6,7 @@ AC_INIT([PC/SC Relay], [0.5], [https://github.com/frankmorgner/vsmartcard/issues
 AC_CONFIG_SRCDIR([src/pcsc-relay.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE(foreign)
 
 dnl Check for windows build
 case "${host}" in
