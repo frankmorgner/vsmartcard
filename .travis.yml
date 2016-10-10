@@ -76,9 +76,9 @@ addons:
     project:
       name: "frankmorgner/vsmartcard"
       description: "Umbrella project for various projects concerned with the emulation of different types of smart card readers or smart cards themselves"
-    notification_email: morgner@informatik.hu-berlin.de
-    build_command: make -C $TRAVIS_BUILD_DIR/npa -C $TRAVIS_BUILD_DIR/virtualsmartcard -C $TRAVIS_BUILD_DIR/ccid -C $TRAVIS_BUILD_DIR/pcsc-relay
-    branch_pattern: coverity_scan
+    notification_email: frankmorgner@gmail.com
+    build_command: make -C $TRAVIS_BUILD_DIR/virtualsmartcard -C $TRAVIS_BUILD_DIR/ccid -C $TRAVIS_BUILD_DIR/pcsc-relay
+    branch_pattern: master
 
 script:
   # Build virtualsmartcard
