@@ -10,10 +10,10 @@ do_subst = $(SED) \
 BUILT_SOURCES = cmdline.h cmdline.c
 
 EXTRA_DIST  = ccid-emulator.ggo ccid-emulator.ggo.in
-EXTRA_DIST += $(shell find $(top_srcdir)/src/OpenSC/src -path '*/.git' -prune -o -type f -a -name '*.h' -print)
+EXTRA_DIST += $(shell find $(top_srcdir)/src/OpenSC/src -path '*/.git' -prune -o -type f -a \( -name '*.h' -o -name 'apdu.c' -o -name 'card.c' \) -print)
 MAINTAINERCLEANFILES = $(BUILT_SOURCES) ccid-emulator.ggo $(dist_man1_MANS)
 
-dist_man1_MANS		= $(abs_builddir)/ccid-emulator.1
+dist_man1_MANS		= ccid-emulator.1
 
 ccid_emulator_SOURCES = ccid.c usbstring.c usb.c scutil.c $(BUILT_SOURCES)
 ccid_emulator_LDADD =  $(OPENSC_LIBS) $(OPENSSL_LIBS) $(PTHREAD_LIBS)
@@ -29,13 +29,13 @@ ccid-emulator.ggo: ccid-emulator.ggo.in
 	$(do_subst) < $< > $(srcdir)/$@
 
 
-$(abs_builddir)/ccid-emulator.1:
+ccid-emulator.1:
 	$(HELP2MAN) \
 		--output=$@ \
 		--no-info \
 		--source='$(PACKAGE_STRING)' \
 		--version-string='$(PACKAGE) $(VERSION)' \
-		$(srcdir)/ccid-emulator
+		$(builddir)/ccid-emulator
 
 
 bin_PROGRAMS = ccid-emulator

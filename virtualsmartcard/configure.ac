@@ -141,9 +141,10 @@ if test "${libpcsclite}" = no ; then
 		fi
 	fi
 else
-    builddir="`pwd`"
-	PCSC_CFLAGS="-DNO_LOG -I${builddir}/${srcdir}/src/pcsclite-vpcd/PCSC -I${builddir}/${srcdir}/src/pcsclite-vpcd"
-	PCSC_LIBS="$builddir/src/pcsclite-vpcd/libpcsclite.la"
+	builddir="`pwd`"
+	abs_srcdir="`cd ${srcdir}; pwd`"
+	PCSC_CFLAGS="-DNO_LOG -I${abs_srcdir}/src/pcsclite-vpcd/PCSC -I${builddir}/src/pcsclite-vpcd/PCSC"
+	PCSC_LIBS="${builddir}/src/pcsclite-vpcd/libpcsclite.la"
 	AC_SUBST(PCSC_CFLAGS)
 	AC_SUBST(PCSC_LIBS)
 fi

@@ -13,17 +13,17 @@ EXTRA_DIST  = pcsc-relay.ggo pcsc-relay.ggo.in
 EXTRA_DIST += picc.py
 MAINTAINERCLEANFILES = $(BUILT_SOURCES) npa-tool.ggo $(dist_man1_MANS)
 
-dist_man1_MANS		= $(abs_builddir)/pcsc-relay.1
+dist_man1_MANS		= pcsc-relay.1
 
 
-$(abs_builddir)/pcsc-relay.1:
+pcsc-relay.1:
 	$(HELP2MAN) \
 		--output=$@ \
 		--no-info \
 		--no-discard-stderr \
 		--source='$(PACKAGE_STRING)' \
 		--version-string='$(PACKAGE) $(VERSION)' \
-		$(srcdir)/pcsc-relay
+		$(builddir)/pcsc-relay
 
 
 bin_PROGRAMS = pcsc-relay

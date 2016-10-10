@@ -12,6 +12,7 @@ noinst_HEADERS = misc.h
 nobase_include_HEADERS  = \
 						  PCSC/pcsclite.h \
 						  PCSC/winscard.h \
+						  PCSC/ifdhandler.h \
 						  PCSC/wintypes.h
 
 pkgconfigdir = $(libdir)/pkgconfig
