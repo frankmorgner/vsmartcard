@@ -88,34 +88,6 @@ void _bin_log(sc_context_t *ctx, int type, const char *file, int line,
  */
 int print_avail(int verbose);
 
-/** 
- * @brief Recursively read an EF by short file identifier.
- *
- * @param[in]     card
- * @param[in]     sfid   Short file identifier
- * @param[in,out] ef     Where to safe the file. the buffer will be allocated
- *                       using \c realloc() and should be set to NULL, if
- *                       empty.
- * @param[in,out] ef_len Length of \a *ef
- *
- * @note The appropriate directory must be selected before calling this function.
- * */
-int read_binary_rec(sc_card_t *card, unsigned char sfid,
-        u8 **ef, size_t *ef_len);
-
-/**
- * @brief Recursively write an EF by short file identifier.
- *
- * @param[in] card
- * @param[in] sfid   Short file identifier
- * @param[in] ef     Date to write
- * @param[in] ef_len Length of \a ef
- *
- * @note The appropriate directory must be selected before calling this function.
- * */
-int write_binary_rec(sc_card_t *card, unsigned char sfid,
-        u8 *ef, size_t ef_len);
-
 /*
  * OPENSC functions that do not get exported (sometimes)
  */

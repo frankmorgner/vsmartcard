@@ -31,8 +31,7 @@
 
 #include "ccid.h"
 #include "config.h"
-
-#include <npa/scutil.h>
+#include "scutil.h"
 
 #ifndef HAVE_BOXING_BUF_TO_PACE_INPUT
 #include <libopensc/reader-boxing.c>

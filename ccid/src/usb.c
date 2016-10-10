@@ -35,7 +35,6 @@
 #include <linux/types.h>
 #include <linux/usb/gadgetfs.h>
 #include <linux/usb/ch9.h>
-#include <npa/scutil.h>
 //#include <usb.h>
 //
 
