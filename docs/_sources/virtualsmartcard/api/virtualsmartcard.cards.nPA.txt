@@ -1,0 +1,10 @@
+nPA Module
+==========
+
+.. inheritance-diagram:: virtualsmartcard.cards.nPA
+.. automodule:: virtualsmartcard.cards.nPA
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :show-inheritance:
+    :private-members:

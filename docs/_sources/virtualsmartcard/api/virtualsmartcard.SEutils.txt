@@ -1,0 +1,10 @@
+SEutils Module
+==============
+
+.. inheritance-diagram:: virtualsmartcard.SEutils
+.. automodule:: virtualsmartcard.SEutils
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :show-inheritance:
+    :private-members:

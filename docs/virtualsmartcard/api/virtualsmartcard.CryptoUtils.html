@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>CryptoUtils Module &mdash; vsmartcard 2016-10-10 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootswatch-3.3.4/flatly/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '2016-10-10',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
+    <link rel="shortcut icon" href="../../_static/chip.ico"/>
+    <link rel="top" title="vsmartcard 2016-10-10 documentation" href="../../index.html" />
+    <link rel="up" title="virtualsmartcard Package" href="virtualsmartcard.html" />
+    <link rel="next" title="SEutils Module" href="virtualsmartcard.SEutils.html" />
+    <link rel="prev" title="ConstantDefinitions Module" href="virtualsmartcard.ConstantDefinitions.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body role="document">
+  
+  <a href="https://github.com/frankmorgner/vsmartcard"
+     class="visible-desktop hidden-xs"><img
+    id="gh-banner"
+    style="position: absolute; top: 50px; right: 0; border: 0;"
+    src="https://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png"
+    alt="Fork me on GitHub"></a>
+  <script>
+    // Adjust banner height.
+    $(function () {
+      var navHeight = $(".navbar .container").css("height");
+      $("#gh-banner").css("top", navHeight);
+    });
+  </script>
+
+
+  <div id="navbar" class="navbar navbar-default ">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../index.html">
+          vsmartcard</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../README.html">Virtual Smart Card</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../remote-reader/README.html">Remote Smart Card Reader</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ACardEmulator/README.html">Android Smart Card Emulator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pcsc-relay/README.html">PC/SC Relay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ccid/README.html">USB CCID Emulator</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../npa/README.html">nPA Smart Card Library</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">Creating a Virtual Smart Card</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">CryptoUtils Module</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="virtualsmartcard.ConstantDefinitions.html" title="Previous Chapter: ConstantDefinitions Module"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; ConstantDefiniti...</span>
+    </a>
+  </li>
+  <li>
+    <a href="virtualsmartcard.SEutils.html" title="Next Chapter: SEutils Module"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">SEutils Module &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12 content">
+      
+  <div class="section" id="cryptoutils-module">
+<h1>CryptoUtils Module<a class="headerlink" href="#cryptoutils-module" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-virtualsmartcard.CryptoUtils"></span><dl class="function">
+<dt id="virtualsmartcard.CryptoUtils._makesalt">
+<code class="descclassname">virtualsmartcard.CryptoUtils.</code><code class="descname">_makesalt</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.CryptoUtils._makesalt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a 48-bit pseudorandom salt for crypt().</p>
+<p>This function is not suitable for generating cryptographic secrets.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="virtualsmartcard.CryptoUtils.append_padding">
+<code class="descclassname">virtualsmartcard.CryptoUtils.</code><code class="descname">append_padding</code><span class="sig-paren">(</span><em>blocklen</em>, <em>data</em>, <em>padding_class=1</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.CryptoUtils.append_padding" title="Permalink to this definition">¶</a></dt>
+<dd><p>Append padding to the data.
+Length of padding depends on length of data and the block size of the
+specified encryption algorithm.
+Different types of padding may be selected via the padding_class parameter</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="virtualsmartcard.CryptoUtils.calculate_MAC">
+<code class="descclassname">virtualsmartcard.CryptoUtils.</code><code class="descname">calculate_MAC</code><span class="sig-paren">(</span><em>session_key</em>, <em>message</em>, <em>iv='\x00\x00\x00\x00\x00\x00\x00\x00'</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.CryptoUtils.calculate_MAC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cyberflex MAC is the last Block of the input encrypted with DES3-CBC</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="virtualsmartcard.CryptoUtils.cipher">
+<code class="descclassname">virtualsmartcard.CryptoUtils.</code><code class="descname">cipher</code><span class="sig-paren">(</span><em>do_encrypt</em>, <em>cipherspec</em>, <em>key</em>, <em>data</em>, <em>iv=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.CryptoUtils.cipher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do a cryptographic operation.
+operation = do_encrypt ? encrypt : decrypt,
+cipherspec must be of the form &#8220;cipher-mode&#8221;, or &#8220;cipher&#8221;</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="virtualsmartcard.CryptoUtils.crypto_checksum">
+<code class="descclassname">virtualsmartcard.CryptoUtils.</code><code class="descname">crypto_checksum</code><span class="sig-paren">(</span><em>algo</em>, <em>key</em>, <em>data</em>, <em>iv=None</em>, <em>ssc=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.CryptoUtils.crypto_checksum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute various types of cryptographic checksums.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>algo</strong> &#8211; A string specifying the algorithm to use. Currently supported
+algorithms are &#8220;MAX&#8221; &#8220;HMAC&#8221; and &#8220;CC&#8221; (Meaning a cryptographic
+checksum as used by the ICAO passports)</li>
+<li><strong>key</strong> &#8211; They key used to computed the cryptographic checksum</li>
+<li><strong>data</strong> &#8211; The data for which to calculate the checksum</li>
+<li><strong>iv</strong> &#8211; Optional. An initialization vector. Only used by the &#8220;MAC&#8221; algorithm</li>
+<li><strong>ssc</strong> &#8211; Optional. A send sequence counter to be prepended to the data.
+Only used by the &#8220;CC&#8221; algorithm</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="virtualsmartcard.CryptoUtils.decrypt">
+<code class="descclassname">virtualsmartcard.CryptoUtils.</code><code class="descname">decrypt</code><span class="sig-paren">(</span><em>cipherspec</em>, <em>key</em>, <em>data</em>, <em>iv=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.CryptoUtils.decrypt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="virtualsmartcard.CryptoUtils.encrypt">
+<code class="descclassname">virtualsmartcard.CryptoUtils.</code><code class="descname">encrypt</code><span class="sig-paren">(</span><em>cipherspec</em>, <em>key</em>, <em>data</em>, <em>iv=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.CryptoUtils.encrypt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="virtualsmartcard.CryptoUtils.get_cipher">
+<code class="descclassname">virtualsmartcard.CryptoUtils.</code><code class="descname">get_cipher</code><span class="sig-paren">(</span><em>cipherspec</em>, <em>key</em>, <em>iv=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.CryptoUtils.get_cipher" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="virtualsmartcard.CryptoUtils.get_cipher_blocklen">
+<code class="descclassname">virtualsmartcard.CryptoUtils.</code><code class="descname">get_cipher_blocklen</code><span class="sig-paren">(</span><em>cipherspec</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.CryptoUtils.get_cipher_blocklen" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="virtualsmartcard.CryptoUtils.get_cipher_keylen">
+<code class="descclassname">virtualsmartcard.CryptoUtils.</code><code class="descname">get_cipher_keylen</code><span class="sig-paren">(</span><em>cipherspec</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.CryptoUtils.get_cipher_keylen" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="virtualsmartcard.CryptoUtils.hash">
+<code class="descclassname">virtualsmartcard.CryptoUtils.</code><code class="descname">hash</code><span class="sig-paren">(</span><em>hashmethod</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.CryptoUtils.hash" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="virtualsmartcard.CryptoUtils.operation_on_string">
+<code class="descclassname">virtualsmartcard.CryptoUtils.</code><code class="descname">operation_on_string</code><span class="sig-paren">(</span><em>string1</em>, <em>string2</em>, <em>op</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.CryptoUtils.operation_on_string" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="virtualsmartcard.CryptoUtils.strip_padding">
+<code class="descclassname">virtualsmartcard.CryptoUtils.</code><code class="descname">strip_padding</code><span class="sig-paren">(</span><em>blocklen</em>, <em>data</em>, <em>padding_class=1</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.CryptoUtils.strip_padding" title="Permalink to this definition">¶</a></dt>
+<dd><p>Strip the padding of decrypted data. Returns data without padding</p>
+</dd></dl>
+
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2009-2016 by Dominik Oepen and Frank Morgner.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

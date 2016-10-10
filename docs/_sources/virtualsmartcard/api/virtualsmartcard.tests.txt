@@ -1,0 +1,10 @@
+tests Package
+=============
+
+.. toctree::
+
+    virtualsmartcard.tests.CardGenerator_test
+    virtualsmartcard.tests.CryptoUtils_test
+    virtualsmartcard.tests.SmartcardSAM_test
+    virtualsmartcard.tests.utils_test
+

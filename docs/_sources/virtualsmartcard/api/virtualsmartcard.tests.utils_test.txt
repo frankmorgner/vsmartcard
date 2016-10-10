@@ -1,0 +1,10 @@
+utils_test Module
+=================
+
+.. inheritance-diagram:: virtualsmartcard.tests.utils_test
+.. automodule:: virtualsmartcard.tests.utils_test
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :show-inheritance:
+    :private-members:

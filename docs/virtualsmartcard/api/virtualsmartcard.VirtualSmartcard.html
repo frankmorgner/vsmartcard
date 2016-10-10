@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>VirtualSmartcard Module &mdash; vsmartcard 2016-10-10 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootswatch-3.3.4/flatly/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '2016-10-10',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
+    <link rel="shortcut icon" href="../../_static/chip.ico"/>
+    <link rel="top" title="vsmartcard 2016-10-10 documentation" href="../../index.html" />
+    <link rel="up" title="virtualsmartcard Package" href="virtualsmartcard.html" />
+    <link rel="next" title="utils Module" href="virtualsmartcard.utils.html" />
+    <link rel="prev" title="TLVutils Module" href="virtualsmartcard.TLVutils.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body role="document">
+  
+  <a href="https://github.com/frankmorgner/vsmartcard"
+     class="visible-desktop hidden-xs"><img
+    id="gh-banner"
+    style="position: absolute; top: 50px; right: 0; border: 0;"
+    src="https://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png"
+    alt="Fork me on GitHub"></a>
+  <script>
+    // Adjust banner height.
+    $(function () {
+      var navHeight = $(".navbar .container").css("height");
+      $("#gh-banner").css("top", navHeight);
+    });
+  </script>
+
+
+  <div id="navbar" class="navbar navbar-default ">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../index.html">
+          vsmartcard</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../README.html">Virtual Smart Card</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../remote-reader/README.html">Remote Smart Card Reader</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ACardEmulator/README.html">Android Smart Card Emulator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pcsc-relay/README.html">PC/SC Relay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ccid/README.html">USB CCID Emulator</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../npa/README.html">nPA Smart Card Library</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">Creating a Virtual Smart Card</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">VirtualSmartcard Module</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="virtualsmartcard.TLVutils.html" title="Previous Chapter: TLVutils Module"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; TLVutils Module</span>
+    </a>
+  </li>
+  <li>
+    <a href="virtualsmartcard.utils.html" title="Next Chapter: utils Module"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">utils Module &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12 content">
+      
+  <div class="section" id="virtualsmartcard-module">
+<h1>VirtualSmartcard Module<a class="headerlink" href="#virtualsmartcard-module" title="Permalink to this headline">¶</a></h1>
+<p class="graphviz">
+<img src="../../_images/inheritance-66308f7843803aa5084df2fbf62c13b8b1f3a5d4.png" alt="Inheritance diagram of virtualsmartcard.VirtualSmartcard" usemap="#inheritance4bd50c7c14" class="inheritance"/>
+<map id="inheritance4bd50c7c14" name="inheritance4bd50c7c14">
+<area shape="rect" id="node1" href="#virtualsmartcard.VirtualSmartcard.Iso7816OS" title="virtualsmartcard.VirtualSmartcard.Iso7816OS" alt="" coords="383,55,695,80"/>
+<area shape="rect" id="node2" href="#virtualsmartcard.VirtualSmartcard.SmartcardOS" title="Base class for a smart card OS" alt="" coords="5,55,335,80"/>
+<area shape="rect" id="node3" href="#virtualsmartcard.VirtualSmartcard.VirtualICC" title="This class is responsible for maintaining the communication of the virtual" alt="" coords="17,5,323,31"/>
+</map>
+</p>
+<span class="target" id="module-virtualsmartcard.VirtualSmartcard"></span><dl class="class">
+<dt id="virtualsmartcard.VirtualSmartcard.Iso7816OS">
+<em class="property">class </em><code class="descclassname">virtualsmartcard.VirtualSmartcard.</code><code class="descname">Iso7816OS</code><span class="sig-paren">(</span><em>mf</em>, <em>sam</em>, <em>ins2handler=None</em>, <em>extended_length=False</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.VirtualSmartcard.Iso7816OS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#virtualsmartcard.VirtualSmartcard.SmartcardOS" title="virtualsmartcard.VirtualSmartcard.SmartcardOS"><code class="xref py py-class docutils literal"><span class="pre">virtualsmartcard.VirtualSmartcard.SmartcardOS</span></code></a></p>
+<dl class="attribute">
+<dt id="virtualsmartcard.VirtualSmartcard.Iso7816OS.SAM">
+<code class="descname">SAM</code><a class="headerlink" href="#virtualsmartcard.VirtualSmartcard.Iso7816OS.SAM" title="Permalink to this definition">¶</a></dt>
+<dd><p>secure access module</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.VirtualSmartcard.Iso7816OS.execute">
+<code class="descname">execute</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.VirtualSmartcard.Iso7816OS.execute" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.VirtualSmartcard.Iso7816OS.formatResult">
+<code class="descname">formatResult</code><span class="sig-paren">(</span><em>seekable</em>, <em>le</em>, <em>data</em>, <em>sw</em>, <em>sm</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.VirtualSmartcard.Iso7816OS.formatResult" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.VirtualSmartcard.Iso7816OS.getATR">
+<code class="descname">getATR</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.VirtualSmartcard.Iso7816OS.getATR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.VirtualSmartcard.Iso7816OS.getResponse">
+<code class="descname">getResponse</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.VirtualSmartcard.Iso7816OS.getResponse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="virtualsmartcard.VirtualSmartcard.Iso7816OS.makeATR">
+<em class="property">static </em><code class="descname">makeATR</code><span class="sig-paren">(</span><em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.VirtualSmartcard.Iso7816OS.makeATR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate Answer to Reset (ATR) and returns the bitstring.</p>
+<blockquote>
+<div><ul>
+<li><dl class="first docutils">
+<dt>directConvention (bool): Whether to use direct convention or</dt>
+<dd><p class="first last">inverse convention.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>TAi, TBi, TCi (optional): Value between 0 and 0xff. Interface</dt>
+<dd><p class="first last">Characters (for meaning see ISO 7816-3). Note that
+if no transmission protocol is given, it is
+automatically selected with T=max{j-1|TAj in args
+OR TBj in args OR TCj in args}.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>T (optional): Value between 0 and 15. Transmission Protocol.</dt>
+<dd><p class="first last">Note that if T is set, TAi/TBi/TCi for i&gt;T are
+omitted.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>histChars (optional): Bitstring with 0 &lt;= len(histChars) &lt;= 15.</dt>
+<dd><p class="first last">Historical Characters T1 to T15 (for
+meaning see ISO 7816-4).</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<p>T0, TDi and TCK are automatically calculated.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="virtualsmartcard.VirtualSmartcard.Iso7816OS.makeThirdSoftwareFunctionTable">
+<em class="property">static </em><code class="descname">makeThirdSoftwareFunctionTable</code><span class="sig-paren">(</span><em>commandChainging=False</em>, <em>extendedLe=False</em>, <em>assignLogicalChannel=0</em>, <em>maximumChannels=0</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.VirtualSmartcard.Iso7816OS.makeThirdSoftwareFunctionTable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a byte according to the third software function table from the
+historical bytes of the card capabilities.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="virtualsmartcard.VirtualSmartcard.Iso7816OS.mf">
+<code class="descname">mf</code><a class="headerlink" href="#virtualsmartcard.VirtualSmartcard.Iso7816OS.mf" title="Permalink to this definition">¶</a></dt>
+<dd><p>master file</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.VirtualSmartcard.Iso7816OS.powerDown">
+<code class="descname">powerDown</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.VirtualSmartcard.Iso7816OS.powerDown" title="Permalink to this definition">¶</a></dt>
+<dd><p>Powers down the card</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.VirtualSmartcard.Iso7816OS.powerUp">
+<code class="descname">powerUp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.VirtualSmartcard.Iso7816OS.powerUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.VirtualSmartcard.Iso7816OS.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.VirtualSmartcard.Iso7816OS.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="virtualsmartcard.VirtualSmartcard.Iso7816OS.seekable">
+<em class="property">static </em><code class="descname">seekable</code><span class="sig-paren">(</span><em>ins</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.VirtualSmartcard.Iso7816OS.seekable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="virtualsmartcard.VirtualSmartcard.SmartcardOS">
+<em class="property">class </em><code class="descclassname">virtualsmartcard.VirtualSmartcard.</code><code class="descname">SmartcardOS</code><a class="headerlink" href="#virtualsmartcard.VirtualSmartcard.SmartcardOS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Base class for a smart card OS</p>
+<dl class="method">
+<dt id="virtualsmartcard.VirtualSmartcard.SmartcardOS.execute">
+<code class="descname">execute</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.VirtualSmartcard.SmartcardOS.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns response to the given APDU as string of characters</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> &#8211; the APDU as string of characters</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.VirtualSmartcard.SmartcardOS.getATR">
+<code class="descname">getATR</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.VirtualSmartcard.SmartcardOS.getATR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the ATR of the card as string of characters</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.VirtualSmartcard.SmartcardOS.powerDown">
+<code class="descname">powerDown</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.VirtualSmartcard.SmartcardOS.powerDown" title="Permalink to this definition">¶</a></dt>
+<dd><p>Powers down the card</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.VirtualSmartcard.SmartcardOS.powerUp">
+<code class="descname">powerUp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.VirtualSmartcard.SmartcardOS.powerUp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Powers up the card</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.VirtualSmartcard.SmartcardOS.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.VirtualSmartcard.SmartcardOS.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs a warm reset of the card (no power down)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="virtualsmartcard.VirtualSmartcard.VirtualICC">
+<em class="property">class </em><code class="descclassname">virtualsmartcard.VirtualSmartcard.</code><code class="descname">VirtualICC</code><span class="sig-paren">(</span><em>datasetfile</em>, <em>card_type</em>, <em>host</em>, <em>port</em>, <em>readernum=None</em>, <em>ef_cardsecurity=None</em>, <em>ef_cardaccess=None</em>, <em>ca_key=None</em>, <em>cvca=None</em>, <em>disable_checks=False</em>, <em>esign_key=None</em>, <em>esign_ca_cert=None</em>, <em>esign_cert=None</em>, <em>logginglevel=20</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.VirtualSmartcard.VirtualICC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>This class is responsible for maintaining the communication of the virtual
+PCD and the emulated smartcard. vpicc and vpcd communicate via a socket.
+The vpcd sends command APDUs (which it receives from an application) to the
+vicc. The vicc passes these CAPDUs on to an emulated smartcard, which
+produces a response APDU. This RAPDU is then passed back by the vicc to
+the vpcd, which forwards it to the application.</p>
+<dl class="method">
+<dt id="virtualsmartcard.VirtualSmartcard.VirtualICC._VirtualICC__recvFromVPICC">
+<code class="descname">_VirtualICC__recvFromVPICC</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.VirtualSmartcard.VirtualICC._VirtualICC__recvFromVPICC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receive a message from the vpcd</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.VirtualSmartcard.VirtualICC._VirtualICC__sendToVPICC">
+<code class="descname">_VirtualICC__sendToVPICC</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.VirtualSmartcard.VirtualICC._VirtualICC__sendToVPICC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send a message to the vpcd</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="virtualsmartcard.VirtualSmartcard.VirtualICC.connectToPort">
+<em class="property">static </em><code class="descname">connectToPort</code><span class="sig-paren">(</span><em>host</em>, <em>port</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.VirtualSmartcard.VirtualICC.connectToPort" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open a connection to a given host on a given port.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="virtualsmartcard.VirtualSmartcard.VirtualICC.openPort">
+<em class="property">static </em><code class="descname">openPort</code><span class="sig-paren">(</span><em>port</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.VirtualSmartcard.VirtualICC.openPort" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.VirtualSmartcard.VirtualICC.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.VirtualSmartcard.VirtualICC.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main loop of the vpicc. Receives command APDUs via a socket from the
+vpcd, dispatches them to the emulated smartcard and sends the resulting
+respsonse APDU back to the vpcd.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.VirtualSmartcard.VirtualICC.signalHandler">
+<code class="descname">signalHandler</code><span class="sig-paren">(</span><em>sig=None</em>, <em>frame=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.VirtualSmartcard.VirtualICC.signalHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Basically this signal handler just surpresses a traceback from being
+printed when the user presses crtl-c</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.VirtualSmartcard.VirtualICC.stop">
+<code class="descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.VirtualSmartcard.VirtualICC.stop" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2009-2016 by Dominik Oepen and Frank Morgner.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

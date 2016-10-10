@@ -1,0 +1,10 @@
+Relay Module
+============
+
+.. inheritance-diagram:: virtualsmartcard.cards.Relay
+.. automodule:: virtualsmartcard.cards.Relay
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :show-inheritance:
+    :private-members:

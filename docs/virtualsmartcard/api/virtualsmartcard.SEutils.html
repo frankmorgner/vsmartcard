@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>SEutils Module &mdash; vsmartcard 2016-10-10 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootswatch-3.3.4/flatly/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '2016-10-10',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
+    <link rel="shortcut icon" href="../../_static/chip.ico"/>
+    <link rel="top" title="vsmartcard 2016-10-10 documentation" href="../../index.html" />
+    <link rel="up" title="virtualsmartcard Package" href="virtualsmartcard.html" />
+    <link rel="next" title="SWutils Module" href="virtualsmartcard.SWutils.html" />
+    <link rel="prev" title="CryptoUtils Module" href="virtualsmartcard.CryptoUtils.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body role="document">
+  
+  <a href="https://github.com/frankmorgner/vsmartcard"
+     class="visible-desktop hidden-xs"><img
+    id="gh-banner"
+    style="position: absolute; top: 50px; right: 0; border: 0;"
+    src="https://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png"
+    alt="Fork me on GitHub"></a>
+  <script>
+    // Adjust banner height.
+    $(function () {
+      var navHeight = $(".navbar .container").css("height");
+      $("#gh-banner").css("top", navHeight);
+    });
+  </script>
+
+
+  <div id="navbar" class="navbar navbar-default ">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../index.html">
+          vsmartcard</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../README.html">Virtual Smart Card</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../remote-reader/README.html">Remote Smart Card Reader</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ACardEmulator/README.html">Android Smart Card Emulator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pcsc-relay/README.html">PC/SC Relay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ccid/README.html">USB CCID Emulator</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../npa/README.html">nPA Smart Card Library</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">Creating a Virtual Smart Card</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">SEutils Module</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="virtualsmartcard.CryptoUtils.html" title="Previous Chapter: CryptoUtils Module"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; CryptoUtils Modu...</span>
+    </a>
+  </li>
+  <li>
+    <a href="virtualsmartcard.SWutils.html" title="Next Chapter: SWutils Module"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">SWutils Module &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12 content">
+      
+  <div class="section" id="seutils-module">
+<h1>SEutils Module<a class="headerlink" href="#seutils-module" title="Permalink to this headline">¶</a></h1>
+<p class="graphviz">
+<img src="../../_images/inheritance-9f3c7bc88811fee87e07a30133f7586cb9c7a2ee.png" alt="Inheritance diagram of virtualsmartcard.SEutils" usemap="#inheritance7064aeb8f6" class="inheritance"/>
+<map id="inheritance7064aeb8f6" name="inheritance7064aeb8f6">
+<area shape="rect" id="node1" href="#virtualsmartcard.SEutils.ControlReferenceTemplate" title="Control Reference Templates are used to configure the Security" alt="" coords="5,55,353,80"/>
+<area shape="rect" id="node2" href="#virtualsmartcard.SEutils.Security_Environment" title="virtualsmartcard.SEutils.Security_Environment" alt="" coords="20,5,339,31"/>
+</map>
+</p>
+<span class="target" id="module-virtualsmartcard.SEutils"></span><dl class="class">
+<dt id="virtualsmartcard.SEutils.ControlReferenceTemplate">
+<em class="property">class </em><code class="descclassname">virtualsmartcard.SEutils.</code><code class="descname">ControlReferenceTemplate</code><span class="sig-paren">(</span><em>tag</em>, <em>config=''</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.ControlReferenceTemplate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Control Reference Templates are used to configure the Security
+Environments. They specify which algorithms to use in which mode of
+operation and with which keys. There are six different types of Control
+Reference Template:
+HT, AT, KT, CCT, DST, CT-sym, CT-asym.</p>
+<dl class="method">
+<dt id="virtualsmartcard.SEutils.ControlReferenceTemplate._ControlReferenceTemplate__replace_tag">
+<code class="descname">_ControlReferenceTemplate__replace_tag</code><span class="sig-paren">(</span><em>tag</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.ControlReferenceTemplate._ControlReferenceTemplate__replace_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adjust the config string using a given tag, value combination. If the
+config string already contains a tag, value pair for the given tag,
+replace it. Otherwise append tag, length and value to the config
+string.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.SEutils.ControlReferenceTemplate._ControlReferenceTemplate__set_algo">
+<code class="descname">_ControlReferenceTemplate__set_algo</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.ControlReferenceTemplate._ControlReferenceTemplate__set_algo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the algorithm to be used by this CRT. The algorithms are specified
+in a global dictionary. New cards may add or modify this table in order
+to support new or different algorithms.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data</strong> &#8211; reference to an algorithm</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.SEutils.ControlReferenceTemplate._ControlReferenceTemplate__set_iv">
+<code class="descname">_ControlReferenceTemplate__set_iv</code><span class="sig-paren">(</span><em>tag</em>, <em>length</em>, <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.ControlReferenceTemplate._ControlReferenceTemplate__set_iv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.SEutils.ControlReferenceTemplate._ControlReferenceTemplate__set_key">
+<code class="descname">_ControlReferenceTemplate__set_key</code><span class="sig-paren">(</span><em>tag</em>, <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.ControlReferenceTemplate._ControlReferenceTemplate__set_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.SEutils.ControlReferenceTemplate.parse_SE_config">
+<code class="descname">parse_SE_config</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.ControlReferenceTemplate.parse_SE_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse a control reference template as given e.g. in an MSE APDU.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>config</strong> &#8211; a TLV string containing the configuration for the CRT.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.SEutils.ControlReferenceTemplate.to_string">
+<code class="descname">to_string</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.ControlReferenceTemplate.to_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the content of the CRT, encoded as TLV data in a string</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="virtualsmartcard.SEutils.Security_Environment">
+<em class="property">class </em><code class="descclassname">virtualsmartcard.SEutils.</code><code class="descname">Security_Environment</code><span class="sig-paren">(</span><em>MF</em>, <em>SAM</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="virtualsmartcard.SEutils.Security_Environment._set_SE">
+<code class="descname">_set_SE</code><span class="sig-paren">(</span><em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment._set_SE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Manipulate the current Security Environment. P2 is the tag of a
+control reference template, data contains control reference objects</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.SEutils.Security_Environment.compute_cryptographic_checksum">
+<code class="descname">compute_cryptographic_checksum</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.compute_cryptographic_checksum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute a cryptographic checksum (e.g. MAC) for the given data.
+Algorithm and key are specified in the current SE</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.SEutils.Security_Environment.compute_digital_signature">
+<code class="descname">compute_digital_signature</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.compute_digital_signature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute a digital signature for the given data.
+Algorithm and key are specified in the current SE</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>p1</strong> &#8211; Must be 0x9E = Secure Messaging class for digital signatures</li>
+<li><strong>p2</strong> &#8211; Must be one of 0x9A, 0xAC, 0xBC. Indicates what kind of data
+is included in the data field.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.SEutils.Security_Environment.decipher">
+<code class="descname">decipher</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.decipher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decipher data using key, algorithm, IV and Padding specified
+by the current Security environment.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">raw data (no TLV coding). Padding is not removed!!!</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.SEutils.Security_Environment.encipher">
+<code class="descname">encipher</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.encipher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encipher data using key, algorithm, IV and Padding specified
+by the current Security environment.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">raw data (no TLV coding).</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.SEutils.Security_Environment.generate_public_key_pair">
+<code class="descname">generate_public_key_pair</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.generate_public_key_pair" title="Permalink to this definition">¶</a></dt>
+<dd><p>The GENERATE PUBLIC-KEY PAIR command either initiates the generation
+and storing of a key pair, i.e., a public key and a private key, in the
+card, or accesses a key pair previously generated in the card.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>p1</strong> &#8211; should be 0x00 (generate new key)</li>
+<li><strong>p2</strong> &#8211; &#8216;00&#8217; (no information provided) or reference of the key to
+be generated</li>
+<li><strong>data</strong> &#8211; One or more CRTs associated to the key generation if
+P1-P2 different from &#8216;0000&#8217;</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.SEutils.Security_Environment.hash">
+<code class="descname">hash</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.hash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hash the given data using the algorithm specified by the current
+Security environment.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">raw data (no TLV coding).</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.SEutils.Security_Environment.manage_security_environment">
+<code class="descname">manage_security_environment</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.manage_security_environment" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is used to store, restore or erase Security Environments
+or to manipulate the various parameters of the current SE.
+P1 specifies the operation to perform, p2 is either the SEID for the
+referred SE or the tag of a control reference template</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>p1</strong> &#8211; <p>Bitmask according to this table</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="4%" />
+<col width="4%" />
+<col width="4%" />
+<col width="4%" />
+<col width="4%" />
+<col width="4%" />
+<col width="4%" />
+<col width="4%" />
+<col width="71%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">b8</th>
+<th class="head">b7</th>
+<th class="head">b6</th>
+<th class="head">b5</th>
+<th class="head">b4</th>
+<th class="head">b3</th>
+<th class="head">b2</th>
+<th class="head">b1</th>
+<th class="head">Meaning</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td>1</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td>Secure messaging in command data field</td>
+</tr>
+<tr class="row-odd"><td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td>1</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td>Secure messaging in response data field</td>
+</tr>
+<tr class="row-even"><td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td>1</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td>Computation, decipherment, internal
+authentication and key agreement</td>
+</tr>
+<tr class="row-odd"><td>1</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td>Verification, encipherment, external
+authentication and key agreement</td>
+</tr>
+<tr class="row-even"><td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>SET</td>
+</tr>
+<tr class="row-odd"><td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>STORE</td>
+</tr>
+<tr class="row-even"><td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>RESTORE</td>
+</tr>
+<tr class="row-odd"><td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>ERASE</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.SEutils.Security_Environment.parse_SM_CAPDU">
+<code class="descname">parse_SM_CAPDU</code><span class="sig-paren">(</span><em>CAPDU</em>, <em>authenticate_header</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.parse_SM_CAPDU" title="Permalink to this definition">¶</a></dt>
+<dd><p>This methods parses a data field including Secure Messaging objects.
+SM_header indicates whether or not the header of the message shall be
+authenticated. It returns an unprotected command APDU</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>CAPDU</strong> &#8211; The protected CAPDU to be parsed</li>
+<li><strong>authenticate_header</strong> &#8211; Whether or not the header should be
+included in authentication mechanisms</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Unprotected command APDU</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.SEutils.Security_Environment.perform_security_operation">
+<code class="descname">perform_security_operation</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.perform_security_operation" title="Permalink to this definition">¶</a></dt>
+<dd><p>In the end this command is nothing but a big switch for all the other
+commands in ISO 7816-8. It will invoke the appropriate command and
+return its result</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.SEutils.Security_Environment.protect_response">
+<code class="descname">protect_response</code><span class="sig-paren">(</span><em>sw</em>, <em>result</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.protect_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method protects a response APDU using secure messaging mechanisms</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the protected data and the SW bytes</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.SEutils.Security_Environment.verify_certificate">
+<code class="descname">verify_certificate</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.verify_certificate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verify a certificate send by the terminal using the internal trust
+anchors.
+This method is currently not implemented.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.SEutils.Security_Environment.verify_cryptographic_checksum">
+<code class="descname">verify_cryptographic_checksum</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.verify_cryptographic_checksum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verify the cryptographic checksum contained in the data field.
+Data field must contain a cryptographic checksum (tag 0x8E) and a plain
+value (tag 0x80)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.SEutils.Security_Environment.verify_digital_signature">
+<code class="descname">verify_digital_signature</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.verify_digital_signature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verify the digital signature contained in the data field. Data must
+contain a data to sign (tag 0x9A, 0xAC or 0xBC) and a digital signature
+(0x9E)</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2009-2016 by Dominik Oepen and Frank Morgner.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

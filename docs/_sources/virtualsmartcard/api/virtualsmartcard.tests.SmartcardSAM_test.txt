@@ -1,0 +1,10 @@
+SmartcardSAM_test Module
+========================
+
+.. inheritance-diagram:: virtualsmartcard.tests.SmartcardSAM_test
+.. automodule:: virtualsmartcard.tests.SmartcardSAM_test
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :show-inheritance:
+    :private-members:

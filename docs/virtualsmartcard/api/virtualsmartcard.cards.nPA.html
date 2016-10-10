@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>nPA Module &mdash; vsmartcard 2016-10-10 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootswatch-3.3.4/flatly/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '2016-10-10',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
+    <link rel="shortcut icon" href="../../_static/chip.ico"/>
+    <link rel="top" title="vsmartcard 2016-10-10 documentation" href="../../index.html" />
+    <link rel="up" title="cards Package" href="virtualsmartcard.cards.html" />
+    <link rel="next" title="tests Package" href="virtualsmartcard.tests.html" />
+    <link rel="prev" title="ePass Module" href="virtualsmartcard.cards.ePass.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body role="document">
+  
+  <a href="https://github.com/frankmorgner/vsmartcard"
+     class="visible-desktop hidden-xs"><img
+    id="gh-banner"
+    style="position: absolute; top: 50px; right: 0; border: 0;"
+    src="https://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png"
+    alt="Fork me on GitHub"></a>
+  <script>
+    // Adjust banner height.
+    $(function () {
+      var navHeight = $(".navbar .container").css("height");
+      $("#gh-banner").css("top", navHeight);
+    });
+  </script>
+
+
+  <div id="navbar" class="navbar navbar-default ">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../index.html">
+          vsmartcard</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../README.html">Virtual Smart Card</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../remote-reader/README.html">Remote Smart Card Reader</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ACardEmulator/README.html">Android Smart Card Emulator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pcsc-relay/README.html">PC/SC Relay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ccid/README.html">USB CCID Emulator</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../npa/README.html">nPA Smart Card Library</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">Creating a Virtual Smart Card</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">nPA Module</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="virtualsmartcard.cards.ePass.html" title="Previous Chapter: ePass Module"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; ePass Module</span>
+    </a>
+  </li>
+  <li>
+    <a href="virtualsmartcard.tests.html" title="Next Chapter: tests Package"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">tests Package &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12 content">
+      
+  <div class="section" id="npa-module">
+<h1>nPA Module<a class="headerlink" href="#npa-module" title="Permalink to this headline">¶</a></h1>
+<p class="graphviz">
+<img src="../../_images/inheritance-bdd1c7794f65b715aa64065713cf57e55a7f9ece.png" alt="Inheritance diagram of virtualsmartcard.cards.nPA" usemap="#inheritance6f1df1879c" class="inheritance"/>
+<map id="inheritance6f1df1879c" name="inheritance6f1df1879c">
+<area shape="rect" id="node1" href="virtualsmartcard.SEutils.html#virtualsmartcard.SEutils.ControlReferenceTemplate" title="Control Reference Templates are used to configure the Security" alt="" coords="4,117,269,136"/>
+<area shape="rect" id="node7" href="#virtualsmartcard.cards.nPA.nPA_AT_CRT" title="virtualsmartcard.cards.nPA.nPA_AT_CRT" alt="" coords="318,117,530,136"/>
+<area shape="rect" id="node2" href="virtualsmartcard.SEutils.html#virtualsmartcard.SEutils.Security_Environment" title="virtualsmartcard.SEutils.Security_Environment" alt="" coords="15,79,258,98"/>
+<area shape="rect" id="node9" href="#virtualsmartcard.cards.nPA.nPA_SE" title="virtualsmartcard.cards.nPA.nPA_SE" alt="" coords="330,79,518,98"/>
+<area shape="rect" id="node3" href="virtualsmartcard.SmartcardSAM.html#virtualsmartcard.SmartcardSAM.SAM" title="This class is used to store the data needed by the SAM." alt="" coords="39,42,234,61"/>
+<area shape="rect" id="node8" href="#virtualsmartcard.cards.nPA.nPA_SAM" title="virtualsmartcard.cards.nPA.nPA_SAM" alt="" coords="326,42,522,61"/>
+<area shape="rect" id="node4" href="virtualsmartcard.VirtualSmartcard.html#virtualsmartcard.VirtualSmartcard.Iso7816OS" title="virtualsmartcard.VirtualSmartcard.Iso7816OS" alt="" coords="305,4,543,23"/>
+<area shape="rect" id="node6" href="#virtualsmartcard.cards.nPA.NPAOS" title="virtualsmartcard.cards.nPA.NPAOS" alt="" coords="579,4,764,23"/>
+<area shape="rect" id="node5" href="virtualsmartcard.VirtualSmartcard.html#virtualsmartcard.VirtualSmartcard.SmartcardOS" title="Base class for a smart card OS" alt="" coords="11,4,262,23"/>
+</map>
+</p>
+<span class="target" id="module-virtualsmartcard.cards.nPA"></span><dl class="class">
+<dt id="virtualsmartcard.cards.nPA.NPAOS">
+<em class="property">class </em><code class="descclassname">virtualsmartcard.cards.nPA.</code><code class="descname">NPAOS</code><span class="sig-paren">(</span><em>mf</em>, <em>sam</em>, <em>ins2handler=None</em>, <em>maxle=65536</em>, <em>ef_cardsecurity=None</em>, <em>ef_cardaccess=None</em>, <em>ca_key=None</em>, <em>cvca=None</em>, <em>disable_checks=False</em>, <em>esign_key=None</em>, <em>esign_ca_cert=None</em>, <em>esign_cert=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.NPAOS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="virtualsmartcard.VirtualSmartcard.html#virtualsmartcard.VirtualSmartcard.Iso7816OS" title="virtualsmartcard.VirtualSmartcard.Iso7816OS"><code class="xref py py-class docutils literal"><span class="pre">virtualsmartcard.VirtualSmartcard.Iso7816OS</span></code></a></p>
+<dl class="attribute">
+<dt id="virtualsmartcard.cards.nPA.NPAOS.SAM">
+<code class="descname">SAM</code><a class="headerlink" href="#virtualsmartcard.cards.nPA.NPAOS.SAM" title="Permalink to this definition">¶</a></dt>
+<dd><p>secure access module</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.NPAOS.execute">
+<code class="descname">execute</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.NPAOS.execute" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.NPAOS.formatResult">
+<code class="descname">formatResult</code><span class="sig-paren">(</span><em>seekable</em>, <em>le</em>, <em>data</em>, <em>sw</em>, <em>sm</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.NPAOS.formatResult" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.NPAOS.getATR">
+<code class="descname">getATR</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.NPAOS.getATR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.NPAOS.getResponse">
+<code class="descname">getResponse</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.NPAOS.getResponse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.NPAOS.makeATR">
+<code class="descname">makeATR</code><span class="sig-paren">(</span><em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.NPAOS.makeATR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate Answer to Reset (ATR) and returns the bitstring.</p>
+<blockquote>
+<div><ul>
+<li><dl class="first docutils">
+<dt>directConvention (bool): Whether to use direct convention or</dt>
+<dd><p class="first last">inverse convention.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>TAi, TBi, TCi (optional): Value between 0 and 0xff. Interface</dt>
+<dd><p class="first last">Characters (for meaning see ISO 7816-3). Note that
+if no transmission protocol is given, it is
+automatically selected with T=max{j-1|TAj in args
+OR TBj in args OR TCj in args}.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>T (optional): Value between 0 and 15. Transmission Protocol.</dt>
+<dd><p class="first last">Note that if T is set, TAi/TBi/TCi for i&gt;T are
+omitted.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>histChars (optional): Bitstring with 0 &lt;= len(histChars) &lt;= 15.</dt>
+<dd><p class="first last">Historical Characters T1 to T15 (for
+meaning see ISO 7816-4).</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<p>T0, TDi and TCK are automatically calculated.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.NPAOS.makeThirdSoftwareFunctionTable">
+<code class="descname">makeThirdSoftwareFunctionTable</code><span class="sig-paren">(</span><em>commandChainging=False</em>, <em>extendedLe=False</em>, <em>assignLogicalChannel=0</em>, <em>maximumChannels=0</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.NPAOS.makeThirdSoftwareFunctionTable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a byte according to the third software function table from the
+historical bytes of the card capabilities.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="virtualsmartcard.cards.nPA.NPAOS.mf">
+<code class="descname">mf</code><a class="headerlink" href="#virtualsmartcard.cards.nPA.NPAOS.mf" title="Permalink to this definition">¶</a></dt>
+<dd><p>master file</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.NPAOS.powerDown">
+<code class="descname">powerDown</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.NPAOS.powerDown" title="Permalink to this definition">¶</a></dt>
+<dd><p>Powers down the card</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.NPAOS.powerUp">
+<code class="descname">powerUp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.NPAOS.powerUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.NPAOS.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.NPAOS.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.NPAOS.seekable">
+<code class="descname">seekable</code><span class="sig-paren">(</span><em>ins</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.NPAOS.seekable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="virtualsmartcard.cards.nPA.nPA_AT_CRT">
+<em class="property">class </em><code class="descclassname">virtualsmartcard.cards.nPA.</code><code class="descname">nPA_AT_CRT</code><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_AT_CRT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="virtualsmartcard.SEutils.html#virtualsmartcard.SEutils.ControlReferenceTemplate" title="virtualsmartcard.SEutils.ControlReferenceTemplate"><code class="xref py py-class docutils literal"><span class="pre">virtualsmartcard.SEutils.ControlReferenceTemplate</span></code></a></p>
+<dl class="attribute">
+<dt id="virtualsmartcard.cards.nPA.nPA_AT_CRT.PACE_CAN">
+<code class="descname">PACE_CAN</code><em class="property"> = 2</em><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_AT_CRT.PACE_CAN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="virtualsmartcard.cards.nPA.nPA_AT_CRT.PACE_MRZ">
+<code class="descname">PACE_MRZ</code><em class="property"> = 1</em><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_AT_CRT.PACE_MRZ" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="virtualsmartcard.cards.nPA.nPA_AT_CRT.PACE_PIN">
+<code class="descname">PACE_PIN</code><em class="property"> = 3</em><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_AT_CRT.PACE_PIN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="virtualsmartcard.cards.nPA.nPA_AT_CRT.PACE_PUK">
+<code class="descname">PACE_PUK</code><em class="property"> = 4</em><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_AT_CRT.PACE_PUK" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_AT_CRT._ControlReferenceTemplate__replace_tag">
+<code class="descname">_ControlReferenceTemplate__replace_tag</code><span class="sig-paren">(</span><em>tag</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_AT_CRT._ControlReferenceTemplate__replace_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adjust the config string using a given tag, value combination. If the
+config string already contains a tag, value pair for the given tag,
+replace it. Otherwise append tag, length and value to the config
+string.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_AT_CRT._ControlReferenceTemplate__set_algo">
+<code class="descname">_ControlReferenceTemplate__set_algo</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_AT_CRT._ControlReferenceTemplate__set_algo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the algorithm to be used by this CRT. The algorithms are specified
+in a global dictionary. New cards may add or modify this table in order
+to support new or different algorithms.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data</strong> &#8211; reference to an algorithm</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_AT_CRT._ControlReferenceTemplate__set_iv">
+<code class="descname">_ControlReferenceTemplate__set_iv</code><span class="sig-paren">(</span><em>tag</em>, <em>length</em>, <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_AT_CRT._ControlReferenceTemplate__set_iv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_AT_CRT._ControlReferenceTemplate__set_key">
+<code class="descname">_ControlReferenceTemplate__set_key</code><span class="sig-paren">(</span><em>tag</em>, <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_AT_CRT._ControlReferenceTemplate__set_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_AT_CRT.keyref_is_can">
+<code class="descname">keyref_is_can</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_AT_CRT.keyref_is_can" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_AT_CRT.keyref_is_mrz">
+<code class="descname">keyref_is_mrz</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_AT_CRT.keyref_is_mrz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_AT_CRT.keyref_is_pin">
+<code class="descname">keyref_is_pin</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_AT_CRT.keyref_is_pin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_AT_CRT.keyref_is_puk">
+<code class="descname">keyref_is_puk</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_AT_CRT.keyref_is_puk" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_AT_CRT.parse_SE_config">
+<code class="descname">parse_SE_config</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_AT_CRT.parse_SE_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_AT_CRT.to_string">
+<code class="descname">to_string</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_AT_CRT.to_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the content of the CRT, encoded as TLV data in a string</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="virtualsmartcard.cards.nPA.nPA_SAM">
+<em class="property">class </em><code class="descclassname">virtualsmartcard.cards.nPA.</code><code class="descname">nPA_SAM</code><span class="sig-paren">(</span><em>eid_pin</em>, <em>can</em>, <em>mrz</em>, <em>puk</em>, <em>qes_pin</em>, <em>mf</em>, <em>default_se=&lt;class 'virtualsmartcard.cards.nPA.nPA_SE'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SAM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="virtualsmartcard.SmartcardSAM.html#virtualsmartcard.SmartcardSAM.SAM" title="virtualsmartcard.SmartcardSAM.SAM"><code class="xref py py-class docutils literal"><span class="pre">virtualsmartcard.SmartcardSAM.SAM</span></code></a></p>
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SAM.FSdecrypt">
+<code class="descname">FSdecrypt</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SAM.FSdecrypt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decrypt the given data, using the parameters stored in the SAM.
+Right now we do not encrypt the data. In memory encryption might or
+might not be added in a future version.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SAM.FSencrypt">
+<code class="descname">FSencrypt</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SAM.FSencrypt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encrypt the given data, using the parameters stored in the SAM.
+Right now we do not encrypt the data. In memory encryption might or
+might not be added in a future version.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SAM._get_referenced_key">
+<code class="descname">_get_referenced_key</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SAM._get_referenced_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method returns the key specified by the p2 parameter. The key may
+be stored on the cards filesystem.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>p1</strong> &#8211; Specifies the algorithm to use.</li>
+<li><strong>p2</strong> &#8211; <p>Specifies a reference to the key to be used for encryption.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="3%" />
+<col width="3%" />
+<col width="3%" />
+<col width="3%" />
+<col width="3%" />
+<col width="3%" />
+<col width="3%" />
+<col width="3%" />
+<col width="73%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">b8</th>
+<th class="head">b7</th>
+<th class="head">b6</th>
+<th class="head">b5</th>
+<th class="head">b4</th>
+<th class="head">b3</th>
+<th class="head">b2</th>
+<th class="head">b1</th>
+<th class="head">Meaning</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>No information is given</td>
+</tr>
+<tr class="row-odd"><td>0</td>
+<td><ul class="first last">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last">
+<li></li>
+</ul>
+</td>
+<td>Global reference data(e.g. MF specific key)</td>
+</tr>
+<tr class="row-even"><td>1</td>
+<td><ul class="first last">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last">
+<li></li>
+</ul>
+</td>
+<td>Specific reference data(e.g. DF specific
+key)</td>
+</tr>
+<tr class="row-odd"><td><ul class="first last">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last">
+<li></li>
+</ul>
+</td>
+<td>x</td>
+<td>x</td>
+<td>x</td>
+<td>x</td>
+<td>x</td>
+<td>Number of the secret</td>
+</tr>
+</tbody>
+</table>
+<p>Any other value RFU</p>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SAM.change_reference_data">
+<code class="descname">change_reference_data</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SAM.change_reference_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change the specified referenced data (e.g. CHV) of the card</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SAM.erase_SE">
+<code class="descname">erase_SE</code><span class="sig-paren">(</span><em>SEID</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SAM.erase_SE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Erases a Security Environment stored under SEID from the SAM</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SAM.external_authenticate">
+<code class="descname">external_authenticate</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SAM.external_authenticate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SAM.general_authenticate">
+<code class="descname">general_authenticate</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SAM.general_authenticate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SAM.generate_public_key_pair">
+<code class="descname">generate_public_key_pair</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SAM.generate_public_key_pair" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SAM.get_card_number">
+<code class="descname">get_card_number</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SAM.get_card_number" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SAM.get_challenge">
+<code class="descname">get_challenge</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SAM.get_challenge" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SAM.internal_authenticate">
+<code class="descname">internal_authenticate</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SAM.internal_authenticate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Authenticate card to terminal. Encrypt the challenge of the terminal
+to prove key posession</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SAM.manage_security_environment">
+<code class="descname">manage_security_environment</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SAM.manage_security_environment" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SAM.mutual_authenticate">
+<code class="descname">mutual_authenticate</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>mutual_challenge</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SAM.mutual_authenticate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes an encrypted challenge in the form
+&#8216;Terminal Challenge | Card Challenge | Card number&#8217;
+and checks it for validity. If the challenge is successful
+the card encrypts &#8216;Card Challenge | Terminal challenge&#8217; and
+returns this value</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SAM.parse_SM_CAPDU">
+<code class="descname">parse_SM_CAPDU</code><span class="sig-paren">(</span><em>CAPDU</em>, <em>header_authentication</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SAM.parse_SM_CAPDU" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SAM.perform_security_operation">
+<code class="descname">perform_security_operation</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SAM.perform_security_operation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SAM.protect_result">
+<code class="descname">protect_result</code><span class="sig-paren">(</span><em>sw</em>, <em>unprotected_result</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SAM.protect_result" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SAM.reset_retry_counter">
+<code class="descname">reset_retry_counter</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SAM.reset_retry_counter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SAM.restore_SE">
+<code class="descname">restore_SE</code><span class="sig-paren">(</span><em>SEID</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SAM.restore_SE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Restores a Security Environment from the SAM and replaces the current
+SE with it.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SAM.set_MF">
+<code class="descname">set_MF</code><span class="sig-paren">(</span><em>mf</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SAM.set_MF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setter function for the internal reference to the Filesystem. The SAM
+needs a reference to the filesystem in order to store/retrieve keys.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SAM.set_asym_algorithm">
+<code class="descname">set_asym_algorithm</code><span class="sig-paren">(</span><em>cipher</em>, <em>keytype</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SAM.set_asym_algorithm" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cipher</strong> &#8211; Public/private key object from used for encryption</li>
+<li><strong>keytype</strong> &#8211; Type of the public key (e.g. RSA, DSA)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SAM.store_SE">
+<code class="descname">store_SE</code><span class="sig-paren">(</span><em>SEID</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SAM.store_SE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stores the current Security environment in the secure access module.
+The SEID is used as a reference to identify the SE.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SAM.verify">
+<code class="descname">verify</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SAM.verify" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="virtualsmartcard.cards.nPA.nPA_SE">
+<em class="property">class </em><code class="descclassname">virtualsmartcard.cards.nPA.</code><code class="descname">nPA_SE</code><span class="sig-paren">(</span><em>MF</em>, <em>SAM</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="virtualsmartcard.SEutils.html#virtualsmartcard.SEutils.Security_Environment" title="virtualsmartcard.SEutils.Security_Environment"><code class="xref py py-class docutils literal"><span class="pre">virtualsmartcard.SEutils.Security_Environment</span></code></a></p>
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SE._nPA_SE__eac_ca">
+<code class="descname">_nPA_SE__eac_ca</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SE._nPA_SE__eac_ca" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SE._nPA_SE__eac_pace_step1">
+<code class="descname">_nPA_SE__eac_pace_step1</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SE._nPA_SE__eac_pace_step1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SE._nPA_SE__eac_pace_step2">
+<code class="descname">_nPA_SE__eac_pace_step2</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SE._nPA_SE__eac_pace_step2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SE._nPA_SE__eac_pace_step3">
+<code class="descname">_nPA_SE__eac_pace_step3</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SE._nPA_SE__eac_pace_step3" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SE._nPA_SE__eac_pace_step4">
+<code class="descname">_nPA_SE__eac_pace_step4</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SE._nPA_SE__eac_pace_step4" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="virtualsmartcard.cards.nPA.nPA_SE._nPA_SE__pack_general_authenticate">
+<em class="property">static </em><code class="descname">_nPA_SE__pack_general_authenticate</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SE._nPA_SE__pack_general_authenticate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="virtualsmartcard.cards.nPA.nPA_SE._nPA_SE__unpack_general_authenticate">
+<em class="property">static </em><code class="descname">_nPA_SE__unpack_general_authenticate</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SE._nPA_SE__unpack_general_authenticate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SE._set_SE">
+<code class="descname">_set_SE</code><span class="sig-paren">(</span><em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SE._set_SE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SE.compute_cryptographic_checksum">
+<code class="descname">compute_cryptographic_checksum</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SE.compute_cryptographic_checksum" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SE.compute_digital_signature">
+<code class="descname">compute_digital_signature</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SE.compute_digital_signature" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SE.decipher">
+<code class="descname">decipher</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SE.decipher" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="virtualsmartcard.cards.nPA.nPA_SE.eac_step">
+<code class="descname">eac_step</code><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SE.eac_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>next step to performed for EAC</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SE.encipher">
+<code class="descname">encipher</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SE.encipher" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SE.external_authenticate">
+<code class="descname">external_authenticate</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SE.external_authenticate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Authenticate the terminal to the card. Check whether Terminal correctly
+encrypted the given challenge or not</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SE.general_authenticate">
+<code class="descname">general_authenticate</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SE.general_authenticate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SE.generate_public_key_pair">
+<code class="descname">generate_public_key_pair</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SE.generate_public_key_pair" title="Permalink to this definition">¶</a></dt>
+<dd><p>The GENERATE PUBLIC-KEY PAIR command either initiates the generation
+and storing of a key pair, i.e., a public key and a private key, in the
+card, or accesses a key pair previously generated in the card.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>p1</strong> &#8211; should be 0x00 (generate new key)</li>
+<li><strong>p2</strong> &#8211; &#8216;00&#8217; (no information provided) or reference of the key to
+be generated</li>
+<li><strong>data</strong> &#8211; One or more CRTs associated to the key generation if
+P1-P2 different from &#8216;0000&#8217;</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SE.hash">
+<code class="descname">hash</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SE.hash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hash the given data using the algorithm specified by the current
+Security environment.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">raw data (no TLV coding).</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SE.manage_security_environment">
+<code class="descname">manage_security_environment</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SE.manage_security_environment" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is used to store, restore or erase Security Environments
+or to manipulate the various parameters of the current SE.
+P1 specifies the operation to perform, p2 is either the SEID for the
+referred SE or the tag of a control reference template</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>p1</strong> &#8211; <p>Bitmask according to this table</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="4%" />
+<col width="4%" />
+<col width="4%" />
+<col width="4%" />
+<col width="4%" />
+<col width="4%" />
+<col width="4%" />
+<col width="4%" />
+<col width="71%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">b8</th>
+<th class="head">b7</th>
+<th class="head">b6</th>
+<th class="head">b5</th>
+<th class="head">b4</th>
+<th class="head">b3</th>
+<th class="head">b2</th>
+<th class="head">b1</th>
+<th class="head">Meaning</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td>1</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td>Secure messaging in command data field</td>
+</tr>
+<tr class="row-odd"><td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td>1</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td>Secure messaging in response data field</td>
+</tr>
+<tr class="row-even"><td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td>1</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td>Computation, decipherment, internal
+authentication and key agreement</td>
+</tr>
+<tr class="row-odd"><td>1</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td>Verification, encipherment, external
+authentication and key agreement</td>
+</tr>
+<tr class="row-even"><td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>SET</td>
+</tr>
+<tr class="row-odd"><td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>STORE</td>
+</tr>
+<tr class="row-even"><td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>RESTORE</td>
+</tr>
+<tr class="row-odd"><td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>ERASE</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SE.parse_SM_CAPDU">
+<code class="descname">parse_SM_CAPDU</code><span class="sig-paren">(</span><em>CAPDU</em>, <em>authenticate_header</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SE.parse_SM_CAPDU" title="Permalink to this definition">¶</a></dt>
+<dd><p>This methods parses a data field including Secure Messaging objects.
+SM_header indicates whether or not the header of the message shall be
+authenticated. It returns an unprotected command APDU</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>CAPDU</strong> &#8211; The protected CAPDU to be parsed</li>
+<li><strong>authenticate_header</strong> &#8211; Whether or not the header should be
+included in authentication mechanisms</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Unprotected command APDU</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SE.perform_security_operation">
+<code class="descname">perform_security_operation</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SE.perform_security_operation" title="Permalink to this definition">¶</a></dt>
+<dd><p>In the end this command is nothing but a big switch for all the other
+commands in ISO 7816-8. It will invoke the appropriate command and
+return its result</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SE.protect_response">
+<code class="descname">protect_response</code><span class="sig-paren">(</span><em>sw</em>, <em>result</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SE.protect_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method protects a response APDU using secure messaging mechanisms</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the protected data and the SW bytes</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SE.verify_certificate">
+<code class="descname">verify_certificate</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SE.verify_certificate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SE.verify_cryptographic_checksum">
+<code class="descname">verify_cryptographic_checksum</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SE.verify_cryptographic_checksum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verify the cryptographic checksum contained in the data field.
+Data field must contain a cryptographic checksum (tag 0x8E) and a plain
+value (tag 0x80)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.nPA.nPA_SE.verify_digital_signature">
+<code class="descname">verify_digital_signature</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.nPA.nPA_SE.verify_digital_signature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verify the digital signature contained in the data field. Data must
+contain a data to sign (tag 0x9A, 0xAC or 0xBC) and a digital signature
+(0x9E)</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2009-2016 by Dominik Oepen and Frank Morgner.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

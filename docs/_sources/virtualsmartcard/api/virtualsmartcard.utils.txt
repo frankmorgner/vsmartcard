@@ -1,0 +1,10 @@
+utils Module
+============
+
+.. inheritance-diagram:: virtualsmartcard.utils
+.. automodule:: virtualsmartcard.utils
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :show-inheritance:
+    :private-members:

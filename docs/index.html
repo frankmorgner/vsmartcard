@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Welcome to the Virtual Smart Card Architecture documentation! &mdash; vsmartcard 2016-10-10 documentation</title>
+    
+    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootswatch-3.3.4/flatly/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2016-10-10',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <link rel="shortcut icon" href="_static/chip.ico"/>
+    <link rel="top" title="vsmartcard 2016-10-10 documentation" href="#" />
+    <link rel="next" title="Virtual Smart Card" href="virtualsmartcard/README.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body role="document">
+  
+  <a href="https://github.com/frankmorgner/vsmartcard"
+     class="visible-desktop hidden-xs"><img
+    id="gh-banner"
+    style="position: absolute; top: 50px; right: 0; border: 0;"
+    src="https://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png"
+    alt="Fork me on GitHub"></a>
+  <script>
+    // Adjust banner height.
+    $(function () {
+      var navHeight = $(".navbar .container").css("height");
+      $("#gh-banner").css("top", navHeight);
+    });
+  </script>
+
+
+  <div id="navbar" class="navbar navbar-default ">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">
+          vsmartcard</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="virtualsmartcard/README.html">Virtual Smart Card</a></li>
+<li class="toctree-l1"><a class="reference internal" href="remote-reader/README.html">Remote Smart Card Reader</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ACardEmulator/README.html">Android Smart Card Emulator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pcsc-relay/README.html">PC/SC Relay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ccid/README.html">USB CCID Emulator</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="npa/README.html">nPA Smart Card Library</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="virtualsmartcard/api.html">Creating a Virtual Smart Card</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">Welcome to the Virtual Smart Card Architecture documentation!</a><ul>
+<li><a class="reference internal" href="#download">Download</a></li>
+<li><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="virtualsmartcard/README.html" title="Next Chapter: Virtual Smart Card"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">Virtual Smart Ca... &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12 content">
+      
+  <div class="section" id="welcome-to-the-vsmartcard-documentation">
+<h1>Welcome to the Virtual Smart Card Architecture documentation!<a class="headerlink" href="#welcome-to-the-vsmartcard-documentation" title="Permalink to this headline">¶</a></h1>
+<p>Welcome to the Virtual Smart Card Architecture. Virtual Smart Card Architecture is an umbrella project for various
+projects concerned with the emulation of different types of smart card readers
+or smart cards themselves.</p>
+<div class="figure">
+<p><img src="_images/tikz-a5bd0f208250d3d2c73ee51206b50fa3496b49e8.png" alt="\input{%(wd)s/bilder/tikzstyles.tex}
+\tikzstyle{bla}=[box, klein, rounded rectangle,  inner sep=.3cm]
+\node (a) {};
+
+\node[bla, above left=.5cm of a]
+(usb) {USB Terminal};
+
+\node[bla, below left=.5cm of a]
+(nfc) {NFC Terminal};
+
+\node[bla, rounded rectangle left arc=concave, above right=.5cm of a]
+(sc)  {Real Smart Card};
+
+\node[bla, rounded rectangle left arc=concave, below right=.5cm of a]
+(vsc) {Virtual Smart Card};
+
+\begin{pgfonlayer}{background}
+\path[line width=.8cm,color=hublue!20]
+(a.mid) edge [out=180, in=0] (usb.center)
+edge [out=180, in=0] (nfc.center)
+edge [out=0, in=180] (sc.center)
+edge [out=0, in=180] (vsc.center)
+;
+\end{pgfonlayer}" /></p>
+<p class="caption">The Virtual Smart Card Architecture connects different aspects of smart card handling</p></div><p>Currently the following projects are part of Virtual Smart Card Architecture:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="virtualsmartcard/README.html">Virtual Smart Card</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="remote-reader/README.html">Remote Smart Card Reader</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ACardEmulator/README.html">Android Smart Card Emulator</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pcsc-relay/README.html">PC/SC Relay</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ccid/README.html">USB CCID Emulator</a><ul class="simple">
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+</div>
+<p>Looking for a feature the included programs do not offer? Want to extend the
+functionality of some library? Apart from requesting a new feature, you can
+have a look at these programming guides and try yourself:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="virtualsmartcard/api.html">Creating a Virtual Smart Card</a></li>
+</ul>
+</div>
+<a class="reference external image-reference" href="https://travis-ci.org/frankmorgner/vsmartcard"><img alt="Travis CI Build Status Image" src="https://img.shields.io/travis/frankmorgner/vsmartcard/master.svg?label=Travis%20CI%20build" /></a>
+<a class="reference external image-reference" href="https://ci.appveyor.com/project/frankmorgner/vsmartcard"><img alt="AppVeyor CI Build Status Image" src="https://img.shields.io/appveyor/ci/frankmorgner/vsmartcard/master.svg?label=AppVeyor%20build" /></a>
+<a class="reference external image-reference" href="https://scan.coverity.com/projects/3987"><img alt="Coverity Scan Status" src="https://img.shields.io/coverity/scan/3987.svg?label=Coverity%20scan" /></a>
+<div class="section" id="download">
+<h2>Download<a class="headerlink" href="#download" title="Permalink to this headline">¶</a></h2>
+<p>You can download the latest release of the Virtual Smart Card Architecture <a class="reference external" href="https://github.com/frankmorgner/vsmartcard/releases">here</a>. Older releases are
+still available at the <a class="reference external" href="http://sourceforge.net/projects/vsmartcard/files">old project
+location</a>.</p>
+<p>Alternatively, you can clone our git repository:</p>
+<div class="highlight-sh"><div class="highlight"><pre>git clone https://github.com/frankmorgner/vsmartcard.git
+</pre></div>
+</div>
+</div>
+<div class="section" id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<p id="bibtex-bibliography-index-0"><table class="docutils citation" frame="void" id="morgner2012" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[Mor12]</td><td>Frank Morgner. Mobiler chipkartenleser für den neuen personalausweis: Sicherheitsanalyse und erweiterung des &#8220;systems npa&#8221;. Master&#8217;s thesis, Humboldt-Universität zu Berlin, 2012. <a class="reference external" href="https://sar.informatik.hu-berlin.de/research/publications/SAR-PR-2012-05/SAR-PR-2012-05_.pdf">URL: https://sar.informatik.hu-berlin.de/research/publications/SAR-PR-2012-05/SAR-PR-2012-05_.pdf</a>.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="mooe10" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[MO10]</td><td>Frank Morgner and Dominik Oepen. &#8220;die gesamte technik ist sicher&#8221;. besitz und wissen: Relay-angriffe auf den neuen personalausweis. In <em>27th Chaos Communication Congress</em>, 26–31. Chaos Computer Club, 12 2010. <a class="reference external" href="http://media.ccc.de/browse/congress/2010/27c3-4297-de-die_gesamte_technik_ist_sicher.html">URL: http://media.ccc.de/browse/congress/2010/27c3-4297-de-die_gesamte_technik_ist_sicher.html</a>.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="mobisec2012" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[MOMR12]</td><td>Frank Morgner, Dominik Oepen, Wolf Müller, and Jens-Peter Redlich. Mobile smart card reader using nfc-enabled smartphones. In Andreas. Schmidt, Giovanni Russello, Ioannis Krontiris, and Shiguo Lian, editors, <em>Security and Privacy in Mobile Information and Communication Systems</em>, volume 107 of Lecture Notes of the Institute for Computer Sciences, Social Informatics and Telecommunications Engineering, 24–37. Springer Berlin Heidelberg, 2012. <a class="reference external" href="http://sar.informatik.hu-berlin.de/research/publications/SAR-PR-2012-07/SAR-PR-2012-07_.pdf">URL: http://sar.informatik.hu-berlin.de/research/publications/SAR-PR-2012-07/SAR-PR-2012-07_.pdf</a>, <a class="reference external" href="http://dx.doi.org/10.1007/978-3-642-33392-7_3">doi:10.1007/978-3-642-33392-7_3</a>.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="mumo11" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[MMO11]</td><td>Wolf Müller, Frank Morgner, and Dominik Oepen. Mobiles szenario für den neuen personalausweis. In Ulrich Waldmann, editor, <em>Tagungsband zum 21. SIT-SmartCard Workshop</em>, 179–188. Stuttgart, 2011. Fraunhofer-Institut für sichere Informationstechnologie, Fraunhofer Verlag. <a class="reference external" href="http://sar.informatik.hu-berlin.de/research/publications/SAR-PR-2011-01/SAR-PR-2011-01.pdf">URL: http://sar.informatik.hu-berlin.de/research/publications/SAR-PR-2011-01/SAR-PR-2011-01.pdf</a>.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="oepen2010" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[Oep10]</td><td>Dominik Oepen. Authentisierung im mobilen web: Zur usability eid-basierter authentisierung auf einem nfc handy. Master&#8217;s thesis, Humboldt-Universität zu Berlin, Berlin, 2010. <a class="reference external" href="http://sar.informatik.hu-berlin.de/research/publications/#SAR-PR-2010-11">URL: http://sar.informatik.hu-berlin.de/research/publications/#SAR-PR-2010-11</a>.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="linuxtag" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[OM11]</td><td>Dominik Oepen and Frank Morgner. Foss im umfeld des neuen personalausweis. LinuxTag 2011, 2011.</td></tr>
+</tbody>
+</table>
+</p>
+</div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2009-2016 by Dominik Oepen and Frank Morgner.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

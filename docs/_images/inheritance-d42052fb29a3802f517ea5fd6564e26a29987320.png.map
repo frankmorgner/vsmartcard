@@ -1,0 +1,13 @@
+<map id="inheritance645263d8d9" name="inheritance645263d8d9">
+<area shape="rect" id="node1" href="virtualsmartcard.SEutils.html#virtualsmartcard.SEutils.Security_Environment" title="virtualsmartcard.SEutils.Security_Environment" alt="" coords="6,80,172,93"/>
+<area shape="rect" id="node11" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSE" title="virtualsmartcard.cards.cryptoflex.CryptoflexSE" alt="" coords="203,80,372,93"/>
+<area shape="rect" id="node2" href="virtualsmartcard.SmartcardFilesystem.html#virtualsmartcard.SmartcardFilesystem.DF" title="Class for a dedicated file" alt="" coords="212,54,363,68"/>
+<area shape="rect" id="node4" href="virtualsmartcard.SmartcardFilesystem.html#virtualsmartcard.SmartcardFilesystem.MF" title="Class for a master file" alt="" coords="410,54,561,68"/>
+<area shape="rect" id="node3" href="virtualsmartcard.SmartcardFilesystem.html#virtualsmartcard.SmartcardFilesystem.File" title="Template class for a smartcard file." alt="" coords="13,54,165,68"/>
+<area shape="rect" id="node8" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF" title="virtualsmartcard.cards.cryptoflex.CryptoflexMF" alt="" coords="596,54,765,68"/>
+<area shape="rect" id="node5" href="virtualsmartcard.SmartcardSAM.html#virtualsmartcard.SmartcardSAM.SAM" title="This class is used to store the data needed by the SAM." alt="" coords="22,29,156,42"/>
+<area shape="rect" id="node10" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM" title="virtualsmartcard.cards.cryptoflex.CryptoflexSAM" alt="" coords="200,29,375,42"/>
+<area shape="rect" id="node6" href="virtualsmartcard.VirtualSmartcard.html#virtualsmartcard.VirtualSmartcard.Iso7816OS" title="virtualsmartcard.VirtualSmartcard.Iso7816OS" alt="" coords="206,3,369,16"/>
+<area shape="rect" id="node9" href="#virtualsmartcard.cards.cryptoflex.CryptoflexOS" title="virtualsmartcard.cards.cryptoflex.CryptoflexOS" alt="" coords="400,3,571,16"/>
+<area shape="rect" id="node7" href="virtualsmartcard.VirtualSmartcard.html#virtualsmartcard.VirtualSmartcard.SmartcardOS" title="Base class for a smart card OS" alt="" coords="3,3,175,16"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="inheritancea62cb97bf3" name="inheritancea62cb97bf3">
+<area shape="rect" id="node1" title="A class whose instances are single test cases." alt="" coords="3,20,113,37"/>
+<area shape="rect" id="node3" href="#virtualsmartcard.tests.CardGenerator_test.ISO7816GeneratorTest" title="virtualsmartcard.tests.CardGenerator_test.ISO7816GeneratorTest" alt="" coords="144,20,434,37"/>
+<area shape="rect" id="node2" href="#virtualsmartcard.tests.CardGenerator_test.CryptoflexGeneratorTest" title="virtualsmartcard.tests.CardGenerator_test.CryptoflexGeneratorTest" alt="" coords="465,3,765,20"/>
+<area shape="rect" id="node4" href="#virtualsmartcard.tests.CardGenerator_test.TestNPACardGenerator" title="virtualsmartcard.tests.CardGenerator_test.TestNPACardGenerator" alt="" coords="469,36,761,52"/>
+</map>

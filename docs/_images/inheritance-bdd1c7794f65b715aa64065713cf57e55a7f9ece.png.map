@@ -1,0 +1,11 @@
+<map id="inheritance6f1df1879c" name="inheritance6f1df1879c">
+<area shape="rect" id="node1" href="virtualsmartcard.SEutils.html#virtualsmartcard.SEutils.ControlReferenceTemplate" title="Control Reference Templates are used to configure the Security" alt="" coords="4,117,269,136"/>
+<area shape="rect" id="node7" href="#virtualsmartcard.cards.nPA.nPA_AT_CRT" title="virtualsmartcard.cards.nPA.nPA_AT_CRT" alt="" coords="318,117,530,136"/>
+<area shape="rect" id="node2" href="virtualsmartcard.SEutils.html#virtualsmartcard.SEutils.Security_Environment" title="virtualsmartcard.SEutils.Security_Environment" alt="" coords="15,79,258,98"/>
+<area shape="rect" id="node9" href="#virtualsmartcard.cards.nPA.nPA_SE" title="virtualsmartcard.cards.nPA.nPA_SE" alt="" coords="330,79,518,98"/>
+<area shape="rect" id="node3" href="virtualsmartcard.SmartcardSAM.html#virtualsmartcard.SmartcardSAM.SAM" title="This class is used to store the data needed by the SAM." alt="" coords="39,42,234,61"/>
+<area shape="rect" id="node8" href="#virtualsmartcard.cards.nPA.nPA_SAM" title="virtualsmartcard.cards.nPA.nPA_SAM" alt="" coords="326,42,522,61"/>
+<area shape="rect" id="node4" href="virtualsmartcard.VirtualSmartcard.html#virtualsmartcard.VirtualSmartcard.Iso7816OS" title="virtualsmartcard.VirtualSmartcard.Iso7816OS" alt="" coords="305,4,543,23"/>
+<area shape="rect" id="node6" href="#virtualsmartcard.cards.nPA.NPAOS" title="virtualsmartcard.cards.nPA.NPAOS" alt="" coords="579,4,764,23"/>
+<area shape="rect" id="node5" href="virtualsmartcard.VirtualSmartcard.html#virtualsmartcard.VirtualSmartcard.SmartcardOS" title="Base class for a smart card OS" alt="" coords="11,4,262,23"/>
+</map>

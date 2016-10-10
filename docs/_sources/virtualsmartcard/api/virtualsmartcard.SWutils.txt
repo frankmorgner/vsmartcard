@@ -1,0 +1,10 @@
+SWutils Module
+==============
+
+.. inheritance-diagram:: virtualsmartcard.SWutils
+.. automodule:: virtualsmartcard.SWutils
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :show-inheritance:
+    :private-members:

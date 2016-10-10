@@ -1,0 +1,98 @@
+.. highlight:: sh
+
+.. |vsmartcard| replace:: Virtual Smart Card Architecture
+
+################################################################################
+Welcome to the |vsmartcard| documentation!
+################################################################################
+
+Welcome to the |vsmartcard|. |vsmartcard| is an umbrella project for various
+projects concerned with the emulation of different types of smart card readers
+or smart cards themselves.
+
+.. tikz:: The Virtual Smart Card Architecture connects different aspects of smart card handling
+    :stringsubst:
+    :libs: arrows, calc, fit, patterns, plotmarks, shapes.geometric, shapes.misc, shapes.symbols, shapes.arrows, shapes.callouts, shapes.multipart, shapes.gates.logic.US, shapes.gates.logic.IEC, er, automata, backgrounds, chains, topaths, trees, petri, mindmap, matrix, calendar, folding, fadings, through, positioning, scopes, decorations.fractals, decorations.shapes, decorations.text, decorations.pathmorphing, decorations.pathreplacing, decorations.footprints, decorations.markings, shadows
+
+    \input{%(wd)s/bilder/tikzstyles.tex}
+    \tikzstyle{bla}=[box, klein, rounded rectangle,  inner sep=.3cm]
+    \node (a) {};
+
+    \node[bla, above left=.5cm of a]
+    (usb) {USB Terminal};
+
+    \node[bla, below left=.5cm of a]
+    (nfc) {NFC Terminal};
+
+    \node[bla, rounded rectangle left arc=concave, above right=.5cm of a]
+    (sc)  {Real Smart Card};
+
+    \node[bla, rounded rectangle left arc=concave, below right=.5cm of a]
+    (vsc) {Virtual Smart Card};
+
+    \begin{pgfonlayer}{background}
+    \path[line width=.8cm,color=hublue!20]
+    (a.mid) edge [out=180, in=0] (usb.center)
+    edge [out=180, in=0] (nfc.center)
+    edge [out=0, in=180] (sc.center)
+    edge [out=0, in=180] (vsc.center)
+    ;
+    \end{pgfonlayer}
+
+
+Currently the following projects are part of |vsmartcard|: 
+
+.. toctree::
+   :titlesonly:
+
+   virtualsmartcard/README
+   remote-reader/README
+   ACardEmulator/README
+   pcsc-relay/README
+   ccid/README
+
+.. toctree::
+   :hidden:
+
+   npa/README
+
+Looking for a feature the included programs do not offer? Want to extend the
+functionality of some library? Apart from requesting a new feature, you can
+have a look at these programming guides and try yourself:
+
+.. toctree::
+   :maxdepth: 1
+
+   virtualsmartcard/api
+
+.. image:: https://img.shields.io/travis/frankmorgner/vsmartcard/master.svg?label=Travis%20CI%20build
+    :target: https://travis-ci.org/frankmorgner/vsmartcard
+    :alt: Travis CI Build Status Image
+
+.. image:: https://img.shields.io/appveyor/ci/frankmorgner/vsmartcard/master.svg?label=AppVeyor%20build
+    :target: https://ci.appveyor.com/project/frankmorgner/vsmartcard
+    :alt: AppVeyor CI Build Status Image
+
+.. image:: https://img.shields.io/coverity/scan/3987.svg?label=Coverity%20scan
+    :target: https://scan.coverity.com/projects/3987
+    :alt: Coverity Scan Status
+
+
+Download
+--------
+
+You can download the latest release of the |vsmartcard| `here
+<https://github.com/frankmorgner/vsmartcard/releases>`_. Older releases are
+still available at the `old project
+location <http://sourceforge.net/projects/vsmartcard/files>`_.
+
+Alternatively, you can clone our git repository::
+
+    git clone https://github.com/frankmorgner/vsmartcard.git
+
+
+References
+----------
+
+.. bibliography:: references.bib
+   :all:

@@ -1,0 +1,9 @@
+<map id="inheritance498eda02c2" name="inheritance498eda02c2">
+<area shape="rect" id="node1" href="#virtualsmartcard.SmartcardFilesystem.DF" title="Class for a dedicated file" alt="" coords="250,20,446,37"/>
+<area shape="rect" id="node4" href="#virtualsmartcard.SmartcardFilesystem.MF" title="Class for a master file" alt="" coords="523,20,719,37"/>
+<area shape="rect" id="node2" href="#virtualsmartcard.SmartcardFilesystem.File" title="Template class for a smartcard file." alt="" coords="12,37,209,54"/>
+<area shape="rect" id="node3" href="#virtualsmartcard.SmartcardFilesystem.EF" title="Template class for an elementary file." alt="" coords="250,53,445,71"/>
+<area shape="rect" id="node6" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF" title="Class for an elementary file with record structure." alt="" coords="489,53,754,71"/>
+<area shape="rect" id="node7" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF" title="Class for an elementary file with transparent structure." alt="" coords="478,87,764,104"/>
+<area shape="rect" id="node5" href="#virtualsmartcard.SmartcardFilesystem.Record" title="virtualsmartcard.SmartcardFilesystem.Record" alt="" coords="4,4,217,21"/>
+</map>

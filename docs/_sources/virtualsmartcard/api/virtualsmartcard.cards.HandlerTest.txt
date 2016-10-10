@@ -1,0 +1,10 @@
+HandlerTest Module
+==================
+
+.. inheritance-diagram:: virtualsmartcard.cards.HandlerTest
+.. automodule:: virtualsmartcard.cards.HandlerTest
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :show-inheritance:
+    :private-members:

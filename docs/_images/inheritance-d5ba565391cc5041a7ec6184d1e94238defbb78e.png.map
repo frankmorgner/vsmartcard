@@ -1,0 +1,4 @@
+<map id="inheritanceeed1b727ec" name="inheritanceeed1b727ec">
+<area shape="rect" id="node1" href="virtualsmartcard.VirtualSmartcard.html#virtualsmartcard.VirtualSmartcard.SmartcardOS" title="Base class for a smart card OS" alt="" coords="5,5,335,31"/>
+<area shape="rect" id="node2" href="#virtualsmartcard.cards.Relay.RelayOS" title="This class implements relaying of a (physical) smartcard. The RelayOS" alt="" coords="383,5,644,31"/>
+</map>

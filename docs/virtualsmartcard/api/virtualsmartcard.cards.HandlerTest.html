@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>HandlerTest Module &mdash; vsmartcard 2016-10-10 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootswatch-3.3.4/flatly/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '2016-10-10',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
+    <link rel="shortcut icon" href="../../_static/chip.ico"/>
+    <link rel="top" title="vsmartcard 2016-10-10 documentation" href="../../index.html" />
+    <link rel="up" title="cards Package" href="virtualsmartcard.cards.html" />
+    <link rel="next" title="Relay Module" href="virtualsmartcard.cards.Relay.html" />
+    <link rel="prev" title="cards Package" href="virtualsmartcard.cards.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body role="document">
+  
+  <a href="https://github.com/frankmorgner/vsmartcard"
+     class="visible-desktop hidden-xs"><img
+    id="gh-banner"
+    style="position: absolute; top: 50px; right: 0; border: 0;"
+    src="https://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png"
+    alt="Fork me on GitHub"></a>
+  <script>
+    // Adjust banner height.
+    $(function () {
+      var navHeight = $(".navbar .container").css("height");
+      $("#gh-banner").css("top", navHeight);
+    });
+  </script>
+
+
+  <div id="navbar" class="navbar navbar-default ">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../index.html">
+          vsmartcard</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../README.html">Virtual Smart Card</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../remote-reader/README.html">Remote Smart Card Reader</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ACardEmulator/README.html">Android Smart Card Emulator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pcsc-relay/README.html">PC/SC Relay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ccid/README.html">USB CCID Emulator</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../npa/README.html">nPA Smart Card Library</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">Creating a Virtual Smart Card</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">HandlerTest Module</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="virtualsmartcard.cards.html" title="Previous Chapter: cards Package"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; cards Package</span>
+    </a>
+  </li>
+  <li>
+    <a href="virtualsmartcard.cards.Relay.html" title="Next Chapter: Relay Module"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">Relay Module &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12 content">
+      
+  <div class="section" id="handlertest-module">
+<h1>HandlerTest Module<a class="headerlink" href="#handlertest-module" title="Permalink to this headline">¶</a></h1>
+<p class="graphviz">
+<img src="../../_images/inheritance-87c02cb0f500902e28e2583f9a1dc09e571332ee.png" alt="Inheritance diagram of virtualsmartcard.cards.HandlerTest" usemap="#inheritancee548df9983" class="inheritance"/>
+<map id="inheritancee548df9983" name="inheritancee548df9983">
+<area shape="rect" id="node1" href="virtualsmartcard.VirtualSmartcard.html#virtualsmartcard.VirtualSmartcard.SmartcardOS" title="Base class for a smart card OS" alt="" coords="5,5,335,31"/>
+<area shape="rect" id="node2" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS" title="This class implements the commands used for the PC/SC&#45;lite &#160;smart &#160;card" alt="" coords="383,5,725,31"/>
+</map>
+</p>
+<span class="target" id="module-virtualsmartcard.cards.HandlerTest"></span><dl class="class">
+<dt id="virtualsmartcard.cards.HandlerTest.HandlerTestOS">
+<em class="property">class </em><code class="descclassname">virtualsmartcard.cards.HandlerTest.</code><code class="descname">HandlerTestOS</code><a class="headerlink" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="virtualsmartcard.VirtualSmartcard.html#virtualsmartcard.VirtualSmartcard.SmartcardOS" title="virtualsmartcard.VirtualSmartcard.SmartcardOS"><code class="xref py py-class docutils literal"><span class="pre">virtualsmartcard.VirtualSmartcard.SmartcardOS</span></code></a></p>
+<p>This class implements the commands used for the PC/SC-lite  smart  card
+reader driver tester. See <a class="reference external" href="http://pcsclite.alioth.debian.org/pcsclite.html">http://pcsclite.alioth.debian.org/pcsclite.html</a>
+and handler_test(1).</p>
+<dl class="method">
+<dt id="virtualsmartcard.cards.HandlerTest.HandlerTestOS._HandlerTestOS__output_from_le">
+<code class="descname">_HandlerTestOS__output_from_le</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS._HandlerTestOS__output_from_le" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.HandlerTest.HandlerTestOS.execute">
+<code class="descname">execute</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS.execute" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.HandlerTest.HandlerTestOS.getATR">
+<code class="descname">getATR</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS.getATR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.HandlerTest.HandlerTestOS.powerDown">
+<code class="descname">powerDown</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS.powerDown" title="Permalink to this definition">¶</a></dt>
+<dd><p>Powers down the card</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.HandlerTest.HandlerTestOS.powerUp">
+<code class="descname">powerUp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS.powerUp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Powers up the card</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="virtualsmartcard.cards.HandlerTest.HandlerTestOS.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs a warm reset of the card (no power down)</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2009-2016 by Dominik Oepen and Frank Morgner.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>
