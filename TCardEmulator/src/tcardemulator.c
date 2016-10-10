@@ -4,6 +4,7 @@
 #include <dlog.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <glib.h>
 
 typedef struct appdata {
 
@@ -22,14 +23,14 @@ hce_event_cb(nfc_se_h handle, nfc_hce_event_type_e event,
 			// Do something when NFC_HCE_EVENT_DEACTIVATED event arrives
 			// When the event arrives, apdu and apdu len is NULL and 0
 			dlog_print(DLOG_DEBUG, LOG_TAG, "received NFC_HCE_EVENT_DEACTIVATED event on NFC handle %d", handle);
-			terminate_service_connection();
+			//terminate_service_connection();
 			break;
 
 		case NFC_HCE_EVENT_ACTIVATED:
 			// Do something when NFC_HCE_EVENT_ACTIVATED event arrives
 			// When the event arrives, apdu and apdu len is NULL and 0
 			dlog_print(DLOG_DEBUG, LOG_TAG, "received NFC_HCE_EVENT_ACTIVATED event on NFC handle %d", handle);
-			find_peers();
+			//find_peers();
 			break;
 
 		case NFC_HCE_EVENT_APDU_RECEIVED:
@@ -52,9 +53,26 @@ hce_event_cb(nfc_se_h handle, nfc_hce_event_type_e event,
 	}
 }
 
+void register_aid(gpointer data, gpointer user_data) {
+	int result = nfc_se_register_aid(NFC_SE_TYPE_HCE, NFC_CARD_EMULATION_CATEGORY_OTHER, data);
+	if (result != NFC_ERROR_NONE) {
+		dlog_print(DLOG_ERROR, LOG_TAG, "nfc_se_register_aid for aid %s failed: %d", data, result);
+	} else {
+		dlog_print(DLOG_DEBUG, LOG_TAG, "nfc_se_register_aid for aid %s succeeded.", data);
+	}
+}
+
+void install_aids() {
+	GSList* aid_list = request_installed_aids();
+	g_slist_foreach(aid_list, register_aid, NULL);
+}
+
 void send_apdu_response(nfc_se_h handle, unsigned char *resp, unsigned int resp_len) {
 	dlog_print(DLOG_DEBUG, LOG_TAG, "sending data to nfc handle: %d", handle);
-	nfc_hce_send_apdu_response(handle, resp, resp_len);
+	int result = nfc_hce_send_apdu_response(handle, resp, resp_len);
+	if (result != NFC_ERROR_NONE) {
+		dlog_print(DLOG_DEBUG, LOG_TAG, "error sending data to nfc handle %d: ", handle);
+	}
 }
 
 	bool
@@ -93,6 +111,10 @@ service_app_create(void *data)
 	}
 
 	initialize_sap();
+
+	find_peers();
+
+	install_aids();
 
 	r = true;
 

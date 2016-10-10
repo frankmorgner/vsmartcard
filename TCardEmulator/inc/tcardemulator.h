@@ -10,6 +10,7 @@
 #include <stddef.h>
 #include <glib.h>
 #include <nfc.h>
+#include <glib.h>
 
 //extern unsigned char *rapdu;
 //extern size_t rapdu_length;
@@ -23,5 +24,6 @@ gboolean find_peers();
 gboolean request_service_connection(void);
 gboolean terminate_service_connection(void);
 gboolean send_data(nfc_se_h nfc_handle, void *message, unsigned int message_len);
+GSList* request_installed_aids();
 
 #endif /* __tcardemulator_H__ */

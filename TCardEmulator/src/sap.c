@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <nfc.h>
 #include <sap.h>
+#include <glib.h>
 
 #define HELLO_ACCESSORY_PROFILE_ID "/com/vsmcartcard"
 #define HELLO_ACCESSORY_CHANNELID 104
@@ -307,6 +308,11 @@ gboolean find_peers()
 	g_idle_add(_find_peer_agent, &priv_data);
 	dlog_print(DLOG_DEBUG, LOG_TAG, "find peer called");
 	return TRUE;
+}
+
+GSList* request_installed_aids() {
+	GSList* aid_list = g_slist_append(NULL, "A000000397425446590201");
+	return aid_list;
 }
 
 static void on_agent_initialized(sap_agent_h agent,
