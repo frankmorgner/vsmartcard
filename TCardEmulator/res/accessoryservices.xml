@@ -7,7 +7,7 @@
 				<transport type="TRANSPORT_BT" />
 				<transport type="TRANSPORT_WIFI" />
 			</supportedTransports>
-			<serviceChannel id="104" dataRate="low" priority="low"
+			<serviceChannel id="104" dataRate="low" priority="high"
 				reliability="enable">
 			</serviceChannel>
 		</serviceProfile>

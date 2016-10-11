@@ -23,12 +23,17 @@
 
 package com.vsmartcard.acardemulator;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import javax.security.cert.CertificateException;
+import javax.security.cert.X509Certificate;
+import java.util.Arrays;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -40,8 +45,8 @@ import com.samsung.android.sdk.accessory.*;
 import com.vsmartcard.acardemulator.emulators.EmulatorSingleton;
 
 public class SmartcardProviderService extends SAAgent {
-    private static final String TAG = "HelloAccessory(P)";
-    private static final int HELLOACCESSORY_CHANNEL_ID = 104;
+    private static final String TAG = "ACardEmulator";
+    private static final int ACCESSORY_CHANNEL_ID = 104;
     private static final Class<ServiceConnection> SASOCKET_CLASS = ServiceConnection.class;
     private final IBinder mBinder = new LocalBinder();
     private ServiceConnection mConnectionHandler = null;
@@ -99,8 +104,7 @@ public class SmartcardProviderService extends SAAgent {
     @Override
     protected void onServiceConnectionRequested(SAPeerAgent peerAgent) {
         if (peerAgent != null) {
-            //TODO: Check for keys and everything
-            acceptServiceConnectionRequest(peerAgent);
+            authenticatePeerAgent(peerAgent);
         }
     }
 
@@ -116,12 +120,36 @@ public class SmartcardProviderService extends SAAgent {
         }
     }
 
+    private static byte[] getApplicationCertificate(Context context) {
+        byte[] cert = new byte[0];
+        String packageName = context.getPackageName();
+        try {
+            PackageInfo pkgInfo = context.getPackageManager().getPackageInfo(packageName, PackageManager.GET_SIGNATURES);
+            if (pkgInfo != null) {
+                Signature[] sigs = pkgInfo.signatures;
+                if (sigs != null) {
+                    ByteArrayInputStream stream = new ByteArrayInputStream(sigs[0].toByteArray());
+                    X509Certificate x509cert = X509Certificate.getInstance(stream);
+                    cert = x509cert.getPublicKey().getEncoded();
+                }
+            }
+        } catch (PackageManager.NameNotFoundException | CertificateException e) {
+            Log.e(TAG, e.getMessage());
+        }
+        return cert;
+    }
+
     @Override
     protected void onAuthenticationResponse(SAPeerAgent peerAgent, SAAuthenticationToken authToken, int error) {
-        /*
-         * The authenticatePeerAgent(peerAgent) API may not be working properly depending on the firmware
-         * version of accessory device. Please refer to another sample application for Security.
-         */
+        if (authToken.getAuthenticationType() == SAAuthenticationToken.AUTHENTICATION_TYPE_CERTIFICATE_X509) {
+            byte[] myAppKey = getApplicationCertificate(getApplicationContext());
+            if (authToken.getKey().length == myAppKey.length) {
+                if (Arrays.equals(authToken.getKey(), myAppKey)) {
+                    acceptServiceConnectionRequest(peerAgent);
+                }
+            }
+        }
+        rejectServiceConnectionRequest(peerAgent);
     }
 
     @Override
@@ -175,7 +203,7 @@ public class SmartcardProviderService extends SAAgent {
             new Thread(new Runnable() {
                 public void run() {
                     try {
-                        mConnectionHandler.send(HELLOACCESSORY_CHANNEL_ID, response);
+                        mConnectionHandler.secureSend(ACCESSORY_CHANNEL_ID, response);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

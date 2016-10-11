@@ -7,8 +7,8 @@
 #include <sap.h>
 #include <glib.h>
 
-#define HELLO_ACCESSORY_PROFILE_ID "/com/vsmcartcard"
-#define HELLO_ACCESSORY_CHANNELID 104
+#define ACCESSORY_PROFILE_ID "/com/vsmcartcard"
+#define ACCESSORY_CHANNELID 104
 
 typedef struct priv {
 	sap_agent_h agent;
@@ -17,17 +17,10 @@ typedef struct priv {
 	nfc_se_h nfc_handle;
 } priv_s;
 
-typedef struct message_queue {
-	void *message;
-	unsigned int message_len;
-	struct message_queue *next;
-} message_queue_s;
-
-static gboolean agent_created = FALSE;
-static gboolean agent_connected = FALSE;
+gboolean agent_created = FALSE;
+gboolean agent_connected = FALSE;
 
 static priv_s priv_data = { 0 };
-static message_queue_s *m_queue = NULL;
 
 void on_peer_agent_updated(sap_peer_agent_h peer_agent,
 		sap_peer_agent_status_e peer_status,
@@ -42,7 +35,7 @@ void on_peer_agent_updated(sap_peer_agent_h peer_agent,
 		case SAP_PEER_AGENT_FOUND_RESULT_FOUND:
 			if (peer_status == SAP_PEER_AGENT_STATUS_AVAILABLE) {
 				priv_data.peer_agent = peer_agent;
-				dlog_print(DLOG_INFO, LOG_TAG, "Find Peer Success!!");
+				dlog_print(DLOG_INFO, LOG_TAG, "requesting service connection");
 				request_service_connection();
 			} else {
 				dlog_print(DLOG_INFO, LOG_TAG, "peer agent removed");
@@ -96,77 +89,20 @@ static void on_data_recieved(sap_socket_h socket,
 		unsigned short int channel_id,
 		unsigned int payload_length,
 		void *buffer,
-		void *user_data)
-{
+		void *user_data) {
 	dlog_print(DLOG_INFO, LOG_TAG, "received data: %p, len:%d", buffer, payload_length);
-	//unsigned char *p = realloc(rapdu, payload_length);
-//	if (p) {
-//		rapdu = p;
-//		rapdu_length = payload_length;
-//	} else {
-//		dlog_print(DLOG_ERROR, LOG_TAG, "not enough for storing data");
-//		if (rapdu && rapdu_length >= 2) {
-//			dlog_print(DLOG_ERROR, LOG_TAG,
-//				   "not enough memory, returning 0x6D00 as R-APDU");
-//			rapdu[0] = 0x6D;
-//			rapdu[1] = 0x00;
-//			rapdu_length = 2;
-//		} else {
-//			dlog_print(DLOG_ERROR, LOG_TAG,
-//				   	"not enough memory, setting R-APDU to nothing");
-//			rapdu_length = 0;
-//		}
-//	}
-
-//	rapdu_received = TRUE;
 
 	send_apdu_response(priv_data.nfc_handle, buffer, payload_length);
 }
 
-message_queue_s *read_message() {
-	if (m_queue != NULL) {
-		message_queue_s *message = m_queue;
-		m_queue = message->next;
-		return message;
-	}
-	return NULL;
-}
-
-
-gboolean add_message(void *message, unsigned int message_len) {
-	message_queue_s *message_pointer = m_queue;
-	message_queue_s *prev = message_pointer;
-	while (message_pointer != NULL) {
-		prev = message_pointer;
-		message_pointer = message_pointer->next;
-	}
-	message_pointer = malloc(sizeof (message_queue_s));
-	if (message_pointer != NULL) {
-		if (m_queue == NULL) {
-			m_queue = message_pointer;
-		} else {
-			prev->next = message_pointer;
-		}
-		message_pointer->message = message;
-		message_pointer->message_len = message_len;
-		message_pointer->next = NULL;
-		return TRUE;
-	}
-	return FALSE;
-}
-
 gboolean send_data(nfc_se_h nfc_handle, void *message, unsigned int message_len) {
 	gboolean result;
-	if (agent_connected) {
-		priv_data.nfc_handle = nfc_handle;
-		result = sap_socket_send_data(priv_data.socket,
-				HELLO_ACCESSORY_CHANNELID, message_len, message);
+	priv_data.nfc_handle = nfc_handle;
+	result = sap_socket_send_secure_data(priv_data.socket,
+			ACCESSORY_CHANNELID, message_len, message);
 
-		if (result != SAP_RESULT_SUCCESS) {
-
-		}
-	} else {
-		result = add_message(message, message_len);
+	if (result != SAP_RESULT_SUCCESS) {
+		dlog_print(DLOG_INFO, LOG_TAG, "couldn't send sap message: %d", result);
 	}
 	return result;
 }
@@ -186,17 +122,16 @@ static void on_service_connection_created(sap_peer_agent_h peer_agent,
 			sap_socket_set_data_received_cb(socket, on_data_recieved, peer_agent);
 			priv_data.socket = socket;
 			agent_connected = TRUE;
-			// read messages in queue and send them
-			message_queue_s *message_queue = read_message();
-			while (message_queue != NULL) {
-				send_data(priv_data.nfc_handle, message_queue->message, message_queue->message_len);
-				message_queue = read_message();
-			}
+			break;
+
+		case SAP_CONNECTION_IN_PROGRESS:
+			dlog_print(DLOG_INFO, LOG_TAG, "connection is already in progress");
 			break;
 
 		case SAP_CONNECTION_ALREADY_EXIST:
-			dlog_print(DLOG_INFO, LOG_TAG, "connection is already exist");
+			dlog_print(DLOG_INFO, LOG_TAG, "connection already exists");
 			priv_data.socket = socket;
+			agent_connected = TRUE;
 			break;
 
 		case SAP_CONNECTION_FAILURE_DEVICE_UNREACHABLE:
@@ -225,8 +160,7 @@ static void on_service_connection_created(sap_peer_agent_h peer_agent,
 	}
 }
 
-static gboolean _create_service_connection(gpointer user_data)
-{
+static gboolean _create_service_connection(gpointer user_data) {
 	struct priv *priv = NULL;
 	sap_result_e result = SAP_RESULT_FAILURE;
 
@@ -245,16 +179,12 @@ static gboolean _create_service_connection(gpointer user_data)
 	return FALSE;
 }
 
-gboolean request_service_connection(void)
-{
+gboolean request_service_connection(void) {
 	g_idle_add(_create_service_connection, &priv_data);
-
-	dlog_print(DLOG_DEBUG, LOG_TAG, "request_service_connection call over");
 	return TRUE;
 }
 
-static gboolean _terminate_service_connection(gpointer user_data)
-{
+static gboolean _terminate_service_connection(gpointer user_data) {
 	struct priv *priv = NULL;
 	sap_result_e result = SAP_RESULT_FAILURE;
 
@@ -281,7 +211,6 @@ static gboolean _terminate_service_connection(gpointer user_data)
 gboolean terminate_service_connection(void)
 {
 	g_idle_add(_terminate_service_connection, &priv_data);
-
 	return TRUE;
 }
 
@@ -312,6 +241,13 @@ gboolean find_peers()
 
 GSList* request_installed_aids() {
 	GSList* aid_list = g_slist_append(NULL, "A000000397425446590201");
+	aid_list = g_slist_append(aid_list, "A0000003974254465902");
+	aid_list = g_slist_append(aid_list, "A00000039742544659");
+	aid_list = g_slist_append(aid_list, "F276A288BCFBA69D34F31001");
+	aid_list = g_slist_append(aid_list, "F000000001");
+	aid_list = g_slist_append(aid_list, "D27600012401");
+	aid_list = g_slist_append(aid_list, "D2760001240102000000000000010000");
+	aid_list = g_slist_append(aid_list, "A000000527210101");
 	return aid_list;
 }
 
@@ -382,6 +318,7 @@ static void on_device_status_changed(sap_device_status_e status, sap_transport_t
 				priv_data.socket = NULL;
 				sap_peer_agent_destroy(priv_data.peer_agent);
 				priv_data.peer_agent = NULL;
+				agent_connected = FALSE;
 			}
 			break;
 
@@ -408,7 +345,7 @@ gboolean agent_initialize()
 			break;
 		}
 		result = sap_agent_initialize(priv_data.agent,
-				HELLO_ACCESSORY_PROFILE_ID, SAP_AGENT_ROLE_CONSUMER,
+				ACCESSORY_PROFILE_ID, SAP_AGENT_ROLE_CONSUMER,
 				on_agent_initialized, NULL);
 		dlog_print(DLOG_DEBUG, LOG_TAG, "sap_agent_initialize >>> %d", result);
 		i++;

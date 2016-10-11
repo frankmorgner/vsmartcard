@@ -12,13 +12,6 @@
 #include <nfc.h>
 #include <glib.h>
 
-//extern unsigned char *rapdu;
-//extern size_t rapdu_length;
-//extern gboolean rapdu_received;
-
-#define HELLO_ACC_ASPID "/com/vsmcartcard"
-#define HELLO_ACC_CHANNELID 104
-
 void     initialize_sap();
 gboolean find_peers();
 gboolean request_service_connection(void);
