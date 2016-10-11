@@ -27,7 +27,7 @@ static void hce_event_cb(nfc_se_h handle, nfc_hce_event_type_e event, unsigned c
 		case NFC_HCE_EVENT_APDU_RECEIVED:
 			dlog_print(DLOG_DEBUG, LOG_TAG, "received NFC_HCE_EVENT_APDU_RECEIVED event on NFC handle %d", handle);
 			if (agent_connected) {
-				send_data(handle, apdu, apdu_len);
+				send_data(handle, "d", 1, apdu, apdu_len);
 			} else {
 				dlog_print(DLOG_INFO, LOG_TAG, "couldn't send message on SAP channel because agent is not connected");
 			}
@@ -39,7 +39,7 @@ static void hce_event_cb(nfc_se_h handle, nfc_hce_event_type_e event, unsigned c
 	}
 }
 
-void register_aid(gpointer data, gpointer user_data) {
+void register_aid(gpointer data) {
 	int result = nfc_se_register_aid(NFC_SE_TYPE_HCE, NFC_CARD_EMULATION_CATEGORY_OTHER, data);
 	if (result != NFC_ERROR_NONE) {
 		dlog_print(DLOG_ERROR, LOG_TAG, "nfc_se_register_aid for aid %s failed: %d", data, result);
@@ -48,9 +48,17 @@ void register_aid(gpointer data, gpointer user_data) {
 	}
 }
 
-void install_aids() {
-	GSList* aid_list = request_installed_aids();
-	g_slist_foreach(aid_list, register_aid, NULL);
+void install_aids(void *buffer, unsigned int buffer_size) {
+	gchar aid_string[buffer_size + 1];
+	g_strlcpy(aid_string, (gchar *)buffer, buffer_size + 1);
+
+	gchar **aid_buffer = g_strsplit(aid_string, ",", 0);
+	int i;
+	int aid_len = g_strv_length(aid_buffer);
+	for (i = 0; i < aid_len; i++) {
+		register_aid((gpointer)aid_buffer[i]);
+	}
+	g_strfreev(aid_buffer);
 }
 
 void send_apdu_response(nfc_se_h handle, unsigned char *resp, unsigned int resp_len) {
@@ -97,8 +105,6 @@ bool service_app_create(void *data) {
 	initialize_sap();
 
 	find_peers();
-
-	install_aids();
 
 	r = true;
 

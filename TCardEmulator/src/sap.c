@@ -25,8 +25,7 @@ static priv_s priv_data = { 0 };
 void on_peer_agent_updated(sap_peer_agent_h peer_agent,
 		sap_peer_agent_status_e peer_status,
 		sap_peer_agent_found_result_e result,
-		void *user_data)
-{
+		void *user_data) {
 	switch (result) {
 		case SAP_PEER_AGENT_FOUND_RESULT_DEVICE_NOT_CONNECTED:
 			dlog_print(DLOG_INFO, LOG_TAG, "device is not connected");
@@ -61,8 +60,7 @@ void on_peer_agent_updated(sap_peer_agent_h peer_agent,
 static void on_service_connection_terminated(sap_peer_agent_h peer_agent,
 		sap_socket_h socket,
 		sap_service_connection_terminated_reason_e result,
-		void *user_data)
-{
+		void *user_data) {
 	switch (result) {
 		case SAP_CONNECTION_TERMINATED_REASON_PEER_DISCONNECTED:
 			dlog_print(DLOG_INFO, LOG_TAG, "disconnected because peer lost");
@@ -92,26 +90,41 @@ static void on_data_recieved(sap_socket_h socket,
 		void *user_data) {
 	dlog_print(DLOG_INFO, LOG_TAG, "received data: %p, len:%d", buffer, payload_length);
 
-	send_apdu_response(priv_data.nfc_handle, buffer, payload_length);
+	char* string_buffer = (char*) buffer;
+	if (string_buffer[0] == 'a') {
+		install_aids(buffer + sizeof(char), payload_length - 1);
+	} else if (string_buffer[0] == 'd') {
+		send_apdu_response(priv_data.nfc_handle, buffer + sizeof(char), payload_length - 1);
+	}
 }
 
-gboolean send_data(nfc_se_h nfc_handle, void *message, unsigned int message_len) {
+gboolean send_data(nfc_se_h nfc_handle, char* prefix, unsigned int prefix_len, void *message, unsigned int message_len) {
 	gboolean result;
-	priv_data.nfc_handle = nfc_handle;
+	if (nfc_handle != NULL) {
+		priv_data.nfc_handle = nfc_handle;
+	}
+	void *final_message = malloc(prefix_len + message_len);
+	memcpy(final_message, prefix, prefix_len);
+	memcpy(final_message + prefix_len * sizeof(char), message, message_len);
 	result = sap_socket_send_secure_data(priv_data.socket,
-			ACCESSORY_CHANNELID, message_len, message);
+			ACCESSORY_CHANNELID, prefix_len + message_len, final_message);
 
 	if (result != SAP_RESULT_SUCCESS) {
 		dlog_print(DLOG_INFO, LOG_TAG, "couldn't send sap message: %d", result);
 	}
+
+	free(final_message);
 	return result;
+}
+
+gboolean request_installed_aids() {
+	return send_data(NULL, "a", 1, "", 0);
 }
 
 static void on_service_connection_created(sap_peer_agent_h peer_agent,
 		sap_socket_h socket,
 		sap_service_connection_result_e result,
-		void *user_data)
-{
+		void *user_data) {
 	switch (result) {
 		case SAP_CONNECTION_SUCCESS:
 			dlog_print(DLOG_INFO, LOG_TAG, "peer agent connection is successful, pa :%u", peer_agent);
@@ -122,6 +135,8 @@ static void on_service_connection_created(sap_peer_agent_h peer_agent,
 			sap_socket_set_data_received_cb(socket, on_data_recieved, peer_agent);
 			priv_data.socket = socket;
 			agent_connected = TRUE;
+
+			request_installed_aids();
 			break;
 
 		case SAP_CONNECTION_IN_PROGRESS:
@@ -237,18 +252,6 @@ gboolean find_peers()
 	g_idle_add(_find_peer_agent, &priv_data);
 	dlog_print(DLOG_DEBUG, LOG_TAG, "find peer called");
 	return TRUE;
-}
-
-GSList* request_installed_aids() {
-	GSList* aid_list = g_slist_append(NULL, "A000000397425446590201");
-	aid_list = g_slist_append(aid_list, "A0000003974254465902");
-	aid_list = g_slist_append(aid_list, "A00000039742544659");
-	aid_list = g_slist_append(aid_list, "F276A288BCFBA69D34F31001");
-	aid_list = g_slist_append(aid_list, "F000000001");
-	aid_list = g_slist_append(aid_list, "D27600012401");
-	aid_list = g_slist_append(aid_list, "D2760001240102000000000000010000");
-	aid_list = g_slist_append(aid_list, "A000000527210101");
-	return aid_list;
 }
 
 static void on_agent_initialized(sap_agent_h agent,

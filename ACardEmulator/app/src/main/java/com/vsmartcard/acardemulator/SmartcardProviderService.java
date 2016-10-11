@@ -23,12 +23,6 @@
 
 package com.vsmartcard.acardemulator;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import javax.security.cert.CertificateException;
-import javax.security.cert.X509Certificate;
-import java.util.Arrays;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -37,12 +31,24 @@ import android.content.pm.Signature;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
-import android.widget.Toast;
+import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.samsung.android.sdk.SsdkUnsupportedException;
-import com.samsung.android.sdk.accessory.*;
+import com.samsung.android.sdk.accessory.SA;
+import com.samsung.android.sdk.accessory.SAAgent;
+import com.samsung.android.sdk.accessory.SAAuthenticationToken;
+import com.samsung.android.sdk.accessory.SAPeerAgent;
+import com.samsung.android.sdk.accessory.SASocket;
 import com.vsmartcard.acardemulator.emulators.EmulatorSingleton;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.Arrays;
+
+import javax.security.cert.CertificateException;
+import javax.security.cert.X509Certificate;
 
 public class SmartcardProviderService extends SAAgent {
     private static final String TAG = "ACardEmulator";
@@ -199,14 +205,34 @@ public class SmartcardProviderService extends SAAgent {
             if (mConnectionHandler == null) {
                 return;
             }
-            final byte[] response = EmulatorSingleton.process(getApplicationContext(), data);
+            final byte[] sendResponse;
+            if (data[0] == 'd') {
+                // APDU is sent
+                byte[] newData = new byte[data.length - 1];
+                System.arraycopy(data, 1, newData, 0, data.length - 1);
+                byte[] response = EmulatorSingleton.process(getApplicationContext(), newData);
+                sendResponse = new byte[response.length + 1];
+                sendResponse[0] = 'd';
+                System.arraycopy(response, 0, sendResponse, 1, response.length);
+            } else if (data[0] == 'a') {
+                // request for aids
+                String[] aidList = EmulatorSingleton.getRegisteredAids(getApplicationContext());
+                String aidListJoined = TextUtils.join(",", aidList);
+                sendResponse = new byte[aidListJoined.length() + 1];
+                sendResponse[0] = 'a';
+                byte[] aids = aidListJoined.getBytes();
+                System.arraycopy(aids, 0, sendResponse, 1, aids.length);
+            } else {
+                Log.e(TAG, "unknown message from consumer: " + new String(data));
+                return;
+            }
             new Thread(new Runnable() {
                 public void run() {
-                    try {
-                        mConnectionHandler.secureSend(ACCESSORY_CHANNEL_ID, response);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                try {
+                    mConnectionHandler.secureSend(ACCESSORY_CHANNEL_ID, sendResponse);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 }
             }).start();
         }
