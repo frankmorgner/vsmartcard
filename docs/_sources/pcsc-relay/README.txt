@@ -6,13 +6,8 @@
 PC/SC Relay
 ################################################################################
 
-.. sidebar:: Summary
+.. sidebar:: Relay a smart card to a contactless interface
 
-  Relay a smart card to a contactless interface
-
-  :Authors:
-      - `Frank Morgner <frankmorgner@gmail.com>`_
-      - `Dominik Oepen <oepen@informatik.hu-berlin.de>`_
   :License:
       GPL version 3
   :Tested Platforms:

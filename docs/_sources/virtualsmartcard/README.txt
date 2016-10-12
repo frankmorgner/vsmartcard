@@ -14,18 +14,13 @@
 Virtual Smart Card
 ################################################################################
 
-.. sidebar:: Summary
+.. sidebar:: Smart card emulator written in Python
 
-    Smart card emulator written in Python
-
-  :Authors:
-      - `Frank Morgner <frankmorgner@gmail.com>`_
-      - `Dominik Oepen <oepen@informatik.hu-berlin.de>`_
   :License:
       GPL version 3
   :Tested Platforms:
       - Windows
-      - Mac OS X
+      - macOS
       - Linux (Debian, Ubuntu, OpenMoko)
 
 Virtual Smart Card emulates a smart card and makes it accessible through PC/SC.

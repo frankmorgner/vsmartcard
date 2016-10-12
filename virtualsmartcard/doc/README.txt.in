@@ -14,18 +14,13 @@
 @PACKAGE_NAME@
 ################################################################################
 
-.. sidebar:: Summary
+.. sidebar:: @PACKAGE_SUMMARY@
 
-    @PACKAGE_SUMMARY@
-
-  :Authors:
-      - `Frank Morgner <frankmorgner@gmail.com>`_
-      - `Dominik Oepen <oepen@informatik.hu-berlin.de>`_
   :License:
       GPL version 3
   :Tested Platforms:
       - Windows
-      - Mac OS X
+      - macOS
       - Linux (Debian, Ubuntu, OpenMoko)
 
 @PACKAGE_NAME@ emulates a smart card and makes it accessible through PC/SC.

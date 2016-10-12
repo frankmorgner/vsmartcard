@@ -8,12 +8,8 @@
 USB CCID Emulator
 ################################################################################
 
-.. sidebar:: Summary
+.. sidebar:: Emulate a USB CCID compliant smart card reader
 
-    Emulate a USB CCID compliant smart card reader
-
-    :Author:
-        `Frank Morgner <frankmorgner@gmail.com>`_
     :License:
         GPL version 3
     :Tested Platforms:

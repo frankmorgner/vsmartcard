@@ -8,12 +8,8 @@
 Remote Smart Card Reader
 ################################################################################
 
-.. sidebar:: Summary
+.. sidebar:: Use an Android phone as contact-less smart card reader
 
-    Use an Android phone as contact-less smart card reader
-
-    :Author:
-        `Frank Morgner <frankmorgner@gmail.com>`_
     :License:
         GPL version 3
     :Tested Platform:
