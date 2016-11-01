@@ -10,7 +10,6 @@ do_subst = $(SED) \
 BUILT_SOURCES = cmdline.h cmdline.c
 
 EXTRA_DIST  = pcsc-relay.ggo pcsc-relay.ggo.in
-EXTRA_DIST += picc.py
 MAINTAINERCLEANFILES = $(BUILT_SOURCES) npa-tool.ggo $(dist_man1_MANS)
 
 dist_man1_MANS		= pcsc-relay.1
@@ -27,7 +26,6 @@ pcsc-relay.1:
 
 
 bin_PROGRAMS = pcsc-relay
-bin_SCRIPTS = picc.py
 
 pcsc_relay_SOURCES = pcsc-relay.c pcsc.c vpcd.c vpcd-driver.c opicc.c lnfc.c vicc.c lock.c $(BUILT_SOURCES)
 pcsc_relay_LDADD = $(PCSC_LIBS) $(LIBNFC_LIBS)
