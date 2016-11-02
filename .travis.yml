@@ -39,6 +39,17 @@ install:
     fi
 
 before_script:
+  # virtualsmartcard requires OpenPACE
+  - git clone https://github.com/frankmorgner/openpace && cd openpace
+  - autoreconf -vis
+  - if [ -z "$HOST" ]; then
+      ./configure --prefix=$PREFIX --enable-openssl-install --enable-python || cat config.log;
+    else
+      export CROSS_COMPILE=$HOST-;
+      ./configure --prefix=$PREFIX --enable-openssl-install --host=$HOST --enable-openssl-install || cat config.log;
+      touch src/cvc-create.1 src/cvc-print.1;
+    fi
+  - make install
   # ccid requires OpenSC
   - git clone https://github.com/frankmorgner/OpenSC && cd OpenSC
   - ./bootstrap
