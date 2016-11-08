@@ -79,3 +79,8 @@ remote-reader/build/*
 .idea
 .gradle
 local.properties
+/virtualsmartcard/bin
+/virtualsmartcard/obj
+/virtualsmartcard/lib
+/virtualsmartcard/win32/BixVReader/Release
+/virtualsmartcard/win32/Release
