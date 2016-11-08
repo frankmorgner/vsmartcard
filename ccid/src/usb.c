@@ -46,6 +46,7 @@
 #include "ccid.h"
 #include "cmdline.h"
 #include "config.h"
+#include "scutil.h"
 #include "usbstring.h"
 
 #define DRIVER_VENDOR_NUM	0x0D46		/* KOBIL Systems */

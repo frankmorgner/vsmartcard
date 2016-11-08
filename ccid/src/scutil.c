@@ -38,7 +38,7 @@ int sc_mutex_unlock(const sc_context_t *ctx, void *mutex) {}
 
 #if !defined(HAVE_SC_APDU_GET_OCTETS) || !defined(HAVE_SC_APDU_SET_RESP)
 #ifdef HAVE__SC_MATCH_ATR
-size_t sc_get_max_send_size(const sc_card_t *card) {}
+size_t sc_get_max_send_size(const sc_card_t *card) {return 0;}
 #endif
 #include "libopensc/apdu.c"
 #endif

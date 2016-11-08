@@ -20,6 +20,7 @@
 #include <libopensc/log.h>
 #include <libopensc/opensc.h>
 #include <libopensc/reader-boxing.h>
+#include <libopensc/sm.h>
 #include <sm/sm-eac.h>
 #include <openssl/evp.h>
 #include <stdarg.h>
