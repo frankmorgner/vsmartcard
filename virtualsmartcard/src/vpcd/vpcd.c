@@ -31,7 +31,6 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #define close(s) closesocket(s)
-#define snprintf _snprintf
 #ifndef AI_NUMERICSERV
 #define AI_NUMERICSERV 0
 #endif

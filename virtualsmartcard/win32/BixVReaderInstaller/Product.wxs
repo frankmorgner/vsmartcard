@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?define BinaryFolder="../binaries"?>
+
+<?if $(sys.BUILDARCH)="x86"?>
+  <?define ProgramFilesARCHFolder="ProgramFilesFolder"?>
+  <?define DriverFolderARCH="Win8.1Debug_win32"?>
+<?elseif $(sys.BUILDARCH)="x64"?>
+  <?define ProgramFilesARCHFolder="ProgramFiles64Folder"?>
+  <?define DriverFolderARCH="Win8.1Debug_x64"?>
+<?else?>
+  <?error Unsupported value of sys.BUILDARCH=$(sys.BUILDARCH)?>
+<?endif?>
+    
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Product Id="*" Name="BixVReaderInstaller-$(sys.BUILDARCH)" Language="1033" Version="1.0.0.0" Manufacturer="FrankMorgner" UpgradeCode="6d60b0e4-c325-4d3b-b727-2f3e0b0a8afa">
+		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+		<MediaTemplate EmbedCab="yes" />
+    
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="$(var.ProgramFilesARCHFolder)">
+        <Directory Id="INSTALLDIR" Name="BixVReader">          
+            <Component Id="BixVReaderDriver" Guid="60FF3BFF-E235-4F84-8A25-E22CB3164FB1">
+              <File Id="BixVReader.dll" Source="$(var.BixVReader.TargetDir)BixVReader\BixVReader.dll" />
+              <File Id="BixVReader.inf" Source="$(var.BixVReader.TargetDir)BixVReader\BixVReader.inf" />
+              <File Id="WudfUpdate_01009.dll" Source="$(var.BixVReader.TargetDir)BixVReader\WudfUpdate_01011.dll" />
+              <File Id="wudf.cat" Source="$(var.BixVReader.TargetDir)BixVReader\bixvreader.cat" />
+            </Component>         
+        </Directory>
+      </Directory>
+
+      <Directory Id="WindowsFolder">
+        <Component Id="BixVReaderConfiguration">
+          <File Id="BixVReader.ini" Source="BixVReader.ini.template" Name="BixVReader.ini" />
+        </Component>
+      </Directory>
+    </Directory>
+    
+    <Binary Id="DevMsi" SourceFile="$(var.DevMsi.TargetPath)" />
+
+    <CustomAction Id="AddDevice" BinaryKey="DevMsi" DllEntry="CreateDevnode" Execute="deferred" Impersonate="no" />
+    <CustomAction Id="AddDevice.SetParam" Return="check" Property="AddDevice" Value='"[INSTALLDIR]BixVReader.inf" root\BixVirtualReader' />
+    
+    <CustomAction Id="DelDevice" Return="ignore" BinaryKey="DevMsi" DllEntry="RemoveDevnode" Execute="deferred" Impersonate="no" />
+    <CustomAction Id="DelDevice.SetParam" Return="check" Property="DelDevice" Value="root\BixVirtualReader" />
+
+		<Feature Id="ProductFeature" Title="BixVReader" Level="1">
+      <ComponentRef Id="BixVReaderDriver" />
+      <ComponentRef Id="BixVReaderConfiguration" />
+		</Feature>
+
+    <InstallExecuteSequence>
+      <!-- Custom Actions that will be executed if "Installed" -->
+      <Custom Action ="DelDevice.SetParam" After="InstallFiles">Installed</Custom>
+      <Custom Action='DelDevice' After="DelDevice.SetParam">Installed</Custom>
+
+      <!-- Custom Actions that will be executed if "NOT Installed" -->
+      <Custom Action ="AddDevice.SetParam" After="DelDevice">NOT REMOVE</Custom>
+      <Custom Action='AddDevice' After="AddDevice.SetParam">NOT REMOVE</Custom> 
+    </InstallExecuteSequence>
+	</Product>
+</Wix>

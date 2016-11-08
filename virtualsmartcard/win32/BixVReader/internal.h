@@ -55,21 +55,21 @@ DEFINE_GUID(SmartCardReaderGuid, 0x50DD5230, 0xBA8A, 0x11D1, 0xBF,0x5D,0x00,0x00
 // Include the type specific headers.
 //
 
-class funcTrace {
-public:
-	wchar_t funcN[500];
-	funcTrace (char *func) {
-		wchar_t funcName[500];
-		wsprintf(funcN,L"%S",func);
-		wsprintf(funcName,L"[BixVReader]IN -> %s",funcN);
-		OutputDebugString(funcName);
-	}
-	~funcTrace () {
-		wchar_t funcName[500];
-		wsprintf(funcName,L"[BixVReader]OUT -> %s",funcN);
-		OutputDebugString(funcName);
-	}
-};
+//class funcTrace {
+//public:
+//	TCHAR funcN[500];
+//	funcTrace (char *func) {
+//		TCHAR funcName[500];
+//		wsprintf(funcN, _T("%S"), func);
+//		wsprintf(funcName, _T("[BixVReader]IN -> %s"), funcN);
+//		OutputDebugString(funcName);
+//	}
+//	~funcTrace () {
+//		TCHAR funcName[500];
+//		wsprintf(funcName, _T("[BixVReader]OUT -> %s"), funcN);
+//		OutputDebugString(funcName);
+//	}
+//};
 
 //#define inFunc funcTrace _ftrace(__FUNCTION__);
 #define inFunc
