@@ -19,3 +19,4 @@ install:
 
 build_script:
  - msbuild virtualsmartcard\win32\BixVReader.sln /p:Configuration=Release;Platform=%MSBUILD_PLATFORM%
+ - msbuild virtualsmartcard\win32\vpcd-config\vpcd-config.sln /p:Configuration="Debug" /p:Platform=Win32
