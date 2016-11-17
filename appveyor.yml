@@ -9,8 +9,12 @@ install:
  - ps: >-
      If ($env:Platform -Match "x86") {
        $env:MSBUILD_PLATFORM="x86"
+       $env:ARTIFACT="vpcd_win32"
+       $env:X64=""
      } Else {
        $env:MSBUILD_PLATFORM="x64"
+       $env:ARTIFACT="vpcd_win64"
+       $env:X64="x64\"
      }
  - git submodule update --init --recursive
  
@@ -18,5 +22,13 @@ install:
  - ps: ren 'C:\Program Files (x86)\Windows Kits\10\include\00wdf' 'wdf'
 
 build_script:
+ - md %ARTIFACT%
+
  - msbuild virtualsmartcard\win32\BixVReader.sln /p:Configuration=Release;Platform=%MSBUILD_PLATFORM%
+ - move    virtualsmartcard\win32\BixVReaderInstaller\bin\%X64%Release\BixVReaderInstaller.msi %ARTIFACT%
+
  - msbuild virtualsmartcard\win32\vpcd-config\vpcd-config.sln /p:Configuration="Debug" /p:Platform=Win32
+ - move    virtualsmartcard\win32\vpcd-config\Debug\vpcd-config.exe %ARTIFACT%
+
+ - 7z a %ARTIFACT%.zip %ARTIFACT%
+ - appveyor PushArtifact %ARTIFACT%.zip
