@@ -59,7 +59,7 @@ void on_peer_agent_updated(sap_peer_agent_h peer_agent,
 
 static void on_service_connection_terminated(sap_peer_agent_h peer_agent,
 		sap_socket_h socket,
-		sap_service_connection_terminated_reason_e result,
+		sap_service_connection_result_e result,
 		void *user_data) {
 	switch (result) {
 		case SAP_CONNECTION_TERMINATED_REASON_PEER_DISCONNECTED:
@@ -137,10 +137,6 @@ static void on_service_connection_created(sap_peer_agent_h peer_agent,
 			agent_connected = TRUE;
 
 			request_installed_aids();
-			break;
-
-		case SAP_CONNECTION_IN_PROGRESS:
-			dlog_print(DLOG_INFO, LOG_TAG, "connection is already in progress");
 			break;
 
 		case SAP_CONNECTION_ALREADY_EXIST:
