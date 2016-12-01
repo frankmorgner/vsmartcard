@@ -106,8 +106,8 @@ gboolean send_data(nfc_se_h nfc_handle, char* prefix, unsigned int prefix_len, v
 	void *final_message = malloc(prefix_len + message_len);
 	memcpy(final_message, prefix, prefix_len);
 	memcpy(final_message + prefix_len * sizeof(char), message, message_len);
-	result = sap_socket_send_secure_data(priv_data.socket,
-			ACCESSORY_CHANNELID, prefix_len + message_len, final_message);
+	result = sap_socket_send_data(priv_data.socket,
+				ACCESSORY_CHANNELID, prefix_len + message_len, final_message);
 
 	if (result != SAP_RESULT_SUCCESS) {
 		dlog_print(DLOG_INFO, LOG_TAG, "couldn't send sap message: %d", result);
