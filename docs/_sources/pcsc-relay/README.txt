@@ -211,28 +211,28 @@ Hints on Android Smart Card Emulator
 
 The Android Smart Card Emulator is build around the host card emulation mode of
 Android 4.4 and later. This mode activates the app if the terminal issues a
-SELECT command with one of the app's application identifiers. The app registers
-for the following AIDs (:file:`ACardEmulator/app/src/main/res/xml/aid_list.xml`):
+SELECT command with one of the app's application identifiers. By default, the
+app only registers for the AIDs for which it has a built-in emulator (see
+:file:`ACardEmulator/app/src/main/res/xml/aid_list.xml`).
 
-.. literalinclude:: ../../ACardEmulator/app/src/main/res/xml/aid_list.xml
-    :language: xml
-    :emphasize-lines: 8,12,16,20
+If used together with PC/SC Relay, you need to change add AIDs to match the
+applications on the relayed card.  Otherwise the app will not be activated when
+it should relay command APDUs to PC/SC Relay.
 
-If used together with PC/SC Relay you need to change these application
-identifiers to match the emulated card. Otherwise the app will not be activated
-when it should relay command APDUs to PC/SC Relay.
+Modify the Smart Card Emulator settings to use ``Remote Virtual Smart Card`` as
+:guilabel:`Smart Card Emulator`. Now start :command:`pcsc-relay` by specifying
+usage of the vpcd emulator::
 
-And while you are already modifying the Android Smart Card Emulator you may also
-want to activate `useVPCD` and change `hostname` and `port` to configure the
-connection to PC/SC Relay
-(:file:`ACardEmulator/app/src/main/java/com/vsmartcard/acardemulator/SimulatorService.java`):
+    pcsc-relay --emulator vpcd
 
-.. literalinclude:: ../../ACardEmulator/app/src/main/java/com/vsmartcard/acardemulator/SimulatorService.java
-    :language: java
-    :lines: 47-52
-    :emphasize-lines: 3,5-6
+In the app, change the :guilabel:`VICC Hostname` and :guilabel:`VICC Port` to
+match the location where :command:`pcsc-relay` is waiting for an incoming
+connection. When the app receives a SELECT command to one of the configured
+AIDs, it will connect to :command:`pcsc-relay`, which will then relay the
+command for processing.
 
-Compiling and installing Android Smart Card Emulator is covered in its :ref:`acardemulator_install` section.
+Compiling and installing Android Smart Card Emulator is covered in its
+:ref:`acardemulator_install` section.
 
 
 =========================

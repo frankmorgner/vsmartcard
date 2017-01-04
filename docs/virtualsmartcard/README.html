@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Virtual Smart Card &mdash; vsmartcard 2016-10-12 documentation</title>
+    <title>Virtual Smart Card &mdash; vsmartcard 2017-01-05 documentation</title>
     
     <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '2016-10-12',
+        VERSION:     '2017-01-05',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -29,7 +29,7 @@
     <script type="text/javascript" src="../_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="../_static/chip.ico"/>
-    <link rel="top" title="vsmartcard 2016-10-12 documentation" href="../index.html" />
+    <link rel="top" title="vsmartcard 2017-01-05 documentation" href="../index.html" />
     <link rel="next" title="Remote Smart Card Reader" href="../remote-reader/README.html" />
     <link rel="prev" title="Welcome to the Virtual Smart Card Architecture documentation!" href="../index.html" />
 <meta charset='utf-8'>
@@ -196,7 +196,7 @@ Currently the Virtual Smart Card supports the following types of smart cards:</p
 <li>Electronic passport (ePass/MRTD) with support for <abbr title="Basic Access Control">BAC</abbr></li>
 <li>Cryptoflex smart card (incomplete)</li>
 </ul>
-<p>The <abbr title="virtual smart card reader">vpcd</abbr> is a smart card reader driver for <a class="reference external" href="http://pcsclite.alioth.debian.org/">PCSC-Lite</a> <a class="footnote-reference" href="#id5" id="id6">[4]</a> and the windows smart
+<p>The <abbr title="virtual smart card reader">vpcd</abbr> is a smart card reader driver for <a class="reference external" href="http://pcsclite.alioth.debian.org/">PCSC-Lite</a> <a class="footnote-reference" href="#id3" id="id4">[2]</a> and the windows smart
 card service. It allows smart card applications to access the <abbr title="virtual smart card">vpicc</abbr> through
 the PC/SC API.  By default <abbr title="virtual smart card reader">vpcd</abbr> opens slots for communication with multiple
 <abbr title="virtual smart card">vpicc</abbr>&#8216;s on localhost on port 35963 and port 35964. But the <abbr title="virtual smart card">vpicc</abbr> does not
@@ -205,7 +205,7 @@ internet for example.</p>
 <p>Although the Virtual Smart Card is a software emulator, you can use
 <a class="reference internal" href="../pcsc-relay/README.html#pcsc-relay"><span>PC/SC Relay</span></a> to make it accessible to an external contact-less smart card
 reader.</p>
-<p>The file <code class="file docutils literal"><span class="pre">utils.py</span></code> was taken from Henryk Plötz&#8217;s <a class="reference external" href="https://github.com/henryk/cyberflex-shell">cyberflex-shell</a> <a class="footnote-reference" href="#id3" id="id4">[3]</a>.</p>
+<p>The file <code class="file docutils literal"><span class="pre">utils.py</span></code> was taken from Henryk Plötz&#8217;s <a class="reference external" href="https://github.com/henryk/cyberflex-shell">cyberflex-shell</a> <a class="footnote-reference" href="#id1" id="id2">[1]</a>.</p>
 <div class="figure">
 <p><img src="../_images/tikz-c2b6e0c4be766388efb50a965bcb6f691308c688.png" alt="\input{%(wd)s/bilder/tikzstyles.tex}
     \node (pcsclite)
@@ -253,12 +253,12 @@ OpenSC, which is linked against our PC/SC implementation. Then an Android App
 responses via NFC to a contact-less smart card that signs the mail.</p>
 <p>Depending on your usage of the <abbr title="virtual smart card">vpicc</abbr> you may need to install the following:</p>
 <ul class="simple">
-<li><a class="reference external" href="http://www.python.org/">Python</a> <a class="footnote-reference" href="#id7" id="id8">[5]</a></li>
-<li><a class="reference external" href="http://pyscard.sourceforge.net/">pyscard</a> <a class="footnote-reference" href="#id9" id="id10">[6]</a> (relaying a local smart card with <code class="xref std std-option docutils literal"><span class="pre">--type=relay</span></code>)</li>
-<li><a class="reference external" href="http://pycrypto.org/">PyCrypto</a> <a class="footnote-reference" href="#id11" id="id12">[7]</a>, <a class="reference external" href="https://www.dlitz.net/software/python-pbkdf2/">PBKDF2</a> <a class="footnote-reference" href="#id13" id="id14">[8]</a>, <a class="reference external" href="http://www.pythonware.com/products/pil/">PIL</a> <a class="footnote-reference" href="#id19" id="id20">[11]</a>, <a class="reference external" href="https://docs.python.org/3.3/library/readline.html">readline</a> <a class="footnote-reference" href="#id15" id="id16">[9]</a> or <a class="reference external" href="https://pypi.python.org/pypi/pyreadline">PyReadline</a> <a class="footnote-reference" href="#id17" id="id18">[10]</a> (emulation of electronic
+<li><a class="reference external" href="http://www.python.org/">Python</a> <a class="footnote-reference" href="#id5" id="id6">[3]</a></li>
+<li><a class="reference external" href="http://pyscard.sourceforge.net/">pyscard</a> <a class="footnote-reference" href="#id7" id="id8">[4]</a> (relaying a local smart card with <code class="xref std std-option docutils literal"><span class="pre">--type=relay</span></code>)</li>
+<li><a class="reference external" href="http://pycrypto.org/">PyCrypto</a> <a class="footnote-reference" href="#id9" id="id10">[5]</a>, <a class="reference external" href="https://www.dlitz.net/software/python-pbkdf2/">PBKDF2</a> <a class="footnote-reference" href="#id11" id="id12">[6]</a>, <a class="reference external" href="http://www.pythonware.com/products/pil/">PIL</a> <a class="footnote-reference" href="#id17" id="id18">[9]</a>, <a class="reference external" href="https://docs.python.org/3.3/library/readline.html">readline</a> <a class="footnote-reference" href="#id13" id="id14">[7]</a> or <a class="reference external" href="https://pypi.python.org/pypi/pyreadline">PyReadline</a> <a class="footnote-reference" href="#id15" id="id16">[8]</a> (emulation of electronic
 passport with <code class="xref std std-option docutils literal"><span class="pre">--type=ePass</span></code>)</li>
-<li><a class="reference external" href="https://github.com/frankmorgner/openpace">OpenPACE</a> <a class="footnote-reference" href="#id21" id="id22">[12]</a> (emulation of German identity card with <code class="xref std std-option docutils literal"><span class="pre">--type=nPA</span></code>)</li>
-<li><a class="reference external" href="https://fukuchi.org/works/qrencode/">libqrencode</a> <a class="footnote-reference" href="#id23" id="id24">[13]</a> (to print a QR code on the command line for <cite>vpcd-config</cite>; an
+<li><a class="reference external" href="https://github.com/frankmorgner/openpace">OpenPACE</a> <a class="footnote-reference" href="#id19" id="id20">[10]</a> (emulation of German identity card with <code class="xref std std-option docutils literal"><span class="pre">--type=nPA</span></code>)</li>
+<li><a class="reference external" href="https://fukuchi.org/works/qrencode/">libqrencode</a> <a class="footnote-reference" href="#id21" id="id22">[11]</a> (to print a QR code on the command line for <cite>vpcd-config</cite>; an
 URL will be printed if libqrencode is not available)</li>
 </ul>
 <div class="section" id="download">
@@ -313,48 +313,39 @@ make install
 PC/SC.</p>
 </div>
 <p>For the Windows integration we extended <a class="reference external" href="http://www.codeproject.com/Articles/134010/An-UMDF-Driver-for-a-Virtual-Smart-Card-Reader">Fabio Ottavi&#8217;s UMDF Driver for a
-Virtual Smart Card Reader</a> <a class="footnote-reference" href="#id25" id="id26">[14]</a> with a <abbr title="virtual smart card reader">vpcd</abbr> interface. To build <abbr title="virtual smart card reader">vpcd</abbr> for
-Windows we use <a class="reference external" href="http://msdn.microsoft.com/en-us/windows/hardware/hh852365.aspx">Windows Driver Kit 8.1 and Visual Studio 2013</a> <a class="footnote-reference" href="#id28" id="id29">[15]</a>. If you choose
-to download the <a class="reference external" href="https://github.com/frankmorgner/vsmartcard/releases/download/virtualsmartcard-0.7/virtualsmartcard-0.7_win32.zip">Windows binaries</a> <a class="footnote-reference" href="#id34" id="id35">[18]</a>, you may directly jump to step 3.</p>
+Virtual Smart Card Reader</a> <a class="footnote-reference" href="#id23" id="id24">[12]</a> with a <abbr title="virtual smart card reader">vpcd</abbr> interface. To build <abbr title="virtual smart card reader">vpcd</abbr> for
+Windows we use <a class="reference external" href="https://msdn.microsoft.com/en-us/library/windows/hardware/ff557573">Windows Driver Kit 10 and Visual Studio 2015</a> <a class="footnote-reference" href="#id26" id="id27">[13]</a>. The vpcd
+installer requires the <a class="reference external" href="https://wixtoolset.org/releases/v3.10/stable">WiX Toolset 3.10</a> <a class="footnote-reference" href="#id28" id="id29">[14]</a>. If you choose
+to download the <a class="reference external" href="https://github.com/frankmorgner/vsmartcard/releases/download/virtualsmartcard-0.7/virtualsmartcard-0.7_win32.zip">Windows binaries</a> <a class="footnote-reference" href="#id30" id="id31">[15]</a>, you may directly jump to step 4.</p>
 <ol class="arabic">
-<li><p class="first">In Visual Studio select <span class="menuselection">File ‣ Open ‣ Convert
-Sources/Dirs...</span> and choose the vpcd&#8217;s <code class="file docutils literal"><span class="pre">sources</span></code> either in the
-<code class="file docutils literal"><span class="pre">WinXP</span></code> <a class="footnote-reference" href="#footnote1" id="id1">[1]</a> or <code class="file docutils literal"><span class="pre">Win7</span></code> folder.</p>
-<p>When successfully imported, ensure with the configuration manager, that both
-of the created projects are built for the same platform (x64 or Win32).</p>
-</li>
-<li><p class="first">If you can successfully <span class="guilabel">Build the solution</span>, you can find the
-install package in <code class="file docutils literal"><span class="pre">BixVReader-package</span></code>. It contains <cite>BixVReader.inf</cite>
-and the required libraries, especially <cite>BixVReader.dll</cite> and
-<cite>WudfUpdate_01009.dll</cite> <a class="footnote-reference" href="#footnote2" id="id2">[2]</a>.</p>
-</li>
-<li><p class="first">Copy <code class="file docutils literal"><span class="pre">win32\BixVReader\BixVReader.ini</span></code> into the <span class="target" id="index-0"></span><code class="xref std std-envvar docutils literal"><span class="pre">%SystemRoot%</span></code>
-directory.</p>
-</li>
-<li><p class="first">In a console with administrator rights go to <code class="file docutils literal"><span class="pre">BixVReader-package</span></code> and
-install the driver:</p>
-<div class="highlight-sh"><div class="highlight"><pre><span class="s2">&quot;C:\Program Files\Windows Kits\8.1\Tools\x86\devcon.exe&quot;</span> install BixVReader.inf root<span class="se">\B</span>ixVirtualReader
+<li><p class="first">Clone the git repository and make sure it is initialized with all
+submodules:</p>
+<div class="highlight-sh"><div class="highlight"><pre>git clone https://github.com/frankmorgner/vsmartcard.git
+<span class="nb">cd </span>vsmartcard
+git submodule update --init --recursive
 </pre></div>
 </div>
-<p>You can adjust the path to <code class="docutils literal"><span class="pre">devcon.exe</span></code> with your version of the WDK and
-your target architecture (e.g., use <code class="docutils literal"><span class="pre">...\x64\devcon.exe</span></code> for a 64 bit
-driver). You can also download <a class="reference external" href="https://github.com/Microsoft/Windows-driver-samples/tree/master/setup/devcon">DevCon&#8217;s source code</a> <a class="footnote-reference" href="#id30" id="id31">[16]</a> and compile it
-yourself.</p>
-<p>For Win7 and older, code signing is optional and will yield a warning during
-installation when missing. Simply click continue to install the driver anyway.</p>
-<p>To activate the WDK test signing, use VS build-in Driver Signing settings.
-Right click <span class="guilabel">BixVReader-package</span> <span class="menuselection">Properties ‣
-Driver Signing ‣ Sign Mode ‣ Test Sign</span>.  Import the WDKTestCert
-certificate <code class="file docutils literal"><span class="pre">BixVReader-package.cer</span></code> into your windows keystore (e.g.
-on local computer) and then install the driver. See
-<a class="reference external" href="http://msdn.microsoft.com/en-us/library/windows/hardware/dn653569%28v=vs.85%29.aspx">Microsoft&#8217;s Kernel-Mode Code Signing Walkthrough</a> <a class="footnote-reference" href="#id32" id="id33">[17]</a> for
-details.</p>
+</li>
+<li><p class="first">In Visual Studio open <abbr title="virtual smart card reader">vpcd</abbr>&#8216;s solution
+<code class="file docutils literal"><span class="pre">virtualsmartcard\win32\BixVReader.sln</span></code> and  ensure with the
+configuration manager, that the project is built for your platform (i.e.
+<code class="docutils literal"><span class="pre">x64</span></code> or <code class="docutils literal"><span class="pre">x82</span></code>).</p>
+</li>
+<li><p class="first">If you can successfully <span class="guilabel">Build the solution</span>, you can find
+the installer (<code class="file docutils literal"><span class="pre">BixVReaderInstaller.msi</span></code>) in
+<code class="file docutils literal"><span class="pre">virtualsmartcard\win32\BixVReaderInstaller\bin\*Release</span></code></p>
+</li>
+<li><p class="first">To install <abbr title="virtual smart card reader">vpcd</abbr>, double click <code class="file docutils literal"><span class="pre">BixVReaderInstaller.msi</span></code>. Since we
+are currently not signing the Installer, this will yield a warning about an
+unverified driver software publisher on Windows 8 and later. Click
+<span class="guilabel">Install this driver software anyway</span>.</p>
 </li>
 </ol>
 <p>For debugging <abbr title="virtual smart card reader">vpcd</abbr> and building the driver with an older version of Visual
 Studio or WDK please see <a class="reference external" href="http://www.codeproject.com/Articles/134010/An-UMDF-Driver-for-a-Virtual-Smart-Card-Reader">Fabio Ottavi&#8217;s UMDF Driver for a Virtual Smart Card
-Reader</a> <a class="footnote-reference" href="#id25" id="id27">[14]</a> for details. All of Fabio&#8217;s card connectors (pipe reader/TCP/IP
-reader) are still active by default.</p>
+Reader</a> <a class="footnote-reference" href="#id23" id="id25">[12]</a> for details.</p>
+<p>All of Fabio&#8217;s card connectors are still available, but inactive by default
+(see <a class="reference internal" href="#configuring-vpcd-on-windows">Configuring vpcd on Windows</a> below).</p>
 </div>
 </div>
 <div class="section" id="using-the-virtual-smart-card">
@@ -469,13 +460,13 @@ stopped when you unplug the device.</p>
 </div>
 <div class="section" id="configuring-vpcd-on-windows">
 <h3>Configuring <abbr title="virtual smart card reader">vpcd</abbr> on Windows<a class="headerlink" href="#configuring-vpcd-on-windows" title="Permalink to this headline">¶</a></h3>
-<p>The configuration file <cite>BixVReader.ini</cite> of <abbr title="virtual smart card reader">vpcd</abbr> is usually placed into
-<code class="file docutils literal"><span class="pre">C:\Windows</span></code> (<span class="target" id="index-1"></span><code class="xref std std-envvar docutils literal"><span class="pre">SystemRoot</span></code>). The user mode device driver
+<p>The configuration file <code class="file docutils literal"><span class="pre">BixVReader.ini</span></code> of <abbr title="virtual smart card reader">vpcd</abbr> is installed to
+<code class="file docutils literal"><span class="pre">C:\Windows</span></code> (<span class="target" id="index-0"></span><code class="xref std std-envvar docutils literal"><span class="pre">%SystemRoot%</span></code>). The user mode device driver
 framework (<strong class="command">WUDFHost.exe</strong>) should read it automatically and load the
 <abbr title="virtual smart card reader">vpcd</abbr> on startup. The Windows Device Manager <strong class="command">mmc devmgmt.msc</strong> should
 list the <span class="guilabel">Bix Virtual Smart Card Reader</span>.</p>
-<p><abbr title="virtual smart card reader">vpcd</abbr> opens a socket for <abbr title="virtual smart card">vpicc</abbr> and waits for incoming
-connections. The port to open should be specified in <code class="docutils literal"><span class="pre">TCP_PORT</span></code>:</p>
+<p><abbr title="virtual smart card reader">vpcd</abbr> opens a socket for <abbr title="virtual smart card">vpicc</abbr> and waits for incoming connections. The port
+to open should be specified in <code class="docutils literal"><span class="pre">TCP_PORT</span></code>:</p>
 <div class="highlight-sh"><div class="highlight"><pre><span class="o">[</span>Driver<span class="o">]</span>
 <span class="nv">NumReaders</span><span class="o">=</span>3
 
@@ -504,7 +495,7 @@ connections. The port to open should be specified in <code class="docutils liter
 </div>
 <div class="section" id="running-vpicc">
 <h3>Running <abbr title="virtual smart card">vpicc</abbr><a class="headerlink" href="#running-vpicc" title="Permalink to this headline">¶</a></h3>
-<p>The compiled <a class="reference external" href="https://github.com/frankmorgner/vsmartcard/releases/download/virtualsmartcard-0.7/virtualsmartcard-0.7_win32.zip">Windows binaries</a> <a class="footnote-reference" href="#id34" id="id36">[18]</a> of <abbr title="virtual smart card">vpicc</abbr> include OpenPACE. The other
+<p>The compiled <a class="reference external" href="https://github.com/frankmorgner/vsmartcard/releases/download/virtualsmartcard-0.7/virtualsmartcard-0.7_win32.zip">Windows binaries</a> <a class="footnote-reference" href="#id30" id="id32">[15]</a> of <abbr title="virtual smart card">vpicc</abbr> include OpenPACE. The other
 dependencies listed above need to be installed seperately. You can start the
 <abbr title="virtual smart card">vpicc</abbr> via <strong class="command">python.exe vicc.py</strong>. On all other systems an executable
 script <strong class="command">vicc</strong> is installed using the autotools.</p>
@@ -586,7 +577,7 @@ chosen accordingly (<code class="xref std std-option docutils literal"><span cla
 <p>When <abbr title="virtual smart card reader">vpcd</abbr> and <abbr title="virtual smart card">vpicc</abbr> are connected you should be able to access the card
 through the PC/SC API. You can use the <strong class="command">opensc-explorer</strong> or
 <strong class="command">pcsc_scan</strong> for testing. In Virtual Smart Card&#8217;s root directory we also
-provide scripts for testing with <a class="reference external" href="https://github.com/frankmorgner/OpenSC">npa-tool</a> <a class="footnote-reference" href="#id37" id="id38">[19]</a> and PCSC-Lite&#8217;s smart card
+provide scripts for testing with <a class="reference external" href="https://github.com/frankmorgner/OpenSC">npa-tool</a> <a class="footnote-reference" href="#id33" id="id34">[16]</a> and PCSC-Lite&#8217;s smart card
 reader driver tester.</p>
 </div>
 </div>
@@ -597,118 +588,100 @@ more than welcome! Please use our <a class="reference external" href="https://gi
 </div>
 <div class="section" id="notes-and-references">
 <h2>Notes and References<a class="headerlink" href="#notes-and-references" title="Permalink to this headline">¶</a></h2>
+<table class="docutils footnote" frame="void" id="id1" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[1]</a></td><td><a class="reference external" href="https://github.com/henryk/cyberflex-shell">https://github.com/henryk/cyberflex-shell</a></td></tr>
+</tbody>
+</table>
 <table class="docutils footnote" frame="void" id="id3" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id4">[3]</a></td><td><a class="reference external" href="https://github.com/henryk/cyberflex-shell">https://github.com/henryk/cyberflex-shell</a></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id4">[2]</a></td><td><a class="reference external" href="http://pcsclite.alioth.debian.org/">http://pcsclite.alioth.debian.org/</a></td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="id5" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id6">[4]</a></td><td><a class="reference external" href="http://pcsclite.alioth.debian.org/">http://pcsclite.alioth.debian.org/</a></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id6">[3]</a></td><td><a class="reference external" href="http://www.python.org/">http://www.python.org/</a></td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="id7" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id8">[5]</a></td><td><a class="reference external" href="http://www.python.org/">http://www.python.org/</a></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id8">[4]</a></td><td><a class="reference external" href="http://pyscard.sourceforge.net/">http://pyscard.sourceforge.net/</a></td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="id9" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id10">[6]</a></td><td><a class="reference external" href="http://pyscard.sourceforge.net/">http://pyscard.sourceforge.net/</a></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id10">[5]</a></td><td><a class="reference external" href="http://pycrypto.org/">http://pycrypto.org/</a></td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="id11" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id12">[7]</a></td><td><a class="reference external" href="http://pycrypto.org/">http://pycrypto.org/</a></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id12">[6]</a></td><td><a class="reference external" href="https://www.dlitz.net/software/python-pbkdf2/">https://www.dlitz.net/software/python-pbkdf2/</a></td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="id13" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id14">[8]</a></td><td><a class="reference external" href="https://www.dlitz.net/software/python-pbkdf2/">https://www.dlitz.net/software/python-pbkdf2/</a></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id14">[7]</a></td><td><a class="reference external" href="https://docs.python.org/3.3/library/readline.html">https://docs.python.org/3.3/library/readline.html</a></td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="id15" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id16">[9]</a></td><td><a class="reference external" href="https://docs.python.org/3.3/library/readline.html">https://docs.python.org/3.3/library/readline.html</a></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id16">[8]</a></td><td><a class="reference external" href="https://pypi.python.org/pypi/pyreadline">https://pypi.python.org/pypi/pyreadline</a></td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="id17" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id18">[10]</a></td><td><a class="reference external" href="https://pypi.python.org/pypi/pyreadline">https://pypi.python.org/pypi/pyreadline</a></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id18">[9]</a></td><td><a class="reference external" href="http://www.pythonware.com/products/pil/">http://www.pythonware.com/products/pil/</a></td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="id19" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id20">[11]</a></td><td><a class="reference external" href="http://www.pythonware.com/products/pil/">http://www.pythonware.com/products/pil/</a></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id20">[10]</a></td><td><a class="reference external" href="https://github.com/frankmorgner/openpace">https://github.com/frankmorgner/openpace</a></td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="id21" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id22">[12]</a></td><td><a class="reference external" href="https://github.com/frankmorgner/openpace">https://github.com/frankmorgner/openpace</a></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id22">[11]</a></td><td><a class="reference external" href="https://fukuchi.org/works/qrencode/">https://fukuchi.org/works/qrencode/</a></td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="id23" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id24">[13]</a></td><td><a class="reference external" href="https://fukuchi.org/works/qrencode/">https://fukuchi.org/works/qrencode/</a></td></tr>
+<tr><td class="label">[12]</td><td><em>(<a class="fn-backref" href="#id24">1</a>, <a class="fn-backref" href="#id25">2</a>)</em> <a class="reference external" href="http://www.codeproject.com/Articles/134010/An-UMDF-Driver-for-a-Virtual-Smart-Card-Reader">http://www.codeproject.com/Articles/134010/An-UMDF-Driver-for-a-Virtual-Smart-Card-Reader</a></td></tr>
 </tbody>
 </table>
-<table class="docutils footnote" frame="void" id="id25" rules="none">
+<table class="docutils footnote" frame="void" id="id26" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label">[14]</td><td><em>(<a class="fn-backref" href="#id26">1</a>, <a class="fn-backref" href="#id27">2</a>)</em> <a class="reference external" href="http://www.codeproject.com/Articles/134010/An-UMDF-Driver-for-a-Virtual-Smart-Card-Reader">http://www.codeproject.com/Articles/134010/An-UMDF-Driver-for-a-Virtual-Smart-Card-Reader</a></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id27">[13]</a></td><td><a class="reference external" href="https://msdn.microsoft.com/en-us/library/windows/hardware/ff557573">https://msdn.microsoft.com/en-us/library/windows/hardware/ff557573</a></td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="id28" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id29">[15]</a></td><td><a class="reference external" href="http://msdn.microsoft.com/en-us/windows/hardware/hh852365.aspx">http://msdn.microsoft.com/en-us/windows/hardware/hh852365.aspx</a></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id29">[14]</a></td><td><a class="reference external" href="https://wixtoolset.org/releases/v3.10/stable">https://wixtoolset.org/releases/v3.10/stable</a></td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="id30" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id31">[16]</a></td><td><a class="reference external" href="https://github.com/Microsoft/Windows-driver-samples/tree/master/setup/devcon">https://github.com/Microsoft/Windows-driver-samples/tree/master/setup/devcon</a></td></tr>
+<tr><td class="label">[15]</td><td><em>(<a class="fn-backref" href="#id31">1</a>, <a class="fn-backref" href="#id32">2</a>)</em> <a class="reference external" href="https://github.com/frankmorgner/vsmartcard/releases/download/virtualsmartcard-0.7/virtualsmartcard-0.7_win32.zip">https://github.com/frankmorgner/vsmartcard/releases/download/virtualsmartcard-0.7/virtualsmartcard-0.7_win32.zip</a></td></tr>
 </tbody>
 </table>
-<table class="docutils footnote" frame="void" id="id32" rules="none">
+<table class="docutils footnote" frame="void" id="id33" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id33">[17]</a></td><td><a class="reference external" href="http://msdn.microsoft.com/en-us/library/windows/hardware/dn653569%28v=vs.85%29.aspx">http://msdn.microsoft.com/en-us/library/windows/hardware/dn653569%28v=vs.85%29.aspx</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id34" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label">[18]</td><td><em>(<a class="fn-backref" href="#id35">1</a>, <a class="fn-backref" href="#id36">2</a>)</em> <a class="reference external" href="https://github.com/frankmorgner/vsmartcard/releases/download/virtualsmartcard-0.7/virtualsmartcard-0.7_win32.zip">https://github.com/frankmorgner/vsmartcard/releases/download/virtualsmartcard-0.7/virtualsmartcard-0.7_win32.zip</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id37" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id38">[19]</a></td><td><a class="reference external" href="https://github.com/frankmorgner/OpenSC">https://github.com/frankmorgner/OpenSC</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="footnote1" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>With VS 2013 and WDK 8.1 no Windows XP driver can be build. You need to use an older version of VS with WDK 7.1.0.</td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="footnote2" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td>Note that WudfUpdate_01009.dll for 32 bit will be around 1795 KB and for 64 bit around 2102 KB big.</td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id34">[16]</a></td><td><a class="reference external" href="https://github.com/frankmorgner/OpenSC">https://github.com/frankmorgner/OpenSC</a></td></tr>
 </tbody>
 </table>
 </div>
@@ -726,7 +699,7 @@ more than welcome! Please use our <a class="reference external" href="https://gi
       
     </p>
     <p>
-        &copy; Copyright 2009-2016 by Dominik Oepen and Frank Morgner.<br/>
+        &copy; Copyright 2009-2017 by Dominik Oepen and Frank Morgner.<br/>
     </p>
   </div>
 </footer>

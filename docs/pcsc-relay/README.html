@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>PC/SC Relay &mdash; vsmartcard 2016-10-12 documentation</title>
+    <title>PC/SC Relay &mdash; vsmartcard 2017-01-05 documentation</title>
     
     <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '2016-10-12',
+        VERSION:     '2017-01-05',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -29,7 +29,7 @@
     <script type="text/javascript" src="../_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="../_static/chip.ico"/>
-    <link rel="top" title="vsmartcard 2016-10-12 documentation" href="../index.html" />
+    <link rel="top" title="vsmartcard 2017-01-05 documentation" href="../index.html" />
     <link rel="next" title="USB CCID Emulator" href="../ccid/README.html" />
     <link rel="prev" title="Android Smart Card Emulator" href="../ACardEmulator/README.html" />
 <meta charset='utf-8'>
@@ -389,48 +389,25 @@ configure PC/SC Relay to use it:</p>
 <h3>Hints on Android Smart Card Emulator<a class="headerlink" href="#hints-on-android-smart-card-emulator" title="Permalink to this headline">¶</a></h3>
 <p>The Android Smart Card Emulator is build around the host card emulation mode of
 Android 4.4 and later. This mode activates the app if the terminal issues a
-SELECT command with one of the app&#8217;s application identifiers. The app registers
-for the following AIDs (<code class="file docutils literal"><span class="pre">ACardEmulator/app/src/main/res/xml/aid_list.xml</span></code>):</p>
-<div class="highlight-xml"><div class="highlight"><pre><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;</span>
-
-<span class="nt">&lt;host-apdu-service</span> <span class="na">xmlns:android=</span><span class="s">&quot;http://schemas.android.com/apk/res/android&quot;</span>
-    <span class="na">android:description=</span><span class="s">&quot;@string/app_name&quot;</span>
-    <span class="na">android:requireDeviceUnlock=</span><span class="s">&quot;false&quot;</span><span class="nt">&gt;</span>
-
-    <span class="nt">&lt;aid-group</span> <span class="na">android:description=</span><span class="s">&quot;@string/applet_helloworld&quot;</span> <span class="na">android:category=</span><span class="s">&quot;other&quot;</span><span class="nt">&gt;</span>
-<span class="hll">        <span class="nt">&lt;aid-filter</span> <span class="na">android:name=</span><span class="s">&quot;@string/aid_helloworld&quot;</span><span class="nt">/&gt;</span>
-</span>    <span class="nt">&lt;/aid-group&gt;</span>
-
-    <span class="nt">&lt;aid-group</span> <span class="na">android:description=</span><span class="s">&quot;@string/applet_openpgp&quot;</span> <span class="na">android:category=</span><span class="s">&quot;other&quot;</span><span class="nt">&gt;</span>
-<span class="hll">        <span class="nt">&lt;aid-filter</span> <span class="na">android:name=</span><span class="s">&quot;@string/aid_openpgp&quot;</span><span class="nt">/&gt;</span>
-</span>        <span class="nt">&lt;aid-filter</span> <span class="na">android:name=</span><span class="s">&quot;@string/aid_partial_openpgp&quot;</span><span class="nt">/&gt;</span>
-    <span class="nt">&lt;/aid-group&gt;</span>
-
-<span class="hll">    <span class="nt">&lt;aid-group</span> <span class="na">android:description=</span><span class="s">&quot;@string/applet_oath&quot;</span> <span class="na">android:category=</span><span class="s">&quot;other&quot;</span><span class="nt">&gt;</span>
-</span>        <span class="nt">&lt;aid-filter</span> <span class="na">android:name=</span><span class="s">&quot;@string/aid_oath&quot;</span><span class="nt">/&gt;</span>
-    <span class="nt">&lt;/aid-group&gt;</span>
-
-<span class="hll">    <span class="nt">&lt;aid-group</span> <span class="na">android:description=</span><span class="s">&quot;@string/applet_isoapplet&quot;</span> <span class="na">android:category=</span><span class="s">&quot;other&quot;</span><span class="nt">&gt;</span>
-</span>        <span class="nt">&lt;aid-filter</span> <span class="na">android:name=</span><span class="s">&quot;@string/aid_isoapplet&quot;</span><span class="nt">/&gt;</span>
-    <span class="nt">&lt;/aid-group&gt;</span>
-
-    <span class="nt">&lt;aid-group</span> <span class="na">android:description=</span><span class="s">&quot;@string/applet_gidsapplet&quot;</span> <span class="na">android:category=</span><span class="s">&quot;other&quot;</span><span class="nt">&gt;</span>
-        <span class="nt">&lt;aid-filter</span> <span class="na">android:name=</span><span class="s">&quot;@string/aid_gidsapplet&quot;</span><span class="nt">/&gt;</span>
-        <span class="nt">&lt;aid-filter</span> <span class="na">android:name=</span><span class="s">&quot;@string/aid_gidsapplet_truncated1&quot;</span><span class="nt">/&gt;</span>
-        <span class="nt">&lt;aid-filter</span> <span class="na">android:name=</span><span class="s">&quot;@string/aid_gidsapplet_truncated2&quot;</span><span class="nt">/&gt;</span>
-    <span class="nt">&lt;/aid-group&gt;</span>
-
-<span class="nt">&lt;/host-apdu-service&gt;</span>
+SELECT command with one of the app&#8217;s application identifiers. By default, the
+app only registers for the AIDs for which it has a built-in emulator (see
+<code class="file docutils literal"><span class="pre">ACardEmulator/app/src/main/res/xml/aid_list.xml</span></code>).</p>
+<p>If used together with PC/SC Relay, you need to change add AIDs to match the
+applications on the relayed card.  Otherwise the app will not be activated when
+it should relay command APDUs to PC/SC Relay.</p>
+<p>Modify the Smart Card Emulator settings to use <code class="docutils literal"><span class="pre">Remote</span> <span class="pre">Virtual</span> <span class="pre">Smart</span> <span class="pre">Card</span></code> as
+<span class="guilabel">Smart Card Emulator</span>. Now start <strong class="command">pcsc-relay</strong> by specifying
+usage of the vpcd emulator:</p>
+<div class="highlight-sh"><div class="highlight"><pre>pcsc-relay --emulator vpcd
 </pre></div>
 </div>
-<p>If used together with PC/SC Relay you need to change these application
-identifiers to match the emulated card. Otherwise the app will not be activated
-when it should relay command APDUs to PC/SC Relay.</p>
-<p>And while you are already modifying the Android Smart Card Emulator you may also
-want to activate <cite>useVPCD</cite> and change <cite>hostname</cite> and <cite>port</cite> to configure the
-connection to PC/SC Relay
-(<code class="file docutils literal"><span class="pre">ACardEmulator/app/src/main/java/com/vsmartcard/acardemulator/SimulatorService.java</span></code>):</p>
-<p>Compiling and installing Android Smart Card Emulator is covered in its <a class="reference internal" href="../ACardEmulator/README.html#acardemulator-install"><span>Download and Install</span></a> section.</p>
+<p>In the app, change the <span class="guilabel">VICC Hostname</span> and <span class="guilabel">VICC Port</span> to
+match the location where <strong class="command">pcsc-relay</strong> is waiting for an incoming
+connection. When the app receives a SELECT command to one of the configured
+AIDs, it will connect to <strong class="command">pcsc-relay</strong>, which will then relay the
+command for processing.</p>
+<p>Compiling and installing Android Smart Card Emulator is covered in its
+<a class="reference internal" href="../ACardEmulator/README.html#acardemulator-install"><span>Download and Install</span></a> section.</p>
 </div>
 <div class="section" id="hints-on-pc-sc-middleware">
 <h3>Hints on PC/SC middleware<a class="headerlink" href="#hints-on-pc-sc-middleware" title="Permalink to this headline">¶</a></h3>
@@ -589,7 +566,7 @@ more than welcome! Please use our <a class="reference external" href="https://gi
       
     </p>
     <p>
-        &copy; Copyright 2009-2016 by Dominik Oepen and Frank Morgner.<br/>
+        &copy; Copyright 2009-2017 by Dominik Oepen and Frank Morgner.<br/>
     </p>
   </div>
 </footer>

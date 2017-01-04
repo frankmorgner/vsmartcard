@@ -146,50 +146,37 @@ Building and installing |vpcd| on Windows
 
 For the Windows integration we extended `Fabio Ottavi's UMDF Driver for a
 Virtual Smart Card Reader`_ with a |vpcd| interface. To build |vpcd| for
-Windows we use `Windows Driver Kit 8.1 and Visual Studio 2013`_. If you choose
-to download the `Windows binaries`_, you may directly jump to step 3.
+Windows we use `Windows Driver Kit 10 and Visual Studio 2015`_. The vpcd
+installer requires the `WiX Toolset 3.10`_. If you choose
+to download the `Windows binaries`_, you may directly jump to step 4.
 
+1. Clone the git repository and make sure it is initialized with all
+   submodules::
 
-1. In Visual Studio select :menuselection:`File --> Open --> Convert
-   Sources/Dirs...` and choose the vpcd's :file:`sources` either in the
-   :file:`WinXP` [#footnote1]_ or :file:`Win7` folder.
+    git clone https://github.com/frankmorgner/vsmartcard.git
+    cd vsmartcard
+    git submodule update --init --recursive
 
-   When successfully imported, ensure with the configuration manager, that both
-   of the created projects are built for the same platform (x64 or Win32).
+2. In Visual Studio open |vpcd|'s solution
+   :file:`virtualsmartcard\\win32\\BixVReader.sln` and  ensure with the
+   configuration manager, that the project is built for your platform (i.e.
+   ``x64`` or ``x82``).
 
-2. If you can successfully :guilabel:`Build the solution`, you can find the
-   install package in :file:`BixVReader-package`. It contains `BixVReader.inf`
-   and the required libraries, especially `BixVReader.dll` and
-   `WudfUpdate_01009.dll` [#footnote2]_.
+3. If you can successfully :guilabel:`Build the solution`, you can find
+   the installer (:file:`BixVReaderInstaller.msi`) in
+   :file:`virtualsmartcard\\win32\\BixVReaderInstaller\\bin\\*Release`
 
-3. Copy :file:`win32\\BixVReader\\BixVReader.ini` into the :envvar:`%SystemRoot%`
-   directory.
-
-4. In a console with administrator rights go to :file:`BixVReader-package` and
-   install the driver::
-
-   "C:\Program Files\Windows Kits\8.1\Tools\x86\devcon.exe" install BixVReader.inf root\BixVirtualReader
-   
-   You can adjust the path to ``devcon.exe`` with your version of the WDK and
-   your target architecture (e.g., use ``...\x64\devcon.exe`` for a 64 bit
-   driver). You can also download `DevCon's source code`_ and compile it
-   yourself.
-
-   For Win7 and older, code signing is optional and will yield a warning during
-   installation when missing. Simply click continue to install the driver anyway.
-
-   To activate the WDK test signing, use VS build-in Driver Signing settings.
-   Right click :guilabel:`BixVReader-package` :menuselection:`Properties -->
-   Driver Signing --> Sign Mode --> Test Sign`.  Import the WDKTestCert
-   certificate :file:`BixVReader-package.cer` into your windows keystore (e.g.
-   on local computer) and then install the driver. See
-   `Microsoft's Kernel-Mode Code Signing Walkthrough`_ for
-   details.
+4. To install |vpcd|, double click :file:`BixVReaderInstaller.msi`. Since we
+   are currently not signing the Installer, this will yield a warning about an
+   unverified driver software publisher on Windows 8 and later. Click
+   :guilabel:`Install this driver software anyway`.
 
 For debugging |vpcd| and building the driver with an older version of Visual
 Studio or WDK please see `Fabio Ottavi's UMDF Driver for a Virtual Smart Card
-Reader`_ for details. All of Fabio's card connectors (pipe reader/TCP/IP
-reader) are still active by default.
+Reader`_ for details.
+
+All of Fabio's card connectors are still available, but inactive by default
+(see `Configuring vpcd on Windows`_ below).
 
 
 ********************************************************************************
@@ -262,14 +249,14 @@ stopped when you unplug the device.
 Configuring |vpcd| on Windows
 ================================================================================
 
-The configuration file `BixVReader.ini` of |vpcd| is usually placed into
-:file:`C:\\Windows` (:envvar:`SystemRoot`). The user mode device driver
+The configuration file :file:`BixVReader.ini` of |vpcd| is installed to
+:file:`C:\\Windows` (:envvar:`%SystemRoot%`). The user mode device driver
 framework (:command:`WUDFHost.exe`) should read it automatically and load the
 |vpcd| on startup. The Windows Device Manager :command:`mmc devmgmt.msc` should
 list the :guilabel:`Bix Virtual Smart Card Reader`.
 
-|vpcd| opens a socket for |vpicc| and waits for incoming
-connections. The port to open should be specified in ``TCP_PORT``:
+|vpcd| opens a socket for |vpicc| and waits for incoming connections. The port
+to open should be specified in ``TCP_PORT``:
 
 .. literalinclude:: ../../virtualsmartcard/win32/BixVReader/BixVReader.ini
     :emphasize-lines: 8
@@ -314,9 +301,6 @@ Notes and References
 
 .. target-notes::
 
-.. [#footnote1] With VS 2013 and WDK 8.1 no Windows XP driver can be build. You need to use an older version of VS with WDK 7.1.0.
-.. [#footnote2] Note that WudfUpdate_01009.dll for 32 bit will be around 1795 KB and for 64 bit around 2102 KB big.
-
 .. _cyberflex-shell: https://github.com/henryk/cyberflex-shell
 .. _PCSC-lite: http://pcsclite.alioth.debian.org/
 .. _Python: http://www.python.org/
@@ -329,8 +313,7 @@ Notes and References
 .. _OpenPACE: https://github.com/frankmorgner/openpace
 .. _libqrencode: https://fukuchi.org/works/qrencode/
 .. _`Fabio Ottavi's UMDF Driver for a Virtual Smart Card Reader`: http://www.codeproject.com/Articles/134010/An-UMDF-Driver-for-a-Virtual-Smart-Card-Reader
-.. _`Windows Driver Kit 8.1 and Visual Studio 2013`: http://msdn.microsoft.com/en-us/windows/hardware/hh852365.aspx
-.. _`DevCon's source code`: https://github.com/Microsoft/Windows-driver-samples/tree/master/setup/devcon
-.. _`Microsoft's Kernel-Mode Code Signing Walkthrough`: http://msdn.microsoft.com/en-us/library/windows/hardware/dn653569%28v=vs.85%29.aspx
+.. _`Windows Driver Kit 10 and Visual Studio 2015`: https://msdn.microsoft.com/en-us/library/windows/hardware/ff557573
+.. _`WiX Toolset 3.10`: https://wixtoolset.org/releases/v3.10/stable
 .. _`Windows binaries`: https://github.com/frankmorgner/vsmartcard/releases/download/virtualsmartcard-0.7/virtualsmartcard-0.7_win32.zip
 .. _npa-tool: https://github.com/frankmorgner/OpenSC
