@@ -37,6 +37,10 @@ emulating the following cards:
 - German electronic identity card (nPA)
 - Electronic passport
 
+The remote interface can also be used together with the :ref:`pcsc-relay`,
+which allows emulating a contactless card from an existing contact-based card
+(by relaying the commands from PC/SC to the phone).
+
 You may also attach your own simulation to the remote interface by implementing
 a simple interface through a socket communication.
 
@@ -70,6 +74,25 @@ a simple interface through a socket communication.
         \path[linie] (phone) edge node {\includegraphics[width=1.5cm]{%(wd)s/bilder/simplecloud.pdf}} (vicc) ;
     \end{pgfonlayer}
 
+.. tikz:: Relaying a contact-based smart card with pcsc-relay
+    :stringsubst:
+    :libs: arrows, calc, fit, patterns, plotmarks, shapes.geometric, shapes.misc, shapes.symbols, shapes.arrows, shapes.callouts, shapes.multipart, shapes.gates.logic.US, shapes.gates.logic.IEC, er, automata, backgrounds, chains, topaths, trees, petri, mindmap, matrix, calendar, folding, fadings, through, positioning, scopes, decorations.fractals, decorations.shapes, decorations.text, decorations.pathmorphing, decorations.pathreplacing, decorations.footprints, decorations.markings, shadows
+
+    \input{%(wd)s/bilder/tikzstyles.tex}
+    \node (reader) {\includegraphics[width=3cm]{%(wd)s/bilder/my_cardreader.pdf}};
+    \node [below=0cm of reader, kleiner] {Contact-less Reader};
+    \node (phone) [right=1cm of reader] {\includegraphics[width=3cm]{%(wd)s/bilder/smartphone.pdf}};
+    \node (app) [at=(phone.center)] {\includegraphics[width=2.8cm, height=4.9cm]{%(wd)s/bilder/ACardEmulator.png}};
+    \node (pcsc-relay) [aktivbox, right=2cm of phone, kleiner] {\texttt{pcsc-relay --emulator=vpcd}};
+    \node (card) [below=.5cm of pcsc-relay)] {\includegraphics[width=0.8cm]{%(wd)s/bilder/smartcard.pdf}};
+    \node (reader2) [below=1cm of pcsc-relay] {\includegraphics[width=1.3cm]{%(wd)s/bilder/my_cardreader.pdf}};
+
+    \begin{pgfonlayer}{background}
+        \draw [rfid] (reader.center) -- (phone.west) ;
+        \path[linie] (phone) edge node {\includegraphics[width=1.5cm]{%(wd)s/bilder/simplecloud.pdf}} (pcsc-relay) ;
+        \path[linie] (pcsc-relay) edge (reader2) ;
+    \end{pgfonlayer}
+
 The Android Smart Card Emulator has the following dependencies:
 
 - NFC hardware built into the smartphone for |HCE|
@@ -79,8 +102,6 @@ The Android Smart Card Emulator has the following dependencies:
   QR code requires permission to access the camera
 - Virtual Smart Card :ref:`installed on the host computer<vicc_install>` for
   using the remote interface
-
-For emulating a contact-less smart card with a desktop or notebook, have a look at :ref:`pcsc-relay`.
 
 Please note that the currently emulated applets are verifying the PIN by
 transmitting it without any protection between card and terminal. You may want

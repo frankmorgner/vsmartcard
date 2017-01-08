@@ -96,7 +96,7 @@ completely different when creating a file on the smart card. So we derive
 :class:`~virtualsmartcard.cards.cryptoflex.CryptoflexMF.create` to our needs.
 
 .. literalinclude:: virtualsmartcard/cards/cryptoflex.py
-    :pyobject: CryptoflexMF.create
+    :lines: 190-228
 
 As you can see it is quite simple to extend the virtual smart card to your
 requirements. Simply overwrite those functions, that differ from ISO 78166. But

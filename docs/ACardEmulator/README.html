@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Android Smart Card Emulator &mdash; vsmartcard 2017-01-05 documentation</title>
+    <title>Android Smart Card Emulator &mdash; vsmartcard 2017-01-08 documentation</title>
     
     <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '2017-01-05',
+        VERSION:     '2017-01-08',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -29,7 +29,7 @@
     <script type="text/javascript" src="../_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="../_static/chip.ico"/>
-    <link rel="top" title="vsmartcard 2017-01-05 documentation" href="../index.html" />
+    <link rel="top" title="vsmartcard 2017-01-08 documentation" href="../index.html" />
     <link rel="next" title="PC/SC Relay" href="../pcsc-relay/README.html" />
     <link rel="prev" title="Remote Smart Card Reader" href="../remote-reader/README.html" />
 <meta charset='utf-8'>
@@ -189,6 +189,9 @@ emulating the following cards:</p>
 <li>German electronic identity card (nPA)</li>
 <li>Electronic passport</li>
 </ul>
+<p>The remote interface can also be used together with the <a class="reference internal" href="../pcsc-relay/README.html#pcsc-relay"><span>PC/SC Relay</span></a>,
+which allows emulating a contactless card from an existing contact-based card
+(by relaying the commands from PC/SC to the phone).</p>
 <p>You may also attach your own simulation to the remote interface by implementing
 a simple interface through a socket communication.</p>
 <div class="figure">
@@ -213,7 +216,22 @@ a simple interface through a socket communication.</p>
     \draw [rfid] (reader.center) -- (phone.west) ;
     \path[linie] (phone) edge node {\includegraphics[width=1.5cm]{%(wd)s/bilder/simplecloud.pdf}} (vicc) ;
 \end{pgfonlayer}" /></p>
-<p class="caption">Simulate a contact-less smart card with a remote virtual smart card</p></div><p>The Android Smart Card Emulator has the following dependencies:</p>
+<p class="caption">Simulate a contact-less smart card with a remote virtual smart card</p></div><div class="figure">
+<p><img src="../_images/tikz-2623a4f0b37e685e9d3fa97479f3e06798f21da2.png" alt="\input{%(wd)s/bilder/tikzstyles.tex}
+\node (reader) {\includegraphics[width=3cm]{%(wd)s/bilder/my_cardreader.pdf}};
+\node [below=0cm of reader, kleiner] {Contact-less Reader};
+\node (phone) [right=1cm of reader] {\includegraphics[width=3cm]{%(wd)s/bilder/smartphone.pdf}};
+\node (app) [at=(phone.center)] {\includegraphics[width=2.8cm, height=4.9cm]{%(wd)s/bilder/ACardEmulator.png}};
+\node (pcsc-relay) [aktivbox, right=2cm of phone, kleiner] {\texttt{pcsc-relay --emulator=vpcd}};
+\node (card) [below=.5cm of pcsc-relay)] {\includegraphics[width=0.8cm]{%(wd)s/bilder/smartcard.pdf}};
+\node (reader2) [below=1cm of pcsc-relay] {\includegraphics[width=1.3cm]{%(wd)s/bilder/my_cardreader.pdf}};
+
+\begin{pgfonlayer}{background}
+    \draw [rfid] (reader.center) -- (phone.west) ;
+    \path[linie] (phone) edge node {\includegraphics[width=1.5cm]{%(wd)s/bilder/simplecloud.pdf}} (pcsc-relay) ;
+    \path[linie] (pcsc-relay) edge (reader2) ;
+\end{pgfonlayer}" /></p>
+<p class="caption">Relaying a contact-based smart card with pcsc-relay</p></div><p>The Android Smart Card Emulator has the following dependencies:</p>
 <ul class="simple">
 <li>NFC hardware built into the smartphone for <abbr title="host card emulation">HCE</abbr></li>
 <li>Android 4.4 &#8220;KitKat&#8221; (or newer) or CyanogenMod 11 (or newer)</li>
@@ -223,7 +241,6 @@ QR code requires permission to access the camera</li>
 <li>Virtual Smart Card <a class="reference internal" href="../virtualsmartcard/README.html#vicc-install"><span>installed on the host computer</span></a> for
 using the remote interface</li>
 </ul>
-<p>For emulating a contact-less smart card with a desktop or notebook, have a look at <a class="reference internal" href="../pcsc-relay/README.html#pcsc-relay"><span>PC/SC Relay</span></a>.</p>
 <p>Please note that the currently emulated applets are verifying the PIN by
 transmitting it without any protection between card and terminal. You may want
 to have a look at <a class="reference external" href="http://sar.informatik.hu-berlin.de/research/publications/SAR-PR-2014-08/SAR-PR-2014-08_.pdf">Erik Nellesson&#8217;s</a>

@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Creating a Virtual Smart Card &mdash; vsmartcard 2017-01-05 documentation</title>
+    <title>Creating a Virtual Smart Card &mdash; vsmartcard 2017-01-08 documentation</title>
     
     <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '2017-01-05',
+        VERSION:     '2017-01-08',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -29,7 +29,7 @@
     <script type="text/javascript" src="../_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="../_static/chip.ico"/>
-    <link rel="top" title="vsmartcard 2017-01-05 documentation" href="../index.html" />
+    <link rel="top" title="vsmartcard 2017-01-08 documentation" href="../index.html" />
     <link rel="next" title="virtualsmartcard Package" href="api/virtualsmartcard.html" />
     <link rel="prev" title="USB CCID Emulator" href="../ccid/README.html" />
 <meta charset='utf-8'>
@@ -392,6 +392,47 @@ completely different when creating a file on the smart card. So we derive
 <a class="reference internal" href="api/virtualsmartcard.cards.cryptoflex.html#virtualsmartcard.cards.cryptoflex.CryptoflexMF" title="virtualsmartcard.cards.cryptoflex.CryptoflexMF"><code class="xref py py-class docutils literal"><span class="pre">CryptoflexMF</span></code></a> from
 <a class="reference internal" href="api/virtualsmartcard.SmartcardFilesystem.html#virtualsmartcard.SmartcardFilesystem.MF" title="virtualsmartcard.SmartcardFilesystem.MF"><code class="xref py py-class docutils literal"><span class="pre">MF</span></code></a> and modify
 <a class="reference internal" href="api/virtualsmartcard.cards.cryptoflex.html#virtualsmartcard.cards.cryptoflex.CryptoflexMF.create" title="virtualsmartcard.cards.cryptoflex.CryptoflexMF.create"><code class="xref py py-class docutils literal"><span class="pre">create</span></code></a> to our needs.</p>
+<div class="highlight-python"><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&quot;</span><span class="se">\xff\xff</span><span class="s">&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">SwError</span><span class="p">(</span><span class="n">SW</span><span class="p">[</span><span class="s">&quot;ERR_INCORRECTPARAMETERS&quot;</span><span class="p">])</span>
+
+        <span class="n">args</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s">&quot;parent&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+                <span class="s">&quot;filedescriptor&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s">&quot;fid&quot;</span><span class="p">:</span> <span class="n">stringtoint</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="mi">6</span><span class="p">]),</span>
+                <span class="p">}</span>
+        <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;</span><span class="se">\x01</span><span class="s">&quot;</span><span class="p">:</span>
+            <span class="n">args</span><span class="p">[</span><span class="s">&quot;data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="n">stringtoint</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">4</span><span class="p">])</span>
+            <span class="n">args</span><span class="p">[</span><span class="s">&quot;filedescriptor&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">FDB</span><span class="p">[</span><span class="s">&quot;EFSTRUCTURE_TRANSPARENT&quot;</span><span class="p">]</span>
+            <span class="n">new_file</span> <span class="o">=</span> <span class="n">TransparentStructureEF</span><span class="p">(</span><span class="o">**</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">data</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;</span><span class="se">\x02</span><span class="s">&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">16</span><span class="p">:</span>
+                <span class="n">args</span><span class="p">[</span><span class="s">&quot;maxrecordsize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stringtoint</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">16</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">p2</span><span class="p">:</span>
+                <span class="c"># if given a number of records</span>
+                <span class="n">args</span><span class="p">[</span><span class="s">&quot;maxrecordsize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">stringtoint</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">4</span><span class="p">])</span> <span class="o">/</span> <span class="n">p2</span><span class="p">)</span>
+            <span class="n">args</span><span class="p">[</span><span class="s">&quot;filedescriptor&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">FDB</span><span class="p">[</span><span class="s">&quot;EFSTRUCTURE_LINEAR_FIXED_&quot;</span>
+                                         <span class="s">&quot;NOFURTHERINFO&quot;</span><span class="p">]</span>
+            <span class="n">new_file</span> <span class="o">=</span> <span class="n">RecordStructureEF</span><span class="p">(</span><span class="o">**</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">data</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;</span><span class="se">\x03</span><span class="s">&quot;</span><span class="p">:</span>
+            <span class="n">args</span><span class="p">[</span><span class="s">&quot;filedescriptor&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">FDB</span><span class="p">[</span><span class="s">&quot;EFSTRUCTURE_LINEAR_VARIABLE_&quot;</span>
+                                         <span class="s">&quot;NOFURTHERINFO&quot;</span><span class="p">]</span>
+            <span class="n">new_file</span> <span class="o">=</span> <span class="n">RecordStructureEF</span><span class="p">(</span><span class="o">**</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">data</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;</span><span class="se">\x04</span><span class="s">&quot;</span><span class="p">:</span>
+            <span class="n">args</span><span class="p">[</span><span class="s">&quot;filedescriptor&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">FDB</span><span class="p">[</span><span class="s">&quot;EFSTRUCTURE_CYCLIC_NOFURTHERINFO&quot;</span><span class="p">]</span>
+            <span class="n">new_file</span> <span class="o">=</span> <span class="n">RecordStructureEF</span><span class="p">(</span><span class="o">**</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">data</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;</span><span class="se">\x38</span><span class="s">&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="mi">12</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&quot;</span><span class="se">\x03</span><span class="s">&quot;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">SwError</span><span class="p">(</span><span class="n">SW</span><span class="p">[</span><span class="s">&quot;ERR_INCORRECTPARAMETERS&quot;</span><span class="p">])</span>
+            <span class="n">new_file</span> <span class="o">=</span> <span class="n">DF</span><span class="p">(</span><span class="o">**</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;unknown type: 0x</span><span class="si">%x</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">ord</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">6</span><span class="p">]))</span>
+            <span class="k">raise</span> <span class="n">SwError</span><span class="p">(</span><span class="n">SW</span><span class="p">[</span><span class="s">&quot;ERR_INCORRECTPARAMETERS&quot;</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">new_file</span><span class="p">]</span>
+</pre></div>
+</div>
 <p>As you can see it is quite simple to extend the virtual smart card to your
 requirements. Simply overwrite those functions, that differ from ISO 78166. But
 as said before, the virtual smart card is quite complex and you might have to
