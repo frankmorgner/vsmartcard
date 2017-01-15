@@ -200,6 +200,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                     return true;
                 }
             });
+
+            bindPreferenceSummaryToValue(findPreference("nfc"));
         }
 
         @Override

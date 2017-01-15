@@ -1,0 +1,51 @@
+<!DOCTYPE resources [
+    <!ELEMENT resources (application)>
+    <!ELEMENT application (serviceProfile)+>
+    <!ATTLIST application name CDATA #REQUIRED>
+    <!ELEMENT serviceProfile (supportedTransports, serviceChannel+) >
+    <!ATTLIST application xmlns:android CDATA #IMPLIED>
+    <!ATTLIST serviceProfile xmlns:android CDATA #IMPLIED>
+    <!ATTLIST serviceProfile serviceImpl CDATA #REQUIRED>
+    <!ATTLIST serviceProfile role (PROVIDER | CONSUMER | provider | consumer) #REQUIRED>
+    <!ATTLIST serviceProfile name CDATA #REQUIRED>
+    <!ATTLIST serviceProfile id CDATA #REQUIRED>
+    <!ATTLIST serviceProfile version CDATA #REQUIRED>
+    <!ATTLIST serviceProfile serviceLimit (ANY | ONE_ACCESSORY | ONE_PEERAGENT | any | one_accessory | one_peeragent) #IMPLIED>
+    <!ATTLIST serviceProfile serviceTimeout CDATA #IMPLIED>
+    <!ELEMENT supportedTransports (transport)+>
+    <!ATTLIST supportedTransports xmlns:android CDATA #IMPLIED>
+    <!ELEMENT transport EMPTY>
+    <!ATTLIST transport xmlns:android CDATA #IMPLIED>
+    <!ATTLIST transport type (TRANSPORT_WIFI | TRANSPORT_BT | TRANSPORT_BLE | TRANSPORT_USB |
+        transport_wifi | transport_bt | transport_ble | transport_usb) #REQUIRED>
+    <!ELEMENT serviceChannel EMPTY>
+    <!ATTLIST serviceChannel xmlns:android CDATA #IMPLIED>
+    <!ATTLIST serviceChannel id CDATA #REQUIRED>
+    <!ATTLIST serviceChannel dataRate (LOW | HIGH | low | high) #REQUIRED>
+    <!ATTLIST serviceChannel priority (LOW | MEDIUM | HIGH | low | medium | high) #REQUIRED>
+    <!ATTLIST serviceChannel reliability (ENABLE | DISABLE | enable | disable ) #REQUIRED>
+    ]>
+<resources>
+
+    <application name="VirtualSmartCardReader" >
+        <serviceProfile
+            id="/com/vsmcartcard"
+            name="VirtualSmartCardReaderProvider"
+            role="provider"
+            serviceImpl="com.vsmartcard.acardemulator.SmartcardProviderService"
+            version="1.0"
+            serviceLimit="ANY"
+            serviceTimeout="10">
+            <supportedTransports>
+                <transport type="TRANSPORT_BT" />
+                <transport type="TRANSPORT_WIFI" />
+            </supportedTransports>
+            <serviceChannel
+                id="104"
+                dataRate="low"
+                priority="high"
+                reliability= "enable"/>
+        </serviceProfile>
+    </application>
+
+</resources>

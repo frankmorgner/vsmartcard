@@ -81,4 +81,11 @@
 
     </PreferenceCategory>
 
+    <ListPreference
+        android:key="nfc"
+        android:title="NFC communication hardware"
+        android:defaultValue="@string/nfc"
+        android:entries="@array/strNFC"
+        android:entryValues="@array/strNFC" />
+
 </PreferenceScreen>

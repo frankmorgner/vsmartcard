@@ -84,3 +84,13 @@ local.properties
 /virtualsmartcard/lib
 /virtualsmartcard/win32/BixVReader/Release
 /virtualsmartcard/win32/Release
+
+ACardEmulator/build
+build/
+crash-info/
+.sign/
+.sdk_delta.info
+.rds_delta
+
+*.apk
+keystore.properties
