@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>USB CCID Emulator &mdash; vsmartcard 2017-01-08 documentation</title>
+    <title>USB CCID Emulator &mdash; vsmartcard 2017-01-16 documentation</title>
     
     <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '2017-01-08',
+        VERSION:     '2017-01-16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -29,7 +29,7 @@
     <script type="text/javascript" src="../_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="../_static/chip.ico"/>
-    <link rel="top" title="vsmartcard 2017-01-08 documentation" href="../index.html" />
+    <link rel="top" title="vsmartcard 2017-01-16 documentation" href="../index.html" />
     <link rel="next" title="Creating a Virtual Smart Card" href="../virtualsmartcard/api.html" />
     <link rel="prev" title="PC/SC Relay" href="../pcsc-relay/README.html" />
 <meta charset='utf-8'>
@@ -38,7 +38,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body role="document">
+  <body>
   
   <a href="https://github.com/frankmorgner/vsmartcard"
      class="visible-desktop hidden-xs"><img
@@ -85,6 +85,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../virtualsmartcard/README.html">Virtual Smart Card</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../remote-reader/README.html">Remote Smart Card Reader</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ACardEmulator/README.html">Android Smart Card Emulator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../TCardEmulator/README.html">Tizen Smart Card Emulator</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../pcsc-relay/README.html">PC/SC Relay</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">USB CCID Emulator</a></li>
 </ul>
@@ -180,34 +181,34 @@ standard USB CCID reader. USB CCID Emulator can be used as trusted intermediary
 enabling secure PIN entry and PIN modification. In combination with <a class="reference external" href="https://github.com/frankmorgner/OpenSC">OpenSC</a> <a class="footnote-reference" href="#id4" id="id5">[2]</a>
 also <abbr title="Password Authenticated Connection Establishment">PACE</abbr> can be performed by the emulator.</p>
 <div class="figure">
-<p><img src="../_images/tikz-1d33e42386e7cbcfb6928b3734eb67c93a087f5f.png" alt="\input{%(wd)s/bilder/tikzstyles.tex}
+<p><img src="../_images/tikz-1281452b980f69540bc7520179e10f3ccc59fe36.svg" alt="\input{$wd/bilder/tikzstyles.tex}
 \tikzstyle{bla}=[kleiner, text width=.45\textwidth]
 
 \node (reader)
-{\includegraphics[width=1cm]{%(wd)s/bilder/my_cardreader.pdf}};
+{\includegraphics[width=1cm]{$wd/bilder/my_cardreader.pdf}};
 \node (readertext) [right=0of reader, bla]
 {Smartphone provides smart card reader via USB};
 \node (display) [below=0of reader]
-{\includegraphics[width=1cm]{%(wd)s/bilder/display.pdf}};
+{\includegraphics[width=1cm]{$wd/bilder/display.pdf}};
 \node (displaytext) [right=0of display, bla]
 {Secure display of service provider and purpose of transaction};
 \node (keyboard) [below=0of display]
-{\includegraphics[width=1cm]{%(wd)s/bilder/keyboard.pdf}};
+{\includegraphics[width=1cm]{$wd/bilder/keyboard.pdf}};
 \node (keyboardtext) [right=0of keyboard, bla]
 {Secure PIN Entry};
 \node (firewall) [below=0of keyboard]
-{\includegraphics[width=1cm]{%(wd)s/bilder/Firewall.pdf}};
+{\includegraphics[width=1cm]{$wd/bilder/Firewall.pdf}};
 \node (firewalltext) [right=0of firewall, bla]
 {Verification of terminal authentication and sanitiy checks};
 
 \node (features) [fit=(display) (keyboard) (reader) (firewall)] {};
 
-\node (moko) [left=0of features.west] {\includegraphics[height=4cm]{%(wd)s/bilder/phone-fic-neo-freerunner.pdf}};
+\node (moko) [left=0of features.west] {\includegraphics[height=4cm]{$wd/bilder/phone-fic-neo-freerunner.pdf}};
 
 \node (epa) [left=1.5of moko, yshift=-2cm]
-{\includegraphics[width=3cm]{%(wd)s/bilder/nPA_VS.png}};
+{\includegraphics[width=3cm]{$wd/bilder/nPA_VS.png}};
 \node (pc)  [left=1.5of moko, yshift=1.5cm]
-{\includegraphics[width=3cm]{%(wd)s/bilder/computer-tango.pdf}};
+{\includegraphics[width=3cm]{$wd/bilder/computer-tango.pdf}};
 
 \begin{pgfonlayer}{background}
 
@@ -242,21 +243,21 @@ their PC/SC counterpart:</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">PC_to_RDR_XfrBlock</span></code></td>
-<td><code class="docutils literal"><span class="pre">SCardTransmit</span></code></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">PC_to_RDR_XfrBlock</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">SCardTransmit</span></tt></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal"><span class="pre">PC_to_RDR_Secure</span></code></td>
-<td><code class="docutils literal"><span class="pre">FEATURE_VERIFY_PIN_DIRECT</span></code>, <code class="docutils literal"><span class="pre">FEATURE_MODIFY_PIN_DIRECT</span></code></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">PC_to_RDR_Secure</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">FEATURE_VERIFY_PIN_DIRECT</span></tt>, <tt class="docutils literal"><span class="pre">FEATURE_MODIFY_PIN_DIRECT</span></tt></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">PC_to_RDR_Secure</span></code> (proprietary)</td>
-<td><code class="docutils literal"><span class="pre">FEATURE_EXECUTE_PACE</span></code></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">PC_to_RDR_Secure</span></tt> (proprietary)</td>
+<td><tt class="docutils literal"><span class="pre">FEATURE_EXECUTE_PACE</span></tt></td>
 </tr>
 </tbody>
 </table>
 <p>PIN verification/modification and <abbr title="Password Authenticated Connection Establishment">PACE</abbr> can also be started by the application
 transmitting (SCardTransmit) specially crafted APDUs.  Only the alternative
 initialization of <abbr title="Password Authenticated Connection Establishment">PACE</abbr> using SCardControl requires patching the driver
-(available for libccid, see <code class="file docutils literal"><span class="pre">patches</span></code>). The pseudo APDUs with no need for
+(available for libccid, see <tt class="file docutils literal"><span class="pre">patches</span></tt>). The pseudo APDUs with no need for
 patches are defined as follows (see <a class="reference external" href="https://www.bsi.bund.de/DE/Publikationen/TechnischeRichtlinien/tr03119/index_htm.html">BSI TR-03119 1.3</a> <a class="footnote-reference" href="#id13" id="id14">[6]</a> p. 33-34):</p>
 <table border="1" class="docutils">
 <colgroup>
@@ -285,40 +286,40 @@ patches are defined as follows (see <a class="reference external" href="https://
 </thead>
 <tbody valign="top">
 <tr class="row-odd"><td>GetReaderPACECapabilities</td>
-<td><code class="docutils literal"><span class="pre">0xFF</span></code></td>
-<td><code class="docutils literal"><span class="pre">0x9A</span></code></td>
-<td><code class="docutils literal"><span class="pre">0x04</span></code></td>
-<td><code class="docutils literal"><span class="pre">0x01</span></code></td>
+<td><tt class="docutils literal"><span class="pre">0xFF</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">0x9A</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">0x04</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">0x01</span></tt></td>
 <td>(No Data)</td>
-<td><code class="docutils literal"><span class="pre">PACECapabilities</span></code></td>
-<td rowspan="4"><code class="docutils literal"><span class="pre">0x9000</span></code>
+<td><tt class="docutils literal"><span class="pre">PACECapabilities</span></tt></td>
+<td rowspan="4"><tt class="docutils literal"><span class="pre">0x9000</span></tt>
 or other
 in case of
 an error</td>
 </tr>
 <tr class="row-even"><td>EstablishPACEChannel</td>
-<td><code class="docutils literal"><span class="pre">0xFF</span></code></td>
-<td><code class="docutils literal"><span class="pre">0x9A</span></code></td>
-<td><code class="docutils literal"><span class="pre">0x04</span></code></td>
-<td><code class="docutils literal"><span class="pre">0x02</span></code></td>
-<td><code class="docutils literal"><span class="pre">EstablishPACEChannelInput</span></code></td>
-<td><code class="docutils literal"><span class="pre">EstablishPACEChannelOutput</span></code></td>
+<td><tt class="docutils literal"><span class="pre">0xFF</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">0x9A</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">0x04</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">0x02</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">EstablishPACEChannelInput</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">EstablishPACEChannelOutput</span></tt></td>
 </tr>
 <tr class="row-odd"><td>DestroyPACEChannel</td>
-<td><code class="docutils literal"><span class="pre">0xFF</span></code></td>
-<td><code class="docutils literal"><span class="pre">0x9A</span></code></td>
-<td><code class="docutils literal"><span class="pre">0x04</span></code></td>
-<td><code class="docutils literal"><span class="pre">0x03</span></code></td>
+<td><tt class="docutils literal"><span class="pre">0xFF</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">0x9A</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">0x04</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">0x03</span></tt></td>
 <td>(No Data)</td>
 <td>(No Data)</td>
 </tr>
 <tr class="row-even"><td>Verify/Modify PIN</td>
-<td><code class="docutils literal"><span class="pre">0xFF</span></code></td>
-<td><code class="docutils literal"><span class="pre">0x9A</span></code></td>
-<td><code class="docutils literal"><span class="pre">0x04</span></code></td>
-<td><code class="docutils literal"><span class="pre">0x10</span></code></td>
-<td>Coding as <code class="docutils literal"><span class="pre">PC_to_RDR_Secure</span></code></td>
-<td>Coding as <code class="docutils literal"><span class="pre">RDR_to_PC_DataBlock</span></code></td>
+<td><tt class="docutils literal"><span class="pre">0xFF</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">0x9A</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">0x04</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">0x10</span></tt></td>
+<td>Coding as <tt class="docutils literal"><span class="pre">PC_to_RDR_Secure</span></tt></td>
+<td>Coding as <tt class="docutils literal"><span class="pre">RDR_to_PC_DataBlock</span></tt></td>
 </tr>
 </tbody>
 </table>
@@ -326,7 +327,7 @@ an error</td>
 code are based on the GadgetFS example and on the source code of the OpenSC
 tools.</p>
 <div class="figure">
-<p><img src="../_images/tikz-927bd7fae1f8e258ad3c3c1b60bc0dc90153b26f.png" alt="\input{%(wd)s/bilder/tikzstyles.tex}
+<p><img src="../_images/tikz-5b402031da401947efbeae7481d47bd35196791d.svg" alt="\input{$wd/bilder/tikzstyles.tex}
 \tikzstyle{schicht}=[text width=5cm, align=right]
 \tikzstyle{fade down}=[path fading=south, color=huslateblue]
 
@@ -386,7 +387,7 @@ at ($($(ccid.two west)+(-3,0)$)!.5!(kernel.three west)$)
 needs a usable PC/SC middleware with USB CCID driver. This is the case for most
 modern Windows and Unix-like systems by default.</p>
 <div class="figure">
-<p><img src="../_images/tikz-051059070b2965bd273ce76c4955237e978bf27c.png" alt="\input{%(wd)s/bilder/tikzstyles.tex}
+<p><img src="../_images/tikz-6e71605956d62bb837a2533794c8c50348b2f87c.svg" alt="\input{$wd/bilder/tikzstyles.tex}
 \tikzstyle{keks}=[to path={-- ++(.1,0) |- (\tikztotarget)}]
 
 \tikzstyle{bla}=[shape=rectangle split, rectangle split parts=2,
@@ -398,13 +399,13 @@ every second node part/.style={kleiner}, inner sep=0pt]
 
 \node (basis) [below=3of ccid-emulator]
 {\includegraphics[keepaspectratio, height=2cm,
-    width=2cm]{%(wd)s/bilder/moko/basisleser_plain_klein.png}};
+    width=2cm]{$wd/bilder/moko/basisleser_plain_klein.png}};
 \node (basisbeschreibung) [below=0cm of basis, kleiner, text width=2cm]
 {Reiner SCT RFID basis};
 
 \node (npa) [left=1.5of basis]
 {\includegraphics[keepaspectratio, height=3cm,
-    width=3cm]{%(wd)s/bilder/nPA_VS.png}};
+    width=3cm]{$wd/bilder/nPA_VS.png}};
 \node (npabeschreibung) [below=0cm of npa, kleiner]
 {German identity card};
 
@@ -444,14 +445,14 @@ every second node part/.style={kleiner}, inner sep=0pt]
     (funktionenchat) (funktionenpace), box, inner sep=.5cm] {};
     \node (boxbild) at (box.north west)
     {\includegraphics[keepaspectratio, height=1.5cm,
-    width=1.5cm]{%(wd)s/bilder/moko/moko_reader.png}};
+    width=1.5cm]{$wd/bilder/moko/moko_reader.png}};
     \node [right=0cm of boxbild.east, yshift=.3cm]
     {Openmoko Neo FreeRunner};
 \end{pgfonlayer}
 
 \node (a) [above=1of npa]
     {\includegraphics[keepaspectratio, height=3cm,
-    width=3cm]{%(wd)s/bilder/computer-tango.pdf}};
+    width=3cm]{$wd/bilder/computer-tango.pdf}};
 
 
 \begin{pgfonlayer}{background}
@@ -476,14 +477,14 @@ still available on <a class="reference external" href="http://sourceforge.net/pr
 <div class="section" id="installation-on-linux-unix-and-similar">
 <h3>Installation on Linux, Unix and similar<a class="headerlink" href="#installation-on-linux-unix-and-similar" title="Permalink to this headline">¶</a></h3>
 <p>The USB CCID Emulator uses the GNU Build System to compile and install. If you are
-unfamiliar with it, please have a look at <code class="file docutils literal"><span class="pre">INSTALL</span></code>. If you can not find
+unfamiliar with it, please have a look at <tt class="file docutils literal"><span class="pre">INSTALL</span></tt>. If you can not find
 it, you are probably working bleeding edge in the repository.  Run the
-following command in <code class="file docutils literal"><span class="pre">ccid-emulator</span></code> to get the missing standard
+following command in <tt class="file docutils literal"><span class="pre">ccid-emulator</span></tt> to get the missing standard
 auxiliary files:</p>
 <div class="highlight-sh"><div class="highlight"><pre>autoreconf --verbose --install
 </pre></div>
 </div>
-<p>To configure (<strong class="command">configure --help</strong> lists possible options), build and
+<p>To configure (<strong class="command">configure &#8211;help</strong> lists possible options), build and
 install the USB CCID Emulator now do the following:</p>
 <div class="highlight-sh"><div class="highlight"><pre>./configure
 make
@@ -524,7 +525,7 @@ loading the module, you maybe want to check out <a class="reference external" hr
 <div class="section" id="hints-on-opensc">
 <h3>Hints on OpenSC<a class="headerlink" href="#hints-on-opensc" title="Permalink to this headline">¶</a></h3>
 <p>USB CCID Emulator needs the OpenSC components to be
-installed (especially <code class="file docutils literal"><span class="pre">libopensc.so</span></code>). Here is an example of how to get
+installed (especially <tt class="file docutils literal"><span class="pre">libopensc.so</span></tt>). Here is an example of how to get
 the standard installation of OpenSC without <abbr title="Password Authenticated Connection Establishment">PACE</abbr>:</p>
 <div class="highlight-sh"><div class="highlight"><pre><span class="nv">PREFIX</span><span class="o">=</span>/tmp/install
 <span class="nv">VSMARTCARD</span><span class="o">=</span><span class="nv">$PWD</span>/vsmartcard
@@ -538,7 +539,7 @@ autoreconf --verbose --install
 make install <span class="o">&amp;&amp;</span> <span class="nb">cd</span> -
 </pre></div>
 </div>
-<p>Now <code class="file docutils literal"><span class="pre">libopensc.so</span></code> should be located in <code class="docutils literal"><span class="pre">$PREFIX/lib</span></code>. Here is how to
+<p>Now <tt class="file docutils literal"><span class="pre">libopensc.so</span></tt> should be located in <tt class="docutils literal"><span class="pre">$PREFIX/lib</span></tt>. Here is how to
 configure the USB CCID Emulator to use it:</p>
 <div class="highlight-sh"><div class="highlight"><pre><span class="nb">cd</span> <span class="nv">$VSMARTCARD</span>/ccid
 ./configure --prefix<span class="o">=</span><span class="nv">$PREFIX</span> <span class="nv">OPENSC_LIBS</span><span class="o">=</span><span class="s2">&quot;-L</span><span class="nv">$PREFIX</span><span class="s2">/lib -lopensc&quot;</span>

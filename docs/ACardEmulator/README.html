@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Android Smart Card Emulator &mdash; vsmartcard 2017-01-08 documentation</title>
+    <title>Android Smart Card Emulator &mdash; vsmartcard 2017-01-16 documentation</title>
     
     <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '2017-01-08',
+        VERSION:     '2017-01-16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -29,8 +29,8 @@
     <script type="text/javascript" src="../_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="../_static/chip.ico"/>
-    <link rel="top" title="vsmartcard 2017-01-08 documentation" href="../index.html" />
-    <link rel="next" title="PC/SC Relay" href="../pcsc-relay/README.html" />
+    <link rel="top" title="vsmartcard 2017-01-16 documentation" href="../index.html" />
+    <link rel="next" title="Tizen Smart Card Emulator" href="../TCardEmulator/README.html" />
     <link rel="prev" title="Remote Smart Card Reader" href="../remote-reader/README.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
@@ -38,7 +38,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body role="document">
+  <body>
   
   <a href="https://github.com/frankmorgner/vsmartcard"
      class="visible-desktop hidden-xs"><img
@@ -85,6 +85,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../virtualsmartcard/README.html">Virtual Smart Card</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../remote-reader/README.html">Remote Smart Card Reader</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Android Smart Card Emulator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../TCardEmulator/README.html">Tizen Smart Card Emulator</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../pcsc-relay/README.html">PC/SC Relay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ccid/README.html">USB CCID Emulator</a></li>
 </ul>
@@ -122,7 +123,7 @@
     </a>
   </li>
   <li>
-    <a href="../pcsc-relay/README.html" title="Next Chapter: PC/SC Relay"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">PC/SC Relay &raquo;</span>
+    <a href="../TCardEmulator/README.html" title="Next Chapter: Tizen Smart Card Emulator"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">Tizen Smart Card... &raquo;</span>
     </a>
   </li>
               
@@ -172,63 +173,65 @@
 The emulator uses Android&#8217;s <abbr title="host card emulation">HCE</abbr> to fetch APDUs from a contact-less reader.
 The app allows to process the Command APDUs either by delegating them to a
 remote virtual smart card or by a built-in Java Card simulator. The response
-APDUs are then returned to the smart card reader.</p>
+APDUs are then returned to the smart card reader. Together with
+<a class="reference internal" href="../TCardEmulator/README.html#tcardemulator"><em>Tizen Smart Card Emulator</em></a> it is also possible to use a smartwatch as communication
+device instead of the phone.</p>
 <p>With the built-in Java Card runtime of <a class="reference external" href="http://www.jcardsim.org/">jCardSim</a> <a class="footnote-reference" href="#id1" id="id2">[1]</a> the app includes the following
 Applets:</p>
 <ul class="simple">
-<li><a class="reference external" href="https://github.com/licel/jcardsim/blob/master/src/main/java/com/licel/jcardsim/samples/HelloWorldApplet.java">Hello World Applet</a> <a class="footnote-reference" href="#id3" id="id4">[2]</a> (application identifier <code class="docutils literal"><span class="pre">F000000001</span></code>)</li>
-<li><a class="reference external" href="https://developers.yubico.com/ykneo-openpgp/">OpenPGP Applet</a> <a class="footnote-reference" href="#id5" id="id6">[3]</a> (application identifier <code class="docutils literal"><span class="pre">D2760001240102000000000000010000</span></code>)</li>
-<li><a class="reference external" href="https://developers.yubico.com/ykneo-oath/">OATH Applet</a> <a class="footnote-reference" href="#id7" id="id8">[4]</a> (application identifier <code class="docutils literal"><span class="pre">A000000527210101</span></code>)</li>
-<li><a class="reference external" href="http://www.pwendland.net/IsoApplet/">ISO Applet</a> <a class="footnote-reference" href="#id9" id="id10">[5]</a> (application identifier <code class="docutils literal"><span class="pre">F276A288BCFBA69D34F31001</span></code>)</li>
-<li><a class="reference external" href="https://github.com/vletoux/GidsApplet">GIDS Applet</a> <a class="footnote-reference" href="#id11" id="id12">[6]</a> (application identifier <code class="docutils literal"><span class="pre">A000000397425446590201</span></code>)</li>
+<li><a class="reference external" href="https://github.com/licel/jcardsim/blob/master/src/main/java/com/licel/jcardsim/samples/HelloWorldApplet.java">Hello World Applet</a> <a class="footnote-reference" href="#id3" id="id4">[2]</a> (application identifier <tt class="docutils literal"><span class="pre">F000000001</span></tt>)</li>
+<li><a class="reference external" href="https://developers.yubico.com/ykneo-openpgp/">OpenPGP Applet</a> <a class="footnote-reference" href="#id5" id="id6">[3]</a> (application identifier <tt class="docutils literal"><span class="pre">D2760001240102000000000000010000</span></tt>)</li>
+<li><a class="reference external" href="https://developers.yubico.com/ykneo-oath/">OATH Applet</a> <a class="footnote-reference" href="#id7" id="id8">[4]</a> (application identifier <tt class="docutils literal"><span class="pre">A000000527210101</span></tt>)</li>
+<li><a class="reference external" href="http://www.pwendland.net/IsoApplet/">ISO Applet</a> <a class="footnote-reference" href="#id9" id="id10">[5]</a> (application identifier <tt class="docutils literal"><span class="pre">F276A288BCFBA69D34F31001</span></tt>)</li>
+<li><a class="reference external" href="https://github.com/vletoux/GidsApplet">GIDS Applet</a> <a class="footnote-reference" href="#id11" id="id12">[6]</a> (application identifier <tt class="docutils literal"><span class="pre">A000000397425446590201</span></tt>)</li>
 </ul>
-<p>The remote interface can be used together with the <a class="reference internal" href="../virtualsmartcard/README.html#vicc"><span>Virtual Smart Card</span></a>, which allows
+<p>The remote interface can be used together with the <a class="reference internal" href="../virtualsmartcard/README.html#vicc"><em>Virtual Smart Card</em></a>, which allows
 emulating the following cards:</p>
 <ul class="simple">
 <li>Generic ISO-7816 smart card</li>
 <li>German electronic identity card (nPA)</li>
 <li>Electronic passport</li>
 </ul>
-<p>The remote interface can also be used together with the <a class="reference internal" href="../pcsc-relay/README.html#pcsc-relay"><span>PC/SC Relay</span></a>,
+<p>The remote interface can also be used together with the <a class="reference internal" href="../pcsc-relay/README.html#pcsc-relay"><em>PC/SC Relay</em></a>,
 which allows emulating a contactless card from an existing contact-based card
 (by relaying the commands from PC/SC to the phone).</p>
 <p>You may also attach your own simulation to the remote interface by implementing
 a simple interface through a socket communication.</p>
 <div class="figure">
-<p><img src="../_images/tikz-069feb98fbb6c2bcacad0fa341edc5ceaba0a732.png" alt="\input{%(wd)s/bilder/tikzstyles.tex}
-\node (reader) {\includegraphics[width=3cm]{%(wd)s/bilder/my_cardreader.pdf}};
+<p><img src="../_images/tikz-f7010fa8209b3752026a52619d57bbebb8fa2bcd.svg" alt="\input{$wd/bilder/tikzstyles.tex}
+\node (reader) {\includegraphics[width=3cm]{$wd/bilder/my_cardreader.pdf}};
 \node [below=0cm of reader, kleiner] {Contact-less Reader};
-\node (phone) [right=1cm of reader] {\includegraphics[width=3cm]{%(wd)s/bilder/smartphone.pdf}};
-\node (app) [at=(phone.center)] {\includegraphics[width=2.8cm, height=4.9cm]{%(wd)s/bilder/ACardEmulator.png}};
+\node (phone) [right=1cm of reader] {\includegraphics[width=3cm]{$wd/bilder/smartphone.pdf}};
+\node (app) [at=(phone.center)] {\includegraphics[width=2.8cm, height=4.9cm]{$wd/bilder/ACardEmulator.png}};
 
 \begin{pgfonlayer}{background}
     \draw [rfid] (reader.center) -- (phone.west) ;
 \end{pgfonlayer}" /></p>
 <p class="caption">Simulate a contact-less Java Card with Android Smart Card Emulator</p></div><div class="figure">
-<p><img src="../_images/tikz-ad80edcb712885aba11512084ac22ff832c4ebbb.png" alt="\input{%(wd)s/bilder/tikzstyles.tex}
-\node (reader) {\includegraphics[width=3cm]{%(wd)s/bilder/my_cardreader.pdf}};
+<p><img src="../_images/tikz-ae1e764f23cec8b5d67952bc6d8bbe66280e80d1.svg" alt="\input{$wd/bilder/tikzstyles.tex}
+\node (reader) {\includegraphics[width=3cm]{$wd/bilder/my_cardreader.pdf}};
 \node [below=0cm of reader, kleiner] {Contact-less Reader};
-\node (phone) [right=1cm of reader] {\includegraphics[width=3cm]{%(wd)s/bilder/smartphone.pdf}};
-\node (app) [at=(phone.center)] {\includegraphics[width=2.8cm, height=4.9cm]{%(wd)s/bilder/ACardEmulator.png}};
+\node (phone) [right=1cm of reader] {\includegraphics[width=3cm]{$wd/bilder/smartphone.pdf}};
+\node (app) [at=(phone.center)] {\includegraphics[width=2.8cm, height=4.9cm]{$wd/bilder/ACardEmulator.png}};
 \node (vicc) [aktivbox, right=2cm of phone, kleiner] {\texttt{vicc --reversed}};
 
 \begin{pgfonlayer}{background}
     \draw [rfid] (reader.center) -- (phone.west) ;
-    \path[linie] (phone) edge node {\includegraphics[width=1.5cm]{%(wd)s/bilder/simplecloud.pdf}} (vicc) ;
+    \path[linie] (phone) edge node {\includegraphics[width=1.5cm]{$wd/bilder/simplecloud.pdf}} (vicc) ;
 \end{pgfonlayer}" /></p>
 <p class="caption">Simulate a contact-less smart card with a remote virtual smart card</p></div><div class="figure">
-<p><img src="../_images/tikz-2623a4f0b37e685e9d3fa97479f3e06798f21da2.png" alt="\input{%(wd)s/bilder/tikzstyles.tex}
-\node (reader) {\includegraphics[width=3cm]{%(wd)s/bilder/my_cardreader.pdf}};
+<p><img src="../_images/tikz-30c9c7049675e5b06e8364c63b0718d51986e380.svg" alt="\input{$wd/bilder/tikzstyles.tex}
+\node (reader) {\includegraphics[width=3cm]{$wd/bilder/my_cardreader.pdf}};
 \node [below=0cm of reader, kleiner] {Contact-less Reader};
-\node (phone) [right=1cm of reader] {\includegraphics[width=3cm]{%(wd)s/bilder/smartphone.pdf}};
-\node (app) [at=(phone.center)] {\includegraphics[width=2.8cm, height=4.9cm]{%(wd)s/bilder/ACardEmulator.png}};
+\node (phone) [right=1cm of reader] {\includegraphics[width=3cm]{$wd/bilder/smartphone.pdf}};
+\node (app) [at=(phone.center)] {\includegraphics[width=2.8cm, height=4.9cm]{$wd/bilder/ACardEmulator.png}};
 \node (pcsc-relay) [aktivbox, right=2cm of phone, kleiner] {\texttt{pcsc-relay --emulator=vpcd}};
-\node (card) [below=.5cm of pcsc-relay)] {\includegraphics[width=0.8cm]{%(wd)s/bilder/smartcard.pdf}};
-\node (reader2) [below=1cm of pcsc-relay] {\includegraphics[width=1.3cm]{%(wd)s/bilder/my_cardreader.pdf}};
+\node (card) [below=.5cm of pcsc-relay)] {\includegraphics[width=0.8cm]{$wd/bilder/smartcard.pdf}};
+\node (reader2) [below=1cm of pcsc-relay] {\includegraphics[width=1.3cm]{$wd/bilder/my_cardreader.pdf}};
 
 \begin{pgfonlayer}{background}
     \draw [rfid] (reader.center) -- (phone.west) ;
-    \path[linie] (phone) edge node {\includegraphics[width=1.5cm]{%(wd)s/bilder/simplecloud.pdf}} (pcsc-relay) ;
+    \path[linie] (phone) edge node {\includegraphics[width=1.5cm]{$wd/bilder/simplecloud.pdf}} (pcsc-relay) ;
     \path[linie] (pcsc-relay) edge (reader2) ;
 \end{pgfonlayer}" /></p>
 <p class="caption">Relaying a contact-based smart card with pcsc-relay</p></div><p>The Android Smart Card Emulator has the following dependencies:</p>
@@ -238,7 +241,7 @@ a simple interface through a socket communication.</p>
 <li>permissions for a data connection (communication with Virtual Smart Card) and
 for using NFC (communication to the reader); scanning the configuration via
 QR code requires permission to access the camera</li>
-<li>Virtual Smart Card <a class="reference internal" href="../virtualsmartcard/README.html#vicc-install"><span>installed on the host computer</span></a> for
+<li>Virtual Smart Card <a class="reference internal" href="../virtualsmartcard/README.html#vicc-install"><em>installed on the host computer</em></a> for
 using the remote interface</li>
 </ul>
 <p>Please note that the currently emulated applets are verifying the PIN by
@@ -259,8 +262,8 @@ git submodule update
 </pre></div>
 </div>
 <p>We use <a class="reference external" href="http://developer.android.com/sdk/installing/studio.html">Android Studio</a> <a class="footnote-reference" href="#id17" id="id18">[9]</a> to build and deploy the application. Use
-<span class="menuselection">File ‣ Open</span> to select <code class="file docutils literal"><span class="pre">vsmartcard/ACardEmulator</span></code>.
-Attach your smartphone and choose <span class="menuselection">Run ‣ Run &#8216;app&#8217;</span>.</p>
+<em class="menuselection">File ‣ Open</em> to select <tt class="file docutils literal"><span class="pre">vsmartcard/ACardEmulator</span></tt>.
+Attach your smartphone and choose <em class="menuselection">Run ‣ Run &#8216;app&#8217;</em>.</p>
 </div>
 <div class="section" id="question">
 <h2>Question<a class="headerlink" href="#question" title="Permalink to this headline">¶</a></h2>

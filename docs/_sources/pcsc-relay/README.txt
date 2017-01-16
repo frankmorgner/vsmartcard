@@ -37,7 +37,7 @@ relayed to one of the following:
     :stringsubst:
     :libs: arrows, calc, fit, patterns, plotmarks, shapes.geometric, shapes.misc, shapes.symbols, shapes.arrows, shapes.callouts, shapes.multipart, shapes.gates.logic.US, shapes.gates.logic.IEC, er, automata, backgrounds, chains, topaths, trees, petri, mindmap, matrix, calendar, folding, fadings, through, positioning, scopes, decorations.fractals, decorations.shapes, decorations.text, decorations.pathmorphing, decorations.pathreplacing, decorations.footprints, decorations.markings, shadows
 
-    \input{%(wd)s/bilder/tikzstyles.tex}
+    \input{$wd/bilder/tikzstyles.tex}
     \node (pcsc-relay) {\texttt{pcsc-relay}};
 
     \node [kleiner, right=2cm of pcsc-relay, yshift=.9cm]
@@ -87,7 +87,7 @@ to completely emulate an ISO/IEC 14443 smart card.
     :stringsubst:
     :libs: arrows, calc, fit, patterns, plotmarks, shapes.geometric, shapes.misc, shapes.symbols, shapes.arrows, shapes.callouts, shapes.multipart, shapes.gates.logic.US, shapes.gates.logic.IEC, er, automata, backgrounds, chains, topaths, trees, petri, mindmap, matrix, calendar, folding, fadings, through, positioning, scopes, decorations.fractals, decorations.shapes, decorations.text, decorations.pathmorphing, decorations.pathreplacing, decorations.footprints, decorations.markings, shadows
 
-    \input{%(wd)s/bilder/tikzstyles.tex}
+    \input{$wd/bilder/tikzstyles.tex}
     \tikzstyle{bla}=[shape=rectangle split, rectangle split parts=2,
     every text node part/.style={align=center, klein}, text width=7cm,
     every second node part/.style={kleiner}, inner sep=0pt]
@@ -96,7 +96,7 @@ to completely emulate an ISO/IEC 14443 smart card.
 
     \node (touchatag)
 	{\includegraphics[keepaspectratio, height=2cm,
-	width=2cm]{%(wd)s/bilder/touchatag.png}};
+	width=2cm]{$wd/bilder/touchatag.png}};
     \node (touchatagbeschreibung) [below=0cm of touchatag, kleiner]
     {touchatag};
 
@@ -143,14 +143,14 @@ to completely emulate an ISO/IEC 14443 smart card.
         (funktionenpace), box, inner sep=.5cm] {};
         \node (boxbild) at (box.north west)
         {\includegraphics[keepaspectratio, height=1.5cm,
-        width=1.5cm]{%(wd)s/bilder/moko/moko_reader.png}};
+        width=1.5cm]{$wd/bilder/moko/moko_reader.png}};
         \node [right=0cm of boxbild.east, yshift=.3cm]
         {Openmoko Neo FreeRunner};
     \end{pgfonlayer}
 
     \node (a) [left=1.5of box]
 	{\includegraphics[keepaspectratio, height=4cm,
-	width=4cm]{%(wd)s/bilder/ivak_kiosk-terminal.pdf}};
+	width=4cm]{$wd/bilder/ivak_kiosk-terminal.pdf}};
     \node (e) [below=0cm of a, text width=2.5cm, align=center]
     {(Public) Terminal};
 

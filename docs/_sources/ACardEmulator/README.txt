@@ -19,7 +19,9 @@ The Android Smart Card Emulator allows the emulation of a contact-less smart car
 The emulator uses Android's |HCE| to fetch APDUs from a contact-less reader.
 The app allows to process the Command APDUs either by delegating them to a
 remote virtual smart card or by a built-in Java Card simulator. The response
-APDUs are then returned to the smart card reader.
+APDUs are then returned to the smart card reader. Together with
+:ref:`tcardemulator` it is also possible to use a smartwatch as communication
+device instead of the phone.
 
 With the built-in Java Card runtime of jCardSim_ the app includes the following
 Applets:
@@ -48,11 +50,11 @@ a simple interface through a socket communication.
     :stringsubst:
     :libs: arrows, calc, fit, patterns, plotmarks, shapes.geometric, shapes.misc, shapes.symbols, shapes.arrows, shapes.callouts, shapes.multipart, shapes.gates.logic.US, shapes.gates.logic.IEC, er, automata, backgrounds, chains, topaths, trees, petri, mindmap, matrix, calendar, folding, fadings, through, positioning, scopes, decorations.fractals, decorations.shapes, decorations.text, decorations.pathmorphing, decorations.pathreplacing, decorations.footprints, decorations.markings, shadows
 
-    \input{%(wd)s/bilder/tikzstyles.tex}
-    \node (reader) {\includegraphics[width=3cm]{%(wd)s/bilder/my_cardreader.pdf}};
+    \input{$wd/bilder/tikzstyles.tex}
+    \node (reader) {\includegraphics[width=3cm]{$wd/bilder/my_cardreader.pdf}};
     \node [below=0cm of reader, kleiner] {Contact-less Reader};
-    \node (phone) [right=1cm of reader] {\includegraphics[width=3cm]{%(wd)s/bilder/smartphone.pdf}};
-    \node (app) [at=(phone.center)] {\includegraphics[width=2.8cm, height=4.9cm]{%(wd)s/bilder/ACardEmulator.png}};
+    \node (phone) [right=1cm of reader] {\includegraphics[width=3cm]{$wd/bilder/smartphone.pdf}};
+    \node (app) [at=(phone.center)] {\includegraphics[width=2.8cm, height=4.9cm]{$wd/bilder/ACardEmulator.png}};
 
     \begin{pgfonlayer}{background}
         \draw [rfid] (reader.center) -- (phone.west) ;
@@ -62,34 +64,34 @@ a simple interface through a socket communication.
     :stringsubst:
     :libs: arrows, calc, fit, patterns, plotmarks, shapes.geometric, shapes.misc, shapes.symbols, shapes.arrows, shapes.callouts, shapes.multipart, shapes.gates.logic.US, shapes.gates.logic.IEC, er, automata, backgrounds, chains, topaths, trees, petri, mindmap, matrix, calendar, folding, fadings, through, positioning, scopes, decorations.fractals, decorations.shapes, decorations.text, decorations.pathmorphing, decorations.pathreplacing, decorations.footprints, decorations.markings, shadows
 
-    \input{%(wd)s/bilder/tikzstyles.tex}
-    \node (reader) {\includegraphics[width=3cm]{%(wd)s/bilder/my_cardreader.pdf}};
+    \input{$wd/bilder/tikzstyles.tex}
+    \node (reader) {\includegraphics[width=3cm]{$wd/bilder/my_cardreader.pdf}};
     \node [below=0cm of reader, kleiner] {Contact-less Reader};
-    \node (phone) [right=1cm of reader] {\includegraphics[width=3cm]{%(wd)s/bilder/smartphone.pdf}};
-    \node (app) [at=(phone.center)] {\includegraphics[width=2.8cm, height=4.9cm]{%(wd)s/bilder/ACardEmulator.png}};
+    \node (phone) [right=1cm of reader] {\includegraphics[width=3cm]{$wd/bilder/smartphone.pdf}};
+    \node (app) [at=(phone.center)] {\includegraphics[width=2.8cm, height=4.9cm]{$wd/bilder/ACardEmulator.png}};
     \node (vicc) [aktivbox, right=2cm of phone, kleiner] {\texttt{vicc --reversed}};
 
     \begin{pgfonlayer}{background}
         \draw [rfid] (reader.center) -- (phone.west) ;
-        \path[linie] (phone) edge node {\includegraphics[width=1.5cm]{%(wd)s/bilder/simplecloud.pdf}} (vicc) ;
+        \path[linie] (phone) edge node {\includegraphics[width=1.5cm]{$wd/bilder/simplecloud.pdf}} (vicc) ;
     \end{pgfonlayer}
 
 .. tikz:: Relaying a contact-based smart card with pcsc-relay
     :stringsubst:
     :libs: arrows, calc, fit, patterns, plotmarks, shapes.geometric, shapes.misc, shapes.symbols, shapes.arrows, shapes.callouts, shapes.multipart, shapes.gates.logic.US, shapes.gates.logic.IEC, er, automata, backgrounds, chains, topaths, trees, petri, mindmap, matrix, calendar, folding, fadings, through, positioning, scopes, decorations.fractals, decorations.shapes, decorations.text, decorations.pathmorphing, decorations.pathreplacing, decorations.footprints, decorations.markings, shadows
 
-    \input{%(wd)s/bilder/tikzstyles.tex}
-    \node (reader) {\includegraphics[width=3cm]{%(wd)s/bilder/my_cardreader.pdf}};
+    \input{$wd/bilder/tikzstyles.tex}
+    \node (reader) {\includegraphics[width=3cm]{$wd/bilder/my_cardreader.pdf}};
     \node [below=0cm of reader, kleiner] {Contact-less Reader};
-    \node (phone) [right=1cm of reader] {\includegraphics[width=3cm]{%(wd)s/bilder/smartphone.pdf}};
-    \node (app) [at=(phone.center)] {\includegraphics[width=2.8cm, height=4.9cm]{%(wd)s/bilder/ACardEmulator.png}};
+    \node (phone) [right=1cm of reader] {\includegraphics[width=3cm]{$wd/bilder/smartphone.pdf}};
+    \node (app) [at=(phone.center)] {\includegraphics[width=2.8cm, height=4.9cm]{$wd/bilder/ACardEmulator.png}};
     \node (pcsc-relay) [aktivbox, right=2cm of phone, kleiner] {\texttt{pcsc-relay --emulator=vpcd}};
-    \node (card) [below=.5cm of pcsc-relay)] {\includegraphics[width=0.8cm]{%(wd)s/bilder/smartcard.pdf}};
-    \node (reader2) [below=1cm of pcsc-relay] {\includegraphics[width=1.3cm]{%(wd)s/bilder/my_cardreader.pdf}};
+    \node (card) [below=.5cm of pcsc-relay)] {\includegraphics[width=0.8cm]{$wd/bilder/smartcard.pdf}};
+    \node (reader2) [below=1cm of pcsc-relay] {\includegraphics[width=1.3cm]{$wd/bilder/my_cardreader.pdf}};
 
     \begin{pgfonlayer}{background}
         \draw [rfid] (reader.center) -- (phone.west) ;
-        \path[linie] (phone) edge node {\includegraphics[width=1.5cm]{%(wd)s/bilder/simplecloud.pdf}} (pcsc-relay) ;
+        \path[linie] (phone) edge node {\includegraphics[width=1.5cm]{$wd/bilder/simplecloud.pdf}} (pcsc-relay) ;
         \path[linie] (pcsc-relay) edge (reader2) ;
     \end{pgfonlayer}
 

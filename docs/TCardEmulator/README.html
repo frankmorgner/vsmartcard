@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Tizen Smart Card Emulator &mdash; vsmartcard 2017-01-16 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/bootswatch-3.3.4/flatly/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2017-01-16',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="../_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
+    <link rel="shortcut icon" href="../_static/chip.ico"/>
+    <link rel="top" title="vsmartcard 2017-01-16 documentation" href="../index.html" />
+    <link rel="next" title="PC/SC Relay" href="../pcsc-relay/README.html" />
+    <link rel="prev" title="Android Smart Card Emulator" href="../ACardEmulator/README.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body>
+  
+  <a href="https://github.com/frankmorgner/vsmartcard"
+     class="visible-desktop hidden-xs"><img
+    id="gh-banner"
+    style="position: absolute; top: 50px; right: 0; border: 0;"
+    src="https://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png"
+    alt="Fork me on GitHub"></a>
+  <script>
+    // Adjust banner height.
+    $(function () {
+      var navHeight = $(".navbar .container").css("height");
+      $("#gh-banner").css("top", navHeight);
+    });
+  </script>
+
+
+  <div id="navbar" class="navbar navbar-default ">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html">
+          vsmartcard</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../virtualsmartcard/README.html">Virtual Smart Card</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../remote-reader/README.html">Remote Smart Card Reader</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ACardEmulator/README.html">Android Smart Card Emulator</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Tizen Smart Card Emulator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pcsc-relay/README.html">PC/SC Relay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ccid/README.html">USB CCID Emulator</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../virtualsmartcard/api.html">Creating a Virtual Smart Card</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">Tizen Smart Card Emulator</a><ul>
+<li><a class="reference internal" href="#download-and-install">Download and Install</a></li>
+<li><a class="reference internal" href="#question">Question</a></li>
+<li><a class="reference internal" href="#notes-and-references">Notes and References</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="../ACardEmulator/README.html" title="Previous Chapter: Android Smart Card Emulator"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; Android Smart Ca...</span>
+    </a>
+  </li>
+  <li>
+    <a href="../pcsc-relay/README.html" title="Next Chapter: PC/SC Relay"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">PC/SC Relay &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12 content">
+      
+  <div class="section" id="tizen-smart-card-emulator">
+<span id="tcardemulator"></span><h1>Tizen Smart Card Emulator<a class="headerlink" href="#tizen-smart-card-emulator" title="Permalink to this headline">¶</a></h1>
+<div class="sidebar">
+<p class="first sidebar-title">Use a Tizen smartwatch as contact-less smart card</p>
+<table class="last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">License:</th><td class="field-body">GPL version 3</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Tested Platform:</th></tr>
+<tr class="field-even field"><td>&nbsp;</td><td class="field-body">Tizen (Samsung Gear S2)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The Tizen Smart Card Emulator allows the emulation of a contact-less smart card.
+The emulator uses Tizen&#8217;s <abbr title="host card emulation">HCE</abbr> to fetch APDUs from a contact-less reader.
+The headless Tizen service delegates the Command APDUs via Samsung&#8217;s Accessory
+Protocol to the <a class="reference internal" href="../ACardEmulator/README.html#acardemulator"><em>Android Smart Card Emulator</em></a>. The android app processes the commands and
+sends responses back to the contact-less reader via the Tizen Smart Card
+Emulator.</p>
+<p>You may also attach your own simulation by using the Samsung Accessory Protocol
+for communicating with the tizen service.</p>
+<div class="figure">
+<p><img src="../_images/tikz-b87c5ab6092153f7f845370e9964b266e5d97f55.svg" alt="\input{$wd/bilder/tikzstyles.tex}
+\node (reader) {\includegraphics[width=3cm]{$wd/bilder/my_cardreader.pdf}};
+\node [below=0cm of reader, kleiner] {Contact-less Reader};
+\node (gears2) [right=1cm of reader] {\includegraphics[width=3cm]{$wd/bilder/gears2.jpg}};
+\node (phone) [right=-.5cm of gears2] {\includegraphics[width=3cm]{$wd/bilder/smartphone.pdf}};
+\node (app) [at=(phone.center)] {\includegraphics[width=2.8cm, height=4.9cm]{$wd/bilder/ACardEmulator.png}};
+
+\begin{pgfonlayer}{background}
+    \draw [rfid] (reader.center) -- (gears2.west) ;
+\end{pgfonlayer}" /></p>
+<p class="caption">Simulate a contact-less smart card with Android Smart Card Emulator</p></div><div class="section" id="download-and-install">
+<h2>Download and Install<a class="headerlink" href="#download-and-install" title="Permalink to this headline">¶</a></h2>
+<p>To manually compile the app you need to fetch the sources and initialize the
+submodules:</p>
+<div class="highlight-sh"><div class="highlight"><pre>git clone https://github.com/frankmorgner/vsmartcard.git
+</pre></div>
+</div>
+<p>We use <a class="reference external" href="https://developer.tizen.org/development/tools/download">Tizen SDK</a> <a class="footnote-reference" href="#id1" id="id2">[1]</a> to build and deploy the application. Use
+<em class="menuselection">Import...</em> to select <em class="menuselection">Tizen ‣ Tizen Project</em>.
+In the next dialog choose <tt class="file docutils literal"><span class="pre">Tizen/TCardEmulator</span></tt>. To be able to build and
+install the Tizen service on the smartwatch, you need to <a class="reference external" href="https://developer.tizen.org/community/tip-tech/tizen-sdk-install-guide-certificate-extensions-included">install the
+appropriate SDK extensions and register as app developer</a> <a class="footnote-reference" href="#id3" id="id4">[2]</a>.</p>
+</div>
+<div class="section" id="question">
+<h2>Question<a class="headerlink" href="#question" title="Permalink to this headline">¶</a></h2>
+<p>Do you have questions, suggestions or contributions? Feedback of any kind is
+more than welcome! Please use our <a class="reference external" href="https://github.com/frankmorgner/vsmartcard/issues">project trackers</a>.</p>
+</div>
+<div class="section" id="notes-and-references">
+<h2>Notes and References<a class="headerlink" href="#notes-and-references" title="Permalink to this headline">¶</a></h2>
+<table class="docutils footnote" frame="void" id="id1" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[1]</a></td><td><a class="reference external" href="https://developer.tizen.org/development/tools/download">https://developer.tizen.org/development/tools/download</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id3" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id4">[2]</a></td><td><a class="reference external" href="https://developer.tizen.org/community/tip-tech/tizen-sdk-install-guide-certificate-extensions-included">https://developer.tizen.org/community/tip-tech/tizen-sdk-install-guide-certificate-extensions-included</a></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2009-2017 by Dominik Oepen and Frank Morgner.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

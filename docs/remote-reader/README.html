@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Remote Smart Card Reader &mdash; vsmartcard 2017-01-08 documentation</title>
+    <title>Remote Smart Card Reader &mdash; vsmartcard 2017-01-16 documentation</title>
     
     <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '2017-01-08',
+        VERSION:     '2017-01-16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -29,7 +29,7 @@
     <script type="text/javascript" src="../_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="../_static/chip.ico"/>
-    <link rel="top" title="vsmartcard 2017-01-08 documentation" href="../index.html" />
+    <link rel="top" title="vsmartcard 2017-01-16 documentation" href="../index.html" />
     <link rel="next" title="Android Smart Card Emulator" href="../ACardEmulator/README.html" />
     <link rel="prev" title="Virtual Smart Card" href="../virtualsmartcard/README.html" />
 <meta charset='utf-8'>
@@ -38,7 +38,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body role="document">
+  <body>
   
   <a href="https://github.com/frankmorgner/vsmartcard"
      class="visible-desktop hidden-xs"><img
@@ -85,6 +85,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../virtualsmartcard/README.html">Virtual Smart Card</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Remote Smart Card Reader</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ACardEmulator/README.html">Android Smart Card Emulator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../TCardEmulator/README.html">Tizen Smart Card Emulator</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../pcsc-relay/README.html">PC/SC Relay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ccid/README.html">USB CCID Emulator</a></li>
 </ul>
@@ -173,20 +174,20 @@ smartcard reader. On the host computer a special smart card driver, <abbr title=
 be installed. The app establishes a connection to <abbr title="virtual smart card reader">vpcd</abbr> over the network when a
 contact-less card is detected.</p>
 <div class="figure">
-<p><img src="../_images/tikz-45ae84ddba64f581420710f06ccc0cdc632a6e9b.png" alt="\input{%(wd)s/bilder/tikzstyles.tex}
+<p><img src="../_images/tikz-ce55fa00e38973c00fdf255926bb46304226f2dc.svg" alt="\input{$wd/bilder/tikzstyles.tex}
     \node (pcsc) [klein, aktivbox, inner xsep=.75cm, align=center] {PC/SC\\Framework};
 \node (sca) [aktivbox, klein, left=.75cm of pcsc, align=center] {Smart Card\\Application};
 \node (vpcd) [box, at=(pcsc.east), kleiner] {\texttt{vpcd}};
-\node (phone) [right=2cm of vpcd] {\includegraphics[width=3cm]{%(wd)s/bilder/smartphone.pdf}};
-\node (app) [at=(phone.center)] {\includegraphics[width=2.8cm, height=4.9cm]{%(wd)s/bilder/remote-reader.png}};
-\node (card) [right=0cm of phone, rotate=45] {\includegraphics[width=2cm]{%(wd)s/bilder/smartcard.pdf}};
+\node (phone) [right=2cm of vpcd] {\includegraphics[width=3cm]{$wd/bilder/smartphone.pdf}};
+\node (app) [at=(phone.center)] {\includegraphics[width=2.8cm, height=4.9cm]{$wd/bilder/remote-reader.png}};
+\node (card) [right=0cm of phone, rotate=45] {\includegraphics[width=2cm]{$wd/bilder/smartcard.pdf}};
 
 \begin{pgfonlayer}{background}
     \node (box) [box, fit=(pcsc) (sca) (vpcd), inner ysep=1.5em] {};
-    \node [at=(box.north west)] {\includegraphics[width=1cm]{%(wd)s/bilder/computer-tango.pdf}};
+    \node [at=(box.north west)] {\includegraphics[width=1cm]{$wd/bilder/computer-tango.pdf}};
     \path[linie]
     (sca) edge (pcsc)
-    (vpcd) edge node {\includegraphics[width=1.5cm]{%(wd)s/bilder/simplecloud.pdf}} (app)
+    (vpcd) edge node {\includegraphics[width=1.5cm]{$wd/bilder/simplecloud.pdf}} (app)
     ;
     \draw [rfid] (phone.center) -- (card.center) ;
 \end{pgfonlayer}" /></p>
@@ -197,28 +198,28 @@ contact-less card is detected.</p>
 <li>permissions for a data connection (communication with <abbr title="virtual smart card reader">vpcd</abbr>) and for using
 NFC (communication to the card); scanning the configuration via QR code
 requires permission to access the camera</li>
-<li><abbr title="virtual smart card reader">vpcd</abbr> <a class="reference internal" href="../virtualsmartcard/README.html#vicc-install"><span>installed on the host computer</span></a></li>
+<li><abbr title="virtual smart card reader">vpcd</abbr> <a class="reference internal" href="../virtualsmartcard/README.html#vicc-install"><em>installed on the host computer</em></a></li>
 </ul>
 <p>For remotely accessing a traditional smart card reader on one computer from an
-other computer, the <a class="reference internal" href="../virtualsmartcard/README.html#vicc"><span>Virtual Smart Card</span></a> in relay mode can be used:</p>
+other computer, the <a class="reference internal" href="../virtualsmartcard/README.html#vicc"><em>Virtual Smart Card</em></a> in relay mode can be used:</p>
 <div class="figure">
-<p><img src="../_images/tikz-b656c61c22449778b2d8a4e7cff12ff17b559524.png" alt="\input{%(wd)s/bilder/tikzstyles.tex}
+<p><img src="../_images/tikz-f675fc9e85a93771428d0790db395907b3f662fe.svg" alt="\input{$wd/bilder/tikzstyles.tex}
     \node (pcsc) [klein, aktivbox, inner xsep=.75cm, align=center] {PC/SC\\Framework};
 \node (sca) [aktivbox, klein, left=.75cm of pcsc, align=center] {Smart Card\\Application};
 \node (vpcd) [box, at=(pcsc.east), kleiner] {\texttt{vpcd}};
     \node (pcsc2) [klein, aktivbox, inner xsep=.75cm, align=center, below=2.5cm of vpcd] {PC/SC\\Framework};
 \node (vicc) [aktivbox, left=1cm of pcsc2, kleiner] {\texttt{vicc -t relay}};
-\node (reader) [right=1cm of pcsc2] {\includegraphics[width=2cm]{%(wd)s/bilder/my_cardreader.pdf}};
-\node (card) [at=(reader.east), rotate=45] {\includegraphics[width=2cm]{%(wd)s/bilder/smartcard.pdf}};
+\node (reader) [right=1cm of pcsc2] {\includegraphics[width=2cm]{$wd/bilder/my_cardreader.pdf}};
+\node (card) [at=(reader.east), rotate=45] {\includegraphics[width=2cm]{$wd/bilder/smartcard.pdf}};
 
 \begin{pgfonlayer}{background}
     \node (box) [box, fit=(pcsc) (sca) (vpcd), inner ysep=1.5em] {};
     \node (box2) [box, fit=(vicc) (pcsc2), inner ysep=1.5em] {};
-    \node [at=(box.north west)] {\includegraphics[width=1cm]{%(wd)s/bilder/computer-tango.pdf}};
-    \node [at=(box2.north west)] {\includegraphics[width=1cm]{%(wd)s/bilder/computer-tango.pdf}};
+    \node [at=(box.north west)] {\includegraphics[width=1cm]{$wd/bilder/computer-tango.pdf}};
+    \node [at=(box2.north west)] {\includegraphics[width=1cm]{$wd/bilder/computer-tango.pdf}};
     \path[linie]
     (sca) edge (pcsc)
-    (vpcd) edge [out=south, in=north] node {\includegraphics[width=1.5cm]{%(wd)s/bilder/simplecloud.pdf}} (vicc)
+    (vpcd) edge [out=south, in=north] node {\includegraphics[width=1.5cm]{$wd/bilder/simplecloud.pdf}} (vicc)
     (vicc) edge (pcsc2)
     (pcsc2) edge [usb] (reader.center)
     ;
@@ -239,8 +240,8 @@ but it generally concerns <em>all</em> contact-less smart cards.</p>
 </pre></div>
 </div>
 <p>We use <a class="reference external" href="http://developer.android.com/sdk/installing/studio.html">Android Studio</a> <a class="footnote-reference" href="#id1" id="id2">[1]</a> to build and deploy the application. Use
-<span class="menuselection">File ‣ Open</span> to select <code class="file docutils literal"><span class="pre">vsmartcard/remote-reader</span></code>.
-Attach your smartphone and choose <span class="menuselection">Run ‣ Run &#8216;app&#8217;</span>.</p>
+<em class="menuselection">File ‣ Open</em> to select <tt class="file docutils literal"><span class="pre">vsmartcard/remote-reader</span></tt>.
+Attach your smartphone and choose <em class="menuselection">Run ‣ Run &#8216;app&#8217;</em>.</p>
 <p>On the host system, where the smart card at the phone&#8217;s NFC interface is relayed to,
 <abbr title="virtual smart card reader">vpcd</abbr> needs to be installed. It can be installed on Windows and Unix. On the
 host computer, <strong class="command">vpcd-config</strong> prints a QR code to configure the Remote

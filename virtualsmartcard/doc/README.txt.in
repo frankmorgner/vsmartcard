@@ -49,7 +49,7 @@ The file :file:`utils.py` was taken from Henryk Plötz's cyberflex-shell_.
     :stringsubst:
     :libs: arrows, calc, fit, patterns, plotmarks, shapes.geometric, shapes.misc, shapes.symbols, shapes.arrows, shapes.callouts, shapes.multipart, shapes.gates.logic.US, shapes.gates.logic.IEC, er, automata, backgrounds, chains, topaths, trees, petri, mindmap, matrix, calendar, folding, fadings, through, positioning, scopes, decorations.fractals, decorations.shapes, decorations.text, decorations.pathmorphing, decorations.pathreplacing, decorations.footprints, decorations.markings, shadows
  
-    \input{%(wd)s/bilder/tikzstyles.tex}
+    \input{$wd/bilder/tikzstyles.tex}
 	\node (pcsclite)
     [klein, aktivbox, inner xsep=.7cm, text width=3cm]
 	{PC/SC Framework\\\
@@ -62,7 +62,7 @@ The file :file:`utils.py` was taken from Henryk Plötz's cyberflex-shell_.
     \begin{pgfonlayer}{background}
         \path[linie]
         (sca) edge (pcsclite)
-        (vpcd) edge node {\includegraphics[width=1.2cm]{%(wd)s/bilder/simplecloud.pdf}} (vicc)
+        (vpcd) edge node {\includegraphics[width=1.2cm]{$wd/bilder/simplecloud.pdf}} (vicc)
         ;
     \end{pgfonlayer}
 
@@ -76,7 +76,7 @@ The file :file:`utils.py` was taken from Henryk Plötz's cyberflex-shell_.
     :stringsubst:
     :libs: arrows, calc, fit, patterns, plotmarks, shapes.geometric, shapes.misc, shapes.symbols, shapes.arrows, shapes.callouts, shapes.multipart, shapes.gates.logic.US, shapes.gates.logic.IEC, er, automata, backgrounds, chains, topaths, trees, petri, mindmap, matrix, calendar, folding, fadings, through, positioning, scopes, decorations.fractals, decorations.shapes, decorations.text, decorations.pathmorphing, decorations.pathreplacing, decorations.footprints, decorations.markings, shadows
  
-    \input{%(wd)s/bilder/tikzstyles.tex}
+    \input{$wd/bilder/tikzstyles.tex}
 	\node (pcsclite)
     [klein, box, text width=4cm]
 	{@PACKAGE_NAME@'s\\
@@ -88,7 +88,7 @@ The file :file:`utils.py` was taken from Henryk Plötz's cyberflex-shell_.
     \begin{pgfonlayer}{background}
         \path[linie]
         (sca) edge (pcsclite)
-        (pcsclite) edge node {\includegraphics[width=1.5cm]{%(wd)s/bilder/simplecloud.pdf}} (vicc)
+        (pcsclite) edge node {\includegraphics[width=1.5cm]{$wd/bilder/simplecloud.pdf}} (vicc)
         ;
     \end{pgfonlayer}
 

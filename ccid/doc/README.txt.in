@@ -24,34 +24,34 @@ also |PACE| can be performed by the emulator.
     :stringsubst:
     :libs: arrows, calc, fit, patterns, plotmarks, shapes.geometric, shapes.misc, shapes.symbols, shapes.arrows, shapes.callouts, shapes.multipart, shapes.gates.logic.US, shapes.gates.logic.IEC, er, automata, backgrounds, chains, topaths, trees, petri, mindmap, matrix, calendar, folding, fadings, through, positioning, scopes, decorations.fractals, decorations.shapes, decorations.text, decorations.pathmorphing, decorations.pathreplacing, decorations.footprints, decorations.markings, shadows
 
-    \input{%(wd)s/bilder/tikzstyles.tex}
+    \input{$wd/bilder/tikzstyles.tex}
     \tikzstyle{bla}=[kleiner, text width=.45\textwidth]
 
     \node (reader)
-    {\includegraphics[width=1cm]{%(wd)s/bilder/my_cardreader.pdf}};
+    {\includegraphics[width=1cm]{$wd/bilder/my_cardreader.pdf}};
     \node (readertext) [right=0of reader, bla]
     {Smartphone provides smart card reader via USB};
     \node (display) [below=0of reader]
-    {\includegraphics[width=1cm]{%(wd)s/bilder/display.pdf}};
+    {\includegraphics[width=1cm]{$wd/bilder/display.pdf}};
     \node (displaytext) [right=0of display, bla]
     {Secure display of service provider and purpose of transaction};
     \node (keyboard) [below=0of display]
-    {\includegraphics[width=1cm]{%(wd)s/bilder/keyboard.pdf}};
+    {\includegraphics[width=1cm]{$wd/bilder/keyboard.pdf}};
     \node (keyboardtext) [right=0of keyboard, bla]
     {Secure PIN Entry};
     \node (firewall) [below=0of keyboard]
-    {\includegraphics[width=1cm]{%(wd)s/bilder/Firewall.pdf}};
+    {\includegraphics[width=1cm]{$wd/bilder/Firewall.pdf}};
     \node (firewalltext) [right=0of firewall, bla]
     {Verification of terminal authentication and sanitiy checks};
 
     \node (features) [fit=(display) (keyboard) (reader) (firewall)] {};
 
-    \node (moko) [left=0of features.west] {\includegraphics[height=4cm]{%(wd)s/bilder/phone-fic-neo-freerunner.pdf}};
+    \node (moko) [left=0of features.west] {\includegraphics[height=4cm]{$wd/bilder/phone-fic-neo-freerunner.pdf}};
 
     \node (epa) [left=1.5of moko, yshift=-2cm]
-    {\includegraphics[width=3cm]{%(wd)s/bilder/nPA_VS.png}};
+    {\includegraphics[width=3cm]{$wd/bilder/nPA_VS.png}};
     \node (pc)  [left=1.5of moko, yshift=1.5cm]
-    {\includegraphics[width=3cm]{%(wd)s/bilder/computer-tango.pdf}};
+    {\includegraphics[width=3cm]{$wd/bilder/computer-tango.pdf}};
 
     \begin{pgfonlayer}{background}
 
@@ -116,7 +116,7 @@ tools.
     :stringsubst:
     :libs: arrows, calc, fit, patterns, plotmarks, shapes.geometric, shapes.misc, shapes.symbols, shapes.arrows, shapes.callouts, shapes.multipart, shapes.gates.logic.US, shapes.gates.logic.IEC, er, automata, backgrounds, chains, topaths, trees, petri, mindmap, matrix, calendar, folding, fadings, through, positioning, scopes, decorations.fractals, decorations.shapes, decorations.text, decorations.pathmorphing, decorations.pathreplacing, decorations.footprints, decorations.markings, shadows
 
-    \input{%(wd)s/bilder/tikzstyles.tex}
+    \input{$wd/bilder/tikzstyles.tex}
     \tikzstyle{schicht}=[text width=5cm, align=right]
     \tikzstyle{fade down}=[path fading=south, color=huslateblue]
 
@@ -182,7 +182,7 @@ modern Windows and Unix-like systems by default.
     :stringsubst:
     :libs: arrows, calc, fit, patterns, plotmarks, shapes.geometric, shapes.misc, shapes.symbols, shapes.arrows, shapes.callouts, shapes.multipart, shapes.gates.logic.US, shapes.gates.logic.IEC, er, automata, backgrounds, chains, topaths, trees, petri, mindmap, matrix, calendar, folding, fadings, through, positioning, scopes, decorations.fractals, decorations.shapes, decorations.text, decorations.pathmorphing, decorations.pathreplacing, decorations.footprints, decorations.markings, shadows
 
-    \input{%(wd)s/bilder/tikzstyles.tex}
+    \input{$wd/bilder/tikzstyles.tex}
     \tikzstyle{keks}=[to path={-- ++(.1,0) |- (\tikztotarget)}]
 
     \tikzstyle{bla}=[shape=rectangle split, rectangle split parts=2,
@@ -194,13 +194,13 @@ modern Windows and Unix-like systems by default.
 
     \node (basis) [below=3of ccid-emulator]
     {\includegraphics[keepaspectratio, height=2cm,
-        width=2cm]{%(wd)s/bilder/moko/basisleser_plain_klein.png}};
+        width=2cm]{$wd/bilder/moko/basisleser_plain_klein.png}};
     \node (basisbeschreibung) [below=0cm of basis, kleiner, text width=2cm]
     {Reiner SCT RFID basis};
 
     \node (npa) [left=1.5of basis]
     {\includegraphics[keepaspectratio, height=3cm,
-        width=3cm]{%(wd)s/bilder/nPA_VS.png}};
+        width=3cm]{$wd/bilder/nPA_VS.png}};
     \node (npabeschreibung) [below=0cm of npa, kleiner]
     {German identity card};
 
@@ -240,14 +240,14 @@ modern Windows and Unix-like systems by default.
         (funktionenchat) (funktionenpace), box, inner sep=.5cm] {};
         \node (boxbild) at (box.north west)
         {\includegraphics[keepaspectratio, height=1.5cm,
-        width=1.5cm]{%(wd)s/bilder/moko/moko_reader.png}};
+        width=1.5cm]{$wd/bilder/moko/moko_reader.png}};
         \node [right=0cm of boxbild.east, yshift=.3cm]
         {Openmoko Neo FreeRunner};
     \end{pgfonlayer}
 
     \node (a) [above=1of npa]
 	{\includegraphics[keepaspectratio, height=3cm,
-	width=3cm]{%(wd)s/bilder/computer-tango.pdf}};
+	width=3cm]{$wd/bilder/computer-tango.pdf}};
 
 
     \begin{pgfonlayer}{background}

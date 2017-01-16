@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>PC/SC Relay &mdash; vsmartcard 2017-01-08 documentation</title>
+    <title>PC/SC Relay &mdash; vsmartcard 2017-01-16 documentation</title>
     
     <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '2017-01-08',
+        VERSION:     '2017-01-16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -29,16 +29,16 @@
     <script type="text/javascript" src="../_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="../_static/chip.ico"/>
-    <link rel="top" title="vsmartcard 2017-01-08 documentation" href="../index.html" />
+    <link rel="top" title="vsmartcard 2017-01-16 documentation" href="../index.html" />
     <link rel="next" title="USB CCID Emulator" href="../ccid/README.html" />
-    <link rel="prev" title="Android Smart Card Emulator" href="../ACardEmulator/README.html" />
+    <link rel="prev" title="Tizen Smart Card Emulator" href="../TCardEmulator/README.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body role="document">
+  <body>
   
   <a href="https://github.com/frankmorgner/vsmartcard"
      class="visible-desktop hidden-xs"><img
@@ -85,6 +85,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../virtualsmartcard/README.html">Virtual Smart Card</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../remote-reader/README.html">Remote Smart Card Reader</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ACardEmulator/README.html">Android Smart Card Emulator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../TCardEmulator/README.html">Tizen Smart Card Emulator</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">PC/SC Relay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ccid/README.html">USB CCID Emulator</a></li>
 </ul>
@@ -126,7 +127,7 @@
               
                 
   <li>
-    <a href="../ACardEmulator/README.html" title="Previous Chapter: Android Smart Card Emulator"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; Android Smart Ca...</span>
+    <a href="../TCardEmulator/README.html" title="Previous Chapter: Tizen Smart Card Emulator"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; Tizen Smart Card...</span>
     </a>
   </li>
   <li>
@@ -187,7 +188,7 @@ emulators are supported:</p>
 <ul class="simple">
 <li><a class="reference external" href="http://nfc-tools.org/index.php?title=Devices_compatibility_matrix">Hardware supported by libnfc</a> <a class="footnote-reference" href="#id1" id="id2">[1]</a></li>
 <li><a class="reference external" href="http://www.openpcd.org/OpenPICC">OpenPICC</a> <a class="footnote-reference" href="#id5" id="id6">[3]</a></li>
-<li><a class="reference internal" href="../ACardEmulator/README.html#acardemulator"><span>Android Smart Card Emulator</span></a></li>
+<li><a class="reference internal" href="../ACardEmulator/README.html#acardemulator"><em>Android Smart Card Emulator</em></a></li>
 </ul>
 <p>Command APDUs are received with the contact-less interface and relayed. The
 Response APDUs are then sent back via RFID. The contact-less data will be
@@ -196,12 +197,12 @@ relayed to one of the following:</p>
 <li>to a <em>real</em> smart card inserted into one of the systems&#8217; smart card readers.
 The smart card reader must be accessible with PC/SC. The smart card may be
 contact-based <em>or</em> contact-less.</li>
-<li>to a <a class="reference internal" href="../virtualsmartcard/README.html#vicc"><span>Virtual Smart Card</span></a> that directly connects to <strong class="command">pcsc-relay</strong>. The virtual
+<li>to a <a class="reference internal" href="../virtualsmartcard/README.html#vicc"><em>Virtual Smart Card</em></a> that directly connects to <strong class="command">pcsc-relay</strong>. The virtual
 smart card&#8217;s native interface is used and (despite its name) PC/SC Relay
 does not need to access PC/SC in this case.</li>
 </ul>
 <div class="figure">
-<p><img src="../_images/tikz-8fc7b6e929778eb1580309be9c7c7aef1d76d34c.png" alt="\input{%(wd)s/bilder/tikzstyles.tex}
+<p><img src="../_images/tikz-115ce7f91e19ed28b7af35a9f18aa096148209ea.svg" alt="\input{$wd/bilder/tikzstyles.tex}
 \node (pcsc-relay) {\texttt{pcsc-relay}};
 
 \node [kleiner, right=2cm of pcsc-relay, yshift=.9cm]
@@ -242,10 +243,10 @@ edge [out=0, in=180] (acardemulator.west)
 ;
 \end{pgfonlayer}" /></p>
 <p class="caption">Debug, Analyze and Emulate with PC/SC Relay</p></div><p>With PC/SC Relay you can relay a contact-less or contact based smart card
-over a long distance. Also you can use it in combination with the <a class="reference internal" href="../virtualsmartcard/README.html#vicc"><span>Virtual Smart Card</span></a>
+over a long distance. Also you can use it in combination with the <a class="reference internal" href="../virtualsmartcard/README.html#vicc"><em>Virtual Smart Card</em></a>
 to completely emulate an ISO/IEC 14443 smart card.</p>
 <div class="figure">
-<p><img src="../_images/tikz-af7c500944810aa476bbd56c4c9693e6faec1d17.png" alt="\input{%(wd)s/bilder/tikzstyles.tex}
+<p><img src="../_images/tikz-0405e52eb98193c32482e91a30737e1e9684bad0.svg" alt="\input{$wd/bilder/tikzstyles.tex}
 \tikzstyle{bla}=[shape=rectangle split, rectangle split parts=2,
 every text node part/.style={align=center, klein}, text width=7cm,
 every second node part/.style={kleiner}, inner sep=0pt]
@@ -254,7 +255,7 @@ every second node part/.style={kleiner}, inner sep=0pt]
 
 \node (touchatag)
     {\includegraphics[keepaspectratio, height=2cm,
-    width=2cm]{%(wd)s/bilder/touchatag.png}};
+    width=2cm]{$wd/bilder/touchatag.png}};
 \node (touchatagbeschreibung) [below=0cm of touchatag, kleiner]
 {touchatag};
 
@@ -301,14 +302,14 @@ every second node part/.style={kleiner}, inner sep=0pt]
     (funktionenpace), box, inner sep=.5cm] {};
     \node (boxbild) at (box.north west)
     {\includegraphics[keepaspectratio, height=1.5cm,
-    width=1.5cm]{%(wd)s/bilder/moko/moko_reader.png}};
+    width=1.5cm]{$wd/bilder/moko/moko_reader.png}};
     \node [right=0cm of boxbild.east, yshift=.3cm]
     {Openmoko Neo FreeRunner};
 \end{pgfonlayer}
 
 \node (a) [left=1.5of box]
     {\includegraphics[keepaspectratio, height=4cm,
-    width=4cm]{%(wd)s/bilder/ivak_kiosk-terminal.pdf}};
+    width=4cm]{$wd/bilder/ivak_kiosk-terminal.pdf}};
 \node (e) [below=0cm of a, text width=2.5cm, align=center]
 {(Public) Terminal};
 
@@ -348,14 +349,14 @@ still available on <a class="reference external" href="http://sourceforge.net/pr
 <div class="section" id="installation-on-linux-unix-and-similar">
 <h3>Installation on Linux, Unix and similar<a class="headerlink" href="#installation-on-linux-unix-and-similar" title="Permalink to this headline">¶</a></h3>
 <p>The PC/SC Relay uses the GNU Build System to compile and install. If you are
-unfamiliar with it, please have a look at <code class="file docutils literal"><span class="pre">INSTALL</span></code>. If you can not find
+unfamiliar with it, please have a look at <tt class="file docutils literal"><span class="pre">INSTALL</span></tt>. If you can not find
 it, you are probably working bleeding edge in the repository.  Run the
-following command in <code class="file docutils literal"><span class="pre">pcsc-relay</span></code> to get the missing standard
+following command in <tt class="file docutils literal"><span class="pre">pcsc-relay</span></tt> to get the missing standard
 auxiliary files:</p>
 <div class="highlight-sh"><div class="highlight"><pre>autoreconf --verbose --install
 </pre></div>
 </div>
-<p>To configure (<strong class="command">configure --help</strong> lists possible options), build and
+<p>To configure (<strong class="command">configure &#8211;help</strong> lists possible options), build and
 install the PC/SC Relay now do the following:</p>
 <div class="highlight-sh"><div class="highlight"><pre>./configure
 make
@@ -379,7 +380,7 @@ make install
 </pre></div>
 </div>
 <p>Building PC/SC Relay with libnfc is done best using <strong class="command">pkg-config</strong>.  The file
-<code class="file docutils literal"><span class="pre">libnfc.pc</span></code> should be located in <code class="docutils literal"><span class="pre">$INSTALL/lib/pkgconfig</span></code>. Here is how to
+<tt class="file docutils literal"><span class="pre">libnfc.pc</span></tt> should be located in <tt class="docutils literal"><span class="pre">$INSTALL/lib/pkgconfig</span></tt>. Here is how to
 configure PC/SC Relay to use it:</p>
 <div class="highlight-sh"><div class="highlight"><pre>./configure <span class="nv">PKG_CONFIG_PATH</span><span class="o">=</span><span class="nv">$PREFIX</span>/lib/pkgconfig
 </pre></div>
@@ -391,23 +392,23 @@ configure PC/SC Relay to use it:</p>
 Android 4.4 and later. This mode activates the app if the terminal issues a
 SELECT command with one of the app&#8217;s application identifiers. By default, the
 app only registers for the AIDs for which it has a built-in emulator (see
-<code class="file docutils literal"><span class="pre">ACardEmulator/app/src/main/res/xml/aid_list.xml</span></code>).</p>
+<tt class="file docutils literal"><span class="pre">ACardEmulator/app/src/main/res/xml/aid_list.xml</span></tt>).</p>
 <p>If used together with PC/SC Relay, you need to change add AIDs to match the
 applications on the relayed card.  Otherwise the app will not be activated when
 it should relay command APDUs to PC/SC Relay.</p>
-<p>Modify the Smart Card Emulator settings to use <code class="docutils literal"><span class="pre">Remote</span> <span class="pre">Virtual</span> <span class="pre">Smart</span> <span class="pre">Card</span></code> as
-<span class="guilabel">Smart Card Emulator</span>. Now start <strong class="command">pcsc-relay</strong> by specifying
+<p>Modify the Smart Card Emulator settings to use <tt class="docutils literal"><span class="pre">Remote</span> <span class="pre">Virtual</span> <span class="pre">Smart</span> <span class="pre">Card</span></tt> as
+<em class="guilabel">Smart Card Emulator</em>. Now start <strong class="command">pcsc-relay</strong> by specifying
 usage of the vpcd emulator:</p>
 <div class="highlight-sh"><div class="highlight"><pre>pcsc-relay --emulator vpcd
 </pre></div>
 </div>
-<p>In the app, change the <span class="guilabel">VICC Hostname</span> and <span class="guilabel">VICC Port</span> to
+<p>In the app, change the <em class="guilabel">VICC Hostname</em> and <em class="guilabel">VICC Port</em> to
 match the location where <strong class="command">pcsc-relay</strong> is waiting for an incoming
 connection. When the app receives a SELECT command to one of the configured
 AIDs, it will connect to <strong class="command">pcsc-relay</strong>, which will then relay the
 command for processing.</p>
 <p>Compiling and installing Android Smart Card Emulator is covered in its
-<a class="reference internal" href="../ACardEmulator/README.html#acardemulator-install"><span>Download and Install</span></a> section.</p>
+<a class="reference internal" href="../ACardEmulator/README.html#acardemulator-install"><em>Download and Install</em></a> section.</p>
 </div>
 <div class="section" id="hints-on-pc-sc-middleware">
 <h3>Hints on PC/SC middleware<a class="headerlink" href="#hints-on-pc-sc-middleware" title="Permalink to this headline">¶</a></h3>
@@ -474,21 +475,21 @@ command APDU and transmits a response APDU back to the terminal:</p>
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Option</th>
-<th class="head"><code class="docutils literal"><span class="pre">--emulator</span></code></th>
+<th class="head"><tt class="docutils literal"><span class="pre">--emulator</span></tt></th>
 </tr>
 </thead>
 <tbody valign="top">
 <tr class="row-even"><td>Emulation hardware supported via libnfc</td>
-<td><code class="docutils literal"><span class="pre">libnfc</span></code></td>
+<td><tt class="docutils literal"><span class="pre">libnfc</span></tt></td>
 </tr>
 <tr class="row-odd"><td>Emulation with OpenPICC</td>
-<td><code class="docutils literal"><span class="pre">openpicc</span></code></td>
+<td><tt class="docutils literal"><span class="pre">openpicc</span></tt></td>
 </tr>
 <tr class="row-even"><td>Android Smart Card Emulator</td>
-<td><code class="docutils literal"><span class="pre">vpcd</span></code></td>
+<td><tt class="docutils literal"><span class="pre">vpcd</span></tt></td>
 </tr>
 <tr class="row-odd"><td>Virtual Smart Card</td>
-<td><code class="docutils literal"><span class="pre">vpcd</span></code></td>
+<td><tt class="docutils literal"><span class="pre">vpcd</span></tt></td>
 </tr>
 </tbody>
 </table>
@@ -501,21 +502,21 @@ a response APDU from a given command APDU:</p>
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Option</th>
-<th class="head"><code class="docutils literal"><span class="pre">--connector</span></code></th>
+<th class="head"><tt class="docutils literal"><span class="pre">--connector</span></tt></th>
 </tr>
 </thead>
 <tbody valign="top">
 <tr class="row-even"><td>Contact-based Smart Card in PC/SC Reader</td>
-<td><code class="docutils literal"><span class="pre">pcsc</span></code></td>
+<td><tt class="docutils literal"><span class="pre">pcsc</span></tt></td>
 </tr>
 <tr class="row-odd"><td>Contact-less Smart Card in PC/SC Reader</td>
-<td><code class="docutils literal"><span class="pre">pcsc</span></code></td>
+<td><tt class="docutils literal"><span class="pre">pcsc</span></tt></td>
 </tr>
 <tr class="row-even"><td>Contact-less Smart Card in Remote Smart Card Reader</td>
-<td><code class="docutils literal"><span class="pre">vicc</span></code></td>
+<td><tt class="docutils literal"><span class="pre">vicc</span></tt></td>
 </tr>
 <tr class="row-odd"><td>Virtual Smart Card</td>
-<td><code class="docutils literal"><span class="pre">vicc</span></code></td>
+<td><tt class="docutils literal"><span class="pre">vicc</span></tt></td>
 </tr>
 </tbody>
 </table>

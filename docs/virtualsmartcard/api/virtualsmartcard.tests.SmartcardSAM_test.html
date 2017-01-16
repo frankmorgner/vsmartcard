@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>SmartcardSAM_test Module &mdash; vsmartcard 2017-01-08 documentation</title>
+    <title>SmartcardSAM_test Module &mdash; vsmartcard 2017-01-16 documentation</title>
     
     <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '2017-01-08',
+        VERSION:     '2017-01-16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -29,7 +29,7 @@
     <script type="text/javascript" src="../../_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="../../_static/chip.ico"/>
-    <link rel="top" title="vsmartcard 2017-01-08 documentation" href="../../index.html" />
+    <link rel="top" title="vsmartcard 2017-01-16 documentation" href="../../index.html" />
     <link rel="up" title="tests Package" href="virtualsmartcard.tests.html" />
     <link rel="next" title="utils_test Module" href="virtualsmartcard.tests.utils_test.html" />
     <link rel="prev" title="CryptoUtils_test Module" href="virtualsmartcard.tests.CryptoUtils_test.html" />
@@ -39,7 +39,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body role="document">
+  <body>
   
   <a href="https://github.com/frankmorgner/vsmartcard"
      class="visible-desktop hidden-xs"><img
@@ -86,6 +86,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../README.html">Virtual Smart Card</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../remote-reader/README.html">Remote Smart Card Reader</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../ACardEmulator/README.html">Android Smart Card Emulator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../TCardEmulator/README.html">Tizen Smart Card Emulator</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../pcsc-relay/README.html">PC/SC Relay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../ccid/README.html">USB CCID Emulator</a></li>
 </ul>
@@ -159,37 +160,37 @@
 </p>
 <span class="target" id="module-virtualsmartcard.tests.SmartcardSAM_test"></span><dl class="class">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM">
-<em class="property">class </em><code class="descclassname">virtualsmartcard.tests.SmartcardSAM_test.</code><code class="descname">TestSmartcardSAM</code><span class="sig-paren">(</span><em>methodName='runTest'</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></code></p>
+<em class="property">class </em><tt class="descclassname">virtualsmartcard.tests.SmartcardSAM_test.</tt><tt class="descname">TestSmartcardSAM</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></tt></p>
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM._addSkip">
-<code class="descname">_addSkip</code><span class="sig-paren">(</span><em>result</em>, <em>reason</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM._addSkip" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_addSkip</tt><big>(</big><em>result</em>, <em>reason</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM._addSkip" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM._baseAssertEqual">
-<code class="descname">_baseAssertEqual</code><span class="sig-paren">(</span><em>first</em>, <em>second</em>, <em>msg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM._baseAssertEqual" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_baseAssertEqual</tt><big>(</big><em>first</em>, <em>second</em>, <em>msg=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM._baseAssertEqual" title="Permalink to this definition">¶</a></dt>
 <dd><p>The default assertEqual implementation, not type specific.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM._classSetupFailed">
-<code class="descname">_classSetupFailed</code><em class="property"> = False</em><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM._classSetupFailed" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_classSetupFailed</tt><em class="property"> = False</em><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM._classSetupFailed" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM._deprecate">
-<code class="descname">_deprecate</code><span class="sig-paren">(</span><em>original_func</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM._deprecate" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_deprecate</tt><big>(</big><em>original_func</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM._deprecate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM._diffThreshold">
-<code class="descname">_diffThreshold</code><em class="property"> = 65536</em><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM._diffThreshold" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_diffThreshold</tt><em class="property"> = 65536</em><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM._diffThreshold" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM._formatMessage">
-<code class="descname">_formatMessage</code><span class="sig-paren">(</span><em>msg</em>, <em>standardMsg</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM._formatMessage" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_formatMessage</tt><big>(</big><em>msg</em>, <em>standardMsg</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM._formatMessage" title="Permalink to this definition">¶</a></dt>
 <dd><p>Honour the longMessage attribute when generating failure messages.
 If longMessage is False this means:
 * Use only an explicit message if it is provided
@@ -201,7 +202,7 @@ If longMessage is False this means:
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM._getAssertEqualityFunc">
-<code class="descname">_getAssertEqualityFunc</code><span class="sig-paren">(</span><em>first</em>, <em>second</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM._getAssertEqualityFunc" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_getAssertEqualityFunc</tt><big>(</big><em>first</em>, <em>second</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM._getAssertEqualityFunc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a detailed comparison function for the types of the two args.</p>
 <p>Returns: A callable accepting (first, second, msg=None) that will
 raise a failure exception if first != second with a useful human
@@ -210,12 +211,12 @@ readable error message for those types.</p>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM._truncateMessage">
-<code class="descname">_truncateMessage</code><span class="sig-paren">(</span><em>message</em>, <em>diff</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM._truncateMessage" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_truncateMessage</tt><big>(</big><em>message</em>, <em>diff</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM._truncateMessage" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.addCleanup">
-<code class="descname">addCleanup</code><span class="sig-paren">(</span><em>function</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.addCleanup" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">addCleanup</tt><big>(</big><em>function</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.addCleanup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a function, with arguments, to be called when the test is
 completed. Functions added are called on a LIFO basis and are
 called after tearDown on test failure or success.</p>
@@ -224,7 +225,7 @@ called after tearDown on test failure or success.</p>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.addTypeEqualityFunc">
-<code class="descname">addTypeEqualityFunc</code><span class="sig-paren">(</span><em>typeobj</em>, <em>function</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.addTypeEqualityFunc" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">addTypeEqualityFunc</tt><big>(</big><em>typeobj</em>, <em>function</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.addTypeEqualityFunc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a type specific assertEqual style function to compare a type.</p>
 <p>This method is for use by TestCase subclasses that need to register
 their own type equality functions to provide nicer error messages.</p>
@@ -243,7 +244,7 @@ useful error message when the two arguments are not equal.</dd>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertAlmostEqual">
-<code class="descname">assertAlmostEqual</code><span class="sig-paren">(</span><em>first</em>, <em>second</em>, <em>places=None</em>, <em>msg=None</em>, <em>delta=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertAlmostEqual" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">assertAlmostEqual</tt><big>(</big><em>first</em>, <em>second</em>, <em>places=None</em>, <em>msg=None</em>, <em>delta=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertAlmostEqual" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fail if the two objects are unequal as determined by their
 difference rounded to the given number of decimal places
 (default 7) and comparing to zero, or by comparing that the
@@ -256,7 +257,7 @@ compare almost equal.</p>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertAlmostEquals">
-<code class="descname">assertAlmostEquals</code><span class="sig-paren">(</span><em>first</em>, <em>second</em>, <em>places=None</em>, <em>msg=None</em>, <em>delta=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertAlmostEquals" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">assertAlmostEquals</tt><big>(</big><em>first</em>, <em>second</em>, <em>places=None</em>, <em>msg=None</em>, <em>delta=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertAlmostEquals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fail if the two objects are unequal as determined by their
 difference rounded to the given number of decimal places
 (default 7) and comparing to zero, or by comparing that the
@@ -269,87 +270,87 @@ compare almost equal.</p>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertDictContainsSubset">
-<code class="descname">assertDictContainsSubset</code><span class="sig-paren">(</span><em>expected</em>, <em>actual</em>, <em>msg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertDictContainsSubset" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">assertDictContainsSubset</tt><big>(</big><em>expected</em>, <em>actual</em>, <em>msg=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertDictContainsSubset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks whether actual is a superset of expected.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertDictEqual">
-<code class="descname">assertDictEqual</code><span class="sig-paren">(</span><em>d1</em>, <em>d2</em>, <em>msg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertDictEqual" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">assertDictEqual</tt><big>(</big><em>d1</em>, <em>d2</em>, <em>msg=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertDictEqual" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertEqual">
-<code class="descname">assertEqual</code><span class="sig-paren">(</span><em>first</em>, <em>second</em>, <em>msg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertEqual" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">assertEqual</tt><big>(</big><em>first</em>, <em>second</em>, <em>msg=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertEqual" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fail if the two objects are unequal as determined by the &#8216;==&#8217;
 operator.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertEquals">
-<code class="descname">assertEquals</code><span class="sig-paren">(</span><em>first</em>, <em>second</em>, <em>msg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertEquals" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">assertEquals</tt><big>(</big><em>first</em>, <em>second</em>, <em>msg=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertEquals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fail if the two objects are unequal as determined by the &#8216;==&#8217;
 operator.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertFalse">
-<code class="descname">assertFalse</code><span class="sig-paren">(</span><em>expr</em>, <em>msg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertFalse" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">assertFalse</tt><big>(</big><em>expr</em>, <em>msg=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertFalse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check that the expression is false.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertGreater">
-<code class="descname">assertGreater</code><span class="sig-paren">(</span><em>a</em>, <em>b</em>, <em>msg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertGreater" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">assertGreater</tt><big>(</big><em>a</em>, <em>b</em>, <em>msg=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertGreater" title="Permalink to this definition">¶</a></dt>
 <dd><p>Just like self.assertTrue(a &gt; b), but with a nicer default message.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertGreaterEqual">
-<code class="descname">assertGreaterEqual</code><span class="sig-paren">(</span><em>a</em>, <em>b</em>, <em>msg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertGreaterEqual" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">assertGreaterEqual</tt><big>(</big><em>a</em>, <em>b</em>, <em>msg=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertGreaterEqual" title="Permalink to this definition">¶</a></dt>
 <dd><p>Just like self.assertTrue(a &gt;= b), but with a nicer default message.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertIn">
-<code class="descname">assertIn</code><span class="sig-paren">(</span><em>member</em>, <em>container</em>, <em>msg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertIn" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">assertIn</tt><big>(</big><em>member</em>, <em>container</em>, <em>msg=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertIn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Just like self.assertTrue(a in b), but with a nicer default message.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertIs">
-<code class="descname">assertIs</code><span class="sig-paren">(</span><em>expr1</em>, <em>expr2</em>, <em>msg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertIs" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">assertIs</tt><big>(</big><em>expr1</em>, <em>expr2</em>, <em>msg=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertIs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Just like self.assertTrue(a is b), but with a nicer default message.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertIsInstance">
-<code class="descname">assertIsInstance</code><span class="sig-paren">(</span><em>obj</em>, <em>cls</em>, <em>msg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertIsInstance" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">assertIsInstance</tt><big>(</big><em>obj</em>, <em>cls</em>, <em>msg=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertIsInstance" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as self.assertTrue(isinstance(obj, cls)), with a nicer
 default message.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertIsNone">
-<code class="descname">assertIsNone</code><span class="sig-paren">(</span><em>obj</em>, <em>msg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertIsNone" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">assertIsNone</tt><big>(</big><em>obj</em>, <em>msg=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertIsNone" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as self.assertTrue(obj is None), with a nicer default message.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertIsNot">
-<code class="descname">assertIsNot</code><span class="sig-paren">(</span><em>expr1</em>, <em>expr2</em>, <em>msg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertIsNot" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">assertIsNot</tt><big>(</big><em>expr1</em>, <em>expr2</em>, <em>msg=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertIsNot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Just like self.assertTrue(a is not b), but with a nicer default message.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertIsNotNone">
-<code class="descname">assertIsNotNone</code><span class="sig-paren">(</span><em>obj</em>, <em>msg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertIsNotNone" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">assertIsNotNone</tt><big>(</big><em>obj</em>, <em>msg=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertIsNotNone" title="Permalink to this definition">¶</a></dt>
 <dd><p>Included for symmetry with assertIsNone.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertItemsEqual">
-<code class="descname">assertItemsEqual</code><span class="sig-paren">(</span><em>expected_seq</em>, <em>actual_seq</em>, <em>msg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertItemsEqual" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">assertItemsEqual</tt><big>(</big><em>expected_seq</em>, <em>actual_seq</em>, <em>msg=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertItemsEqual" title="Permalink to this definition">¶</a></dt>
 <dd><p>An unordered sequence specific comparison. It asserts that
 actual_seq and expected_seq have the same element counts.
 Equivalent to:</p>
@@ -369,19 +370,19 @@ Example:</p>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertLess">
-<code class="descname">assertLess</code><span class="sig-paren">(</span><em>a</em>, <em>b</em>, <em>msg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertLess" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">assertLess</tt><big>(</big><em>a</em>, <em>b</em>, <em>msg=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertLess" title="Permalink to this definition">¶</a></dt>
 <dd><p>Just like self.assertTrue(a &lt; b), but with a nicer default message.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertLessEqual">
-<code class="descname">assertLessEqual</code><span class="sig-paren">(</span><em>a</em>, <em>b</em>, <em>msg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertLessEqual" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">assertLessEqual</tt><big>(</big><em>a</em>, <em>b</em>, <em>msg=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertLessEqual" title="Permalink to this definition">¶</a></dt>
 <dd><p>Just like self.assertTrue(a &lt;= b), but with a nicer default message.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertListEqual">
-<code class="descname">assertListEqual</code><span class="sig-paren">(</span><em>list1</em>, <em>list2</em>, <em>msg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertListEqual" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">assertListEqual</tt><big>(</big><em>list1</em>, <em>list2</em>, <em>msg=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertListEqual" title="Permalink to this definition">¶</a></dt>
 <dd><p>A list-specific equality assertion.</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -396,13 +397,13 @@ msg: Optional message to use on failure instead of a list of</p>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertMultiLineEqual">
-<code class="descname">assertMultiLineEqual</code><span class="sig-paren">(</span><em>first</em>, <em>second</em>, <em>msg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertMultiLineEqual" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">assertMultiLineEqual</tt><big>(</big><em>first</em>, <em>second</em>, <em>msg=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertMultiLineEqual" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assert that two multi-line strings are equal.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertNotAlmostEqual">
-<code class="descname">assertNotAlmostEqual</code><span class="sig-paren">(</span><em>first</em>, <em>second</em>, <em>places=None</em>, <em>msg=None</em>, <em>delta=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertNotAlmostEqual" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">assertNotAlmostEqual</tt><big>(</big><em>first</em>, <em>second</em>, <em>places=None</em>, <em>msg=None</em>, <em>delta=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertNotAlmostEqual" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fail if the two objects are equal as determined by their
 difference rounded to the given number of decimal places
 (default 7) and comparing to zero, or by comparing that the
@@ -414,7 +415,7 @@ as significant digits (measured from the most signficant digit).</p>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertNotAlmostEquals">
-<code class="descname">assertNotAlmostEquals</code><span class="sig-paren">(</span><em>first</em>, <em>second</em>, <em>places=None</em>, <em>msg=None</em>, <em>delta=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertNotAlmostEquals" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">assertNotAlmostEquals</tt><big>(</big><em>first</em>, <em>second</em>, <em>places=None</em>, <em>msg=None</em>, <em>delta=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertNotAlmostEquals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fail if the two objects are equal as determined by their
 difference rounded to the given number of decimal places
 (default 7) and comparing to zero, or by comparing that the
@@ -426,39 +427,39 @@ as significant digits (measured from the most signficant digit).</p>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertNotEqual">
-<code class="descname">assertNotEqual</code><span class="sig-paren">(</span><em>first</em>, <em>second</em>, <em>msg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertNotEqual" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">assertNotEqual</tt><big>(</big><em>first</em>, <em>second</em>, <em>msg=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertNotEqual" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fail if the two objects are equal as determined by the &#8216;!=&#8217;
 operator.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertNotEquals">
-<code class="descname">assertNotEquals</code><span class="sig-paren">(</span><em>first</em>, <em>second</em>, <em>msg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertNotEquals" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">assertNotEquals</tt><big>(</big><em>first</em>, <em>second</em>, <em>msg=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertNotEquals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fail if the two objects are equal as determined by the &#8216;!=&#8217;
 operator.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertNotIn">
-<code class="descname">assertNotIn</code><span class="sig-paren">(</span><em>member</em>, <em>container</em>, <em>msg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertNotIn" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">assertNotIn</tt><big>(</big><em>member</em>, <em>container</em>, <em>msg=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertNotIn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Just like self.assertTrue(a not in b), but with a nicer default message.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertNotIsInstance">
-<code class="descname">assertNotIsInstance</code><span class="sig-paren">(</span><em>obj</em>, <em>cls</em>, <em>msg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertNotIsInstance" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">assertNotIsInstance</tt><big>(</big><em>obj</em>, <em>cls</em>, <em>msg=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertNotIsInstance" title="Permalink to this definition">¶</a></dt>
 <dd><p>Included for symmetry with assertIsInstance.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertNotRegexpMatches">
-<code class="descname">assertNotRegexpMatches</code><span class="sig-paren">(</span><em>text</em>, <em>unexpected_regexp</em>, <em>msg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertNotRegexpMatches" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">assertNotRegexpMatches</tt><big>(</big><em>text</em>, <em>unexpected_regexp</em>, <em>msg=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertNotRegexpMatches" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fail the test if the text matches the regular expression.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertRaises">
-<code class="descname">assertRaises</code><span class="sig-paren">(</span><em>excClass</em>, <em>callableObj=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertRaises" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">assertRaises</tt><big>(</big><em>excClass</em>, <em>callableObj=None</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertRaises" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fail unless an exception of class excClass is raised
 by callableObj when invoked with arguments args and keyword
 arguments kwargs. If a different type of exception is
@@ -484,7 +485,7 @@ exception after the assertion:</p>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertRaisesRegexp">
-<code class="descname">assertRaisesRegexp</code><span class="sig-paren">(</span><em>expected_exception</em>, <em>expected_regexp</em>, <em>callable_obj=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertRaisesRegexp" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">assertRaisesRegexp</tt><big>(</big><em>expected_exception</em>, <em>expected_regexp</em>, <em>callable_obj=None</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertRaisesRegexp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Asserts that the message in a raised exception matches a regexp.</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -501,13 +502,13 @@ kwargs: Extra kwargs.</p>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertRegexpMatches">
-<code class="descname">assertRegexpMatches</code><span class="sig-paren">(</span><em>text</em>, <em>expected_regexp</em>, <em>msg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertRegexpMatches" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">assertRegexpMatches</tt><big>(</big><em>text</em>, <em>expected_regexp</em>, <em>msg=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertRegexpMatches" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fail the test unless the text matches the regular expression.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertSequenceEqual">
-<code class="descname">assertSequenceEqual</code><span class="sig-paren">(</span><em>seq1</em>, <em>seq2</em>, <em>msg=None</em>, <em>seq_type=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertSequenceEqual" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">assertSequenceEqual</tt><big>(</big><em>seq1</em>, <em>seq2</em>, <em>msg=None</em>, <em>seq_type=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertSequenceEqual" title="Permalink to this definition">¶</a></dt>
 <dd><p>An equality assertion for ordered sequences (like lists and tuples).</p>
 <p>For the purposes of this function, a valid ordered sequence type is one
 which can be indexed, has a length, and has an equality operator.</p>
@@ -528,7 +529,7 @@ seq_type: The expected datatype of the sequences, or None if no</p>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertSetEqual">
-<code class="descname">assertSetEqual</code><span class="sig-paren">(</span><em>set1</em>, <em>set2</em>, <em>msg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertSetEqual" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">assertSetEqual</tt><big>(</big><em>set1</em>, <em>set2</em>, <em>msg=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertSetEqual" title="Permalink to this definition">¶</a></dt>
 <dd><p>A set-specific equality assertion.</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -546,13 +547,13 @@ difference method).</p>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertTrue">
-<code class="descname">assertTrue</code><span class="sig-paren">(</span><em>expr</em>, <em>msg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertTrue" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">assertTrue</tt><big>(</big><em>expr</em>, <em>msg=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertTrue" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check that the expression is true.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertTupleEqual">
-<code class="descname">assertTupleEqual</code><span class="sig-paren">(</span><em>tuple1</em>, <em>tuple2</em>, <em>msg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertTupleEqual" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">assertTupleEqual</tt><big>(</big><em>tuple1</em>, <em>tuple2</em>, <em>msg=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assertTupleEqual" title="Permalink to this definition">¶</a></dt>
 <dd><p>A tuple-specific equality assertion.</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -567,114 +568,114 @@ msg: Optional message to use on failure instead of a list of</p>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assert_">
-<code class="descname">assert_</code><span class="sig-paren">(</span><em>expr</em>, <em>msg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assert_" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">assert_</tt><big>(</big><em>expr</em>, <em>msg=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.assert_" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check that the expression is true.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.countTestCases">
-<code class="descname">countTestCases</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.countTestCases" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">countTestCases</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.countTestCases" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.debug">
-<code class="descname">debug</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.debug" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">debug</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.debug" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run the test without collecting errors in a TestResult</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.defaultTestResult">
-<code class="descname">defaultTestResult</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.defaultTestResult" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">defaultTestResult</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.defaultTestResult" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.doCleanups">
-<code class="descname">doCleanups</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.doCleanups" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">doCleanups</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.doCleanups" title="Permalink to this definition">¶</a></dt>
 <dd><p>Execute all cleanup functions. Normally called for you after
 tearDown.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.fail">
-<code class="descname">fail</code><span class="sig-paren">(</span><em>msg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.fail" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">fail</tt><big>(</big><em>msg=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.fail" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fail immediately, with the given message.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.failIf">
-<code class="descname">failIf</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.failIf" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">failIf</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.failIf" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.failIfAlmostEqual">
-<code class="descname">failIfAlmostEqual</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.failIfAlmostEqual" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">failIfAlmostEqual</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.failIfAlmostEqual" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.failIfEqual">
-<code class="descname">failIfEqual</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.failIfEqual" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">failIfEqual</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.failIfEqual" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.failUnless">
-<code class="descname">failUnless</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.failUnless" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">failUnless</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.failUnless" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.failUnlessAlmostEqual">
-<code class="descname">failUnlessAlmostEqual</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.failUnlessAlmostEqual" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">failUnlessAlmostEqual</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.failUnlessAlmostEqual" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.failUnlessEqual">
-<code class="descname">failUnlessEqual</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.failUnlessEqual" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">failUnlessEqual</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.failUnlessEqual" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.failUnlessRaises">
-<code class="descname">failUnlessRaises</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.failUnlessRaises" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">failUnlessRaises</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.failUnlessRaises" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.failureException">
-<code class="descname">failureException</code><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.failureException" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">AssertionError</span></code></p>
+<tt class="descname">failureException</tt><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.failureException" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">AssertionError</span></tt></p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.id">
-<code class="descname">id</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.id" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">id</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.id" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.longMessage">
-<code class="descname">longMessage</code><em class="property"> = False</em><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.longMessage" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">longMessage</tt><em class="property"> = False</em><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.longMessage" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.maxDiff">
-<code class="descname">maxDiff</code><em class="property"> = 640</em><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.maxDiff" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">maxDiff</tt><em class="property"> = 640</em><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.maxDiff" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.run">
-<code class="descname">run</code><span class="sig-paren">(</span><em>result=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.run" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">run</tt><big>(</big><em>result=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.run" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.setUp">
-<code class="descname">setUp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.setUp" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.setUp" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="classmethod">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.setUpClass">
-<code class="descname">setUpClass</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.setUpClass" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><tt class="descname">setUpClass</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.setUpClass" title="Permalink to this definition">¶</a></dt>
 <dd><p>Hook method for setting up class fixture before running tests in the class.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.shortDescription">
-<code class="descname">shortDescription</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.shortDescription" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">shortDescription</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.shortDescription" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a one-line description of the test, or None if no
 description has been provided.</p>
 <p>The default implementation of this method returns the first line of
@@ -683,45 +684,45 @@ the specified test method&#8217;s docstring.</p>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.skipTest">
-<code class="descname">skipTest</code><span class="sig-paren">(</span><em>reason</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.skipTest" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">skipTest</tt><big>(</big><em>reason</em><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.skipTest" title="Permalink to this definition">¶</a></dt>
 <dd><p>Skip this test.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.tearDown">
-<code class="descname">tearDown</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.tearDown" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">tearDown</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.tearDown" title="Permalink to this definition">¶</a></dt>
 <dd><p>Hook method for deconstructing the test fixture after testing it.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="classmethod">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.tearDownClass">
-<code class="descname">tearDownClass</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.tearDownClass" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><tt class="descname">tearDownClass</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.tearDownClass" title="Permalink to this definition">¶</a></dt>
 <dd><p>Hook method for deconstructing the class fixture after running all tests in the class.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.test_counter_decrement">
-<code class="descname">test_counter_decrement</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.test_counter_decrement" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">test_counter_decrement</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.test_counter_decrement" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.test_external_authenticate">
-<code class="descname">test_external_authenticate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.test_external_authenticate" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">test_external_authenticate</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.test_external_authenticate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.test_incorrect_pin">
-<code class="descname">test_incorrect_pin</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.test_incorrect_pin" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">test_incorrect_pin</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.test_incorrect_pin" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.test_internal_authenticate">
-<code class="descname">test_internal_authenticate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.test_internal_authenticate" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">test_internal_authenticate</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.test_internal_authenticate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.test_security_environment">
-<code class="descname">test_security_environment</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.test_security_environment" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">test_security_environment</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.tests.SmartcardSAM_test.TestSmartcardSAM.test_security_environment" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>

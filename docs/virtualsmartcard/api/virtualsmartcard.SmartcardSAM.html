@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>SmartcardSAM Module &mdash; vsmartcard 2017-01-08 documentation</title>
+    <title>SmartcardSAM Module &mdash; vsmartcard 2017-01-16 documentation</title>
     
     <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '2017-01-08',
+        VERSION:     '2017-01-16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -29,7 +29,7 @@
     <script type="text/javascript" src="../../_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="../../_static/chip.ico"/>
-    <link rel="top" title="vsmartcard 2017-01-08 documentation" href="../../index.html" />
+    <link rel="top" title="vsmartcard 2017-01-16 documentation" href="../../index.html" />
     <link rel="up" title="virtualsmartcard Package" href="virtualsmartcard.html" />
     <link rel="next" title="TLVutils Module" href="virtualsmartcard.TLVutils.html" />
     <link rel="prev" title="SmartcardFilesystem Module" href="virtualsmartcard.SmartcardFilesystem.html" />
@@ -39,7 +39,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body role="document">
+  <body>
   
   <a href="https://github.com/frankmorgner/vsmartcard"
      class="visible-desktop hidden-xs"><img
@@ -86,6 +86,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../README.html">Virtual Smart Card</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../remote-reader/README.html">Remote Smart Card Reader</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../ACardEmulator/README.html">Android Smart Card Emulator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../TCardEmulator/README.html">Tizen Smart Card Emulator</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../pcsc-relay/README.html">PC/SC Relay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../ccid/README.html">USB CCID Emulator</a></li>
 </ul>
@@ -158,15 +159,15 @@
 </p>
 <span class="target" id="module-virtualsmartcard.SmartcardSAM"></span><dl class="class">
 <dt id="virtualsmartcard.SmartcardSAM.SAM">
-<em class="property">class </em><code class="descclassname">virtualsmartcard.SmartcardSAM.</code><code class="descname">SAM</code><span class="sig-paren">(</span><em>PIN</em>, <em>cardNumber</em>, <em>mf=None</em>, <em>cardSecret=None</em>, <em>default_se=&lt;class 'virtualsmartcard.SEutils.Security_Environment'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<em class="property">class </em><tt class="descclassname">virtualsmartcard.SmartcardSAM.</tt><tt class="descname">SAM</tt><big>(</big><em>PIN</em>, <em>cardNumber</em>, <em>mf=None</em>, <em>cardSecret=None</em>, <em>default_se=&lt;class 'virtualsmartcard.SEutils.Security_Environment'&gt;</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>This class is used to store the data needed by the SAM.
 It includes the PIN, the master key of the SAM and a hashmap containing all
 the keys used by the file encryption system. The keys in the hashmap are
 indexed via the path to the corresponding container.</p>
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardSAM.SAM.FSdecrypt">
-<code class="descname">FSdecrypt</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.FSdecrypt" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">FSdecrypt</tt><big>(</big><em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.FSdecrypt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decrypt the given data, using the parameters stored in the SAM.
 Right now we do not encrypt the data. In memory encryption might or
 might not be added in a future version.</p>
@@ -174,7 +175,7 @@ might not be added in a future version.</p>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardSAM.SAM.FSencrypt">
-<code class="descname">FSencrypt</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.FSencrypt" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">FSencrypt</tt><big>(</big><em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.FSencrypt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Encrypt the given data, using the parameters stored in the SAM.
 Right now we do not encrypt the data. In memory encryption might or
 might not be added in a future version.</p>
@@ -182,7 +183,7 @@ might not be added in a future version.</p>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardSAM.SAM._get_referenced_key">
-<code class="descname">_get_referenced_key</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM._get_referenced_key" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_get_referenced_key</tt><big>(</big><em>p1</em>, <em>p2</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM._get_referenced_key" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method returns the key specified by the p2 parameter. The key may
 be stored on the cards filesystem.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -322,54 +323,54 @@ key)</td>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardSAM.SAM.change_reference_data">
-<code class="descname">change_reference_data</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.change_reference_data" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">change_reference_data</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.change_reference_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Change the specified referenced data (e.g. CHV) of the card</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardSAM.SAM.erase_SE">
-<code class="descname">erase_SE</code><span class="sig-paren">(</span><em>SEID</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.erase_SE" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">erase_SE</tt><big>(</big><em>SEID</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.erase_SE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Erases a Security Environment stored under SEID from the SAM</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardSAM.SAM.external_authenticate">
-<code class="descname">external_authenticate</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.external_authenticate" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">external_authenticate</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.external_authenticate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Authenticate the terminal to the card. Check whether Terminal correctly
 encrypted the given challenge or not</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardSAM.SAM.generate_public_key_pair">
-<code class="descname">generate_public_key_pair</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.generate_public_key_pair" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">generate_public_key_pair</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.generate_public_key_pair" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardSAM.SAM.get_card_number">
-<code class="descname">get_card_number</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.get_card_number" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">get_card_number</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.get_card_number" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardSAM.SAM.get_challenge">
-<code class="descname">get_challenge</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.get_challenge" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">get_challenge</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.get_challenge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a random number of maximum 8 Byte and return it.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardSAM.SAM.internal_authenticate">
-<code class="descname">internal_authenticate</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.internal_authenticate" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">internal_authenticate</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.internal_authenticate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Authenticate card to terminal. Encrypt the challenge of the terminal
 to prove key posession</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardSAM.SAM.manage_security_environment">
-<code class="descname">manage_security_environment</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.manage_security_environment" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">manage_security_environment</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.manage_security_environment" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardSAM.SAM.mutual_authenticate">
-<code class="descname">mutual_authenticate</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>mutual_challenge</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.mutual_authenticate" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">mutual_authenticate</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>mutual_challenge</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.mutual_authenticate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Takes an encrypted challenge in the form
 &#8216;Terminal Challenge | Card Challenge | Card number&#8217;
 and checks it for validity. If the challenge is successful
@@ -379,39 +380,39 @@ returns this value</p>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardSAM.SAM.parse_SM_CAPDU">
-<code class="descname">parse_SM_CAPDU</code><span class="sig-paren">(</span><em>CAPDU</em>, <em>header_authentication</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.parse_SM_CAPDU" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">parse_SM_CAPDU</tt><big>(</big><em>CAPDU</em>, <em>header_authentication</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.parse_SM_CAPDU" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse a command APDU protected by Secure Messaging and return the
 unprotected command APDU</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardSAM.SAM.perform_security_operation">
-<code class="descname">perform_security_operation</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.perform_security_operation" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">perform_security_operation</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.perform_security_operation" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardSAM.SAM.protect_result">
-<code class="descname">protect_result</code><span class="sig-paren">(</span><em>sw</em>, <em>unprotected_result</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.protect_result" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">protect_result</tt><big>(</big><em>sw</em>, <em>unprotected_result</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.protect_result" title="Permalink to this definition">¶</a></dt>
 <dd><p>Protect a plain response APDU by Secure Messaging</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardSAM.SAM.restore_SE">
-<code class="descname">restore_SE</code><span class="sig-paren">(</span><em>SEID</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.restore_SE" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">restore_SE</tt><big>(</big><em>SEID</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.restore_SE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Restores a Security Environment from the SAM and replaces the current
 SE with it.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardSAM.SAM.set_MF">
-<code class="descname">set_MF</code><span class="sig-paren">(</span><em>mf</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.set_MF" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">set_MF</tt><big>(</big><em>mf</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.set_MF" title="Permalink to this definition">¶</a></dt>
 <dd><p>Setter function for the internal reference to the Filesystem. The SAM
 needs a reference to the filesystem in order to store/retrieve keys.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardSAM.SAM.set_asym_algorithm">
-<code class="descname">set_asym_algorithm</code><span class="sig-paren">(</span><em>cipher</em>, <em>keytype</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.set_asym_algorithm" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">set_asym_algorithm</tt><big>(</big><em>cipher</em>, <em>keytype</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.set_asym_algorithm" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -428,14 +429,14 @@ needs a reference to the filesystem in order to store/retrieve keys.</p>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardSAM.SAM.store_SE">
-<code class="descname">store_SE</code><span class="sig-paren">(</span><em>SEID</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.store_SE" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">store_SE</tt><big>(</big><em>SEID</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.store_SE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stores the current Security environment in the secure access module.
 The SEID is used as a reference to identify the SE.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardSAM.SAM.verify">
-<code class="descname">verify</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>PIN</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.verify" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">verify</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>PIN</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.SAM.verify" title="Permalink to this definition">¶</a></dt>
 <dd><p>Authenticate the card user. Check if he entered a valid PIN.
 If the PIN is invalid decrement retry counter. If retry counter
 equals zero, block the card until reset with correct PUK</p>
@@ -445,7 +446,7 @@ equals zero, block the card until reset with correct PUK</p>
 
 <dl class="function">
 <dt id="virtualsmartcard.SmartcardSAM.get_referenced_cipher">
-<code class="descclassname">virtualsmartcard.SmartcardSAM.</code><code class="descname">get_referenced_cipher</code><span class="sig-paren">(</span><em>p1</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.get_referenced_cipher" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">virtualsmartcard.SmartcardSAM.</tt><tt class="descname">get_referenced_cipher</tt><big>(</big><em>p1</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardSAM.get_referenced_cipher" title="Permalink to this definition">¶</a></dt>
 <dd><p>P1 defines the algorithm and mode to use. We dispatch it and return a
 string that is understood by CryptoUtils.py functions</p>
 </dd></dl>

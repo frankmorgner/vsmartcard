@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>CryptoUtils Module &mdash; vsmartcard 2017-01-08 documentation</title>
+    <title>CryptoUtils Module &mdash; vsmartcard 2017-01-16 documentation</title>
     
     <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '2017-01-08',
+        VERSION:     '2017-01-16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -29,7 +29,7 @@
     <script type="text/javascript" src="../../_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="../../_static/chip.ico"/>
-    <link rel="top" title="vsmartcard 2017-01-08 documentation" href="../../index.html" />
+    <link rel="top" title="vsmartcard 2017-01-16 documentation" href="../../index.html" />
     <link rel="up" title="virtualsmartcard Package" href="virtualsmartcard.html" />
     <link rel="next" title="SEutils Module" href="virtualsmartcard.SEutils.html" />
     <link rel="prev" title="ConstantDefinitions Module" href="virtualsmartcard.ConstantDefinitions.html" />
@@ -39,7 +39,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body role="document">
+  <body>
   
   <a href="https://github.com/frankmorgner/vsmartcard"
      class="visible-desktop hidden-xs"><img
@@ -86,6 +86,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../README.html">Virtual Smart Card</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../remote-reader/README.html">Remote Smart Card Reader</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../ACardEmulator/README.html">Android Smart Card Emulator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../TCardEmulator/README.html">Tizen Smart Card Emulator</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../pcsc-relay/README.html">PC/SC Relay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../ccid/README.html">USB CCID Emulator</a></li>
 </ul>
@@ -152,14 +153,14 @@
 <h1>CryptoUtils Module<a class="headerlink" href="#cryptoutils-module" title="Permalink to this headline">¶</a></h1>
 <span class="target" id="module-virtualsmartcard.CryptoUtils"></span><dl class="function">
 <dt id="virtualsmartcard.CryptoUtils._makesalt">
-<code class="descclassname">virtualsmartcard.CryptoUtils.</code><code class="descname">_makesalt</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.CryptoUtils._makesalt" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">virtualsmartcard.CryptoUtils.</tt><tt class="descname">_makesalt</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.CryptoUtils._makesalt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a 48-bit pseudorandom salt for crypt().</p>
 <p>This function is not suitable for generating cryptographic secrets.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="virtualsmartcard.CryptoUtils.append_padding">
-<code class="descclassname">virtualsmartcard.CryptoUtils.</code><code class="descname">append_padding</code><span class="sig-paren">(</span><em>blocklen</em>, <em>data</em>, <em>padding_class=1</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.CryptoUtils.append_padding" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">virtualsmartcard.CryptoUtils.</tt><tt class="descname">append_padding</tt><big>(</big><em>blocklen</em>, <em>data</em>, <em>padding_class=1</em><big>)</big><a class="headerlink" href="#virtualsmartcard.CryptoUtils.append_padding" title="Permalink to this definition">¶</a></dt>
 <dd><p>Append padding to the data.
 Length of padding depends on length of data and the block size of the
 specified encryption algorithm.
@@ -168,13 +169,13 @@ Different types of padding may be selected via the padding_class parameter</p>
 
 <dl class="function">
 <dt id="virtualsmartcard.CryptoUtils.calculate_MAC">
-<code class="descclassname">virtualsmartcard.CryptoUtils.</code><code class="descname">calculate_MAC</code><span class="sig-paren">(</span><em>session_key</em>, <em>message</em>, <em>iv='\x00\x00\x00\x00\x00\x00\x00\x00'</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.CryptoUtils.calculate_MAC" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">virtualsmartcard.CryptoUtils.</tt><tt class="descname">calculate_MAC</tt><big>(</big><em>session_key</em>, <em>message</em>, <em>iv='\x00\x00\x00\x00\x00\x00\x00\x00'</em><big>)</big><a class="headerlink" href="#virtualsmartcard.CryptoUtils.calculate_MAC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Cyberflex MAC is the last Block of the input encrypted with DES3-CBC</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="virtualsmartcard.CryptoUtils.cipher">
-<code class="descclassname">virtualsmartcard.CryptoUtils.</code><code class="descname">cipher</code><span class="sig-paren">(</span><em>do_encrypt</em>, <em>cipherspec</em>, <em>key</em>, <em>data</em>, <em>iv=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.CryptoUtils.cipher" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">virtualsmartcard.CryptoUtils.</tt><tt class="descname">cipher</tt><big>(</big><em>do_encrypt</em>, <em>cipherspec</em>, <em>key</em>, <em>data</em>, <em>iv=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.CryptoUtils.cipher" title="Permalink to this definition">¶</a></dt>
 <dd><p>Do a cryptographic operation.
 operation = do_encrypt ? encrypt : decrypt,
 cipherspec must be of the form &#8220;cipher-mode&#8221;, or &#8220;cipher&#8221;</p>
@@ -182,7 +183,7 @@ cipherspec must be of the form &#8220;cipher-mode&#8221;, or &#8220;cipher&#8221
 
 <dl class="function">
 <dt id="virtualsmartcard.CryptoUtils.crypto_checksum">
-<code class="descclassname">virtualsmartcard.CryptoUtils.</code><code class="descname">crypto_checksum</code><span class="sig-paren">(</span><em>algo</em>, <em>key</em>, <em>data</em>, <em>iv=None</em>, <em>ssc=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.CryptoUtils.crypto_checksum" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">virtualsmartcard.CryptoUtils.</tt><tt class="descname">crypto_checksum</tt><big>(</big><em>algo</em>, <em>key</em>, <em>data</em>, <em>iv=None</em>, <em>ssc=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.CryptoUtils.crypto_checksum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute various types of cryptographic checksums.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -206,42 +207,42 @@ Only used by the &#8220;CC&#8221; algorithm</li>
 
 <dl class="function">
 <dt id="virtualsmartcard.CryptoUtils.decrypt">
-<code class="descclassname">virtualsmartcard.CryptoUtils.</code><code class="descname">decrypt</code><span class="sig-paren">(</span><em>cipherspec</em>, <em>key</em>, <em>data</em>, <em>iv=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.CryptoUtils.decrypt" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">virtualsmartcard.CryptoUtils.</tt><tt class="descname">decrypt</tt><big>(</big><em>cipherspec</em>, <em>key</em>, <em>data</em>, <em>iv=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.CryptoUtils.decrypt" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="virtualsmartcard.CryptoUtils.encrypt">
-<code class="descclassname">virtualsmartcard.CryptoUtils.</code><code class="descname">encrypt</code><span class="sig-paren">(</span><em>cipherspec</em>, <em>key</em>, <em>data</em>, <em>iv=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.CryptoUtils.encrypt" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">virtualsmartcard.CryptoUtils.</tt><tt class="descname">encrypt</tt><big>(</big><em>cipherspec</em>, <em>key</em>, <em>data</em>, <em>iv=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.CryptoUtils.encrypt" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="virtualsmartcard.CryptoUtils.get_cipher">
-<code class="descclassname">virtualsmartcard.CryptoUtils.</code><code class="descname">get_cipher</code><span class="sig-paren">(</span><em>cipherspec</em>, <em>key</em>, <em>iv=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.CryptoUtils.get_cipher" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">virtualsmartcard.CryptoUtils.</tt><tt class="descname">get_cipher</tt><big>(</big><em>cipherspec</em>, <em>key</em>, <em>iv=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.CryptoUtils.get_cipher" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="virtualsmartcard.CryptoUtils.get_cipher_blocklen">
-<code class="descclassname">virtualsmartcard.CryptoUtils.</code><code class="descname">get_cipher_blocklen</code><span class="sig-paren">(</span><em>cipherspec</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.CryptoUtils.get_cipher_blocklen" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">virtualsmartcard.CryptoUtils.</tt><tt class="descname">get_cipher_blocklen</tt><big>(</big><em>cipherspec</em><big>)</big><a class="headerlink" href="#virtualsmartcard.CryptoUtils.get_cipher_blocklen" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="virtualsmartcard.CryptoUtils.get_cipher_keylen">
-<code class="descclassname">virtualsmartcard.CryptoUtils.</code><code class="descname">get_cipher_keylen</code><span class="sig-paren">(</span><em>cipherspec</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.CryptoUtils.get_cipher_keylen" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">virtualsmartcard.CryptoUtils.</tt><tt class="descname">get_cipher_keylen</tt><big>(</big><em>cipherspec</em><big>)</big><a class="headerlink" href="#virtualsmartcard.CryptoUtils.get_cipher_keylen" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="virtualsmartcard.CryptoUtils.hash">
-<code class="descclassname">virtualsmartcard.CryptoUtils.</code><code class="descname">hash</code><span class="sig-paren">(</span><em>hashmethod</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.CryptoUtils.hash" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">virtualsmartcard.CryptoUtils.</tt><tt class="descname">hash</tt><big>(</big><em>hashmethod</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.CryptoUtils.hash" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="virtualsmartcard.CryptoUtils.operation_on_string">
-<code class="descclassname">virtualsmartcard.CryptoUtils.</code><code class="descname">operation_on_string</code><span class="sig-paren">(</span><em>string1</em>, <em>string2</em>, <em>op</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.CryptoUtils.operation_on_string" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">virtualsmartcard.CryptoUtils.</tt><tt class="descname">operation_on_string</tt><big>(</big><em>string1</em>, <em>string2</em>, <em>op</em><big>)</big><a class="headerlink" href="#virtualsmartcard.CryptoUtils.operation_on_string" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="virtualsmartcard.CryptoUtils.strip_padding">
-<code class="descclassname">virtualsmartcard.CryptoUtils.</code><code class="descname">strip_padding</code><span class="sig-paren">(</span><em>blocklen</em>, <em>data</em>, <em>padding_class=1</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.CryptoUtils.strip_padding" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">virtualsmartcard.CryptoUtils.</tt><tt class="descname">strip_padding</tt><big>(</big><em>blocklen</em>, <em>data</em>, <em>padding_class=1</em><big>)</big><a class="headerlink" href="#virtualsmartcard.CryptoUtils.strip_padding" title="Permalink to this definition">¶</a></dt>
 <dd><p>Strip the padding of decrypted data. Returns data without padding</p>
 </dd></dl>
 

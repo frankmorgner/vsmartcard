@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>HandlerTest Module &mdash; vsmartcard 2017-01-08 documentation</title>
+    <title>HandlerTest Module &mdash; vsmartcard 2017-01-16 documentation</title>
     
     <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '2017-01-08',
+        VERSION:     '2017-01-16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -29,7 +29,7 @@
     <script type="text/javascript" src="../../_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="../../_static/chip.ico"/>
-    <link rel="top" title="vsmartcard 2017-01-08 documentation" href="../../index.html" />
+    <link rel="top" title="vsmartcard 2017-01-16 documentation" href="../../index.html" />
     <link rel="up" title="cards Package" href="virtualsmartcard.cards.html" />
     <link rel="next" title="Relay Module" href="virtualsmartcard.cards.Relay.html" />
     <link rel="prev" title="cards Package" href="virtualsmartcard.cards.html" />
@@ -39,7 +39,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body role="document">
+  <body>
   
   <a href="https://github.com/frankmorgner/vsmartcard"
      class="visible-desktop hidden-xs"><img
@@ -86,6 +86,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../README.html">Virtual Smart Card</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../remote-reader/README.html">Remote Smart Card Reader</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../ACardEmulator/README.html">Android Smart Card Emulator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../TCardEmulator/README.html">Tizen Smart Card Emulator</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../pcsc-relay/README.html">PC/SC Relay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../ccid/README.html">USB CCID Emulator</a></li>
 </ul>
@@ -159,41 +160,41 @@
 </p>
 <span class="target" id="module-virtualsmartcard.cards.HandlerTest"></span><dl class="class">
 <dt id="virtualsmartcard.cards.HandlerTest.HandlerTestOS">
-<em class="property">class </em><code class="descclassname">virtualsmartcard.cards.HandlerTest.</code><code class="descname">HandlerTestOS</code><a class="headerlink" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="virtualsmartcard.VirtualSmartcard.html#virtualsmartcard.VirtualSmartcard.SmartcardOS" title="virtualsmartcard.VirtualSmartcard.SmartcardOS"><code class="xref py py-class docutils literal"><span class="pre">virtualsmartcard.VirtualSmartcard.SmartcardOS</span></code></a></p>
+<em class="property">class </em><tt class="descclassname">virtualsmartcard.cards.HandlerTest.</tt><tt class="descname">HandlerTestOS</tt><a class="headerlink" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="virtualsmartcard.VirtualSmartcard.html#virtualsmartcard.VirtualSmartcard.SmartcardOS" title="virtualsmartcard.VirtualSmartcard.SmartcardOS"><tt class="xref py py-class docutils literal"><span class="pre">virtualsmartcard.VirtualSmartcard.SmartcardOS</span></tt></a></p>
 <p>This class implements the commands used for the PC/SC-lite  smart  card
 reader driver tester. See <a class="reference external" href="http://pcsclite.alioth.debian.org/pcsclite.html">http://pcsclite.alioth.debian.org/pcsclite.html</a>
 and handler_test(1).</p>
 <dl class="method">
 <dt id="virtualsmartcard.cards.HandlerTest.HandlerTestOS._HandlerTestOS__output_from_le">
-<code class="descname">_HandlerTestOS__output_from_le</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS._HandlerTestOS__output_from_le" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_HandlerTestOS__output_from_le</tt><big>(</big><em>msg</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS._HandlerTestOS__output_from_le" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.cards.HandlerTest.HandlerTestOS.execute">
-<code class="descname">execute</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS.execute" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">execute</tt><big>(</big><em>msg</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS.execute" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.cards.HandlerTest.HandlerTestOS.getATR">
-<code class="descname">getATR</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS.getATR" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">getATR</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS.getATR" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.cards.HandlerTest.HandlerTestOS.powerDown">
-<code class="descname">powerDown</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS.powerDown" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">powerDown</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS.powerDown" title="Permalink to this definition">¶</a></dt>
 <dd><p>Powers down the card</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.cards.HandlerTest.HandlerTestOS.powerUp">
-<code class="descname">powerUp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS.powerUp" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">powerUp</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS.powerUp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Powers up the card</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.cards.HandlerTest.HandlerTestOS.reset">
-<code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS.reset" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">reset</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS.reset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs a warm reset of the card (no power down)</p>
 </dd></dl>
 

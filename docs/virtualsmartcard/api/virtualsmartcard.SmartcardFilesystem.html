@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>SmartcardFilesystem Module &mdash; vsmartcard 2017-01-08 documentation</title>
+    <title>SmartcardFilesystem Module &mdash; vsmartcard 2017-01-16 documentation</title>
     
     <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '2017-01-08',
+        VERSION:     '2017-01-16',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -29,7 +29,7 @@
     <script type="text/javascript" src="../../_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="../../_static/chip.ico"/>
-    <link rel="top" title="vsmartcard 2017-01-08 documentation" href="../../index.html" />
+    <link rel="top" title="vsmartcard 2017-01-16 documentation" href="../../index.html" />
     <link rel="up" title="virtualsmartcard Package" href="virtualsmartcard.html" />
     <link rel="next" title="SmartcardSAM Module" href="virtualsmartcard.SmartcardSAM.html" />
     <link rel="prev" title="SWutils Module" href="virtualsmartcard.SWutils.html" />
@@ -39,7 +39,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body role="document">
+  <body>
   
   <a href="https://github.com/frankmorgner/vsmartcard"
      class="visible-desktop hidden-xs"><img
@@ -86,6 +86,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../README.html">Virtual Smart Card</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../remote-reader/README.html">Remote Smart Card Reader</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../ACardEmulator/README.html">Android Smart Card Emulator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../TCardEmulator/README.html">Tizen Smart Card Emulator</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../pcsc-relay/README.html">PC/SC Relay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../ccid/README.html">USB CCID Emulator</a></li>
 </ul>
@@ -164,76 +165,76 @@
 </p>
 <span class="target" id="module-virtualsmartcard.SmartcardFilesystem"></span><dl class="class">
 <dt id="virtualsmartcard.SmartcardFilesystem.DF">
-<em class="property">class </em><code class="descclassname">virtualsmartcard.SmartcardFilesystem.</code><code class="descname">DF</code><span class="sig-paren">(</span><em>parent</em>, <em>fid</em>, <em>filedescriptor=56</em>, <em>lifecycle=5</em>, <em>simpletlv_data=None</em>, <em>bertlv_data=None</em>, <em>dfname=None</em>, <em>data=''</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#virtualsmartcard.SmartcardFilesystem.File" title="virtualsmartcard.SmartcardFilesystem.File"><code class="xref py py-class docutils literal"><span class="pre">virtualsmartcard.SmartcardFilesystem.File</span></code></a></p>
+<em class="property">class </em><tt class="descclassname">virtualsmartcard.SmartcardFilesystem.</tt><tt class="descname">DF</tt><big>(</big><em>parent</em>, <em>fid</em>, <em>filedescriptor=56</em>, <em>lifecycle=5</em>, <em>simpletlv_data=None</em>, <em>bertlv_data=None</em>, <em>dfname=None</em>, <em>data=''</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#virtualsmartcard.SmartcardFilesystem.File" title="virtualsmartcard.SmartcardFilesystem.File"><tt class="xref py py-class docutils literal"><span class="pre">virtualsmartcard.SmartcardFilesystem.File</span></tt></a></p>
 <p>Class for a dedicated file</p>
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.DF.append">
-<code class="descname">append</code><span class="sig-paren">(</span><em>file</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.append" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">append</tt><big>(</big><em>file</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.append" title="Permalink to this definition">¶</a></dt>
 <dd><p>Appends &#8216;file&#8217; to the content of the DF.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.DF.appendrecord">
-<code class="descname">appendrecord</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.appendrecord" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">appendrecord</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.appendrecord" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.DF.bertlv_data">
-<code class="descname">bertlv_data</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.bertlv_data" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">bertlv_data</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.bertlv_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>list of (tag, length, value)-tuples of BER-TLV coded data objects (encrypted)</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.DF.content">
-<code class="descname">content</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.content" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">content</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.content" title="Permalink to this definition">¶</a></dt>
 <dd><p>list of files of the DF</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.DF.data">
-<code class="descname">data</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.data" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">data</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.data" title="Permalink to this definition">¶</a></dt>
 <dd><p>unknown</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.DF.decrypt">
-<code class="descname">decrypt</code><span class="sig-paren">(</span><em>path</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.decrypt" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">decrypt</tt><big>(</big><em>path</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.decrypt" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.DF.dfname">
-<code class="descname">dfname</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.dfname" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">dfname</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.dfname" title="Permalink to this definition">¶</a></dt>
 <dd><p>string with up to 16 bytes. DF name,which can also be used as applicationidentifier.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.DF.encrypt">
-<code class="descname">encrypt</code><span class="sig-paren">(</span><em>path</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.encrypt" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">encrypt</tt><big>(</big><em>path</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.encrypt" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.DF.erasebinary">
-<code class="descname">erasebinary</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.erasebinary" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">erasebinary</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.erasebinary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.DF.fid">
-<code class="descname">fid</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.fid" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">fid</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.fid" title="Permalink to this definition">¶</a></dt>
 <dd><p>file identifier</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.DF.filedescriptor">
-<code class="descname">filedescriptor</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.filedescriptor" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">filedescriptor</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.filedescriptor" title="Permalink to this definition">¶</a></dt>
 <dd><p>file descriptor byte</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.DF.getdata">
-<code class="descname">getdata</code><span class="sig-paren">(</span><em>isSimpleTlv</em>, <em>requestedTL</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.getdata" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">getdata</tt><big>(</big><em>isSimpleTlv</em>, <em>requestedTL</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.getdata" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a string of either the file&#8217;s BER-TLV or the file&#8217;s SIMPLE-TLV
 coded data objects depending on the bool &#8216;isSimpleTlv&#8217;. &#8216;requestedTL&#8217;
 is a list of (tag, length)-tuples that specify which tags should be
@@ -242,25 +243,25 @@ returned in what size.</p>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.DF.getpath">
-<code class="descname">getpath</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.getpath" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">getpath</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.getpath" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the path to this file beginning with the MF&#8217;s fid.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.DF.lifecycle">
-<code class="descname">lifecycle</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.lifecycle" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">lifecycle</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.lifecycle" title="Permalink to this definition">¶</a></dt>
 <dd><p>life cycle byte</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.DF.parent">
-<code class="descname">parent</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.parent" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">parent</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.parent" title="Permalink to this definition">¶</a></dt>
 <dd><p>parent DF</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.DF.putdata">
-<code class="descname">putdata</code><span class="sig-paren">(</span><em>isSimpleTlv</em>, <em>newtlvlist</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.putdata" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">putdata</tt><big>(</big><em>isSimpleTlv</em>, <em>newtlvlist</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.putdata" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets either the file&#8217;s BER-TLV or the file&#8217;s SIMPLE-TLV coded data
 objects depending on the bool &#8216;isSimpleTlv&#8217;. &#8216;newtlvlist&#8217; is a list of
 (tag, length, value)-tuples of new data.</p>
@@ -268,25 +269,25 @@ objects depending on the bool &#8216;isSimpleTlv&#8217;. &#8216;newtlvlist&#8217
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.DF.readbinary">
-<code class="descname">readbinary</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.readbinary" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">readbinary</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.readbinary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.DF.readrecord">
-<code class="descname">readrecord</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.readrecord" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">readrecord</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.readrecord" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.DF.remove">
-<code class="descname">remove</code><span class="sig-paren">(</span><em>file</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.remove" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">remove</tt><big>(</big><em>file</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.remove" title="Permalink to this definition">¶</a></dt>
 <dd><p>Removes &#8216;file&#8217; from the content of the DF</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.DF.select">
-<code class="descname">select</code><span class="sig-paren">(</span><em>attribute</em>, <em>value</em>, <em>reference=0</em>, <em>index_current=0</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.select" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">select</tt><big>(</big><em>attribute</em>, <em>value</em>, <em>reference=0</em>, <em>index_current=0</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.select" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the first file of the DF, that has the &#8216;attribute&#8217; with the
 specified &#8216;value&#8217;. For partial DF name selection you must specify the
 first/last/next or previous occurence with &#8216;reference&#8217; and the index of
@@ -295,31 +296,31 @@ the current file &#8216;index_current&#8217; (-1 for None).</p>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.DF.simpletlv_data">
-<code class="descname">simpletlv_data</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.simpletlv_data" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">simpletlv_data</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.simpletlv_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>list of (tag, length, value)-tuples of SIMPLE-TLV coded data objects (encrypted)</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.DF.updatebinary">
-<code class="descname">updatebinary</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.updatebinary" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">updatebinary</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.updatebinary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.DF.updaterecord">
-<code class="descname">updaterecord</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.updaterecord" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">updaterecord</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.updaterecord" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.DF.writebinary">
-<code class="descname">writebinary</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.writebinary" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">writebinary</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.writebinary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.DF.writerecord">
-<code class="descname">writerecord</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.writerecord" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">writerecord</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.DF.writerecord" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
@@ -327,58 +328,58 @@ the current file &#8216;index_current&#8217; (-1 for None).</p>
 
 <dl class="class">
 <dt id="virtualsmartcard.SmartcardFilesystem.EF">
-<em class="property">class </em><code class="descclassname">virtualsmartcard.SmartcardFilesystem.</code><code class="descname">EF</code><span class="sig-paren">(</span><em>parent</em>, <em>fid</em>, <em>filedescriptor</em>, <em>lifecycle=5</em>, <em>simpletlv_data=None</em>, <em>bertlv_data=None</em>, <em>datacoding=0</em>, <em>shortfid=0</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#virtualsmartcard.SmartcardFilesystem.File" title="virtualsmartcard.SmartcardFilesystem.File"><code class="xref py py-class docutils literal"><span class="pre">virtualsmartcard.SmartcardFilesystem.File</span></code></a></p>
+<em class="property">class </em><tt class="descclassname">virtualsmartcard.SmartcardFilesystem.</tt><tt class="descname">EF</tt><big>(</big><em>parent</em>, <em>fid</em>, <em>filedescriptor</em>, <em>lifecycle=5</em>, <em>simpletlv_data=None</em>, <em>bertlv_data=None</em>, <em>datacoding=0</em>, <em>shortfid=0</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#virtualsmartcard.SmartcardFilesystem.File" title="virtualsmartcard.SmartcardFilesystem.File"><tt class="xref py py-class docutils literal"><span class="pre">virtualsmartcard.SmartcardFilesystem.File</span></tt></a></p>
 <p>Template class for an elementary file.</p>
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.EF.appendrecord">
-<code class="descname">appendrecord</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.appendrecord" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">appendrecord</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.appendrecord" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.EF.bertlv_data">
-<code class="descname">bertlv_data</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.bertlv_data" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">bertlv_data</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.bertlv_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>list of (tag, length, value)-tuples of BER-TLV coded data objects (encrypted)</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.EF.datacoding">
-<code class="descname">datacoding</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.datacoding" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">datacoding</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.datacoding" title="Permalink to this definition">¶</a></dt>
 <dd><p>integer. Data coding byte.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.EF.decrypt">
-<code class="descname">decrypt</code><span class="sig-paren">(</span><em>path</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.decrypt" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">decrypt</tt><big>(</big><em>path</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.decrypt" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.EF.encrypt">
-<code class="descname">encrypt</code><span class="sig-paren">(</span><em>path</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.encrypt" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">encrypt</tt><big>(</big><em>path</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.encrypt" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.EF.erasebinary">
-<code class="descname">erasebinary</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.erasebinary" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">erasebinary</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.erasebinary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.EF.fid">
-<code class="descname">fid</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.fid" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">fid</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.fid" title="Permalink to this definition">¶</a></dt>
 <dd><p>file identifier</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.EF.filedescriptor">
-<code class="descname">filedescriptor</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.filedescriptor" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">filedescriptor</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.filedescriptor" title="Permalink to this definition">¶</a></dt>
 <dd><p>file descriptor byte</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.EF.getdata">
-<code class="descname">getdata</code><span class="sig-paren">(</span><em>isSimpleTlv</em>, <em>requestedTL</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.getdata" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">getdata</tt><big>(</big><em>isSimpleTlv</em>, <em>requestedTL</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.getdata" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a string of either the file&#8217;s BER-TLV or the file&#8217;s SIMPLE-TLV
 coded data objects depending on the bool &#8216;isSimpleTlv&#8217;. &#8216;requestedTL&#8217;
 is a list of (tag, length)-tuples that specify which tags should be
@@ -387,25 +388,25 @@ returned in what size.</p>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.EF.getpath">
-<code class="descname">getpath</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.getpath" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">getpath</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.getpath" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the path to this file beginning with the MF&#8217;s fid.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.EF.lifecycle">
-<code class="descname">lifecycle</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.lifecycle" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">lifecycle</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.lifecycle" title="Permalink to this definition">¶</a></dt>
 <dd><p>life cycle byte</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.EF.parent">
-<code class="descname">parent</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.parent" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">parent</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.parent" title="Permalink to this definition">¶</a></dt>
 <dd><p>parent DF</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.EF.putdata">
-<code class="descname">putdata</code><span class="sig-paren">(</span><em>isSimpleTlv</em>, <em>newtlvlist</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.putdata" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">putdata</tt><big>(</big><em>isSimpleTlv</em>, <em>newtlvlist</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.putdata" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets either the file&#8217;s BER-TLV or the file&#8217;s SIMPLE-TLV coded data
 objects depending on the bool &#8216;isSimpleTlv&#8217;. &#8216;newtlvlist&#8217; is a list of
 (tag, length, value)-tuples of new data.</p>
@@ -413,55 +414,55 @@ objects depending on the bool &#8216;isSimpleTlv&#8217;. &#8216;newtlvlist&#8217
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.EF.readbinary">
-<code class="descname">readbinary</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.readbinary" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">readbinary</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.readbinary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.EF.readrecord">
-<code class="descname">readrecord</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.readrecord" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">readrecord</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.readrecord" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.EF.select">
-<code class="descname">select</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.select" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">select</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.select" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.EF.shortfid">
-<code class="descname">shortfid</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.shortfid" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">shortfid</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.shortfid" title="Permalink to this definition">¶</a></dt>
 <dd><p>integer with 1&lt;=shortfid&lt;=30.Short EF identifier.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.EF.simpletlv_data">
-<code class="descname">simpletlv_data</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.simpletlv_data" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">simpletlv_data</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.simpletlv_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>list of (tag, length, value)-tuples of SIMPLE-TLV coded data objects (encrypted)</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.EF.updatebinary">
-<code class="descname">updatebinary</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.updatebinary" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">updatebinary</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.updatebinary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.EF.updaterecord">
-<code class="descname">updaterecord</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.updaterecord" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">updaterecord</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.updaterecord" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.EF.writebinary">
-<code class="descname">writebinary</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.writebinary" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">writebinary</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.writebinary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.EF.writerecord">
-<code class="descname">writerecord</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.writerecord" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">writerecord</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.EF.writerecord" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
@@ -469,52 +470,52 @@ objects depending on the bool &#8216;isSimpleTlv&#8217;. &#8216;newtlvlist&#8217
 
 <dl class="class">
 <dt id="virtualsmartcard.SmartcardFilesystem.File">
-<em class="property">class </em><code class="descclassname">virtualsmartcard.SmartcardFilesystem.</code><code class="descname">File</code><span class="sig-paren">(</span><em>parent</em>, <em>fid</em>, <em>filedescriptor</em>, <em>lifecycle=5</em>, <em>simpletlv_data=None</em>, <em>bertlv_data=None</em>, <em>SAM=None</em>, <em>extra_fci_data=''</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<em class="property">class </em><tt class="descclassname">virtualsmartcard.SmartcardFilesystem.</tt><tt class="descname">File</tt><big>(</big><em>parent</em>, <em>fid</em>, <em>filedescriptor</em>, <em>lifecycle=5</em>, <em>simpletlv_data=None</em>, <em>bertlv_data=None</em>, <em>SAM=None</em>, <em>extra_fci_data=''</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>Template class for a smartcard file.</p>
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.File.appendrecord">
-<code class="descname">appendrecord</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.appendrecord" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">appendrecord</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.appendrecord" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.File.bertlv_data">
-<code class="descname">bertlv_data</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.bertlv_data" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">bertlv_data</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.bertlv_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>list of (tag, length, value)-tuples of BER-TLV coded data objects (encrypted)</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.File.decrypt">
-<code class="descname">decrypt</code><span class="sig-paren">(</span><em>path</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.decrypt" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">decrypt</tt><big>(</big><em>path</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.decrypt" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.File.encrypt">
-<code class="descname">encrypt</code><span class="sig-paren">(</span><em>path</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.encrypt" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">encrypt</tt><big>(</big><em>path</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.encrypt" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.File.erasebinary">
-<code class="descname">erasebinary</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.erasebinary" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">erasebinary</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.erasebinary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.File.fid">
-<code class="descname">fid</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.fid" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">fid</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.fid" title="Permalink to this definition">¶</a></dt>
 <dd><p>file identifier</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.File.filedescriptor">
-<code class="descname">filedescriptor</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.filedescriptor" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">filedescriptor</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.filedescriptor" title="Permalink to this definition">¶</a></dt>
 <dd><p>file descriptor byte</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.File.getdata">
-<code class="descname">getdata</code><span class="sig-paren">(</span><em>isSimpleTlv</em>, <em>requestedTL</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.getdata" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">getdata</tt><big>(</big><em>isSimpleTlv</em>, <em>requestedTL</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.getdata" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a string of either the file&#8217;s BER-TLV or the file&#8217;s SIMPLE-TLV
 coded data objects depending on the bool &#8216;isSimpleTlv&#8217;. &#8216;requestedTL&#8217;
 is a list of (tag, length)-tuples that specify which tags should be
@@ -523,25 +524,25 @@ returned in what size.</p>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.File.getpath">
-<code class="descname">getpath</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.getpath" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">getpath</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.getpath" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the path to this file beginning with the MF&#8217;s fid.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.File.lifecycle">
-<code class="descname">lifecycle</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.lifecycle" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">lifecycle</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.lifecycle" title="Permalink to this definition">¶</a></dt>
 <dd><p>life cycle byte</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.File.parent">
-<code class="descname">parent</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.parent" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">parent</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.parent" title="Permalink to this definition">¶</a></dt>
 <dd><p>parent DF</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.File.putdata">
-<code class="descname">putdata</code><span class="sig-paren">(</span><em>isSimpleTlv</em>, <em>newtlvlist</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.putdata" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">putdata</tt><big>(</big><em>isSimpleTlv</em>, <em>newtlvlist</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.putdata" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets either the file&#8217;s BER-TLV or the file&#8217;s SIMPLE-TLV coded data
 objects depending on the bool &#8216;isSimpleTlv&#8217;. &#8216;newtlvlist&#8217; is a list of
 (tag, length, value)-tuples of new data.</p>
@@ -549,49 +550,49 @@ objects depending on the bool &#8216;isSimpleTlv&#8217;. &#8216;newtlvlist&#8217
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.File.readbinary">
-<code class="descname">readbinary</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.readbinary" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">readbinary</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.readbinary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.File.readrecord">
-<code class="descname">readrecord</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.readrecord" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">readrecord</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.readrecord" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.File.select">
-<code class="descname">select</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.select" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">select</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.select" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.File.simpletlv_data">
-<code class="descname">simpletlv_data</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.simpletlv_data" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">simpletlv_data</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.simpletlv_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>list of (tag, length, value)-tuples of SIMPLE-TLV coded data objects (encrypted)</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.File.updatebinary">
-<code class="descname">updatebinary</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.updatebinary" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">updatebinary</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.updatebinary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.File.updaterecord">
-<code class="descname">updaterecord</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.updaterecord" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">updaterecord</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.updaterecord" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.File.writebinary">
-<code class="descname">writebinary</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.writebinary" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">writebinary</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.writebinary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.File.writerecord">
-<code class="descname">writerecord</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.writerecord" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">writerecord</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.File.writerecord" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
@@ -599,25 +600,25 @@ objects depending on the bool &#8216;isSimpleTlv&#8217;. &#8216;newtlvlist&#8217
 
 <dl class="class">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF">
-<em class="property">class </em><code class="descclassname">virtualsmartcard.SmartcardFilesystem.</code><code class="descname">MF</code><span class="sig-paren">(</span><em>filedescriptor=56</em>, <em>lifecycle=5</em>, <em>simpletlv_data=None</em>, <em>bertlv_data=None</em>, <em>dfname=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#virtualsmartcard.SmartcardFilesystem.DF" title="virtualsmartcard.SmartcardFilesystem.DF"><code class="xref py py-class docutils literal"><span class="pre">virtualsmartcard.SmartcardFilesystem.DF</span></code></a></p>
+<em class="property">class </em><tt class="descclassname">virtualsmartcard.SmartcardFilesystem.</tt><tt class="descname">MF</tt><big>(</big><em>filedescriptor=56</em>, <em>lifecycle=5</em>, <em>simpletlv_data=None</em>, <em>bertlv_data=None</em>, <em>dfname=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#virtualsmartcard.SmartcardFilesystem.DF" title="virtualsmartcard.SmartcardFilesystem.DF"><tt class="xref py py-class docutils literal"><span class="pre">virtualsmartcard.SmartcardFilesystem.DF</span></tt></a></p>
 <p>Class for a master file</p>
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF._selectFile">
-<code class="descname">_selectFile</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF._selectFile" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_selectFile</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF._selectFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the file specified by &#8216;p1&#8217; and &#8216;data&#8217; from the select
 file command APDU.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.append">
-<code class="descname">append</code><span class="sig-paren">(</span><em>file</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.append" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">append</tt><big>(</big><em>file</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.append" title="Permalink to this definition">¶</a></dt>
 <dd><p>Appends &#8216;file&#8217; to the content of the DF.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.appendRecord">
-<code class="descname">appendRecord</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.appendRecord" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">appendRecord</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.appendRecord" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function for instruction 0xe2. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
 integers and &#8216;data&#8217; as binary string.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -633,32 +634,32 @@ data as binary string.</td>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.appendrecord">
-<code class="descname">appendrecord</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.appendrecord" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">appendrecord</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.appendrecord" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.bertlv_data">
-<code class="descname">bertlv_data</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.bertlv_data" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">bertlv_data</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.bertlv_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>list of (tag, length, value)-tuples of BER-TLV coded data objects (encrypted)</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.content">
-<code class="descname">content</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.content" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">content</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.content" title="Permalink to this definition">¶</a></dt>
 <dd><p>list of files of the DF</p>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.create">
-<em class="property">static </em><code class="descname">create</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.create" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><tt class="descname">create</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.create" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates and returns a list of files according to the parameters of a
 create file command.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.createFile">
-<code class="descname">createFile</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.createFile" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">createFile</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.createFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function for instruction 0xe0. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
 integers and &#8216;data&#8217; as binary string.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -674,31 +675,31 @@ data as binary string.</td>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.current">
-<code class="descname">current</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.current" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">current</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.current" title="Permalink to this definition">¶</a></dt>
 <dd><p>the currently selected file</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.currentDF">
-<code class="descname">currentDF</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.currentDF" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">currentDF</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.currentDF" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the current DF.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.currentEF">
-<code class="descname">currentEF</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.currentEF" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">currentEF</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.currentEF" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the current EF or None if not available.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.data">
-<code class="descname">data</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.data" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">data</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.data" title="Permalink to this definition">¶</a></dt>
 <dd><p>unknown</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.dataObjectHandlingDecodeEncapsulated">
-<code class="descname">dataObjectHandlingDecodeEncapsulated</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.dataObjectHandlingDecodeEncapsulated" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">dataObjectHandlingDecodeEncapsulated</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.dataObjectHandlingDecodeEncapsulated" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decodes &#8216;p1&#8217;, &#8216;p2&#8217; and &#8216;data&#8217; from a data object handling command (i.
 e. get/put data) with <em>odd</em> instruction code.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -715,7 +716,7 @@ SIMPLE-TLV data objects False otherwise and a list of
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.dataObjectHandlingDecodePlain">
-<code class="descname">dataObjectHandlingDecodePlain</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.dataObjectHandlingDecodePlain" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">dataObjectHandlingDecodePlain</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.dataObjectHandlingDecodePlain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decodes &#8216;p1&#8217;, &#8216;p2&#8217; and &#8216;data&#8217; from a data object handling command (i.
 e. get/put data) with <em>even</em> instruction code.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -732,7 +733,7 @@ SIMPLE-TLV data objects False otherwise and a list of
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.dataUnitsDecodeEncapsulated">
-<code class="descname">dataUnitsDecodeEncapsulated</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.dataUnitsDecodeEncapsulated" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">dataUnitsDecodeEncapsulated</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.dataUnitsDecodeEncapsulated" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decodes &#8216;p1&#8217;, &#8216;p2&#8217; and &#8216;data&#8217; from a data unit command (i. e.
 read/write/update/search/erase binary) with <em>odd</em> instruction code.</p>
 <dl class="docutils">
@@ -743,7 +744,7 @@ read/write/update/search/erase binary) with <em>odd</em> instruction code.</p>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.dataUnitsDecodePlain">
-<code class="descname">dataUnitsDecodePlain</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.dataUnitsDecodePlain" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">dataUnitsDecodePlain</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.dataUnitsDecodePlain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decodes &#8216;p1&#8217;, &#8216;p2&#8217; and &#8216;data&#8217; from a data unit command (i. e.
 read/write/update/search/erase binary) with <em>even</em> instruction code.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -759,12 +760,12 @@ list of data strings.</td>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.decrypt">
-<code class="descname">decrypt</code><span class="sig-paren">(</span><em>path</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.decrypt" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">decrypt</tt><big>(</big><em>path</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.decrypt" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.deleteFile">
-<code class="descname">deleteFile</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.deleteFile" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">deleteFile</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.deleteFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function for instruction 0xe4. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
 integers and &#8216;data&#8217; as binary string.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -780,13 +781,13 @@ data as binary string.</td>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.dfname">
-<code class="descname">dfname</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.dfname" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">dfname</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.dfname" title="Permalink to this definition">¶</a></dt>
 <dd><p>string with up to 16 bytes. DF name,which can also be used as applicationidentifier.</p>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.encodeFileControlParameter">
-<em class="property">static </em><code class="descname">encodeFileControlParameter</code><span class="sig-paren">(</span><em>file</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.encodeFileControlParameter" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><tt class="descname">encodeFileControlParameter</tt><big>(</big><em>file</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.encodeFileControlParameter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a string of TLV-coded file control information of &#8216;file&#8217;. Note:
 The result is not prepended with tag and length for neither TCP, FMD
 nor FCI template.</p>
@@ -794,12 +795,12 @@ nor FCI template.</p>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.encrypt">
-<code class="descname">encrypt</code><span class="sig-paren">(</span><em>path</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.encrypt" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">encrypt</tt><big>(</big><em>path</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.encrypt" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.eraseBinaryEncapsulated">
-<code class="descname">eraseBinaryEncapsulated</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.eraseBinaryEncapsulated" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">eraseBinaryEncapsulated</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.eraseBinaryEncapsulated" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function for instruction 0x0f. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
 integers and &#8216;data&#8217; as binary string.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -815,7 +816,7 @@ data as binary string.</td>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.eraseBinaryPlain">
-<code class="descname">eraseBinaryPlain</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.eraseBinaryPlain" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">eraseBinaryPlain</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.eraseBinaryPlain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function for instruction 0x0e. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
 integers and &#8216;data&#8217; as binary string.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -831,7 +832,7 @@ data as binary string.</td>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.eraseRecord">
-<code class="descname">eraseRecord</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.eraseRecord" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">eraseRecord</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.eraseRecord" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function for instruction 0x0c. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
 integers and &#8216;data&#8217; as binary string.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -847,31 +848,31 @@ data as binary string.</td>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.erasebinary">
-<code class="descname">erasebinary</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.erasebinary" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">erasebinary</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.erasebinary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.fid">
-<code class="descname">fid</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.fid" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">fid</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.fid" title="Permalink to this definition">¶</a></dt>
 <dd><p>file identifier</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.filedescriptor">
-<code class="descname">filedescriptor</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.filedescriptor" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">filedescriptor</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.filedescriptor" title="Permalink to this definition">¶</a></dt>
 <dd><p>file descriptor byte</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.firstSFT">
-<code class="descname">firstSFT</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.firstSFT" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">firstSFT</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.firstSFT" title="Permalink to this definition">¶</a></dt>
 <dd><p>string of length 1. The firstsoftware function table from thehistorical bytes.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.getDataEncapsulated">
-<code class="descname">getDataEncapsulated</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.getDataEncapsulated" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">getDataEncapsulated</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.getDataEncapsulated" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function for instruction 0xcb. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
 integers and &#8216;data&#8217; as binary string.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -887,7 +888,7 @@ data as binary string.</td>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.getDataPlain">
-<code class="descname">getDataPlain</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.getDataPlain" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">getDataPlain</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.getDataPlain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function for instruction 0xca. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
 integers and &#8216;data&#8217; as binary string.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -903,7 +904,7 @@ data as binary string.</td>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.getdata">
-<code class="descname">getdata</code><span class="sig-paren">(</span><em>isSimpleTlv</em>, <em>requestedTL</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.getdata" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">getdata</tt><big>(</big><em>isSimpleTlv</em>, <em>requestedTL</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.getdata" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a string of either the file&#8217;s BER-TLV or the file&#8217;s SIMPLE-TLV
 coded data objects depending on the bool &#8216;isSimpleTlv&#8217;. &#8216;requestedTL&#8217;
 is a list of (tag, length)-tuples that specify which tags should be
@@ -912,39 +913,39 @@ returned in what size.</p>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.getpath">
-<code class="descname">getpath</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.getpath" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">getpath</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.getpath" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the path to this file beginning with the MF&#8217;s fid.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.lifecycle">
-<code class="descname">lifecycle</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.lifecycle" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">lifecycle</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.lifecycle" title="Permalink to this definition">¶</a></dt>
 <dd><p>life cycle byte</p>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.makeFirstSoftwareFunctionTable">
-<em class="property">static </em><code class="descname">makeFirstSoftwareFunctionTable</code><span class="sig-paren">(</span><em>DFSelectionByFullDFName=True</em>, <em>DFSelectionByPartialDFName=True</em>, <em>DFSelectionByPath=True</em>, <em>DFSelectionByFID=True</em>, <em>DFSelectionByApplication_implicite=True</em>, <em>ShortFIDSupported=True</em>, <em>RecordNumberSupported=True</em>, <em>RecordIdentifierSupported=True</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.makeFirstSoftwareFunctionTable" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><tt class="descname">makeFirstSoftwareFunctionTable</tt><big>(</big><em>DFSelectionByFullDFName=True</em>, <em>DFSelectionByPartialDFName=True</em>, <em>DFSelectionByPath=True</em>, <em>DFSelectionByFID=True</em>, <em>DFSelectionByApplication_implicite=True</em>, <em>ShortFIDSupported=True</em>, <em>RecordNumberSupported=True</em>, <em>RecordIdentifierSupported=True</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.makeFirstSoftwareFunctionTable" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a byte according to the first software function table from the
 historical bytes of the card capabilities.</p>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.makeSecondSoftwareFunctionTable">
-<em class="property">static </em><code class="descname">makeSecondSoftwareFunctionTable</code><span class="sig-paren">(</span><em>DCB=1</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.makeSecondSoftwareFunctionTable" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><tt class="descname">makeSecondSoftwareFunctionTable</tt><big>(</big><em>DCB=1</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.makeSecondSoftwareFunctionTable" title="Permalink to this definition">¶</a></dt>
 <dd><p>The second software function table from the historical bytes contains
 the data coding byte.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.parent">
-<code class="descname">parent</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.parent" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">parent</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.parent" title="Permalink to this definition">¶</a></dt>
 <dd><p>parent DF</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.putDataEncapsulated">
-<code class="descname">putDataEncapsulated</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.putDataEncapsulated" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">putDataEncapsulated</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.putDataEncapsulated" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function for instruction 0xdb. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
 integers and &#8216;data&#8217; as binary string.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -960,7 +961,7 @@ data as binary string.</td>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.putDataPlain">
-<code class="descname">putDataPlain</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.putDataPlain" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">putDataPlain</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.putDataPlain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function for instruction 0xda. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
 integers and &#8216;data&#8217; as binary string.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -976,7 +977,7 @@ data as binary string.</td>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.putdata">
-<code class="descname">putdata</code><span class="sig-paren">(</span><em>isSimpleTlv</em>, <em>newtlvlist</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.putdata" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">putdata</tt><big>(</big><em>isSimpleTlv</em>, <em>newtlvlist</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.putdata" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets either the file&#8217;s BER-TLV or the file&#8217;s SIMPLE-TLV coded data
 objects depending on the bool &#8216;isSimpleTlv&#8217;. &#8216;newtlvlist&#8217; is a list of
 (tag, length, value)-tuples of new data.</p>
@@ -984,7 +985,7 @@ objects depending on the bool &#8216;isSimpleTlv&#8217;. &#8216;newtlvlist&#8217
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.readBinaryEncapsulated">
-<code class="descname">readBinaryEncapsulated</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.readBinaryEncapsulated" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">readBinaryEncapsulated</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.readBinaryEncapsulated" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function for instruction 0xb1. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
 integers and &#8216;data&#8217; as binary string.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1000,7 +1001,7 @@ data as binary string.</td>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.readBinaryPlain">
-<code class="descname">readBinaryPlain</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.readBinaryPlain" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">readBinaryPlain</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.readBinaryPlain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function for instruction 0xb0. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
 integers and &#8216;data&#8217; as binary string.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1016,7 +1017,7 @@ data as binary string.</td>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.readRecordEncapsulated">
-<code class="descname">readRecordEncapsulated</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.readRecordEncapsulated" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">readRecordEncapsulated</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.readRecordEncapsulated" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function for instruction 0xb3. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
 integers and &#8216;data&#8217; as binary string.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1032,7 +1033,7 @@ data as binary string.</td>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.readRecordPlain">
-<code class="descname">readRecordPlain</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.readRecordPlain" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">readRecordPlain</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.readRecordPlain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function for instruction 0xb2. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
 integers and &#8216;data&#8217; as binary string.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1048,19 +1049,19 @@ data as binary string.</td>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.readbinary">
-<code class="descname">readbinary</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.readbinary" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">readbinary</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.readbinary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.readrecord">
-<code class="descname">readrecord</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.readrecord" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">readrecord</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.readrecord" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.recordHandlingDecode">
-<code class="descname">recordHandlingDecode</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.recordHandlingDecode" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">recordHandlingDecode</tt><big>(</big><em>p1</em>, <em>p2</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.recordHandlingDecode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decodes &#8216;p1&#8217; and &#8216;p2&#8217; from a record handling command (i. e.
 read/write/update/append/search/erase record).</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1077,29 +1078,29 @@ the record and a reference, that specifies which record to select
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.remove">
-<code class="descname">remove</code><span class="sig-paren">(</span><em>file</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.remove" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">remove</tt><big>(</big><em>file</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.remove" title="Permalink to this definition">¶</a></dt>
 <dd><p>Removes &#8216;file&#8217; from the content of the DF</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.searchBinaryEncapsulated">
-<code class="descname">searchBinaryEncapsulated</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.searchBinaryEncapsulated" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">searchBinaryEncapsulated</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.searchBinaryEncapsulated" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.searchBinaryPlain">
-<code class="descname">searchBinaryPlain</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.searchBinaryPlain" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">searchBinaryPlain</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.searchBinaryPlain" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.secondSFT">
-<code class="descname">secondSFT</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.secondSFT" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">secondSFT</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.secondSFT" title="Permalink to this definition">¶</a></dt>
 <dd><p>string of length 1. The secondsoftware function table from thehistorical bytes.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.select">
-<code class="descname">select</code><span class="sig-paren">(</span><em>attribute</em>, <em>value</em>, <em>reference=0</em>, <em>index_current=0</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.select" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">select</tt><big>(</big><em>attribute</em>, <em>value</em>, <em>reference=0</em>, <em>index_current=0</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.select" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the first file of the DF, that has the &#8216;attribute&#8217; with the
 specified &#8216;value&#8217;. For partial DF name selection you must specify the
 first/last/next or previous occurence with &#8216;reference&#8217; and the index of
@@ -1108,7 +1109,7 @@ the current file &#8216;index_current&#8217; (-1 for None).</p>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.selectFile">
-<code class="descname">selectFile</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.selectFile" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">selectFile</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.selectFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function for instruction 0xa4. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
 integers and &#8216;data&#8217; as binary string.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1124,13 +1125,13 @@ data as binary string.</td>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.simpletlv_data">
-<code class="descname">simpletlv_data</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.simpletlv_data" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">simpletlv_data</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.simpletlv_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>list of (tag, length, value)-tuples of SIMPLE-TLV coded data objects (encrypted)</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.updateBinaryEncapsulated">
-<code class="descname">updateBinaryEncapsulated</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.updateBinaryEncapsulated" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">updateBinaryEncapsulated</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.updateBinaryEncapsulated" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function for instruction 0xd7. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
 integers and &#8216;data&#8217; as binary string.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1146,7 +1147,7 @@ data as binary string.</td>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.updateBinaryPlain">
-<code class="descname">updateBinaryPlain</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.updateBinaryPlain" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">updateBinaryPlain</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.updateBinaryPlain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function for instruction 0xd6. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
 integers and &#8216;data&#8217; as binary string.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1162,7 +1163,7 @@ data as binary string.</td>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.updateRecordEncapsulated">
-<code class="descname">updateRecordEncapsulated</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.updateRecordEncapsulated" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">updateRecordEncapsulated</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.updateRecordEncapsulated" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function for instruction 0xdd. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
 integers and &#8216;data&#8217; as binary string.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1178,7 +1179,7 @@ data as binary string.</td>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.updateRecordPlain">
-<code class="descname">updateRecordPlain</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.updateRecordPlain" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">updateRecordPlain</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.updateRecordPlain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function for instruction 0xdc. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
 integers and &#8216;data&#8217; as binary string.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1194,19 +1195,19 @@ data as binary string.</td>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.updatebinary">
-<code class="descname">updatebinary</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.updatebinary" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">updatebinary</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.updatebinary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.updaterecord">
-<code class="descname">updaterecord</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.updaterecord" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">updaterecord</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.updaterecord" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.writeBinaryEncapsulated">
-<code class="descname">writeBinaryEncapsulated</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.writeBinaryEncapsulated" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">writeBinaryEncapsulated</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.writeBinaryEncapsulated" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function for instruction 0xd1. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
 integers and &#8216;data&#8217; as binary string. Returns the status bytes as two
 byte long integer and the response data as binary string.</p>
@@ -1214,7 +1215,7 @@ byte long integer and the response data as binary string.</p>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.writeBinaryPlain">
-<code class="descname">writeBinaryPlain</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.writeBinaryPlain" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">writeBinaryPlain</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.writeBinaryPlain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function for instruction 0xd0. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
 integers and &#8216;data&#8217; as binary string.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1230,7 +1231,7 @@ data as binary string.</td>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.writeRecord">
-<code class="descname">writeRecord</code><span class="sig-paren">(</span><em>p1</em>, <em>p2</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.writeRecord" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">writeRecord</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.writeRecord" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function for instruction 0xd2. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
 integers and &#8216;data&#8217; as binary string.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1246,13 +1247,13 @@ data as binary string.</td>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.writebinary">
-<code class="descname">writebinary</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.writebinary" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">writebinary</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.writebinary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.MF.writerecord">
-<code class="descname">writerecord</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.writerecord" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">writerecord</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.MF.writerecord" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
@@ -1260,17 +1261,17 @@ data as binary string.</td>
 
 <dl class="class">
 <dt id="virtualsmartcard.SmartcardFilesystem.Record">
-<em class="property">class </em><code class="descclassname">virtualsmartcard.SmartcardFilesystem.</code><code class="descname">Record</code><span class="sig-paren">(</span><em>identifier=None</em>, <em>data=''</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.Record" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<em class="property">class </em><tt class="descclassname">virtualsmartcard.SmartcardFilesystem.</tt><tt class="descname">Record</tt><big>(</big><em>identifier=None</em>, <em>data=''</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.Record" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.Record.data">
-<code class="descname">data</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.Record.data" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">data</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.Record.data" title="Permalink to this definition">¶</a></dt>
 <dd><p>string. The record&#8217;s data.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.Record.identifier">
-<code class="descname">identifier</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.Record.identifier" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">identifier</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.Record.identifier" title="Permalink to this definition">¶</a></dt>
 <dd><p>Class for a Record of an elementary of record structure</p>
 </dd></dl>
 
@@ -1278,12 +1279,12 @@ data as binary string.</td>
 
 <dl class="class">
 <dt id="virtualsmartcard.SmartcardFilesystem.RecordStructureEF">
-<em class="property">class </em><code class="descclassname">virtualsmartcard.SmartcardFilesystem.</code><code class="descname">RecordStructureEF</code><span class="sig-paren">(</span><em>parent</em>, <em>fid</em>, <em>filedescriptor</em>, <em>lifecycle=5</em>, <em>simpletlv_data=None</em>, <em>bertlv_data=None</em>, <em>datacoding=0</em>, <em>shortfid=0</em>, <em>maxrecordsize=65535</em>, <em>records=[]</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#virtualsmartcard.SmartcardFilesystem.EF" title="virtualsmartcard.SmartcardFilesystem.EF"><code class="xref py py-class docutils literal"><span class="pre">virtualsmartcard.SmartcardFilesystem.EF</span></code></a></p>
+<em class="property">class </em><tt class="descclassname">virtualsmartcard.SmartcardFilesystem.</tt><tt class="descname">RecordStructureEF</tt><big>(</big><em>parent</em>, <em>fid</em>, <em>filedescriptor</em>, <em>lifecycle=5</em>, <em>simpletlv_data=None</em>, <em>bertlv_data=None</em>, <em>datacoding=0</em>, <em>shortfid=0</em>, <em>maxrecordsize=65535</em>, <em>records=[]</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#virtualsmartcard.SmartcardFilesystem.EF" title="virtualsmartcard.SmartcardFilesystem.EF"><tt class="xref py py-class docutils literal"><span class="pre">virtualsmartcard.SmartcardFilesystem.EF</span></tt></a></p>
 <p>Class for an elementary file with record structure.</p>
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.RecordStructureEF._RecordStructureEF__getRecords">
-<code class="descname">_RecordStructureEF__getRecords</code><span class="sig-paren">(</span><em>num_id</em>, <em>reference</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF._RecordStructureEF__getRecords" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_RecordStructureEF__getRecords</tt><big>(</big><em>num_id</em>, <em>reference</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF._RecordStructureEF__getRecords" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of records.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1302,7 +1303,7 @@ bits of &#8216;p1&#8217; of a record handling command)</li>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.RecordStructureEF._RecordStructureEF__getRecordsByIdentifier">
-<code class="descname">_RecordStructureEF__getRecordsByIdentifier</code><span class="sig-paren">(</span><em>id</em>, <em>reference</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF._RecordStructureEF__getRecordsByIdentifier" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_RecordStructureEF__getRecordsByIdentifier</tt><big>(</big><em>id</em>, <em>reference</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF._RecordStructureEF__getRecordsByIdentifier" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of records and sets the recordpointer to the first
 record, that matched. Is to be involved by __getRecords.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1322,7 +1323,7 @@ bits of &#8216;p1&#8217; of a record handling command)</li>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.RecordStructureEF._RecordStructureEF__getRecordsByNumber">
-<code class="descname">_RecordStructureEF__getRecordsByNumber</code><span class="sig-paren">(</span><em>number</em>, <em>reference</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF._RecordStructureEF__getRecordsByNumber" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_RecordStructureEF__getRecordsByNumber</tt><big>(</big><em>number</em>, <em>reference</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF._RecordStructureEF__getRecordsByNumber" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of records. Is to be involved by __getRecords.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1341,61 +1342,61 @@ bits of &#8216;p1&#8217; of a record handling command)</li>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.RecordStructureEF.appendrecord">
-<code class="descname">appendrecord</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.appendrecord" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">appendrecord</tt><big>(</big><em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.appendrecord" title="Permalink to this definition">¶</a></dt>
 <dd><p>Appends a new record to the file, initializing it with the given data
 string. Sets the recordpointer to the newly created record.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.RecordStructureEF.bertlv_data">
-<code class="descname">bertlv_data</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.bertlv_data" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">bertlv_data</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.bertlv_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>list of (tag, length, value)-tuples of BER-TLV coded data objects (encrypted)</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.RecordStructureEF.datacoding">
-<code class="descname">datacoding</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.datacoding" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">datacoding</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.datacoding" title="Permalink to this definition">¶</a></dt>
 <dd><p>integer. Data coding byte.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.RecordStructureEF.decrypt">
-<code class="descname">decrypt</code><span class="sig-paren">(</span><em>path</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.decrypt" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">decrypt</tt><big>(</big><em>path</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.decrypt" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.RecordStructureEF.encrypt">
-<code class="descname">encrypt</code><span class="sig-paren">(</span><em>path</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.encrypt" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">encrypt</tt><big>(</big><em>path</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.encrypt" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.RecordStructureEF.erasebinary">
-<code class="descname">erasebinary</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.erasebinary" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">erasebinary</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.erasebinary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.RecordStructureEF.eraserecord">
-<code class="descname">eraserecord</code><span class="sig-paren">(</span><em>num_id</em>, <em>reference</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.eraserecord" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">eraserecord</tt><big>(</big><em>num_id</em>, <em>reference</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.eraserecord" title="Permalink to this definition">¶</a></dt>
 <dd><p>Removes a record from the file. &#8216;num_id&#8217; and &#8216;reference&#8217; specify the
 record (see __getRecords).</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.RecordStructureEF.fid">
-<code class="descname">fid</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.fid" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">fid</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.fid" title="Permalink to this definition">¶</a></dt>
 <dd><p>file identifier</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.RecordStructureEF.filedescriptor">
-<code class="descname">filedescriptor</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.filedescriptor" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">filedescriptor</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.filedescriptor" title="Permalink to this definition">¶</a></dt>
 <dd><p>file descriptor byte</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.RecordStructureEF.getdata">
-<code class="descname">getdata</code><span class="sig-paren">(</span><em>isSimpleTlv</em>, <em>requestedTL</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.getdata" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">getdata</tt><big>(</big><em>isSimpleTlv</em>, <em>requestedTL</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.getdata" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a string of either the file&#8217;s BER-TLV or the file&#8217;s SIMPLE-TLV
 coded data objects depending on the bool &#8216;isSimpleTlv&#8217;. &#8216;requestedTL&#8217;
 is a list of (tag, length)-tuples that specify which tags should be
@@ -1404,49 +1405,49 @@ returned in what size.</p>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.RecordStructureEF.getpath">
-<code class="descname">getpath</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.getpath" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">getpath</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.getpath" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the path to this file beginning with the MF&#8217;s fid.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.RecordStructureEF.hasFixedRecordSize">
-<code class="descname">hasFixedRecordSize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.hasFixedRecordSize" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">hasFixedRecordSize</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.hasFixedRecordSize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns True if the records are of fixed size, False otherwise.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.RecordStructureEF.hasSimpleTlv">
-<code class="descname">hasSimpleTlv</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.hasSimpleTlv" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">hasSimpleTlv</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.hasSimpleTlv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns True if the EF is of TLV structure, False otherwise.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.RecordStructureEF.isCyclic">
-<code class="descname">isCyclic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.isCyclic" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">isCyclic</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.isCyclic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns True if the EF is of cyclic structure, False otherwise.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.RecordStructureEF.lifecycle">
-<code class="descname">lifecycle</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.lifecycle" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">lifecycle</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.lifecycle" title="Permalink to this definition">¶</a></dt>
 <dd><p>life cycle byte</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.RecordStructureEF.maxrecordsize">
-<code class="descname">maxrecordsize</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.maxrecordsize" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">maxrecordsize</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.maxrecordsize" title="Permalink to this definition">¶</a></dt>
 <dd><p>integer. maximum length of a record&#8217;s data.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.RecordStructureEF.parent">
-<code class="descname">parent</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.parent" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">parent</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.parent" title="Permalink to this definition">¶</a></dt>
 <dd><p>parent DF</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.RecordStructureEF.putdata">
-<code class="descname">putdata</code><span class="sig-paren">(</span><em>isSimpleTlv</em>, <em>newtlvlist</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.putdata" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">putdata</tt><big>(</big><em>isSimpleTlv</em>, <em>newtlvlist</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.putdata" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets either the file&#8217;s BER-TLV or the file&#8217;s SIMPLE-TLV coded data
 objects depending on the bool &#8216;isSimpleTlv&#8217;. &#8216;newtlvlist&#8217; is a list of
 (tag, length, value)-tuples of new data.</p>
@@ -1454,75 +1455,75 @@ objects depending on the bool &#8216;isSimpleTlv&#8217;. &#8216;newtlvlist&#8217
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.RecordStructureEF.readbinary">
-<code class="descname">readbinary</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.readbinary" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">readbinary</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.readbinary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.RecordStructureEF.readrecord">
-<code class="descname">readrecord</code><span class="sig-paren">(</span><em>offset</em>, <em>num_id</em>, <em>reference</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.readrecord" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">readrecord</tt><big>(</big><em>offset</em>, <em>num_id</em>, <em>reference</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.readrecord" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a data string from the given &#8216;offset&#8217;. &#8216;num_id&#8217; and &#8216;reference&#8217;
 specify the record (see __getRecords).</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.RecordStructureEF.recordpointer">
-<code class="descname">recordpointer</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.recordpointer" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">recordpointer</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.recordpointer" title="Permalink to this definition">¶</a></dt>
 <dd><p>integer. Points to the current record (i. e. index of records).</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.RecordStructureEF.records">
-<code class="descname">records</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.records" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">records</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.records" title="Permalink to this definition">¶</a></dt>
 <dd><p>list of records (encrypted)</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.RecordStructureEF.resetRecordPointer">
-<code class="descname">resetRecordPointer</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.resetRecordPointer" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">resetRecordPointer</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.resetRecordPointer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Resets the record pointer.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.RecordStructureEF.select">
-<code class="descname">select</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.select" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">select</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.select" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.RecordStructureEF.shortfid">
-<code class="descname">shortfid</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.shortfid" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">shortfid</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.shortfid" title="Permalink to this definition">¶</a></dt>
 <dd><p>integer with 1&lt;=shortfid&lt;=30.Short EF identifier.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.RecordStructureEF.simpletlv_data">
-<code class="descname">simpletlv_data</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.simpletlv_data" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">simpletlv_data</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.simpletlv_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>list of (tag, length, value)-tuples of SIMPLE-TLV coded data objects (encrypted)</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.RecordStructureEF.updatebinary">
-<code class="descname">updatebinary</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.updatebinary" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">updatebinary</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.updatebinary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.RecordStructureEF.updaterecord">
-<code class="descname">updaterecord</code><span class="sig-paren">(</span><em>num_id</em>, <em>reference</em>, <em>offset</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.updaterecord" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">updaterecord</tt><big>(</big><em>num_id</em>, <em>reference</em>, <em>offset</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.updaterecord" title="Permalink to this definition">¶</a></dt>
 <dd><p>x.updaterecord(num_id, reference, offset, data) &lt;==&gt;
 x.writerecord(num_id, reference, offset, data, DCB[&#8220;ONETIMEWRITE&#8221;])</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.RecordStructureEF.writebinary">
-<code class="descname">writebinary</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.writebinary" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">writebinary</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.writebinary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.RecordStructureEF.writerecord">
-<code class="descname">writerecord</code><span class="sig-paren">(</span><em>num_id</em>, <em>reference</em>, <em>offset</em>, <em>data</em>, <em>datacoding=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.writerecord" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">writerecord</tt><big>(</big><em>num_id</em>, <em>reference</em>, <em>offset</em>, <em>data</em>, <em>datacoding=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.RecordStructureEF.writerecord" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes a data string to the &#8216;offset&#8217; of a record using the given data
 coding byte.  &#8216;num_id&#8217; and &#8216;reference&#8217; specify the record (see
 __getRecords).</p>
@@ -1532,65 +1533,65 @@ __getRecords).</p>
 
 <dl class="class">
 <dt id="virtualsmartcard.SmartcardFilesystem.TransparentStructureEF">
-<em class="property">class </em><code class="descclassname">virtualsmartcard.SmartcardFilesystem.</code><code class="descname">TransparentStructureEF</code><span class="sig-paren">(</span><em>parent</em>, <em>fid</em>, <em>filedescriptor=1</em>, <em>lifecycle=5</em>, <em>simpletlv_data=None</em>, <em>bertlv_data=None</em>, <em>datacoding=0</em>, <em>shortfid=0</em>, <em>data=''</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#virtualsmartcard.SmartcardFilesystem.EF" title="virtualsmartcard.SmartcardFilesystem.EF"><code class="xref py py-class docutils literal"><span class="pre">virtualsmartcard.SmartcardFilesystem.EF</span></code></a></p>
+<em class="property">class </em><tt class="descclassname">virtualsmartcard.SmartcardFilesystem.</tt><tt class="descname">TransparentStructureEF</tt><big>(</big><em>parent</em>, <em>fid</em>, <em>filedescriptor=1</em>, <em>lifecycle=5</em>, <em>simpletlv_data=None</em>, <em>bertlv_data=None</em>, <em>datacoding=0</em>, <em>shortfid=0</em>, <em>data=''</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#virtualsmartcard.SmartcardFilesystem.EF" title="virtualsmartcard.SmartcardFilesystem.EF"><tt class="xref py py-class docutils literal"><span class="pre">virtualsmartcard.SmartcardFilesystem.EF</span></tt></a></p>
 <p>Class for an elementary file with transparent structure.</p>
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.appendrecord">
-<code class="descname">appendrecord</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.appendrecord" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">appendrecord</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.appendrecord" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.bertlv_data">
-<code class="descname">bertlv_data</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.bertlv_data" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">bertlv_data</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.bertlv_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>list of (tag, length, value)-tuples of BER-TLV coded data objects (encrypted)</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.data">
-<code class="descname">data</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.data" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">data</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.data" title="Permalink to this definition">¶</a></dt>
 <dd><p>string (encrypted). The file&#8217;s data.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.datacoding">
-<code class="descname">datacoding</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.datacoding" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">datacoding</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.datacoding" title="Permalink to this definition">¶</a></dt>
 <dd><p>integer. Data coding byte.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.decrypt">
-<code class="descname">decrypt</code><span class="sig-paren">(</span><em>path</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.decrypt" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">decrypt</tt><big>(</big><em>path</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.decrypt" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.encrypt">
-<code class="descname">encrypt</code><span class="sig-paren">(</span><em>path</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.encrypt" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">encrypt</tt><big>(</big><em>path</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.encrypt" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.erasebinary">
-<code class="descname">erasebinary</code><span class="sig-paren">(</span><em>erasefrom</em>, <em>eraseto</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.erasebinary" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">erasebinary</tt><big>(</big><em>erasefrom</em>, <em>eraseto</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.erasebinary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets (part of) the content of an EF to its logical erased state,
 sequentially starting from &#8216;erasefrom&#8217; ending at &#8216;eraseto&#8217;.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.fid">
-<code class="descname">fid</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.fid" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">fid</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.fid" title="Permalink to this definition">¶</a></dt>
 <dd><p>file identifier</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.filedescriptor">
-<code class="descname">filedescriptor</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.filedescriptor" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">filedescriptor</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.filedescriptor" title="Permalink to this definition">¶</a></dt>
 <dd><p>file descriptor byte</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.getdata">
-<code class="descname">getdata</code><span class="sig-paren">(</span><em>isSimpleTlv</em>, <em>requestedTL</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.getdata" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">getdata</tt><big>(</big><em>isSimpleTlv</em>, <em>requestedTL</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.getdata" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a string of either the file&#8217;s BER-TLV or the file&#8217;s SIMPLE-TLV
 coded data objects depending on the bool &#8216;isSimpleTlv&#8217;. &#8216;requestedTL&#8217;
 is a list of (tag, length)-tuples that specify which tags should be
@@ -1599,25 +1600,25 @@ returned in what size.</p>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.getpath">
-<code class="descname">getpath</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.getpath" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">getpath</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.getpath" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the path to this file beginning with the MF&#8217;s fid.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.lifecycle">
-<code class="descname">lifecycle</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.lifecycle" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">lifecycle</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.lifecycle" title="Permalink to this definition">¶</a></dt>
 <dd><p>life cycle byte</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.parent">
-<code class="descname">parent</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.parent" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">parent</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.parent" title="Permalink to this definition">¶</a></dt>
 <dd><p>parent DF</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.putdata">
-<code class="descname">putdata</code><span class="sig-paren">(</span><em>isSimpleTlv</em>, <em>newtlvlist</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.putdata" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">putdata</tt><big>(</big><em>isSimpleTlv</em>, <em>newtlvlist</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.putdata" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets either the file&#8217;s BER-TLV or the file&#8217;s SIMPLE-TLV coded data
 objects depending on the bool &#8216;isSimpleTlv&#8217;. &#8216;newtlvlist&#8217; is a list of
 (tag, length, value)-tuples of new data.</p>
@@ -1625,50 +1626,50 @@ objects depending on the bool &#8216;isSimpleTlv&#8217;. &#8216;newtlvlist&#8217
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.readbinary">
-<code class="descname">readbinary</code><span class="sig-paren">(</span><em>offset</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.readbinary" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">readbinary</tt><big>(</big><em>offset</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.readbinary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the string of decrypted data beginning at &#8216;offset&#8217;.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.readrecord">
-<code class="descname">readrecord</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.readrecord" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">readrecord</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.readrecord" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.select">
-<code class="descname">select</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.select" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">select</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.select" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.shortfid">
-<code class="descname">shortfid</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.shortfid" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">shortfid</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.shortfid" title="Permalink to this definition">¶</a></dt>
 <dd><p>integer with 1&lt;=shortfid&lt;=30.Short EF identifier.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.simpletlv_data">
-<code class="descname">simpletlv_data</code><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.simpletlv_data" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">simpletlv_data</tt><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.simpletlv_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>list of (tag, length, value)-tuples of SIMPLE-TLV coded data objects (encrypted)</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.updatebinary">
-<code class="descname">updatebinary</code><span class="sig-paren">(</span><em>offsets</em>, <em>datalist</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.updatebinary" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">updatebinary</tt><big>(</big><em>offsets</em>, <em>datalist</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.updatebinary" title="Permalink to this definition">¶</a></dt>
 <dd><p>x.updatebinary(offsets, datalist) &lt;==&gt;
 x.writebinary(offsets, datalist, DCB[&#8220;ONETIMEWRITE&#8221;])</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.updaterecord">
-<code class="descname">updaterecord</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.updaterecord" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">updaterecord</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.updaterecord" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.writebinary">
-<code class="descname">writebinary</code><span class="sig-paren">(</span><em>offsets</em>, <em>datalist</em>, <em>datacoding=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.writebinary" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">writebinary</tt><big>(</big><em>offsets</em>, <em>datalist</em>, <em>datacoding=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.writebinary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes pieces of data to the specified offsets honoring the given
 coding byte.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1688,7 +1689,7 @@ coding byte.</p>
 
 <dl class="method">
 <dt id="virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.writerecord">
-<code class="descname">writerecord</code><span class="sig-paren">(</span><em>*argz</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.writerecord" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">writerecord</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.TransparentStructureEF.writerecord" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
@@ -1696,7 +1697,7 @@ coding byte.</p>
 
 <dl class="function">
 <dt id="virtualsmartcard.SmartcardFilesystem.get_indexes">
-<code class="descclassname">virtualsmartcard.SmartcardFilesystem.</code><code class="descname">get_indexes</code><span class="sig-paren">(</span><em>items</em>, <em>reference=0</em>, <em>index_current=0</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.get_indexes" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">virtualsmartcard.SmartcardFilesystem.</tt><tt class="descname">get_indexes</tt><big>(</big><em>items</em>, <em>reference=0</em>, <em>index_current=0</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.get_indexes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns all indexes of the list, which are specified by &#8216;reference&#8217; and by
 the current index &#8216;index_current&#8217; (-1 for no current item) in the correct
 order. I. e.:</p>
@@ -1708,7 +1709,7 @@ REF[&#8220;IDENTIFIER_PREVIOUS&#8221;]: all indexes from the previous to the fir
 
 <dl class="function">
 <dt id="virtualsmartcard.SmartcardFilesystem.getfile_byrefdataobj">
-<code class="descclassname">virtualsmartcard.SmartcardFilesystem.</code><code class="descname">getfile_byrefdataobj</code><span class="sig-paren">(</span><em>mf</em>, <em>refdataobjs</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.getfile_byrefdataobj" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">virtualsmartcard.SmartcardFilesystem.</tt><tt class="descname">getfile_byrefdataobj</tt><big>(</big><em>mf</em>, <em>refdataobjs</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.getfile_byrefdataobj" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of files according to the given list of reference data
 objects.</p>
 <p>param mf:          the MF
@@ -1717,27 +1718,27 @@ param refdataobjs: a list of 3-tuples (tag, length, newvalue)</p>
 
 <dl class="function">
 <dt id="virtualsmartcard.SmartcardFilesystem.isEqual">
-<code class="descclassname">virtualsmartcard.SmartcardFilesystem.</code><code class="descname">isEqual</code><span class="sig-paren">(</span><em>list</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.isEqual" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">virtualsmartcard.SmartcardFilesystem.</tt><tt class="descname">isEqual</tt><big>(</big><em>list</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.isEqual" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns True, if all items are equal, otherwise False</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="virtualsmartcard.SmartcardFilesystem.make_property">
-<code class="descclassname">virtualsmartcard.SmartcardFilesystem.</code><code class="descname">make_property</code><span class="sig-paren">(</span><em>prop</em>, <em>doc</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.make_property" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">virtualsmartcard.SmartcardFilesystem.</tt><tt class="descname">make_property</tt><big>(</big><em>prop</em>, <em>doc</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.make_property" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assigns a property to the calling object. This is used to decorate instance
 variables with docstrings.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="virtualsmartcard.SmartcardFilesystem.prettyprint_anything">
-<code class="descclassname">virtualsmartcard.SmartcardFilesystem.</code><code class="descname">prettyprint_anything</code><span class="sig-paren">(</span><em>indent</em>, <em>thing</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.prettyprint_anything" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">virtualsmartcard.SmartcardFilesystem.</tt><tt class="descname">prettyprint_anything</tt><big>(</big><em>indent</em>, <em>thing</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.prettyprint_anything" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a recursively generated string representation of an object and its
 attributes.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="virtualsmartcard.SmartcardFilesystem.walk">
-<code class="descclassname">virtualsmartcard.SmartcardFilesystem.</code><code class="descname">walk</code><span class="sig-paren">(</span><em>start</em>, <em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.walk" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">virtualsmartcard.SmartcardFilesystem.</tt><tt class="descname">walk</tt><big>(</big><em>start</em>, <em>path</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.walk" title="Permalink to this definition">¶</a></dt>
 <dd><p>Walks a path of fids and returns the last file (EF or DF).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1755,7 +1756,7 @@ attributes.</p>
 
 <dl class="function">
 <dt id="virtualsmartcard.SmartcardFilesystem.write">
-<code class="descclassname">virtualsmartcard.SmartcardFilesystem.</code><code class="descname">write</code><span class="sig-paren">(</span><em>old</em>, <em>newlist</em>, <em>offsets</em>, <em>datacoding</em>, <em>maxsize=None</em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.write" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">virtualsmartcard.SmartcardFilesystem.</tt><tt class="descname">write</tt><big>(</big><em>old</em>, <em>newlist</em>, <em>offsets</em>, <em>datacoding</em>, <em>maxsize=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.SmartcardFilesystem.write" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the status bytes and the result of a write operation according to
 the given data coding.</p>
 <table class="docutils field-list" frame="void" rules="none">
