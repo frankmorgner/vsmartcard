@@ -169,7 +169,6 @@ to completely emulate an ISO/IEC 14443 smart card.
 @PACKAGE_NAME@ has the following dependencies:
 
 - PC/SC middleware
-- libnfc_
 
 
 .. include:: relay-note.txt

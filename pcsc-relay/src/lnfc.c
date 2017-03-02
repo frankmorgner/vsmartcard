@@ -16,11 +16,17 @@
  * You should have received a copy of the GNU General Public License along with
  * pcsc-relay.  If not, see <http://www.gnu.org/licenses/>.
  */
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include "pcsc-relay.h"
+
+#ifdef ENABLE_LIBNFC
+
 #include <nfc/nfc.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "pcsc-relay.h"
 
 struct lnfc_data {
     /* PN53X only supports short APDUs */
@@ -100,7 +106,6 @@ static size_t get_historical_bytes(unsigned char *atr, size_t atrlen,
     return hblen;
 }
 #endif
-
 
 static int lnfc_connect(driver_data_t **driver_data)
 {
@@ -237,6 +242,37 @@ static int lnfc_send_rapdu(driver_data_t *driver_data,
     return 1;
 }
 
+#else
+
+static int error(void)
+{
+    RELAY_ERROR("Compiled without support for libnfc\n");
+    return 0;
+}
+
+static int lnfc_connect(driver_data_t **driver_data)
+{
+    return error();
+}
+
+static int lnfc_disconnect(driver_data_t *driver_data)
+{
+    return error();
+}
+
+static int lnfc_receive_capdu(driver_data_t *driver_data,
+        unsigned char **capdu, size_t *len)
+{
+    return error();
+}
+
+static int lnfc_send_rapdu(driver_data_t *driver_data,
+        const unsigned char *rapdu, size_t len)
+{
+    return error();
+}
+
+#endif
 
 struct rf_driver driver_libnfc = {
     .connect = lnfc_connect,
