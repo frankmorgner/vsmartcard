@@ -78,6 +78,7 @@ saved_CPPFLAGS="$CPPFLAGS"
 CPPFLAGS="$CPPFLAGS $PCSC_CFLAGS $LIBNFC_CFLAGS"
 AC_CHECK_HEADERS(winscard.h, [], [ AC_MSG_ERROR([winscard.h not found, install PC/SC Lite or similar or use ./configure PCSC_CFLAGS=...]) ])
 AC_CHECK_HEADERS(reader.h, [AC_DEFINE(HAVE_READER_H, 1, [use reader.h from PC/SC Lite])], [])
+AC_CHECK_HEADERS(wintypes.h, [AC_DEFINE(HAVE_WINTYPES_H, 1, [use wintypes.h from PC/SC Lite])], [])
 AC_CHECK_HEADERS(pcsclite.h, [AC_DEFINE(HAVE_PCSCLITE_H, 1, [use pcsclite.h from PC/SC Lite])], [])
 AC_CHECK_HEADERS(nfc/nfc.h,, [ have_libnfc="no"])
 CPPFLAGS="$saved_CPPFLAGS"

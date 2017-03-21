@@ -34,6 +34,10 @@
 #define SCARD_PROTOCOL_ANY (SCARD_PROTOCOL_T0|SCARD_PROTOCOL_T1)
 #endif
 
+#ifdef HAVE_WINTYPES_H
+#include <wintypes.h>
+#endif
+
 #ifdef HAVE_READER_H
 #include <reader.h>
 #endif
@@ -60,7 +64,7 @@ static int pcsc_connect(driver_data_t **driver_data)
     struct pcsc_data *data;
 
     LONG r;
-    DWORD readerslen = SCARD_AUTOALLOCATE;
+    DWORD readerslen;
     SCARD_READERSTATE state;
     LPSTR readers = NULL;
     char *reader;
@@ -86,7 +90,22 @@ static int pcsc_connect(driver_data_t **driver_data)
     }
 
 
+#ifdef SCARD_AUTOALLOCATE
+    readerslen = SCARD_AUTOALLOCATE;
     r = SCardListReaders(data->hContext, NULL, (LPSTR) &readers, &readerslen);
+#else
+    r = SCardListReaders(data->hContext, NULL, NULL, &readerslen);
+    if (r != SCARD_S_SUCCESS) {
+        RELAY_ERROR("Could not get readers length\n");
+        goto err;
+    }
+    readers = malloc(readerslen);
+    if (readers == NULL) {
+        RELAY_ERROR("Could not get memory\n");
+        goto err;
+    }
+    r = SCardListReaders(data->hContext, NULL, readers, &readerslen);
+#endif
     if (r != SCARD_S_SUCCESS) {
         RELAY_ERROR("Could not get readers\n");
         goto err;
@@ -151,7 +170,11 @@ static int pcsc_disconnect(driver_data_t *driver_data)
 
     if (data) {
         SCardDisconnect(data->hCard, SCARD_LEAVE_CARD);
+#ifdef SCARD_AUTOALLOCATE
         SCardFreeMemory(data->hContext, data->readers);
+#else
+        free(data->readers);
+#endif
         SCardReleaseContext(data->hContext);
         free(data);
     }
