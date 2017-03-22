@@ -40,23 +40,19 @@ install:
 
 before_script:
   # virtualsmartcard requires OpenPACE
-  - git clone https://github.com/frankmorgner/openpace && cd openpace
-  - autoreconf -vis
   - if [ -z "$HOST" ]; then
+      git clone https://github.com/frankmorgner/openpace;
+      cd openpace && autoreconf -vis;
       ./configure --prefix=$PREFIX --enable-openssl-install --enable-python || cat config.log;
-    else
-      export CROSS_COMPILE=$HOST-;
-      ./configure --prefix=$PREFIX --enable-openssl-install --host=$HOST --enable-openssl-install || cat config.log;
-      touch src/cvc-create.1 src/cvc-print.1;
+      make install;
     fi
-  - make install
   # ccid requires OpenSC
-  - git clone https://github.com/frankmorgner/OpenSC && cd OpenSC
-  - ./bootstrap
+  - git clone https://github.com/frankmorgner/OpenSC
+  - cd OpenSC && autoreconf -vsi
   - if [ -z "$HOST" ]; then
       ./configure --prefix=$PREFIX || cat config.log;
     else
-      ./configure --prefix=$PREFIX --host=$HOST LDFLAGS="-I$PREFIX/include" CFLAGS="-I$PREFIX/include" CXXFLAGS="-I$PREFIX/include" LIBS="-I$PREFIX/include" || cat config.log;
+      ./configure --prefix=$PREFIX --host=$HOST || cat config.log;
     fi
   - make install
   # Configure virtualsmartcard
@@ -67,19 +63,23 @@ before_script:
       ./configure --host=$HOST --enable-libpcsclite || cat config.log;
     fi
   # pcsc-relay requires libnfc
-  - git clone https://github.com/nfc-tools/libnfc.git && cd libnfc && autoreconf -vsi
   - if [ -z "$HOST" ]; then
+      git clone https://github.com/nfc-tools/libnfc.git;
+      cd libnfc && autoreconf -vsi;
       ./configure --prefix=$PREFIX || cat config.log;
       make install;
     fi
   # Configure pcsc-relay
+  - cd $TRAVIS_BUILD_DIR/pcsc-relay && autoreconf -vsi
   - if [ -z "$HOST" ]; then
-      cd $TRAVIS_BUILD_DIR/pcsc-relay;
-      autoreconf -vsi;
-      ./configure --host=$HOST || cat config.log;
+      ./configure || cat config.log;
+    else
+      ./configure --host=$HOST PCSC_CFLAGS="-I/usr/$HOST/include" PCSC_LIBS="-lwinscard" || cat config.log;
     fi
-  - if [ -z "$HOST" ]; then
-      cd $TRAVIS_BUILD_DIR/ccid && autoreconf -vsi && ./configure OPENSC_LIBS="-L$PREFIX/lib -lopensc" || cat config.log;
+  # Configure ccid
+  - if [ $TRAVIS_OS_NAME == linux -a -z "$HOST" ]; then
+      cd $TRAVIS_BUILD_DIR/ccid && autoreconf -vsi;
+      ./configure OPENSC_LIBS="-L$PREFIX/lib -lopensc" || cat config.log;
     fi
 
 addons:
@@ -99,10 +99,8 @@ script:
       cd $TRAVIS_BUILD_DIR/virtualsmartcard/src/vpicc && export PYTHONPATH=$PYTHONPATH:`pwd` && export LD_LIBRARY_PATH=$PREFIX/lib/ && python -m unittest discover -s virtualsmartcard.tests -p *_test.py -v;
     fi
   # Build pcsc-relay
-  - if [ -z "$HOST" ]; then
-      make -C $TRAVIS_BUILD_DIR/pcsc-relay;
-    fi
+  - make -C $TRAVIS_BUILD_DIR/pcsc-relay;
   # Build ccid
-  - if [ -z "$HOST" ]; then
+  - if [ $TRAVIS_OS_NAME == linux -a -z "$HOST" ]; then
       make -C $TRAVIS_BUILD_DIR/ccid;
     fi
