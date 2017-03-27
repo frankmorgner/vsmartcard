@@ -25,7 +25,7 @@
             <Component Id="BixVReaderDriver" Guid="60FF3BFF-E235-4F84-8A25-E22CB3164FB1">
               <File Id="BixVReader.dll" Source="$(var.BixVReader.TargetDir)BixVReader\BixVReader.dll" />
               <File Id="BixVReader.inf" Source="$(var.BixVReader.TargetDir)BixVReader\BixVReader.inf" />
-              <File Id="WudfUpdate_01009.dll" Source="$(var.BixVReader.TargetDir)BixVReader\WudfUpdate_01011.dll" />
+              <File Id="WudfUpdate_01011.dll" Source="$(var.BixVReader.TargetDir)BixVReader\WudfUpdate_01011.dll" />
               <File Id="wudf.cat" Source="$(var.BixVReader.TargetDir)BixVReader\bixvreader.cat" />
             </Component>         
         </Directory>
