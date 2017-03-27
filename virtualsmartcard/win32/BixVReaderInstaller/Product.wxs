@@ -13,7 +13,7 @@
 <?endif?>
     
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-	<Product Id="*" Name="BixVReaderInstaller-$(sys.BUILDARCH)" Language="1033" Version="1.0.0.0" Manufacturer="FrankMorgner" UpgradeCode="6d60b0e4-c325-4d3b-b727-2f3e0b0a8afa">
+	<Product Id="*" Name="Virtual Smart Card Reader ($(sys.BUILDARCH))" Language="1033" Version="1.0.0.0" Manufacturer="Frank Morgner" UpgradeCode="6d60b0e4-c325-4d3b-b727-2f3e0b0a8afa">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
 		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
