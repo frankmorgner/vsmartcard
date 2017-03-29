@@ -428,6 +428,9 @@ class VirtualICC(object):
         elif card_type == "handler_test":
             from virtualsmartcard.cards.HandlerTest import HandlerTestOS
             self.os = HandlerTestOS()
+        elif card_type == "belpic":
+            from virtualsmartcard.cards.belpic import BelpicOS
+            self.os = BelpicOS(MF, SAM)
         else:
             logging.warning("Unknown cardtype %s. Will use standard card_type \
                             (ISO 7816)", card_type)
