@@ -157,4 +157,7 @@ vicc = VirtualICC(args.datasetfile, args.type, hostname, args.port,
         ef_cardsecurity=ef_cardsecurity_data, ca_key=ca_key_data, cvca=cvca,
         disable_checks=args.disable_ta_checks, esign_ca_cert=esign_ca_cert,
         esign_cert=esign_cert, logginglevel=logginglevel)
-vicc.run()
+try:
+    vicc.run()
+except KeyboardInterrupt:
+    pass

@@ -18,8 +18,8 @@
 #
 
 import atexit
+import errno
 import logging
-import signal
 import socket
 import struct
 import sys
@@ -475,13 +475,7 @@ class VirtualICC(object):
 
         logging.info("Connected to virtual PCD at %s:%u", host, port)
 
-        signal.signal(signal.SIGINT, self.signalHandler)
         atexit.register(self.stop)
-
-    def signalHandler(self, sig=None, frame=None):
-        """Basically this signal handler just surpresses a traceback from being
-           printed when the user presses crtl-c"""
-        sys.exit()
 
     @staticmethod
     def connectToPort(host, port):
@@ -509,7 +503,13 @@ class VirtualICC(object):
     def __recvFromVPICC(self):
         """ Receive a message from the vpcd """
         # receive message size
-        sizestr = self.sock.recv(_Csizeof_short)
+        while True:
+            try:
+                sizestr = self.sock.recv(_Csizeof_short)
+            except socket.error as e:
+                if e.errno == errno.EINTR:
+                    continue
+            break
         if len(sizestr) == 0:
             logging.info("Virtual PCD shut down")
             raise socket.error
@@ -517,7 +517,13 @@ class VirtualICC(object):
 
         # receive and return message
         if size:
-            msg = self.sock.recv(size)
+            while True:
+                try:
+                    msg = self.sock.recv(size)
+                except socket.error as e:
+                    if e.errno == errno.EINTR:
+                        continue
+                break
             if len(msg) == 0:
                 logging.info("Virtual PCD shut down")
                 raise socket.error
