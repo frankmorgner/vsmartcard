@@ -19,7 +19,6 @@
 
 import atexit
 import logging
-import signal
 import socket
 import struct
 import sys
@@ -475,13 +474,7 @@ class VirtualICC(object):
 
         logging.info("Connected to virtual PCD at %s:%u", host, port)
 
-        signal.signal(signal.SIGINT, self.signalHandler)
         atexit.register(self.stop)
-
-    def signalHandler(self, sig=None, frame=None):
-        """Basically this signal handler just surpresses a traceback from being
-           printed when the user presses crtl-c"""
-        sys.exit()
 
     @staticmethod
     def connectToPort(host, port):
