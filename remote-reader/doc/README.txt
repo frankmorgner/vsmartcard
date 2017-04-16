@@ -86,6 +86,13 @@ other computer, the :ref:`vicc` in relay mode can be used:
 .. include:: relay-note.txt
 
 
+.. note::
+Without further changes, successful communication with German ID card is not possible.
+Due to a limitation in Android NFC service itself, support of extended length APDUs is not possible at all.
+Only on rooted devices with right NFC chip, the NFC service might be patched.
+For details please refer to `Android Open Source Project - Issue Tracker`_
+A second limitation is that only some NFC chip manufacturer supports extended length APDUs.
+
 ********************
 Download and Install
 ********************
@@ -116,7 +123,6 @@ host computer, :command:`vpcd-config` prints a QR code to configure the Remote
 Smart Card Reader. Scan the configuration with the bar code scanner of your
 choice.
 
-
 .. include:: questions.txt
 
 
@@ -129,3 +135,4 @@ Notes and References
 .. _OpenSC: https://github.com/OpenSC/OpenSC
 .. _Android Studio: http://developer.android.com/sdk/installing/studio.html
 .. _F-Droid: https://f-droid.org/repository/browse/?fdid=com.vsmartcard.remotesmartcardreader.app
+.. _Android Open Source Project - Issue Tracker: https://code.google.com/p/android/issues/detail?id=76598
