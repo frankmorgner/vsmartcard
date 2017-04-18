@@ -1,4 +1,4 @@
-#PC/SC Relay
+# PC/SC Relay
 
 Welcome to PC/SC Relay. The purpose of PC/SC Relay is to relay a smart
 card using an contact-less interface. Currently the following contact-less

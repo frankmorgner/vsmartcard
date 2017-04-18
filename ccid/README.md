@@ -1,4 +1,4 @@
-#USB CCID Emulator
+# USB CCID Emulator
 
 The USB CCID Emulator forwards a locally present PC/SC smart card reader as a
 standard USB CCID reader. USB CCID Emulator can be used as trusted intermediary
