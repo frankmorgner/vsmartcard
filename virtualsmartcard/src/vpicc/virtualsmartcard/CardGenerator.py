@@ -668,7 +668,10 @@ class CardGenerator(object):
     def __generate_belpic(self):
         # TODO: implement this in a somewhat more rational manner. For now
         # though, use the ISO7816 implementation
+        from virtualsmartcard.cards.belpic import BelpicMF
         self.__generate_iso_card()
+        self.mf = BelpicMF('belpic.xml')
+        self.sam.set_MF(self.mf)
 
     def generateCard(self):
         """Generate a new card"""
