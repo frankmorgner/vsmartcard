@@ -25,3 +25,7 @@ class BelpicOS(Iso7816OS):
         Iso7816OS.__init__(self, mf, sam, ins2handler, maxle)
         self.atr = '\x3B\x98\x13\x40\x0A\xA5\x03\x01\x01\x01\xAD\x13\x11'
 
+
+    @staticmethod
+    def create(p1, p2, data):
+        raise SwError(SW["ERR_INSNOTSUPPORTED"])
