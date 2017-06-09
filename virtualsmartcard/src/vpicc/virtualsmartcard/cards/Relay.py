@@ -22,7 +22,7 @@ import logging
 import smartcard
 import sys
 from virtualsmartcard.VirtualSmartcard import SmartcardOS
-
+from virtualsmartcard.utils import C_APDU
 
 class RelayOS(SmartcardOS):
     """
@@ -113,6 +113,13 @@ class RelayOS(SmartcardOS):
         self.powerUp()
 
     def execute(self, msg):
+        try:
+            c = C_APDU(msg)
+            logging.info("Parsed APDU:\n%s", str(c))
+        except ValueError as e:
+            # ignore the parse failure, just don't log the parsed APDU
+            logging.warning("Could not parse APDU:%s", str(e))
+
         # sendCommandAPDU() expects a list of APDU bytes
         apdu = map(ord, msg)
 
