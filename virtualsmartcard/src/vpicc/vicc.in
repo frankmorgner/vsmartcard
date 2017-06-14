@@ -58,6 +58,7 @@ parser.add_argument("-P", "--port",
 parser.add_argument("-R", "--reversed",
         action="store_true",
         help="use reversed connection mode. vicc will wait for an incoming connection from vpcd. (default: %(default)s)")
+parser.add_argument('--log-unparsed', action="store_true", help="Log unparsed command APDUs, rather than trying to parse them")
 parser.add_argument('--version', action='version', version='%(prog)s @PACKAGE_VERSION@')
 
 relay = parser.add_argument_group('Relaying a local smart card (`--type=relay`)')
@@ -156,7 +157,7 @@ vicc = VirtualICC(args.datasetfile, args.type, hostname, args.port,
         readernum=args.reader, ef_cardaccess=ef_cardaccess_data,
         ef_cardsecurity=ef_cardsecurity_data, ca_key=ca_key_data, cvca=cvca,
         disable_checks=args.disable_ta_checks, esign_ca_cert=esign_ca_cert,
-        esign_cert=esign_cert, logginglevel=logginglevel)
+        esign_cert=esign_cert, logginglevel=logginglevel, logunparsed=args.log_unparsed)
 try:
     vicc.run()
 except KeyboardInterrupt:
