@@ -20,6 +20,9 @@ from virtualsmartcard.VirtualSmartcard import Iso7816OS
 from virtualsmartcard.ConstantDefinitions import MAX_SHORT_LE, FDB, LCB, REF
 from virtualsmartcard.SmartcardFilesystem import MF, DF, TransparentStructureEF
 from virtualsmartcard.SWutils import SW, SwError
+from virtualsmartcard.utils import C_APDU
+
+import logging
 
 import xml.etree.ElementTree as ET
 
@@ -45,6 +48,25 @@ class BelpicOS(Iso7816OS):
     # TODO: actually log off
     def logOff(self, p1, p2, data):
         return SW["NORMAL"]
+
+    def execute(self, msg):
+        c = C_APDU(msg)
+        if (c.ins == 0xa4 and c.p1 == 0x02):
+            # The belpic applet is a bit loose with interpretation of
+            # the ISO 7816 standard on the A4 command:
+            # - The MF can be selected by name from anywhere with P1 ==
+            #   0x02, rather than 0x00 as ISO 7816 requires
+            if (c.data == '3F00'.decode('hex')):
+                logging.info("Original APDU:\n%s\nRewritten to:\n", str(c))
+                c.p1 = 0
+                msg = c.render()
+            # - Child DFs can be selected with P1 == 0x02, rather than
+            #   0x01 as ISO 7816 requires
+            if (c.data == 'DF00'.decode('hex') or c.data == 'DF01'.decode('hex')):
+                logging.info("Original APDU:\n%s\nRewritten to:\n", str(c))
+                c.p1 = 1
+                msg = c.render()
+        return Iso7816OS.execute(self, msg)
 
 class BelpicMF(MF):
     def __init__(self, datafile, filedescriptor=FDB["NOTSHAREABLEFILE" ] | FDB["DF"],
