@@ -80,7 +80,3 @@ class BelpicMF(MF):
                         getattr(self, attribute).startswith(value)))):
             return self
         return DF.select(self, attribute, value, reference, index_current)
-
-    @staticmethod
-    def create(p1, p2, data):
-        raise SwError(SW["ERR_INSNOTSUPPORTED"])
