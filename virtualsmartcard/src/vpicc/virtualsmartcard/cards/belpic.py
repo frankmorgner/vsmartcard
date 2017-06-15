@@ -17,7 +17,7 @@
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 
 from virtualsmartcard.VirtualSmartcard import Iso7816OS
-from virtualsmartcard.ConstantDefinitions import MAX_SHORT_LE, FDB, LCB
+from virtualsmartcard.ConstantDefinitions import MAX_SHORT_LE, FDB, LCB, REF
 from virtualsmartcard.SmartcardFilesystem import MF, DF, TransparentStructureEF
 from virtualsmartcard.SWutils import SW, SwError
 
@@ -53,7 +53,7 @@ class BelpicMF(MF):
         tree = ET.parse(datafile)
         root = tree.getroot()
         ns = {'f': 'urn:be:fedict:eid:dev:virtualcard:1.0'}
-        DF00 = DF(self, 0xDF00)
+        DF00 = DF(self, 0xDF00, dfname="A000000177504B43532D3135".decode('hex'))
         self.append(DF00)
         DF01 = DF(self, 0xDF01)
         self.append(DF01)
@@ -72,6 +72,14 @@ class BelpicMF(MF):
                 else:
                     fid = int(id[4:], 16)
                 parent.append(TransparentStructureEF(parent, fid, data = content.decode('hex')))
+
+    def select(self, attribute, value, reference=REF["IDENTIFIER_FIRST"], index_current=0):
+        if (hasattr(self, attribute) and
+                ((getattr(self, attribute) == value) or
+                    (attribute == 'dfname' and
+                        getattr(self, attribute).startswith(value)))):
+            return self
+        return DF.select(self, attribute, value, reference, index_current)
 
     @staticmethod
     def create(p1, p2, data):
