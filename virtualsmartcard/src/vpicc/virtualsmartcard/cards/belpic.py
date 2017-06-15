@@ -20,7 +20,7 @@ from virtualsmartcard.VirtualSmartcard import Iso7816OS
 from virtualsmartcard.ConstantDefinitions import MAX_SHORT_LE, FDB, LCB, REF
 from virtualsmartcard.SmartcardFilesystem import MF, DF, TransparentStructureEF
 from virtualsmartcard.SWutils import SW, SwError
-from virtualsmartcard.utils import C_APDU
+from virtualsmartcard.utils import C_APDU, R_APDU
 
 import logging
 
@@ -67,6 +67,17 @@ class BelpicOS(Iso7816OS):
                 c.p1 = 1
                 msg = c.render()
         return Iso7816OS.execute(self, msg)
+
+    def formatResult(self, seekable, le, data, sw, sm):
+        r = R_APDU(Iso7816OS.formatResult(self, seekable, le, data, sw, sm))
+        # The Belpic applet provides a bogus file length of 65536 for
+        # every file, and does not return an error or warning when the
+        # actual file length is shorter that the file as found; so
+        # filter out the EOFBEFORENEREAD warning
+        if (r.sw1 == 0x62 and r.sw2 == 0x82):
+            logging.info("Filtering out warning")
+            r.sw = "9000".decode("hex")
+        return r.render()
 
 class BelpicMF(MF):
     def __init__(self, datafile, filedescriptor=FDB["NOTSHAREABLEFILE" ] | FDB["DF"],
