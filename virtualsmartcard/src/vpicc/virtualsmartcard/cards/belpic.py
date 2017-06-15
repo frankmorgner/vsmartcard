@@ -42,6 +42,7 @@ class BelpicOS(Iso7816OS):
         }
         self.atr = '\x3B\x98\x13\x40\x0A\xA5\x03\x01\x01\x01\xAD\x13\x11'
 
+    # TODO: don't hardcode the value below, so that we can also emulate the v1.1 applet
     def getCardData(self, p1, p2, data):
         return SW["NORMAL"], "534C494E0123456789ABCDEF01234567F3360125011700030021010f".decode("hex")
 
