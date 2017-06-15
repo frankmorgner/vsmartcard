@@ -8,6 +8,7 @@ Currently the Virtual Smart Card supports the following types of smart cards:
   (PACE, TA, CA)
 - Electronic passport (ePass/MRTD) with support for BAC
 - Cryptoflex smart card (incomplete)
+- Belgian electronic ID card (WIP, this fork)
       
 The vpcd is a smart card reader driver for [PCSC-Lite](http://pcsclite.alioth.debian.org/) and the windows smart
 card service. It allows smart card applications to access the vpicc through
