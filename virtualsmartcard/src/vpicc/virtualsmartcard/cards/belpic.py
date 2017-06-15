@@ -19,13 +19,32 @@
 from virtualsmartcard.VirtualSmartcard import Iso7816OS
 from virtualsmartcard.ConstantDefinitions import MAX_SHORT_LE, FDB, LCB
 from virtualsmartcard.SmartcardFilesystem import MF, DF, TransparentStructureEF
+from virtualsmartcard.SWutils import SW, SwError
 
 import xml.etree.ElementTree as ET
 
 class BelpicOS(Iso7816OS):
     def __init__(self, mf, sam, ins2handler=None, maxle=MAX_SHORT_LE):
         Iso7816OS.__init__(self, mf, sam, ins2handler, maxle)
+        self.ins2handler = {
+            0xc0: self.getResponse,
+            0xa4: self.mf.selectFile,
+            0xb0: self.mf.readBinaryPlain,
+            0x20: self.SAM.verify,
+            0x24: self.SAM.change_reference_data,
+            0x22: self.SAM.manage_security_environment,
+            0x2a: self.SAM.perform_security_operation,
+            0xe4: self.getCardData,
+            0xe6: self.logOff
+        }
         self.atr = '\x3B\x98\x13\x40\x0A\xA5\x03\x01\x01\x01\xAD\x13\x11'
+
+    def getCardData(self, p1, p2, data):
+        return SW["NORMAL"], "534C494E0123456789ABCDEF01234567F3360125011700030021010f".decode("hex")
+
+    # TODO: actually log off
+    def logOff(self, p1, p2, data):
+        return SW["NORMAL"]
 
 class BelpicMF(MF):
     def __init__(self, datafile, filedescriptor=FDB["NOTSHAREABLEFILE" ] | FDB["DF"],
