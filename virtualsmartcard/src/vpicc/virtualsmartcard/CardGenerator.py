@@ -666,8 +666,6 @@ class CardGenerator(object):
         self.sam = CryptoflexSAM(self.mf)
 
     def __generate_belpic(self):
-        # TODO: make BelpicMF actually work. Right now, an application which
-        # tries to use it will fail.
         from virtualsmartcard.cards.belpic import BelpicMF
         self.__generate_iso_card()
         self.mf = BelpicMF('belpic.xml')
