@@ -56,11 +56,14 @@ class SmartcardOS(object):
         """
         return ""
 
-    def logAPDU(self, parsed, unparsed):
-        if(self.logunparsed):
-            logging.info("Unparsed APDU:\n%s", hexdump(unparsed));
-        else:
+    def logAPDU(self, unparsed):
+        try:
+            c = C_APDU(unparsed)
             logging.info("Parsed APDU:\n%s", str(parsed))
+        except ValueError as e:
+            logging.info("Unparsed APDU:\n%s", hexdump(unparsed));
+            raise e
+        return c
 
 class Iso7816OS(SmartcardOS):
 
@@ -285,13 +288,11 @@ class Iso7816OS(SmartcardOS):
             raise SwError(SW["ERR_INSNOTSUPPORTED"])
 
         try:
-            c = C_APDU(msg)
+            c = self.logAPDU(msg)
         except ValueError as e:
             logging.warning(str(e))
             return self.formatResult(False, 0, "",
                                      SW["ERR_INCORRECTPARAMETERS"], False)
-
-        self.logAPDU(parsed=c, unparsed=msg)
 
         # Handle Class Byte
         # {{{
@@ -396,7 +397,7 @@ class VirtualICC(object):
                  readernum=None, ef_cardsecurity=None, ef_cardaccess=None,
                  ca_key=None, cvca=None, disable_checks=False, esign_key=None,
                  esign_ca_cert=None, esign_cert=None,
-                 logginglevel=logging.INFO, logunparsed=False):
+                 logginglevel=logging.INFO):
         from os.path import exists
 
         logging.basicConfig(level=logginglevel,
@@ -439,7 +440,6 @@ class VirtualICC(object):
             card_type = "iso7816"
             self.os = Iso7816OS(MF, SAM)
         self.type = card_type
-        self.os.logunparsed = logunparsed
 
         # Connect to the VPCD
         self.host = host

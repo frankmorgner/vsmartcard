@@ -114,11 +114,9 @@ class RelayOS(SmartcardOS):
 
     def execute(self, msg):
         try:
-            c = C_APDU(msg)
-            self.logAPDU(parsed=c, unparsed=msg)
+            self.logAPDU(unparsed=msg)
         except ValueError as e:
-            # ignore the parse failure, just don't log the parsed APDU
-            logging.warning("Could not parse APDU:%s", str(e))
+            logging.warning("(Parsing APDU failed:%s)", str(e))
 
         # sendCommandAPDU() expects a list of APDU bytes
         apdu = map(ord, msg)
