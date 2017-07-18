@@ -81,11 +81,23 @@
 
     </PreferenceCategory>
 
-    <ListPreference
+    <PreferenceCategory
+        android:title="Near Field Communication"
         android:key="nfc"
-        android:title="NFC communication hardware"
-        android:defaultValue="@string/nfc"
-        android:entries="@array/strNFC"
-        android:entryValues="@array/strNFC" />
+        >
+
+        <Preference
+            android:title="Emulation with Built-in NFC"
+            android:summary="NFC needs to be enabled for smart card emulation. Use the wireless settings to enable NFC."
+            android:key="internal_nfc">
+        </Preference>
+
+        <Preference
+            android:title="Emulation with Gear's NFC"
+            android:summary="Samsung Gear needs to be installed for using the Gear's NFC emulation capabilities."
+            android:key="gear_nfc">
+        </Preference>
+
+    </PreferenceCategory>
 
 </PreferenceScreen>

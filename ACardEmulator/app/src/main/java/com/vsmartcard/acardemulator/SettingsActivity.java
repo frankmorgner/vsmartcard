@@ -201,7 +201,30 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 }
             });
 
-            bindPreferenceSummaryToValue(findPreference("nfc"));
+            Preference internal_nfc = findPreference("internal_nfc");
+            internal_nfc.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                public boolean onPreferenceClick(Preference preference) {
+                    if (android.os.Build.VERSION.SDK_INT >= 16) {
+                        startActivity(new Intent(android.provider.Settings.ACTION_NFC_SETTINGS));
+                    } else {
+                        startActivity(new Intent(android.provider.Settings.ACTION_WIRELESS_SETTINGS));
+                    }
+                    return true;
+                }
+            });
+
+            Preference gear_nfc = findPreference("gear_nfc");
+            gear_nfc.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                public boolean onPreferenceClick(Preference preference) {
+                    String gearPackage = "com.samsung.android.gearoplugin";
+                    try {
+                        startActivity(new Intent(android.content.Intent.ACTION_VIEW, Uri.parse("market://details?id="+gearPackage)));
+                    } catch (android.content.ActivityNotFoundException e) {
+                        startActivity(new Intent(android.content.Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id="+gearPackage)));
+                    }
+                    return true;
+                }
+            });
         }
 
         @Override
