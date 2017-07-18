@@ -143,11 +143,11 @@ public class SmartcardProviderService extends SAAgent {
              */
             stopSelf();
         } else if (errType == SsdkUnsupportedException.LIBRARY_NOT_INSTALLED) {
-            Log.e(TAG, "You need to install Samsung Accessory SDK to use this application.");
+            Log.e(TAG, "You need to install Samsung Accessory SDK to use NFC emulation via Samsung Gear.");
         } else if (errType == SsdkUnsupportedException.LIBRARY_UPDATE_IS_REQUIRED) {
-            Log.e(TAG, "You need to update Samsung Accessory SDK to use this application.");
+            Log.e(TAG, "You need to update Samsung Accessory SDK to use NFC emulation via Samsung Gear.");
         } else if (errType == SsdkUnsupportedException.LIBRARY_UPDATE_IS_RECOMMENDED) {
-            Log.e(TAG, "We recommend that you update your Samsung Accessory SDK before using this application.");
+            Log.e(TAG, "We recommend that you update your Samsung Accessory SDK before using NFC emulation via Samsung Gear.");
             return false;
         }
         return true;
