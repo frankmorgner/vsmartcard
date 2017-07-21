@@ -9,10 +9,12 @@ install:
  - ps: >-
      If ($env:Platform -Match "x86") {
        $env:MSBUILD_PLATFORM="x86"
+       $env:VCVARS_PLATFORM="x86"
        $env:ARTIFACT="vpcd_win32"
        $env:X64=""
      } Else {
        $env:MSBUILD_PLATFORM="x64"
+       $env:VCVARS_PLATFORM="amd64"
        $env:ARTIFACT="vpcd_win64"
        $env:X64="x64\"
      }
@@ -21,14 +23,20 @@ install:
  # BUGFIX: wdf directory was renamed to 00wdf, rename it back (see github.com/appveyor/ci/issues/414)
  - ps: ren 'C:\Program Files (x86)\Windows Kits\10\include\00wdf' 'wdf'
 
+ # set Visual Studio 2015 build environment
+ - set VSVER=14
+ - ps: $env:VSCOMNTOOLS=(Get-Content ("env:VS" + "$env:VSVER" + "0COMNTOOLS"))
+ - echo "Using Visual Studio %VSVER%.0 at %VSCOMNTOOLS%"
+ - call "%VSCOMNTOOLS%\..\..\VC\vcvarsall.bat" %VCVARS_PLATFORM%
+
 build_script:
  - md %ARTIFACT%
 
  - msbuild virtualsmartcard\win32\BixVReader.sln /p:Configuration=Release;Platform=%MSBUILD_PLATFORM%
  - move    virtualsmartcard\win32\BixVReaderInstaller\bin\%X64%Release\BixVReaderInstaller.msi %ARTIFACT%
 
- - msbuild virtualsmartcard\win32\vpcd-config\vpcd-config.sln /p:Configuration="Debug" /p:Platform=Win32
- - move    virtualsmartcard\win32\vpcd-config\Debug\vpcd-config.exe %ARTIFACT%
+ - cl /Ivirtualsmartcard\src\vpcd virtualsmartcard\src\vpcd-config\vpcd-config.c /NODEFAULTLIB:MSVCRTD  /NODEFAULTLIB:MSVCRT virtualsmartcard\src\vpcd-config\local-ip.c ws2_32.lib
+ - move    vpcd-config.exe %ARTIFACT%
 
  - 7z a %ARTIFACT%.zip %ARTIFACT%
  - appveyor PushArtifact %ARTIFACT%.zip
