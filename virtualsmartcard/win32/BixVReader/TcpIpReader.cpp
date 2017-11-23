@@ -275,13 +275,13 @@ DWORD TcpIpReader::startServer() {
 						waitRemoveIpr.pop_back();
 					}
 				}
-				else if (command==1 && !waitRemoveIpr.empty()) {
+				else if (command==1 && !waitInsertIpr.empty()) {
 					// card inserted
 					SectionLocker lock(device->m_RequestLock);
 					state=SCARD_SWALLOWED;
 					initProtocols();
 					while (!waitInsertIpr.empty()) {
-						CComPtr<IWDFIoRequest> ipr = waitRemoveIpr.back();
+						CComPtr<IWDFIoRequest> ipr = waitInsertIpr.back();
 						if (ipr->UnmarkCancelable()==S_OK)
 							ipr->CompleteWithInformation(STATUS_SUCCESS, 0);
 						waitInsertIpr.pop_back();
@@ -321,7 +321,7 @@ void TcpIpReader::shutdown() {
 	}
 	while (!waitInsertIpr.empty()) {
 		SectionLocker lock(device->m_RequestLock);
-		CComPtr<IWDFIoRequest> ipr = waitRemoveIpr.back();
+		CComPtr<IWDFIoRequest> ipr = waitInsertIpr.back();
 		if (ipr->UnmarkCancelable()==S_OK)
 			ipr->Complete(HRESULT_FROM_WIN32(ERROR_CANCELLED));
 		waitInsertIpr.pop_back();

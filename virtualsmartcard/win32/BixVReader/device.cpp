@@ -328,7 +328,7 @@ STDMETHODIMP_ (void) CMyDevice::OnCancel(IN IWDFIoRequest*  pWdfRequest) {
     for (std::vector< CComPtr<IWDFIoRequest> >::iterator it = reader.waitInsertIpr.begin();
             it != reader.waitInsertIpr.end(); it++) {
         if (pWdfRequest == *it) {
-            OutputDebugString(L"[BixVReader]Cancel Remove");
+            OutputDebugString(L"[BixVReader]Cancel Insert");
             reader.waitInsertIpr.erase(it);
         }
     }
