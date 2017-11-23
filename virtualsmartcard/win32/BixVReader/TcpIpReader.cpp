@@ -15,7 +15,7 @@ TcpIpReader::TcpIpReader() {
 	state=SCARD_ABSENT;
 }
 void TcpIpReader::init(wchar_t *section) {
-	portBase=GetPrivateProfileInt(L"Driver",L"RPC_PORT_BASE",29500,L"BixVReader.ini");	
+	portBase=GetPrivateProfileInt(L"Driver",L"RPC_PORT_BASE",29500,L"BixVReader.ini");
 
 	port=GetPrivateProfileInt(section,L"TCP_PORT",portBase+(instance<<1),L"BixVReader.ini");
 	eventPort=GetPrivateProfileInt(section,L"TCP_EVENT_PORT",portBase+1+(instance<<1),L"BixVReader.ini");
@@ -205,17 +205,21 @@ DWORD TcpIpReader::startServer() {
 			swprintf(log,L"[BixVReader]Event Socket connected:%i",AcceptEventSocket);
 			OutputDebugString(log);
 
-			if (waitInsertIpr!=NULL) {
+			if (!waitInsertIpr.empty()) {
 				// if I'm waiting for card insertion, verify if there's a card present
 				if (initProtocols()) {
 					SectionLocker lock(device->m_RequestLock);
-					if (waitInsertIpr->UnmarkCancelable()==S_OK)
-						waitInsertIpr->CompleteWithInformation(STATUS_SUCCESS, 0);
-					waitInsertIpr=NULL;
+					while (!waitInsertIpr.empty()) {
+						CComPtr<IWDFIoRequest> ipr = waitInsertIpr.back();
+						if (ipr->UnmarkCancelable()==S_OK) {
+							ipr->CompleteWithInformation(STATUS_SUCCESS, 0);
+						}
+						waitInsertIpr.pop_back();
+					}
 					state=SCARD_SWALLOWED;
 				}
 			}
-			
+
 			while (true) {
 				// wait for a command
 				DWORD command=0;
@@ -226,45 +230,62 @@ DWORD TcpIpReader::startServer() {
 					powered=0;
 					::shutdown(AcceptSocket,SD_BOTH);
 					::shutdown(AcceptEventSocket,SD_BOTH);
-					if (waitRemoveIpr!=NULL) {// card inserted
-						OutputDebugString(L"[BixVReader]complete Wait Remove");
+					if (!waitRemoveIpr.empty()) {
+						// card inserted
 						SectionLocker lock(device->m_RequestLock);
-						if (waitRemoveIpr->UnmarkCancelable()==S_OK) {
-							OutputDebugString(L"[BixVReader]Wait Remove Unmarked");
-							waitRemoveIpr->CompleteWithInformation(STATUS_SUCCESS, 0);
-							OutputDebugString(L"[BixVReader]Wait Remove Completed");
+						while (!waitRemoveIpr.empty()) {
+							CComPtr<IWDFIoRequest> ipr = waitRemoveIpr.back();
+							OutputDebugString(L"[BixVReader]complete Wait Remove");
+							if (ipr->UnmarkCancelable()==S_OK) {
+								OutputDebugString(L"[BixVReader]Wait Remove Unmarked");
+								ipr->CompleteWithInformation(STATUS_SUCCESS, 0);
+								OutputDebugString(L"[BixVReader]Wait Remove Completed");
+							}
+							waitRemoveIpr.pop_back();
 						}
-						waitRemoveIpr=NULL;
 					}
-					if (waitInsertIpr!=NULL) {// card removed
-						OutputDebugString(L"[BixVReader]cancel Wait Remove");
+					if (!waitInsertIpr.empty()) {
+						// card removed
 						SectionLocker lock(device->m_RequestLock);
-						if (waitInsertIpr->UnmarkCancelable()==S_OK) {
-							OutputDebugString(L"[BixVReader]Wait Insert Unmarked");
-							waitInsertIpr->CompleteWithInformation(HRESULT_FROM_WIN32(ERROR_CANCELLED), 0);
-							OutputDebugString(L"[BixVReader]Wait Insert Cancelled");
+						while (!waitInsertIpr.empty()) {
+							CComPtr<IWDFIoRequest> ipr = waitInsertIpr.back();
+							OutputDebugString(L"[BixVReader]cancel Wait Remove");
+							SectionLocker lock(device->m_RequestLock);
+							if (ipr->UnmarkCancelable()==S_OK) {
+								OutputDebugString(L"[BixVReader]Wait Insert Unmarked");
+								ipr->CompleteWithInformation(HRESULT_FROM_WIN32(ERROR_CANCELLED), 0);
+								OutputDebugString(L"[BixVReader]Wait Insert Cancelled");
+							}
+							waitInsertIpr.pop_back();
 						}
-						waitInsertIpr=NULL;
 					}
 					break;
 				}
 				OutputDebugString(L"[BixVReader]Socket data");
 				if (command==0)
 					powered=0;
-				if (command==0 && waitRemoveIpr!=NULL) {// card removed
+				if (command==0 && !waitRemoveIpr.empty()) {
+					// card removed
 					SectionLocker lock(device->m_RequestLock);
 					state=SCARD_ABSENT;
-					if (waitRemoveIpr->UnmarkCancelable()==S_OK)						
-						waitRemoveIpr->CompleteWithInformation(STATUS_SUCCESS, 0);
-					waitRemoveIpr=NULL;
+					while (!waitRemoveIpr.empty()) {
+						CComPtr<IWDFIoRequest> ipr = waitRemoveIpr.back();
+						if (ipr->UnmarkCancelable()==S_OK)
+							ipr->CompleteWithInformation(STATUS_SUCCESS, 0);
+						waitRemoveIpr.pop_back();
+					}
 				}
-				else if (command==1 && waitInsertIpr!=NULL) {// card inserted
+				else if (command==1 && !waitRemoveIpr.empty()) {
+					// card inserted
 					SectionLocker lock(device->m_RequestLock);
 					state=SCARD_SWALLOWED;
-					initProtocols();					
-					if (waitInsertIpr->UnmarkCancelable()==S_OK)
-						waitInsertIpr->CompleteWithInformation(STATUS_SUCCESS, 0);
-					waitInsertIpr=NULL;
+					initProtocols();
+					while (!waitInsertIpr.empty()) {
+						CComPtr<IWDFIoRequest> ipr = waitRemoveIpr.back();
+						if (ipr->UnmarkCancelable()==S_OK)
+							ipr->CompleteWithInformation(STATUS_SUCCESS, 0);
+						waitInsertIpr.pop_back();
+					}
 				}
 			}
 		//}
@@ -291,16 +312,18 @@ void TcpIpReader::shutdown() {
 	serverThread=NULL;
 	eventsocket=NULL;
 	socket=NULL;
-	if (waitRemoveIpr!=NULL) {
+	while (!waitRemoveIpr.empty()) {
 		SectionLocker lock(device->m_RequestLock);
-		if (waitRemoveIpr->UnmarkCancelable()==S_OK)
-			waitRemoveIpr->Complete(HRESULT_FROM_WIN32(ERROR_CANCELLED));
-		waitRemoveIpr=NULL;
+		CComPtr<IWDFIoRequest> ipr = waitRemoveIpr.back();
+		if (ipr->UnmarkCancelable()==S_OK)
+			ipr->Complete(HRESULT_FROM_WIN32(ERROR_CANCELLED));
+		waitRemoveIpr.pop_back();
 	}
-	if (waitInsertIpr!=NULL) {
+	while (!waitInsertIpr.empty()) {
 		SectionLocker lock(device->m_RequestLock);
-		if (waitInsertIpr->UnmarkCancelable()==S_OK)
-			waitInsertIpr->Complete(HRESULT_FROM_WIN32(ERROR_CANCELLED));
-		waitInsertIpr=NULL;
+		CComPtr<IWDFIoRequest> ipr = waitRemoveIpr.back();
+		if (ipr->UnmarkCancelable()==S_OK)
+			ipr->Complete(HRESULT_FROM_WIN32(ERROR_CANCELLED));
+		waitInsertIpr.pop_back();
 	}
 }

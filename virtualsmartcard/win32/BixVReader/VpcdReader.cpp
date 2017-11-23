@@ -22,7 +22,7 @@ VpcdReader::~VpcdReader() {
 	DeleteCriticalSection(&ioSection);
 }
 void VpcdReader::init(wchar_t *section) {
-	portBase=GetPrivateProfileInt(L"Driver",L"RPC_PORT_BASE",VPCDPORT,L"BixVReader.ini");	
+	portBase=GetPrivateProfileInt(L"Driver",L"RPC_PORT_BASE",VPCDPORT,L"BixVReader.ini");
 
 	port=(short) GetPrivateProfileInt(section,L"TCP_PORT",portBase+instance,L"BixVReader.ini");
 }
@@ -106,17 +106,21 @@ void VpcdReader::shutdown() {
 	vicc_exit((struct vicc_ctx *) ctx);
 	state=SCARD_ABSENT;
 	ctx = NULL;
-	if (waitRemoveIpr!=NULL) {
+	if (!waitRemoveIpr.empty()) {
 		SectionLocker lock(device->m_RequestLock);
-		if (waitRemoveIpr->UnmarkCancelable()==S_OK)
-			waitRemoveIpr->Complete(HRESULT_FROM_WIN32(ERROR_CANCELLED));
-		waitRemoveIpr=NULL;
+		while (!waitRemoveIpr.empty()) {
+			CComPtr<IWDFIoRequest> ipr = waitRemoveIpr.back();
+			if (ipr->UnmarkCancelable()==S_OK)
+				ipr->Complete(HRESULT_FROM_WIN32(ERROR_CANCELLED));
+			waitRemoveIpr.pop_back();
+		}
 	}
-	if (waitInsertIpr!=NULL) {
+	while (!waitInsertIpr.empty()) {
 		SectionLocker lock(device->m_RequestLock);
-		if (waitInsertIpr->UnmarkCancelable()==S_OK)
-			waitInsertIpr->Complete(HRESULT_FROM_WIN32(ERROR_CANCELLED));
-		waitInsertIpr=NULL;
+		CComPtr<IWDFIoRequest> ipr = waitRemoveIpr.back();
+		if (ipr->UnmarkCancelable()==S_OK)
+			ipr->Complete(HRESULT_FROM_WIN32(ERROR_CANCELLED));
+		waitInsertIpr.pop_back();
 	}
 }
 
@@ -124,19 +128,26 @@ void VpcdReader::signalRemoval(void) {
 	if (cardPresent) {
 		cardPresent = false;
 		state=SCARD_ABSENT;
-		if (waitRemoveIpr!=NULL) {
+		if (!waitRemoveIpr.empty()) {
 			SectionLocker lock(device->m_RequestLock);
-			if (waitRemoveIpr->UnmarkCancelable()==S_OK) {
-				waitRemoveIpr->CompleteWithInformation(STATUS_SUCCESS, 0);
+			while (!waitRemoveIpr.empty()) {
+				CComPtr<IWDFIoRequest> ipr = waitRemoveIpr.back();
+				if (ipr->UnmarkCancelable()==S_OK) {
+					ipr->CompleteWithInformation(STATUS_SUCCESS, 0);
+				}
+				waitRemoveIpr.pop_back();
 			}
-			waitRemoveIpr=NULL;
 		}
-		if (waitInsertIpr!=NULL) {
+		if (!waitInsertIpr.empty()) {
 			SectionLocker lock(device->m_RequestLock);
-			if (waitInsertIpr->UnmarkCancelable()==S_OK) {
-				waitInsertIpr->CompleteWithInformation(HRESULT_FROM_WIN32(ERROR_CANCELLED), 0);
+			while (!waitInsertIpr.empty()) {
+				CComPtr<IWDFIoRequest> ipr = waitInsertIpr.back();
+				SectionLocker lock(device->m_RequestLock);
+				if (ipr->UnmarkCancelable()==S_OK) {
+					ipr->CompleteWithInformation(HRESULT_FROM_WIN32(ERROR_CANCELLED), 0);
+				}
+				waitInsertIpr.pop_back();
 			}
-			waitInsertIpr=NULL;
 		}
 	}
 }
@@ -144,12 +155,16 @@ void VpcdReader::signalRemoval(void) {
 void VpcdReader::signalInsertion(void) {
 	if (!cardPresent) {
 		cardPresent = true;
-		if (waitInsertIpr!=NULL) {
+		while (!waitInsertIpr.empty()) {
 			if (initProtocols()) {
 				SectionLocker lock(device->m_RequestLock);
-				if (waitInsertIpr->UnmarkCancelable()==S_OK)
-					waitInsertIpr->CompleteWithInformation(STATUS_SUCCESS, 0);
-				waitInsertIpr=NULL;
+				while (!waitInsertIpr.empty()) {
+					CComPtr<IWDFIoRequest> ipr = waitInsertIpr.back();
+					if (ipr->UnmarkCancelable()==S_OK) {
+						ipr->CompleteWithInformation(STATUS_SUCCESS, 0);
+					}
+					waitInsertIpr.pop_back();
+				}
 				state=SCARD_SWALLOWED;
 			}
 		}

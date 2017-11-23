@@ -1,14 +1,15 @@
 #pragma once
 
 #include <Winsock2.h>
+#include <vector>
 
 class CMyDevice;
 
 class Reader {
 public:
 	CMyDevice *device;
-	CComPtr<IWDFIoRequest> waitRemoveIpr;
-	CComPtr<IWDFIoRequest> waitInsertIpr;
+	std::vector< CComPtr<IWDFIoRequest> > waitRemoveIpr;
+	std::vector< CComPtr<IWDFIoRequest> > waitInsertIpr;
 	inbuf;
 	outbuf;
 
@@ -23,7 +24,7 @@ public:
 	int state;
 	DWORD protocol; // T0 or T1 - protocol in use
 	DWORD availableProtocol; // T0, T1 or Both - protocols available
-	
+
 	void IoSmartCardGetAttribute(IWDFIoRequest* pRequest,SIZE_T inBufSize,SIZE_T outBufSize);
 	void IoSmartCardIsPresent(IWDFIoRequest* pRequest,SIZE_T inBufSize,SIZE_T outBufSize);
 	void IoSmartCardGetState(IWDFIoRequest* pRequest,SIZE_T inBufSize,SIZE_T outBufSize);
@@ -57,7 +58,7 @@ public:
 	DWORD startServer();
 	void shutdown();
 	void init(wchar_t *section);
-	
+
 	CRITICAL_SECTION eventSection;
 	CRITICAL_SECTION dataSection;
 };
