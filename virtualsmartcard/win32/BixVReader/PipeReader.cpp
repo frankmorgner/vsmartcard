@@ -10,15 +10,15 @@
 BOOL CreateMyDACL(SECURITY_ATTRIBUTES * pSA)
 {
      TCHAR * szSD = TEXT("D:")       // Discretionary ACL
-        TEXT("(D;OICI;GA;;;BG)")     // Deny access to 
+        TEXT("(D;OICI;GA;;;BG)")     // Deny access to
                                      // built-in guests
-        TEXT("(D;OICI;GA;;;AN)")     // Deny access to 
-                                     // anonymous logon	
-        TEXT("(A;OICI;GRGWGX;;;AU)") // Allow 
-                                     // read/write/execute 
-                                     // to authenticated 
+        TEXT("(D;OICI;GA;;;AN)")     // Deny access to
+                                     // anonymous logon
+        TEXT("(A;OICI;GRGWGX;;;AU)") // Allow
+                                     // read/write/execute
+                                     // to authenticated
                                      // users
-        TEXT("(A;OICI;GA;;;BA)");    // Allow full control 
+        TEXT("(A;OICI;GA;;;BA)");    // Allow full control
                                      // to administrators
 
     if (NULL == pSA)
@@ -45,7 +45,7 @@ void PipeReader::init(wchar_t *section) {
 	GetPrivateProfileStringW(section,L"PIPE_NAME",temp,pipeName,300,L"BixVReader.ini");
 	swprintf(temp,L"SCardSimulatorDriverEvents%i",instance);
 	GetPrivateProfileStringW(section,L"PIPE_EVENT_NAME",temp,pipeEventName,300,L"BixVReader.ini");
-	
+
 }
 
 bool PipeReader::CheckATR() {
@@ -135,7 +135,7 @@ bool PipeReader::QueryATR(BYTE *ATR,DWORD *ATRsize,bool reset) {
 DWORD PipeReader::startServer() {
 	SECURITY_ATTRIBUTES sa;
 	sa.nLength = sizeof(SECURITY_ATTRIBUTES);
-    sa.bInheritHandle = FALSE;  
+    sa.bInheritHandle = FALSE;
 	CreateMyDACL(&sa);
 
 	wchar_t temp[300];
@@ -169,17 +169,21 @@ DWORD PipeReader::startServer() {
 			}
 			pipe=_pipe;
 			eventpipe=_eventpipe;
-			if (waitInsertIpr!=NULL) {
-				SectionLocker lock(device->m_RequestLock);
+			if (!waitInsertIpr.empty()) {
 				// if I'm waiting for card insertion, verify if there's a card present
 				if (initProtocols()) {
-					if (waitInsertIpr->UnmarkCancelable()==S_OK)
-						waitInsertIpr->CompleteWithInformation(STATUS_SUCCESS, 0);
-					waitInsertIpr=NULL;
-					state=SCARD_SWALLOWED;					
+					SectionLocker lock(device->m_RequestLock);
+					while (!waitInsertIpr.empty()) {
+						CComPtr<IWDFIoRequest> ipr = waitInsertIpr.back();
+						if (ipr->UnmarkCancelable()==S_OK) {
+							ipr->CompleteWithInformation(STATUS_SUCCESS, 0);
+						}
+						waitInsertIpr.pop_back();
+					}
+					state=SCARD_SWALLOWED;
 				}
 			}
-			
+
 			while (true) {
 				// wait for a command
 				DWORD command=0;
@@ -190,25 +194,34 @@ DWORD PipeReader::startServer() {
 					powered=0;
 					pipe=NULL;
 					eventpipe=NULL;
-					if (waitRemoveIpr!=NULL) {// card inserted
+					if (!waitRemoveIpr.empty()) {
+						// card inserted
 						SectionLocker lock(device->m_RequestLock);
-						OutputDebugString(L"[BixVReader]complete Wait Remove");
-						if (waitRemoveIpr->UnmarkCancelable()==S_OK) {
-							OutputDebugString(L"[BixVReader]Wait Remove Unmarked");
-							waitRemoveIpr->CompleteWithInformation(STATUS_SUCCESS, 0);
-							OutputDebugString(L"[BixVReader]Wait Remove Completed");
+						while (!waitRemoveIpr.empty()) {
+							CComPtr<IWDFIoRequest> ipr = waitRemoveIpr.back();
+							OutputDebugString(L"[BixVReader]complete Wait Remove");
+							if (ipr->UnmarkCancelable()==S_OK) {
+								OutputDebugString(L"[BixVReader]Wait Remove Unmarked");
+								ipr->CompleteWithInformation(STATUS_SUCCESS, 0);
+								OutputDebugString(L"[BixVReader]Wait Remove Completed");
+							}
+							waitRemoveIpr.pop_back();
 						}
-						waitRemoveIpr=NULL;
 					}
-					if (waitInsertIpr!=NULL) {// card removed
+					if (!waitInsertIpr.empty()) {
+						// card removed
 						SectionLocker lock(device->m_RequestLock);
-						OutputDebugString(L"[BixVReader]cancel Wait Remove");
-						if (waitInsertIpr->UnmarkCancelable()==S_OK) {
-							OutputDebugString(L"[BixVReader]Wait Insert Unmarked");
-							waitInsertIpr->CompleteWithInformation(HRESULT_FROM_WIN32(ERROR_CANCELLED), 0);
-							OutputDebugString(L"[BixVReader]Wait Insert Cancelled");
+						while (!waitInsertIpr.empty()) {
+							CComPtr<IWDFIoRequest> ipr = waitInsertIpr.back();
+							OutputDebugString(L"[BixVReader]cancel Wait Remove");
+							SectionLocker lock(device->m_RequestLock);
+							if (ipr->UnmarkCancelable()==S_OK) {
+								OutputDebugString(L"[BixVReader]Wait Insert Unmarked");
+								ipr->CompleteWithInformation(HRESULT_FROM_WIN32(ERROR_CANCELLED), 0);
+								OutputDebugString(L"[BixVReader]Wait Insert Cancelled");
+							}
+							waitInsertIpr.pop_back();
 						}
-						waitInsertIpr=NULL;
 					}
 					DisconnectNamedPipe(_pipe);
 					DisconnectNamedPipe(_eventpipe);
@@ -217,22 +230,28 @@ DWORD PipeReader::startServer() {
 				OutputDebugString(L"[BixVReader]Pipe data");
 				if (command==0)
 					powered=0;
-				if (command==0 && waitRemoveIpr!=NULL) {// card removed
+				if (command==0 && !waitRemoveIpr.empty()) {
+					// card removed
 					SectionLocker lock(device->m_RequestLock);
 					state=SCARD_ABSENT;
-					if (waitRemoveIpr->UnmarkCancelable()==S_OK) {						
-						waitRemoveIpr->CompleteWithInformation(STATUS_SUCCESS, 0);
+					while (!waitRemoveIpr.empty()) {
+						CComPtr<IWDFIoRequest> ipr = waitRemoveIpr.back();
+						if (ipr->UnmarkCancelable()==S_OK)
+							ipr->CompleteWithInformation(STATUS_SUCCESS, 0);
+						waitRemoveIpr.pop_back();
 					}
-					waitRemoveIpr=NULL;
 				}
-				else if (command==1 && waitInsertIpr!=NULL) {// card inserted
+				else if (command==1 && !waitInsertIpr.empty()) {
+					// card inserted
 					SectionLocker lock(device->m_RequestLock);
 					state=SCARD_SWALLOWED;
 					initProtocols();
-					if (waitInsertIpr->UnmarkCancelable()==S_OK) {
-						waitInsertIpr->CompleteWithInformation(STATUS_SUCCESS, 0);
+					while (!waitInsertIpr.empty()) {
+						CComPtr<IWDFIoRequest> ipr = waitInsertIpr.back();
+						if (ipr->UnmarkCancelable()==S_OK)
+							ipr->CompleteWithInformation(STATUS_SUCCESS, 0);
+						waitInsertIpr.pop_back();
 					}
-					waitInsertIpr=NULL;
 				}
 			}
 		//}
@@ -249,16 +268,18 @@ DWORD PipeReader::startServer() {
 
 void PipeReader::shutdown() {
 	state=SCARD_ABSENT;
-	if (waitRemoveIpr!=NULL) {
+	while (!waitRemoveIpr.empty()) {
 		SectionLocker lock(device->m_RequestLock);
-		if (waitRemoveIpr->UnmarkCancelable()==S_OK)
-			waitRemoveIpr->Complete(HRESULT_FROM_WIN32(ERROR_CANCELLED));
-		waitRemoveIpr=NULL;
+		CComPtr<IWDFIoRequest> ipr = waitRemoveIpr.back();
+		if (ipr->UnmarkCancelable()==S_OK)
+			ipr->Complete(HRESULT_FROM_WIN32(ERROR_CANCELLED));
+		waitRemoveIpr.pop_back();
 	}
-	if (waitInsertIpr!=NULL) {
+	while (!waitInsertIpr.empty()) {
 		SectionLocker lock(device->m_RequestLock);
-		if (waitInsertIpr->UnmarkCancelable()==S_OK)
-			waitInsertIpr->Complete(HRESULT_FROM_WIN32(ERROR_CANCELLED));
-		waitInsertIpr=NULL;
+		CComPtr<IWDFIoRequest> ipr = waitRemoveIpr.back();
+		if (ipr->UnmarkCancelable()==S_OK)
+			ipr->Complete(HRESULT_FROM_WIN32(ERROR_CANCELLED));
+		waitInsertIpr.pop_back();
 	}
 }

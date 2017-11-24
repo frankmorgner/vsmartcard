@@ -18,7 +18,7 @@ CMyDevice::CreateInstance(
 
                           Routine Description:
 
-                          This method creates and initializs an instance of the virtual smart card reader driver's 
+                          This method creates and initializs an instance of the virtual smart card reader driver's
                           device callback object.
 
                           Arguments:
@@ -67,7 +67,7 @@ CMyDevice::CreateInstance(
         hr = FxDriver->CreateDevice(FxDeviceInit, spCallback, &spIWDFDevice);
     }
 
-    device->numInstances=GetPrivateProfileInt(L"Driver",L"NumReaders",1,L"BixVReader.ini");	
+    device->numInstances=GetPrivateProfileInt(L"Driver",L"NumReaders",1,L"BixVReader.ini");
 
     WSADATA wsaData;
     int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -80,11 +80,11 @@ CMyDevice::CreateInstance(
         wchar_t name[10];
         swprintf(name,L"DEV%i",i);
 
-        if (spIWDFDevice->CreateDeviceInterface(&SmartCardReaderGuid,name)!=0)	
+        if (spIWDFDevice->CreateDeviceInterface(&SmartCardReaderGuid,name)!=0)
             OutputDebugString(L"[BixVReader]CreateDeviceInterface Failed");
     }
 
-    SAFE_RELEASE(device);	
+    SAFE_RELEASE(device);
     return hr;
 }
 
@@ -103,7 +103,7 @@ void CMyDevice::ProcessIoControl(__in IWDFIoQueue*     pQueue,
 
     //SectionLocker lock(m_RequestLock);
     int instance=0;
-    {	
+    {
         CComPtr<IWDFFile>   pFileObject;
         pRequest->GetFileObject(&pFileObject);
 
@@ -135,7 +135,7 @@ void CMyDevice::ProcessIoControl(__in IWDFIoQueue*     pQueue,
     else if (ControlCode==IOCTL_SMARTCARD_POWER) {
         reader.IoSmartCardPower(pRequest,inBufSize,outBufSize);
         return;
-    }	
+    }
     else if (ControlCode==IOCTL_SMARTCARD_SET_ATTRIBUTE) {
         reader.IoSmartCardSetAttribute(pRequest,inBufSize,outBufSize);
         return;
@@ -165,7 +165,7 @@ DWORD WINAPI ServerFunc(Reader *reader) {
 //
 // CMyDevice::OnPrepareHardware
 //
-//  Called by UMDF to prepare the hardware for use. 
+//  Called by UMDF to prepare the hardware for use.
 //
 // Parameters:
 //      pWdfDevice - pointer to an IWDFDevice object representing the
@@ -228,7 +228,7 @@ HRESULT CMyDevice::OnD0Entry(IN IWDFDevice*  pWdfDevice,IN WDF_POWER_DEVICE_STAT
     UNREFERENCED_PARAMETER(pWdfDevice);
     UNREFERENCED_PARAMETER(previousState);
 
-    numInstances=GetPrivateProfileInt(L"Driver",L"NumReaders",1,L"BixVReader.ini");	
+    numInstances=GetPrivateProfileInt(L"Driver",L"NumReaders",1,L"BixVReader.ini");
     readers.resize(numInstances);
 
     for (int i=0;i<numInstances;i++) {
@@ -305,7 +305,7 @@ STDMETHODIMP_ (void) CMyDevice::OnCancel(IN IWDFIoRequest*  pWdfRequest) {
     SectionLocker lock(m_RequestLock);
 
     int instance=0;
-    {	
+    {
         CComPtr<IWDFFile>   pFileObject;
         pWdfRequest->GetFileObject(&pFileObject);
 
@@ -318,13 +318,19 @@ STDMETHODIMP_ (void) CMyDevice::OnCancel(IN IWDFIoRequest*  pWdfRequest) {
     }
     Reader &reader=*readers[instance];
 
-    if (pWdfRequest==reader.waitRemoveIpr) {
-        OutputDebugString(L"[BixVReader]Cancel Remove");
-        reader.waitRemoveIpr=NULL;
+    for (std::vector< CComPtr<IWDFIoRequest> >::iterator it = reader.waitRemoveIpr.begin();
+            it != reader.waitRemoveIpr.end(); it++) {
+        if (pWdfRequest == *it) {
+            OutputDebugString(L"[BixVReader]Cancel Remove");
+            reader.waitRemoveIpr.erase(it);
+        }
     }
-    else if (pWdfRequest==reader.waitInsertIpr) {
-        OutputDebugString(L"[BixVReader]Cancel Insert");
-        reader.waitInsertIpr=NULL;
+    for (std::vector< CComPtr<IWDFIoRequest> >::iterator it = reader.waitInsertIpr.begin();
+            it != reader.waitInsertIpr.end(); it++) {
+        if (pWdfRequest == *it) {
+            OutputDebugString(L"[BixVReader]Cancel Insert");
+            reader.waitInsertIpr.erase(it);
+        }
     }
     pWdfRequest->CompleteWithInformation(HRESULT_FROM_WIN32(ERROR_CANCELLED), 0);
 }
