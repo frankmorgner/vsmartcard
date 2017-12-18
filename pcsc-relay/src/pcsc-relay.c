@@ -46,6 +46,8 @@ static struct rf_driver *rfdriver = &driver_openpicc;
 static driver_data_t *rfdriver_data = NULL;
 static struct sc_driver *scdriver = &driver_pcsc;
 static driver_data_t *scdriver_data = NULL;
+static unsigned char *buf = NULL;
+static size_t buflen = 0;
 
 /* Forward declaration */
 static void daemonize(void);
@@ -113,6 +115,7 @@ void cleanup(void) {
     rfdriver_data = NULL;
     scdriver->disconnect(scdriver_data);
     scdriver_data = NULL;
+    free(buf);
 }
 
 void
@@ -136,9 +139,6 @@ hexdump(const char *label, unsigned char *buf, size_t len)
 int main (int argc, char **argv)
 {
     /*printf("%s:%d\n", __FILE__, __LINE__);*/
-    unsigned char *buf = NULL;
-    size_t buflen;
-
     unsigned char outputBuffer[MAX_EXT_BUFFER_SIZE];
     size_t outputLength;
 
@@ -213,6 +213,7 @@ int main (int argc, char **argv)
         daemonize();
     }
 
+    cmdline_parser_free (&args_info);
 
     while(1) {
         /* get C-APDU */
@@ -248,7 +249,6 @@ int main (int argc, char **argv)
 
 
 err:
-    cmdline_parser_free (&args_info);
     cleanup();
 
     exit(0);
