@@ -599,7 +599,7 @@ class MF(DF):
                 fdm.append("%c\x00" % TAG["SHORTFID"])
 
             if isinstance(file, TransparentStructureEF):
-                l = inttostring(len(file.data))
+                l = inttostring(len(file.data), 2)
                 fdm.append("%c%c%s" % (TAG["BYTES_EXCLUDINGSTRUCTURE"],
                            chr(len(l)), l))
                 fdm.append("%c%c%s" % (TAG["BYTES_INCLUDINGSTRUCTURE"],
