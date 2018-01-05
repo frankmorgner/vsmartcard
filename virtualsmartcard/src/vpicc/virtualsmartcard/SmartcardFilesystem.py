@@ -594,7 +594,7 @@ class MF(DF):
         # TODO filesize and data objects
         if isinstance(file, EF):
             if hasattr(file, 'shortfid'):
-                fdm.append("%c\x01%c" % (TAG["SHORTFID"], file.shortfid))
+                fdm.append("%c\x01%c" % (TAG["SHORTFID"], file.shortfid << 3))
             else:
                 fdm.append("%c\x00" % TAG["SHORTFID"])
 
