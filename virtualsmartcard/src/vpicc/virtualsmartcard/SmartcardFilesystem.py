@@ -466,13 +466,16 @@ class DF(File):
         for f in self.content:
             if f.fid == file.fid:
                 raise SwError(SW["ERR_FILEEXISTS"])
-            if (hasattr(f, 'dfname') and hasattr(file, 'dfname') and
-                    f.dfname == file.dfname):
-                raise SwError(SW["ERR_DFNAMEEXISTS"])
             if (hasattr(f, 'shortfid') and hasattr(file, 'shortfid') and
                     f.shortfid == file.shortfid):
                 raise SwError(SW["ERR_FILEEXISTS"])
 
+        if (hasattr(file, 'dfname')):
+            for f in MF.named_dfs:
+                if (f.dfname == file.dfname):
+                    raise SwError(SW["ERR_DFNAMEEXISTS"])
+            MF.named_dfs.append(file)
+        
         self.content.append(file)
 
     def select(self, attribute, value, reference=REF["IDENTIFIER_FIRST"],
@@ -483,10 +486,15 @@ class DF(File):
         first/last/next or previous occurence with 'reference' and the index of
         the current file 'index_current' (-1 for None).
         """
-        indexes = get_indexes(self.content, reference, index_current)
+        if attribute == 'dfname':
+            search_in = MF.named_dfs
+        else:
+            search_in = self.content
+            
+        indexes = get_indexes(search_in, reference, index_current)
 
         for i in indexes:
-            file = self.content[i]
+            file = search_in[i]
             if (hasattr(file, attribute) and
                     ((getattr(file, attribute) == value) or
                         (attribute == 'dfname' and
@@ -504,6 +512,8 @@ class DF(File):
     def remove(self, file):
         """Removes 'file' from the content of the DF"""
         self.content.remove(file)
+        if (hasattr(file, 'dfname')):
+            MF.named_dfs.remove(file)
 
 
 class MF(DF):
@@ -515,6 +525,7 @@ class MF(DF):
     secondSFT = make_property("secondSFT", "string of length 1. The second"
                                            "software function table from the"
                                            "historical bytes.")
+    named_dfs = []
 
     def __init__(self, filedescriptor=FDB["NOTSHAREABLEFILE"] | FDB["DF"],
                  lifecycle=LCB["ACTIVATED"],
@@ -528,6 +539,8 @@ class MF(DF):
         self.current = self
         self.firstSFT = inttostring(MF.makeFirstSoftwareFunctionTable(), 1)
         self.secondSFT = inttostring(MF.makeSecondSoftwareFunctionTable(), 1)
+        if dfname:
+            MF.named_dfs.append(self)
 
     @staticmethod
     def makeFirstSoftwareFunctionTable(
