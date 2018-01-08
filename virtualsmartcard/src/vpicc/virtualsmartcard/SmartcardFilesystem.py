@@ -295,6 +295,13 @@ class File(object):
         else:
             return self.parent.getpath() + inttostring(self.fid, 2)
 
+    def getMF(self):
+        """Return MF of the card that contains this file"""
+        if self.parent is None:
+            return self
+        else:
+            return self.parent.getMF()
+
     def getdata(self, isSimpleTlv, requestedTL):
         """
         Returns a string of either the file's BER-TLV or the file's SIMPLE-TLV
@@ -471,10 +478,11 @@ class DF(File):
                 raise SwError(SW["ERR_FILEEXISTS"])
 
         if (hasattr(file, 'dfname')):
-            for f in MF.named_dfs:
+            mf = self.getMF()
+            for f in mf.named_dfs:
                 if (f.dfname == file.dfname):
                     raise SwError(SW["ERR_DFNAMEEXISTS"])
-            MF.named_dfs.append(file)
+            mf.named_dfs.append(file)
         
         self.content.append(file)
 
@@ -487,7 +495,8 @@ class DF(File):
         the current file 'index_current' (-1 for None).
         """
         if attribute == 'dfname':
-            search_in = MF.named_dfs
+            mf = self.getMF()
+            search_in = mf.named_dfs
         else:
             search_in = self.content
             
@@ -513,7 +522,8 @@ class DF(File):
         """Removes 'file' from the content of the DF"""
         self.content.remove(file)
         if (hasattr(file, 'dfname')):
-            MF.named_dfs.remove(file)
+            mf = self.getMF()
+            mf.named_dfs.remove(file)
 
 
 class MF(DF):
@@ -525,7 +535,6 @@ class MF(DF):
     secondSFT = make_property("secondSFT", "string of length 1. The second"
                                            "software function table from the"
                                            "historical bytes.")
-    named_dfs = []
 
     def __init__(self, filedescriptor=FDB["NOTSHAREABLEFILE"] | FDB["DF"],
                  lifecycle=LCB["ACTIVATED"],
@@ -539,8 +548,9 @@ class MF(DF):
         self.current = self
         self.firstSFT = inttostring(MF.makeFirstSoftwareFunctionTable(), 1)
         self.secondSFT = inttostring(MF.makeSecondSoftwareFunctionTable(), 1)
+        self.named_dfs = []
         if dfname:
-            MF.named_dfs.append(self)
+            self.named_dfs.append(self)
 
     @staticmethod
     def makeFirstSoftwareFunctionTable(
