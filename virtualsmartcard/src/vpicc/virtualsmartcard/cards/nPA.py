@@ -209,10 +209,10 @@ class nPA_SE(Security_Environment):
             self.eac_step = 0
         elif self.at.algorithm == "TA":
             if self.eac_step != 4:
-                SwError(SW["ERR_AUTHBLOCKED"])
+                raise SwError(SW["ERR_AUTHBLOCKED"])
         elif self.at.algorithm == "CA":
             if self.eac_step != 5:
-                SwError(SW["ERR_AUTHBLOCKED"])
+                raise SwError(SW["ERR_AUTHBLOCKED"])
 
         return sw, resp
 
