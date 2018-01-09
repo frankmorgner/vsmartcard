@@ -197,10 +197,6 @@ def prettyprint_anything(indent, thing):
     s = "%s{%s at 0x%x}:" % (indent, thing.__class__.__name__, id(thing))
     indent = indent + "  "
     for (attribute, newvalue) in thing.__dict__.items():
-        # FIXME: ugly hack to prevent infinite recursion when prettyprinting MF:
-        if attribute == 'named_dfs':
-            continue
-
         if isinstance(newvalue, int):
             s = s + "\n" + indent + attribute + (16-len(attribute)) * " " +\
                 "0x%x" % (newvalue)
@@ -539,6 +535,7 @@ class MF(DF):
     secondSFT = make_property("secondSFT", "string of length 1. The second"
                                            "software function table from the"
                                            "historical bytes.")
+    named_dfs = make_property("named_dfs", "list of DFs with dfname specified")
 
     def __init__(self, filedescriptor=FDB["NOTSHAREABLEFILE"] | FDB["DF"],
                  lifecycle=LCB["ACTIVATED"],
