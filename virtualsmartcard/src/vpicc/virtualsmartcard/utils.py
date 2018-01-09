@@ -27,7 +27,7 @@ def stringtoint(str):
     return 0
 
 
-def inttostring(i, length=None):
+def inttostring(i, length=None, len_extendable=False):
     str = "%x" % i
     if len(str) % 2 == 0:
         str = str.decode('hex')
@@ -36,7 +36,7 @@ def inttostring(i, length=None):
 
     if length:
         l = len(str)
-        if l > length:
+        if l > length and not len_extendable:
             raise ValueError("i too big for the specified stringlength")
         else:
             str = chr(0)*(length-l) + str
