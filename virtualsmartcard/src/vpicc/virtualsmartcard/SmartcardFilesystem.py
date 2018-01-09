@@ -207,7 +207,10 @@ def prettyprint_anything(indent, thing):
         elif isinstance(newvalue, list):
             s = s + "\n" + indent + attribute + (16 - len(attribute)) * " "
             for item in newvalue:
-                s = s + "\n" + prettyprint_anything(indent + "  ", item)
+                if attribute == '_named_dfs':
+                    s = s + "\n" + "%s%s" % (indent + "  ", hexdump(item.dfname, short=True))
+                else:
+                    s = s + "\n" + prettyprint_anything(indent + "  ", item)
     return s
 
 
