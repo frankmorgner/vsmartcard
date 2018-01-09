@@ -197,6 +197,10 @@ def prettyprint_anything(indent, thing):
     s = "%s{%s at 0x%x}:" % (indent, thing.__class__.__name__, id(thing))
     indent = indent + "  "
     for (attribute, newvalue) in thing.__dict__.items():
+        # FIXME: ugly hack to prevent infinite recursion when prettyprinting MF:
+        if attribute == 'named_dfs':
+            continue
+
         if isinstance(newvalue, int):
             s = s + "\n" + indent + attribute + (16-len(attribute)) * " " +\
                 "0x%x" % (newvalue)
