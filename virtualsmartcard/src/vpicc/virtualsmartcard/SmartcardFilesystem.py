@@ -207,7 +207,10 @@ def prettyprint_anything(indent, thing):
         elif isinstance(newvalue, list):
             s = s + "\n" + indent + attribute + (16 - len(attribute)) * " "
             for item in newvalue:
-                s = s + "\n" + prettyprint_anything(indent + "  ", item)
+                if attribute == '_named_dfs':
+                    s = s + "\n" + "%s%s" % (indent + "  ", hexdump(item.dfname, short=True))
+                else:
+                    s = s + "\n" + prettyprint_anything(indent + "  ", item)
     return s
 
 
@@ -294,6 +297,13 @@ class File(object):
             return inttostring(self.fid, 2)
         else:
             return self.parent.getpath() + inttostring(self.fid, 2)
+
+    def getMF(self):
+        """Return MF of the card that contains this file"""
+        if self.parent is None:
+            return self
+        else:
+            return self.parent.getMF()
 
     def getdata(self, isSimpleTlv, requestedTL):
         """
@@ -466,13 +476,17 @@ class DF(File):
         for f in self.content:
             if f.fid == file.fid:
                 raise SwError(SW["ERR_FILEEXISTS"])
-            if (hasattr(f, 'dfname') and hasattr(file, 'dfname') and
-                    f.dfname == file.dfname):
-                raise SwError(SW["ERR_DFNAMEEXISTS"])
             if (hasattr(f, 'shortfid') and hasattr(file, 'shortfid') and
                     f.shortfid == file.shortfid):
                 raise SwError(SW["ERR_FILEEXISTS"])
 
+        if (hasattr(file, 'dfname')):
+            mf = self.getMF()
+            for f in mf.named_dfs:
+                if (f.dfname == file.dfname):
+                    raise SwError(SW["ERR_DFNAMEEXISTS"])
+            mf.named_dfs.append(file)
+        
         self.content.append(file)
 
     def select(self, attribute, value, reference=REF["IDENTIFIER_FIRST"],
@@ -483,10 +497,16 @@ class DF(File):
         first/last/next or previous occurence with 'reference' and the index of
         the current file 'index_current' (-1 for None).
         """
-        indexes = get_indexes(self.content, reference, index_current)
+        if attribute == 'dfname':
+            mf = self.getMF()
+            search_in = mf.named_dfs
+        else:
+            search_in = self.content
+            
+        indexes = get_indexes(search_in, reference, index_current)
 
         for i in indexes:
-            file = self.content[i]
+            file = search_in[i]
             if (hasattr(file, attribute) and
                     ((getattr(file, attribute) == value) or
                         (attribute == 'dfname' and
@@ -504,6 +524,9 @@ class DF(File):
     def remove(self, file):
         """Removes 'file' from the content of the DF"""
         self.content.remove(file)
+        if (hasattr(file, 'dfname')):
+            mf = self.getMF()
+            mf.named_dfs.remove(file)
 
 
 class MF(DF):
@@ -515,6 +538,7 @@ class MF(DF):
     secondSFT = make_property("secondSFT", "string of length 1. The second"
                                            "software function table from the"
                                            "historical bytes.")
+    named_dfs = make_property("named_dfs", "list of DFs with dfname specified")
 
     def __init__(self, filedescriptor=FDB["NOTSHAREABLEFILE"] | FDB["DF"],
                  lifecycle=LCB["ACTIVATED"],
@@ -528,6 +552,9 @@ class MF(DF):
         self.current = self
         self.firstSFT = inttostring(MF.makeFirstSoftwareFunctionTable(), 1)
         self.secondSFT = inttostring(MF.makeSecondSoftwareFunctionTable(), 1)
+        self.named_dfs = []
+        if dfname:
+            self.named_dfs.append(self)
 
     @staticmethod
     def makeFirstSoftwareFunctionTable(
