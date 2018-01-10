@@ -626,7 +626,7 @@ class MF(DF):
                 fdm.append("%c\x00" % TAG["SHORTFID"])
 
             if isinstance(file, TransparentStructureEF):
-                l = inttostring(len(file.data))
+                l = inttostring(len(file.data), 2, True)
                 fdm.append("%c%c%s" % (TAG["BYTES_EXCLUDINGSTRUCTURE"],
                            chr(len(l)), l))
                 fdm.append("%c%c%s" % (TAG["BYTES_INCLUDINGSTRUCTURE"],
@@ -643,9 +643,9 @@ class MF(DF):
                     else:
                         l += len(r.data)
                 fdm.append("%c\x02%s" % (TAG["BYTES_EXCLUDINGSTRUCTURE"],
-                           inttostring(l, 2)))
+                           inttostring(l, 2, True)))
                 fdm.append("%c\x02%s" % (TAG["BYTES_INCLUDINGSTRUCTURE"],
-                           inttostring(l, 2)))
+                           inttostring(l, 2, True)))
                 l = len(records)
                 fdm.append("%c\x06%c%c%c%c%s" % (TAG["FILEDISCRIPTORBYTE"],
                            file.filedescriptor, file.datacoding,
