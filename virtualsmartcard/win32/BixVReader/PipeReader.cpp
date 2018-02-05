@@ -71,7 +71,7 @@ bool PipeReader::CheckATR() {
 	}
 	return true;
 }
-bool PipeReader::QueryTransmit(BYTE *APDU,int APDUlen,BYTE *Resp,int *Resplen) {
+bool PipeReader::QueryTransmit(BYTE *APDU,int APDUlen,BYTE **Resp,int *Resplen) {
 	//SectionLocker lock(dataSection);
 
 	if (pipe==NULL)
@@ -97,7 +97,13 @@ bool PipeReader::QueryTransmit(BYTE *APDU,int APDUlen,BYTE *Resp,int *Resplen) {
 		pipe=NULL;
 		return false;
 	}
-	if (!ReadFile(pipe,Resp,dwRespLen,&read,NULL)) {
+	BYTE *p=(BYTE *)realloc(*Resp, dwRespLen);
+	if (p==NULL) {
+		pipe=NULL;
+		return false;
+	}
+	*Resp=p;
+	if (!ReadFile(pipe,*Resp,dwRespLen,&read,NULL)) {
 		pipe=NULL;
 		return false;
 	}

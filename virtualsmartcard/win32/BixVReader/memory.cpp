@@ -1,8 +1,7 @@
 #include "memory.h"
 #include "SectionLocker.h"
 
-bool getBuffer(IWDFIoRequest* pRequest,BYTE *buffer,int *bufferLen) {
-
+bool getBuffer(IWDFIoRequest* pRequest,void **buffer,int *bufferLen) {
 	IWDFMemory *inmem=NULL;
 	pRequest->GetInputMemory(&inmem);
 	if (inmem==NULL) {
@@ -12,13 +11,20 @@ bool getBuffer(IWDFIoRequest* pRequest,BYTE *buffer,int *bufferLen) {
 	else {
 		SIZE_T size;
 		void *data=inmem->GetDataBuffer(&size);
-		memcpy(buffer,data,size);
+		void *out = realloc(*buffer, size);
+		if (out==NULL) {
+			OutputDebugString(L"realloc failed");
+			return false;
+		}
+		memcpy(out,data,size);
 		(*bufferLen)=(int)size;
+		(*buffer)=out;
 		inmem->Release();
 		return true;
 	}
 }
-void setBuffer(CMyDevice *device,IWDFIoRequest* pRequest,BYTE *result,int inSize) {
+
+void setBuffer(CMyDevice *device,IWDFIoRequest* pRequest,void *result,int inSize) {
 	IWDFMemory *outmem=NULL;
 	pRequest->GetOutputMemory (&outmem);
 	if (outmem==NULL) {

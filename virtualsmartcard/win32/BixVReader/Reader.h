@@ -35,7 +35,7 @@ public:
 	void IoSmartCardTransmit(IWDFIoRequest* pRequest,SIZE_T inBufSize,SIZE_T outBufSize);
 
 	bool initProtocols();
-	virtual bool QueryTransmit(BYTE *APDU,int APDUlen,BYTE *Resp,int *Resplen);
+	virtual bool QueryTransmit(BYTE *APDU,int APDUlen,BYTE **Resp,int *Resplen);
 	virtual bool QueryATR(BYTE *ATR,DWORD *ATRsize,bool reset=false);
 	virtual bool CheckATR();
 	virtual DWORD startServer();
@@ -52,7 +52,7 @@ public:
 	HANDLE eventpipe;
 
 	PipeReader();
-	bool QueryTransmit(BYTE *APDU,int APDUlen,BYTE *Resp,int *Resplen);
+	bool QueryTransmit(BYTE *APDU,int APDUlen,BYTE **Resp,int *Resplen);
 	bool QueryATR(BYTE *ATR,DWORD *ATRsize,bool reset=false);
 	bool CheckATR();
 	DWORD startServer();
@@ -74,7 +74,7 @@ public:
 	bool breakSocket;
 
 	TcpIpReader();
-	bool QueryTransmit(BYTE *APDU,int APDUlen,BYTE *Resp,int *Resplen);
+	bool QueryTransmit(BYTE *APDU,int APDUlen,BYTE **Resp,int *Resplen);
 	bool QueryATR(BYTE *ATR,DWORD *ATRsize,bool reset=false);
 	bool CheckATR();
 	DWORD startServer();
@@ -95,7 +95,7 @@ public:
 
 	VpcdReader();
 	~VpcdReader();
-	bool QueryTransmit(BYTE *APDU,int APDUlen,BYTE *Resp,int *Resplen);
+	bool QueryTransmit(BYTE *APDU,int APDUlen,BYTE **Resp,int *Resplen);
 	bool QueryATR(BYTE *ATR,DWORD *ATRsize,bool reset=false);
 	bool CheckATR();
 	DWORD startServer();

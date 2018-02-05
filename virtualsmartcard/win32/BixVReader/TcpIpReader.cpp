@@ -45,7 +45,7 @@ bool TcpIpReader::CheckATR() {
 	}
 	return true;
 }
-bool TcpIpReader::QueryTransmit(BYTE *APDU,int APDUlen,BYTE *Resp,int *Resplen) {
+bool TcpIpReader::QueryTransmit(BYTE *APDU,int APDUlen,BYTE **Resp,int *Resplen) {
 	//SectionLocker lock(dataSection);
 	if (AcceptSocket==NULL)
 		return false;
@@ -73,7 +73,14 @@ bool TcpIpReader::QueryTransmit(BYTE *APDU,int APDUlen,BYTE *Resp,int *Resplen) 
 		AcceptSocket=NULL;
 		return false;
 	}
-	if ((read=recv(AcceptSocket,(char*)Resp,dwRespLen,MSG_WAITALL))<=0) {
+	BYTE *p=(BYTE *)realloc(*Resp, dwRespLen);
+	if (p==NULL) {
+		::shutdown(AcceptSocket,SD_BOTH);
+		AcceptSocket=NULL;
+		return false;
+	}
+	*Resp=p;
+	if ((read=recv(AcceptSocket,(char*)*Resp,dwRespLen,MSG_WAITALL))<=0) {
 		::shutdown(AcceptSocket,SD_BOTH);
 		AcceptSocket=NULL;
 		return false;

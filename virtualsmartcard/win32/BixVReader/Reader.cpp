@@ -199,25 +199,39 @@ void Reader::IoSmartCardTransmit(IWDFIoRequest* pRequest,SIZE_T inBufSize,SIZE_T
 	UNREFERENCED_PARAMETER(inBufSize);
 	UNREFERENCED_PARAMETER(outBufSize);
 	OutputDebugString(L"[BixVReader][TRSM]IOCTL_SMARTCARD_TRANSMIT");
-	BYTE APDU[1000];
-	int APDUSize;
-	getBuffer(pRequest,APDU,&APDUSize);
-	if (((SCARD_IO_REQUEST*)APDU)->dwProtocol!=protocol) {
+	SCARD_IO_REQUEST *scardRequest=NULL;
+	int scardRequestSize=0;
+	BYTE *RAPDU=NULL;
+	int RAPDUSize=0;
+	if (!getBuffer(pRequest,(void **)&scardRequest,&scardRequestSize)
+			|| scardRequestSize<sizeof *scardRequest
+			|| scardRequest->dwProtocol!=protocol) {
 		SectionLocker lock(device->m_RequestLock);
         pRequest->CompleteWithInformation(STATUS_INVALID_DEVICE_STATE, 0);
-		return;
+		goto end;
 	}
-	BYTE Resp[1000];
-	int RespSize;
-	if (!QueryTransmit(APDU+sizeof(SCARD_IO_REQUEST),APDUSize-sizeof(SCARD_IO_REQUEST),Resp+sizeof(SCARD_IO_REQUEST),&RespSize))
+	if (!QueryTransmit((BYTE *)(scardRequest+1),
+				scardRequestSize-sizeof(SCARD_IO_REQUEST),
+				&RAPDU,&RAPDUSize))
 	{
 		SectionLocker lock(device->m_RequestLock);
-		pRequest->CompleteWithInformation(STATUS_NO_MEDIA, 0);
-		return;
+		pRequest->CompleteWithInformation(STATUS_NO_MEDIA, 0);					
+		goto end;
 	}
-	((SCARD_IO_REQUEST*)Resp)->cbPciLength=sizeof(SCARD_IO_REQUEST);
-	((SCARD_IO_REQUEST*)Resp)->dwProtocol=protocol;
-	setBuffer(device,pRequest,Resp,RespSize+sizeof(SCARD_IO_REQUEST));
+	SCARD_IO_REQUEST *p=(SCARD_IO_REQUEST *)realloc(scardRequest,RAPDUSize+sizeof(SCARD_IO_REQUEST));
+	if (p==NULL) {
+		SectionLocker lock(device->m_RequestLock);
+        pRequest->CompleteWithInformation(STATUS_INVALID_DEVICE_STATE, 0);
+		goto end;
+	}
+	scardRequest = p;
+	scardRequest->cbPciLength=sizeof(SCARD_IO_REQUEST);
+	scardRequest->dwProtocol=protocol;
+	memcpy(scardRequest+1,RAPDU,RAPDUSize);
+	setBuffer(device,pRequest,scardRequest,RAPDUSize+sizeof(SCARD_IO_REQUEST));
+end:
+	free(scardRequest);
+	free(RAPDU);
 }
 
 void Reader::IoSmartCardGetAttribute(IWDFIoRequest* pRequest,SIZE_T inBufSize,SIZE_T outBufSize) {
@@ -345,7 +359,7 @@ bool Reader::CheckATR() {
 	return false;
 }
 
-bool Reader::QueryTransmit(BYTE *APDU,int APDUlen,BYTE *Resp,int *Resplen) {
+bool Reader::QueryTransmit(BYTE *APDU,int APDUlen,BYTE **Resp,int *Resplen) {
 	APDU;
 	APDUlen;
 	Resp;

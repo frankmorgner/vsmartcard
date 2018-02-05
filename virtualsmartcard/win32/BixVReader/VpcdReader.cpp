@@ -44,17 +44,13 @@ bool VpcdReader::CheckATR() {
 
 	return r;
 }
-bool VpcdReader::QueryTransmit(BYTE *APDU,int APDUlen,BYTE *Resp,int *Resplen) {
-	unsigned char *rapdu = NULL;
-	ssize_t rapdu_len;
+bool VpcdReader::QueryTransmit(BYTE *APDU,int APDUlen,BYTE **Resp,int *Resplen) {
 	bool r = false;
 
-	if (APDU && APDUlen && Resp && Resplen) {
-		rapdu_len = vicc_transmit((struct vicc_ctx *) ctx, APDUlen, APDU, &rapdu);
+	if (APDU && APDUlen && Resplen) {
+		ssize_t rapdu_len = vicc_transmit((struct vicc_ctx *) ctx, APDUlen, APDU, Resp);
 		if (rapdu_len > 0) {
-			memcpy(Resp, rapdu, rapdu_len);
 			*Resplen = rapdu_len;
-			free(rapdu);
 			r = true;
 		} else {
 			signalRemoval();
