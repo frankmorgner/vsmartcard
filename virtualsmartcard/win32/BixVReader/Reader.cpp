@@ -413,7 +413,7 @@ bool Reader::initProtocols() {
 				y=y & 0xE;
 				if (let=='D') {
 					// check available protocol(s)
-					int protocol=(ATR[i] & 0x0f);
+					protocol=(ATR[i] & 0x0f);
 					availableProtocol|=1 << protocol;
 					// prepare for next block
 					let='A';
