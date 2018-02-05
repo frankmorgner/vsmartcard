@@ -25,7 +25,6 @@ void TcpIpReader::init(wchar_t *section) {
 }
 
 bool TcpIpReader::CheckATR() {
-	//SectionLocker lock(dataSection);
 	if (AcceptSocket==NULL)
 		return false;
 	int read=0;
@@ -46,7 +45,6 @@ bool TcpIpReader::CheckATR() {
 	return true;
 }
 bool TcpIpReader::QueryTransmit(BYTE *APDU,int APDUlen,BYTE **Resp,int *Resplen) {
-	//SectionLocker lock(dataSection);
 	if (AcceptSocket==NULL)
 		return false;
 	DWORD command=2;
@@ -90,7 +88,6 @@ bool TcpIpReader::QueryTransmit(BYTE *APDU,int APDUlen,BYTE **Resp,int *Resplen)
 }
 
 bool TcpIpReader::QueryATR(BYTE *ATR,DWORD *ATRsize,bool reset) {
-	//SectionLocker lock(dataSection);
 	if (AcceptSocket==NULL)
 		return false;
 	int read=0;
@@ -141,7 +138,6 @@ DWORD TcpIpReader::startServer() {
 				if (ret > 0)
 					break;
 				if (ret<0) {
-					wchar_t log[100];
 					DWORD err=WSAGetLastError();
 					swprintf(log,L"[BixVReader]wsa err:%x",err);
 					OutputDebugString(log);
@@ -257,7 +253,6 @@ DWORD TcpIpReader::startServer() {
 						while (!waitInsertIpr.empty()) {
 							CComPtr<IWDFIoRequest> ipr = waitInsertIpr.back();
 							OutputDebugString(L"[BixVReader]cancel Wait Remove");
-							SectionLocker lock(device->m_RequestLock);
 							if (ipr->UnmarkCancelable()==S_OK) {
 								OutputDebugString(L"[BixVReader]Wait Insert Unmarked");
 								ipr->CompleteWithInformation(HRESULT_FROM_WIN32(ERROR_CANCELLED), 0);
@@ -311,7 +306,6 @@ void TcpIpReader::shutdown() {
 	state=SCARD_ABSENT;
 	breakSocket=true;
 	{
-		//SectionLocker lock(dataSection);
 		closesocket(eventsocket);
 		closesocket(socket);
 	}

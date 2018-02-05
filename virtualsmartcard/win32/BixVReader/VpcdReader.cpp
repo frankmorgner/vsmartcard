@@ -138,7 +138,6 @@ void VpcdReader::signalRemoval(void) {
 			SectionLocker lock(device->m_RequestLock);
 			while (!waitInsertIpr.empty()) {
 				CComPtr<IWDFIoRequest> ipr = waitInsertIpr.back();
-				SectionLocker lock(device->m_RequestLock);
 				if (ipr->UnmarkCancelable()==S_OK) {
 					ipr->CompleteWithInformation(HRESULT_FROM_WIN32(ERROR_CANCELLED), 0);
 				}

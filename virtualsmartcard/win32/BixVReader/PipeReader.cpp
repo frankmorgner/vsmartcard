@@ -49,8 +49,6 @@ void PipeReader::init(wchar_t *section) {
 }
 
 bool PipeReader::CheckATR() {
-	//SectionLocker lock(dataSection);
-
 	if (pipe==NULL)
 		return false;
 	DWORD read=0;
@@ -72,8 +70,6 @@ bool PipeReader::CheckATR() {
 	return true;
 }
 bool PipeReader::QueryTransmit(BYTE *APDU,int APDUlen,BYTE **Resp,int *Resplen) {
-	//SectionLocker lock(dataSection);
-
 	if (pipe==NULL)
 		return false;
 	DWORD command=2;
@@ -112,8 +108,6 @@ bool PipeReader::QueryTransmit(BYTE *APDU,int APDUlen,BYTE **Resp,int *Resplen) 
 }
 
 bool PipeReader::QueryATR(BYTE *ATR,DWORD *ATRsize,bool reset) {
-	//SectionLocker lock(dataSection);
-
 	if (pipe==NULL)
 		return false;
 	DWORD command=reset ? 0 : 1;
@@ -150,7 +144,7 @@ DWORD PipeReader::startServer() {
 	swprintf(temp,L"\\\\.\\pipe\\%s",pipeEventName);
 	HANDLE _eventpipe=CreateNamedPipe(temp,PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED,PIPE_TYPE_BYTE,PIPE_UNLIMITED_INSTANCES,0,0,0,&sa);
 	wchar_t log[300];
-	swprintf(log,L"[BixVReader]Pipe created:%s:%08Ix",pipeName,_pipe);
+	swprintf(log,L"[BixVReader]Pipe created:%s:%p",pipeName,_pipe);
 	OutputDebugString(log);
 
 	while (true) {
@@ -220,7 +214,6 @@ DWORD PipeReader::startServer() {
 						while (!waitInsertIpr.empty()) {
 							CComPtr<IWDFIoRequest> ipr = waitInsertIpr.back();
 							OutputDebugString(L"[BixVReader]cancel Wait Remove");
-							SectionLocker lock(device->m_RequestLock);
 							if (ipr->UnmarkCancelable()==S_OK) {
 								OutputDebugString(L"[BixVReader]Wait Insert Unmarked");
 								ipr->CompleteWithInformation(HRESULT_FROM_WIN32(ERROR_CANCELLED), 0);

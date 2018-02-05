@@ -8,9 +8,8 @@ SectionLocker::SectionLocker(CRITICAL_SECTION &critsection,char *function,int li
 	Object=object;
 	DWORD start=GetTickCount();
 	if (TryEnterCriticalSection(section)==0) {
-		OutputDebugStringA("[BixVReader]RACE!");
 		char logBuffer[500];
-		sprintf(logBuffer,"[BixVReader]Richiesto da:Function:%s,Line:%i,Object:%Ix,Lock:%Ix",Function,Line,Object,section);
+		sprintf(logBuffer,"[BixVReader]Locking:Function:%s,Line:%i,Object:%p,Lock:%p",Function,Line,Object,section);
 		OutputDebugStringA(logBuffer);
 		ShowMe=section;
 		EnterCriticalSection(section);
@@ -23,7 +22,7 @@ SectionLocker::SectionLocker(CRITICAL_SECTION &critsection,char *function,int li
 SectionLocker::~SectionLocker() {
 	if (section==ShowMe) {
 		char logBuffer[500];
-		sprintf(logBuffer,"[BixVReader]Posseduto da:Function:%s,Line:%i,Object:%Ix,Lock:%Ix",Function,Line,Object,section);
+		sprintf(logBuffer,"[BixVReader]Unlocking:Function:%s,Line:%i,Object:%p,Lock:%p",Function,Line,Object,section);
 		OutputDebugStringA(logBuffer);
 		ShowMe=NULL;
 	}
