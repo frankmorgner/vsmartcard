@@ -6,6 +6,7 @@ matrix:
     - compiler: gcc
     - compiler: i686-w64-mingw32-gcc
     - compiler: x86_64-w64-mingw32-gcc
+    - env: DO_COVERITY_SCAN=yes
   allow_failures:
     - compiler: i686-w64-mingw32-gcc
     - compiler: x86_64-w64-mingw32-gcc
@@ -20,6 +21,11 @@ env:
     # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
     #   via the "travis encrypt" command using the project repo's public key
     - secure: "M+eNZPASDoFdWZUeSyu4whvPKaOwd0AlCmGWKc7SRbQPD8x8Ao8y3+kr++YonsWBnDUqQSNg3v4uWsJOo2Q57qMQ+FYcNlEjrYpXXSRdH4BnYnTH1WfNnTce7N5Bln9wxE+khe7cZJcxy+gvd+YiutQvHjT+bTzrs2MtHD0Odlw="
+    - COVERITY_SCAN_BRANCH_PATTERN="(master|coverity.*)"
+    - COVERITY_SCAN_NOTIFICATION_EMAIL="frankmorgner@gmail.com"
+    - COVERITY_SCAN_BUILD_COMMAND="make -C $TRAVIS_BUILD_DIR/virtualsmartcard -C $TRAVIS_BUILD_DIR/ccid -C $TRAVIS_BUILD_DIR/pcsc-relay"
+    - COVERITY_SCAN_PROJECT_NAME="$TRAVIS_REPO_SLUG"
+    - SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct)
 
 before_install:
   - sudo apt-get update
@@ -81,26 +87,18 @@ before_script:
       cd $TRAVIS_BUILD_DIR/ccid && autoreconf -vsi;
       ./configure OPENSC_LIBS="-L$PREFIX/lib -lopensc" || cat config.log;
     fi
-
-addons:
-  coverity_scan:
-    project:
-      name: "frankmorgner/vsmartcard"
-      description: "Umbrella project for various projects concerned with the emulation of different types of smart card readers or smart cards themselves"
-    notification_email: frankmorgner@gmail.com
-    build_command: make -C $TRAVIS_BUILD_DIR/virtualsmartcard -C $TRAVIS_BUILD_DIR/ccid -C $TRAVIS_BUILD_DIR/pcsc-relay
-    branch_pattern: master
+  # Optionally try to upload to Coverity Scan
+  # On error (propably quota is exhausted), just continue
+  - if [ -n "${DO_COVERITY_SCAN}" ]; then curl -s 'https://scan.coverity.com/scripts/travisci_build_coverity_scan.sh' | bash || true; fi
 
 script:
-  # Build virtualsmartcard
-  - make -C $TRAVIS_BUILD_DIR/virtualsmartcard
-  # Verify virtualsmartcard
-  - if [ -z "$HOST" ]; then
+  - if [ -z "${DO_COVERITY_SCAN}" ]; then
+      make -C $TRAVIS_BUILD_DIR/pcsc-relay;
+      make -C $TRAVIS_BUILD_DIR/virtualsmartcard;
+    fi
+  - if [ -z "$HOST" -a -z "${DO_COVERITY_SCAN}" ]; then
       cd $TRAVIS_BUILD_DIR/virtualsmartcard/src/vpicc && export PYTHONPATH=$PYTHONPATH:`pwd` && export LD_LIBRARY_PATH=$PREFIX/lib/ && python -m unittest discover -s virtualsmartcard.tests -p *_test.py -v;
     fi
-  # Build pcsc-relay
-  - make -C $TRAVIS_BUILD_DIR/pcsc-relay;
-  # Build ccid
-  - if [ $TRAVIS_OS_NAME == linux -a -z "$HOST" ]; then
+  - if [ $TRAVIS_OS_NAME == linux -a -z "$HOST" -a -z "${DO_COVERITY_SCAN}" ]; then
       make -C $TRAVIS_BUILD_DIR/ccid;
     fi
