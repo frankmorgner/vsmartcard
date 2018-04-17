@@ -56,6 +56,14 @@ class SmartcardOS(object):
         """
         return ""
 
+    def logAPDU(self, unparsed):
+        try:
+            c = C_APDU(unparsed)
+            logging.info("Parsed APDU:\n%s", str(parsed))
+        except ValueError as e:
+            logging.info("Unparsed APDU:\n%s", hexdump(unparsed));
+            raise e
+        return c
 
 class Iso7816OS(SmartcardOS):
 
@@ -280,13 +288,11 @@ class Iso7816OS(SmartcardOS):
             raise SwError(SW["ERR_INSNOTSUPPORTED"])
 
         try:
-            c = C_APDU(msg)
+            c = self.logAPDU(msg)
         except ValueError as e:
             logging.warning(str(e))
             return self.formatResult(False, 0, "",
                                      SW["ERR_INCORRECTPARAMETERS"], False)
-
-        logging.info("Parsed APDU:\n%s", str(c))
 
         # Handle Class Byte
         # {{{
