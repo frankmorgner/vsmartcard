@@ -1353,8 +1353,8 @@ class MF(DF):
                     T != TAG["FILECONTROLINFORMATION"]):
                 raise ValueError
             for tag, _, value in tlv_data:
-                exec tag2cmd.get(tag, 'unknown(tag, value)') in locals(),\
-                    globals()
+                exec(tag2cmd.get(tag, 'unknown(tag, value)') in locals(),
+                        globals())
 
             if (args["filedescriptor"] & FDB["DF"]) == FDB["DF"]:
                 # FIXME: data for DF

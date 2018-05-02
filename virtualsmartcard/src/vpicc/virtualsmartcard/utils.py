@@ -18,7 +18,7 @@
 #
 import binascii
 import string
-from ConstantDefinitions import MAX_SHORT_LE, MAX_EXTENDED_LE
+from virtualsmartcard.ConstantDefinitions import MAX_SHORT_LE, MAX_EXTENDED_LE
 
 
 def stringtoint(str):
@@ -44,7 +44,7 @@ def inttostring(i, length=None, len_extendable=False):
     return str
 
 
-_myprintable = " " + string.letters + string.digits + string.punctuation
+_myprintable = " " + string.ascii_letters + string.digits + string.punctuation
 
 
 def hexdump(data, indent=0, short=False, linelen=16, offset=0):
