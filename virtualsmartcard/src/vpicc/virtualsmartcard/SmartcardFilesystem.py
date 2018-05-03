@@ -138,14 +138,14 @@ def write(old, newlist, offsets, datacoding, maxsize=None):
             resultindex = offset + newindex
             while newindex < writenow:
                 if datacoding == DCB["WRITEOR"]:
-                    newpiece = chr(
+                    newpiece = inttostring(
                             ord(result[resultindex]) | ord(new[newindex]))
                 elif datacoding == DCB["WRITEAND"]:
-                    newpiece = chr(
+                    newpiece = inttostring(
                             ord(result[resultindex]) & ord(new[newindex]))
                 elif datacoding == DCB["PROPRIETARY"]:
                     # we use it for XOR
-                    newpiece = chr(
+                    newpiece = inttostring(
                             ord(result[resultindex]) ^ ord(new[newindex]))
                 result = (result[0:resultindex] + newpiece +
                           result[resultindex+1:len(result)])
@@ -614,24 +614,24 @@ class MF(DF):
         The result is not prepended with tag and length for neither TCP, FMD
         nor FCI template.
         """
-        fdm = [chr(TAG["FILEIDENTIFIER"]) + "\x02" + inttostring(file.fid, 2),
-               chr(TAG["LIFECYCLESTATUS"]) + "\x01" + chr(file.lifecycle)]
+        fdm = [inttostring(TAG["FILEIDENTIFIER"]) + b"\x02" + inttostring(file.fid, 2),
+               inttostring(TAG["LIFECYCLESTATUS"]) + b"\x01" + inttostring(file.lifecycle)]
         fdm.append(file.extra_fci_data)
 
         # TODO filesize and data objects
         if isinstance(file, EF):
             if hasattr(file, 'shortfid'):
-                fdm.append("%c\x01%c" % (TAG["SHORTFID"], file.shortfid << 3))
+                fdm.append(b"%c\x01%c" % (TAG["SHORTFID"], file.shortfid << 3))
             else:
-                fdm.append("%c\x00" % TAG["SHORTFID"])
+                fdm.append(b"%c\x00" % TAG["SHORTFID"])
 
             if isinstance(file, TransparentStructureEF):
                 l = inttostring(len(file.data), 2, True)
-                fdm.append("%c%c%s" % (TAG["BYTES_EXCLUDINGSTRUCTURE"],
-                           chr(len(l)), l))
-                fdm.append("%c%c%s" % (TAG["BYTES_INCLUDINGSTRUCTURE"],
-                           chr(len(l)), l))
-                fdm.append("%c\x02%c%c" % (TAG["FILEDISCRIPTORBYTE"],
+                fdm.append(b"%c%c%s" % (TAG["BYTES_EXCLUDINGSTRUCTURE"],
+                           inttostring(len(l)), l))
+                fdm.append(b"%c%c%s" % (TAG["BYTES_INCLUDINGSTRUCTURE"],
+                           inttostring(len(l)), l))
+                fdm.append(b"%c\x02%c%c" % (TAG["FILEDISCRIPTORBYTE"],
                            file.filedescriptor, file.datacoding))
 
             elif isinstance(file, RecordStructureEF):
@@ -664,7 +664,7 @@ class MF(DF):
         else:
             raise TypeError
 
-        return "".join(fdm)
+        return b"".join(fdm)
 
     def _selectFile(self, p1, p2, data):
         """
@@ -735,10 +735,10 @@ class MF(DF):
         file = self._selectFile(p1, p2, data)
 
         if p2 == P2_NONE:
-            data = ""
+            data = b""
         elif p2 == P2_FMD:
             # TODO
-            data = ""
+            data = b""
         else:
             if p2 == P2_FCP:
                 tag = TAG["FILECONTROLPARAMETERS"]
@@ -846,7 +846,7 @@ class MF(DF):
         ef, offsets, datalist = self.dataUnitsDecodePlain(p1, p2, data)
         ef.writebinary(offsets, datalist)
 
-        return SW["NORMAL"], ""
+        return SW["NORMAL"], b""
 
     def writeBinaryEncapsulated(self, p1, p2, data):
         """
@@ -857,7 +857,7 @@ class MF(DF):
         ef, offsets, datalist = self.dataUnitsDecodeEncapsulated(p1, p2, data)
         ef.writebinary(offsets, datalist)
 
-        return SW["NORMAL"], ""
+        return SW["NORMAL"], b""
 
     def updateBinaryPlain(self, p1, p2, data):
         """
@@ -870,7 +870,7 @@ class MF(DF):
         ef, offsets, datalist = self.dataUnitsDecodePlain(p1, p2, data)
         ef.updatebinary(offsets, datalist)
 
-        return SW["NORMAL"], ""
+        return SW["NORMAL"], b""
 
     def updateBinaryEncapsulated(self, p1, p2, data):
         """
@@ -883,7 +883,7 @@ class MF(DF):
         ef, offsets, datalist = self.dataUnitsDecodeEncapsulated(p1, p2, data)
         ef.updatebinary(offsets, datalist)
 
-        return SW["NORMAL"], ""
+        return SW["NORMAL"], b""
 
     def searchBinaryPlain(self, p1, p2, data):
         ef, offsets, datalist = self.dataUnitsDecodePlain(p1, p2, data)
@@ -929,7 +929,7 @@ class MF(DF):
             eraseto = None
 
         ef.erasebinary(erasefrom, eraseto)
-        return SW["NORMAL"], ""
+        return SW["NORMAL"], b""
 
     def eraseBinaryEncapsulated(self, p1, p2, data):
         """
@@ -959,7 +959,7 @@ class MF(DF):
             erasefrom = None
 
         ef.erasebinary(erasefrom, eraseto)
-        return SW["NORMAL"], ""
+        return SW["NORMAL"], b""
 
     def recordHandlingDecode(self, p1, p2):
         """
@@ -1002,7 +1002,7 @@ class MF(DF):
         ef, num_id, reference = self.recordHandlingDecode(p1, p2)
         result = ef.readrecord(0, num_id, reference)
 
-        r = ""
+        r = b""
         for item in result:
             r += item
 
@@ -1039,7 +1039,7 @@ class MF(DF):
             raise SwError(SW["ERR_INCORRECTPARAMETERS"])
         ef.writerecord(num_id, reference, 1, data)
 
-        return SW["NORMAL"], ""
+        return SW["NORMAL"], b""
 
     def updateRecordPlain(self, p1, p2, data):
         """
@@ -1059,7 +1059,7 @@ class MF(DF):
             raise SwError(SW["ERR_INCORRECTPARAMETERS"])
         ef.updaterecord(num_id, reference, 0, data)
 
-        return SW["NORMAL"], ""
+        return SW["NORMAL"], b""
 
     def updateRecordEncapsulated(self, p1, p2, data):
         """
@@ -1104,7 +1104,7 @@ class MF(DF):
                            decodeDiscretionaryDataObjects(tlv_data)[0],
                            DCB["PROPRIETARY"])
 
-        return SW["NORMAL"], ""
+        return SW["NORMAL"], b""
 
     def appendRecord(self, p1, p2, data):
         """
@@ -1119,7 +1119,7 @@ class MF(DF):
         ef, num_id, reference = self.recordHandlingDecode(p1, p2)
         sw = ef.appendrecord(data)
 
-        return SW["NORMAL"], ""
+        return SW["NORMAL"], b""
 
     def eraseRecord(self, p1, p2, data):
         """
@@ -1137,7 +1137,7 @@ class MF(DF):
             raise SwError(SW["ERR_INCORRECTPARAMETERS"])
         ef.eraserecord(num_id, reference)
 
-        return SW["NORMAL"], ""
+        return SW["NORMAL"], b""
 
     def dataObjectHandlingDecodePlain(self, p1, p2, data):
         """
@@ -1280,7 +1280,7 @@ class MF(DF):
                                                                         data)
         file.putdata(isSimpleTlv, tlvlist)
 
-        return SW["NORMAL"], ""
+        return SW["NORMAL"], b""
 
     def putDataEncapsulated(self, p1, p2, data):
         """
@@ -1293,7 +1293,7 @@ class MF(DF):
         file, tlvlist = self.dataObjectHandlingDecodeEncapsulated(p1, p2, data)
         file.putdata(False, tlvlist)
 
-        return SW["NORMAL"], ""
+        return SW["NORMAL"], b""
 
     @staticmethod
     def create(p1, p2, data):
@@ -1331,9 +1331,9 @@ class MF(DF):
                 TAG["SHORTFID"]: 'shortfid2args(value, args)',
                 TAG["LIFECYCLESTATUS"]: 'args["lifecycle"] = ' + \
                                         'stringtoint(value)',
-                TAG["BYTES_EXCLUDINGSTRUCTURE"]: 'args["data"] = chr(0) ' + \
+                TAG["BYTES_EXCLUDINGSTRUCTURE"]: 'args["data"] = bytes(0) ' + \
                                                  '* stringtoint(value)',
-                TAG["BYTES_INCLUDINGSTRUCTURE"]: 'args["data"] = chr(0) ' + \
+                TAG["BYTES_INCLUDINGSTRUCTURE"]: 'args["data"] = bytes(0) ' + \
                                                  '* stringtoint(value)',
                 }
         fcp_list = tlv_find_tags(bertlv_unpack(data),
@@ -1392,7 +1392,7 @@ class MF(DF):
             df.append(file)
             self.current = file
 
-        return SW["NORMAL"], ""
+        return SW["NORMAL"], b""
 
     def deleteFile(self, p1, p2, data):
         """
@@ -1407,7 +1407,7 @@ class MF(DF):
         # FIXME: free memory of file and remove its content from the security
         #        device
 
-        return SW["NORMAL"], ""
+        return SW["NORMAL"], b""
 
 
 class EF(File):
@@ -1738,7 +1738,7 @@ class RecordStructureEF(EF):
             raise SwError(SW["ERR_INCORRECTPARAMETERS"])
 
         if self.hasFixedRecordSize():
-            data = chr(0)*(self.maxrecordsize) + data
+            data = bytes(0)*(self.maxrecordsize) + data
 
         records = self.records
         if self.isCyclic():
@@ -1756,6 +1756,6 @@ class RecordStructureEF(EF):
         """
         records = self.__getRecords(num_id, reference)
         for r in records:
-            r.data = ""
+            r.data = b""
             r.identifier = None
         return SW["NORMAL"]

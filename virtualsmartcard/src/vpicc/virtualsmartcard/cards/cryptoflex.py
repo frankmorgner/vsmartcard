@@ -198,7 +198,7 @@ class CryptoflexMF(MF):  # {{{
                 "fid": stringtoint(data[4:6]),
                 }
         if data[6] == "\x01":
-            args["data"] = chr(0)*stringtoint(data[2:4])
+            args["data"] = bytes(0)*stringtoint(data[2:4])
             args["filedescriptor"] = FDB["EFSTRUCTURE_TRANSPARENT"]
             new_file = TransparentStructureEF(**args)
         elif data[6] == "\x02":
@@ -259,11 +259,11 @@ class CryptoflexMF(MF):  # {{{
         if isinstance(file, EF):
             # File size (body only)
             size = inttostring(min(0xffff, len(file.getenc('data'))), 2)
-            extra = chr(0)  # RFU
+            extra = bytes(0)  # RFU
             if (isinstance(file, RecordStructureEF) and
                     file.hasFixedRecordSize() and not file.isCyclic()):
                 # Length of records
-                extra += chr(0) + chr(min(file.records, 0xff))
+                extra += bytes(0) + bytes(min(file.records, 0xff))
         elif isinstance(file, DF):
             # Number of unused EEPROM bytes available in the DF
             size = inttostring(0xffff, 2)
@@ -285,27 +285,27 @@ class CryptoflexMF(MF):  # {{{
                 if isinstance(f, DF):
                     dfcount += 1
             if chv1:
-                extra = chr(1)  # TODO LSB correct?
+                extra = bytes(1)  # TODO LSB correct?
             else:
-                extra = chr(0)  # TODO LSB correct?
-            extra += chr(efcount)
-            extra += chr(dfcount)
-            extra += chr(0)  # TODO Number of PINs and unblock CHV PINs
-            extra += chr(0)  # RFU
+                extra = bytes(0)  # TODO LSB correct?
+            extra += bytes(efcount)
+            extra += bytes(dfcount)
+            extra += bytes(0)  # TODO Number of PINs and unblock CHV PINs
+            extra += bytes(0)  # RFU
             if chv1:
-                extra += chr(0)  # TODO remaining CHV1 attempts
-                extra += chr(0)  # TODO remaining unblock CHV1 attempts
+                extra += bytes(0)  # TODO remaining CHV1 attempts
+                extra += bytes(0)  # TODO remaining unblock CHV1 attempts
                 if chv2:
-                    extra += chr(0)  # TODO CHV2 key status
-                    extra += chr(0)  # TODO CHV2 unblocking key status
+                    extra += bytes(0)  # TODO CHV2 key status
+                    extra += bytes(0)  # TODO CHV2 unblocking key status
 
         data = inttostring(0, 2)  # RFU
         data += size
         data += inttostring(file.fid, 2)
         data += inttostring(file.filedescriptor)  # File type
         data += inttostring(0, 4)  # ACs TODO
-        data += chr(file.lifecycle & 1)  # File status
-        data += chr(len(extra))
+        data += bytes(file.lifecycle & 1)  # File status
+        data += bytes(len(extra))
         data += extra
 
         self.current = file

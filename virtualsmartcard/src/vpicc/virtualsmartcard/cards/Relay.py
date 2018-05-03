@@ -83,7 +83,7 @@ class RelayOS(SmartcardOS):
                 logging.error("Error getting ATR: %s", e.message)
                 sys.exit()
 
-        return "".join([chr(b) for b in atr])
+        return b"".join([bytes(b) for b in atr])
 
     def powerUp(self):
         # When powerUp is called multiple times the session is valid (and the
@@ -131,4 +131,4 @@ class RelayOS(SmartcardOS):
             rapdu = rapdu + [sw1, sw2]
 
         # return the response APDU as string
-        return "".join([chr(b) for b in rapdu])
+        return "".join([bytes(b) for b in rapdu])

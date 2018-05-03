@@ -34,7 +34,7 @@ except ImportError:
     import hmac as HMAC
     import sha as SHA1
 
-CYBERFLEX_IV = '\x00' * 8
+CYBERFLEX_IV = b'\x00' * 8
 
 
 # *******************************************************************
@@ -63,8 +63,10 @@ def get_cipher(cipherspec, key, iv=None):
                          (cipherparts[1], validModes))
 
     cipher = None
-    if iv is None:
-        cipher = c_class.new(key, mode, '\x00'*get_cipher_blocklen(cipherspec))
+    if cipherparts[1].upper() == "ECB":
+        cipher = c_class.new(key, mode)
+    elif iv is None:
+        cipher = c_class.new(key, mode, b'\x00'*get_cipher_blocklen(cipherspec))
     else:
         cipher = c_class.new(key, mode, iv)
 
@@ -114,9 +116,9 @@ def append_padding(blocklen, data, padding_class=0x01):
         last_block_length = len(data) % blocklen
         padding_length = blocklen - last_block_length
         if padding_length == 0:
-            padding = '\x80' + '\x00' * (blocklen - 1)
+            padding = b'\x80' + b'\x00' * (blocklen - 1)
         else:
-            padding = '\x80' + '\x00' * (blocklen - last_block_length - 1)
+            padding = b'\x80' + b'\x00' * (blocklen - last_block_length - 1)
 
     return data + padding
 
@@ -127,8 +129,11 @@ def strip_padding(blocklen, data, padding_class=0x01):
     """
 
     if padding_class == 0x01:
-        tail = len(data) - 1
-        while data[tail] != '\x80':
+        b = data
+        if isinstance(b, str):
+            b = map(ord, b)
+        tail = len(b) - 1
+        while b[tail] != 0x80:
             tail = tail - 1
         return data[:tail]
 

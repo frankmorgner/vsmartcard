@@ -37,7 +37,7 @@ class HandlerTestOS(SmartcardOS):
 
     def __output_from_le(self, msg):
         le = (ord(msg[2]) << 8) + ord(msg[3])
-        return ''.join([chr(num & 0xff) for num in xrange(le)])
+        return ''.join([bytes(num & 0xff) for num in xrange(le)])
 
     def execute(self, msg):
         ok = '\x90\x00'
@@ -67,7 +67,7 @@ class HandlerTestOS(SmartcardOS):
                 self.lastCommandOffcut = self.__output_from_le(msg)
                 if len(self.lastCommandOffcut) > 0xFF:
                     return '\x61\x00'
-                return '' + chr(len(self.lastCommandOffcut) & 0xFF)
+                return '' + bytes(len(self.lastCommandOffcut) & 0xFF)
             elif len(msg) == 6+ord(msg[4]):
                 logging.info('Case 4, APDU')
                 return self.__output_from_le(msg) + ok

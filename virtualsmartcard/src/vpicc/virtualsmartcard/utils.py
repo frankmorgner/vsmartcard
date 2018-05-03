@@ -18,6 +18,7 @@
 #
 import binascii
 import string
+import struct
 from virtualsmartcard.ConstantDefinitions import MAX_SHORT_LE, MAX_EXTENDED_LE
 
 
@@ -28,23 +29,24 @@ def stringtoint(str):
 
 
 def inttostring(i, length=None, len_extendable=False):
-    str = "%x" % i
-    if len(str) % 2 == 0:
-        str = str.decode('hex')
-    else:
-        str = ("0"+str).decode('hex')
+    str = b""
+    while True:
+        str = struct.pack('B', i & 0xFF) + str
+        i = i >> 8
+        if i <= 0:
+            break
 
     if length:
         l = len(str)
         if l > length and not len_extendable:
             raise ValueError("i too big for the specified stringlength")
         else:
-            str = chr(0)*(length-l) + str
+            str = b'\x00'*(length-l) + str
 
     return str
 
 
-_myprintable = " " + string.ascii_letters + string.digits + string.punctuation
+_myprintable = list(" " + string.ascii_letters + string.digits + string.punctuation)
 
 
 def hexdump(data, indent=0, short=False, linelen=16, offset=0):
@@ -53,12 +55,14 @@ def hexdump(data, indent=0, short=False, linelen=16, offset=0):
     hexdump without adresses and on one line.
 
     Examples:
-    hexdump('\x00\x41') -> \
+    hexdump(b'\x00\x41') -> \
     '0000:  00 41                                             .A              '
-    hexdump('\x00\x41', short=True) -> '00 41 (.A)'"""
+    hexdump(b'\x00\x41', short=True) -> '00 41 (.A)'"""
 
     def hexable(data):
-        return " ".join([binascii.b2a_hex(a) for a in data])
+        if isinstance(data, str):
+            data = map(ord, data)
+        return " ".join(map("{0:0>2X}".format, data))
 
     def printable(data):
         return "".join([e in _myprintable and e or "." for e in data])
@@ -66,6 +70,8 @@ def hexdump(data, indent=0, short=False, linelen=16, offset=0):
     if short:
         return "%s (%s)" % (hexable(data), printable(data))
 
+    if isinstance(data, str):
+        data = map(ord, data)
     FORMATSTRING = "%04x:  %-" + str(linelen*3) + "s  %-" + str(linelen) + "s"
     result = ""
     (head, tail) = (data[:linelen], data[linelen:])
@@ -88,58 +94,6 @@ LIFE_CYCLES = {0x01: "Load file = loaded",
                0x7F: "Card manager = Locked; Applet instance / security "
                      "domain = Blocked",
                0xFF: "Applet instance = Locked"}
-
-
-def parse_status(data):
-    """Parses the Response APDU of a GetStatus command."""
-    def parse_segment(segment):
-        def parse_privileges(privileges):
-            if privileges == 0x0:
-                return "N/A"
-            else:
-                privs = []
-                if privileges & (1 << 7):
-                    privs.append("security domain")
-                if privileges & (1 << 6):
-                    privs.append("DAP DES verification")
-                if privileges & (1 << 5):
-                    privs.append("delegated management")
-                if privileges & (1 << 4):
-                    privs.append("card locking")
-                if privileges & (1 << 3):
-                    privs.append("card termination")
-                if privileges & (1 << 2):
-                    privs.append("default selected")
-                if privileges & (1 << 1):
-                    privs.append("global PIN modification")
-                if privileges & (1 << 0):
-                    privs.append("mandated DAP verification")
-                return ", ".join(privs)
-
-        lgth = ord(segment[0])
-        aid = segment[1:1+lgth]
-        lifecycle = ord(segment[1+lgth])
-        privileges = ord(segment[1+lgth+1])
-
-        print("aid length:       %i (%x)" % (lgth, lgth))
-        print("aid:              %s" % hexdump(aid, indent=18, short=True))
-        print("life cycle state: %x (%s)" %
-              (lifecycle, LIFE_CYCLES.get(lifecycle,
-                                          "unknown or invalid state")))
-        print("privileges:       %x (%s)\n" %
-              (privileges, parse_privileges(privileges)))
-
-    pos = 0
-    while pos < len(data):
-        lgth = ord(data[pos])+3
-        segment = data[pos:pos+lgth]
-        parse_segment(segment)
-        pos = pos + lgth
-
-
-def _unformat_hexdump(dump):
-    hexdump = " ".join([line[7:54] for line in dump.splitlines()])
-    return binascii.a2b_hex("".join([e != " " and e or "" for e in hexdump]))
 
 
 def _make_byte_property(prop):
@@ -205,9 +159,11 @@ class APDU(object):
 
     def _setdata(self, value):
         if isinstance(value, str):
-            self._data = "".join([e for e in value])
+            self._data = b"".join([e for e in value])
         elif isinstance(value, list):
-            self._data = "".join([chr(int(e)) for e in value])
+            self._data = b"".join([inttostring(int(e)) for e in value])
+        elif isinstance(value, bytes):
+            self._data = value
         else:
             raise ValueError("'data' attribute can only be a str or a list of "
                              "int, not %s" % type(value))
@@ -265,8 +221,8 @@ class C_APDU(APDU):
     def parse(self, apdu):
         """Parse a full command APDU and assign the values to our object,
         overwriting whatever there was."""
-        apdu = map(lambda a: (isinstance(a, str) and (ord(a),) or
-                              (a,))[0], apdu)
+        apdu = list(map(lambda a: (isinstance(a, str) and (ord(a),) or
+                              (a,))[0], apdu))
         apdu = apdu + [0] * max(4-len(apdu), 0)
 
         self.CLA, self.INS, self.P1, self.P2 = apdu[:4]  # case 1, 2, 3, 4
@@ -349,21 +305,21 @@ class C_APDU(APDU):
         buffer = []
 
         for i in self.CLA, self.INS, self.P1, self.P2:
-            buffer.append(chr(i))
+            buffer.append(inttostring(i))
 
         if len(self.data) > 0:
-            buffer.append(chr(self.Lc))
+            buffer.append(inttostring(self.Lc))
             buffer.append(self.data)
 
         if hasattr(self, "_Le"):
             if self.__extended_length:
-                buffer.append(chr(0x00))
-                buffer.append(chr(self.Le >> 8))
-                buffer.append(chr(self.Le - self.Le >> 8))
+                buffer.append(inttostring(0x00))
+                buffer.append(inttostring(self.Le >> 8))
+                buffer.append(inttostring(self.Le - self.Le >> 8))
             else:
-                buffer.append(chr(self.Le))
+                buffer.append(inttostring(self.Le))
 
-        return "".join(buffer)
+        return b"".join(buffer)
 
     def case(self):
         "Return 1, 2, 3 or 4, depending on which ISO case we represent."
@@ -383,7 +339,7 @@ class R_APDU(APDU):
     "Class for a response APDU"
 
     def _getsw(self):
-        return chr(self.SW1) + chr(self.SW2)
+        return inttostring(self.SW1) + inttostring(self.SW2)
 
     def _setsw(self, value):
         if len(value) != 2:

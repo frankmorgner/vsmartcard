@@ -24,33 +24,33 @@ from virtualsmartcard.SmartcardSAM import *
 class TestSmartcardSAM(unittest.TestCase):
 
     def setUp(self):
-        self.password = "DUMMYKEYDUMMYKEY"
-        self.myCard = SAM("1234", "1234567890")
+        self.password = "DUMMYKEYDUMMYKEY".encode('ascii')
+        self.myCard = SAM("1234".encode('ascii'), "1234567890".encode('ascii'))
         self.secEnv = Security_Environment(None, self.myCard)  # TODO: Set CRTs
         self.secEnv.ht.algorithm = "SHA"
         self.secEnv.ct.algorithm = "AES-CBC"
 
     def test_incorrect_pin(self):
         with self.assertRaises(SwError):
-            self.myCard.verify(0x00, 0x00, "5678")
+            self.myCard.verify(0x00, 0x00, "5678".encode('ascii'))
 
     def test_counter_decrement(self):
         ctr1 = self.myCard.counter
         try:
-            self.myCard.verify(0x00, 0x00, "3456")
+            self.myCard.verify(0x00, 0x00, "3456".encode('ascii'))
         except SwError as e:
             pass
         self.assertEquals(self.myCard.counter, ctr1 - 1)
 
     def test_internal_authenticate(self):
-        sw, challenge = self.myCard.get_challenge(0x00, 0x00, "")
+        sw, challenge = self.myCard.get_challenge(0x00, 0x00, b"")
         blocklen = vsCrypto.get_cipher_blocklen("DES3-ECB")
         padded = vsCrypto.append_padding(blocklen, challenge)
         sw, result_data = self.myCard.internal_authenticate(0x00, 0x00, padded)
         self.assertEquals(sw, SW["NORMAL"])
 
     def test_external_authenticate(self):
-        sw, challenge = self.myCard.get_challenge(0x00, 0x00, "")
+        sw, challenge = self.myCard.get_challenge(0x00, 0x00, b"")
         blocklen = vsCrypto.get_cipher_blocklen("DES3-ECB")
         padded = vsCrypto.append_padding(blocklen, challenge)
         sw, result_data = self.myCard.internal_authenticate(0x00, 0x00, padded)
@@ -73,7 +73,7 @@ class TestSmartcardSAM(unittest.TestCase):
         # should this really be secEnv.ct? probably rather secEnv.dst
         self.secEnv.ct.algorithm = "RSA"
         self.secEnv.dst.keylength = 1024
-        sw, pk = self.secEnv.generate_public_key_pair(0x00, 0x00, "")
+        sw, pk = self.secEnv.generate_public_key_pair(0x00, 0x00, b"")
         self.assertEquals(sw, SW["NORMAL"])
 
 

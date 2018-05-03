@@ -58,8 +58,8 @@ class CardGenerator(object):
         self.datagroups = {}
 
     def __generate_iso_card(self):
-        default_pin = "1234"
-        default_cardno = "1234567890"
+        default_pin = "1234".encode('ascii')
+        default_cardno = "1234567890".encode('ascii')
 
         logging.warning("Using default SAM parameters. PIN=%s, Card Nr=%s"
                         % (default_pin, default_cardno))
@@ -603,10 +603,10 @@ class CardGenerator(object):
         esign.append(TransparentStructureEF(parent=esign, fid=0xC001, data=''))
         self.mf.append(esign)
 
-        self.sam = nPA_SAM(eid_pin="111111", can="222222",
+        self.sam = nPA_SAM(eid_pin="111111".encode('ascii'), can="222222".encode('ascii'),
                            mrz="IDD<<T220001293<<<<<<<<<<<<<<<6408125<2010315D"
-                           "<<<<<<<<<<<<<<MUSTERMANN<<ERIKA<<<<<<<<<<<<<",
-                           puk="3333333333", qes_pin="444444", mf=self.mf)
+                           "<<<<<<<<<<<<<<MUSTERMANN<<ERIKA<<<<<<<<<<<<<".encode('ascii'),
+                           puk="3333333333".encode('ascii'), qes_pin="444444".encode('ascii'), mf=self.mf)
         # FIXME: add CVCA for inspection systems and signature terminals. Here
         #        we only add the eID CVCA.
         self.sam.current_SE.cvca = "\x7f\x21\x82\x01\xb6\x7f\x4e\x82\x01\x6e"\

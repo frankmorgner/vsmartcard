@@ -32,10 +32,9 @@ from virtualsmartcard.CardGenerator import CardGenerator
 
 class SmartcardOS(object):
     """Base class for a smart card OS"""
-
     def getATR(self):
         """Returns the ATR of the card as string of characters"""
-        return ""
+        return b""
 
     def powerUp(self):
         """Powers up the card"""
@@ -54,7 +53,7 @@ class SmartcardOS(object):
 
         :param msg: the APDU as string of characters
         """
-        return ""
+        return b""
 
 
 class Iso7816OS(SmartcardOS):
@@ -110,14 +109,14 @@ class Iso7816OS(SmartcardOS):
         else:
             self.maxle = MAX_SHORT_LE
 
-        self.lastCommandOffcut = ""
+        self.lastCommandOffcut = b""
         self.lastCommandSW = SW["NORMAL"]
         el = extended_length  # only needed to keep following line short
         tsft = Iso7816OS.makeThirdSoftwareFunctionTable(extendedLe=el)
         card_capabilities = self.mf.firstSFT + self.mf.secondSFT + tsft
         self.atr = Iso7816OS.makeATR(T=1, directConvention=True, TA1=0x13,
-                                     histChars=chr(0x80) +
-                                     chr(0x70 + len(card_capabilities)) +
+                                     histChars=inttostring(0x80) +
+                                     inttostring(0x70 + len(card_capabilities)) +
                                      card_capabilities)
 
     def getATR(self):
@@ -145,9 +144,9 @@ class Iso7816OS(SmartcardOS):
         """
         # first byte TS
         if args["directConvention"]:
-            atr = "\x3b"
+            atr = b"\x3b"
         else:
-            atr = "\x3f"
+            atr = b"\x3f"
 
         if "T" in args:
             T = args["T"]
@@ -189,11 +188,11 @@ class Iso7816OS(SmartcardOS):
 
         # add TDi, TAi, TBi and TCi to ATR (TD0 is actually T0)
         for i in range(0, maxTD+1):
-            atr = atr + "%c" % args["TD" + str(i)]
+            atr = atr + b"%c" % args["TD" + str(i)]
             TCK ^= args["TD" + str(i)]
             for j in ["A", "B", "C"]:
                 if "T" + j + str(i+1) in args:
-                    atr += "%c" % args["T" + j + str(i+1)]
+                    atr += b"%c" % args["T" + j + str(i+1)]
                     # calculate checksum for all bytes from T0 to the end
                     TCK ^= args["T" + j + str(i+1)]
 
@@ -201,11 +200,15 @@ class Iso7816OS(SmartcardOS):
         if "histChars" in args:
             atr += args["histChars"]
             for i in range(0, len(args["histChars"])):
-                TCK ^= ord(args["histChars"][i])
+                byte = args["histChars"][i]
+                if isinstance(byte, str):
+                    TCK ^= ord(byte)
+                else:
+                    TCK ^= byte
 
         # checksum is omitted for T=0
         if T > 0:
-            atr += "%c" % TCK
+            atr += b"%c" % TCK
 
         return atr
 
@@ -283,7 +286,7 @@ class Iso7816OS(SmartcardOS):
             c = C_APDU(msg)
         except ValueError as e:
             logging.warning(str(e))
-            return self.formatResult(False, 0, "",
+            return self.formatResult(False, 0, b"",
                                      SW["ERR_INCORRECTPARAMETERS"], False)
 
         logging.info("Parsed APDU:\n%s", str(c))
@@ -353,7 +356,7 @@ class Iso7816OS(SmartcardOS):
             import traceback
             traceback.print_exception(*sys.exc_info())
             sw = e.sw
-            result = ""
+            result = b""
             answer = self.formatResult(False, 0, result, sw, sm)
 
         return answer
@@ -454,7 +457,7 @@ class VirtualICC(object):
             try:
                 local_ip = [(s.connect(('8.8.8.8', 53)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]
                 custom_url = 'vicc://%s:%d' % (local_ip, port)
-                print('VICC hostname:  %s' % local_ip);
+                print('VICC hostname:  %s' % local_ip)
                 print('VICC port:      %d' % port)
                 print('On your NFC phone with the Android Smart Card Emulator app scan this code:')
                 try:
@@ -553,16 +556,16 @@ class VirtualICC(object):
                 logging.warning("Error in communication protocol (missing \
                                 size parameter)")
             elif size == VPCD_CTRL_LEN:
-                if msg == chr(VPCD_CTRL_OFF):
+                if msg == inttostring(VPCD_CTRL_OFF):
                     logging.info("Power Down")
                     self.os.powerDown()
-                elif msg == chr(VPCD_CTRL_ON):
+                elif msg == inttostring(VPCD_CTRL_ON):
                     logging.info("Power Up")
                     self.os.powerUp()
-                elif msg == chr(VPCD_CTRL_RESET):
+                elif msg == inttostring(VPCD_CTRL_RESET):
                     logging.info("Reset")
                     self.os.reset()
-                elif msg == chr(VPCD_CTRL_ATR):
+                elif msg == inttostring(VPCD_CTRL_ATR):
                     self.__sendToVPICC(self.os.getATR())
                 else:
                     logging.warning("unknown control command")

@@ -158,10 +158,10 @@ class ControlReferenceTemplate:
         if position < len(self.__config_string):  # Replace Tag
             length = stringtoint(self.__config_string[position+1])
             self.__config_string = self.__config_string[:position] +\
-                chr(tag) + inttostring(len(data)) + data +\
+                inttostring(tag) + inttostring(len(data)) + data +\
                 self.__config_string[position+2+length:]
         else:  # Add new tag
-            self.__config_string += chr(tag) + inttostring(len(data)) + data
+            self.__config_string += inttostring(tag) + inttostring(len(data)) + data
 
     def to_string(self):
         """

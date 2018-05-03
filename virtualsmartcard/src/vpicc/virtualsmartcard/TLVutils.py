@@ -51,26 +51,26 @@ TAG["EXTENDED_HEADER_LIST"] = 0x4D
 
 
 def tlv_unpack(data):
-    ber_class = (ord(data[0]) & 0xC0) >> 6
+    ber_class = (data[0] & 0xC0) >> 6
     # 0 = primitive, 0x20 = constructed
-    constructed = (ord(data[0]) & 0x20) != 0
-    tag = ord(data[0])
+    constructed = (data[0] & 0x20) != 0
+    tag = data[0]
     data = data[1:]
     if (tag & 0x1F) == 0x1F:
-        tag = (tag << 8) | ord(data[0])
-        while ord(data[0]) & 0x80 == 0x80:
+        tag = (tag << 8) | data[0]
+        while data[0] & 0x80 == 0x80:
             data = data[1:]
-            tag = (tag << 8) | ord(data[0])
+            tag = (tag << 8) | data[0]
         data = data[1:]
 
-    length = ord(data[0])
+    length = data[0]
     if length < 0x80:
         data = data[1:]
     elif length & 0x80 == 0x80:
         length_ = 0
         data = data[1:]
         for i in range(0, length & 0x7F):
-            length_ = length_ * 256 + ord(data[0])
+            length_ = length_ * 256 + data[0]
             data = data[1:]
         length = length_
 
@@ -157,13 +157,15 @@ def bertlv_pack(data):
 
 def unpack(data, with_marks=None, offset=0, include_filler=False):
     result = []
+    if isinstance(data, str):
+        data = map(ord, data)
     while len(data) > 0:
-        if ord(data[0]) in (0x00, 0xFF):
+        if data[0] in (0x00, 0xFF):
             if include_filler:
                 if with_marks is None:
-                    result.append((ord(data[0]), None, None))
+                    result.append((data[0], None, None))
                 else:
-                    result.append((ord(data[0]), None, None, ()))
+                    result.append((data[0], None, None, ()))
             data = data[1:]
             offset = offset + 1
             continue
@@ -226,15 +228,17 @@ def simpletlv_unpack(data):
     """Unpacks a simpletlv coded string into a list of 3-tuples (tag, length,
     newvalue)."""
     result = []
+    if isinstance(data, str):
+        data = map(ord, data)
     rest = data
-    while rest != '':
-        tag = ord(rest[0])
+    while rest:
+        tag = rest[0]
         if tag == 0 or tag == 0xff:
             raise ValueError
 
-        length = ord(rest[1])
+        length = rest[1]
         if length == 0xff:
-            length = (ord(rest[2]) << 8) + ord(rest[3])
+            length = (rest[2] << 8) + rest[3]
             newvalue = rest[4:4+length]
             rest = rest[4+length:]
         else:
@@ -265,14 +269,14 @@ def decodeOffsetDataObjects(tlv_data):
 def decodeTagList(tlv_data):
     taglist = []
     for (t, l, data) in tlv_find_tag(tlv_data, TAG["TAG_LIST"]):
-        while data != "":
-            tag = ord(data[0])
+        while data:
+            tag = data[0]
             data = data[1:]
             if (tag & 0x1F) == 0x1F:
-                tag = (tag << 8) | ord(data[0])
-                while ord(data[0]) & 0x80 == 0x80:
+                tag = (tag << 8) | data[0]
+                while data[0] & 0x80 == 0x80:
                     data = data[1:]
-                    tag = (tag << 8) | ord(data[0])
+                    tag = (tag << 8) | data[0]
                 data = data[1:]
             taglist.append((tag, 0))
     return taglist
@@ -281,24 +285,24 @@ def decodeTagList(tlv_data):
 def decodeHeaderList(tlv_data):
     headerlist = []
     for (t, l, data) in tlv_find_tag(tlv_data, TAG["HEADER_LIST"]):
-        while data != "":
-            tag = ord(data[0])
+        while data:
+            tag = data[0]
             data = data[1:]
             if (tag & 0x1F) == 0x1F:
-                tag = (tag << 8) | ord(data[0])
-                while ord(data[0]) & 0x80 == 0x80:
+                tag = (tag << 8) | data[0]
+                while data[0] & 0x80 == 0x80:
                     data = data[1:]
-                    tag = (tag << 8) | ord(data[0])
+                    tag = (tag << 8) | data[0]
                 data = data[1:]
 
-                length = ord(data[0])
+                length = data[0]
                 if length < 0x80:
                     data = data[1:]
                 elif length & 0x80 == 0x80:
                     length_ = 0
                     data = data[1:]
                     for i in range(0, length & 0x7F):
-                        length_ = length_ * 256 + ord(data[0])
+                        length_ = length_ * 256 + data[0]
                         data = data[1:]
                     length = length_
 

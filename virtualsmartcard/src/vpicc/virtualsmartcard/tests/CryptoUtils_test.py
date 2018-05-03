@@ -24,8 +24,8 @@ from virtualsmartcard.CryptoUtils import *
 class TestCryptoUtils(unittest.TestCase):
 
     def setUp(self):
-        self.teststring = "DEADBEEFistatsyksdvhwohfwoehcowc8hw8rogfq8whv75tsg"\
-                          "ohsav8wress"
+        self.teststring = b"DEADBEEFistatsyksdvhwohfwoehcowc8hw8rogfq8whv75tsg"\
+                          b"ohsav8wress"
 
     def test_padding(self):
         padded = append_padding(16, self.teststring)

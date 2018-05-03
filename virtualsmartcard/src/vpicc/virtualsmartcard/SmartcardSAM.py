@@ -167,7 +167,7 @@ class SAM(object):
         """
 
         logging.debug("Received PIN: %s", PIN.strip())
-        PIN = PIN.replace("\0", "")  # Strip NULL characters
+        PIN = PIN.replace(b"\0", b"")  # Strip NULL characters
 
         if p1 != 0x00:
             raise SwError(SW["ERR_INCORRECTP1P2"])

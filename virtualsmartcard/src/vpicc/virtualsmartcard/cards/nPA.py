@@ -48,12 +48,12 @@ class NPAOS(Iso7816OS):
         # different ATR (Answer To Reset) values depending on used Chip version
         # It's just a playground, because in past one of all those eID clients
         # did not recognize the card correctly with newest ATR values
-        self.atr = '\x3B\x8A\x80\x01\x80\x31\xF8\x73\xF7\x41\xE0\x82\x90' + \
-                   '\x00\x75'
-        # self.atr = '\x3B\x8A\x80\x01\x80\x31\xB8\x73\x84\x01\xE0\x82\x90' + \
-        #            '\x00\x06'
-        # self.atr = '\x3B\x88\x80\x01\x00\x00\x00\x00\x00\x00\x00\x00\x09'
-        # self.atr = '\x3B\x87\x80\x01\x80\x31\xB8\x73\x84\x01\xE0\x19'
+        self.atr = b'\x3B\x8A\x80\x01\x80\x31\xF8\x73\xF7\x41\xE0\x82\x90' + \
+                   b'\x00\x75'
+        # self.atr = b'\x3B\x8A\x80\x01\x80\x31\xB8\x73\x84\x01\xE0\x82\x90' + \
+        #            b'\x00\x06'
+        # self.atr = b'\x3B\x88\x80\x01\x00\x00\x00\x00\x00\x00\x00\x00\x09'
+        # self.atr = b'\x3B\x87\x80\x01\x80\x31\xB8\x73\x84\x01\xE0\x19'
 
         self.SAM.current_SE.disable_checks = disable_checks
         if ef_cardsecurity:
@@ -67,7 +67,7 @@ class NPAOS(Iso7816OS):
         if ca_key:
             self.SAM.current_SE.ca_key = ca_key
         esign = self.mf.select('dfname',
-                               '\xA0\x00\x00\x01\x67\x45\x53\x49\x47\x4E')
+                               b'\xA0\x00\x00\x01\x67\x45\x53\x49\x47\x4E')
         if esign_ca_cert:
             ef = esign.select('fid', 0xC000)
             ef.data = esign_ca_cert
@@ -95,7 +95,7 @@ class NPAOS(Iso7816OS):
                 logging.info(e.message)
                 traceback.print_exception(*sys.exc_info())
                 sw = e.sw
-                result = ""
+                result = b""
                 answer = self.formatResult(False, 0, result, sw, False)
 
         return R_APDU(result, inttostring(sw)).render()
@@ -116,22 +116,22 @@ class nPA_AT_CRT(ControlReferenceTemplate):
         CommunityID = None
 
     def keyref_is_mrz(self):
-        if self.keyref_secret_key == '%c' % self.PACE_MRZ:
+        if self.keyref_secret_key == b'%c' % self.PACE_MRZ:
             return True
         return False
 
     def keyref_is_can(self):
-        if self.keyref_secret_key == '%c' % self.PACE_CAN:
+        if self.keyref_secret_key == b'%c' % self.PACE_CAN:
             return True
         return False
 
     def keyref_is_pin(self):
-        if self.keyref_secret_key == '%c' % self.PACE_PIN:
+        if self.keyref_secret_key == b'%c' % self.PACE_PIN:
             return True
         return False
 
     def keyref_is_puk(self):
-        if self.keyref_secret_key == '%c' % self.PACE_PUK:
+        if self.keyref_secret_key == b'%c' % self.PACE_PUK:
             return True
         return False
 
@@ -174,7 +174,7 @@ class nPA_AT_CRT(ControlReferenceTemplate):
                 else:
                     raise SwError(SW["ERR_REFNOTUSABLE"])
 
-        return r, ""
+        return r, b""
 
 
 class nPA_SE(Security_Environment):
@@ -201,10 +201,10 @@ class nPA_SE(Security_Environment):
         if self.at.algorithm == "PACE":
             if self.at.keyref_is_pin():
                 if self.sam.counter <= 0:
-                    print "Must use PUK to unblock"
+                    print("Must use PUK to unblock")
                     return 0x63c0, ""
                 if self.sam.counter == 1 and not self.sam.active:
-                    print "Must use CAN to activate"
+                    print("Must use CAN to activate")
                     return 0x63c1, ""
             self.eac_step = 0
         elif self.at.algorithm == "TA":
@@ -233,10 +233,10 @@ class nPA_SE(Security_Environment):
         elif self.eac_step == 6:
             # TODO implement RI
             # "\x7c\x22\x81\x20\" is some prefix and the rest is our RI
-            return SW["NORMAL"], "\x7c\x22\x81\x20\x48\x1e\x58\xd1\x7c\x12" + \
-                                 "\x9a\x0a\xb4\x63\x7d\x43\xc7\xf7\xeb\x2b" + \
-                                 "\x06\x10\x6f\x26\x90\xe3\x00\xc4\xe7\x03" + \
-                                 "\x54\xa0\x41\xf0\xd3\x90"
+            return SW["NORMAL"], b"\x7c\x22\x81\x20\x48\x1e\x58\xd1\x7c\x12" + \
+                                 b"\x9a\x0a\xb4\x63\x7d\x43\xc7\xf7\xeb\x2b" + \
+                                 b"\x06\x10\x6f\x26\x90\xe3\x00\xc4\xe7\x03" + \
+                                 b"\x54\xa0\x41\xf0\xd3\x90"
 
         raise SwError(SW["ERR_INCORRECTPARAMETERS"])
 
@@ -268,11 +268,11 @@ class nPA_SE(Security_Environment):
             self.PACE_SEC = PACE_SEC(self.sam.can, eac.PACE_CAN)
         elif self.at.keyref_is_pin():
             if self.sam.counter <= 0:
-                print "Must use PUK to unblock"
-                return 0x63c0, ""
+                print("Must use PUK to unblock")
+                return 0x63c0, b""
             if self.sam.counter == 1 and not self.sam.active:
-                print "Must use CAN to activate"
-                return 0x63c1, ""
+                print("Must use CAN to activate")
+                return 0x63c1, b""
             self.PACE_SEC = PACE_SEC(self.sam.eid_pin, eac.PACE_PIN)
             self.sam.counter -= 1
             if self.sam.counter <= 1:
@@ -384,7 +384,7 @@ class nPA_SE(Security_Environment):
         my_token = \
             eac.PACE_STEP3D_compute_authentication_token(self.eac_ctx,
                                                          self.pace_opp_pub_key)
-        token = ""
+        token = b""
         for tag, length, value in tlv_data:
             if tag == 0x85:
                 token = value
@@ -396,19 +396,19 @@ class nPA_SE(Security_Environment):
             eac.print_ossl_err()
             raise SwError(SW["WARN_NOINFO63"])
 
-        print "Established PACE channel"
+        print("Established PACE channel")
 
         if self.at.keyref_is_can():
             if (self.sam.counter == 1):
                 self.sam.active = True
-                print "PIN resumed"
+                print("PIN resumed")
         elif self.at.keyref_is_pin():
             self.sam.active = True
             self.sam.counter = 3
         elif self.at.keyref_is_puk():
             self.sam.active = True
             self.sam.counter = 3
-            print "PIN unblocked"
+            print("PIN unblocked")
 
         self.eac_step += 1
         self.at.algorithm = "TA"
@@ -449,7 +449,7 @@ class nPA_SE(Security_Environment):
 
         self.eac_step += 1
 
-        print "Generated Nonce and Authentication Token for CA"
+        print("Generated Nonce and Authentication Token for CA")
 
         # TODO activate SM
         self.new_encryption_ctx = eac.EAC_ID_CA
@@ -467,9 +467,9 @@ class nPA_SE(Security_Environment):
             eac.print_ossl_err()
             raise SwError(SW["ERR_NOINFO69"])
 
-        print "Imported Certificate"
+        print("Imported Certificate")
 
-        return ""
+        return b""
 
     def external_authenticate(self, p1, p2, data):
         """
@@ -489,14 +489,14 @@ class nPA_SE(Security_Environment):
             if 1 != eac.TA_STEP6_verify(self.eac_ctx, self.at.iv, id_picc,
                                         auxiliary_data, data):
                 eac.print_ossl_err()
-                print "Could not verify Terminal's signature"
+                print("Could not verify Terminal's signature")
                 raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
 
-            print "Terminal's signature verified"
+            print("Terminal's signature verified")
 
             self.eac_step += 1
 
-            return 0x9000, ""
+            return 0x9000, b""
 
         raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
 
@@ -532,12 +532,12 @@ class nPA_SE(Security_Environment):
         :returns: the protected data and the SW bytes
         """
 
-        return_data = ""
+        return_data = b""
 
-        if result != "":
+        if result:
             # Encrypt the data included in the RAPDU
             encrypted = self.encipher(0x82, 0x80, result)
-            encrypted = "\x01" + encrypted
+            encrypted = b"\x01" + encrypted
             encrypted_tlv = bertlv_pack([(
                                 SM_Class["CRYPTOGRAM_PADDING_INDICATOR_ODD"],
                                 len(encrypted),
@@ -570,11 +570,11 @@ class nPA_SE(Security_Environment):
     def compute_digital_signature(self, p1, p2, data):
         # TODO Signing with brainpoolP256r1 or any other key needs some more
         # effort ;-)
-        return '\x0D\xB2\x9B\xB9\x5E\x97\x7D\x42\x73\xCF\xA5\x45\xB7\xED' + \
-               '\x5C\x39\x3F\xCE\xCD\x4A\xDE\xDC\x2B\x85\x23\x9F\x66\x52' + \
-               '\x10\xC2\x67\xDC\xA6\x35\x94\x2D\x24\xED\xEB\xC8\x34\x6C' + \
-               '\x4B\xD1\xA1\x15\xB4\x48\x3A\xA4\x4A\xCE\xFF\xED\x97\x0E' + \
-               '\x07\xF3\x72\xF0\xFB\xA3\x62\x8C'
+        return b'\x0D\xB2\x9B\xB9\x5E\x97\x7D\x42\x73\xCF\xA5\x45\xB7\xED' + \
+               b'\x5C\x39\x3F\xCE\xCD\x4A\xDE\xDC\x2B\x85\x23\x9F\x66\x52' + \
+               b'\x10\xC2\x67\xDC\xA6\x35\x94\x2D\x24\xED\xEB\xC8\x34\x6C' + \
+               b'\x4B\xD1\xA1\x15\xB4\x48\x3A\xA4\x4A\xCE\xFF\xED\x97\x0E' + \
+               b'\x07\xF3\x72\xF0\xFB\xA3\x62\x8C'
 
 
 class nPA_SAM(SAM):
@@ -602,14 +602,14 @@ class nPA_SAM(SAM):
             # change secret
             if p2 == self.current_SE.at.PACE_CAN:
                 self.can = data
-                print "Changed CAN to %r" % self.can
+                print("Changed CAN to %r" % self.can)
             elif p2 == self.current_SE.at.PACE_PIN:
                 # TODO: allow terminals to change the PIN with permission
                 #       "CAN allowed"
                 if not self.current_SE.at.keyref_is_pin():
                     raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
                 self.eid_pin = data
-                print "Changed PIN to %r" % self.eid_pin
+                print("Changed PIN to %r" % self.eid_pin)
             else:
                 raise SwError(SW["ERR_DATANOTFOUND"])
         elif p1 == 0x03:
@@ -620,14 +620,14 @@ class nPA_SAM(SAM):
             elif p2 == self.current_SE.at.PACE_PIN:
                 if self.current_SE.at.keyref_is_can():
                     self.active = True
-                    print "Resumed PIN"
+                    print("Resumed PIN")
                 elif self.current_SE.at.keyref_is_pin():
                     # PACE was successful with PIN, nothing to do
                     # resume/unblock
                     pass
                 elif self.current_SE.at.keyref_is_puk():
                     # TODO unblock PIN for signature
-                    print "Unblocked PIN"
+                    print("Unblocked PIN")
                     self.active = True
                     self.counter = 3
                 else:
@@ -637,7 +637,7 @@ class nPA_SAM(SAM):
         else:
             raise SwError(SW["ERR_INCORRECTP1P2"])
 
-        return 0x9000, ""
+        return 0x9000, b""
 
     def external_authenticate(self, p1, p2, data):
         return self.current_SE.external_authenticate(p1, p2, data)
@@ -665,8 +665,8 @@ class nPA_SAM(SAM):
                 [(tag, _, value)] = structure = unpack(data)
                 if tag == 6:
                     mapped_algo = ALGO_MAPPING[value]
-                    eid = self.mf.select('dfname', '\xe8\x07\x04\x00\x7f\x00'
-                                         '\x07\x03\x02')
+                    eid = self.mf.select('dfname', b'\xe8\x07\x04\x00\x7f\x00'
+                                         b'\x07\x03\x02')
                     if mapped_algo == "DateOfExpiry":
                         [(_, _, [(_, _, mine)])] = \
                             unpack(eid.select('fid', 0x0103).data)
@@ -708,11 +708,11 @@ class nPA_SAM(SAM):
                                      str(self.current_SE.at.CommunityID))
                         if mine.startswith(self.current_SE.at.CommunityID):
                             print("Community ID verified (living there)")
-                            return SW["NORMAL"], ""
+                            return SW["NORMAL"], b""
                         else:
                             print("Community ID not verified (not living"
                                   "there)")
-                            return SW["WARN_NOINFO63"], ""
+                            return SW["WARN_NOINFO63"], b""
                     else:
                         return SwError(SW["ERR_DATANOTFOUND"])
                 else:
