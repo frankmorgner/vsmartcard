@@ -17,7 +17,7 @@
 # virtualsmartcard.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from virtualsmartcard.utils import stringtoint
+from virtualsmartcard.utils import stringtoint, inttostring
 
 TAG = {}
 TAG["FILECONTROLPARAMETERS"] = 0x62
@@ -93,7 +93,7 @@ def tlv_find_tags(tlv_data, tags, num_results=None):
             if t in tags:
                 results.append(d)
             else:
-                if isinstance(v, list):
+                if isinstance(v, bytes) and not isinstance(v[0], int):
                     find_recursive(v)
 
             if num_results is not None and len(results) >= num_results:
@@ -119,35 +119,35 @@ def pack(tlv_data, recalculate_length=False):
     for data in tlv_data:
         tag, length, value = data[:3]
         if tag in (0xff, 0x00):
-            result.append(chr(tag))
+            result.append(inttostring(tag))
             continue
 
-        if not isinstance(value, str):
+        if not isinstance(value, bytes):
             value = pack(value, recalculate_length)
 
         if recalculate_length:
             length = len(value)
 
-        t = ""
+        t = b""
         while tag > 0:
-            t = chr(tag & 0xff) + t
+            t = inttostring(tag & 0xff) + t
             tag = tag >> 8
 
         if length < 0x7F:
-            l = chr(length)
+            l = inttostring(length)
         else:
-            l = ""
+            l = b""
             while length > 0:
-                l = chr(length & 0xff) + l
+                l = inttostring(length & 0xff) + l
                 length = length >> 8
             assert len(l) < 0x7f
-            l = chr(0x80 | len(l)) + l
+            l = inttostring(0x80 | len(l)) + l
 
         result.append(t)
         result.append(l)
         result.append(value)
 
-    return "".join(result)
+    return b"".join(result)
 
 
 def bertlv_pack(data):
@@ -158,7 +158,7 @@ def bertlv_pack(data):
 def unpack(data, with_marks=None, offset=0, include_filler=False):
     result = []
     if isinstance(data, str):
-        data = map(ord, data)
+        data = list(map(ord, data))
     while len(data) > 0:
         if data[0] in (0x00, 0xFF):
             if include_filler:
@@ -202,7 +202,7 @@ def bertlv_unpack(data):
 
 
 def simpletlv_pack(tlv_data, recalculate_length=False):
-    result = ""
+    result = b""
 
     for tag, length, value in tlv_data:
         if tag >= 0xff or tag <= 0x00:
@@ -216,10 +216,10 @@ def simpletlv_pack(tlv_data, recalculate_length=False):
             continue
 
         if length < 0xff:
-            result += chr(tag) + chr(length) + value
+            result += inttostring(tag) + inttostring(length) + value
         else:
-            result += chr(tag) + chr(0xff) + chr(length >> 8) + \
-                      chr(length & 0xff) + value
+            result += inttostring(tag) + inttostring(0xff) + inttostring(length >> 8) + \
+                      inttostring(length & 0xff) + value
 
     return result
 
@@ -229,7 +229,7 @@ def simpletlv_unpack(data):
     newvalue)."""
     result = []
     if isinstance(data, str):
-        data = map(ord, data)
+        data = list(map(ord, data))
     rest = data
     while rest:
         tag = rest[0]

@@ -23,6 +23,7 @@ import logging
 import socket
 import struct
 import sys
+import traceback
 from virtualsmartcard.ConstantDefinitions import MAX_EXTENDED_LE, MAX_SHORT_LE
 from virtualsmartcard.SWutils import SwError, SW
 from virtualsmartcard.SmartcardFilesystem import make_property
@@ -282,14 +283,16 @@ class Iso7816OS(SmartcardOS):
             """
             raise SwError(SW["ERR_INSNOTSUPPORTED"])
 
+        logging.info("Command APDU (%d bytes):\n  %s", len(msg),
+                hexdump(msg, indent=2))
+
         try:
             c = C_APDU(msg)
+            logging.debug("%s", str(c))
         except ValueError as e:
             logging.warning(str(e))
             return self.formatResult(False, 0, b"",
                                      SW["ERR_INCORRECTPARAMETERS"], False)
-
-        logging.info("Parsed APDU:\n%s", str(c))
 
         # Handle Class Byte
         # {{{
@@ -352,9 +355,8 @@ class Iso7816OS(SmartcardOS):
             answer = self.formatResult(Iso7816OS.seekable(c.ins),
                                        c.effective_Le, result, sw, sm)
         except SwError as e:
+            logging.debug(traceback.format_exc().rstrip())
             logging.info(e.message)
-            import traceback
-            traceback.print_exception(*sys.exc_info())
             sw = e.sw
             result = b""
             answer = self.formatResult(False, 0, result, sw, sm)
@@ -575,8 +577,8 @@ class VirtualICC(object):
                                     size, len(msg))
 
                 answer = self.os.execute(msg)
-                logging.info("Response APDU (%d Bytes):\n%s\n", len(answer),
-                             hexdump(answer))
+                logging.info("Response APDU (%d bytes):\n  %s\n", len(answer),
+                             hexdump(answer, indent=2))
                 self.__sendToVPICC(answer)
 
     def stop(self):

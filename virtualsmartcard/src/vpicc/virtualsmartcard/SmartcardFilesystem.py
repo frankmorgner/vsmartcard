@@ -139,14 +139,14 @@ def write(old, newlist, offsets, datacoding, maxsize=None):
             while newindex < writenow:
                 if datacoding == DCB["WRITEOR"]:
                     newpiece = inttostring(
-                            ord(result[resultindex]) | ord(new[newindex]))
+                            result[resultindex] | new[newindex])
                 elif datacoding == DCB["WRITEAND"]:
                     newpiece = inttostring(
-                            ord(result[resultindex]) & ord(new[newindex]))
+                            result[resultindex] & new[newindex])
                 elif datacoding == DCB["PROPRIETARY"]:
                     # we use it for XOR
                     newpiece = inttostring(
-                            ord(result[resultindex]) ^ ord(new[newindex]))
+                            result[resultindex] ^ new[newindex])
                 result = (result[0:resultindex] + newpiece +
                           result[resultindex+1:len(result)])
                 newindex = newindex + 1
@@ -246,7 +246,7 @@ class File(object):
                  simpletlv_data=None,
                  bertlv_data=None,
                  SAM=None,
-                 extra_fci_data=''):
+                 extra_fci_data=b''):
         """
         The constructor is supposed to be involved by creation of a DF or EF.
         """
@@ -642,12 +642,12 @@ class MF(DF):
                         l += simpletlv_unpack(r.data)[0][1]
                     else:
                         l += len(r.data)
-                fdm.append("%c\x02%s" % (TAG["BYTES_EXCLUDINGSTRUCTURE"],
+                fdm.append(b"%c\x02%s" % (TAG["BYTES_EXCLUDINGSTRUCTURE"],
                            inttostring(l, 2, True)))
-                fdm.append("%c\x02%s" % (TAG["BYTES_INCLUDINGSTRUCTURE"],
+                fdm.append(b"%c\x02%s" % (TAG["BYTES_INCLUDINGSTRUCTURE"],
                            inttostring(l, 2, True)))
                 l = len(records)
-                fdm.append("%c\x06%c%c%c%c%s" % (TAG["FILEDISCRIPTORBYTE"],
+                fdm.append(b"%c\x06%c%c%c%c%s" % (TAG["FILEDISCRIPTORBYTE"],
                            file.filedescriptor, file.datacoding,
                            file.maxrecordsize >> 8,
                            file.maxrecordsize & 0x00ff,
@@ -655,10 +655,10 @@ class MF(DF):
 
         elif isinstance(file, DF):
             # TODO number of files == number of data bytes?
-            fdm.append("%c\x01%c" % (TAG["FILEDISCRIPTORBYTE"],
+            fdm.append(b"%c\x01%c" % (TAG["FILEDISCRIPTORBYTE"],
                        file.filedescriptor))
             if hasattr(file, 'dfname'):
-                fdm.append("%c%c%s" % (TAG["DFNAME"], len(file.dfname),
+                fdm.append(b"%c%c%s" % (TAG["DFNAME"], len(file.dfname),
                            file.dfname))
 
         else:
@@ -748,6 +748,7 @@ class MF(DF):
             data = bertlv_pack([(tag, len(fdm), fdm)])
 
         self.current = file
+        logging.info("Selected %s" % file)
 
         return SW["NORMAL"], data
 
@@ -1309,9 +1310,9 @@ class MF(DF):
             if l >= 3:
                 args["maxrecordsize"] = stringtoint(value[2:])
             if l >= 2:
-                args["datacoding"] = ord(value[1])
+                args["datacoding"] = value[1]
             if l >= 1:
-                args["filedescriptor"] = ord(value[0])
+                args["filedescriptor"] = value[0]
 
         def shortfid2args(value, args):
             s = stringtoint(value)
@@ -1323,19 +1324,6 @@ class MF(DF):
         def unknown(tag, value):
             logging.debug("unknown tag 0x%x with %r" % (tag, value))
 
-        tag2cmd = {
-                # TODO support other tags
-                TAG["FILEDISCRIPTORBYTE"]: 'fdb2args(value, args)',
-                TAG["FILEIDENTIFIER"]: 'args["fid"] = stringtoint(value)',
-                TAG["DFNAME"]: 'args["dfname"] = value',
-                TAG["SHORTFID"]: 'shortfid2args(value, args)',
-                TAG["LIFECYCLESTATUS"]: 'args["lifecycle"] = ' + \
-                                        'stringtoint(value)',
-                TAG["BYTES_EXCLUDINGSTRUCTURE"]: 'args["data"] = bytes(0) ' + \
-                                                 '* stringtoint(value)',
-                TAG["BYTES_INCLUDINGSTRUCTURE"]: 'args["data"] = bytes(0) ' + \
-                                                 '* stringtoint(value)',
-                }
         fcp_list = tlv_find_tags(bertlv_unpack(data),
                                  [TAG["FILECONTROLINFORMATION"],
                                   TAG["FILECONTROLPARAMETERS"]])
@@ -1353,9 +1341,23 @@ class MF(DF):
                     T != TAG["FILECONTROLINFORMATION"]):
                 raise ValueError
             for tag, _, value in tlv_data:
-                exec(tag2cmd.get(tag, 'unknown(tag, value)') in locals(),
-                        globals())
-
+                if tag == TAG["FILEDISCRIPTORBYTE"]:
+                    fdb2args(value, args)
+                elif tag == TAG["FILEIDENTIFIER"]:
+                    args["fid"] = stringtoint(value)
+                elif tag == TAG["DFNAME"]:
+                    args["dfname"] = value
+                elif tag == TAG["SHORTFID"]:
+                    shortfid2args(value, args)
+                elif tag == TAG["LIFECYCLESTATUS"]:
+                    args["lifecycle"] = stringtoint(value)
+                elif tag == TAG["BYTES_EXCLUDINGSTRUCTURE"]:
+                    args["data"] = b'\x00' * stringtoint(value)
+                elif tag == TAG["BYTES_INCLUDINGSTRUCTURE"]:
+                    args["data"] = b'\x00' * stringtoint(value)
+                else:
+                    unknown(tag, value)
+            print(args)
             if (args["filedescriptor"] & FDB["DF"]) == FDB["DF"]:
                 # FIXME: data for DF
                 if "data" in args:
@@ -1391,6 +1393,7 @@ class MF(DF):
             file.parent = df
             df.append(file)
             self.current = file
+            logging.info("Created %s" % file)
 
         return SW["NORMAL"], b""
 
@@ -1406,6 +1409,7 @@ class MF(DF):
         file.parent.content.remove(file)
         # FIXME: free memory of file and remove its content from the security
         #        device
+        logging.info("Deleted %s" % file)
 
         return SW["NORMAL"], b""
 
@@ -1738,7 +1742,7 @@ class RecordStructureEF(EF):
             raise SwError(SW["ERR_INCORRECTPARAMETERS"])
 
         if self.hasFixedRecordSize():
-            data = bytes(0)*(self.maxrecordsize) + data
+            data = b'\x00'*(self.maxrecordsize) + data
 
         records = self.records
         if self.isCyclic():

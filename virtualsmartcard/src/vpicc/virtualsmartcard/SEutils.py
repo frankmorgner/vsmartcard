@@ -410,7 +410,7 @@ class Security_Environment(object):
         # if expected != "":
         #    raise SwError(SW["ERR_SECMESSOBJECTSMISSING"])
 
-        if isinstance(le, str):
+        if isinstance(le, bytes):
             # FIXME: C_APDU only handles le with strings of length 1.
             # Better patch utils.py to support extended length apdus
             le_int = stringtoint(le)
@@ -702,23 +702,23 @@ class Security_Environment(object):
         # Encode keys
         if cipher == "RSA":
             # Public key
-            n = str(PublicKey.__getstate__()['n'])
-            e = str(PublicKey.__getstate__()['e'])
+            n = inttostring(PublicKey.__getstate__()['n'])
+            e = inttostring(PublicKey.__getstate__()['e'])
             pk = ((0x81, len(n), n), (0x82, len(e), e))
             result = bertlv_pack(pk)
             # Private key
             d = PublicKey.__getstate__()['d']
         elif cipher == "DSA":
             # DSAParams
-            p = str(PublicKey.__getstate__()['p'])
-            q = str(PublicKey.__getstate__()['q'])
-            g = str(PublicKey.__getstate__()['g'])
+            p = inttostring(PublicKey.__getstate__()['p'])
+            q = inttostring(PublicKey.__getstate__()['q'])
+            g = inttostring(PublicKey.__getstate__()['g'])
             # Public key
-            y = str(PublicKey.__getstate__()['y'])
+            y = inttostring(PublicKey.__getstate__()['y'])
             pk = ((0x81, len(p), p), (0x82, len(q), q), (0x83, len(g), g),
                   (0x84, len(y), y))
             # Private key
-            x = str(PublicKey.__getstate__()['x'])
+            x = inttostring(PublicKey.__getstate__()['x'])
         # Add more algorithms here
         # elif cipher = "ECDSA":
         else:

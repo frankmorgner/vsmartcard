@@ -22,10 +22,14 @@ import struct
 from virtualsmartcard.ConstantDefinitions import MAX_SHORT_LE, MAX_EXTENDED_LE
 
 
-def stringtoint(str):
-    if str:
-        return int(str.encode('hex'), 16)
-    return 0
+def stringtoint(data):
+    i = 0
+    if data:
+        if isinstance(data, str):
+            data = list(map(ord, data))
+        for byte in data:
+            i = (i << 8) + byte
+    return i
 
 
 def inttostring(i, length=None, len_extendable=False):
@@ -61,7 +65,7 @@ def hexdump(data, indent=0, short=False, linelen=16, offset=0):
 
     def hexable(data):
         if isinstance(data, str):
-            data = map(ord, data)
+            data = list(map(ord, data))
         return " ".join(map("{0:0>2X}".format, data))
 
     def printable(data):
@@ -71,7 +75,7 @@ def hexdump(data, indent=0, short=False, linelen=16, offset=0):
         return "%s (%s)" % (hexable(data), printable(data))
 
     if isinstance(data, str):
-        data = map(ord, data)
+        data = list(map(ord, data))
     FORMATSTRING = "%04x:  %-" + str(linelen*3) + "s  %-" + str(linelen) + "s"
     result = ""
     (head, tail) = (data[:linelen], data[linelen:])
@@ -199,10 +203,7 @@ class APDU(object):
                              ", ".join(self._format_fields()))
 
         if len(self.data) > 0:
-            result = result + " with %i (0x%02x) bytes of data" % (
-                len(self.data), len(self.data)
-            )
-            return result + ":\n" + hexdump(self.data)
+            return result + ":\n  " + hexdump(self.data, indent=2)
         else:
             return result
 

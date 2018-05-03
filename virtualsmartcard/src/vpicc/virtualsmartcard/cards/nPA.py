@@ -92,8 +92,8 @@ class NPAOS(Iso7816OS):
             try:
                 sw, result = self.SAM.protect_result(sw, result)
             except SwError as e:
+                logging.debug(traceback.format_exc().rstrip())
                 logging.info(e.message)
-                traceback.print_exception(*sys.exc_info())
                 sw = e.sw
                 result = b""
                 answer = self.formatResult(False, 0, result, sw, False)
