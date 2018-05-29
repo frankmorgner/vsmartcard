@@ -74,7 +74,7 @@ def tlv_unpack(data):
             data = data[1:]
         length = length_
 
-    value = data[:length]
+    value = b"".join(inttostring(i) for i in data[:length])
     rest = data[length:]
 
     return ber_class, constructed, tag, length, value, rest
@@ -114,12 +114,12 @@ def tlv_find_tag(tlv_data, tag, num_results=None):
 
 
 def pack(tlv_data, recalculate_length=False):
-    result = []
+    result = b""
 
     for data in tlv_data:
         tag, length, value = data[:3]
         if tag in (0xff, 0x00):
-            result.append(inttostring(tag))
+            result = result + inttostring(tag)
             continue
 
         if not isinstance(value, bytes):
@@ -143,9 +143,9 @@ def pack(tlv_data, recalculate_length=False):
             assert len(l) < 0x7f
             l = inttostring(0x80 | len(l)) + l
 
-        result.append(t)
-        result.append(l)
-        result.append(value)
+        result = result + t
+        result = result + l
+        result = result + value
 
     return b"".join(result)
 
