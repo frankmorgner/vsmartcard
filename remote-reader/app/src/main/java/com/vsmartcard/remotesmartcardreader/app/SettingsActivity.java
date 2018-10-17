@@ -168,6 +168,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             bindPreferenceSummaryToValue(findPreference("hostname"));
             bindPreferenceSummaryToValue(findPreference("port"));
             bindPreferenceSummaryToValue(findPreference("delay"));
+            bindPreferenceSummaryToValue(findPreference("timeout"));
 
             Preference nfcSettings = findPreference("nfcSettings");
             nfcSettings.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {

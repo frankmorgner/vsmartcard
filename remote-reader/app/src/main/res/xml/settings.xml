@@ -50,6 +50,13 @@
             android:entries="@array/strDelays"
             android:entryValues="@array/intDelays" />
 
+        <ListPreference
+            android:key="timeout"
+            android:defaultValue="500"
+            android:title="Delay for Card Response"
+            android:entries="@array/strTimeouts"
+            android:entryValues="@array/intTimeouts" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>

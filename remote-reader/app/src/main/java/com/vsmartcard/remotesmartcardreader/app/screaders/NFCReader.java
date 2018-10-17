@@ -21,12 +21,14 @@ package com.vsmartcard.remotesmartcardreader.app.screaders;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.IsoDep;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.WindowManager;
 
@@ -42,7 +44,10 @@ public class NFCReader implements SCReader {
     private NFCReader(IsoDep sc, Activity activity) throws IOException {
         this.card = sc;
         sc.connect();
-        card.setTimeout(TIMEOUT);
+        SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(activity);
+        int timeout = Integer.parseInt(SP.getString("timeout", "500"));
+        card.setTimeout(timeout);
+        com.example.android.common.logger.Log.i(getClass().getName(), "Timeout set to " + Integer.toString(timeout));
         this.activity = activity;
         avoidScreenTimeout();
     }
@@ -81,7 +86,6 @@ public class NFCReader implements SCReader {
         resetScreenTimeout();
     }
 
-    public static final int TIMEOUT = 500;
     @Override
     public void powerOn() {
         /* should already be connected... */

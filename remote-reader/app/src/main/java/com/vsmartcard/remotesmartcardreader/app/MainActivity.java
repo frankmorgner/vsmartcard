@@ -158,7 +158,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
 
         SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(this);
-        int timeout = Integer.parseInt(SP.getString("delay", Integer.toString(NFCReader.TIMEOUT)));
+        int timeout = Integer.parseInt(SP.getString("delay", "500"));
         Bundle bundle = new Bundle();
         bundle.putInt(NfcAdapter.EXTRA_READER_PRESENCE_CHECK_DELAY, timeout * 10);
         adapter.enableReaderMode(this, this,
