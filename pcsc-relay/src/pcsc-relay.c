@@ -179,6 +179,8 @@ int main (int argc, char **argv)
     viccport = args_info.vicc_port_arg;
     if (args_info.vicc_hostname_given)
         vicchostname = args_info.vicc_hostname_arg;
+    if (args_info.vicc_atr_given)
+        viccatr = args_info.vicc_atr_arg;
 
     verbose = args_info.verbose_given;
 

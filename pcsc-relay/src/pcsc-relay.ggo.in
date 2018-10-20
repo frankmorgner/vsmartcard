@@ -44,6 +44,10 @@ option "vicc-hostname"       N
     "Hostname for connecting to virtual smart card reader"
     string default="wait for an incoming connection"
     optional
+option "vicc-atr"       A
+    "ATR"
+    string default="3B80800101"
+    optional
 
 text "
 Report bugs to @PACKAGE_BUGREPORT@

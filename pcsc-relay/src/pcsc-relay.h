@@ -61,6 +61,7 @@ extern unsigned int vpcdport;
 extern char *vpcdhostname;
 extern unsigned int viccport;
 extern char *vicchostname;
+extern char *viccatr;
 
 void hexdump(const char *label, unsigned char *buf, size_t len);
 

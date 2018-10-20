@@ -30,6 +30,9 @@
 
 unsigned int viccport = VPCDPORT;
 char *vicchostname = NULL;
+char *viccatr = "3B80800101";
+unsigned char atr[256];
+size_t atr_len = 0;
 
 
 
@@ -40,6 +43,32 @@ static int _vicc_connect(driver_data_t **driver_data)
 
     if (!driver_data)
         return 0;
+
+    if (viccatr) {
+        size_t i;
+        unsigned char *hex = viccatr;
+        unsigned char *bin = atr;
+        atr_len = strlen(viccatr);
+        if (atr_len % 2 != 0) {
+            RELAY_ERROR("Length of ATR needs to be even\n");
+            return 0;
+        }
+        atr_len /= 2;
+        if (atr_len > sizeof atr) {
+            RELAY_ERROR("ATR too long\n");
+            return 0;
+        }
+        while (*hex) {
+            if (sscanf(hex, "%2hhX", bin) != 1) {
+                RELAY_ERROR("bad ATR\n");
+                return 0;
+            }
+            hex += 2;
+            bin += 1;
+        }
+    } else {
+        atr_len = 0;
+    }
 
 
     ctx = vicc_init(vicchostname, viccport);
@@ -77,7 +106,6 @@ static int vicc_receive_capdu(driver_data_t *driver_data,
 
     int r = 0;
     ssize_t size;
-    const unsigned char atr[] = {0x3B, 0x80, 0x80, 0x01, 0x01};
 
     if (!len)
         goto err;
@@ -98,7 +126,7 @@ static int vicc_receive_capdu(driver_data_t *driver_data,
                     // ignore reset, power on, power off
                     break;
                 case VPCD_CTRL_ATR:
-                    if (vicc_transmit(ctx, sizeof atr, atr, NULL) < 0) {
+                    if (vicc_transmit(ctx, atr_len, atr, NULL) < 0) {
                         RELAY_ERROR("could not send ATR\n");
                         goto err;
                     }
