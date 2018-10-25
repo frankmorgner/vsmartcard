@@ -131,4 +131,4 @@ class RelayOS(SmartcardOS):
             rapdu = rapdu + [sw1, sw2]
 
         # return the response APDU as string
-        return "".join([bytes(b) for b in rapdu])
+        return "".join(map(chr, rapdu))
