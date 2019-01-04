@@ -56,9 +56,9 @@ before_script:
   - git clone https://github.com/frankmorgner/OpenSC
   - cd OpenSC && autoreconf -vsi
   - if [ -z "$HOST" ]; then
-      ./configure --prefix=$PREFIX || cat config.log;
+      ./configure --prefix=$PREFIX --with-completiondir=/tmp || cat config.log;
     else
-      ./configure --prefix=$PREFIX --host=$HOST || cat config.log;
+      ./configure --prefix=$PREFIX --with-completiondir=/tmp --host=$HOST || cat config.log;
     fi
   - make install
   # Configure virtualsmartcard
