@@ -7,9 +7,6 @@ matrix:
     - compiler: i686-w64-mingw32-gcc
     - compiler: x86_64-w64-mingw32-gcc
     - env: DO_COVERITY_SCAN=yes
-  allow_failures:
-    - compiler: i686-w64-mingw32-gcc
-    - compiler: x86_64-w64-mingw32-gcc
 
 env:
   global:
@@ -27,21 +24,24 @@ env:
     - COVERITY_SCAN_PROJECT_NAME="$TRAVIS_REPO_SLUG"
     - SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct)
 
-before_install:
-  - sudo apt-get update
+sudo: false
+
+addons:
+  apt_packages:
+    - libpcsclite-dev
+    - libusb-dev
+    - xutils-dev
+    - gengetopt
+    - help2man
+    - swig
+    - python-dev
+    - binutils-mingw-w64
+    - gcc-mingw-w64
+    - python-crypto
 
 install:
   - if [ "$CC" == i686-w64-mingw32-gcc -o "$CC" == x86_64-w64-mingw32-gcc ]; then
       export HOST=${CC%%-gcc};
-    fi
-  - if [ $TRAVIS_OS_NAME == linux ]; then
-      if [ -z "$HOST" ]; then
-        sudo ln -s /lib/x86_64-linux-gnu/libgcc_s.so.1 /lib/x86_64-linux-gnu/libgcc_s.so;
-        sudo apt-get -qq install libpcsclite-dev libusb-dev xutils-dev gengetopt help2man swig python-dev;
-        pip install --user pycrypto;
-      else
-        sudo apt-get -qq install libpcsclite-dev libusb-dev xutils-dev gengetopt help2man binutils-mingw-w64 gcc-mingw-w64;
-      fi
     fi
 
 before_script:
@@ -102,3 +102,7 @@ script:
   - if [ $TRAVIS_OS_NAME == linux -a -z "$HOST" -a -z "${DO_COVERITY_SCAN}" ]; then
       make -C $TRAVIS_BUILD_DIR/ccid;
     fi
+
+cache:
+  apt: true
+  ccache: true
