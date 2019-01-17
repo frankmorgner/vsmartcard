@@ -240,12 +240,14 @@ static ssize_t recvFromVICC(struct vicc_ctx *ctx, unsigned char **buffer)
 
     size = ntohs(size);
 
-    p = realloc(*buffer, size);
-    if (p == NULL) {
-        errno = ENOMEM;
-        return -1;
+    if (0 != size) {
+        p = realloc(*buffer, size);
+        if (p == NULL) {
+            errno = ENOMEM;
+            return -1;
+        }
+        *buffer = p;
     }
-    *buffer = p;
 
     /* receive message */
     return recvall(ctx->client_sock, *buffer, size);

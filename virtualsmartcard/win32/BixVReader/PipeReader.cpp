@@ -93,12 +93,14 @@ bool PipeReader::QueryTransmit(BYTE *APDU,int APDUlen,BYTE **Resp,int *Resplen) 
 		pipe=NULL;
 		return false;
 	}
-	BYTE *p=(BYTE *)realloc(*Resp, dwRespLen);
-	if (p==NULL) {
-		pipe=NULL;
-		return false;
+	if (0 != dwRespLen) {
+		BYTE *p=(BYTE *)realloc(*Resp, dwRespLen);
+		if (p==NULL) {
+			pipe=NULL;
+			return false;
+		}
+		*Resp=p;
 	}
-	*Resp=p;
 	if (!ReadFile(pipe,*Resp,dwRespLen,&read,NULL)) {
 		pipe=NULL;
 		return false;

@@ -102,12 +102,14 @@ int picc_decode_apdu(const char *inbuf, size_t inlen,
     }
     end++;
 
-    p = realloc(*outbuf, length);
-    if (!p) {
-        RELAY_ERROR("Error allocating memory for decoded C-APDU\n");
-        return 0;
+    if (length != 0) {
+        p = realloc(*outbuf, length);
+        if (!p) {
+            RELAY_ERROR("Error allocating memory for decoded C-APDU\n");
+            return 0;
+        }
+        *outbuf = p;
     }
-    *outbuf = p;
 
     pos = 0;
     while(inbuf+inlen > end && length > pos) {

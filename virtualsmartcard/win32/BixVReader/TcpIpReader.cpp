@@ -71,13 +71,15 @@ bool TcpIpReader::QueryTransmit(BYTE *APDU,int APDUlen,BYTE **Resp,int *Resplen)
 		AcceptSocket=NULL;
 		return false;
 	}
-	BYTE *p=(BYTE *)realloc(*Resp, dwRespLen);
-	if (p==NULL) {
-		::shutdown(AcceptSocket,SD_BOTH);
-		AcceptSocket=NULL;
-		return false;
+	if (0 != dwRespLen) {
+		BYTE *p=(BYTE *)realloc(*Resp, dwRespLen);
+		if (p==NULL) {
+			::shutdown(AcceptSocket,SD_BOTH);
+			AcceptSocket=NULL;
+			return false;
+		}
+		*Resp=p;
 	}
-	*Resp=p;
 	if ((read=recv(AcceptSocket,(char*)*Resp,dwRespLen,MSG_WAITALL))<=0) {
 		::shutdown(AcceptSocket,SD_BOTH);
 		AcceptSocket=NULL;

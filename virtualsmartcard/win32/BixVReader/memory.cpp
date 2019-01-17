@@ -11,14 +11,16 @@ bool getBuffer(IWDFIoRequest* pRequest,void **buffer,int *bufferLen) {
 	else {
 		SIZE_T size;
 		void *data=inmem->GetDataBuffer(&size);
-		void *out = realloc(*buffer, size);
-		if (out==NULL) {
-			OutputDebugString(L"realloc failed");
-			return false;
+		if (0 != size) {
+			void *out = realloc(*buffer, size);
+			if (out==NULL) {
+				OutputDebugString(L"realloc failed");
+				return false;
+			}
+			memcpy(out,data,size);
+			(*buffer)=out;
 		}
-		memcpy(out,data,size);
 		(*bufferLen)=(int)size;
-		(*buffer)=out;
 		inmem->Release();
 		return true;
 	}

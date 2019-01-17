@@ -229,12 +229,14 @@ static int get_rapdu(sc_apdu_t *apdu, __u8 **buf, size_t *resplen)
     }
 
     apdu->resplen = apdu->le;
-    apdu->resp = realloc(*buf, apdu->resplen);
-    if (!apdu->resp) {
-        sc_result = SC_ERROR_OUT_OF_MEMORY;
-        goto err;
+    if (0 != apdu->resplen) {
+        apdu->resp = realloc(*buf, apdu->resplen);
+        if (!apdu->resp) {
+            sc_result = SC_ERROR_OUT_OF_MEMORY;
+            goto err;
+        }
+        *buf = apdu->resp;
     }
-    *buf = apdu->resp;
 
     if (apdu->cla == 0xff) {
         sc_result = perform_pseudo_apdu(card->reader, apdu);
