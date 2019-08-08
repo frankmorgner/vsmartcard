@@ -9,8 +9,8 @@ android {
         // NFC reader mode was added in KitKat
         minSdkVersion 19
         targetSdkVersion 23
-        versionCode 5
-        versionName "2.1"
+        versionCode 6
+        versionName "2.2"
     }
 
     buildTypes {
