@@ -21,6 +21,14 @@
         <aid-filter android:name="@string/aid_isoapplet"/>
     </aid-group>
 
+    <aid-group android:description="@string/applet_pivapplet" android:category="other">
+        <aid-filter android:name="@string/aid_pivapplet"/>
+        <aid-filter android:name="@string/aid_pivapplet_truncated1"/>
+        <aid-filter android:name="@string/aid_pivapplet_truncated2"/>
+        <aid-filter android:name="@string/aid_pivapplet_truncated3"/>
+        <aid-filter android:name="@string/aid_pivapplet_truncated4"/>
+    </aid-group>
+
     <aid-group android:description="@string/applet_gidsapplet" android:category="other">
         <aid-filter android:name="@string/aid_gidsapplet"/>
         <aid-filter android:name="@string/aid_gidsapplet_truncated1"/>

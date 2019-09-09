@@ -20,6 +20,7 @@ android {
         main.java.srcDirs += 'src/main/external/GidsApplet/src'
         main.java.exclude('**/gidsAppletTests/*.java')
         main.java.srcDirs += 'src/main/external/IsoApplet/src'
+        main.java.srcDirs += 'src/main/external/PivApplet/src'
         main.java.srcDirs += 'src/main/external/android-scio/src/main'
         main.java.srcDirs += 'src/main/external/ykneo-openpgp/applet/src'
         main.java.srcDirs += 'src/main/external/ykneo-oath/applet/src'

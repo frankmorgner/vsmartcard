@@ -85,6 +85,7 @@ public class EmulatorSingleton {
                         SP.getBoolean("activate_openpgp", false),
                         SP.getBoolean("activate_oath", false),
                         SP.getBoolean("activate_isoapplet", false),
+                        SP.getBoolean("activate_pivapplet", false),
                         SP.getBoolean("activate_gidsapplet", false));
             }
         }

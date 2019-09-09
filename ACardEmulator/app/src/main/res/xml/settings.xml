@@ -38,6 +38,12 @@
             android:defaultValue="true"
             />
         <SwitchPreference
+            android:title="@string/applet_pivapplet"
+            android:switchTextOn="@string/aid_pivapplet"
+            android:key="activate_pivapplet"
+            android:defaultValue="true"
+            />
+        <SwitchPreference
             android:title="@string/applet_gidsapplet"
             android:switchTextOn="@string/aid_gidsapplet"
             android:key="activate_gidsapplet"

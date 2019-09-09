@@ -19,3 +19,6 @@
 [submodule "virtualsmartcard/win32/DevMsi"]
 	path = virtualsmartcard/win32/DevMsi
 	url = https://github.com/nickrussler/DevMsi.git
+[submodule "ACardEmulator/app/src/main/external/PivApplet"]
+	path = ACardEmulator/app/src/main/external/PivApplet
+	url = https://github.com/frankmorgner/PivApplet

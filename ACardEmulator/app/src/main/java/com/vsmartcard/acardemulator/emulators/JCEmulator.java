@@ -13,6 +13,7 @@ import com.vsmartcard.acardemulator.R;
 import com.vsmartcard.acardemulator.Util;
 
 import net.pwendland.javacard.pki.isoapplet.IsoApplet;
+import net.cooperi.pivapplet.PivApplet;
 
 import openpgpcard.OpenPGPApplet;
 import pkgYkneoOath.YkneoOath;
@@ -27,6 +28,7 @@ public class JCEmulator implements Emulator {
             boolean activate_openpgp,
             boolean activate_oath,
             boolean activate_isoapplet,
+            boolean activate_pivapplet,
             boolean activate_gidsapplet) {
         String aid, name, extra_install = "", extra_error = "";
         simulator = new Simulator(new SimulatorRuntime());
@@ -68,6 +70,18 @@ public class JCEmulator implements Emulator {
                 inst_params[0] = (byte) aid_bytes.length;
                 System.arraycopy(aid_bytes, 0, inst_params, 1, aid_bytes.length);
                 simulator.installApplet(AIDUtil.create(aid), YkneoOath.class, inst_params, (short) 0, (byte) inst_params.length);
+                extra_install += "\n" + name + " (AID: " + aid + ")";
+            } catch (Exception e) {
+                e.printStackTrace();
+                extra_error += "\n" + "Could not install " + name + " (AID: " + aid + ")";
+            }
+        }
+
+        if (activate_pivapplet) {
+            name = context.getResources().getString(R.string.applet_pivapplet);
+            aid = context.getResources().getString(R.string.aid_pivapplet);
+            try {
+                simulator.installApplet(AIDUtil.create(aid), PivApplet.class);
                 extra_install += "\n" + name + " (AID: " + aid + ")";
             } catch (Exception e) {
                 e.printStackTrace();
