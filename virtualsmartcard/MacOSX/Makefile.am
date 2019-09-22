@@ -14,14 +14,14 @@ osx: $(OPENPACE_MAKEFILE)
 	rm -rf $(OSX_TARGETDIR) dmg $(top_builddir)/$(PACKAGE_TARNAME)-$(PACKAGE_VERSION)_osx.dmg
 	@echo Configuring virtualsmartcard for IFD bundle
 	cd $(top_builddir) && ./configure --prefix=/Library/VirtualSmartCard \
-		CFLAGS="-arch i386 -arch x86_64" \
+		CFLAGS="-arch x86_64" \
 		--enable-serialdropdir=/usr/libexec/SmartCardServices/drivers/ifd-vpcd.bundle/Contents/MacOS \
 		--enable-serialconfdir=/usr/libexec/SmartCardServices/drivers/ifd-vpcd.bundle/Contents
 	@echo Compiling virtualsmartcard
 	make -C $(top_builddir) clean install DESTDIR=$(OSX_TARGETDIR)
 	@echo Configuring virtualsmartcard for builtin libpcsclite
 	cd $(top_builddir) && ./configure --prefix=/Library/VirtualSmartCard \
-		CFLAGS="-arch i386 -arch x86_64" \
+		CFLAGS="-arch x86_64" \
 		--enable-serialdropdir=/usr/libexec/SmartCardServices/drivers/ifd-vpcd.bundle/Contents/MacOS \
 		--enable-serialconfdir=/usr/libexec/SmartCardServices/drivers/ifd-vpcd.bundle/Contents \
 		--enable-libpcsclite
