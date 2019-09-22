@@ -100,7 +100,17 @@ if test "${libpcsclite}" = no ; then
 			serialdropdir="`$PKG_CONFIG libpcsclite --variable=usbdropdir`/serial"
 			if test "${serialdropdir}" = "/serial" ; then
 				case "$host" in
-					*-*-darwin*) serialdropdir=/usr/libexec/SmartCardServices/drivers/ifd-vpcd.bundle/Contents/MacOS; infoplist=yes ;;
+					*-*-darwin*)
+						MAC_VERSION=$(sw_vers -productVersion | awk -F '.' '{print $1 * 1000 + $2}')
+						if test "$MAC_VERSION" -ge "10011"; then
+							# System Integrity Protection means we can't write
+							# to /usr/libexec; even as root!
+							serialdropdir=/usr/local/libexec/SmartCardServices/drivers/ifd-vpcd.bundle/Contents/MacOS
+						else
+							serialdropdir=/usr/libexec/SmartCardServices/drivers/ifd-vpcd.bundle/Contents/MacOS
+						fi
+						infoplist=yes
+						;;
 					*) AC_MSG_ERROR([use --enable-serialdropdir=DIR])
 				esac
 			fi
@@ -108,7 +118,17 @@ if test "${libpcsclite}" = no ; then
 			serialdropdir="${prefix}`$PKG_CONFIG libpcsclite --variable=usbdropdir`/serial"
 			if test "${serialdropdir}" = "${prefix}/serial" ; then
 				case "$host" in
-					*-*-darwin*) serialdropdir=${prefix}/usr/libexec/SmartCardServices/drivers/ifd-vpcd.bundle/Contents/MacOS; infoplist=yes ;;
+					*-*-darwin*)
+						MAC_VERSION=$(sw_vers -productVersion | awk -F '.' '{print $1 * 1000 + $2}')
+						if test "$MAC_VERSION" -ge "10011"; then
+							# System Integrity Protection means we can't write
+							# to /usr/libexec; even as root!
+							serialdropdir=${prefix}/usr/local/libexec/SmartCardServices/drivers/ifd-vpcd.bundle/Contents/MacOS
+						else
+							serialdropdir=${prefix}/usr/libexec/SmartCardServices/drivers/ifd-vpcd.bundle/Contents/MacOS
+						fi
+						infoplist=yes
+						;;
 					*) AC_MSG_ERROR([use --enable-serialdropdir=DIR])
 				esac
 			fi
@@ -126,7 +146,17 @@ if test "${libpcsclite}" = no ; then
 			serialconfdir="`$PKG_CONFIG libpcsclite --variable=serialconfdir`"
 			if test "${serialconfdir}" = "" ; then
 				case "$host" in
-					*-*-darwin*) serialconfdir=/usr/libexec/SmartCardServices/drivers/ifd-vpcd.bundle/Contents; infoplist=yes ;;
+					*-*-darwin*)
+					MAC_VERSION=$(sw_vers -productVersion | awk -F '.' '{print $1 * 1000 + $2}')
+					if test "$MAC_VERSION" -ge "10011"; then
+						# System Integrity Protection means we can't write
+						# to /usr/libexec; even as root!
+						serialconfdir=/usr/local/libexec/SmartCardServices/drivers/ifd-vpcd.bundle/Contents
+					else
+						serialconfdir=/usr/libexec/SmartCardServices/drivers/ifd-vpcd.bundle/Contents
+					fi
+					infoplist=yes
+					;;
 					*) serialconfdir="/etc/reader.conf.d"
 				esac
 			fi
@@ -134,7 +164,17 @@ if test "${libpcsclite}" = no ; then
 			serialconfdir="${prefix}`$PKG_CONFIG libpcsclite --variable=serialconfdir`"
 			if test "${serialconfdir}" = "${prefix}" ; then
 				case "$host" in
-					*-*-darwin*) serialconfdir=${prefix}/usr/libexec/SmartCardServices/drivers/ifd-vpcd.bundle/Contents; infoplist=yes ;;
+					*-*-darwin*)
+					MAC_VERSION=$(sw_vers -productVersion | awk -F '.' '{print $1 * 1000 + $2}')
+					if test "$MAC_VERSION" -ge "10011"; then
+						# System Integrity Protection means we can't write
+						# to /usr/libexec; even as root!
+						serialconfdir=${prefix}/usr/local/libexec/SmartCardServices/drivers/ifd-vpcd.bundle/Contents
+					else
+						serialconfdir=${prefix}/usr/libexec/SmartCardServices/drivers/ifd-vpcd.bundle/Contents
+					fi
+					infoplist=yes
+					;;
 					*) serialconfdir="${prefix}/etc/reader.conf.d"
 				esac
 			fi
