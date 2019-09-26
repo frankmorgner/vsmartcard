@@ -17,6 +17,16 @@ android {
         }
     }
     sourceSets {
+        main.java.srcDirs += 'src/main/external/jcardsim/src/main/java'
+        main.java.exclude('**/APDUScriptTool.java')
+        main.java.exclude('**/JavaxSmartCardInterface.java')
+        main.java.exclude('**/CardTerminalSimulator.java')
+        main.java.exclude('**/JCSCard*.java')
+        main.java.exclude('**/JCSTerminal.java')
+        main.java.exclude('**/JCSFactory.java')
+        main.java.exclude('**/CardSimulator.java')
+        main.java.exclude('**/CAD.java')
+        main.java.exclude('**/CardTerminalSimulator.java')
         main.java.srcDirs += 'src/main/external/GidsApplet/src'
         main.java.exclude('**/gidsAppletTests/*.java')
         main.java.srcDirs += 'src/main/external/IsoApplet/src'
