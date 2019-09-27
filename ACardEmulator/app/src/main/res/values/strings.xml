@@ -26,8 +26,6 @@
     <string name="aid_pivapplet_truncated3">A00000030800</string>
     <string name="aid_pivapplet_truncated4">A000000308</string>
     <string name="applet_pivapplet">Alex Wilson\'s PIV Applet</string>
-    <string name="aid_helloworld">F000000001</string>
-    <string name="applet_helloworld">jCardSim Team\'s Hello World Applet</string>
     <string name="aid_partial_openpgp">D27600012401</string>
     <string name="aid_openpgp">D2760001240102000000000000010000</string>
     <string name="applet_openpgp">Yubico\'s OpenPGP Applet</string>
@@ -36,7 +34,6 @@
     <string name="startup_title">Tap To Emulate!</string>
     <string name="startup_message">The following smart card applets are supported:\n
         \n
-        <b>Hello World Applet</b> <small>(AID F000000001)</small>\n
         <b>OpenPGP Applet</b> <small>(AID D2760001240102000000000000010000)</small>\n
         <b>OATH Applet</b> <small>(AID A000000527210101)</small>\n
         <b>PIV Applet</b> <small>(AID A00000030800001000)</small>\n

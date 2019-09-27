@@ -4,10 +4,6 @@
     android:description="@string/app_name"
     android:requireDeviceUnlock="false">
 
-    <aid-group android:description="@string/applet_helloworld" android:category="other">
-        <aid-filter android:name="@string/aid_helloworld"/>
-    </aid-group>
-
     <aid-group android:description="@string/applet_openpgp" android:category="other">
         <aid-filter android:name="@string/aid_openpgp"/>
         <aid-filter android:name="@string/aid_partial_openpgp"/>

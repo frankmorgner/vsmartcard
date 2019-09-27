@@ -214,18 +214,22 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 }
             });
 
-            Preference gear_nfc = findPreference("gear_nfc");
-            gear_nfc.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                public boolean onPreferenceClick(Preference preference) {
-                    String gearPackage = "com.samsung.android.gearoplugin";
-                    try {
-                        startActivity(new Intent(android.content.Intent.ACTION_VIEW, Uri.parse("market://details?id="+gearPackage)));
-                    } catch (android.content.ActivityNotFoundException e) {
-                        startActivity(new Intent(android.content.Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id="+gearPackage)));
+            final Preference gear_nfc = findPreference("gear_nfc");
+            if (BuildConfig.FLAVOR.equals("fdroid")) {
+                gear_nfc.setSummary("Samsung Gear integration is disabled in F-Droid");
+            } else {
+                gear_nfc.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    public boolean onPreferenceClick(Preference preference) {
+                        String gearPackage = "com.samsung.android.gearoplugin";
+                        try {
+                            startActivity(new Intent(android.content.Intent.ACTION_VIEW, Uri.parse("market://details?id="+gearPackage)));
+                        } catch (android.content.ActivityNotFoundException e) {
+                            startActivity(new Intent(android.content.Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id="+gearPackage)));
+                        }
+                        return true;
                     }
-                    return true;
-                }
-            });
+                });
+            }
         }
 
         @Override

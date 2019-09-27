@@ -6,7 +6,6 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import com.licel.jcardsim.base.Simulator;
 import com.licel.jcardsim.base.SimulatorRuntime;
-import com.licel.jcardsim.samples.HelloWorldApplet;
 import com.licel.jcardsim.utils.AIDUtil;
 import com.mysmartlogon.gidsApplet.GidsApplet;
 import com.vsmartcard.acardemulator.R;
@@ -32,18 +31,6 @@ public class JCEmulator implements Emulator {
             boolean activate_gidsapplet) {
         String aid, name, extra_install = "", extra_error = "";
         simulator = new Simulator(new SimulatorRuntime());
-
-        if (activate_helloworld) {
-            name = context.getResources().getString(R.string.applet_helloworld);
-            aid = context.getResources().getString(R.string.aid_helloworld);
-            try {
-                simulator.installApplet(AIDUtil.create(aid), HelloWorldApplet.class);
-                extra_install += "\n" + name + " (AID: " + aid + ")";
-            } catch (Exception e) {
-                e.printStackTrace();
-                extra_error += "\n" + "Could not install " + name + " (AID: " + aid + ")";
-            }
-        }
 
         if (activate_openpgp) {
             name = context.getResources().getString(R.string.applet_openpgp);

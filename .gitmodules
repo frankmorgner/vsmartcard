@@ -9,7 +9,7 @@
 	url = https://github.com/philipWendland/IsoApplet.git
 [submodule "ACardEmulator/app/src/main/external/jcardsim"]
 	path = ACardEmulator/app/src/main/external/jcardsim
-	url = https://github.com/frankmorgner/jcardsim.git
+	url = https://github.com/licel/jcardsim
 [submodule "ACardEmulator/app/src/main/external/MuscleApplet"]
 	path = ACardEmulator/app/src/main/external/MuscleApplet
 	url = https://github.com/martinpaljak/MuscleApplet.git
@@ -25,3 +25,6 @@
 [submodule "ACardEmulator/app/src/main/external/PivApplet"]
 	path = ACardEmulator/app/src/main/external/PivApplet
 	url = https://github.com/frankmorgner/PivApplet
+[submodule "ACardEmulator/app/src/main/external/vJCRE"]
+	path = ACardEmulator/app/src/main/external/vJCRE
+	url = https://github.com/martinpaljak/vJCRE

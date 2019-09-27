@@ -14,12 +14,6 @@
         >
 
         <SwitchPreference
-            android:title="@string/applet_helloworld"
-            android:switchTextOn="@string/aid_helloworld"
-            android:key="activate_helloworld"
-            android:defaultValue="false"
-            />
-        <SwitchPreference
             android:title="@string/applet_openpgp"
             android:switchTextOn="@string/aid_openpgp"
             android:key="activate_openpgp"
@@ -100,7 +94,7 @@
 
         <Preference
             android:title="Emulation with Gear's NFC"
-            android:summary="Samsung Gear needs to be installed for using the Gear's NFC emulation capabilities."
+            android:summary="Samsung Gear needs to be installed for using the Gear's NFC emulation capabilities. (Disabled on F-Droid)"
             android:key="gear_nfc">
         </Preference>
 
