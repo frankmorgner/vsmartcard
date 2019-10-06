@@ -28,3 +28,6 @@
 [submodule "vJCRE"]
 	path = vJCRE
 	url = https://github.com/frankmorgner/vJCRE
+[submodule "ACardEmulator/app/src/main/external/vJCRE"]
+	path = ACardEmulator/app/src/main/external/vJCRE
+	url = https://github.com/frankmorgner/vJCRE
