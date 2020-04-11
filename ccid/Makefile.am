@@ -1,4 +1,5 @@
 ACLOCAL_AMFLAGS = -I m4
-SUBDIRS = src m4 patches doc
 
-EXTRA_DIST = docs
+SUBDIRS = src doc
+
+EXTRA_DIST = docs patches
