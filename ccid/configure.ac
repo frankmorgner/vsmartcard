@@ -43,22 +43,7 @@ m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 AC_CHECK_HEADERS(linux/usb/gadgetfs.h,,
                  [ AC_MSG_ERROR([linux/usb/gadgetfs.h not found, maybe you want to disable ccid]) ])
 
-ACX_PTHREAD
-
-saved_CPPFLAGS="$CPPFLAGS"
-saved_LIBS="$LIBS"
-CPPFLAGS="$CPPFLAGS $PTHREAD_CFLAGS"
-LIBS="$LDFLAGS $PTHREAD_LIBS"
-
-AC_CHECK_HEADERS(pthread.h, [],
-                 [ AC_MSG_ERROR([pthread.h not found, use ./configure PTHREAD_CFLAGS=... or disable ccid]) ])
-AC_MSG_CHECKING([for pthread_create])
-AC_TRY_LINK_FUNC(pthread_create, [ AC_MSG_RESULT([yes]) ],
-                 [ AC_MSG_ERROR([pthread not found, use ./configure PTHREAD_LIBS=... or disable ccid]) ])
-
-CPPFLAGS="$saved_CPPFLAGS"
-LIBS="$saved_LIBS"
-
+AX_PTHREAD([], [ AC_MSG_ERROR([pthread not found, use ./configure PTHREAD_CFLAGS=... PTHREAD_LIBS=...]) ])
 
 PKG_CHECK_EXISTS([libcrypto],
                  [PKG_CHECK_MODULES([OPENSSL], [libcrypto >= 1.0.0])],
