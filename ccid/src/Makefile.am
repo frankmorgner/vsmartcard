@@ -10,13 +10,13 @@ do_subst = $(SED) \
 BUILT_SOURCES = cmdline.h cmdline.c
 
 EXTRA_DIST  = ccid-emulator.ggo ccid-emulator.ggo.in
-EXTRA_DIST += $(shell find $(top_srcdir)/src/OpenSC/src -path '*/.git' -prune -o -type f -a \( -name '*.h' -o -name 'apdu.c' -o -name 'card.c' \) -print)
 MAINTAINERCLEANFILES = $(BUILT_SOURCES) ccid-emulator.ggo $(dist_man1_MANS)
 
 dist_man1_MANS		= ccid-emulator.1
 
 ccid_emulator_SOURCES = cmdline.c ccid.c usbstring.c usb.c scutil.c
-ccid_emulator_LDADD =  $(OPENSC_LIBS) $(OPENSSL_LIBS) $(PTHREAD_LIBS)
+ccid_emulator_LDADD = OpenSC/src/libopensc/libopensc.la
+ccid_emulator_LDFLAGS = $(OPENSSL_LIBS) $(PTHREAD_LIBS) -static
 ccid_emulator_CFLAGS = $(OPENSSL_CFLAGS) $(PTHREAD_CFLAGS) -I$(top_srcdir)/src/OpenSC/src
 
 
@@ -42,7 +42,6 @@ bin_PROGRAMS = ccid-emulator
 
 noinst_HEADERS = \
 		 ccid.h \
-		 ccid-types.h \
 		 cmdline.h \
 		 scutil.h \
 		 usbstring.h

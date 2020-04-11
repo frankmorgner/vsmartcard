@@ -265,6 +265,9 @@ modern Windows and Unix-like systems by default.
 
 .. include:: autotools.txt
 
+The USB CCID Emulator depends on :program:`libopensc`, which is automatically
+built from a snapshot of the OpenSC source code and then statically linked.
+
 
 =================
 Hints on GadgetFS
@@ -300,33 +303,6 @@ patch is needed <http://docs.openmoko.org/trac/ticket/2240)>`_.
 If you are using a more recent version of :program:`dummy_hcd` and get an error
 loading the module, you maybe want to check out `this patch
 <http://comments.gmane.org/gmane.linux.usb.general/47440>`_.
-
-
-===============
-Hints on OpenSC
-===============
-
-USB CCID Emulator needs the OpenSC components to be
-installed (especially :file:`libopensc.so`). Here is an example of how to get
-the standard installation of OpenSC without |PACE|::
-
-    PREFIX=/tmp/install
-    VSMARTCARD=$PWD/vsmartcard
-    git clone https://github.com/frankmorgner/vsmartcard.git $VSMARTCARD
-    cd $VSMARTCARD
-    git submodule init
-    git submodule update
-    cd $VSMARTCARD/ccid/src/opensc
-    autoreconf --verbose --install
-    ./configure --prefix=$PREFIX
-    make install && cd -
-
-Now :file:`libopensc.so` should be located in ``$PREFIX/lib``. Here is how to
-configure the USB CCID Emulator to use it::
-
-    cd $VSMARTCARD/ccid
-    ./configure --prefix=$PREFIX OPENSC_LIBS="-L$PREFIX/lib -lopensc"
-    make install && cd -
 
 
 *****

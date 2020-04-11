@@ -59,21 +59,6 @@ AC_TRY_LINK_FUNC(EVP_read_pw_string_min, [ AC_MSG_RESULT([yes]) ], [ AC_MSG_ERRO
 CPPFLAGS="$saved_CPPFLAGS"
 LIBS="$saved_LIBS"
 
-saved_CPPFLAGS="$CPPFLAGS"
-saved_LIBS="$LIBS"
-PKG_CHECK_EXISTS([libopensc],
-                 [PKG_CHECK_MODULES([OPENSC], [libopensc >= 0.12.1])],
-                 [AC_MSG_WARN([libopensc >= 0.12.1 not found by pkg-config])])
-test -z "$OPENSC_LIBS" && OPENSC_LIBS="-lopensc $OPENSSL_LIBS"
-LIBS="$LDFLAGS $OPENSC_LIBS"
-AC_MSG_CHECKING([for sc_bytes2apdu])
-AC_TRY_LINK_FUNC(sc_bytes2apdu, [ AC_MSG_RESULT([yes]) ],
-[ AC_MSG_ERROR([libopensc >= 0.12.1 not found, use ./configure OPENSC_LIBS=...]) ])
-AC_CHECK_FUNCS([sc_apdu_set_resp sc_apdu_get_octets _sc_match_atr boxing_buf_to_pace_input])
-CPPFLAGS="$saved_CPPFLAGS"
-LIBS="$saved_LIBS"
-
-
 PACKAGE_SUMMARY="Emulate a USB CCID compliant smart card reader"
 AC_SUBST(PACKAGE_SUMMARY)
 
@@ -102,6 +87,8 @@ AC_CONFIG_FILES([
                  doc/Makefile
                  ])
 
+AC_CONFIG_SUBDIRS([src/OpenSC])
+
 AC_OUTPUT
 
 cat << EOF
@@ -122,7 +109,6 @@ Libraries:            ${LIBS}
 
 PTHREAD_CFLAGS:       ${PTHREAD_CFLAGS}
 PTHREAD_LIBS:         ${PTHREAD_LIBS}
-OPENSC_LIBS:          ${OPENSC_LIBS}
 OPENSSL_CFLAGS:       ${OPENSSL_CFLAGS}
 OPENSSL_LIBS:         ${OPENSSL_LIBS}
 

@@ -52,15 +52,6 @@ before_script:
       ./configure --prefix=$PREFIX --enable-openssl-install --enable-python || cat config.log;
       make install;
     fi
-  # ccid requires OpenSC
-  - git clone https://github.com/frankmorgner/OpenSC
-  - cd OpenSC && autoreconf -vsi
-  - if [ -z "$HOST" ]; then
-      ./configure --prefix=$PREFIX --with-completiondir=/tmp || cat config.log;
-    else
-      ./configure --prefix=$PREFIX --with-completiondir=/tmp --host=$HOST || cat config.log;
-    fi
-  - make install
   # Configure virtualsmartcard
   - cd $TRAVIS_BUILD_DIR/virtualsmartcard && autoreconf -vsi
   - if [ -z "$HOST" ]; then
@@ -85,7 +76,7 @@ before_script:
   # Configure ccid
   - if [ $TRAVIS_OS_NAME == linux -a -z "$HOST" ]; then
       cd $TRAVIS_BUILD_DIR/ccid && autoreconf -vsi;
-      ./configure OPENSC_LIBS="-L$PREFIX/lib -lopensc" || cat config.log;
+      ./configure || cat config.log;
     fi
   # Optionally try to upload to Coverity Scan
   # On error (propably quota is exhausted), just continue

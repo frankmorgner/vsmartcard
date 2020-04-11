@@ -20,29 +20,7 @@
 #include "config.h"
 #endif
 
-#include "libopensc/internal.h"
-
-#ifndef HAVE__SC_MATCH_ATR
-int sc_dlclose(void *handle) {}
-const char *sc_dlerror() {}
-void *sc_dlsym(void *handle, const char *symbol) {}
-size_t strlcpy(char *dst, const char *src, size_t siz) {}
-int sc_mutex_create(const sc_context_t *ctx, void **mutex) {}
-int sc_mutex_destroy(const sc_context_t *ctx, void *mutex) {}
-int _sc_parse_atr(sc_reader_t *reader) {}
-void *sc_dlopen(const char *filename) {}
-int sc_mutex_lock(const sc_context_t *ctx, void *mutex) {}
-int sc_mutex_unlock(const sc_context_t *ctx, void *mutex) {}
-#include "libopensc/card.c"
-#endif
-
-#if !defined(HAVE_SC_APDU_GET_OCTETS) || !defined(HAVE_SC_APDU_SET_RESP)
-#ifdef HAVE__SC_MATCH_ATR
-size_t sc_get_max_send_size(const sc_card_t *card) {return 0;}
-#endif
-#include "libopensc/apdu.c"
-#endif
-
+#include <libopensc/internal.h>
 #include <libopensc/log.h>
 #include <stdio.h>
 #include <stdlib.h>

@@ -34,10 +34,6 @@
 #include "config.h"
 #include "scutil.h"
 
-#ifndef HAVE_BOXING_BUF_TO_PACE_INPUT
-#include <libopensc/reader-boxing.c>
-#endif
-
 static sc_context_t *ctx = NULL;
 static sc_card_t *card = NULL;
 static sc_reader_t *reader = NULL;
@@ -464,11 +460,6 @@ perform_PC_to_RDR_IccPowerOn(const __u8 *in, size_t inlen, __u8 **out, size_t *o
     }
 
     if (sc_result >= 0) {
-#ifdef WITH_PACE
-#ifndef DISABLE_GLOBAL_BOXING_INITIALIZATION
-        sc_initialize_boxing_cmds(ctx);
-#endif
-#endif
         return get_RDR_to_PC_SlotStatus(request->bSeq,
                 sc_result, out, outlen, card->atr.value, card->atr.len);
     } else {

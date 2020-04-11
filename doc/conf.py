@@ -18,6 +18,7 @@ os.system("make doc -C virtualsmartcard")
 os.system("make doc -C ccid")
 os.system("make doc -C pcsc-relay")
 
+os.environ['PATH'] = os.path.abspath('../ccid/src') + os.pathsep + os.environ['PATH']
 os.environ['PATH'] = os.path.abspath('../pcsc-relay/src') + os.pathsep + os.environ['PATH']
 os.environ['PATH'] = os.path.abspath('../virtualsmartcard/src/vpicc') + os.pathsep + os.environ['PATH']
 
