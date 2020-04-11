@@ -15,12 +15,10 @@ MAINTAINERCLEANFILES = $(BUILT_SOURCES) ccid-emulator.ggo $(dist_man1_MANS)
 
 dist_man1_MANS		= ccid-emulator.1
 
-ccid_emulator_SOURCES = ccid.c usbstring.c usb.c scutil.c $(BUILT_SOURCES)
+ccid_emulator_SOURCES = cmdline.c ccid.c usbstring.c usb.c scutil.c
 ccid_emulator_LDADD =  $(OPENSC_LIBS) $(OPENSSL_LIBS) $(PTHREAD_LIBS)
 ccid_emulator_CFLAGS = $(OPENSSL_CFLAGS) $(PTHREAD_CFLAGS) -I$(top_srcdir)/src/OpenSC/src
 
-
-ccid-emulator.c: $(BUILT_SOURCES)
 
 $(BUILT_SOURCES): ccid-emulator.ggo
 	$(AM_V_GEN)$(GENGETOPT) --output-dir=$(srcdir) < $<
@@ -33,9 +31,11 @@ ccid-emulator.1:
 	$(AM_V_GEN)$(HELP2MAN) \
 		--output=$@ \
 		--no-info \
+		--no-discard-stderr \
 		--source='$(PACKAGE_STRING)' \
+		--help-option='--input=$< --set-package=$(PACKAGE) --set-version=$(VERSION) --show-help' \
 		--version-string='$(PACKAGE) $(VERSION)' \
-		$(builddir)/ccid-emulator
+		$(GENGETOPT)
 
 
 bin_PROGRAMS = ccid-emulator
@@ -43,5 +43,6 @@ bin_PROGRAMS = ccid-emulator
 noinst_HEADERS = \
 		 ccid.h \
 		 ccid-types.h \
+		 cmdline.h \
 		 scutil.h \
 		 usbstring.h
