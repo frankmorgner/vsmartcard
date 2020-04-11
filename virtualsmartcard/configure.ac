@@ -265,44 +265,6 @@ case "$host" in
 	LIB_PREFIX="lib"
 esac
 
-cat << EOF
-
-${PACKAGE} has been configured with following options:
-
-Version:              ${PACKAGE_VERSION}
-User binaries:        $(eval eval eval echo "${bindir}")
-PC/SC configuration:  ${serialconfdir}
-Driver directory:     ${serialdropdir}
-Python site-packages: $(eval eval eval echo "${pythondir}")
-
-Build libpcsclite:    ${libpcsclite}
-Build Info.plist:     ${infoplist}
-Build reader.conf:    ${readerconf}
-VPCD hostname: 	      ${vpcdhost}
-VPCD slot count:      ${vpcdslots}
-
-
-Host:                 ${host}
-Compiler:             ${CC}
-Preprocessor flags:   ${CPPFLAGS}
-Compiler flags:       ${CFLAGS}
-Preprocessor flags:   ${CPPFLAGS}
-Linker flags:         ${LDFLAGS}
-Libraries:            ${LIBS}
-PTHREAD_LIBS:         ${PTHREAD_LIBS}
-PTHREAD_CFLAGS:       ${PTHREAD_CFLAGS}
-PCSC_CFLAGS:          ${PCSC_CFLAGS}
-PCSC_LIBS:            ${PCSC_LIBS}
-QRENCODE_CFLAGS:      ${QRENCODE_CFLAGS}
-QRENCODE_LIBS:        ${QRENCODE_LIBS}
-BUNDLE_HOST:          ${BUNDLE_HOST}
-LIB_PREFIX:           ${LIB_PREFIX}
-DYN_LIB_EXT:          ${DYN_LIB_EXT}
-
-
-HELP2MAN:             ${HELP2MAN}
-
-EOF
 
 AC_CONFIG_FILES([Makefile
                  doc/Makefile
@@ -319,3 +281,40 @@ AC_CONFIG_FILES([Makefile
                  MacOSX/Makefile
                  ])
 AC_OUTPUT
+
+cat << EOF
+
+${PACKAGE} has been configured with following options:
+
+Version:              ${PACKAGE_VERSION}
+User binaries:        $(eval eval eval echo "${bindir}")
+PC/SC configuration:  ${serialconfdir}
+Driver directory:     ${serialdropdir}
+Python site-packages: $(eval eval eval echo "${pythondir}")
+
+Build libpcsclite:    ${libpcsclite}
+Build Info.plist:     ${infoplist}
+Build reader.conf:    ${readerconf}
+VPCD hostname: 	      ${vpcdhost}
+VPCD slot count:      ${vpcdslots}
+
+Host:                 ${host}
+Compiler:             ${CC}
+Preprocessor flags:   ${CPPFLAGS}
+Compiler flags:       ${CFLAGS}
+Linker flags:         ${LDFLAGS}
+Libraries:            ${LIBS}
+
+PTHREAD_LIBS:         ${PTHREAD_LIBS}
+PTHREAD_CFLAGS:       ${PTHREAD_CFLAGS}
+PCSC_CFLAGS:          ${PCSC_CFLAGS}
+PCSC_LIBS:            ${PCSC_LIBS}
+QRENCODE_CFLAGS:      ${QRENCODE_CFLAGS}
+QRENCODE_LIBS:        ${QRENCODE_LIBS}
+BUNDLE_HOST:          ${BUNDLE_HOST}
+LIB_PREFIX:           ${LIB_PREFIX}
+DYN_LIB_EXT:          ${DYN_LIB_EXT}
+
+HELP2MAN:             ${HELP2MAN}
+
+EOF

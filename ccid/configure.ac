@@ -95,6 +95,15 @@ AC_FUNC_REALLOC
 AC_FUNC_STRNLEN
 AC_CHECK_FUNCS([memmove memset strerror strtol])
 
+
+AC_CONFIG_FILES([
+                 Makefile
+                 src/Makefile
+                 doc/Makefile
+                 ])
+
+AC_OUTPUT
+
 cat << EOF
 
 ${PACKAGE} has been configured with following options:
@@ -104,29 +113,20 @@ User binaries:        $(eval eval eval echo "${bindir}")
 Libraries:            $(eval eval eval echo "${libdir}")
 Configuration files:  $(eval eval eval echo "${sysconfdir}")
 
-
 Host:                 ${host}
 Compiler:             ${CC}
 Preprocessor flags:   ${CPPFLAGS}
 Compiler flags:       ${CFLAGS}
-Preprocessor flags:   ${CPPFLAGS}
 Linker flags:         ${LDFLAGS}
 Libraries:            ${LIBS}
+
 PTHREAD_CFLAGS:       ${PTHREAD_CFLAGS}
 PTHREAD_LIBS:         ${PTHREAD_LIBS}
 OPENSC_LIBS:          ${OPENSC_LIBS}
 OPENSSL_CFLAGS:       ${OPENSSL_CFLAGS}
 OPENSSL_LIBS:         ${OPENSSL_LIBS}
 
-
 HELP2MAN:             ${HELP2MAN}
 GENGETOPT:            ${GENGETOPT}
 
 EOF
-
-AC_CONFIG_FILES([
-                 Makefile
-                 src/Makefile
-                 doc/Makefile
-                 ])
-AC_OUTPUT
