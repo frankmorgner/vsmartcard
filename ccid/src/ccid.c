@@ -19,7 +19,7 @@
 #include <asm/byteorder.h>
 #include <libopensc/log.h>
 #include <libopensc/opensc.h>
-#include <libopensc/reader-boxing.h>
+#include <libopensc/reader-tr03119.h>
 #include <libopensc/sm.h>
 #include <sm/sm-eac.h>
 #include <openssl/evp.h>
@@ -48,7 +48,7 @@ perform_pseudo_apdu_EstablishPACEChannel(sc_apdu_t *apdu)
     memset(&pace_input, 0, sizeof pace_input);
     memset(&pace_output, 0, sizeof pace_output);
 
-    r = boxing_buf_to_pace_input(reader->ctx, apdu->data, apdu->datalen,
+    r = escape_buf_to_pace_input(reader->ctx, apdu->data, apdu->datalen,
             &pace_input);
     if (r < 0)
         goto err;
@@ -58,7 +58,7 @@ perform_pseudo_apdu_EstablishPACEChannel(sc_apdu_t *apdu)
     if (r < 0)
         goto err;
 
-    r = boxing_pace_output_to_buf(reader->ctx, &pace_output, &apdu->resp,
+    r = escape_pace_output_to_buf(reader->ctx, &pace_output, &apdu->resp,
             &apdu->resplen);
 
 err:
@@ -81,7 +81,7 @@ perform_pseudo_apdu_GetReaderPACECapabilities(sc_apdu_t *apdu)
         | SC_READER_CAP_PACE_EID | SC_READER_CAP_PACE_ESIGN;
 
 
-    return boxing_pace_capabilities_to_buf(reader->ctx,
+    return escape_pace_capabilities_to_buf(reader->ctx,
             sc_reader_t_capabilities, &apdu->resp, &apdu->resplen);
 }
 

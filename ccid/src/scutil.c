@@ -85,7 +85,7 @@ void _bin_log(sc_context_t *ctx, int type, const char *file, int line,
     if (!f) {
         char buf[1800];
         if (data)
-            sc_hex_dump(ctx, SC_LOG_DEBUG_NORMAL, data, len, buf, sizeof buf);
+            sc_hex_dump(data, len, buf, sizeof buf);
         else
             buf[0] = 0;
         sc_do_log(ctx, type, file, line, func,
