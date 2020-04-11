@@ -23,14 +23,14 @@ ccid_emulator_CFLAGS = $(OPENSSL_CFLAGS) $(PTHREAD_CFLAGS) -I$(top_srcdir)/src/O
 ccid-emulator.c: $(BUILT_SOURCES)
 
 $(BUILT_SOURCES): ccid-emulator.ggo
-	$(GENGETOPT) --output-dir=$(srcdir) < $<
+	$(AM_V_GEN)$(GENGETOPT) --output-dir=$(srcdir) < $<
 
 ccid-emulator.ggo: ccid-emulator.ggo.in
-	$(do_subst) < $< > $(srcdir)/$@
+	$(AM_V_GEN)$(do_subst) < $< > $(srcdir)/$@
 
 
 ccid-emulator.1:
-	$(HELP2MAN) \
+	$(AM_V_GEN)$(HELP2MAN) \
 		--output=$@ \
 		--no-info \
 		--source='$(PACKAGE_STRING)' \

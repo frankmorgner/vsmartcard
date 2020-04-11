@@ -18,7 +18,7 @@ nobase_include_HEADERS  = \
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libpcsclite.pc
 libpcsclite.pc: libpcsclite.pc.in
-	$(do_subst) < $(srcdir)/libpcsclite.pc.in > libpcsclite.pc
+	$(AM_V_GEN)$(do_subst) < $(srcdir)/libpcsclite.pc.in > libpcsclite.pc
 
 do_subst = $(SED) \
 		   -e 's,[@]PACKAGE_NAME[@],$(PACKAGE_NAME),g' \

@@ -16,7 +16,7 @@ dist_man1_MANS		= pcsc-relay.1
 
 
 pcsc-relay.1:
-	$(HELP2MAN) \
+	$(AM_V_GEN)$(HELP2MAN) \
 		--output=$@ \
 		--no-info \
 		--no-discard-stderr \
@@ -40,7 +40,7 @@ noinst_HEADERS = pcsc-relay.h vpcd.h lock.h
 pcsc-relay.c: $(BUILT_SOURCES)
 
 $(BUILT_SOURCES): pcsc-relay.ggo
-	$(GENGETOPT) --output-dir=$(srcdir) < $<
+	$(AM_V_GEN)$(GENGETOPT) --output-dir=$(srcdir) < $<
 
 pcsc-relay.ggo: pcsc-relay.ggo.in
-	$(do_subst) < $< > $(srcdir)/$@
+	$(AM_V_GEN)$(do_subst) < $< > $(srcdir)/$@
