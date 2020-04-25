@@ -26,7 +26,6 @@ device instead of the phone.
 With the built-in Java Card runtime of jCardSim_ the app includes the following
 Applets:
 
-- `Hello World Applet`_ (application identifier ``F000000001``)
 - `OpenPGP Applet`_ (application identifier ``D2760001240102000000000000010000``)
 - `OATH Applet`_ (application identifier ``A000000527210101``)
 - `ISO Applet`_ (application identifier ``F276A288BCFBA69D34F31001``)

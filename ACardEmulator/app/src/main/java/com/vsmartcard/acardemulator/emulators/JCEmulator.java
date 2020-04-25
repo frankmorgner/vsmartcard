@@ -23,7 +23,6 @@ public class JCEmulator implements Emulator {
 
     public JCEmulator(
             Context context,
-            boolean activate_helloworld,
             boolean activate_openpgp,
             boolean activate_oath,
             boolean activate_isoapplet,

@@ -9,7 +9,6 @@ APDUs are then returned to the smart card reader.
 With the built-in Java Card runtime of [jCardSim](http://www.jcardsim.org/) the
 app includes the following Applets:
 
-- [Hello World Applet](https://github.com/licel/jcardsim/blob/master/src/main/java/com/licel/jcardsim/samples/HelloWorldApplet.java) (application identifier ``F000000001``)
 - [OpenPGP Applet](https://developers.yubico.com/ykneo-openpgp/) (application identifier ``D2760001240102000000000000010000``)
 - [OATH Applet](https://developers.yubico.com/ykneo-oath/) (application identifier ``A000000527210101``)
 - [ISO Applet](http://www.pwendland.net/IsoApplet/) (application identifier ``F276A288BCFBA69D34F31001``)

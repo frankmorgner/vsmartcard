@@ -81,7 +81,6 @@ public class EmulatorSingleton {
                         Integer.parseInt(SP.getString("port", Integer.toString(VICCEmulator.DEFAULT_PORT))));
             } else {
                 emulator = new JCEmulator(context,
-                        SP.getBoolean("activate_helloworld", false),
                         SP.getBoolean("activate_openpgp", false),
                         SP.getBoolean("activate_oath", false),
                         SP.getBoolean("activate_isoapplet", false),

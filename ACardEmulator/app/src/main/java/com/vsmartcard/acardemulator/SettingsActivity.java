@@ -184,7 +184,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             // guidelines.
             bindPreferenceSummaryToValue(findPreference("emulator"));
 
-            bindPreferenceSummaryToValue(findPreference("activate_helloworld"));
             bindPreferenceSummaryToValue(findPreference("activate_pivapplet"));
             bindPreferenceSummaryToValue(findPreference("activate_openpgp"));
             bindPreferenceSummaryToValue(findPreference("activate_oath"));
