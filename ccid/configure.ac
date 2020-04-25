@@ -43,22 +43,7 @@ m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 AC_CHECK_HEADERS(linux/usb/gadgetfs.h,,
                  [ AC_MSG_ERROR([linux/usb/gadgetfs.h not found, maybe you want to disable ccid]) ])
 
-ACX_PTHREAD
-
-saved_CPPFLAGS="$CPPFLAGS"
-saved_LIBS="$LIBS"
-CPPFLAGS="$CPPFLAGS $PTHREAD_CFLAGS"
-LIBS="$LDFLAGS $PTHREAD_LIBS"
-
-AC_CHECK_HEADERS(pthread.h, [],
-                 [ AC_MSG_ERROR([pthread.h not found, use ./configure PTHREAD_CFLAGS=... or disable ccid]) ])
-AC_MSG_CHECKING([for pthread_create])
-AC_TRY_LINK_FUNC(pthread_create, [ AC_MSG_RESULT([yes]) ],
-                 [ AC_MSG_ERROR([pthread not found, use ./configure PTHREAD_LIBS=... or disable ccid]) ])
-
-CPPFLAGS="$saved_CPPFLAGS"
-LIBS="$saved_LIBS"
-
+AX_PTHREAD([], [ AC_MSG_ERROR([pthread not found, use ./configure PTHREAD_CFLAGS=... PTHREAD_LIBS=...]) ])
 
 PKG_CHECK_EXISTS([libcrypto],
                  [PKG_CHECK_MODULES([OPENSSL], [libcrypto >= 1.0.0])],
@@ -73,21 +58,6 @@ AC_MSG_CHECKING([for EVP_read_pw_string_min])
 AC_TRY_LINK_FUNC(EVP_read_pw_string_min, [ AC_MSG_RESULT([yes]) ], [ AC_MSG_ERROR([OpenSSL >= 1.0.0 not found, use ./configure OPENSSL_LIBS=...]) ])
 CPPFLAGS="$saved_CPPFLAGS"
 LIBS="$saved_LIBS"
-
-saved_CPPFLAGS="$CPPFLAGS"
-saved_LIBS="$LIBS"
-PKG_CHECK_EXISTS([libopensc],
-                 [PKG_CHECK_MODULES([OPENSC], [libopensc >= 0.12.1])],
-                 [AC_MSG_WARN([libopensc >= 0.12.1 not found by pkg-config])])
-test -z "$OPENSC_LIBS" && OPENSC_LIBS="-lopensc $OPENSSL_LIBS"
-LIBS="$LDFLAGS $OPENSC_LIBS"
-AC_MSG_CHECKING([for sc_bytes2apdu])
-AC_TRY_LINK_FUNC(sc_bytes2apdu, [ AC_MSG_RESULT([yes]) ],
-[ AC_MSG_ERROR([libopensc >= 0.12.1 not found, use ./configure OPENSC_LIBS=...]) ])
-AC_CHECK_FUNCS([sc_apdu_set_resp sc_apdu_get_octets _sc_match_atr boxing_buf_to_pace_input])
-CPPFLAGS="$saved_CPPFLAGS"
-LIBS="$saved_LIBS"
-
 
 PACKAGE_SUMMARY="Emulate a USB CCID compliant smart card reader"
 AC_SUBST(PACKAGE_SUMMARY)
@@ -110,6 +80,17 @@ AC_FUNC_REALLOC
 AC_FUNC_STRNLEN
 AC_CHECK_FUNCS([memmove memset strerror strtol])
 
+
+AC_CONFIG_FILES([
+                 Makefile
+                 src/Makefile
+                 doc/Makefile
+                 ])
+
+AC_CONFIG_SUBDIRS([src/OpenSC])
+
+AC_OUTPUT
+
 cat << EOF
 
 ${PACKAGE} has been configured with following options:
@@ -119,31 +100,19 @@ User binaries:        $(eval eval eval echo "${bindir}")
 Libraries:            $(eval eval eval echo "${libdir}")
 Configuration files:  $(eval eval eval echo "${sysconfdir}")
 
-
 Host:                 ${host}
 Compiler:             ${CC}
 Preprocessor flags:   ${CPPFLAGS}
 Compiler flags:       ${CFLAGS}
-Preprocessor flags:   ${CPPFLAGS}
 Linker flags:         ${LDFLAGS}
 Libraries:            ${LIBS}
+
 PTHREAD_CFLAGS:       ${PTHREAD_CFLAGS}
 PTHREAD_LIBS:         ${PTHREAD_LIBS}
-OPENSC_LIBS:          ${OPENSC_LIBS}
 OPENSSL_CFLAGS:       ${OPENSSL_CFLAGS}
 OPENSSL_LIBS:         ${OPENSSL_LIBS}
-
 
 HELP2MAN:             ${HELP2MAN}
 GENGETOPT:            ${GENGETOPT}
 
 EOF
-
-AC_CONFIG_FILES([
-                 Makefile
-                 m4/Makefile
-                 patches/Makefile
-                 src/Makefile
-                 doc/Makefile
-                 ])
-AC_OUTPUT

@@ -34,11 +34,11 @@ do_subst = $(SED) \
 		   -e 's,[@]PACKAGE_NAME[@],$(PACKAGE_NAME),g'
 
 $(builddir)/vicc: vicc.in Makefile
-	$(do_subst) < $(srcdir)/vicc.in > $(builddir)/vicc
-	chmod +x $(builddir)/vicc
+	$(AM_V_GEN)$(do_subst) < $(srcdir)/vicc.in > $(builddir)/vicc
+	@chmod +x $(builddir)/vicc
 
-vicc.1: vicc.in
-	$(HELP2MAN) \
+vicc.1: $(builddir)/vicc
+	$(AM_V_GEN)$(HELP2MAN) \
 		--no-discard-stderr \
 		--output=$@ \
 		$(builddir)/vicc

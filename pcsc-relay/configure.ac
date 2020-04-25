@@ -160,6 +160,13 @@ AC_FUNC_MALLOC
 AC_FUNC_REALLOC
 
 
+AC_CONFIG_FILES([Makefile
+                 doc/Makefile
+                 win32/Makefile
+                 src/Makefile])
+
+AC_OUTPUT
+
 cat << EOF
 
 pcsc-relay has been configured with following options:
@@ -168,13 +175,15 @@ Version:              ${PACKAGE_VERSION}
 User binaries:        $(eval eval eval echo "${bindir}")
 Enable libnfc:        ${enable_libnfc}
 
+OpenPICC device:      ${piccdev}
+
 Host:                 ${host}
 Compiler:             ${CC}
 Preprocessor flags:   ${CPPFLAGS}
 Compiler flags:       ${CFLAGS}
-Preprocessor flags:   ${CPPFLAGS}
 Linker flags:         ${LDFLAGS}
 Libraries:            ${LIBS}
+
 PTHREAD_LIBS:         ${PTHREAD_LIBS}
 PTHREAD_CFLAGS:       ${PTHREAD_CFLAGS}
 PCSC_CFLAGS:          ${PCSC_CFLAGS}
@@ -182,17 +191,7 @@ PCSC_LIBS:            ${PCSC_LIBS}
 LIBNFC_CFLAGS:        ${LIBNFC_CFLAGS}
 LIBNFC_LIBS:          ${LIBNFC_LIBS}
 
-OpenPICC device:      ${piccdev}
-
-
 HELP2MAN:             ${HELP2MAN}
 GENGETOPT:            ${GENGETOPT}
 
 EOF
-
-
-AC_CONFIG_FILES([Makefile
-                 doc/Makefile
-                 win32/Makefile
-                 src/Makefile])
-AC_OUTPUT

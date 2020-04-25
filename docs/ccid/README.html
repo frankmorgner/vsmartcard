@@ -109,7 +109,6 @@
 <li><a class="reference internal" href="#installation">Installation</a><ul>
 <li><a class="reference internal" href="#installation-on-linux-unix-and-similar">Installation on Linux, Unix and similar</a></li>
 <li><a class="reference internal" href="#hints-on-gadgetfs">Hints on GadgetFS</a></li>
-<li><a class="reference internal" href="#hints-on-opensc">Hints on OpenSC</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#usage">Usage</a></li>
@@ -491,6 +490,8 @@ make
 make install
 </pre></div>
 </div>
+<p>The USB CCID Emulator depends on <strong class="program">libopensc</strong>, which is automatically
+built from a snapshot of the OpenSC source code and then statically linked.</p>
 </div>
 <div class="section" id="hints-on-gadgetfs">
 <h3>Hints on GadgetFS<a class="headerlink" href="#hints-on-gadgetfs" title="Permalink to this headline">¶</a></h3>
@@ -521,31 +522,6 @@ multiple times between <strong class="program">gadgetfs</strong> and <strong cla
 patch is needed</a>.</p>
 <p>If you are using a more recent version of <strong class="program">dummy_hcd</strong> and get an error
 loading the module, you maybe want to check out <a class="reference external" href="http://comments.gmane.org/gmane.linux.usb.general/47440">this patch</a>.</p>
-</div>
-<div class="section" id="hints-on-opensc">
-<h3>Hints on OpenSC<a class="headerlink" href="#hints-on-opensc" title="Permalink to this headline">¶</a></h3>
-<p>USB CCID Emulator needs the OpenSC components to be
-installed (especially <tt class="file docutils literal"><span class="pre">libopensc.so</span></tt>). Here is an example of how to get
-the standard installation of OpenSC without <abbr title="Password Authenticated Connection Establishment">PACE</abbr>:</p>
-<div class="highlight-sh"><div class="highlight"><pre><span class="nv">PREFIX</span><span class="o">=</span>/tmp/install
-<span class="nv">VSMARTCARD</span><span class="o">=</span><span class="nv">$PWD</span>/vsmartcard
-git clone https://github.com/frankmorgner/vsmartcard.git <span class="nv">$VSMARTCARD</span>
-<span class="nb">cd</span> <span class="nv">$VSMARTCARD</span>
-git submodule init
-git submodule update
-<span class="nb">cd</span> <span class="nv">$VSMARTCARD</span>/ccid/src/opensc
-autoreconf --verbose --install
-./configure --prefix<span class="o">=</span><span class="nv">$PREFIX</span>
-make install <span class="o">&amp;&amp;</span> <span class="nb">cd</span> -
-</pre></div>
-</div>
-<p>Now <tt class="file docutils literal"><span class="pre">libopensc.so</span></tt> should be located in <tt class="docutils literal"><span class="pre">$PREFIX/lib</span></tt>. Here is how to
-configure the USB CCID Emulator to use it:</p>
-<div class="highlight-sh"><div class="highlight"><pre><span class="nb">cd</span> <span class="nv">$VSMARTCARD</span>/ccid
-./configure --prefix<span class="o">=</span><span class="nv">$PREFIX</span> <span class="nv">OPENSC_LIBS</span><span class="o">=</span><span class="s2">&quot;-L</span><span class="nv">$PREFIX</span><span class="s2">/lib -lopensc&quot;</span>
-make install <span class="o">&amp;&amp;</span> <span class="nb">cd</span> -
-</pre></div>
-</div>
 </div>
 </div>
 <div class="section" id="usage">

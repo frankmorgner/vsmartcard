@@ -16,18 +16,19 @@ dist_man1_MANS		= pcsc-relay.1
 
 
 pcsc-relay.1:
-	$(HELP2MAN) \
+	$(AM_V_GEN)$(HELP2MAN) \
 		--output=$@ \
 		--no-info \
 		--no-discard-stderr \
 		--source='$(PACKAGE_STRING)' \
+		--help-option='--input=$< --set-package=$(PACKAGE) --set-version=$(VERSION) --show-help' \
 		--version-string='$(PACKAGE) $(VERSION)' \
-		$(builddir)/pcsc-relay
+		$(GENGETOPT)
 
 
 bin_PROGRAMS = pcsc-relay
 
-pcsc_relay_SOURCES = pcsc-relay.c pcsc.c vpcd.c vpcd-driver.c opicc.c lnfc.c vicc.c lock.c $(BUILT_SOURCES)
+pcsc_relay_SOURCES = cmdline.c pcsc-relay.c pcsc.c vpcd.c vpcd-driver.c opicc.c lnfc.c vicc.c lock.c
 pcsc_relay_LDADD = $(PCSC_LIBS) $(LIBNFC_LIBS)
 pcsc_relay_CFLAGS = $(PCSC_CFLAGS) $(LIBNFC_CFLAGS)
 
@@ -35,12 +36,10 @@ if WIN32
 pcsc_relay_LDADD += -lws2_32
 endif
 
-noinst_HEADERS = pcsc-relay.h vpcd.h lock.h
-
-pcsc-relay.c: $(BUILT_SOURCES)
+noinst_HEADERS = cmdline.h pcsc-relay.h vpcd.h lock.h
 
 $(BUILT_SOURCES): pcsc-relay.ggo
-	$(GENGETOPT) --output-dir=$(srcdir) < $<
+	$(AM_V_GEN)$(GENGETOPT) --output-dir=$(srcdir) < $<
 
 pcsc-relay.ggo: pcsc-relay.ggo.in
-	$(do_subst) < $< > $(srcdir)/$@
+	$(AM_V_GEN)$(do_subst) < $< > $(srcdir)/$@
