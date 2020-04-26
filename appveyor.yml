@@ -41,6 +41,14 @@ install:
  - echo "Using Visual Studio %VSVER%.0 at %VSCOMNTOOLS%"
  - call "%VSCOMNTOOLS%\..\..\VC\vcvarsall.bat" %VCVARS_PLATFORM%
 
+ - cd ACardEmulator
+ - gradlew.bat --version
+ - cd ..
+
+ - cd remote-reader
+ - gradlew.bat --version
+ - cd ..
+
 build_script:
  - md %ARTIFACT%
 
@@ -56,3 +64,18 @@ build_script:
 
  - 7z a %ARTIFACT%.zip %ARTIFACT%
  - appveyor PushArtifact %ARTIFACT%.zip
+
+ - cd ACardEmulator
+ - gradlew.bat tasks
+ - gradlew.bat -u -i clean
+ - cd ..
+
+ - cd ACardEmulator
+ - gradlew.bat tasks
+ - gradlew.bat -u -i clean
+ - cd ..
+
+ - cd remote-reader
+ - gradlew.bat tasks
+ - gradlew.bat -u -i clean
+ - cd ..
