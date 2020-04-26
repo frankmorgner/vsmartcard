@@ -50,6 +50,16 @@ install:
  - cd ..
 
 build_script:
+ - cd ACardEmulator
+ - gradlew.bat tasks
+ - gradlew.bat -u -i clean
+ - cd ..
+
+ - cd remote-reader
+ - gradlew.bat tasks
+ - gradlew.bat -u -i clean
+ - cd ..
+
  - md %ARTIFACT%
 
  - msbuild virtualsmartcard\win32\BixVReader.sln /p:Configuration=Release;Platform=%MSBUILD_PLATFORM%
@@ -64,18 +74,3 @@ build_script:
 
  - 7z a %ARTIFACT%.zip %ARTIFACT%
  - appveyor PushArtifact %ARTIFACT%.zip
-
- - cd ACardEmulator
- - gradlew.bat tasks
- - gradlew.bat -u -i clean
- - cd ..
-
- - cd ACardEmulator
- - gradlew.bat tasks
- - gradlew.bat -u -i clean
- - cd ..
-
- - cd remote-reader
- - gradlew.bat tasks
- - gradlew.bat -u -i clean
- - cd ..
