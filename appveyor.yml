@@ -57,6 +57,9 @@ install:
  - gradlew.bat --version
  - cd ..
 
+ - appveyor DownloadFile "%NDK_TOOLS_URL%" -FileName "%TMP%/ndk.zip"
+ - 7z x "%TMP%/ndk.zip" -o"%ANDROID_HOME%" > nul
+
 build_script:
  - cd ACardEmulator
  - gradlew.bat tasks
