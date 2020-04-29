@@ -5,6 +5,7 @@ environment:
   JAVA_HOME: "C:\\Program Files\\Java\\jdk1.8.0"
   ANDROID_TOOLS_URL: "https://dl.google.com/android/repository/sdk-tools-windows-3859397.zip"
   MSVC_HOME: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community"
+  NDK_TOOLS_URL: https://dl.google.com/android/repository/android-ndk-r17b-windows-x86_64.zip
 
 platform:
  - x86
