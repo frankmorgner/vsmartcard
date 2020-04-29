@@ -1,11 +1,5 @@
 environment:
-  ANDROID_HOME: "C:\\android-sdk-windows"
-  TMP_ANDROID_TOOLS_FOLDER: "C:\\android-tools"
-  ANDROID_NDK_HOME: "C:\\android-sdk-windows\\ndk-bundle"
-  JAVA_HOME: "C:\\Program Files\\Java\\jdk1.8.0"
-  ANDROID_TOOLS_URL: "https://dl.google.com/android/repository/sdk-tools-windows-3859397.zip"
-  MSVC_HOME: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community"
-  NDK_TOOLS_URL: https://dl.google.com/android/repository/android-ndk-r17b-windows-x86_64.zip
+  JAVA_HOME: C:\Program Files\Java\jdk1.8.0
 
 platform:
  - x86
@@ -50,26 +44,24 @@ install:
  - echo "Using Visual Studio %VSVER%.0 at %VSCOMNTOOLS%"
  - call "%VSCOMNTOOLS%\..\..\VC\vcvarsall.bat" %VCVARS_PLATFORM%
 
- - cd ACardEmulator
- - gradlew.bat --version
- - cd ..
-
- - cd remote-reader
- - gradlew.bat --version
- - cd ..
-
  - appveyor DownloadFile "%NDK_TOOLS_URL%" -FileName "%TMP%/ndk.zip"
  - 7z x "%TMP%/ndk.zip" -o"%ANDROID_HOME%" > nul
 
-build_script:
  - cd ACardEmulator
- - gradlew.bat tasks
- - gradlew.bat -u -i clean
+ - gradlew.bat --version
  - cd ..
 
  - cd remote-reader
- - gradlew.bat tasks
- - gradlew.bat -u -i clean
+ - gradlew.bat --version
+ - cd ..
+
+build_script:
+ - cd ACardEmulator
+ - gradlew.bat -i -S build
+ - cd ..
+
+ - cd remote-reader
+ - gradlew.bat -i -S build
  - cd ..
 
  - md %ARTIFACT%
