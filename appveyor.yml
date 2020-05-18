@@ -46,32 +46,34 @@ install:
  - call "%VSCOMNTOOLS%\..\..\VC\vcvarsall.bat" %VCVARS_PLATFORM%
 
  # Android SDK
- - set ANDROID_HOME="C:\android-sdk-windows"
- - set ANDROID_NDK_HOME="C:\android-sdk-windows\ndk-bundle"
- - set JAVA_HOME="C:\Program Files\Java\jdk1.8.0"
- - appveyor DownloadFile https://dl.google.com/android/repository/sdk-tools-windows-3859397.zip
- - 7z x sdk-tools-windows-3859397.zip -oC:\android-sdk-windows > nul
- - yes | C:\android-sdk-windows\tools\bin\sdkmanager.bat --licenses > nul
+ #- set ANDROID_HOME="C:\android-sdk-windows"
+ #- set ANDROID_NDK_HOME="C:\android-sdk-windows\ndk-bundle"
+ #- set JAVA_HOME="C:\Program Files\Java\jdk1.8.0"
+ #- appveyor DownloadFile https://dl.google.com/android/repository/sdk-tools-windows-3859397.zip
+ #- 7z x sdk-tools-windows-3859397.zip -oC:\android-sdk-windows > nul
+ #- yes | C:\android-sdk-windows\tools\bin\sdkmanager.bat --licenses > nul
 
- - cd ACardEmulator
- - gradlew.bat --version
- - cd ..
+ #- cd ACardEmulator
+ #- gradlew.bat --version
+ #- cd ..
 
- - cd remote-reader
- - gradlew.bat --version
- - cd ..
+ #- cd remote-reader
+ #- gradlew.bat --version
+ #- cd ..
 
 build_script:
- - cd ACardEmulator
- - gradlew.bat build
- - cd ..
+ #- cd ACardEmulator
+ #- gradlew.bat build
+ #- cd ..
 
- - cd remote-reader
- - gradlew.bat build
- - cd ..
+ #- cd remote-reader
+ #- gradlew.bat build
+ #- cd ..
 
  - md %ARTIFACT%
 
+   # AppVeyor's Enterprise edition of the WDK needs to set up its environment.
+ - call "C:\wdk\1607\BuildEnv\SetupBuildEnv.cmd"
  - msbuild virtualsmartcard\win32\BixVReader.sln /p:Configuration=Release;Platform=%MSBUILD_PLATFORM%
  - move    virtualsmartcard\win32\BixVReaderInstaller\bin\%X64%Release\BixVReaderInstaller.msi %ARTIFACT%
 
