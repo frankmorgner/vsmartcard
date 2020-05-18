@@ -8,6 +8,7 @@ platform:
 os: Visual Studio 2015
 
 install:
+ - set
  - date /T & time /T
  - ps: >-
      If ($env:Platform -Match "x86") {
@@ -46,6 +47,8 @@ install:
 
  # Android SDK
  - set ANDROID_HOME="C:\android-sdk-windows"
+ - set ANDROID_NDK_HOME="C:\android-sdk-windows\ndk-bundle"
+ - set JAVA_HOME="C:\Program Files\Java\jdk1.8.0"
  - appveyor DownloadFile https://dl.google.com/android/repository/sdk-tools-windows-3859397.zip
  - 7z x sdk-tools-windows-3859397.zip -oC:\android-sdk-windows > nul
  - yes | C:\android-sdk-windows\tools\bin\sdkmanager.bat --licenses > nul
@@ -69,7 +72,6 @@ build_script:
 
  - md %ARTIFACT%
 
- - set
  - msbuild virtualsmartcard\win32\BixVReader.sln /p:Configuration=Release;Platform=%MSBUILD_PLATFORM%
  - move    virtualsmartcard\win32\BixVReaderInstaller\bin\%X64%Release\BixVReaderInstaller.msi %ARTIFACT%
 
