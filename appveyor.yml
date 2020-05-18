@@ -44,6 +44,8 @@ install:
  - echo "Using Visual Studio %VSVER%.0 at %VSCOMNTOOLS%"
  - call "%VSCOMNTOOLS%\..\..\VC\vcvarsall.bat" %VCVARS_PLATFORM%
 
+ - set ANDROID_HOME="C:\android-sdk-windows"
+
  - cd ACardEmulator
  - gradlew.bat --version
  - cd ..
