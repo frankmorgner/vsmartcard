@@ -54,11 +54,11 @@ install:
 
 build_script:
  - cd ACardEmulator
- - gradlew.bat -i -S build
+ - gradlew.bat build
  - cd ..
 
  - cd remote-reader
- - gradlew.bat -i -S build
+ - gradlew.bat build
  - cd ..
 
  - md %ARTIFACT%
