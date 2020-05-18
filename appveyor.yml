@@ -75,6 +75,7 @@ build_script:
    # AppVeyor's Enterprise edition of the WDK needs to set up its environment.
  - bash -c "find /cygdrive/c |grep -i LaunchBuildEnv"
  - dir C:\wdk
+ - dir C:\WinWDK
  - call C:\wdk\1709\BuildEnv\SetupBuildEnv.cmd
  - msbuild virtualsmartcard\win32\BixVReader.sln /p:Configuration=Release;Platform=%MSBUILD_PLATFORM%
  - move    virtualsmartcard\win32\BixVReaderInstaller\bin\%X64%Release\BixVReaderInstaller.msi %ARTIFACT%
