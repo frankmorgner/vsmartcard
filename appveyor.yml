@@ -63,6 +63,7 @@ build_script:
 
  - md %ARTIFACT%
 
+ - set
  - msbuild virtualsmartcard\win32\BixVReader.sln /p:Configuration=Release;Platform=%MSBUILD_PLATFORM%
  - move    virtualsmartcard\win32\BixVReaderInstaller\bin\%X64%Release\BixVReaderInstaller.msi %ARTIFACT%
 
