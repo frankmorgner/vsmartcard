@@ -44,7 +44,11 @@ install:
  - echo "Using Visual Studio %VSVER%.0 at %VSCOMNTOOLS%"
  - call "%VSCOMNTOOLS%\..\..\VC\vcvarsall.bat" %VCVARS_PLATFORM%
 
+ # Android SDK
  - set ANDROID_HOME="C:\android-sdk-windows"
+ - appveyor DownloadFile https://dl.google.com/android/repository/sdk-tools-windows-3859397.zip
+ - 7z x sdk-tools-windows-3859397.zip -oC:\android-sdk-windows > nul
+ - yes | C:\android-sdk-windows\tools\bin\sdkmanager.bat --licenses > nul
 
  - cd ACardEmulator
  - gradlew.bat --version
