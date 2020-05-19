@@ -73,7 +73,6 @@ build_script:
  - md %ARTIFACT%
 
    # AppVeyor's Enterprise edition of the WDK needs to set up its environment.
- - bash -c "find /cygdrive/c |grep -i LaunchBuildEnv"
  - dir C:\WinWDK
  - dir C:\wdk
  - call C:\wdk\1709\BuildEnv\SetupBuildEnv.cmd
