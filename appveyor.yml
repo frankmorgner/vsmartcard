@@ -24,9 +24,12 @@ install:
  #- ps: ren 'C:\Program Files (x86)\Windows Kits\10\include\00wdf' 'wdf'
 
 
- - Start-FileDownload "https://kumisystems.dl.sourceforge.net/project/swig/swigwin/swigwin-4.0.2/swigwin-4.0.2.zip"
- - Expand-Archive -LiteralPath swigwin-4.0.2.zip -DestinationPath swig_folder
- - $env:Path += ".\swig_folder"
+ - $current_path = Get-Location | select -ExpandProperty Path
+ - $full_path = $current_path + "\swigwin-4.0.2.zip"
+ - $folder_path = $current_path + "\swig_win"
+ - (new-object net.webclient).DownloadFile("https://kumisystems.dl.sourceforge.net/project/swig/swigwin/swigwin-4.0.2/swigwin-4.0.2.zip", $full_path)
+ - Expand-Archive -LiteralPath $full_path -DestinationPath $folder_path
+ - $env:Path += ";"+$folder_path+"\swigwin-4.0.2"
  - python -m pip install --upgrade pip
  - pip install virtualenv
  - pip install -U setuptools
