@@ -239,11 +239,11 @@ class Security_Environment(object):
             if se & 0x08:
                 self.external_auth = True
             return self._set_SE(p2, data)
-        elif(cmd == 0x02):
+        elif cmd == 0x02:
             return self.sam.store_SE(p2)
-        elif(cmd == 0x03):
+        elif cmd == 0x03:
             return self.sam.restore_SE(p2)
-        elif(cmd == 0x04):
+        elif cmd == 0x04:
             return self.sam.erase_SE(p2)
         else:
             raise SwError(SW["ERR_INCORRECTP1P2"])
@@ -684,7 +684,6 @@ class Security_Environment(object):
         """
 
         from Crypto.PublicKey import RSA, DSA
-        from Crypto.Random import get_random_bytes
 
         cipher = self.ct.algorithm
 
