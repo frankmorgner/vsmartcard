@@ -684,8 +684,7 @@ class Security_Environment(object):
         """
 
         from Crypto.PublicKey import RSA, DSA
-        from Crypto.Util.randpool import RandomPool
-        rnd = RandomPool()
+        from Crypto.Random import get_random_bytes
 
         cipher = self.ct.algorithm
 
@@ -694,7 +693,7 @@ class Security_Environment(object):
             raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
 
         if p1 & 0x01 == 0x00:  # Generate key
-            PublicKey = c_class.generate(self.dst.keylength, rnd.get_bytes)
+            PublicKey = c_class.generate(self.dst.keylength)
             self.dst.key = PublicKey
         else:
             pass  # Read key
@@ -702,23 +701,23 @@ class Security_Environment(object):
         # Encode keys
         if cipher == "RSA":
             # Public key
-            n = inttostring(PublicKey.__getstate__()['n'])
-            e = inttostring(PublicKey.__getstate__()['e'])
+            n = inttostring(PublicKey.n)
+            e = inttostring(PublicKey.e)
             pk = ((0x81, len(n), n), (0x82, len(e), e))
             result = bertlv_pack(pk)
             # Private key
-            d = PublicKey.__getstate__()['d']
+            d = PublicKey.d
         elif cipher == "DSA":
             # DSAParams
-            p = inttostring(PublicKey.__getstate__()['p'])
-            q = inttostring(PublicKey.__getstate__()['q'])
-            g = inttostring(PublicKey.__getstate__()['g'])
+            p = inttostring(PublicKey.p)
+            q = inttostring(PublicKey.q)
+            g = inttostring(PublicKey.g)
             # Public key
-            y = inttostring(PublicKey.__getstate__()['y'])
+            y = inttostring(PublicKey.y)
             pk = ((0x81, len(p), p), (0x82, len(q), q), (0x83, len(g), g),
                   (0x84, len(y), y))
             # Private key
-            x = inttostring(PublicKey.__getstate__()['x'])
+            x = inttostring(PublicKey.x)
         # Add more algorithms here
         # elif cipher = "ECDSA":
         else:

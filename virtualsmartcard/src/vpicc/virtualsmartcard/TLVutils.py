@@ -114,7 +114,7 @@ def tlv_find_tag(tlv_data, tag, num_results=None):
 
 
 def pack(tlv_data, recalculate_length=False):
-    result = b""
+    result = []
 
     for data in tlv_data:
         tag, length, value = data[:3]
@@ -143,9 +143,9 @@ def pack(tlv_data, recalculate_length=False):
             assert len(l) < 0x7f
             l = inttostring(0x80 | len(l)) + l
 
-        result = result + t
-        result = result + l
-        result = result + value
+        result.append(t)
+        result.append(l)
+        result.append(value)
 
     return b"".join(result)
 

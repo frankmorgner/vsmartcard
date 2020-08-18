@@ -40,14 +40,14 @@ class TestSmartcardSAM(unittest.TestCase):
             self.myCard.verify(0x00, 0x00, "3456".encode('ascii'))
         except SwError as e:
             pass
-        self.assertEquals(self.myCard.counter, ctr1 - 1)
+        self.assertEqual(self.myCard.counter, ctr1 - 1)
 
     def test_internal_authenticate(self):
         sw, challenge = self.myCard.get_challenge(0x00, 0x00, b"")
         blocklen = vsCrypto.get_cipher_blocklen("DES3-ECB")
         padded = vsCrypto.append_padding(blocklen, challenge)
         sw, result_data = self.myCard.internal_authenticate(0x00, 0x00, padded)
-        self.assertEquals(sw, SW["NORMAL"])
+        self.assertEqual(sw, SW["NORMAL"])
 
     def test_external_authenticate(self):
         sw, challenge = self.myCard.get_challenge(0x00, 0x00, b"")
@@ -56,7 +56,7 @@ class TestSmartcardSAM(unittest.TestCase):
         sw, result_data = self.myCard.internal_authenticate(0x00, 0x00, padded)
         sw, result_data = self.myCard.external_authenticate(0x00, 0x00,
                                                             result_data)
-        self.assertEquals(sw, SW["NORMAL"])
+        self.assertEqual(sw, SW["NORMAL"])
 
     def test_security_environment(self):
         hash = self.secEnv.hash(0x90, 0x80, self.password)
@@ -74,7 +74,7 @@ class TestSmartcardSAM(unittest.TestCase):
         self.secEnv.ct.algorithm = "RSA"
         self.secEnv.dst.keylength = 1024
         sw, pk = self.secEnv.generate_public_key_pair(0x00, 0x00, b"")
-        self.assertEquals(sw, SW["NORMAL"])
+        self.assertEqual(sw, SW["NORMAL"])
 
 
 if __name__ == "__main__":
