@@ -2,7 +2,7 @@ platform:
  - x86
  - x64
 
-os: Visual Studio 2015
+os: Visual Studio 2019
 
 install:
  - date /T & time /T
@@ -23,11 +23,17 @@ install:
  # BUGFIX: wdf directory was renamed to 00wdf, rename it back (see github.com/appveyor/ci/issues/414)
  #- ps: ren 'C:\Program Files (x86)\Windows Kits\10\include\00wdf' 'wdf'
 
- - choco install swig
+
+ - $current_path = Get-Location | select -ExpandProperty Path
+ - $full_path = $current_path + "\swigwin-4.0.2.zip"
+ - $folder_path = $current_path + "\swig_win"
+ - (new-object net.webclient).DownloadFile("https://kumisystems.dl.sourceforge.net/project/swig/swigwin/swigwin-4.0.2/swigwin-4.0.2.zip", $full_path)
+ - Expand-Archive -LiteralPath $full_path -DestinationPath $folder_path
+ - $env:Path += ";"+$folder_path+"\swigwin-4.0.2"
  - python -m pip install --upgrade pip
  - pip install virtualenv
  - pip install -U setuptools
- - easy_install PyCrypto
+ - pip install pycryptodome
  - pip install pbkdf2
  - pip install Pillow
  - pip install pyreadline
@@ -35,8 +41,8 @@ install:
  - pip install pyinstaller
  - set PATH=C:\cygwin\bin;%PATH%
 
- # set Visual Studio 2015 build environment
- - set VSVER=14
+ # set Visual Studio 2019 build environment
+ - set VSVER=19
  - ps: $env:VSCOMNTOOLS=(Get-Content ("env:VS" + "$env:VSVER" + "0COMNTOOLS"))
  - echo "Using Visual Studio %VSVER%.0 at %VSCOMNTOOLS%"
  - call "%VSCOMNTOOLS%\..\..\VC\vcvarsall.bat" %VCVARS_PLATFORM%

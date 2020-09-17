@@ -239,11 +239,11 @@ class Security_Environment(object):
             if se & 0x08:
                 self.external_auth = True
             return self._set_SE(p2, data)
-        elif(cmd == 0x02):
+        elif cmd == 0x02:
             return self.sam.store_SE(p2)
-        elif(cmd == 0x03):
+        elif cmd == 0x03:
             return self.sam.restore_SE(p2)
-        elif(cmd == 0x04):
+        elif cmd == 0x04:
             return self.sam.erase_SE(p2)
         else:
             raise SwError(SW["ERR_INCORRECTP1P2"])
@@ -684,8 +684,6 @@ class Security_Environment(object):
         """
 
         from Crypto.PublicKey import RSA, DSA
-        from Crypto.Util.randpool import RandomPool
-        rnd = RandomPool()
 
         cipher = self.ct.algorithm
 
@@ -694,7 +692,7 @@ class Security_Environment(object):
             raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
 
         if p1 & 0x01 == 0x00:  # Generate key
-            PublicKey = c_class.generate(self.dst.keylength, rnd.get_bytes)
+            PublicKey = c_class.generate(self.dst.keylength)
             self.dst.key = PublicKey
         else:
             pass  # Read key
@@ -702,23 +700,23 @@ class Security_Environment(object):
         # Encode keys
         if cipher == "RSA":
             # Public key
-            n = inttostring(PublicKey.__getstate__()['n'])
-            e = inttostring(PublicKey.__getstate__()['e'])
+            n = inttostring(PublicKey.n)
+            e = inttostring(PublicKey.e)
             pk = ((0x81, len(n), n), (0x82, len(e), e))
             result = bertlv_pack(pk)
             # Private key
-            d = PublicKey.__getstate__()['d']
+            d = PublicKey.d
         elif cipher == "DSA":
             # DSAParams
-            p = inttostring(PublicKey.__getstate__()['p'])
-            q = inttostring(PublicKey.__getstate__()['q'])
-            g = inttostring(PublicKey.__getstate__()['g'])
+            p = inttostring(PublicKey.p)
+            q = inttostring(PublicKey.q)
+            g = inttostring(PublicKey.g)
             # Public key
-            y = inttostring(PublicKey.__getstate__()['y'])
+            y = inttostring(PublicKey.y)
             pk = ((0x81, len(p), p), (0x82, len(q), q), (0x83, len(g), g),
                   (0x84, len(y), y))
             # Private key
-            x = inttostring(PublicKey.__getstate__()['x'])
+            x = inttostring(PublicKey.x)
         # Add more algorithms here
         # elif cipher = "ECDSA":
         else:

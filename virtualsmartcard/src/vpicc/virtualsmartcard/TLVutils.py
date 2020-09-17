@@ -19,35 +19,36 @@
 
 from virtualsmartcard.utils import stringtoint, inttostring
 
-TAG = {}
-TAG["FILECONTROLPARAMETERS"] = 0x62
-TAG["FILEMANAGEMENTDATA"] = 0x64
-TAG["FILECONTROLINFORMATION"] = 0x6F
-TAG["BYTES_EXCLUDINGSTRUCTURE"] = 0x80
-TAG["BYTES_INCLUDINGSTRUCTURE"] = 0x81
-TAG["FILEDISCRIPTORBYTE"] = 0x82
-TAG["FILEIDENTIFIER"] = 0x83
-TAG["DFNAME"] = 0x84
-TAG["PROPRIETARY_NOTBERTLV"] = 0x85
-TAG["PROPRIETARY_SECURITY"] = 0x86
-TAG["FIDEF_CONTAININGFCI"] = 0x87
-TAG["SHORTFID"] = 0x88
-TAG["LIFECYCLESTATUS"] = 0x8A
-TAG["SA_EXPANDEDFORMAT"] = 0x8B
-TAG["SA_COMPACTFORMAT"] = 0x8C
-TAG["FIDEF_CONTAININGSET"] = 0x8D
-TAG["CHANNELSECURITY"] = 0x8E
-TAG["SA_DATAOBJECTS"] = 0xA0
-TAG["PROPRIETARY_SECURITYTEMP"] = 0xA1
-TAG["PROPRIETARY_BERTLV"] = 0xA5
-TAG["SA_EXPANDEDFORMAT_TEMP"] = 0xAB
-TAG["CRYPTIDENTIFIER_TEMP"] = 0xAC
-TAG["DISCRETIONARY_DATA"] = 0x53
-TAG["DISCRETIONARY_TEMPLATE"] = 0x73
-TAG["OFFSET_DATA"] = 0x54
-TAG["TAG_LIST"] = 0x5C
-TAG["HEADER_LIST"] = 0x5D
-TAG["EXTENDED_HEADER_LIST"] = 0x4D
+TAG = {
+    "FILECONTROLPARAMETERS": 0x62,
+    "FILEMANAGEMENTDATA": 0x64,
+    "FILECONTROLINFORMATION": 0x6F,
+    "BYTES_EXCLUDINGSTRUCTURE": 0x80,
+    "BYTES_INCLUDINGSTRUCTURE": 0x81,
+    "FILEDISCRIPTORBYTE": 0x82,
+    "FILEIDENTIFIER": 0x83,
+    "DFNAME": 0x84,
+    "PROPRIETARY_NOTBERTLV": 0x85,
+    "PROPRIETARY_SECURITY": 0x86,
+    "FIDEF_CONTAININGFCI": 0x87,
+    "SHORTFID": 0x88,
+    "LIFECYCLESTATUS": 0x8A,
+    "SA_EXPANDEDFORMAT": 0x8B,
+    "SA_COMPACTFORMAT": 0x8C,
+    "FIDEF_CONTAININGSET": 0x8D,
+    "CHANNELSECURITY": 0x8E,
+    "SA_DATAOBJECTS": 0xA0,
+    "PROPRIETARY_SECURITYTEMP": 0xA1,
+    "PROPRIETARY_BERTLV": 0xA5,
+    "SA_EXPANDEDFORMAT_TEMP": 0xAB,
+    "CRYPTIDENTIFIER_TEMP": 0xAC,
+    "DISCRETIONARY_DATA": 0x53,
+    "DISCRETIONARY_TEMPLATE": 0x73,
+    "OFFSET_DATA": 0x54,
+    "TAG_LIST": 0x5C,
+    "HEADER_LIST": 0x5D,
+    "EXTENDED_HEADER_LIST": 0x4D
+}
 
 
 def tlv_unpack(data):
@@ -114,7 +115,7 @@ def tlv_find_tag(tlv_data, tag, num_results=None):
 
 
 def pack(tlv_data, recalculate_length=False):
-    result = b""
+    result = []
 
     for data in tlv_data:
         tag, length, value = data[:3]
@@ -143,9 +144,9 @@ def pack(tlv_data, recalculate_length=False):
             assert len(l) < 0x7f
             l = inttostring(0x80 | len(l)) + l
 
-        result = result + t
-        result = result + l
-        result = result + value
+        result.append(t)
+        result.append(l)
+        result.append(value)
 
     return b"".join(result)
 
@@ -180,7 +181,7 @@ def unpack(data, with_marks=None, offset=0, include_filler=False):
             for type, mark_start, mark_stop in with_marks:
                 if (mark_start, mark_stop) == (start, stop):
                     marks.append(type)
-            marks = (marks, )
+            marks = (marks,)
         else:
             marks = ()
 
@@ -239,11 +240,11 @@ def simpletlv_unpack(data):
         length = rest[1]
         if length == 0xff:
             length = (rest[2] << 8) + rest[3]
-            newvalue = rest[4:4+length]
-            rest = rest[4+length:]
+            newvalue = rest[4:4 + length]
+            rest = rest[4 + length:]
         else:
-            newvalue = rest[2:2+length]
-            rest = rest[2+length:]
+            newvalue = rest[2:2 + length]
+            rest = rest[2 + length:]
         result.append((tag, length, newvalue))
 
     return result

@@ -503,7 +503,10 @@ class VirtualICC(object):
 
     def __sendToVPICC(self, msg):
         """ Send a message to the vpcd """
-        self.sock.sendall(struct.pack('!H', len(msg)) + msg)
+        if isinstance(msg, str):
+            self.sock.sendall(struct.pack('!H', len(msg)) + msg.encode())
+        else:
+            self.sock.sendall(struct.pack('!H', len(msg)) + msg)
 
     def __recvFromVPICC(self):
         """ Receive a message from the vpcd """

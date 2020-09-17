@@ -229,7 +229,7 @@ class SAM(object):
         blocklen = vsCrypto.get_cipher_blocklen(cipher)
         reference = vsCrypto.append_padding(blocklen, self.last_challenge)
         reference = vsCrypto.encrypt(cipher, key, reference)
-        if(reference == data):
+        if reference == data:
             # Invalidate last challenge
             self.last_challenge is None
             return SW["NORMAL"], ""
@@ -249,20 +249,20 @@ class SAM(object):
         key = self._get_referenced_key(p1, p2)
         card_number = self.get_card_number()
 
-        if (key is None):
+        if key is None:
             raise SwError(SW["ERR_INCORRECTP1P2"])
         if p1 == 0x00:  # No information given
             cipher = get_referenced_cipher(self.cipher)
         else:
             cipher = get_referenced_cipher(p1)
 
-        if (cipher is None):
+        if cipher is None:
             raise SwError(SW["ERR_INCORRECTP1P2"])
 
         plain = vsCrypto.decrypt(cipher, key, mutual_challenge)
         last_challenge_len = len(self.last_challenge)
-        terminal_challenge = plain[:last_challenge_len-1]
-        card_challenge = plain[last_challenge_len:-len(card_number)-1]
+        terminal_challenge = plain[:last_challenge_len - 1]
+        card_challenge = plain[last_challenge_len:-len(card_number) - 1]
         serial_number = plain[-len(card_number):]
 
         if terminal_challenge != self.last_challenge:
@@ -277,7 +277,7 @@ class SAM(object):
         """
         Generate a random number of maximum 8 Byte and return it.
         """
-        if (p1 != 0x00 or p2 != 0x00):  # RFU
+        if p1 != 0x00 or p2 != 0x00:  # RFU
             raise SwError(SW["ERR_INCORRECTP1P2"])
 
         length = 8  # Length of the challenge in Byte
@@ -315,7 +315,7 @@ class SAM(object):
         algo = get_referenced_cipher(p1)
         keylength = vsCrypto.get_cipher_keylen(algo)
 
-        if (p2 == 0x00):  # No information given, use the global card key
+        if p2 == 0x00:  # No information given, use the global card key
             key = self.cardSecret
         # We treat global and specific reference data alike
         else:
