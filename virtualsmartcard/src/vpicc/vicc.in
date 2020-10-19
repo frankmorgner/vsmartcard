@@ -66,6 +66,10 @@ relay.add_argument("--reader",
         type=int,
         default=0,
         help="number of the reader containing the card to be relayed (default: %(default)s)")
+relay.add_argument("--mitm",
+        action="store",
+        type=str,
+        help="relative path to a file containing a Man-in-the-Middle class that is supposed to be used with the relay")
 
 npa = parser.add_argument_group('Emulation of German identity card (`--type=nPA`)')
 npa.add_argument("--ef-cardaccess",
@@ -153,7 +157,7 @@ else:
     hostname = args.hostname
 
 vicc = VirtualICC(args.datasetfile, args.type, hostname, args.port,
-        readernum=args.reader, ef_cardaccess=ef_cardaccess_data,
+        readernum=args.reader, mitmPath=args.mitm, ef_cardaccess=ef_cardaccess_data,
         ef_cardsecurity=ef_cardsecurity_data, ca_key=ca_key_data, cvca=cvca,
         disable_checks=args.disable_ta_checks, esign_ca_cert=esign_ca_cert,
         esign_cert=esign_cert, logginglevel=logginglevel)
