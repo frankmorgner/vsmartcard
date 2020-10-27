@@ -22,6 +22,7 @@ import logging
 import smartcard
 import sys
 from virtualsmartcard.VirtualSmartcard import SmartcardOS
+from virtualsmartcard.cards.RelayMiddleman import RelayMiddleman
 
 
 class RelayOS(SmartcardOS):
@@ -31,7 +32,7 @@ class RelayOS(SmartcardOS):
     an actual smart card reader and sends the responses back to the vpcd.
     This class can be used to implement relay or MitM attacks.
     """
-    def __init__(self, readernum):
+    def __init__(self, readernum, mitm=RelayMiddleman()):
         """
         Initialize the connection to the (physical) smart card via a given
         reader
@@ -56,6 +57,8 @@ class RelayOS(SmartcardOS):
             sys.exit()
 
         logging.info("Connected to card in '%s'", self.reader)
+
+        self.mitm = mitm
 
         atexit.register(self.cleanup)
 
@@ -119,6 +122,8 @@ class RelayOS(SmartcardOS):
         else:
             apdu = list(msg)
 
+        apdu = self.mitm.handleInPDU(apdu)
+
         try:
             rapdu, sw1, sw2 = self.session.sendCommandAPDU(apdu)
         except smartcard.Exceptions.CardConnectionException as e:
@@ -132,6 +137,8 @@ class RelayOS(SmartcardOS):
             pass
         else:
             rapdu = rapdu + [sw1, sw2]
+
+        rapdu = self.mitm.handleOutPDU(rapdu)
 
         # return the response APDU as string
         return "".join(map(chr, rapdu))

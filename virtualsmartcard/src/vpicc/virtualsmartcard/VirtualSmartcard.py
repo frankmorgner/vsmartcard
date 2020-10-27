@@ -370,6 +370,30 @@ class Iso7816OS(SmartcardOS):
         self.mf.current = self.mf
 
 
+def loadMitMFromPath(path: str):
+    from importlib import import_module
+    from pathlib import Path
+    def onNth(tup,ind,func):
+        start = tup[0:ind] + (func(tup[ind]),)
+        return start if ind + 1 == 0 else start + tup[ind+1:]
+
+    def pathToModuleName(path):
+        return ".".join(onNth(Path(path).parts,-1,lambda fName : str(Path(fName).stem)))
+
+    mitmModule = import_module(pathToModuleName(path))
+
+    # Sanity Checks
+    if not getattr(mitmModule,"get_MitM",None):
+        raise ValueError("The provided module does not contain a 'get_MitM' method.")
+    mitm = mitmModule.get_MitM()
+    if not getattr(mitm,"handleInPDU",None):
+        raise ValueError("The produced MitM has no 'handleInPDU' method.")
+    if not getattr(mitm,"handleOutPDU",None):
+        raise ValueError("The produced MitM has no 'handleOutPDU' method.")
+
+    return mitm
+
+
 # sizeof(int) taken from asizof-package {{{
 _Csizeof_short = len(struct.pack('h', 0))
 # }}}
@@ -393,7 +417,7 @@ class VirtualICC(object):
     """
 
     def __init__(self, datasetfile, card_type, host, port,
-                 readernum=None, ef_cardsecurity=None, ef_cardaccess=None,
+                 readernum=None, mitmPath=None, ef_cardsecurity=None, ef_cardaccess=None,
                  ca_key=None, cvca=None, disable_checks=False, esign_key=None,
                  esign_ca_cert=None, esign_cert=None,
                  logginglevel=logging.INFO):
@@ -429,7 +453,9 @@ class VirtualICC(object):
             self.os = CryptoflexOS(MF, SAM)
         elif card_type == "relay":
             from virtualsmartcard.cards.Relay import RelayOS
-            self.os = RelayOS(readernum)
+            from virtualsmartcard.cards.RelayMiddleman import RelayMiddleman
+            mitm = loadMitMFromPath(mitmPath) if mitmPath else RelayMiddleman()
+            self.os = RelayOS(readernum,mitm=mitm) 
         elif card_type == "handler_test":
             from virtualsmartcard.cards.HandlerTest import HandlerTestOS
             self.os = HandlerTestOS()
