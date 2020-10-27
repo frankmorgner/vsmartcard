@@ -114,7 +114,10 @@ class RelayOS(SmartcardOS):
 
     def execute(self, msg):
         # sendCommandAPDU() expects a list of APDU bytes
-        apdu = map(ord, msg)
+        if isinstance(msg,str):
+            apdu = map(ord, msg)
+        else:
+            apdu = list(msg)
 
         try:
             rapdu, sw1, sw2 = self.session.sendCommandAPDU(apdu)
