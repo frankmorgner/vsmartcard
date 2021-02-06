@@ -20,7 +20,8 @@
 package com.vsmartcard.remotesmartcardreader.app;
 
 import android.os.AsyncTask;
-import android.support.annotation.Nullable;
+
+import androidx.annotation.Nullable;
 
 import com.example.android.common.logger.Log;
 import com.vsmartcard.remotesmartcardreader.app.screaders.SCReader;
