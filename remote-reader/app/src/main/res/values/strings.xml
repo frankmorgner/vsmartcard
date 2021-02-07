@@ -55,5 +55,6 @@
     <string name="action_delete">Clear Log</string>
 
     <string name="title_activity_settings">Settings</string>
+    <string name="hint_vpcd_listen">Listen for connections</string>
 
 </resources>

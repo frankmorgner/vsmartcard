@@ -198,11 +198,12 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     }
 
     private void vpcdConnect(SCReader scReader) {
-        SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(this);
-        int port = Integer.parseInt(SP.getString("port", Integer.toString(VPCDWorker.DEFAULT_PORT)));
-        String hostname = SP.getString("hostname", VPCDWorker.DEFAULT_HOSTNAME);
+        final SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(this);
+        final int port = Integer.parseInt(SP.getString("port", Integer.toString(VPCDWorker.DEFAULT_PORT)));
+        final String hostname = SP.getString("hostname", VPCDWorker.DEFAULT_HOSTNAME);
+        final boolean listen = SP.getBoolean("listen", VPCDWorker.DEFAULT_LISTEN);
         vpcdTest = new VPCDWorker();
-        vpcdTest.execute(new VPCDWorker.VPCDWorkerParams(hostname, port, scReader));
+        vpcdTest.execute(new VPCDWorker.VPCDWorkerParams(hostname, port, scReader, listen));
     }
 
     private void vpcdDisconnect() {

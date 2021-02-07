@@ -32,6 +32,12 @@
             android:inputType="number"
             android:hint="Default: 35963" />
 
+        <CheckBoxPreference
+            android:key="listen"
+            android:defaultValue="false"
+            android:title="@string/hint_vpcd_listen"
+            android:hint="Default: false" />
+
     </PreferenceCategory>
 
     <PreferenceCategory
