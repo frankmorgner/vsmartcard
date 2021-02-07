@@ -13,6 +13,9 @@
         <item>500 milliseconds</item>
         <item>1 second</item>
         <item>2 seconds</item>
+        <item>4 seconds</item>
+        <item>10 seconds</item>
+        <item>30 seconds</item>
     </string-array>
     <string-array name="intDelays">
         <item>125</item>
@@ -20,6 +23,9 @@
         <item>500</item>
         <item>1000</item>
         <item>2000</item>
+        <item>4000</item>
+        <item>10000</item>
+        <item>30000</item>
     </string-array>
     <string-array name="strTimeouts">
         <item>125 milliseconds</item>
@@ -29,6 +35,8 @@
         <item>2 seconds</item>
         <item>3 seconds</item>
         <item>4 seconds</item>
+        <item>10 seconds</item>
+        <item>30 seconds</item>
     </string-array>
     <string-array name="intTimeouts">
         <item>125</item>
@@ -38,6 +46,8 @@
         <item>2000</item>
         <item>3000</item>
         <item>4000</item>
+        <item>10000</item>
+        <item>30000</item>
     </string-array>
 
     <string name="action_settings">Settings</string>
