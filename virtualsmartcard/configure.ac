@@ -75,7 +75,7 @@ if test "${libpcsclite}" = no ; then
 					 case "$host" in
 						 *-*-darwin*)
 							SDKS_PATH="$(xcode-select -p)/Platforms/MacOSX.platform/Developer/SDKs"
-							SDK_PATH="${SDK_PATH:-$SDKS_PATH/$(ls -1 ${SDKS_PATH} | sort -n -t. -k2 -r | head -1)}"
+							SDK_PATH="${SDK_PATH:-$SDKS_PATH/$(ls -1 ${SDKS_PATH} | grep -i MacOSX.sdk | sort -n -t. -k2 -r | head -1)}"
 							# and set the PC/SC include path
 							PCSC_CFLAGS="-I$SDK_PATH/System/Library/Frameworks/PCSC.framework/Versions/Current/Headers -DRESPONSECODE_DEFINED_IN_WINTYPES_H -I`pwd`/${top_srcdir}/MacOSX"
 							PCSC_LIBS="--framework PCSC"
