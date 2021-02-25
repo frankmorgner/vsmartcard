@@ -14,7 +14,7 @@ fi
 
 if [ -L "$DROPDIR" ]
 then
-	if [ "$(readlink $DROPDIR)" == "/Library/VirtualSmartCard/usr/libexec/SmartCardServices/drivers/ifd-vpcd.bundle" ]
+	if [ "$(readlink $DROPDIR)" == "/Library/VirtualSmartCard${DROPDIR}/ifd-vpcd.bundle" ]
 	then
 		rm $DROPDIR
 	fi

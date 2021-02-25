@@ -13,20 +13,21 @@ osx: $(OPENPACE_MAKEFILE)
 	$(MAKE) -C $(OPENPACE) osx
 	rm -rf $(OSX_TARGETDIR) dmg $(top_builddir)/$(PACKAGE_TARNAME)-$(PACKAGE_VERSION)_osx.dmg
 	@echo Configuring virtualsmartcard for IFD bundle
-	cd $(top_builddir) && ./configure --prefix=/Library/VirtualSmartCard \
+	cd $(top_builddir) && ./configure --enable-infoplist --prefix=/Library/VirtualSmartCard \
 		CFLAGS="-arch x86_64" \
-		--enable-serialdropdir=/usr/libexec/SmartCardServices/drivers/ifd-vpcd.bundle/Contents/MacOS \
-		--enable-serialconfdir=/usr/libexec/SmartCardServices/drivers/ifd-vpcd.bundle/Contents
+		--enable-serialdropdir=/usr$(OSX_SERIAL_LOCAL_PREFIX)/libexec/SmartCardServices/drivers/ifd-vpcd.bundle/Contents/MacOS \
+		--enable-serialconfdir=/usr$(OSX_SERIAL_LOCAL_PREFIX)/libexec/SmartCardServices/drivers/ifd-vpcd.bundle/Contents
 	@echo Compiling virtualsmartcard
 	make -C $(top_builddir) clean install DESTDIR=$(OSX_TARGETDIR)
 	@echo Configuring virtualsmartcard for builtin libpcsclite
-	cd $(top_builddir) && ./configure --prefix=/Library/VirtualSmartCard \
+	cd $(top_builddir) && ./configure --enable-infoplist --prefix=/Library/VirtualSmartCard \
 		CFLAGS="-arch x86_64" \
-		--enable-serialdropdir=/usr/libexec/SmartCardServices/drivers/ifd-vpcd.bundle/Contents/MacOS \
-		--enable-serialconfdir=/usr/libexec/SmartCardServices/drivers/ifd-vpcd.bundle/Contents \
+		--enable-serialdropdir=/usr$(OSX_SERIAL_LOCAL_PREFIX)/libexec/SmartCardServices/drivers/ifd-vpcd.bundle/Contents/MacOS \
+		--enable-serialconfdir=/usr$(OSX_SERIAL_LOCAL_PREFIX)/libexec/SmartCardServices/drivers/ifd-vpcd.bundle/Contents \
 		--enable-libpcsclite
 	@echo Compiling virtualsmartcard
 	make -C $(top_builddir) clean install DESTDIR=$(OSX_TARGETDIR)
+	mv $(OSX_TARGETDIR)/usr $(OSX_TARGETDIR)/Library/VirtualSmartCard/usr
 	pkgbuild --root $(OSX_TARGETDIR) --scripts MacOSX_install --identifier com.vsmartcard.virtualsmartcard.mac --version $(PACKAGE_VERSION) --install-location / VirtualSmartCard-$(PACKAGE_VERSION)_install.pkg
 	pkgbuild --nopayload --identifier com.vsmartcard.virtualsmartcard.mac.uninstall --scripts MacOSX_uninstall Uninstall_VirtualSmartCard.pkg
 	mkdir -p dmg

@@ -129,9 +129,9 @@ Mac OS X 10.10 (and later) ships with a proprietary implementation of the PC/SC
 layer instead of with PCSC-Lite. As far as we know, this means that smart card
 readers must be USB devices instead of directly allowing a more generic type of
 reader. To make |vpcd| work we simply configure it to pretend being a USB smart
-card reader with an :file:`Ìnfo.plist`::
+card reader with an :file:`Info.plist`::
 
-    ./configure --prefix=/ --enable-infoplist
+    ./configure --enable-infoplist
     make
     make install
 
@@ -229,7 +229,7 @@ as USB device:
 
     system_profiler SPUSBDataType
 
-3. Change :file:`/usr/libexec/SmartCardServices/drivers/ifd-vpcd.bundle/Info.plist`
+3. Change :file:`/usr/local/libexec/SmartCardServices/drivers/ifd-vpcd.bundle/Info.plist`
    to match your product and vendor ID:
 
 .. literalinclude:: Info.plist
@@ -240,10 +240,19 @@ Note that ``ifdFriendlyName`` can be used in the same way as ``DEVICENAME``
 
 4. Restart the PC/SC service::
 
-    sudo killall -SIGKILL -m .*com.apple.ifdreader
+    sudo killall -SIGKILL -m '.*com.apple.ifdreader'
 
 Now, every time you plug in your USB device |vpcd| will be started. It will be
 stopped when you unplug the device.
+
+To verify the installation, execute::
+
+    system_profiler SPSmartCardsDataType
+
+In case of a problem, inspect the logs::
+
+    log show --predicate '(subsystem == "com.apple.CryptoTokenKit")' --info --debug
+
 
 ================================================================================
 Configuring |vpcd| on Windows

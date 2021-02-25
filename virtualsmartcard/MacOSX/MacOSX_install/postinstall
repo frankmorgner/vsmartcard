@@ -13,7 +13,7 @@ else
 fi
 
 mkdir -p $DROPDIR
-ln -sf /Library/VirtualSmartCard/usr/libexec/SmartCardServices/drivers/ifd-vpcd.bundle $DROPDIR
+ln -sf "/Library/VirtualSmartCard/${DROPDIR}/ifd-vpcd.bundle" "${DROPDIR}"
 
 for f in /Library/VirtualSmartCard/bin/*
 do

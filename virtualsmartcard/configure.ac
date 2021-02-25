@@ -28,6 +28,12 @@ case "${host}" in
     *-cygwin*)
         WIN32="yes"
         ;;
+    *-*-darwin*)
+        OSX="yes"
+        OSX_VERSION="$(sw_vers -productVersion | awk -F '.' '{print $1 * 1000 + $2}')"
+        OSX_GE_CAPITAN=$(test "${OSX_VERSION}" -gt 10011 && echo "yes")
+        OSX_SERIAL_LOCAL_PREFIX=$(test "${OSX_GE_CAPITAN}" = "yes" && echo "/local")
+        ;;
 esac
 AM_CONDITIONAL([WIN32], [test "${WIN32}" = "yes"])
 
@@ -62,8 +68,12 @@ m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
 # Checks for libraries.
 
+# --enable-infoplist
+AC_ARG_ENABLE(infoplist,
+	AC_HELP_STRING([--enable-infoplist],[Builds Info.plist for OSX @<:@default=no@:>@]),
+	[infoplist="yes"], [infoplist=no])
+
 # --enable-libpcsclite
-infoplist=no
 AC_ARG_ENABLE(libpcsclite,
 	AC_HELP_STRING([--enable-libpcsclite],[Build a lightweight version of
 					libpcsclite, conflicts with PCSC-Lite @<:@default=no@:>@]),
@@ -75,7 +85,7 @@ if test "${libpcsclite}" = no ; then
 					 case "$host" in
 						 *-*-darwin*)
 							SDKS_PATH="$(xcode-select -p)/Platforms/MacOSX.platform/Developer/SDKs"
-							SDK_PATH="${SDK_PATH:-$SDKS_PATH/$(ls -1 ${SDKS_PATH} | sort -n -t. -k2 -r | head -1)}"
+							SDK_PATH="${SDK_PATH:-$SDKS_PATH/$(ls -1 ${SDKS_PATH} | grep -i MacOSX.sdk | sort -n -t. -k2 -r | head -1)}"
 							# and set the PC/SC include path
 							PCSC_CFLAGS="-I$SDK_PATH/System/Library/Frameworks/PCSC.framework/Versions/Current/Headers -DRESPONSECODE_DEFINED_IN_WINTYPES_H -I`pwd`/${top_srcdir}/MacOSX"
 							PCSC_LIBS="--framework PCSC"
@@ -268,6 +278,7 @@ AC_SUBST(DYN_LIB_EXT)
 AC_SUBST(LIB_PREFIX)
 AC_SUBST(serialdropdir)
 AC_SUBST(serialconfdir)
+AC_SUBST(OSX_SERIAL_LOCAL_PREFIX)
 case "$host" in
 *-*-darwin*)
 	BUNDLE_HOST="MacOS"
