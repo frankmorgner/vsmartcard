@@ -1,14 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.1"
+    compileSdkVersion 29
+    buildToolsVersion "23.0.3"
 
     defaultConfig {
         applicationId "com.vsmartcard.remotesmartcardreader.app"
         // NFC reader mode was added in KitKat
         minSdkVersion 19
-        targetSdkVersion 23
+        targetSdkVersion 29
         versionCode 6
         versionName "2.2"
     }
@@ -38,7 +38,7 @@ android.applicationVariants.all { variant ->
         } else {
             newApkName = "${appName}-${output.baseName}-${variant.versionName}-unaligned.apk"
         }
-        output.outputFile = new File(output.outputFile.parent, newApkName)
+        //output.outputFile = new File(output.outputFile.parent, newApkName)
     }
 }
 
@@ -47,12 +47,12 @@ repositories {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:23.2.1'
-    compile 'com.android.support:design:23.2.1'
-    compile 'com.android.support:support-v4:23.2.1'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    testImplementation 'junit:junit:4.12'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'com.google.android.material:material:1.3.0'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
-    compile 'com.journeyapps:zxing-android-embedded:3.2.0@aar'
-    compile 'com.google.zxing:core:3.2.1'
+    implementation 'com.journeyapps:zxing-android-embedded:3.2.0@aar'
+    implementation 'com.google.zxing:core:3.2.1'
 }

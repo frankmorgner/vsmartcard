@@ -23,12 +23,12 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.example.android.common.logger.LogFragment;
+import com.google.android.material.snackbar.Snackbar;
 
 public class MyLogFragment extends LogFragment {
 
