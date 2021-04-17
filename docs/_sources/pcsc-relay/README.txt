@@ -293,4 +293,4 @@ Notes and References
 .. _`Hardware supported by libnfc`: http://nfc-tools.org/index.php?title=Devices_compatibility_matrix
 .. _libnfc: http://www.libnfc.org/
 .. _OpenPICC: http://www.openpcd.org/OpenPICC
-.. _PCSC-lite: http://pcsclite.alioth.debian.org/
+.. _PCSC-lite: https://pcsclite.apdu.fr/
