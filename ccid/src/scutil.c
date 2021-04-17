@@ -46,7 +46,7 @@ int initialize(int reader_id, int verbose,
     reader_count = sc_ctx_get_reader_count(*ctx);
 
     if (reader_count == 0) {
-        sc_debug(*ctx, SC_LOG_DEBUG_NORMAL, "No reader not found.\n");
+        sc_debug(*ctx, SC_LOG_DEBUG_NORMAL, "No reader found.\n");
         return SC_ERROR_NO_READERS_FOUND;
     }
 
