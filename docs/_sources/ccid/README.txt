@@ -334,7 +334,7 @@ Notes and References
 
 .. _`GadgetFS`: http://www.linux-usb.org/gadget/
 .. _`OpenSC`: https://github.com/frankmorgner/OpenSC
-.. _`libccid`: http://pcsclite.alioth.debian.org/ccid.html
+.. _`libccid`: https://ccid.apdu.fr/
 .. _`Windows USB CCID driver`: http://msdn.microsoft.com/en-us/windows/hardware/gg487509
 .. _`OpenMoko Wiki`: http://wiki.openmoko.org/wiki/Building_Gadget_USB_Module
 .. _`BSI TR-03119 1.3`: https://www.bsi.bund.de/DE/Publikationen/TechnischeRichtlinien/tr03119/index_htm.html
