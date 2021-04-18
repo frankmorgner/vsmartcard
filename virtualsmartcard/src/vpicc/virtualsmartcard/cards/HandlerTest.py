@@ -25,7 +25,7 @@ import logging
 class HandlerTestOS(SmartcardOS):
     """
     This class implements the commands used for the PC/SC-lite  smart  card
-    reader driver tester. See http://pcsclite.alioth.debian.org/pcsclite.html
+    reader driver tester. See https://salsa.debian.org/rousseau/HandlerTest
     and handler_test(1).
     """
     def __init__(self):

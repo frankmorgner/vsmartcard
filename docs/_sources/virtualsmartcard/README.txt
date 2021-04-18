@@ -302,7 +302,7 @@ Notes and References
 .. target-notes::
 
 .. _cyberflex-shell: https://github.com/henryk/cyberflex-shell
-.. _PCSC-lite: http://pcsclite.alioth.debian.org/
+.. _PCSC-lite: https://pcsclite.apdu.fr/
 .. _Python: http://www.python.org/
 .. _pyscard: http://pyscard.sourceforge.net/
 .. _PyCrypto: http://pycrypto.org/

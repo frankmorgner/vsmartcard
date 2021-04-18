@@ -9,7 +9,7 @@ Currently the Virtual Smart Card supports the following types of smart cards:
 - Electronic passport (ePass/MRTD) with support for BAC
 - Cryptoflex smart card (incomplete)
       
-The vpcd is a smart card reader driver for [PCSC-Lite](http://pcsclite.alioth.debian.org/) and the windows smart
+The vpcd is a smart card reader driver for [PCSC-Lite](https://pcsclite.apdu.fr/) and the windows smart
 card service. It allows smart card applications to access the vpicc through
 the PC/SC API.  By default vpcd opens slots for communication with multiple
 vpicc's on localhost on port 35963 and port 35964. But the |vpicc| does not
