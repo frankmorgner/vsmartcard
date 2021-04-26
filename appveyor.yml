@@ -5,7 +5,11 @@ platform:
 os: Visual Studio 2019
 
 install:
+ - set PATH=PATH=C:\Python36;C:\Python36\\Scripts;C:\\cygwin\\bin;%PATH%
+
  - date /T & time /T
+ - python --version
+
  - ps: >-
      If ($env:Platform -Match "x86") {
        $env:MSBUILD_PLATFORM="x86"
@@ -39,7 +43,6 @@ install:
  - pip install pyreadline
  - pip install pyscard
  - pip install pyinstaller
- - set PATH=C:\cygwin\bin;%PATH%
 
  # set Visual Studio 2019 build environment
  - set VSVER=19
