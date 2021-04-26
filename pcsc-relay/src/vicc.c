@@ -46,7 +46,7 @@ static int _vicc_connect(driver_data_t **driver_data)
 
     if (viccatr) {
         size_t i;
-        unsigned char *hex = viccatr;
+        char *hex = viccatr;
         unsigned char *bin = atr;
         atr_len = strlen(viccatr);
         if (atr_len % 2 != 0) {
