@@ -45,10 +45,7 @@ install:
  - pip install pyinstaller
 
  # set Visual Studio 2019 build environment
- - set VSVER=19
- - ps: $env:VSCOMNTOOLS=(Get-Content ("env:VS" + "$env:VSVER" + "0COMNTOOLS"))
- - echo "Using Visual Studio %VSVER%.0 at %VSCOMNTOOLS%"
- - call "%VSCOMNTOOLS%\..\..\VC\vcvarsall.bat" %VCVARS_PLATFORM%
+ - call "%ProgramFiles(x86)%/Microsoft Visual Studio/2019/Community/VC/Auxiliary/Build/vcvarsall.bat" %VCVARS_PLATFORM%
 
 build_script:
  - md %ARTIFACT%
