@@ -74,6 +74,6 @@ Notes and References
 
 .. _Tizen SDK: https://developer.tizen.org/development/tools/download
 .. _`install the appropriate SDK extensions and register as app developer`: https://developer.tizen.org/community/tip-tech/tizen-sdk-install-guide-certificate-extensions-included
-.. _Tizen Developers: Near Field Communication (NFC): https://developer.tizen.org/development/guides/native-application/connectivity-and-wireless/nfc
+.. _`Tizen Developers: Near Field Communication (NFC)`: https://developer.tizen.org/development/guides/native-application/connectivity-and-wireless/nfc
 .. _`Programming Guide: Accessory`: http://developer.samsung.com/html/techdoc/ProgrammingGuide_Accessory.pdf
 .. _Guidelines on Connecting a Gear S2 Device Using Wi-Fi: http://developer.samsung.com/html/techdoc/Guidelines_on_Connecting_GearS2_device_using_WiFi_151222.pdf
