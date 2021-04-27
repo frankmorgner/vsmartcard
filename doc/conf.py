@@ -36,6 +36,7 @@ needs_sphinx = '1.1'
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ["sphinx.ext.autosummary", "sphinxcontrib.programoutput", "sphinx.ext.inheritance_diagram", "sphinxcontrib.tikz", 'sphinxcontrib.bibtex']
 tikz_proc_suite = 'pdf2svg'
+bibtex_bibfiles = ['references.bib']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
