@@ -370,7 +370,7 @@ class Iso7816OS(SmartcardOS):
         self.mf.current = self.mf
 
 
-def loadMitMFromPath(path: str):
+def loadMitMFromPath(path):
     from importlib import import_module
     from pathlib import Path
     def onNth(tup,ind,func):
