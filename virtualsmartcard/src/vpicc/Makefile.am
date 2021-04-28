@@ -1,7 +1,6 @@
 bin_SCRIPTS = vicc
-CLEANFILES = $(bin_SCRIPTS)
+CLEANFILES = $(bin_SCRIPTS) $(dist_man1_MANS)
 EXTRA_DIST = vicc.in
-MAINTAINERCLEANFILES = $(dist_man1_MANS)
 
 dist_man1_MANS		= vicc.1
 
