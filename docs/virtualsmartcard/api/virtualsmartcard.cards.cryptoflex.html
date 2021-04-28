@@ -1,45 +1,29 @@
 <!DOCTYPE html>
 
-
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>cryptoflex Module &mdash; vsmartcard 2017-01-16 documentation</title>
-    
-    <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>cryptoflex Module &#8212; vsmartcard 2021-04-28 documentation</title>
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/bootswatch-3.3.4/flatly/bootstrap.min.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
-        VERSION:     '2017-01-16',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js"></script>
-    <script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
-    <script type="text/javascript" src="../../_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/jquery-1.11.0.min.js"></script>
+    <script src="../../_static/js/jquery-fix.js"></script>
+    <script src="../../_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+    <script src="../../_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="../../_static/chip.ico"/>
-    <link rel="top" title="vsmartcard 2017-01-16 documentation" href="../../index.html" />
-    <link rel="up" title="cards Package" href="virtualsmartcard.cards.html" />
-    <link rel="next" title="ePass Module" href="virtualsmartcard.cards.ePass.html" />
-    <link rel="prev" title="Relay Module" href="virtualsmartcard.cards.Relay.html" />
+    <link rel="search" title="Search" href="../../search.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
 
-  </head>
-  <body>
+  </head><body>
   
   <a href="https://github.com/frankmorgner/vsmartcard"
      class="visible-desktop hidden-xs"><img
@@ -90,8 +74,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../pcsc-relay/README.html">PC/SC Relay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../ccid/README.html">USB CCID Emulator</a></li>
 </ul>
-<ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="../api.html">Creating a Virtual Smart Card</a></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">Creating a Virtual Smart Card</a></li>
 </ul>
 </ul>
 </li>
@@ -114,14 +98,6 @@
             
               
                 
-  <li>
-    <a href="virtualsmartcard.cards.Relay.html" title="Previous Chapter: Relay Module"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; Relay Module</span>
-    </a>
-  </li>
-  <li>
-    <a href="virtualsmartcard.cards.ePass.html" title="Next Chapter: ePass Module"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">ePass Module &raquo;</span>
-    </a>
-  </li>
               
             
             
@@ -151,710 +127,675 @@
       
   <div class="section" id="cryptoflex-module">
 <h1>cryptoflex Module<a class="headerlink" href="#cryptoflex-module" title="Permalink to this headline">¶</a></h1>
-<p class="graphviz">
-<img src="../../_images/inheritance-d42052fb29a3802f517ea5fd6564e26a29987320.png" alt="Inheritance diagram of virtualsmartcard.cards.cryptoflex" usemap="#inheritance645263d8d9" class="inheritance"/>
+<div class="graphviz"><img src="../../_images/inheritance-7c76a7e8744cca7867d24d6422b52bf99bf0f715.png" alt="Inheritance diagram of virtualsmartcard.cards.cryptoflex" usemap="#inheritance645263d8d9" class="inheritance graphviz" /></div>
 <map id="inheritance645263d8d9" name="inheritance645263d8d9">
-<area shape="rect" id="node1" href="virtualsmartcard.SEutils.html#virtualsmartcard.SEutils.Security_Environment" title="virtualsmartcard.SEutils.Security_Environment" alt="" coords="6,80,172,93"/>
-<area shape="rect" id="node11" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSE" title="virtualsmartcard.cards.cryptoflex.CryptoflexSE" alt="" coords="203,80,372,93"/>
-<area shape="rect" id="node2" href="virtualsmartcard.SmartcardFilesystem.html#virtualsmartcard.SmartcardFilesystem.DF" title="Class for a dedicated file" alt="" coords="212,54,363,68"/>
-<area shape="rect" id="node4" href="virtualsmartcard.SmartcardFilesystem.html#virtualsmartcard.SmartcardFilesystem.MF" title="Class for a master file" alt="" coords="410,54,561,68"/>
-<area shape="rect" id="node3" href="virtualsmartcard.SmartcardFilesystem.html#virtualsmartcard.SmartcardFilesystem.File" title="Template class for a smartcard file." alt="" coords="13,54,165,68"/>
-<area shape="rect" id="node8" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF" title="virtualsmartcard.cards.cryptoflex.CryptoflexMF" alt="" coords="596,54,765,68"/>
-<area shape="rect" id="node5" href="virtualsmartcard.SmartcardSAM.html#virtualsmartcard.SmartcardSAM.SAM" title="This class is used to store the data needed by the SAM." alt="" coords="22,29,156,42"/>
-<area shape="rect" id="node10" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM" title="virtualsmartcard.cards.cryptoflex.CryptoflexSAM" alt="" coords="200,29,375,42"/>
-<area shape="rect" id="node6" href="virtualsmartcard.VirtualSmartcard.html#virtualsmartcard.VirtualSmartcard.Iso7816OS" title="virtualsmartcard.VirtualSmartcard.Iso7816OS" alt="" coords="206,3,369,16"/>
-<area shape="rect" id="node9" href="#virtualsmartcard.cards.cryptoflex.CryptoflexOS" title="virtualsmartcard.cards.cryptoflex.CryptoflexOS" alt="" coords="400,3,571,16"/>
-<area shape="rect" id="node7" href="virtualsmartcard.VirtualSmartcard.html#virtualsmartcard.VirtualSmartcard.SmartcardOS" title="Base class for a smart card OS" alt="" coords="3,3,175,16"/>
-</map>
-</p>
-<span class="target" id="module-virtualsmartcard.cards.cryptoflex"></span><dl class="class">
+<area shape="rect" id="node1" href="virtualsmartcard.SEutils.html#virtualsmartcard.SEutils.Security_Environment" target="_top" title="virtualsmartcard.SEutils.Security_Environment" alt="" coords="5,79,173,93"/>
+<area shape="rect" id="node11" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSE" target="_top" title="virtualsmartcard.cards.cryptoflex.CryptoflexSE" alt="" coords="204,79,372,93"/>
+<area shape="rect" id="node2" href="virtualsmartcard.SmartcardFilesystem.html#virtualsmartcard.SmartcardFilesystem.DF" target="_top" title="Class for a dedicated file" alt="" coords="212,54,364,67"/>
+<area shape="rect" id="node4" href="virtualsmartcard.SmartcardFilesystem.html#virtualsmartcard.SmartcardFilesystem.MF" target="_top" title="Class for a master file" alt="" coords="409,54,562,67"/>
+<area shape="rect" id="node3" href="virtualsmartcard.SmartcardFilesystem.html#virtualsmartcard.SmartcardFilesystem.File" target="_top" title="Template class for a smartcard file." alt="" coords="12,54,166,67"/>
+<area shape="rect" id="node8" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF" target="_top" title="virtualsmartcard.cards.cryptoflex.CryptoflexMF" alt="" coords="595,54,765,67"/>
+<area shape="rect" id="node5" href="virtualsmartcard.SmartcardSAM.html#virtualsmartcard.SmartcardSAM.SAM" target="_top" title="This class is used to store the data needed by the SAM." alt="" coords="20,28,158,41"/>
+<area shape="rect" id="node10" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM" target="_top" title="virtualsmartcard.cards.cryptoflex.CryptoflexSAM" alt="" coords="200,28,376,41"/>
+<area shape="rect" id="node6" href="virtualsmartcard.VirtualSmartcard.html#virtualsmartcard.VirtualSmartcard.Iso7816OS" target="_top" title="virtualsmartcard.VirtualSmartcard.Iso7816OS" alt="" coords="206,3,370,16"/>
+<area shape="rect" id="node9" href="#virtualsmartcard.cards.cryptoflex.CryptoflexOS" target="_top" title="virtualsmartcard.cards.cryptoflex.CryptoflexOS" alt="" coords="401,3,570,16"/>
+<area shape="rect" id="node7" href="virtualsmartcard.VirtualSmartcard.html#virtualsmartcard.VirtualSmartcard.SmartcardOS" target="_top" title="Base class for a smart card OS" alt="" coords="3,3,175,16"/>
+</map><span class="target" id="module-virtualsmartcard.cards.cryptoflex"></span><dl class="py class">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF">
-<em class="property">class </em><tt class="descclassname">virtualsmartcard.cards.cryptoflex.</tt><tt class="descname">CryptoflexMF</tt><big>(</big><em>filedescriptor=56</em>, <em>lifecycle=5</em>, <em>simpletlv_data=None</em>, <em>bertlv_data=None</em>, <em>dfname=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="virtualsmartcard.SmartcardFilesystem.html#virtualsmartcard.SmartcardFilesystem.MF" title="virtualsmartcard.SmartcardFilesystem.MF"><tt class="xref py py-class docutils literal"><span class="pre">virtualsmartcard.SmartcardFilesystem.MF</span></tt></a></p>
-<dl class="method">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">virtualsmartcard.cards.cryptoflex.</span></code><code class="sig-name descname"><span class="pre">CryptoflexMF</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filedescriptor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">56</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lifecycle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">simpletlv_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bertlv_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dfname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="virtualsmartcard.SmartcardFilesystem.html#virtualsmartcard.SmartcardFilesystem.MF" title="virtualsmartcard.SmartcardFilesystem.MF"><code class="xref py py-class docutils literal notranslate"><span class="pre">virtualsmartcard.SmartcardFilesystem.MF</span></code></a></p>
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF._selectFile">
-<tt class="descname">_selectFile</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF._selectFile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the file specified by &#8216;p1&#8217; and &#8216;data&#8217; from the select
+<code class="sig-name descname"><span class="pre">_selectFile</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF._selectFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the file specified by ‘p1’ and ‘data’ from the select
 file command APDU.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.append">
-<tt class="descname">append</tt><big>(</big><em>file</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.append" title="Permalink to this definition">¶</a></dt>
-<dd><p>Appends &#8216;file&#8217; to the content of the DF.</p>
+<code class="sig-name descname"><span class="pre">append</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.append" title="Permalink to this definition">¶</a></dt>
+<dd><p>Appends ‘file’ to the content of the DF.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.appendRecord">
-<tt class="descname">appendRecord</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.appendRecord" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function for instruction 0xe2. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
-integers and &#8216;data&#8217; as binary string.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the status bytes as two byte long integer and the response
-data as binary string.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.appendrecord">
-<tt class="descname">appendrecord</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.appendrecord" title="Permalink to this definition">¶</a></dt>
-<dd><p>Only a template, will raise an error.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.bertlv_data">
-<tt class="descname">bertlv_data</tt><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.bertlv_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>list of (tag, length, value)-tuples of BER-TLV coded data objects (encrypted)</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.content">
-<tt class="descname">content</tt><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.content" title="Permalink to this definition">¶</a></dt>
-<dd><p>list of files of the DF</p>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.create">
-<em class="property">static </em><tt class="descname">create</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.create" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.createFile">
-<tt class="descname">createFile</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.createFile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function for instruction 0xe0. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
-integers and &#8216;data&#8217; as binary string.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the status bytes as two byte long integer and the response
-data as binary string.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.current">
-<tt class="descname">current</tt><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.current" title="Permalink to this definition">¶</a></dt>
-<dd><p>the currently selected file</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.currentDF">
-<tt class="descname">currentDF</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.currentDF" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the current DF.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.currentEF">
-<tt class="descname">currentEF</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.currentEF" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the current EF or None if not available.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.data">
-<tt class="descname">data</tt><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.data" title="Permalink to this definition">¶</a></dt>
-<dd><p>unknown</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.dataObjectHandlingDecodeEncapsulated">
-<tt class="descname">dataObjectHandlingDecodeEncapsulated</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.dataObjectHandlingDecodeEncapsulated" title="Permalink to this definition">¶</a></dt>
-<dd><p>Decodes &#8216;p1&#8217;, &#8216;p2&#8217; and &#8216;data&#8217; from a data object handling command (i.
-e. get/put data) with <em>odd</em> instruction code.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the specified file, True if the following list regards
-SIMPLE-TLV data objects False otherwise and a list of
-(tag, length, value)-tuples.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.dataObjectHandlingDecodePlain">
-<tt class="descname">dataObjectHandlingDecodePlain</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.dataObjectHandlingDecodePlain" title="Permalink to this definition">¶</a></dt>
-<dd><p>Decodes &#8216;p1&#8217;, &#8216;p2&#8217; and &#8216;data&#8217; from a data object handling command (i.
-e. get/put data) with <em>even</em> instruction code.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the specified file, True if the following list regards
-SIMPLE-TLV data objects False otherwise and a list of
-(tag, length, value)-tuples.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.dataUnitsDecodeEncapsulated">
-<tt class="descname">dataUnitsDecodeEncapsulated</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.dataUnitsDecodeEncapsulated" title="Permalink to this definition">¶</a></dt>
-<dd><p>Decodes &#8216;p1&#8217;, &#8216;p2&#8217; and &#8216;data&#8217; from a data unit command (i. e.
-read/write/update/search/erase binary) with <em>odd</em> instruction code.</p>
-<dl class="docutils">
-<dt>:returns the specified TransparentStructureEF, a list of offsets and a</dt>
-<dd>list of data strings.</dd>
+<code class="sig-name descname"><span class="pre">appendRecord</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.appendRecord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for instruction 0xe2. Takes the parameter bytes ‘p1’, ‘p2’ as
+integers and ‘data’ as binary string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the status bytes as two byte long integer and the response
+data as binary string.</p>
+</dd>
 </dl>
 </dd></dl>
 
-<dl class="method">
-<dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.dataUnitsDecodePlain">
-<tt class="descname">dataUnitsDecodePlain</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.dataUnitsDecodePlain" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.decrypt">
-<tt class="descname">decrypt</tt><big>(</big><em>path</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.decrypt" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.deleteFile">
-<tt class="descname">deleteFile</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.deleteFile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function for instruction 0xe4. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
-integers and &#8216;data&#8217; as binary string.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the status bytes as two byte long integer and the response
-data as binary string.</td>
-</tr>
-</tbody>
-</table>
+<dl class="py method">
+<dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.appendrecord">
+<code class="sig-name descname"><span class="pre">appendrecord</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">argz</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.appendrecord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
+<dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.bertlv_data">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">bertlv_data</span></code><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.bertlv_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of (tag, length, value)-tuples of BER-TLV coded data objects (encrypted)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.content">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">content</span></code><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.content" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of files of the DF</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.create">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">create</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates and returns a list of files according to the parameters of a
+create file command.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.createFile">
+<code class="sig-name descname"><span class="pre">createFile</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.createFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for instruction 0xe0. Takes the parameter bytes ‘p1’, ‘p2’ as
+integers and ‘data’ as binary string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the status bytes as two byte long integer and the response
+data as binary string.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.current">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">current</span></code><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.current" title="Permalink to this definition">¶</a></dt>
+<dd><p>the currently selected file</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.currentDF">
+<code class="sig-name descname"><span class="pre">currentDF</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.currentDF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the current DF.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.currentEF">
+<code class="sig-name descname"><span class="pre">currentEF</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.currentEF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the current EF or None if not available.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.data">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">data</span></code><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.data" title="Permalink to this definition">¶</a></dt>
+<dd><p>unknown</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.dataObjectHandlingDecodeEncapsulated">
+<code class="sig-name descname"><span class="pre">dataObjectHandlingDecodeEncapsulated</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.dataObjectHandlingDecodeEncapsulated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decodes ‘p1’, ‘p2’ and ‘data’ from a data object handling command (i.
+e. get/put data) with <em>odd</em> instruction code.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the specified file, True if the following list regards
+SIMPLE-TLV data objects False otherwise and a list of
+(tag, length, value)-tuples.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.dataObjectHandlingDecodePlain">
+<code class="sig-name descname"><span class="pre">dataObjectHandlingDecodePlain</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.dataObjectHandlingDecodePlain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decodes ‘p1’, ‘p2’ and ‘data’ from a data object handling command (i.
+e. get/put data) with <em>even</em> instruction code.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the specified file, True if the following list regards
+SIMPLE-TLV data objects False otherwise and a list of
+(tag, length, value)-tuples.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.dataUnitsDecodeEncapsulated">
+<code class="sig-name descname"><span class="pre">dataUnitsDecodeEncapsulated</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.dataUnitsDecodeEncapsulated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decodes ‘p1’, ‘p2’ and ‘data’ from a data unit command (i. e.
+read/write/update/search/erase binary) with <em>odd</em> instruction code.</p>
+<dl class="simple">
+<dt>:returns the specified TransparentStructureEF, a list of offsets and a</dt><dd><p>list of data strings.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.dataUnitsDecodePlain">
+<code class="sig-name descname"><span class="pre">dataUnitsDecodePlain</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.dataUnitsDecodePlain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decodes ‘p1’, ‘p2’ and ‘data’ from a data unit command (i. e.
+read/write/update/search/erase binary) with <em>even</em> instruction code.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the specified TransparentStructureEF, a list of offsets and a
+list of data strings.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.decrypt">
+<code class="sig-name descname"><span class="pre">decrypt</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.decrypt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.deleteFile">
+<code class="sig-name descname"><span class="pre">deleteFile</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.deleteFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for instruction 0xe4. Takes the parameter bytes ‘p1’, ‘p2’ as
+integers and ‘data’ as binary string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the status bytes as two byte long integer and the response
+data as binary string.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.dfname">
-<tt class="descname">dfname</tt><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.dfname" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">dfname</span></code><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.dfname" title="Permalink to this definition">¶</a></dt>
 <dd><p>string with up to 16 bytes. DF name,which can also be used as applicationidentifier.</p>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.encodeFileControlParameter">
-<em class="property">static </em><tt class="descname">encodeFileControlParameter</tt><big>(</big><em>file</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.encodeFileControlParameter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a string of TLV-coded file control information of &#8216;file&#8217;. Note:
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">encodeFileControlParameter</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.encodeFileControlParameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a string of TLV-coded file control information of ‘file’. Note:
 The result is not prepended with tag and length for neither TCP, FMD
 nor FCI template.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.encrypt">
-<tt class="descname">encrypt</tt><big>(</big><em>path</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.encrypt" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">encrypt</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.encrypt" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.eraseBinaryEncapsulated">
-<tt class="descname">eraseBinaryEncapsulated</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.eraseBinaryEncapsulated" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function for instruction 0x0f. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
-integers and &#8216;data&#8217; as binary string.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the status bytes as two byte long integer and the response
-data as binary string.</td>
-</tr>
-</tbody>
-</table>
+<code class="sig-name descname"><span class="pre">eraseBinaryEncapsulated</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.eraseBinaryEncapsulated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for instruction 0x0f. Takes the parameter bytes ‘p1’, ‘p2’ as
+integers and ‘data’ as binary string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the status bytes as two byte long integer and the response
+data as binary string.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.eraseBinaryPlain">
-<tt class="descname">eraseBinaryPlain</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.eraseBinaryPlain" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function for instruction 0x0e. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
-integers and &#8216;data&#8217; as binary string.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the status bytes as two byte long integer and the response
-data as binary string.</td>
-</tr>
-</tbody>
-</table>
+<code class="sig-name descname"><span class="pre">eraseBinaryPlain</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.eraseBinaryPlain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for instruction 0x0e. Takes the parameter bytes ‘p1’, ‘p2’ as
+integers and ‘data’ as binary string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the status bytes as two byte long integer and the response
+data as binary string.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.eraseRecord">
-<tt class="descname">eraseRecord</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.eraseRecord" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function for instruction 0x0c. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
-integers and &#8216;data&#8217; as binary string.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the status bytes as two byte long integer and the response
-data as binary string.</td>
-</tr>
-</tbody>
-</table>
+<code class="sig-name descname"><span class="pre">eraseRecord</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.eraseRecord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for instruction 0x0c. Takes the parameter bytes ‘p1’, ‘p2’ as
+integers and ‘data’ as binary string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the status bytes as two byte long integer and the response
+data as binary string.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.erasebinary">
-<tt class="descname">erasebinary</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.erasebinary" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">erasebinary</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">argz</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.erasebinary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.fid">
-<tt class="descname">fid</tt><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.fid" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">fid</span></code><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.fid" title="Permalink to this definition">¶</a></dt>
 <dd><p>file identifier</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.filedescriptor">
-<tt class="descname">filedescriptor</tt><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.filedescriptor" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">filedescriptor</span></code><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.filedescriptor" title="Permalink to this definition">¶</a></dt>
 <dd><p>file descriptor byte</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.firstSFT">
-<tt class="descname">firstSFT</tt><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.firstSFT" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">firstSFT</span></code><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.firstSFT" title="Permalink to this definition">¶</a></dt>
 <dd><p>string of length 1. The firstsoftware function table from thehistorical bytes.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.getDataEncapsulated">
-<tt class="descname">getDataEncapsulated</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.getDataEncapsulated" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function for instruction 0xcb. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
-integers and &#8216;data&#8217; as binary string.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the status bytes as two byte long integer and the response
-data as binary string.</td>
-</tr>
-</tbody>
-</table>
+<code class="sig-name descname"><span class="pre">getDataEncapsulated</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.getDataEncapsulated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for instruction 0xcb. Takes the parameter bytes ‘p1’, ‘p2’ as
+integers and ‘data’ as binary string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the status bytes as two byte long integer and the response
+data as binary string.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.getDataPlain">
-<tt class="descname">getDataPlain</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.getDataPlain" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function for instruction 0xca. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
-integers and &#8216;data&#8217; as binary string.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the status bytes as two byte long integer and the response
-data as binary string.</td>
-</tr>
-</tbody>
-</table>
+<code class="sig-name descname"><span class="pre">getDataPlain</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.getDataPlain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for instruction 0xca. Takes the parameter bytes ‘p1’, ‘p2’ as
+integers and ‘data’ as binary string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the status bytes as two byte long integer and the response
+data as binary string.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
+<dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.getMF">
+<code class="sig-name descname"><span class="pre">getMF</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.getMF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return MF of the card that contains this file</p>
+</dd></dl>
+
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.getdata">
-<tt class="descname">getdata</tt><big>(</big><em>isSimpleTlv</em>, <em>requestedTL</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.getdata" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a string of either the file&#8217;s BER-TLV or the file&#8217;s SIMPLE-TLV
-coded data objects depending on the bool &#8216;isSimpleTlv&#8217;. &#8216;requestedTL&#8217;
+<code class="sig-name descname"><span class="pre">getdata</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isSimpleTlv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">requestedTL</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.getdata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a string of either the file’s BER-TLV or the file’s SIMPLE-TLV
+coded data objects depending on the bool ‘isSimpleTlv’. ‘requestedTL’
 is a list of (tag, length)-tuples that specify which tags should be
 returned in what size.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.getpath">
-<tt class="descname">getpath</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.getpath" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the path to this file beginning with the MF&#8217;s fid.</p>
+<code class="sig-name descname"><span class="pre">getpath</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.getpath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the path to this file beginning with the MF’s fid.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.lifecycle">
-<tt class="descname">lifecycle</tt><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.lifecycle" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">lifecycle</span></code><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.lifecycle" title="Permalink to this definition">¶</a></dt>
 <dd><p>life cycle byte</p>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.makeFirstSoftwareFunctionTable">
-<em class="property">static </em><tt class="descname">makeFirstSoftwareFunctionTable</tt><big>(</big><em>DFSelectionByFullDFName=True</em>, <em>DFSelectionByPartialDFName=True</em>, <em>DFSelectionByPath=True</em>, <em>DFSelectionByFID=True</em>, <em>DFSelectionByApplication_implicite=True</em>, <em>ShortFIDSupported=True</em>, <em>RecordNumberSupported=True</em>, <em>RecordIdentifierSupported=True</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.makeFirstSoftwareFunctionTable" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">makeFirstSoftwareFunctionTable</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">DFSelectionByFullDFName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">DFSelectionByPartialDFName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">DFSelectionByPath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">DFSelectionByFID</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">DFSelectionByApplication_implicite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ShortFIDSupported</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">RecordNumberSupported</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">RecordIdentifierSupported</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.makeFirstSoftwareFunctionTable" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a byte according to the first software function table from the
 historical bytes of the card capabilities.</p>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.makeSecondSoftwareFunctionTable">
-<em class="property">static </em><tt class="descname">makeSecondSoftwareFunctionTable</tt><big>(</big><em>DCB=1</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.makeSecondSoftwareFunctionTable" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">makeSecondSoftwareFunctionTable</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">DCB</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.makeSecondSoftwareFunctionTable" title="Permalink to this definition">¶</a></dt>
 <dd><p>The second software function table from the historical bytes contains
 the data coding byte.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
+<dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.named_dfs">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">named_dfs</span></code><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.named_dfs" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of DFs with dfname specified</p>
+</dd></dl>
+
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.parent">
-<tt class="descname">parent</tt><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.parent" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">parent</span></code><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.parent" title="Permalink to this definition">¶</a></dt>
 <dd><p>parent DF</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.putDataEncapsulated">
-<tt class="descname">putDataEncapsulated</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.putDataEncapsulated" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function for instruction 0xdb. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
-integers and &#8216;data&#8217; as binary string.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the status bytes as two byte long integer and the response
-data as binary string.</td>
-</tr>
-</tbody>
-</table>
+<code class="sig-name descname"><span class="pre">putDataEncapsulated</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.putDataEncapsulated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for instruction 0xdb. Takes the parameter bytes ‘p1’, ‘p2’ as
+integers and ‘data’ as binary string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the status bytes as two byte long integer and the response
+data as binary string.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.putDataPlain">
-<tt class="descname">putDataPlain</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.putDataPlain" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function for instruction 0xda. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
-integers and &#8216;data&#8217; as binary string.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the status bytes as two byte long integer and the response
-data as binary string.</td>
-</tr>
-</tbody>
-</table>
+<code class="sig-name descname"><span class="pre">putDataPlain</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.putDataPlain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for instruction 0xda. Takes the parameter bytes ‘p1’, ‘p2’ as
+integers and ‘data’ as binary string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the status bytes as two byte long integer and the response
+data as binary string.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.putdata">
-<tt class="descname">putdata</tt><big>(</big><em>isSimpleTlv</em>, <em>newtlvlist</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.putdata" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sets either the file&#8217;s BER-TLV or the file&#8217;s SIMPLE-TLV coded data
-objects depending on the bool &#8216;isSimpleTlv&#8217;. &#8216;newtlvlist&#8217; is a list of
+<code class="sig-name descname"><span class="pre">putdata</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isSimpleTlv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">newtlvlist</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.putdata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets either the file’s BER-TLV or the file’s SIMPLE-TLV coded data
+objects depending on the bool ‘isSimpleTlv’. ‘newtlvlist’ is a list of
 (tag, length, value)-tuples of new data.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.readBinaryEncapsulated">
-<tt class="descname">readBinaryEncapsulated</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.readBinaryEncapsulated" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function for instruction 0xb1. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
-integers and &#8216;data&#8217; as binary string.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the status bytes as two byte long integer and the response
-data as binary string.</td>
-</tr>
-</tbody>
-</table>
+<code class="sig-name descname"><span class="pre">readBinaryEncapsulated</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.readBinaryEncapsulated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for instruction 0xb1. Takes the parameter bytes ‘p1’, ‘p2’ as
+integers and ‘data’ as binary string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the status bytes as two byte long integer and the response
+data as binary string.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.readBinaryPlain">
-<tt class="descname">readBinaryPlain</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.readBinaryPlain" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function for instruction 0xb0. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
-integers and &#8216;data&#8217; as binary string.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the status bytes as two byte long integer and the response
-data as binary string.</td>
-</tr>
-</tbody>
-</table>
+<code class="sig-name descname"><span class="pre">readBinaryPlain</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.readBinaryPlain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for instruction 0xb0. Takes the parameter bytes ‘p1’, ‘p2’ as
+integers and ‘data’ as binary string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the status bytes as two byte long integer and the response
+data as binary string.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.readRecordEncapsulated">
-<tt class="descname">readRecordEncapsulated</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.readRecordEncapsulated" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function for instruction 0xb3. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
-integers and &#8216;data&#8217; as binary string.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the status bytes as two byte long integer and the response
-data as binary string.</td>
-</tr>
-</tbody>
-</table>
+<code class="sig-name descname"><span class="pre">readRecordEncapsulated</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.readRecordEncapsulated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for instruction 0xb3. Takes the parameter bytes ‘p1’, ‘p2’ as
+integers and ‘data’ as binary string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the status bytes as two byte long integer and the response
+data as binary string.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.readRecordPlain">
-<tt class="descname">readRecordPlain</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.readRecordPlain" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function for instruction 0xb2. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
-integers and &#8216;data&#8217; as binary string.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the status bytes as two byte long integer and the response
-data as binary string.</td>
-</tr>
-</tbody>
-</table>
+<code class="sig-name descname"><span class="pre">readRecordPlain</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.readRecordPlain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for instruction 0xb2. Takes the parameter bytes ‘p1’, ‘p2’ as
+integers and ‘data’ as binary string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the status bytes as two byte long integer and the response
+data as binary string.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.readbinary">
-<tt class="descname">readbinary</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.readbinary" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">readbinary</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">argz</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.readbinary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.readrecord">
-<tt class="descname">readrecord</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.readrecord" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">readrecord</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">argz</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.readrecord" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.recordHandlingDecode">
-<tt class="descname">recordHandlingDecode</tt><big>(</big><em>p1</em>, <em>p2</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.recordHandlingDecode" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.remove">
-<tt class="descname">remove</tt><big>(</big><em>file</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.remove" title="Permalink to this definition">¶</a></dt>
-<dd><p>Removes &#8216;file&#8217; from the content of the DF</p>
+<code class="sig-name descname"><span class="pre">recordHandlingDecode</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.recordHandlingDecode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decodes ‘p1’ and ‘p2’ from a record handling command (i. e.
+read/write/update/append/search/erase record).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the specified RecordStructureEF, the number or identifier of
+the record and a reference, that specifies which record to select
+(i. e. the last 3 bits of ‘p1’).</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
+<dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.remove">
+<code class="sig-name descname"><span class="pre">remove</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.remove" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes ‘file’ from the content of the DF</p>
+</dd></dl>
+
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.searchBinaryEncapsulated">
-<tt class="descname">searchBinaryEncapsulated</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.searchBinaryEncapsulated" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">searchBinaryEncapsulated</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.searchBinaryEncapsulated" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.searchBinaryPlain">
-<tt class="descname">searchBinaryPlain</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.searchBinaryPlain" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">searchBinaryPlain</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.searchBinaryPlain" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.secondSFT">
-<tt class="descname">secondSFT</tt><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.secondSFT" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">secondSFT</span></code><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.secondSFT" title="Permalink to this definition">¶</a></dt>
 <dd><p>string of length 1. The secondsoftware function table from thehistorical bytes.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.select">
-<tt class="descname">select</tt><big>(</big><em>attribute</em>, <em>value</em>, <em>reference=0</em>, <em>index_current=0</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.select" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the first file of the DF, that has the &#8216;attribute&#8217; with the
-specified &#8216;value&#8217;. For partial DF name selection you must specify the
-first/last/next or previous occurence with &#8216;reference&#8217; and the index of
-the current file &#8216;index_current&#8217; (-1 for None).</p>
+<code class="sig-name descname"><span class="pre">select</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attribute</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_current</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.select" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the first file of the DF, that has the ‘attribute’ with the
+specified ‘value’. For partial DF name selection you must specify the
+first/last/next or previous occurence with ‘reference’ and the index of
+the current file ‘index_current’ (-1 for None).</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.selectFile">
-<tt class="descname">selectFile</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.selectFile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function for instruction 0xa4. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
-integers and &#8216;data&#8217; as binary string. Returns the status bytes as two
+<code class="sig-name descname"><span class="pre">selectFile</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.selectFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for instruction 0xa4. Takes the parameter bytes ‘p1’, ‘p2’ as
+integers and ‘data’ as binary string. Returns the status bytes as two
 byte long integer and the response data as binary string.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.simpletlv_data">
-<tt class="descname">simpletlv_data</tt><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.simpletlv_data" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">simpletlv_data</span></code><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.simpletlv_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>list of (tag, length, value)-tuples of SIMPLE-TLV coded data objects (encrypted)</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.updateBinaryEncapsulated">
-<tt class="descname">updateBinaryEncapsulated</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.updateBinaryEncapsulated" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function for instruction 0xd7. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
-integers and &#8216;data&#8217; as binary string.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the status bytes as two byte long integer and the response
-data as binary string.</td>
-</tr>
-</tbody>
-</table>
+<code class="sig-name descname"><span class="pre">updateBinaryEncapsulated</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.updateBinaryEncapsulated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for instruction 0xd7. Takes the parameter bytes ‘p1’, ‘p2’ as
+integers and ‘data’ as binary string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the status bytes as two byte long integer and the response
+data as binary string.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.updateBinaryPlain">
-<tt class="descname">updateBinaryPlain</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.updateBinaryPlain" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function for instruction 0xd6. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
-integers and &#8216;data&#8217; as binary string.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the status bytes as two byte long integer and the response
-data as binary string.</td>
-</tr>
-</tbody>
-</table>
+<code class="sig-name descname"><span class="pre">updateBinaryPlain</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.updateBinaryPlain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for instruction 0xd6. Takes the parameter bytes ‘p1’, ‘p2’ as
+integers and ‘data’ as binary string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the status bytes as two byte long integer and the response
+data as binary string.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.updateRecordEncapsulated">
-<tt class="descname">updateRecordEncapsulated</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.updateRecordEncapsulated" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function for instruction 0xdd. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
-integers and &#8216;data&#8217; as binary string.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the status bytes as two byte long integer and the response
-data as binary string.</td>
-</tr>
-</tbody>
-</table>
+<code class="sig-name descname"><span class="pre">updateRecordEncapsulated</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.updateRecordEncapsulated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for instruction 0xdd. Takes the parameter bytes ‘p1’, ‘p2’ as
+integers and ‘data’ as binary string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the status bytes as two byte long integer and the response
+data as binary string.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.updateRecordPlain">
-<tt class="descname">updateRecordPlain</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.updateRecordPlain" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function for instruction 0xdc. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
-integers and &#8216;data&#8217; as binary string.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the status bytes as two byte long integer and the response
-data as binary string.</td>
-</tr>
-</tbody>
-</table>
+<code class="sig-name descname"><span class="pre">updateRecordPlain</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.updateRecordPlain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for instruction 0xdc. Takes the parameter bytes ‘p1’, ‘p2’ as
+integers and ‘data’ as binary string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the status bytes as two byte long integer and the response
+data as binary string.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.updatebinary">
-<tt class="descname">updatebinary</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.updatebinary" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">updatebinary</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">argz</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.updatebinary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.updaterecord">
-<tt class="descname">updaterecord</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.updaterecord" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">updaterecord</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">argz</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.updaterecord" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.writeBinaryEncapsulated">
-<tt class="descname">writeBinaryEncapsulated</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.writeBinaryEncapsulated" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function for instruction 0xd1. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
-integers and &#8216;data&#8217; as binary string. Returns the status bytes as two
+<code class="sig-name descname"><span class="pre">writeBinaryEncapsulated</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.writeBinaryEncapsulated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for instruction 0xd1. Takes the parameter bytes ‘p1’, ‘p2’ as
+integers and ‘data’ as binary string. Returns the status bytes as two
 byte long integer and the response data as binary string.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.writeBinaryPlain">
-<tt class="descname">writeBinaryPlain</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.writeBinaryPlain" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function for instruction 0xd0. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
-integers and &#8216;data&#8217; as binary string.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the status bytes as two byte long integer and the response
-data as binary string.</td>
-</tr>
-</tbody>
-</table>
+<code class="sig-name descname"><span class="pre">writeBinaryPlain</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.writeBinaryPlain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for instruction 0xd0. Takes the parameter bytes ‘p1’, ‘p2’ as
+integers and ‘data’ as binary string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the status bytes as two byte long integer and the response
+data as binary string.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.writeRecord">
-<tt class="descname">writeRecord</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.writeRecord" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function for instruction 0xd2. Takes the parameter bytes &#8216;p1&#8217;, &#8216;p2&#8217; as
-integers and &#8216;data&#8217; as binary string.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the status bytes as two byte long integer and the response
-data as binary string.</td>
-</tr>
-</tbody>
-</table>
+<code class="sig-name descname"><span class="pre">writeRecord</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.writeRecord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for instruction 0xd2. Takes the parameter bytes ‘p1’, ‘p2’ as
+integers and ‘data’ as binary string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the status bytes as two byte long integer and the response
+data as binary string.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.writebinary">
-<tt class="descname">writebinary</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.writebinary" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">writebinary</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">argz</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.writebinary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexMF.writerecord">
-<tt class="descname">writerecord</tt><big>(</big><em>*argz</em>, <em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.writerecord" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">writerecord</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">argz</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF.writerecord" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only a template, will raise an error.</p>
 </dd></dl>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexOS">
-<em class="property">class </em><tt class="descclassname">virtualsmartcard.cards.cryptoflex.</tt><tt class="descname">CryptoflexOS</tt><big>(</big><em>mf</em>, <em>sam</em>, <em>ins2handler=None</em>, <em>maxle=256</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexOS" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="virtualsmartcard.VirtualSmartcard.html#virtualsmartcard.VirtualSmartcard.Iso7816OS" title="virtualsmartcard.VirtualSmartcard.Iso7816OS"><tt class="xref py py-class docutils literal"><span class="pre">virtualsmartcard.VirtualSmartcard.Iso7816OS</span></tt></a></p>
-<dl class="attribute">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">virtualsmartcard.cards.cryptoflex.</span></code><code class="sig-name descname"><span class="pre">CryptoflexOS</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ins2handler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexOS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="virtualsmartcard.VirtualSmartcard.html#virtualsmartcard.VirtualSmartcard.Iso7816OS" title="virtualsmartcard.VirtualSmartcard.Iso7816OS"><code class="xref py py-class docutils literal notranslate"><span class="pre">virtualsmartcard.VirtualSmartcard.Iso7816OS</span></code></a></p>
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexOS.SAM">
-<tt class="descname">SAM</tt><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexOS.SAM" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">SAM</span></code><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexOS.SAM" title="Permalink to this definition">¶</a></dt>
 <dd><p>secure access module</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexOS.execute">
-<tt class="descname">execute</tt><big>(</big><em>msg</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexOS.execute" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">execute</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexOS.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns response to the given APDU as string of characters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>msg</strong> – the APDU as string of characters</p>
+</dd>
+</dl>
+</dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexOS.formatResult">
-<tt class="descname">formatResult</tt><big>(</big><em>ins</em>, <em>le</em>, <em>data</em>, <em>sw</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexOS.formatResult" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">formatResult</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">le</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sw</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexOS.formatResult" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexOS.getATR">
-<tt class="descname">getATR</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexOS.getATR" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">getATR</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexOS.getATR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the ATR of the card as string of characters</p>
+</dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexOS.getResponse">
-<tt class="descname">getResponse</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexOS.getResponse" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">getResponse</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexOS.getResponse" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexOS.makeATR">
-<em class="property">static </em><tt class="descname">makeATR</tt><big>(</big><em>**args</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexOS.makeATR" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">makeATR</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexOS.makeATR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate Answer to Reset (ATR) and returns the bitstring.</p>
 <blockquote>
-<div><ul>
-<li><dl class="first docutils">
-<dt>directConvention (bool): Whether to use direct convention or</dt>
-<dd><p class="first last">inverse convention.</p>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>directConvention (bool): Whether to use direct convention or</dt><dd><p>inverse convention.</p>
 </dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt>TAi, TBi, TCi (optional): Value between 0 and 0xff. Interface</dt>
-<dd><p class="first last">Characters (for meaning see ISO 7816-3). Note that
+<li><dl class="simple">
+<dt>TAi, TBi, TCi (optional): Value between 0 and 0xff. Interface</dt><dd><p>Characters (for meaning see ISO 7816-3). Note that
 if no transmission protocol is given, it is
 automatically selected with T=max{j-1|TAj in args
 OR TBj in args OR TCj in args}.</p>
 </dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt>T (optional): Value between 0 and 15. Transmission Protocol.</dt>
-<dd><p class="first last">Note that if T is set, TAi/TBi/TCi for i&gt;T are
+<li><dl class="simple">
+<dt>T (optional): Value between 0 and 15. Transmission Protocol.</dt><dd><p>Note that if T is set, TAi/TBi/TCi for i&gt;T are
 omitted.</p>
 </dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt>histChars (optional): Bitstring with 0 &lt;= len(histChars) &lt;= 15.</dt>
-<dd><p class="first last">Historical Characters T1 to T15 (for
+<li><dl class="simple">
+<dt>histChars (optional): Bitstring with 0 &lt;= len(histChars) &lt;= 15.</dt><dd><p>Historical Characters T1 to T15 (for
 meaning see ISO 7816-4).</p>
 </dd>
 </dl>
@@ -864,334 +805,328 @@ meaning see ISO 7816-4).</p>
 <p>T0, TDi and TCK are automatically calculated.</p>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexOS.makeThirdSoftwareFunctionTable">
-<em class="property">static </em><tt class="descname">makeThirdSoftwareFunctionTable</tt><big>(</big><em>commandChainging=False</em>, <em>extendedLe=False</em>, <em>assignLogicalChannel=0</em>, <em>maximumChannels=0</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexOS.makeThirdSoftwareFunctionTable" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">makeThirdSoftwareFunctionTable</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">commandChainging</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extendedLe</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assignLogicalChannel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximumChannels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexOS.makeThirdSoftwareFunctionTable" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a byte according to the third software function table from the
 historical bytes of the card capabilities.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexOS.mf">
-<tt class="descname">mf</tt><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexOS.mf" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">mf</span></code><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexOS.mf" title="Permalink to this definition">¶</a></dt>
 <dd><p>master file</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexOS.powerDown">
-<tt class="descname">powerDown</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexOS.powerDown" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">powerDown</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexOS.powerDown" title="Permalink to this definition">¶</a></dt>
 <dd><p>Powers down the card</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexOS.powerUp">
-<tt class="descname">powerUp</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexOS.powerUp" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">powerUp</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexOS.powerUp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Powers up the card</p>
+</dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexOS.reset">
-<tt class="descname">reset</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexOS.reset" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">reset</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexOS.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs a warm reset of the card (no power down)</p>
+</dd></dl>
 
-<dl class="staticmethod">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexOS.seekable">
-<em class="property">static </em><tt class="descname">seekable</tt><big>(</big><em>ins</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexOS.seekable" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">seekable</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ins</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexOS.seekable" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexSAM">
-<em class="property">class </em><tt class="descclassname">virtualsmartcard.cards.cryptoflex.</tt><tt class="descname">CryptoflexSAM</tt><big>(</big><em>mf=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="virtualsmartcard.SmartcardSAM.html#virtualsmartcard.SmartcardSAM.SAM" title="virtualsmartcard.SmartcardSAM.SAM"><tt class="xref py py-class docutils literal"><span class="pre">virtualsmartcard.SmartcardSAM.SAM</span></tt></a></p>
-<dl class="method">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">virtualsmartcard.cards.cryptoflex.</span></code><code class="sig-name descname"><span class="pre">CryptoflexSAM</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="virtualsmartcard.SmartcardSAM.html#virtualsmartcard.SmartcardSAM.SAM" title="virtualsmartcard.SmartcardSAM.SAM"><code class="xref py py-class docutils literal notranslate"><span class="pre">virtualsmartcard.SmartcardSAM.SAM</span></code></a></p>
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexSAM.FSdecrypt">
-<tt class="descname">FSdecrypt</tt><big>(</big><em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.FSdecrypt" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">FSdecrypt</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.FSdecrypt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decrypt the given data, using the parameters stored in the SAM.
 Right now we do not encrypt the data. In memory encryption might or
 might not be added in a future version.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexSAM.FSencrypt">
-<tt class="descname">FSencrypt</tt><big>(</big><em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.FSencrypt" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">FSencrypt</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.FSencrypt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Encrypt the given data, using the parameters stored in the SAM.
 Right now we do not encrypt the data. In memory encryption might or
 might not be added in a future version.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexSAM._get_referenced_key">
-<tt class="descname">_get_referenced_key</tt><big>(</big><em>p1</em>, <em>p2</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM._get_referenced_key" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">_get_referenced_key</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM._get_referenced_key" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method returns the key specified by the p2 parameter. The key may
 be stored on the cards filesystem.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>p1</strong> &#8211; Specifies the algorithm to use.</li>
-<li><strong>p2</strong> &#8211; <p>Specifies a reference to the key to be used for encryption.</p>
-<table border="1" class="docutils">
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p1</strong> – Specifies the algorithm to use.</p></li>
+<li><p><strong>p2</strong> – <p>Specifies a reference to the key to be used for encryption.</p>
+<table class="docutils align-default">
 <colgroup>
-<col width="3%" />
-<col width="3%" />
-<col width="3%" />
-<col width="3%" />
-<col width="3%" />
-<col width="3%" />
-<col width="3%" />
-<col width="3%" />
-<col width="73%" />
+<col style="width: 3%" />
+<col style="width: 3%" />
+<col style="width: 3%" />
+<col style="width: 3%" />
+<col style="width: 3%" />
+<col style="width: 3%" />
+<col style="width: 3%" />
+<col style="width: 3%" />
+<col style="width: 73%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">b8</th>
-<th class="head">b7</th>
-<th class="head">b6</th>
-<th class="head">b5</th>
-<th class="head">b4</th>
-<th class="head">b3</th>
-<th class="head">b2</th>
-<th class="head">b1</th>
-<th class="head">Meaning</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>b8</p></th>
+<th class="head"><p>b7</p></th>
+<th class="head"><p>b6</p></th>
+<th class="head"><p>b5</p></th>
+<th class="head"><p>b4</p></th>
+<th class="head"><p>b3</p></th>
+<th class="head"><p>b2</p></th>
+<th class="head"><p>b1</p></th>
+<th class="head"><p>Meaning</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>No information is given</td>
+<tbody>
+<tr class="row-even"><td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>No information is given</p></td>
 </tr>
-<tr class="row-odd"><td>0</td>
-<td><ul class="first last">
+<tr class="row-odd"><td><p>0</p></td>
+<td><ul>
 <li></li>
 </ul>
 </td>
-<td><ul class="first last">
+<td><ul>
 <li></li>
 </ul>
 </td>
-<td><ul class="first last">
+<td><ul>
 <li></li>
 </ul>
 </td>
-<td><ul class="first last">
+<td><ul>
 <li></li>
 </ul>
 </td>
-<td><ul class="first last">
+<td><ul>
 <li></li>
 </ul>
 </td>
-<td><ul class="first last">
+<td><ul>
 <li></li>
 </ul>
 </td>
-<td><ul class="first last">
+<td><ul>
 <li></li>
 </ul>
 </td>
-<td>Global reference data(e.g. MF specific key)</td>
+<td><p>Global reference data(e.g. MF specific key)</p></td>
 </tr>
-<tr class="row-even"><td>1</td>
-<td><ul class="first last">
+<tr class="row-even"><td><p>1</p></td>
+<td><ul>
 <li></li>
 </ul>
 </td>
-<td><ul class="first last">
+<td><ul>
 <li></li>
 </ul>
 </td>
-<td><ul class="first last">
+<td><ul>
 <li></li>
 </ul>
 </td>
-<td><ul class="first last">
+<td><ul>
 <li></li>
 </ul>
 </td>
-<td><ul class="first last">
+<td><ul>
 <li></li>
 </ul>
 </td>
-<td><ul class="first last">
+<td><ul>
 <li></li>
 </ul>
 </td>
-<td><ul class="first last">
+<td><ul>
 <li></li>
 </ul>
 </td>
-<td>Specific reference data(e.g. DF specific
-key)</td>
+<td><p>Specific reference data(e.g. DF specific
+key)</p></td>
 </tr>
-<tr class="row-odd"><td><ul class="first last">
+<tr class="row-odd"><td><ul>
 <li></li>
 </ul>
 </td>
-<td><ul class="first last">
+<td><ul>
 <li></li>
 </ul>
 </td>
-<td><ul class="first last">
+<td><ul>
 <li></li>
 </ul>
 </td>
-<td>x</td>
-<td>x</td>
-<td>x</td>
-<td>x</td>
-<td>x</td>
-<td>Number of the secret</td>
+<td><p>x</p></td>
+<td><p>x</p></td>
+<td><p>x</p></td>
+<td><p>x</p></td>
+<td><p>x</p></td>
+<td><p>Number of the secret</p></td>
 </tr>
 </tbody>
 </table>
 <p>Any other value RFU</p>
-</li>
+</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexSAM.change_reference_data">
-<tt class="descname">change_reference_data</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.change_reference_data" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">change_reference_data</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.change_reference_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Change the specified referenced data (e.g. CHV) of the card</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexSAM.erase_SE">
-<tt class="descname">erase_SE</tt><big>(</big><em>SEID</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.erase_SE" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">erase_SE</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">SEID</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.erase_SE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Erases a Security Environment stored under SEID from the SAM</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexSAM.external_authenticate">
-<tt class="descname">external_authenticate</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.external_authenticate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">external_authenticate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.external_authenticate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Authenticate the terminal to the card. Check whether Terminal correctly
 encrypted the given challenge or not</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexSAM.generate_public_key_pair">
-<tt class="descname">generate_public_key_pair</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.generate_public_key_pair" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">generate_public_key_pair</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.generate_public_key_pair" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexSAM.get_card_number">
-<tt class="descname">get_card_number</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.get_card_number" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_card_number</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.get_card_number" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexSAM.get_challenge">
-<tt class="descname">get_challenge</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.get_challenge" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_challenge</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.get_challenge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a random number of maximum 8 Byte and return it.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexSAM.internal_authenticate">
-<tt class="descname">internal_authenticate</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.internal_authenticate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">internal_authenticate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.internal_authenticate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Authenticate card to terminal. Encrypt the challenge of the terminal
+to prove key posession</p>
+</dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexSAM.manage_security_environment">
-<tt class="descname">manage_security_environment</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.manage_security_environment" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">manage_security_environment</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.manage_security_environment" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexSAM.mutual_authenticate">
-<tt class="descname">mutual_authenticate</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>mutual_challenge</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.mutual_authenticate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">mutual_authenticate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutual_challenge</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.mutual_authenticate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Takes an encrypted challenge in the form
-&#8216;Terminal Challenge | Card Challenge | Card number&#8217;
+‘Terminal Challenge | Card Challenge | Card number’
 and checks it for validity. If the challenge is successful
-the card encrypts &#8216;Card Challenge | Terminal challenge&#8217; and
+the card encrypts ‘Card Challenge | Terminal challenge’ and
 returns this value</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexSAM.parse_SM_CAPDU">
-<tt class="descname">parse_SM_CAPDU</tt><big>(</big><em>CAPDU</em>, <em>header_authentication</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.parse_SM_CAPDU" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">parse_SM_CAPDU</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">CAPDU</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header_authentication</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.parse_SM_CAPDU" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse a command APDU protected by Secure Messaging and return the
 unprotected command APDU</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexSAM.perform_security_operation">
-<tt class="descname">perform_security_operation</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.perform_security_operation" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">perform_security_operation</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.perform_security_operation" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexSAM.pezorform_security_operation">
-<tt class="descname">pezorform_security_operation</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.pezorform_security_operation" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">pezorform_security_operation</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.pezorform_security_operation" title="Permalink to this definition">¶</a></dt>
 <dd><p>In the cryptoflex card, this is the verify key command. A key is send
 to the card in plain text and compared to a key stored in the card.
 This is used for authentication</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data</strong> &#8211; Contains the key to be verified</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">SW[NORMAL] in case of success otherwise SW[WARN_NOINFO63]</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> – Contains the key to be verified</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>SW[NORMAL] in case of success otherwise SW[WARN_NOINFO63]</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexSAM.protect_result">
-<tt class="descname">protect_result</tt><big>(</big><em>sw</em>, <em>unprotected_result</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.protect_result" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">protect_result</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sw</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unprotected_result</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.protect_result" title="Permalink to this definition">¶</a></dt>
 <dd><p>Protect a plain response APDU by Secure Messaging</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexSAM.restore_SE">
-<tt class="descname">restore_SE</tt><big>(</big><em>SEID</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.restore_SE" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">restore_SE</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">SEID</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.restore_SE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Restores a Security Environment from the SAM and replaces the current
 SE with it.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexSAM.set_MF">
-<tt class="descname">set_MF</tt><big>(</big><em>mf</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.set_MF" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">set_MF</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mf</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.set_MF" title="Permalink to this definition">¶</a></dt>
 <dd><p>Setter function for the internal reference to the Filesystem. The SAM
 needs a reference to the filesystem in order to store/retrieve keys.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexSAM.set_asym_algorithm">
-<tt class="descname">set_asym_algorithm</tt><big>(</big><em>cipher</em>, <em>keytype</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.set_asym_algorithm" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>cipher</strong> &#8211; Public/private key object from used for encryption</li>
-<li><strong>keytype</strong> &#8211; Type of the public key (e.g. RSA, DSA)</li>
+<code class="sig-name descname"><span class="pre">set_asym_algorithm</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cipher</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keytype</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.set_asym_algorithm" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cipher</strong> – Public/private key object from used for encryption</p></li>
+<li><p><strong>keytype</strong> – Type of the public key (e.g. RSA, DSA)</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexSAM.store_SE">
-<tt class="descname">store_SE</tt><big>(</big><em>SEID</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.store_SE" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">store_SE</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">SEID</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.store_SE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stores the current Security environment in the secure access module.
 The SEID is used as a reference to identify the SE.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexSAM.verify">
-<tt class="descname">verify</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>PIN</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.verify" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">verify</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PIN</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM.verify" title="Permalink to this definition">¶</a></dt>
 <dd><p>Authenticate the card user. Check if he entered a valid PIN.
 If the PIN is invalid decrement retry counter. If retry counter
 equals zero, block the card until reset with correct PUK</p>
@@ -1199,397 +1134,370 @@ equals zero, block the card until reset with correct PUK</p>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexSE">
-<em class="property">class </em><tt class="descclassname">virtualsmartcard.cards.cryptoflex.</tt><tt class="descname">CryptoflexSE</tt><big>(</big><em>MF</em>, <em>SAM</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSE" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="virtualsmartcard.SEutils.html#virtualsmartcard.SEutils.Security_Environment" title="virtualsmartcard.SEutils.Security_Environment"><tt class="xref py py-class docutils literal"><span class="pre">virtualsmartcard.SEutils.Security_Environment</span></tt></a></p>
-<dl class="method">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">virtualsmartcard.cards.cryptoflex.</span></code><code class="sig-name descname"><span class="pre">CryptoflexSE</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">MF</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SAM</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="virtualsmartcard.SEutils.html#virtualsmartcard.SEutils.Security_Environment" title="virtualsmartcard.SEutils.Security_Environment"><code class="xref py py-class docutils literal notranslate"><span class="pre">virtualsmartcard.SEutils.Security_Environment</span></code></a></p>
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexSE._set_SE">
-<tt class="descname">_set_SE</tt><big>(</big><em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSE._set_SE" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">_set_SE</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSE._set_SE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Manipulate the current Security Environment. P2 is the tag of a
 control reference template, data contains control reference objects</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexSE.compute_cryptographic_checksum">
-<tt class="descname">compute_cryptographic_checksum</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSE.compute_cryptographic_checksum" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">compute_cryptographic_checksum</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSE.compute_cryptographic_checksum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute a cryptographic checksum (e.g. MAC) for the given data.
 Algorithm and key are specified in the current SE</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexSE.compute_digital_signature">
-<tt class="descname">compute_digital_signature</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSE.compute_digital_signature" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">compute_digital_signature</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSE.compute_digital_signature" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute a digital signature for the given data.
 Algorithm and key are specified in the current SE</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>p1</strong> &#8211; Must be 0x9E = Secure Messaging class for digital signatures</li>
-<li><strong>p2</strong> &#8211; Must be one of 0x9A, 0xAC, 0xBC. Indicates what kind of data
-is included in the data field.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p1</strong> – Must be 0x9E = Secure Messaging class for digital signatures</p></li>
+<li><p><strong>p2</strong> – Must be one of 0x9A, 0xAC, 0xBC. Indicates what kind of data
+is included in the data field.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexSE.decipher">
-<tt class="descname">decipher</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSE.decipher" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">decipher</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSE.decipher" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decipher data using key, algorithm, IV and Padding specified
 by the current Security environment.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">raw data (no TLV coding). Padding is not removed!!!</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>raw data (no TLV coding). Padding is not removed!!!</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexSE.encipher">
-<tt class="descname">encipher</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSE.encipher" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">encipher</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSE.encipher" title="Permalink to this definition">¶</a></dt>
 <dd><p>Encipher data using key, algorithm, IV and Padding specified
 by the current Security environment.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">raw data (no TLV coding).</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>raw data (no TLV coding).</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexSE.generate_public_key_pair">
-<tt class="descname">generate_public_key_pair</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSE.generate_public_key_pair" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">generate_public_key_pair</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSE.generate_public_key_pair" title="Permalink to this definition">¶</a></dt>
 <dd><p>In the Cryptoflex card this command only supports RSA keys.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>data</strong> &#8211; Contains the public exponent used for key generation</li>
-<li><strong>p1</strong> &#8211; The key number. Can be used later to refer to the generated key</li>
-<li><strong>p2</strong> &#8211; Used to specify the key length. The mapping is: 0x40 =&gt; 256 Bit,
-0x60 =&gt; 512 Bit, 0x80 =&gt; 1024</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – Contains the public exponent used for key generation</p></li>
+<li><p><strong>p1</strong> – The key number. Can be used later to refer to the generated key</p></li>
+<li><p><strong>p2</strong> – Used to specify the key length. The mapping is: 0x40 =&gt; 256 Bit,
+0x60 =&gt; 512 Bit, 0x80 =&gt; 1024</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexSE.hash">
-<tt class="descname">hash</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSE.hash" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">hash</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSE.hash" title="Permalink to this definition">¶</a></dt>
 <dd><p>Hash the given data using the algorithm specified by the current
 Security environment.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">raw data (no TLV coding).</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>raw data (no TLV coding).</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexSE.manage_security_environment">
-<tt class="descname">manage_security_environment</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSE.manage_security_environment" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">manage_security_environment</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSE.manage_security_environment" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method is used to store, restore or erase Security Environments
 or to manipulate the various parameters of the current SE.
 P1 specifies the operation to perform, p2 is either the SEID for the
 referred SE or the tag of a control reference template</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>p1</strong> &#8211; <p>Bitmask according to this table</p>
-<table border="1" class="docutils">
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>p1</strong> – <p>Bitmask according to this table</p>
+<table class="docutils align-default">
 <colgroup>
-<col width="4%" />
-<col width="4%" />
-<col width="4%" />
-<col width="4%" />
-<col width="4%" />
-<col width="4%" />
-<col width="4%" />
-<col width="4%" />
-<col width="71%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 71%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">b8</th>
-<th class="head">b7</th>
-<th class="head">b6</th>
-<th class="head">b5</th>
-<th class="head">b4</th>
-<th class="head">b3</th>
-<th class="head">b2</th>
-<th class="head">b1</th>
-<th class="head">Meaning</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>b8</p></th>
+<th class="head"><p>b7</p></th>
+<th class="head"><p>b6</p></th>
+<th class="head"><p>b5</p></th>
+<th class="head"><p>b4</p></th>
+<th class="head"><p>b3</p></th>
+<th class="head"><p>b2</p></th>
+<th class="head"><p>b1</p></th>
+<th class="head"><p>Meaning</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td><ul class="first last simple">
+<tbody>
+<tr class="row-even"><td><ul class="simple">
 <li></li>
 </ul>
 </td>
-<td><ul class="first last simple">
+<td><ul class="simple">
 <li></li>
 </ul>
 </td>
-<td><ul class="first last simple">
+<td><ul class="simple">
 <li></li>
 </ul>
 </td>
-<td>1</td>
-<td><ul class="first last simple">
+<td><p>1</p></td>
+<td><ul class="simple">
 <li></li>
 </ul>
 </td>
-<td><ul class="first last simple">
+<td><ul class="simple">
 <li></li>
 </ul>
 </td>
-<td><ul class="first last simple">
+<td><ul class="simple">
 <li></li>
 </ul>
 </td>
-<td><ul class="first last simple">
+<td><ul class="simple">
 <li></li>
 </ul>
 </td>
-<td>Secure messaging in command data field</td>
+<td><p>Secure messaging in command data field</p></td>
 </tr>
-<tr class="row-odd"><td><ul class="first last simple">
+<tr class="row-odd"><td><ul class="simple">
 <li></li>
 </ul>
 </td>
-<td><ul class="first last simple">
+<td><ul class="simple">
 <li></li>
 </ul>
 </td>
-<td>1</td>
-<td><ul class="first last simple">
+<td><p>1</p></td>
+<td><ul class="simple">
 <li></li>
 </ul>
 </td>
-<td><ul class="first last simple">
+<td><ul class="simple">
 <li></li>
 </ul>
 </td>
-<td><ul class="first last simple">
+<td><ul class="simple">
 <li></li>
 </ul>
 </td>
-<td><ul class="first last simple">
+<td><ul class="simple">
 <li></li>
 </ul>
 </td>
-<td><ul class="first last simple">
+<td><ul class="simple">
 <li></li>
 </ul>
 </td>
-<td>Secure messaging in response data field</td>
+<td><p>Secure messaging in response data field</p></td>
 </tr>
-<tr class="row-even"><td><ul class="first last simple">
+<tr class="row-even"><td><ul class="simple">
 <li></li>
 </ul>
 </td>
-<td>1</td>
-<td><ul class="first last simple">
+<td><p>1</p></td>
+<td><ul class="simple">
 <li></li>
 </ul>
 </td>
-<td><ul class="first last simple">
+<td><ul class="simple">
 <li></li>
 </ul>
 </td>
-<td><ul class="first last simple">
+<td><ul class="simple">
 <li></li>
 </ul>
 </td>
-<td><ul class="first last simple">
+<td><ul class="simple">
 <li></li>
 </ul>
 </td>
-<td><ul class="first last simple">
+<td><ul class="simple">
 <li></li>
 </ul>
 </td>
-<td><ul class="first last simple">
+<td><ul class="simple">
 <li></li>
 </ul>
 </td>
-<td>Computation, decipherment, internal
-authentication and key agreement</td>
+<td><p>Computation, decipherment, internal
+authentication and key agreement</p></td>
 </tr>
-<tr class="row-odd"><td>1</td>
-<td><ul class="first last simple">
+<tr class="row-odd"><td><p>1</p></td>
+<td><ul class="simple">
 <li></li>
 </ul>
 </td>
-<td><ul class="first last simple">
+<td><ul class="simple">
 <li></li>
 </ul>
 </td>
-<td><ul class="first last simple">
+<td><ul class="simple">
 <li></li>
 </ul>
 </td>
-<td><ul class="first last simple">
+<td><ul class="simple">
 <li></li>
 </ul>
 </td>
-<td><ul class="first last simple">
+<td><ul class="simple">
 <li></li>
 </ul>
 </td>
-<td><ul class="first last simple">
+<td><ul class="simple">
 <li></li>
 </ul>
 </td>
-<td><ul class="first last simple">
+<td><ul class="simple">
 <li></li>
 </ul>
 </td>
-<td>Verification, encipherment, external
-authentication and key agreement</td>
+<td><p>Verification, encipherment, external
+authentication and key agreement</p></td>
 </tr>
-<tr class="row-even"><td><ul class="first last simple">
+<tr class="row-even"><td><ul class="simple">
 <li></li>
 </ul>
 </td>
-<td><ul class="first last simple">
+<td><ul class="simple">
 <li></li>
 </ul>
 </td>
-<td><ul class="first last simple">
+<td><ul class="simple">
 <li></li>
 </ul>
 </td>
-<td><ul class="first last simple">
+<td><ul class="simple">
 <li></li>
 </ul>
 </td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>1</td>
-<td>SET</td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>1</p></td>
+<td><p>SET</p></td>
 </tr>
-<tr class="row-odd"><td>1</td>
-<td>1</td>
-<td>1</td>
-<td>1</td>
-<td>0</td>
-<td>0</td>
-<td>1</td>
-<td>0</td>
-<td>STORE</td>
+<tr class="row-odd"><td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>STORE</p></td>
 </tr>
-<tr class="row-even"><td>1</td>
-<td>1</td>
-<td>1</td>
-<td>1</td>
-<td>0</td>
-<td>0</td>
-<td>1</td>
-<td>1</td>
-<td>RESTORE</td>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>RESTORE</p></td>
 </tr>
-<tr class="row-odd"><td>1</td>
-<td>1</td>
-<td>1</td>
-<td>1</td>
-<td>0</td>
-<td>1</td>
-<td>0</td>
-<td>0</td>
-<td>ERASE</td>
-</tr>
-</tbody>
-</table>
-</td>
+<tr class="row-odd"><td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>ERASE</p></td>
 </tr>
 </tbody>
 </table>
+</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexSE.parse_SM_CAPDU">
-<tt class="descname">parse_SM_CAPDU</tt><big>(</big><em>CAPDU</em>, <em>authenticate_header</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSE.parse_SM_CAPDU" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">parse_SM_CAPDU</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">CAPDU</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">authenticate_header</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSE.parse_SM_CAPDU" title="Permalink to this definition">¶</a></dt>
 <dd><p>This methods parses a data field including Secure Messaging objects.
 SM_header indicates whether or not the header of the message shall be
 authenticated. It returns an unprotected command APDU</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>CAPDU</strong> &#8211; The protected CAPDU to be parsed</li>
-<li><strong>authenticate_header</strong> &#8211; Whether or not the header should be
-included in authentication mechanisms</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>CAPDU</strong> – The protected CAPDU to be parsed</p></li>
+<li><p><strong>authenticate_header</strong> – Whether or not the header should be
+included in authentication mechanisms</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Unprotected command APDU</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Unprotected command APDU</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexSE.perform_security_operation">
-<tt class="descname">perform_security_operation</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSE.perform_security_operation" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">perform_security_operation</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSE.perform_security_operation" title="Permalink to this definition">¶</a></dt>
 <dd><p>In the end this command is nothing but a big switch for all the other
 commands in ISO 7816-8. It will invoke the appropriate command and
 return its result</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexSE.protect_response">
-<tt class="descname">protect_response</tt><big>(</big><em>sw</em>, <em>result</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSE.protect_response" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">protect_response</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sw</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSE.protect_response" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method protects a response APDU using secure messaging mechanisms</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the protected data and the SW bytes</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the protected data and the SW bytes</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexSE.verify_certificate">
-<tt class="descname">verify_certificate</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSE.verify_certificate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">verify_certificate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSE.verify_certificate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Verify a certificate send by the terminal using the internal trust
 anchors.
 This method is currently not implemented.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexSE.verify_cryptographic_checksum">
-<tt class="descname">verify_cryptographic_checksum</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSE.verify_cryptographic_checksum" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">verify_cryptographic_checksum</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSE.verify_cryptographic_checksum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Verify the cryptographic checksum contained in the data field.
 Data field must contain a cryptographic checksum (tag 0x8E) and a plain
 value (tag 0x80)</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.cryptoflex.CryptoflexSE.verify_digital_signature">
-<tt class="descname">verify_digital_signature</tt><big>(</big><em>p1</em>, <em>p2</em>, <em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSE.verify_digital_signature" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">verify_digital_signature</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSE.verify_digital_signature" title="Permalink to this definition">¶</a></dt>
 <dd><p>Verify the digital signature contained in the data field. Data must
 contain a data to sign (tag 0x9A, 0xAC or 0xBC) and a digital signature
 (0x9E)</p>
@@ -1611,7 +1519,7 @@ contain a data to sign (tag 0x9A, 0xAC or 0xBC) and a digital signature
       
     </p>
     <p>
-        &copy; Copyright 2009-2017 by Dominik Oepen and Frank Morgner.<br/>
+        &copy; Copyright 2009-2021 by Dominik Oepen and Frank Morgner.<br/>
     </p>
   </div>
 </footer>

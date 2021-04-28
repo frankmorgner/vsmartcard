@@ -33,15 +33,6 @@ The communication is initiated by |vpcd|. First the length of the data (in
 network byte order, i.e. big endian) is sent followed by the data itself.
 
 
-===================================
-Documentation to Virtual Smart Card
-===================================
-
-.. toctree::
-
-   api/virtualsmartcard
-
-
 ========
 Examples
 ========
@@ -56,8 +47,7 @@ includes all standard commands for file management and secure messaging.
 Let's assume we want to create a cryptoflex card, that acts mostly according to
 ISO 7816. In this example we only want to add little things that differ from
 ISO 7816. But as for most complex software you need to know where you need to
-hook into. Here we only want to give an overview to the design, the complete
-details can be found in section `Documentation to Virtual Smart Card`_.
+hook into. Here we only want to give an overview to the design.
 
 Back to the cryptoflex example.
 :class:`~virtualsmartcard.VirtualSmartcard.VirtualICC` provides the connection

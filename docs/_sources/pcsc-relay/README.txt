@@ -169,7 +169,6 @@ to completely emulate an ISO/IEC 14443 smart card.
 PC/SC Relay has the following dependencies:
 
 - PC/SC middleware
-- libnfc_
 
 
 .. include:: relay-note.txt
@@ -190,7 +189,7 @@ installation of libnfc::
  
     PREFIX=/tmp/install
     LIBNFC=libnfc
-    git clone https://code.google.com/p/libnfc $LIBNFC
+    git clone https://github.com/nfc-tools/libnfc $LIBNFC
     cd $LIBNFC
     autoreconf -i
     # See `./configure --help` for enabling support of additional hardware
@@ -291,6 +290,6 @@ Notes and References
 .. target-notes::
 
 .. _`Hardware supported by libnfc`: http://nfc-tools.org/index.php?title=Devices_compatibility_matrix
-.. _libnfc: http://www.libnfc.org/
+.. _libnfc: https://github.com/nfc-tools/libnfc
 .. _OpenPICC: http://www.openpcd.org/OpenPICC
 .. _PCSC-lite: https://pcsclite.apdu.fr/

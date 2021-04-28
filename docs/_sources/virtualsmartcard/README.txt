@@ -102,10 +102,10 @@ responses via NFC to a contact-less smart card that signs the mail.
 Depending on your usage of the |vpicc| you may need to install the following:
 
 - Python_
-- pyscard_ (relaying a local smart card with :option:`--type=relay`)
+- pyscard_ (relaying a local smart card with `--type=relay`)
 - PyCrypto_, PBKDF2_, PIL_, readline_ or PyReadline_ (emulation of electronic
-  passport with :option:`--type=ePass`)
-- OpenPACE_ (emulation of German identity card with :option:`--type=nPA`)
+  passport with `--type=ePass`)
+- OpenPACE_ (emulation of German identity card with `--type=nPA`)
 - libqrencode_ (to print a QR code on the command line for `vpcd-config`; an
   URL will be printed if libqrencode is not available)
 
@@ -129,9 +129,9 @@ Mac OS X 10.10 (and later) ships with a proprietary implementation of the PC/SC
 layer instead of with PCSC-Lite. As far as we know, this means that smart card
 readers must be USB devices instead of directly allowing a more generic type of
 reader. To make |vpcd| work we simply configure it to pretend being a USB smart
-card reader with an :file:`Ìnfo.plist`::
+card reader with an :file:`Info.plist`::
 
-    ./configure --prefix=/ --enable-infoplist
+    ./configure --enable-infoplist
     make
     make install
 
@@ -209,7 +209,7 @@ connections.  The port to open should be specified in ``CHANNELID`` and
 
 If the first part of the ``DEVICENAME`` is different from ``/dev/null``, |vpcd|
 will use this string as a hostname for connecting to a waiting |vpicc|. |vpicc|
-needs to be started with :option:`--reversed` in this case.
+needs to be started with `--reversed` in this case.
 
 ================================================================================
 Configuring |vpcd| on Mac OS X
@@ -229,7 +229,7 @@ as USB device:
 
     system_profiler SPUSBDataType
 
-3. Change :file:`/usr/libexec/SmartCardServices/drivers/ifd-vpcd.bundle/Info.plist`
+3. Change :file:`/usr/local/libexec/SmartCardServices/drivers/ifd-vpcd.bundle/Info.plist`
    to match your product and vendor ID:
 
 .. literalinclude:: Info.plist
@@ -240,10 +240,19 @@ Note that ``ifdFriendlyName`` can be used in the same way as ``DEVICENAME``
 
 4. Restart the PC/SC service::
 
-    sudo killall -SIGKILL -m .*com.apple.ifdreader
+    sudo killall -SIGKILL -m '.*com.apple.ifdreader'
 
 Now, every time you plug in your USB device |vpcd| will be started. It will be
 stopped when you unplug the device.
+
+To verify the installation, execute::
+
+    system_profiler SPSmartCardsDataType
+
+In case of a problem, inspect the logs::
+
+    log show --predicate '(subsystem == "com.apple.CryptoTokenKit")' --info --debug
+
 
 ================================================================================
 Configuring |vpcd| on Windows
@@ -262,7 +271,7 @@ to open should be specified in ``TCP_PORT``:
     :emphasize-lines: 8
 
 Currently it is not possible to configure the Windows driver to connect to an
-|vpicc| running with :option:`--reversed`.
+|vpicc| running with `--reversed`.
 
 ================================================================================
 Running |vpicc|
@@ -273,7 +282,7 @@ dependencies listed above need to be installed seperately. You can start the
 |vpicc| via :command:`python.exe vicc.py`. On all other systems an executable
 script :command:`vicc` is installed using the autotools.
 
-The |vpicc| option :option:`--help` gives an overview about the command line
+The |vpicc| option `--help` gives an overview about the command line
 switches:
 
 .. program-output:: vicc --help
@@ -281,7 +290,7 @@ switches:
 .. versionadded:: 0.7
     We implemented :command:`vpcd-config` which tries to guess the local IP
     address and outputs |vpcd|'s configuration. |vpicc|'s options should be
-    chosen accordingly (:option:`--hostname` and :option:`--port`)
+    chosen accordingly (`--hostname` and `--port`)
     :command:`vpcd-config` also prints a QR code for configuration of the
     :ref:`remote-reader`.
 

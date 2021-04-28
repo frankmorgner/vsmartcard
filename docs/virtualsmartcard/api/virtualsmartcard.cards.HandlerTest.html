@@ -1,45 +1,29 @@
 <!DOCTYPE html>
 
-
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>HandlerTest Module &mdash; vsmartcard 2017-01-16 documentation</title>
-    
-    <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HandlerTest Module &#8212; vsmartcard 2021-04-28 documentation</title>
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/bootswatch-3.3.4/flatly/bootstrap.min.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
-        VERSION:     '2017-01-16',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js"></script>
-    <script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
-    <script type="text/javascript" src="../../_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/jquery-1.11.0.min.js"></script>
+    <script src="../../_static/js/jquery-fix.js"></script>
+    <script src="../../_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+    <script src="../../_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="../../_static/chip.ico"/>
-    <link rel="top" title="vsmartcard 2017-01-16 documentation" href="../../index.html" />
-    <link rel="up" title="cards Package" href="virtualsmartcard.cards.html" />
-    <link rel="next" title="Relay Module" href="virtualsmartcard.cards.Relay.html" />
-    <link rel="prev" title="cards Package" href="virtualsmartcard.cards.html" />
+    <link rel="search" title="Search" href="../../search.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
 
-  </head>
-  <body>
+  </head><body>
   
   <a href="https://github.com/frankmorgner/vsmartcard"
      class="visible-desktop hidden-xs"><img
@@ -90,8 +74,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../pcsc-relay/README.html">PC/SC Relay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../ccid/README.html">USB CCID Emulator</a></li>
 </ul>
-<ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="../api.html">Creating a Virtual Smart Card</a></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">Creating a Virtual Smart Card</a></li>
 </ul>
 </ul>
 </li>
@@ -114,14 +98,6 @@
             
               
                 
-  <li>
-    <a href="virtualsmartcard.cards.html" title="Previous Chapter: cards Package"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; cards Package</span>
-    </a>
-  </li>
-  <li>
-    <a href="virtualsmartcard.cards.Relay.html" title="Next Chapter: Relay Module"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">Relay Module &raquo;</span>
-    </a>
-  </li>
               
             
             
@@ -151,50 +127,54 @@
       
   <div class="section" id="handlertest-module">
 <h1>HandlerTest Module<a class="headerlink" href="#handlertest-module" title="Permalink to this headline">¶</a></h1>
-<p class="graphviz">
-<img src="../../_images/inheritance-87c02cb0f500902e28e2583f9a1dc09e571332ee.png" alt="Inheritance diagram of virtualsmartcard.cards.HandlerTest" usemap="#inheritancee548df9983" class="inheritance"/>
+<div class="graphviz"><img src="../../_images/inheritance-5c600c60a9fcc658bb9a017dd609c3bff8e456b3.png" alt="Inheritance diagram of virtualsmartcard.cards.HandlerTest" usemap="#inheritancee548df9983" class="inheritance graphviz" /></div>
 <map id="inheritancee548df9983" name="inheritancee548df9983">
-<area shape="rect" id="node1" href="virtualsmartcard.VirtualSmartcard.html#virtualsmartcard.VirtualSmartcard.SmartcardOS" title="Base class for a smart card OS" alt="" coords="5,5,335,31"/>
-<area shape="rect" id="node2" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS" title="This class implements the commands used for the PC/SC&#45;lite &#160;smart &#160;card" alt="" coords="383,5,725,31"/>
-</map>
-</p>
-<span class="target" id="module-virtualsmartcard.cards.HandlerTest"></span><dl class="class">
+<area shape="rect" id="node1" href="virtualsmartcard.VirtualSmartcard.html#virtualsmartcard.VirtualSmartcard.SmartcardOS" target="_top" title="Base class for a smart card OS" alt="" coords="5,5,339,31"/>
+<area shape="rect" id="node2" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS" target="_top" title="This class implements the commands used for the PC/SC&#45;lite &#160;smart &#160;card" alt="" coords="387,5,736,31"/>
+</map><span class="target" id="module-virtualsmartcard.cards.HandlerTest"></span><dl class="py class">
 <dt id="virtualsmartcard.cards.HandlerTest.HandlerTestOS">
-<em class="property">class </em><tt class="descclassname">virtualsmartcard.cards.HandlerTest.</tt><tt class="descname">HandlerTestOS</tt><a class="headerlink" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="virtualsmartcard.VirtualSmartcard.html#virtualsmartcard.VirtualSmartcard.SmartcardOS" title="virtualsmartcard.VirtualSmartcard.SmartcardOS"><tt class="xref py py-class docutils literal"><span class="pre">virtualsmartcard.VirtualSmartcard.SmartcardOS</span></tt></a></p>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">virtualsmartcard.cards.HandlerTest.</span></code><code class="sig-name descname"><span class="pre">HandlerTestOS</span></code><a class="headerlink" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="virtualsmartcard.VirtualSmartcard.html#virtualsmartcard.VirtualSmartcard.SmartcardOS" title="virtualsmartcard.VirtualSmartcard.SmartcardOS"><code class="xref py py-class docutils literal notranslate"><span class="pre">virtualsmartcard.VirtualSmartcard.SmartcardOS</span></code></a></p>
 <p>This class implements the commands used for the PC/SC-lite  smart  card
-reader driver tester. See <a class="reference external" href="https://pcsclite.apdu.fr/">https://pcsclite.apdu.fr/</a>
+reader driver tester. See <a class="reference external" href="https://salsa.debian.org/rousseau/HandlerTest">https://salsa.debian.org/rousseau/HandlerTest</a>
 and handler_test(1).</p>
-<dl class="method">
-<dt id="virtualsmartcard.cards.HandlerTest.HandlerTestOS._HandlerTestOS__output_from_le">
-<tt class="descname">_HandlerTestOS__output_from_le</tt><big>(</big><em>msg</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS._HandlerTestOS__output_from_le" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="virtualsmartcard.cards.HandlerTest.HandlerTestOS.__output_from_le">
+<code class="sig-name descname"><span class="pre">__output_from_le</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS.__output_from_le" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.HandlerTest.HandlerTestOS.execute">
-<tt class="descname">execute</tt><big>(</big><em>msg</em><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS.execute" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">execute</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns response to the given APDU as string of characters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>msg</strong> – the APDU as string of characters</p>
+</dd>
+</dl>
+</dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.HandlerTest.HandlerTestOS.getATR">
-<tt class="descname">getATR</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS.getATR" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">getATR</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS.getATR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the ATR of the card as string of characters</p>
+</dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.HandlerTest.HandlerTestOS.powerDown">
-<tt class="descname">powerDown</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS.powerDown" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">powerDown</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS.powerDown" title="Permalink to this definition">¶</a></dt>
 <dd><p>Powers down the card</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.HandlerTest.HandlerTestOS.powerUp">
-<tt class="descname">powerUp</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS.powerUp" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">powerUp</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS.powerUp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Powers up the card</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.cards.HandlerTest.HandlerTestOS.reset">
-<tt class="descname">reset</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS.reset" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">reset</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.cards.HandlerTest.HandlerTestOS.reset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs a warm reset of the card (no power down)</p>
 </dd></dl>
 
@@ -214,7 +194,7 @@ and handler_test(1).</p>
       
     </p>
     <p>
-        &copy; Copyright 2009-2017 by Dominik Oepen and Frank Morgner.<br/>
+        &copy; Copyright 2009-2021 by Dominik Oepen and Frank Morgner.<br/>
     </p>
   </div>
 </footer>

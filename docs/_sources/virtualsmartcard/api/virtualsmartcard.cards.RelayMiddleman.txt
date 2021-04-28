@@ -1,0 +1,10 @@
+RelayMiddleman Module
+=====================
+
+.. inheritance-diagram:: virtualsmartcard.cards.RelayMiddleman
+.. automodule:: virtualsmartcard.cards.RelayMiddleman
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :show-inheritance:
+    :private-members:

@@ -1,44 +1,29 @@
 <!DOCTYPE html>
 
-
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>utils Module &mdash; vsmartcard 2017-01-16 documentation</title>
-    
-    <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>utils Module &#8212; vsmartcard 2021-04-28 documentation</title>
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/bootswatch-3.3.4/flatly/bootstrap.min.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
-        VERSION:     '2017-01-16',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js"></script>
-    <script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
-    <script type="text/javascript" src="../../_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/jquery-1.11.0.min.js"></script>
+    <script src="../../_static/js/jquery-fix.js"></script>
+    <script src="../../_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+    <script src="../../_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="../../_static/chip.ico"/>
-    <link rel="top" title="vsmartcard 2017-01-16 documentation" href="../../index.html" />
-    <link rel="up" title="virtualsmartcard Package" href="virtualsmartcard.html" />
-    <link rel="prev" title="VirtualSmartcard Module" href="virtualsmartcard.VirtualSmartcard.html" />
+    <link rel="search" title="Search" href="../../search.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
 
-  </head>
-  <body>
+  </head><body>
   
   <a href="https://github.com/frankmorgner/vsmartcard"
      class="visible-desktop hidden-xs"><img
@@ -89,8 +74,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../pcsc-relay/README.html">PC/SC Relay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../ccid/README.html">USB CCID Emulator</a></li>
 </ul>
-<ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="../api.html">Creating a Virtual Smart Card</a></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">Creating a Virtual Smart Card</a></li>
 </ul>
 </ul>
 </li>
@@ -113,10 +98,6 @@
             
               
                 
-  <li>
-    <a href="virtualsmartcard.VirtualSmartcard.html" title="Previous Chapter: VirtualSmartcard Module"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; VirtualSmartcard...</span>
-    </a>
-  </li>
               
             
             
@@ -146,332 +127,318 @@
       
   <div class="section" id="utils-module">
 <h1>utils Module<a class="headerlink" href="#utils-module" title="Permalink to this headline">¶</a></h1>
-<p class="graphviz">
-<img src="../../_images/inheritance-647e4e3af2eb4356e4633a015c7851f55a66a0bd.png" alt="Inheritance diagram of virtualsmartcard.utils" usemap="#inheritance305ec42f0e" class="inheritance"/>
+<div class="graphviz"><img src="../../_images/inheritance-77fc397d2fc138b4798b3225bda3dcf240726e7a.png" alt="Inheritance diagram of virtualsmartcard.utils" usemap="#inheritance305ec42f0e" class="inheritance graphviz" /></div>
 <map id="inheritance305ec42f0e" name="inheritance305ec42f0e">
-<area shape="rect" id="node1" href="#virtualsmartcard.utils.APDU" title="Base class for an APDU" alt="" coords="5,31,204,56"/>
-<area shape="rect" id="node2" href="#virtualsmartcard.utils.C_APDU" title="Class for a command APDU" alt="" coords="252,5,467,31"/>
-<area shape="rect" id="node3" href="#virtualsmartcard.utils.R_APDU" title="Class for a response APDU" alt="" coords="252,55,467,80"/>
-</map>
-</p>
-<span class="target" id="module-virtualsmartcard.utils"></span><dl class="class">
+<area shape="rect" id="node1" href="#virtualsmartcard.utils.APDU" target="_top" title="Base class for an APDU" alt="" coords="5,31,208,56"/>
+<area shape="rect" id="node2" href="#virtualsmartcard.utils.C_APDU" target="_top" title="Class for a command APDU" alt="" coords="256,5,475,31"/>
+<area shape="rect" id="node3" href="#virtualsmartcard.utils.R_APDU" target="_top" title="Class for a response APDU" alt="" coords="256,55,475,80"/>
+</map><span class="target" id="module-virtualsmartcard.utils"></span><dl class="py class">
 <dt id="virtualsmartcard.utils.APDU">
-<em class="property">class </em><tt class="descclassname">virtualsmartcard.utils.</tt><tt class="descname">APDU</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#virtualsmartcard.utils.APDU" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">virtualsmartcard.utils.</span></code><code class="sig-name descname"><span class="pre">APDU</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.utils.APDU" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Base class for an APDU</p>
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.APDU._deldata">
-<tt class="descname">_deldata</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.utils.APDU._deldata" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">_deldata</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.utils.APDU._deldata" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.APDU._format_parts">
-<tt class="descname">_format_parts</tt><big>(</big><em>fields</em><big>)</big><a class="headerlink" href="#virtualsmartcard.utils.APDU._format_parts" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">_format_parts</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fields</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.utils.APDU._format_parts" title="Permalink to this definition">¶</a></dt>
 <dd><p>utility function to be used in __str__ and __repr__</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.APDU._getdata">
-<tt class="descname">_getdata</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.utils.APDU._getdata" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">_getdata</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.utils.APDU._getdata" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.APDU._setbyte">
-<tt class="descname">_setbyte</tt><big>(</big><em>name</em>, <em>value</em><big>)</big><a class="headerlink" href="#virtualsmartcard.utils.APDU._setbyte" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">_setbyte</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.utils.APDU._setbyte" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.APDU._setdata">
-<tt class="descname">_setdata</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#virtualsmartcard.utils.APDU._setdata" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">_setdata</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.utils.APDU._setdata" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.APDU.data">
-<tt class="descname">data</tt><a class="headerlink" href="#virtualsmartcard.utils.APDU.data" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">data</span></code><a class="headerlink" href="#virtualsmartcard.utils.APDU.data" title="Permalink to this definition">¶</a></dt>
 <dd><p>The data contents of this APDU</p>
 </dd></dl>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="virtualsmartcard.utils.C_APDU">
-<em class="property">class </em><tt class="descclassname">virtualsmartcard.utils.</tt><tt class="descname">C_APDU</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#virtualsmartcard.utils.C_APDU" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#virtualsmartcard.utils.APDU" title="virtualsmartcard.utils.APDU"><tt class="xref py py-class docutils literal"><span class="pre">virtualsmartcard.utils.APDU</span></tt></a></p>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">virtualsmartcard.utils.</span></code><code class="sig-name descname"><span class="pre">C_APDU</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.utils.C_APDU" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#virtualsmartcard.utils.APDU" title="virtualsmartcard.utils.APDU"><code class="xref py py-class docutils literal notranslate"><span class="pre">virtualsmartcard.utils.APDU</span></code></a></p>
 <p>Class for a command APDU</p>
-<dl class="attribute">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.C_APDU.CLA">
-<tt class="descname">CLA</tt><a class="headerlink" href="#virtualsmartcard.utils.C_APDU.CLA" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">CLA</span></code><a class="headerlink" href="#virtualsmartcard.utils.C_APDU.CLA" title="Permalink to this definition">¶</a></dt>
 <dd><p>The CLA attribute of the APDU</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.C_APDU.INS">
-<tt class="descname">INS</tt><a class="headerlink" href="#virtualsmartcard.utils.C_APDU.INS" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">INS</span></code><a class="headerlink" href="#virtualsmartcard.utils.C_APDU.INS" title="Permalink to this definition">¶</a></dt>
 <dd><p>The INS attribute of the APDU</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.C_APDU.Lc">
-<tt class="descname">Lc</tt><a class="headerlink" href="#virtualsmartcard.utils.C_APDU.Lc" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">Lc</span></code><a class="headerlink" href="#virtualsmartcard.utils.C_APDU.Lc" title="Permalink to this definition">¶</a></dt>
 <dd><p>The Lc attribute of the APDU</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.C_APDU.Le">
-<tt class="descname">Le</tt><a class="headerlink" href="#virtualsmartcard.utils.C_APDU.Le" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">Le</span></code><a class="headerlink" href="#virtualsmartcard.utils.C_APDU.Le" title="Permalink to this definition">¶</a></dt>
 <dd><p>The Le attribute of the APDU</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.C_APDU.P1">
-<tt class="descname">P1</tt><a class="headerlink" href="#virtualsmartcard.utils.C_APDU.P1" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">P1</span></code><a class="headerlink" href="#virtualsmartcard.utils.C_APDU.P1" title="Permalink to this definition">¶</a></dt>
 <dd><p>The P1 attribute of the APDU</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.C_APDU.P2">
-<tt class="descname">P2</tt><a class="headerlink" href="#virtualsmartcard.utils.C_APDU.P2" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">P2</span></code><a class="headerlink" href="#virtualsmartcard.utils.C_APDU.P2" title="Permalink to this definition">¶</a></dt>
 <dd><p>The P2 attribute of the APDU</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.C_APDU._deldata">
-<tt class="descname">_deldata</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.utils.C_APDU._deldata" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">_deldata</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.utils.C_APDU._deldata" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.C_APDU._format_fields">
-<tt class="descname">_format_fields</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.utils.C_APDU._format_fields" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">_format_fields</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.utils.C_APDU._format_fields" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.C_APDU._format_parts">
-<tt class="descname">_format_parts</tt><big>(</big><em>fields</em><big>)</big><a class="headerlink" href="#virtualsmartcard.utils.C_APDU._format_parts" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">_format_parts</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fields</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.utils.C_APDU._format_parts" title="Permalink to this definition">¶</a></dt>
 <dd><p>utility function to be used in __str__ and __repr__</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.C_APDU._getdata">
-<tt class="descname">_getdata</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.utils.C_APDU._getdata" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">_getdata</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.utils.C_APDU._getdata" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.C_APDU._setbyte">
-<tt class="descname">_setbyte</tt><big>(</big><em>name</em>, <em>value</em><big>)</big><a class="headerlink" href="#virtualsmartcard.utils.C_APDU._setbyte" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">_setbyte</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.utils.C_APDU._setbyte" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.C_APDU._setdata">
-<tt class="descname">_setdata</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#virtualsmartcard.utils.C_APDU._setdata" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">_setdata</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.utils.C_APDU._setdata" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.C_APDU.case">
-<tt class="descname">case</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.utils.C_APDU.case" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">case</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.utils.C_APDU.case" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return 1, 2, 3 or 4, depending on which ISO case we represent.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.C_APDU.cla">
-<tt class="descname">cla</tt><a class="headerlink" href="#virtualsmartcard.utils.C_APDU.cla" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">cla</span></code><a class="headerlink" href="#virtualsmartcard.utils.C_APDU.cla" title="Permalink to this definition">¶</a></dt>
 <dd><p>The CLA attribute of the APDU</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.C_APDU.data">
-<tt class="descname">data</tt><a class="headerlink" href="#virtualsmartcard.utils.C_APDU.data" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">data</span></code><a class="headerlink" href="#virtualsmartcard.utils.C_APDU.data" title="Permalink to this definition">¶</a></dt>
 <dd><p>The data contents of this APDU</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.C_APDU.effective_Le">
-<tt class="descname">effective_Le</tt><a class="headerlink" href="#virtualsmartcard.utils.C_APDU.effective_Le" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">effective_Le</span></code><a class="headerlink" href="#virtualsmartcard.utils.C_APDU.effective_Le" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.C_APDU.ins">
-<tt class="descname">ins</tt><a class="headerlink" href="#virtualsmartcard.utils.C_APDU.ins" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">ins</span></code><a class="headerlink" href="#virtualsmartcard.utils.C_APDU.ins" title="Permalink to this definition">¶</a></dt>
 <dd><p>The INS attribute of the APDU</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.C_APDU.lc">
-<tt class="descname">lc</tt><a class="headerlink" href="#virtualsmartcard.utils.C_APDU.lc" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">lc</span></code><a class="headerlink" href="#virtualsmartcard.utils.C_APDU.lc" title="Permalink to this definition">¶</a></dt>
 <dd><p>The Lc attribute of the APDU</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.C_APDU.le">
-<tt class="descname">le</tt><a class="headerlink" href="#virtualsmartcard.utils.C_APDU.le" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">le</span></code><a class="headerlink" href="#virtualsmartcard.utils.C_APDU.le" title="Permalink to this definition">¶</a></dt>
 <dd><p>The Le attribute of the APDU</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.C_APDU.p1">
-<tt class="descname">p1</tt><a class="headerlink" href="#virtualsmartcard.utils.C_APDU.p1" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">p1</span></code><a class="headerlink" href="#virtualsmartcard.utils.C_APDU.p1" title="Permalink to this definition">¶</a></dt>
 <dd><p>The P1 attribute of the APDU</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.C_APDU.p2">
-<tt class="descname">p2</tt><a class="headerlink" href="#virtualsmartcard.utils.C_APDU.p2" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">p2</span></code><a class="headerlink" href="#virtualsmartcard.utils.C_APDU.p2" title="Permalink to this definition">¶</a></dt>
 <dd><p>The P2 attribute of the APDU</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.C_APDU.parse">
-<tt class="descname">parse</tt><big>(</big><em>apdu</em><big>)</big><a class="headerlink" href="#virtualsmartcard.utils.C_APDU.parse" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">parse</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">apdu</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.utils.C_APDU.parse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse a full command APDU and assign the values to our object,
 overwriting whatever there was.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.C_APDU.render">
-<tt class="descname">render</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.utils.C_APDU.render" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">render</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.utils.C_APDU.render" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return this APDU as a binary string</p>
 </dd></dl>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="virtualsmartcard.utils.R_APDU">
-<em class="property">class </em><tt class="descclassname">virtualsmartcard.utils.</tt><tt class="descname">R_APDU</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#virtualsmartcard.utils.R_APDU" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#virtualsmartcard.utils.APDU" title="virtualsmartcard.utils.APDU"><tt class="xref py py-class docutils literal"><span class="pre">virtualsmartcard.utils.APDU</span></tt></a></p>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">virtualsmartcard.utils.</span></code><code class="sig-name descname"><span class="pre">R_APDU</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.utils.R_APDU" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#virtualsmartcard.utils.APDU" title="virtualsmartcard.utils.APDU"><code class="xref py py-class docutils literal notranslate"><span class="pre">virtualsmartcard.utils.APDU</span></code></a></p>
 <p>Class for a response APDU</p>
-<dl class="attribute">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.R_APDU.SW">
-<tt class="descname">SW</tt><a class="headerlink" href="#virtualsmartcard.utils.R_APDU.SW" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">SW</span></code><a class="headerlink" href="#virtualsmartcard.utils.R_APDU.SW" title="Permalink to this definition">¶</a></dt>
 <dd><p>The Status Word of this response APDU</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.R_APDU.SW1">
-<tt class="descname">SW1</tt><a class="headerlink" href="#virtualsmartcard.utils.R_APDU.SW1" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">SW1</span></code><a class="headerlink" href="#virtualsmartcard.utils.R_APDU.SW1" title="Permalink to this definition">¶</a></dt>
 <dd><p>The SW1 attribute of the APDU</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.R_APDU.SW2">
-<tt class="descname">SW2</tt><a class="headerlink" href="#virtualsmartcard.utils.R_APDU.SW2" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">SW2</span></code><a class="headerlink" href="#virtualsmartcard.utils.R_APDU.SW2" title="Permalink to this definition">¶</a></dt>
 <dd><p>The SW2 attribute of the APDU</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.R_APDU._deldata">
-<tt class="descname">_deldata</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.utils.R_APDU._deldata" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">_deldata</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.utils.R_APDU._deldata" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.R_APDU._format_fields">
-<tt class="descname">_format_fields</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.utils.R_APDU._format_fields" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">_format_fields</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.utils.R_APDU._format_fields" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.R_APDU._format_parts">
-<tt class="descname">_format_parts</tt><big>(</big><em>fields</em><big>)</big><a class="headerlink" href="#virtualsmartcard.utils.R_APDU._format_parts" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">_format_parts</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fields</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.utils.R_APDU._format_parts" title="Permalink to this definition">¶</a></dt>
 <dd><p>utility function to be used in __str__ and __repr__</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.R_APDU._getdata">
-<tt class="descname">_getdata</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.utils.R_APDU._getdata" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">_getdata</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.utils.R_APDU._getdata" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.R_APDU._getsw">
-<tt class="descname">_getsw</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.utils.R_APDU._getsw" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">_getsw</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.utils.R_APDU._getsw" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.R_APDU._setbyte">
-<tt class="descname">_setbyte</tt><big>(</big><em>name</em>, <em>value</em><big>)</big><a class="headerlink" href="#virtualsmartcard.utils.R_APDU._setbyte" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">_setbyte</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.utils.R_APDU._setbyte" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.R_APDU._setdata">
-<tt class="descname">_setdata</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#virtualsmartcard.utils.R_APDU._setdata" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">_setdata</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.utils.R_APDU._setdata" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.R_APDU._setsw">
-<tt class="descname">_setsw</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#virtualsmartcard.utils.R_APDU._setsw" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">_setsw</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.utils.R_APDU._setsw" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.R_APDU.data">
-<tt class="descname">data</tt><a class="headerlink" href="#virtualsmartcard.utils.R_APDU.data" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">data</span></code><a class="headerlink" href="#virtualsmartcard.utils.R_APDU.data" title="Permalink to this definition">¶</a></dt>
 <dd><p>The data contents of this APDU</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.R_APDU.parse">
-<tt class="descname">parse</tt><big>(</big><em>apdu</em><big>)</big><a class="headerlink" href="#virtualsmartcard.utils.R_APDU.parse" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">parse</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">apdu</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.utils.R_APDU.parse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse a full response APDU and assign the values to our object,
 overwriting whatever there was.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.R_APDU.render">
-<tt class="descname">render</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.utils.R_APDU.render" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">render</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.utils.R_APDU.render" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return this APDU as a binary string</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.R_APDU.sw">
-<tt class="descname">sw</tt><a class="headerlink" href="#virtualsmartcard.utils.R_APDU.sw" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">sw</span></code><a class="headerlink" href="#virtualsmartcard.utils.R_APDU.sw" title="Permalink to this definition">¶</a></dt>
 <dd><p>The Status Word of this response APDU</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.R_APDU.sw1">
-<tt class="descname">sw1</tt><a class="headerlink" href="#virtualsmartcard.utils.R_APDU.sw1" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">sw1</span></code><a class="headerlink" href="#virtualsmartcard.utils.R_APDU.sw1" title="Permalink to this definition">¶</a></dt>
 <dd><p>The SW1 attribute of the APDU</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="virtualsmartcard.utils.R_APDU.sw2">
-<tt class="descname">sw2</tt><a class="headerlink" href="#virtualsmartcard.utils.R_APDU.sw2" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">sw2</span></code><a class="headerlink" href="#virtualsmartcard.utils.R_APDU.sw2" title="Permalink to this definition">¶</a></dt>
 <dd><p>The SW2 attribute of the APDU</p>
 </dd></dl>
 
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="virtualsmartcard.utils._make_byte_property">
-<tt class="descclassname">virtualsmartcard.utils.</tt><tt class="descname">_make_byte_property</tt><big>(</big><em>prop</em><big>)</big><a class="headerlink" href="#virtualsmartcard.utils._make_byte_property" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">virtualsmartcard.utils.</span></code><code class="sig-name descname"><span class="pre">_make_byte_property</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.utils._make_byte_property" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make a byte property(). This is meta code.</p>
 </dd></dl>
 
-<dl class="function">
-<dt id="virtualsmartcard.utils._unformat_hexdump">
-<tt class="descclassname">virtualsmartcard.utils.</tt><tt class="descname">_unformat_hexdump</tt><big>(</big><em>dump</em><big>)</big><a class="headerlink" href="#virtualsmartcard.utils._unformat_hexdump" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
+<dl class="py function">
 <dt id="virtualsmartcard.utils.hexdump">
-<tt class="descclassname">virtualsmartcard.utils.</tt><tt class="descname">hexdump</tt><big>(</big><em>data</em>, <em>indent=0</em>, <em>short=False</em>, <em>linelen=16</em>, <em>offset=0</em><big>)</big><a class="headerlink" href="#virtualsmartcard.utils.hexdump" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">virtualsmartcard.utils.</span></code><code class="sig-name descname"><span class="pre">hexdump</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">short</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linelen</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.utils.hexdump" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a nice hexdump of data and returns it. Consecutive lines will
 be indented with indent spaces. When short is true, will instead generate
 hexdump without adresses and on one line.</p>
 <p>Examples:
-hexdump(&#8216;A&#8217;) -&gt;     &#8216;0000:  00 41                                             .A              &#8216;
-hexdump(&#8216;A&#8217;, short=True) -&gt; &#8216;00 41 (.A)&#8217;</p>
+hexdump(b’A’) -&gt;     ‘0000:  00 41                                             .A              ‘
+hexdump(b’A’, short=True) -&gt; ‘00 41 (.A)’</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="virtualsmartcard.utils.inttostring">
-<tt class="descclassname">virtualsmartcard.utils.</tt><tt class="descname">inttostring</tt><big>(</big><em>i</em>, <em>length=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.utils.inttostring" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">virtualsmartcard.utils.</span></code><code class="sig-name descname"><span class="pre">inttostring</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">len_extendable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.utils.inttostring" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
-<dt id="virtualsmartcard.utils.parse_status">
-<tt class="descclassname">virtualsmartcard.utils.</tt><tt class="descname">parse_status</tt><big>(</big><em>data</em><big>)</big><a class="headerlink" href="#virtualsmartcard.utils.parse_status" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parses the Response APDU of a GetStatus command.</p>
-</dd></dl>
-
-<dl class="function">
+<dl class="py function">
 <dt id="virtualsmartcard.utils.stringtoint">
-<tt class="descclassname">virtualsmartcard.utils.</tt><tt class="descname">stringtoint</tt><big>(</big><em>str</em><big>)</big><a class="headerlink" href="#virtualsmartcard.utils.stringtoint" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">virtualsmartcard.utils.</span></code><code class="sig-name descname"><span class="pre">stringtoint</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.utils.stringtoint" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -488,7 +455,7 @@ hexdump(&#8216;A&#8217;, short=True) -&gt; &#8216;00 41 (.A)&#8217;</p>
       
     </p>
     <p>
-        &copy; Copyright 2009-2017 by Dominik Oepen and Frank Morgner.<br/>
+        &copy; Copyright 2009-2021 by Dominik Oepen and Frank Morgner.<br/>
     </p>
   </div>
 </footer>

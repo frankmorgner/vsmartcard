@@ -1,45 +1,29 @@
 <!DOCTYPE html>
 
-
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>CardGenerator Module &mdash; vsmartcard 2017-01-16 documentation</title>
-    
-    <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CardGenerator Module &#8212; vsmartcard 2021-04-28 documentation</title>
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/bootswatch-3.3.4/flatly/bootstrap.min.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
-        VERSION:     '2017-01-16',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js"></script>
-    <script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
-    <script type="text/javascript" src="../../_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/jquery-1.11.0.min.js"></script>
+    <script src="../../_static/js/jquery-fix.js"></script>
+    <script src="../../_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+    <script src="../../_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="../../_static/chip.ico"/>
-    <link rel="top" title="vsmartcard 2017-01-16 documentation" href="../../index.html" />
-    <link rel="up" title="virtualsmartcard Package" href="virtualsmartcard.html" />
-    <link rel="next" title="ConstantDefinitions Module" href="virtualsmartcard.ConstantDefinitions.html" />
-    <link rel="prev" title="utils_test Module" href="virtualsmartcard.tests.utils_test.html" />
+    <link rel="search" title="Search" href="../../search.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
 
-  </head>
-  <body>
+  </head><body>
   
   <a href="https://github.com/frankmorgner/vsmartcard"
      class="visible-desktop hidden-xs"><img
@@ -90,8 +74,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../pcsc-relay/README.html">PC/SC Relay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../ccid/README.html">USB CCID Emulator</a></li>
 </ul>
-<ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="../api.html">Creating a Virtual Smart Card</a></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">Creating a Virtual Smart Card</a></li>
 </ul>
 </ul>
 </li>
@@ -114,14 +98,6 @@
             
               
                 
-  <li>
-    <a href="virtualsmartcard.tests.utils_test.html" title="Previous Chapter: utils_test Module"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; utils_test Modul...</span>
-    </a>
-  </li>
-  <li>
-    <a href="virtualsmartcard.ConstantDefinitions.html" title="Next Chapter: ConstantDefinitions Module"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">ConstantDefiniti... &raquo;</span>
-    </a>
-  </li>
               
             
             
@@ -151,65 +127,62 @@
       
   <div class="section" id="cardgenerator-module">
 <h1>CardGenerator Module<a class="headerlink" href="#cardgenerator-module" title="Permalink to this headline">¶</a></h1>
-<p class="graphviz">
-<img src="../../_images/inheritance-151a141442b8b2ad4b9ca6f670abcf103a9252a6.png" alt="Inheritance diagram of virtualsmartcard.CardGenerator" usemap="#inheritancecb03a25959" class="inheritance"/>
+<div class="graphviz"><img src="../../_images/inheritance-b79d4d6bf383a10ce17d2be6db4ea696bb48cd42.png" alt="Inheritance diagram of virtualsmartcard.CardGenerator" usemap="#inheritancecb03a25959" class="inheritance graphviz" /></div>
 <map id="inheritancecb03a25959" name="inheritancecb03a25959">
-<area shape="rect" id="node1" href="#virtualsmartcard.CardGenerator.CardGenerator" title="This class is used to generate the SAM and filesystem for the" alt="" coords="5,5,331,31"/>
-</map>
-</p>
-<span class="target" id="module-virtualsmartcard.CardGenerator"></span><dl class="class">
+<area shape="rect" id="node1" href="#virtualsmartcard.CardGenerator.CardGenerator" target="_top" title="This class is used to generate the SAM and filesystem for the" alt="" coords="5,5,332,31"/>
+</map><span class="target" id="module-virtualsmartcard.CardGenerator"></span><dl class="py class">
 <dt id="virtualsmartcard.CardGenerator.CardGenerator">
-<em class="property">class </em><tt class="descclassname">virtualsmartcard.CardGenerator.</tt><tt class="descname">CardGenerator</tt><big>(</big><em>card_type=None</em>, <em>sam=None</em>, <em>mf=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.CardGenerator.CardGenerator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">virtualsmartcard.CardGenerator.</span></code><code class="sig-name descname"><span class="pre">CardGenerator</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">card_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sam</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.CardGenerator.CardGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This class is used to generate the SAM and filesystem for the
 different supported card types. It is also able used for persistent storage
 (in encrypted form) of the card on disks.</p>
-<dl class="method">
-<dt id="virtualsmartcard.CardGenerator.CardGenerator._CardGenerator__generate_cryptoflex">
-<tt class="descname">_CardGenerator__generate_cryptoflex</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.CardGenerator.CardGenerator._CardGenerator__generate_cryptoflex" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="virtualsmartcard.CardGenerator.CardGenerator.__generate_cryptoflex">
+<code class="sig-name descname"><span class="pre">__generate_cryptoflex</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.CardGenerator.CardGenerator.__generate_cryptoflex" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate the Filesystem and SAM of a cryptoflex card</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="virtualsmartcard.CardGenerator.CardGenerator._CardGenerator__generate_ePass">
-<tt class="descname">_CardGenerator__generate_ePass</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.CardGenerator.CardGenerator._CardGenerator__generate_ePass" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="virtualsmartcard.CardGenerator.CardGenerator.__generate_ePass">
+<code class="sig-name descname"><span class="pre">__generate_ePass</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.CardGenerator.CardGenerator.__generate_ePass" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate the MF and SAM of an ICAO passport. This method is
 responsible for generating the filesystem and filling it with content.
 Therefore it must interact with the user by prompting for the MRZ and
 optionally for the path to a photo.</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="virtualsmartcard.CardGenerator.CardGenerator._CardGenerator__generate_iso_card">
-<tt class="descname">_CardGenerator__generate_iso_card</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.CardGenerator.CardGenerator._CardGenerator__generate_iso_card" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="virtualsmartcard.CardGenerator.CardGenerator.__generate_iso_card">
+<code class="sig-name descname"><span class="pre">__generate_iso_card</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.CardGenerator.CardGenerator.__generate_iso_card" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="virtualsmartcard.CardGenerator.CardGenerator._CardGenerator__generate_nPA">
-<tt class="descname">_CardGenerator__generate_nPA</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.CardGenerator.CardGenerator._CardGenerator__generate_nPA" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="virtualsmartcard.CardGenerator.CardGenerator.__generate_nPA">
+<code class="sig-name descname"><span class="pre">__generate_nPA</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.CardGenerator.CardGenerator.__generate_nPA" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.CardGenerator.CardGenerator.generateCard">
-<tt class="descname">generateCard</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.CardGenerator.CardGenerator.generateCard" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">generateCard</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.CardGenerator.CardGenerator.generateCard" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a new card</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.CardGenerator.CardGenerator.getCard">
-<tt class="descname">getCard</tt><big>(</big><big>)</big><a class="headerlink" href="#virtualsmartcard.CardGenerator.CardGenerator.getCard" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">getCard</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.CardGenerator.CardGenerator.getCard" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the MF and SAM from the current card</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.CardGenerator.CardGenerator.readDatagroups">
-<tt class="descname">readDatagroups</tt><big>(</big><em>datasetfile</em><big>)</big><a class="headerlink" href="#virtualsmartcard.CardGenerator.CardGenerator.readDatagroups" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">readDatagroups</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datasetfile</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.CardGenerator.CardGenerator.readDatagroups" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read Datagroups from file</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="virtualsmartcard.CardGenerator.CardGenerator.setCard">
-<tt class="descname">setCard</tt><big>(</big><em>mf=None</em>, <em>sam=None</em><big>)</big><a class="headerlink" href="#virtualsmartcard.CardGenerator.CardGenerator.setCard" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">setCard</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sam</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.CardGenerator.CardGenerator.setCard" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the MF and SAM of the current card</p>
 </dd></dl>
 
@@ -229,7 +202,7 @@ optionally for the path to a photo.</p>
       
     </p>
     <p>
-        &copy; Copyright 2009-2017 by Dominik Oepen and Frank Morgner.<br/>
+        &copy; Copyright 2009-2021 by Dominik Oepen and Frank Morgner.<br/>
     </p>
   </div>
 </footer>

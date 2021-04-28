@@ -5,6 +5,7 @@ cards Package
 
     virtualsmartcard.cards.HandlerTest
     virtualsmartcard.cards.Relay
+    virtualsmartcard.cards.RelayMiddleman
     virtualsmartcard.cards.cryptoflex
     virtualsmartcard.cards.ePass
     virtualsmartcard.cards.nPA
