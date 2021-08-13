@@ -38,6 +38,7 @@ typedef WORD uint16_t;
 #else
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <poll.h>
 #include <stdint.h>
 #include <sys/socket.h>
 #include <sys/time.h>
@@ -171,20 +172,16 @@ err:
 
 SOCKET waitforclient(SOCKET server, long secs, long usecs)
 {
-    fd_set rfds;
     struct sockaddr_in client_sockaddr;
     socklen_t client_socklen = sizeof client_sockaddr;
+
+#if _WIN32
+    fd_set rfds;
     struct timeval tv;
 
-    FD_ZERO(&rfds);
-#if _WIN32
-    /* work around clumsy define of FD_SET in winsock2.h */
 #pragma warning(disable:4127)
     FD_SET(server, &rfds);
 #pragma warning(default:4127)
-#else
-    FD_SET(server, &rfds);
-#endif
 
     tv.tv_sec = secs;
     tv.tv_usec = usecs;
@@ -193,6 +190,21 @@ SOCKET waitforclient(SOCKET server, long secs, long usecs)
         return INVALID_SOCKET;
 
     if (FD_ISSET(server, &rfds))
+    /* work around clumsy define of FD_SET in winsock2.h */
+
+#else
+    int timeout;
+    struct pollfd pfd;
+
+    pfd.fd = server;
+
+    timeout = (secs * 1000000 + usecs / 1000);
+
+    if (poll(&pfd, 1, timeout) == -1)
+        return INVALID_SOCKET;
+
+    if(pfd.revents & POLLIN)
+#endif
         return accept(server, (struct sockaddr *) &client_sockaddr,
                 &client_socklen);
 
