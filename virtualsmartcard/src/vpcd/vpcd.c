@@ -197,6 +197,8 @@ SOCKET waitforclient(SOCKET server, long secs, long usecs)
     struct pollfd pfd;
 
     pfd.fd = server;
+    pfd.events = POLLIN;
+    pfd.revents = 0;
 
     timeout = (secs * 1000000 + usecs / 1000);
 
