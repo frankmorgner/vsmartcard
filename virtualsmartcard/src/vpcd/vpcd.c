@@ -179,6 +179,7 @@ SOCKET waitforclient(SOCKET server, long secs, long usecs)
     fd_set rfds;
     struct timeval tv;
 
+    FD_ZERO(&rfds);
 #pragma warning(disable:4127)
     FD_SET(server, &rfds);
 #pragma warning(default:4127)
