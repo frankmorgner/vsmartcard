@@ -1,6 +1,6 @@
 #
-# Copyright (C) 2011 Dominik Oepen
-#
+# Copyright (C) 2021 João Paulo Barraca
+# 
 # This file is part of virtualsmartcard.
 #
 # virtualsmartcard is free software: you can redistribute it and/or modify it
@@ -73,7 +73,6 @@ class PTEIDOS(Iso7816OS):
             logger.exception(f"ERROR: {e}")
 
         r = self.formatResult(c.ins, c.p1, c.p2, c.le, result, sw)
-        #logger.debug(f"End Result: SW:{hexlify(bytes(r[-2:])).decode('latin')} data={hexlify(result)[:12].decode('latin')}...")
         return r
 
     def formatResult(self, ins, p1, p2, le, data, sw):
