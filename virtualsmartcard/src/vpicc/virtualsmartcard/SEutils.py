@@ -25,7 +25,7 @@ from virtualsmartcard.ConstantDefinitions import SM_Class, MAX_EXTENDED_LE
 from virtualsmartcard.utils import inttostring, stringtoint, C_APDU
 from virtualsmartcard.SWutils import SwError, SW
 import virtualsmartcard.CryptoUtils as vsCrypto
-
+import logging
 
 class ControlReferenceTemplate:
     """
@@ -35,7 +35,7 @@ class ControlReferenceTemplate:
     Reference Template:
     HT, AT, KT, CCT, DST, CT-sym, CT-asym.
     """
-    def __init__(self, tag, config=""):
+    def __init__(self, tag, config=b""):
         """
         Generates a new CRT
 
@@ -62,7 +62,7 @@ class ControlReferenceTemplate:
         self.algorithm = None
         self.blocklength = None
         self.usage_qualifier = None
-        if config != "":
+        if config != b'':
             self.parse_SE_config(config)
         self.__config_string = config
 
@@ -101,10 +101,10 @@ class ControlReferenceTemplate:
         :param data: reference to an algorithm
         """
 
-        if data not in ALGO_MAPPING:
+        if data[0] not in ALGO_MAPPING:
             raise SwError(SW["ERR_REFNOTUSABLE"])
         else:
-            self.algorithm = ALGO_MAPPING[data]
+            self.algorithm = ALGO_MAPPING[data[0]]
             self.__replace_tag(0x80, data)
 
     def __set_key(self, tag, value):
@@ -149,6 +149,7 @@ class ControlReferenceTemplate:
         replace it. Otherwise append tag, length and value to the config
         string.
         """
+
         position = 0
         while position < len(self.__config_string) and \
                 self.__config_string[position] != tag:
@@ -156,7 +157,7 @@ class ControlReferenceTemplate:
             position += length + 3
 
         if position < len(self.__config_string):  # Replace Tag
-            length = stringtoint(self.__config_string[position+1])
+            length = stringtoint(chr(self.__config_string[position+1]))
             self.__config_string = self.__config_string[:position] +\
                 inttostring(tag) + inttostring(len(data)) + data +\
                 self.__config_string[position+2+length:]
