@@ -665,6 +665,97 @@ class CardGenerator(object):
                        data=b"\x00\x00\x00\x01\x00\x01\x00\x00"))  # EF.ICCSN
         self.sam = CryptoflexSAM(self.mf)
 
+    def __generate_PTEID(self):
+        def ___get_fs_entry(data, fid):
+
+            obj = data.get(fid, {})
+            fci = obj.get('fci', b'')
+
+            if len(fci) != 0:
+                fci = a2b_base64(fci)
+
+            name = obj.get('name', b'')
+            if len(name) != 0:
+                name = a2b_base64(name)
+
+            fdata = obj.get('data', b'')
+            if len(fdata) != 0:
+                fdata = a2b_base64(fdata)
+
+            return name, fci, fdata
+
+        """Generate the Filesystem and SAM of a cryptoflex card"""
+        from virtualsmartcard.cards.PTEID import PTEID_MF
+        from virtualsmartcard.cards.PTEID import PTEID_SAM
+        import json
+        from binascii import a2b_base64
+        logging.info("Opening card.json")
+
+        f = open('card.json', 'r')
+        data = json.loads(f.read())
+        f.close()
+
+        self.mf = PTEID_MF()
+        name, fci, fdata = ___get_fs_entry(data, '3f00-0001')
+        fk = DF(parent=self.mf, fid=0x0001,
+                    dfname=name,
+                    extra_fci_data=fci)
+        self.mf.append(fk)
+
+        name, fci, fdata = ___get_fs_entry(data, '3f00-4f01')
+        info_a = DF(parent=self.mf, fid=0x4f01,
+                    dfname=name,
+                    extra_fci_data=fci)
+
+        self.mf.append(info_a)
+
+        # OK
+
+        # EF DIR
+        for fid in [0x2f00, 0x0003]:
+            path = '3f00-%04x' % (fid,)
+            name, fci, fdata = ___get_fs_entry(data, path)
+            self.mf.append(TransparentStructureEF(parent=self.mf, fid=fid,
+                                                  data=fdata,
+                                                  extra_fci_data=fci))
+
+        # TRACE
+
+
+        # ADF CIA PKI
+        name, fci, fdata = ___get_fs_entry(data, '3f00-4f00')
+        adf_cia = DF(parent=self.mf, fid=0x4F00,
+                     dfname=name,
+                     extra_fci_data=fci)
+
+        for fid in [0x5031, 0x5032]:
+            path = '3f00-4f00-%04x' % (fid, )
+            name, fci, fdata = ___get_fs_entry(data, path)
+            adf_cia.append(TransparentStructureEF(parent=adf_cia, fid=fid,
+                                                  data=fdata,
+                                                  extra_fci_data=fci))
+
+        self.mf.append(adf_cia)
+
+        # ADF PKI
+        name, fci, fdata = ___get_fs_entry(data, '3f00-5f00')
+        adf = DF(parent=self.mf, fid=0x5f00, dfname=name, extra_fci_data=fci)
+
+        for fid in [0x4401, 0xef0c, 0xEF02,
+                    0xEF05, 0xEF06, 0xEF07,
+                    0xEF08, 0xEF09, 0xEF0D,
+                    0xEF0E, 0xEF0F, 0xEF10,
+                    0xEF11, 0xEF12]:
+            path = '3f00-5f00-%04x' % (fid, )
+            name, fci, fdata = ___get_fs_entry(data, path)
+            adf.append(TransparentStructureEF(parent=adf, fid=fid,
+                                              data=fdata,
+                                              extra_fci_data=fci))
+
+        self.mf.append(adf)
+        private_key = binascii.a2b_base64(data.get('auth-private-key', {}).get('data', None))
+        self.sam = PTEID_SAM(self.mf, private_key=private_key)
+
     def generateCard(self):
         """Generate a new card"""
         if self.type == 'iso7816':
@@ -675,6 +766,8 @@ class CardGenerator(object):
             self.__generate_cryptoflex()
         elif self.type == 'nPA':
             self.__generate_nPA()
+        elif self.type == 'PTEID':
+            self.__generate_PTEID()
         else:
             return (None, None)
 
