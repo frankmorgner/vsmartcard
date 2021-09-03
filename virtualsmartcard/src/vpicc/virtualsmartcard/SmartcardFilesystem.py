@@ -225,7 +225,6 @@ def make_property(prop, doc):
             lambda self:        delattr(self, "_"+prop),
             doc)
 
-
 class File(object):
     """Template class for a smartcard file."""
     bertlv_data = make_property("bertlv_data", "list of (tag, length, "
@@ -412,19 +411,20 @@ class DF(File):
     """Class for a dedicated file"""
     data = make_property("data", "unknown")
     content = make_property("content", "list of files of the DF")
-    dfname = make_property("dfname", "string with up to 16 bytes. DF name,"
-                                     "which can also be used as application"
-                                     "identifier.")
+    dfname = b"" # make_property("dfname", "string with up to 16 bytes. DF name,"
+                #                     "which can also be used as application"
+                #                     "identifier.")
 
     def __init__(self, parent, fid,
                  filedescriptor=FDB["NOTSHAREABLEFILE"] | FDB["DF"],
                  lifecycle=LCB["ACTIVATED"],
-                 simpletlv_data=None, bertlv_data=None, dfname=None, data=""):
+                 simpletlv_data=None, bertlv_data=None, dfname=None, data="",
+                 extra_fci_data=b''):
         """
         See File for more.
         """
         File.__init__(self, parent, fid, filedescriptor, lifecycle,
-                      simpletlv_data, bertlv_data)
+                      simpletlv_data, bertlv_data, None, extra_fci_data)
         if dfname:
             if len(dfname) > 16:
                 raise SwError(SW["ERR_INCORRECTPARAMETERS"])
@@ -515,10 +515,10 @@ class DF(File):
         # not found
         if isinstance(value, int):
             logging.debug("file (%s=%x) not found in:\n%s" %
-                          (attribute, value, self))
+                          (attribute, value, self.fid))
         elif isinstance(value, str):
             logging.debug("file (%s=%r) not found in:\n%s" %
-                          (attribute, value, self))
+                          (attribute, value, self.fid))
         raise SwError(SW["ERR_FILENOTFOUND"])
 
     def remove(self, file):
@@ -679,30 +679,43 @@ class MF(DF):
         P1_PATH_FROM_MF = 0x08
         P1_PATH_FROM_CURRENTDF = 0x09
 
-        if (p1 >> 4) != 0 or p1 == P1_FILE:
+        #if (p1 >> 4) != 0 or 
+        if p1 == P1_FILE:
+            import binascii
+            logging.debug(f"p1 >> 4 or P1_FILE: {binascii.hexlify(data)}")
             # RFU OR
             # When P1='00', the card knows either because of a specific coding
             # of the file identifier or because of the context of execution of
             # the command if the file to select is the MF, a DF or an EF.
-            if data[:2] == inttostring(self.fid):
-                selected = walk(self, data[2:])
-            elif data[:2] == inttostring(self.currentDF().fid):
-                selected = walk(self.currentDF(), data[2:])
-            else:
-                selected = walk(self.currentDF(), data)
+            try:
+                if data[:2] == inttostring(self.fid):
+                    selected = walk(self, data[2:])
+                elif data[:2] == inttostring(self.currentDF().fid):
+                    selected = walk(self.currentDF(), data[2:])
+                else:
+                    selected = walk(self.currentDF(), data)
+            except SwError as e:
+                # If everything fails, look at MF
+                selected = walk(self, data)
+
         elif p1 == P1_CHILD_DF or p1 == P1_CHILD_EF:
+            logging.debug("P1_CHILD_DF or P1_CHILD_EF")
             selected = self.currentDF().select('fid', stringtoint(data))
             if ((p1 == P1_CHILD_DF and not isinstance(selected, DF)) or
                     (p1 == P1_CHILD_EF and not isinstance(selected, EF))):
                 # Command incompatible with file structure
                 raise SwError(SW["ERR_INCOMPATIBLEWITHFILE"])
         elif p1 == P1_PATH_FROM_MF:
+            logging.debug("P1 PATH FROM MF")
             selected = walk(self, data)
         elif p1 == P1_PATH_FROM_CURRENTDF:
+            logging.debug("P1 PATH FROM CURRENT DF")
             selected = walk(self.currentDF(), data)
         elif p1 == P1_PARENT_DF:
+            logging.debug("P1 PARENT DF")
             selected = self.current.parent
         elif p1 == P1_DF_NAME:
+            logging.debug("P1 DF NAME")
             df = self.currentDF()
             if df == self or df not in self.content:
                 index_current = -1
@@ -748,7 +761,6 @@ class MF(DF):
             data = bertlv_pack([(tag, len(fdm), fdm)])
 
         self.current = file
-        logging.info("Selected %s" % file)
 
         return SW["NORMAL"], data
 
@@ -761,8 +773,8 @@ class MF(DF):
             list of data strings.
         """
         if p1 >> 7:
-            # If bit 1 of INS is set to 0 and bit 8 of P1 to 1, then bits 7
-            # and 6 of P1 are set to 00 (RFU), bits 5 to 1 of P1 encode a
+            # If bit 8 of INS is set to 1, then bits 7
+            # and 6 of P1 are set to 00 (RFU), bits 3 to 1 of P1 encode a
             # short EF identifier and P2 (eight bits) encodes an offset
             # from zero to 255.
             ef = self.currentDF().select('shortfid', p1 & 0x1f)
@@ -817,8 +829,8 @@ class MF(DF):
             data as binary string.
         """
         ef, offsets, datalist = self.dataUnitsDecodePlain(p1, p2, data)
-        result = ef.readbinary(offsets[0])
 
+        result = ef.readbinary(offsets[0])
         return SW["NORMAL"], result
 
     def readBinaryEncapsulated(self, p1, p2, data):
@@ -1423,7 +1435,8 @@ class EF(File):
     def __init__(self, parent, fid, filedescriptor,
                  lifecycle=LCB["ACTIVATED"],
                  simpletlv_data=None, bertlv_data=None,
-                 datacoding=DCB["ONETIMEWRITE"], shortfid=0):
+                 datacoding=DCB["ONETIMEWRITE"], shortfid=0,
+                 extra_fci_data=b''):
         """
         The constructor is supposed to be involved creation of a by creation of
         a TransparentStructureEF or RecordStructureEF.
@@ -1439,7 +1452,7 @@ class EF(File):
             self.shortfid = shortfid
         File.__init__(self, parent, fid, filedescriptor, lifecycle,
                       simpletlv_data,
-                      bertlv_data)
+                      bertlv_data, extra_fci_data=extra_fci_data)
         self.datacoding = datacoding
 
 
@@ -1451,14 +1464,15 @@ class TransparentStructureEF(EF):
                  filedescriptor=FDB["EFSTRUCTURE_TRANSPARENT"],
                  lifecycle=LCB["ACTIVATED"],
                  simpletlv_data=None, bertlv_data=None,
-                 datacoding=DCB["ONETIMEWRITE"], shortfid=0, data=""):
+                 datacoding=DCB["ONETIMEWRITE"], shortfid=0, data="", 
+                 extra_fci_data=b''):
         """
         See EF for more.
         """
         EF.__init__(self, parent, fid,
                     filedescriptor, lifecycle,
                     simpletlv_data, bertlv_data,
-                    datacoding, shortfid)
+                    datacoding, shortfid, extra_fci_data)
         self.data = data
 
     def readbinary(self, offset):

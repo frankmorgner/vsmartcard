@@ -451,6 +451,9 @@ class VirtualICC(object):
         elif card_type == "cryptoflex":
             from virtualsmartcard.cards.cryptoflex import CryptoflexOS
             self.os = CryptoflexOS(MF, SAM)
+        elif card_type == "PTEID":
+            from virtualsmartcard.cards.PTEID import PTEIDOS
+            self.os = PTEIDOS(MF, SAM)
         elif card_type == "relay":
             from virtualsmartcard.cards.Relay import RelayOS
             from virtualsmartcard.cards.RelayMiddleman import RelayMiddleman
