@@ -367,5 +367,6 @@ LIB_PREFIX:           ${LIB_PREFIX}
 DYN_LIB_EXT:          ${DYN_LIB_EXT}
 
 HELP2MAN:             ${HELP2MAN}
+PYTHON:               ${PYTHON}
 
 EOF
