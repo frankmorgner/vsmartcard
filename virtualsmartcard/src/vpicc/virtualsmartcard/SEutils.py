@@ -101,10 +101,10 @@ class ControlReferenceTemplate:
         :param data: reference to an algorithm
         """
 
-        if data[0] not in ALGO_MAPPING:
+        if data not in ALGO_MAPPING:
             raise SwError(SW["ERR_REFNOTUSABLE"])
         else:
-            self.algorithm = ALGO_MAPPING[data[0]]
+            self.algorithm = ALGO_MAPPING[data]
             self.__replace_tag(0x80, data)
 
     def __set_key(self, tag, value):
