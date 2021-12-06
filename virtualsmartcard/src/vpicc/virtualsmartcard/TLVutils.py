@@ -118,6 +118,8 @@ def pack(tlv_data, recalculate_length=False):
     result = []
 
     for data in tlv_data:
+        if not isinstance(data, tuple):
+            break
         tag, length, value = data[:3]
         if tag in (0xff, 0x00):
             result = result + inttostring(tag)
