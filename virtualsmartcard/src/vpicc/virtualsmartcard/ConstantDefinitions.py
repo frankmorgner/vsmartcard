@@ -215,20 +215,20 @@ CRT_TEMPLATE["CT"] = 0xB8  # Template for Confidentiality
 
 # This table maps algorithms to numbers. It is used in the security environment
 ALGO_MAPPING = {}
-ALGO_MAPPING[0x00] = "DES3-ECB"
-ALGO_MAPPING[0x01] = "DES3-CBC"
-ALGO_MAPPING[0x02] = "AES-ECB"
-ALGO_MAPPING[0x03] = "AES-CBC"
-ALGO_MAPPING[0x04] = "DES-ECB"
-ALGO_MAPPING[0x05] = "DES-CBC"
-ALGO_MAPPING[0x06] = "MD5"
-ALGO_MAPPING[0x07] = "SHA"
-ALGO_MAPPING[0x08] = "SHA256"
-ALGO_MAPPING[0x09] = "MAC"
-ALGO_MAPPING[0x0A] = "HMAC"
-ALGO_MAPPING[0x0B] = "CC"
-ALGO_MAPPING[0x0C] = "RSA"
-ALGO_MAPPING[0x0D] = "DSA"
+ALGO_MAPPING[b'\x00'] = "DES3-ECB"
+ALGO_MAPPING[b'\x01'] = "DES3-CBC"
+ALGO_MAPPING[b'\x02'] = "AES-ECB"
+ALGO_MAPPING[b'\x03'] = "AES-CBC"
+ALGO_MAPPING[b'\x04'] = "DES-ECB"
+ALGO_MAPPING[b'\x05'] = "DES-CBC"
+ALGO_MAPPING[b'\x06'] = "MD5"
+ALGO_MAPPING[b'\x07'] = "SHA"
+ALGO_MAPPING[b'\x08'] = "SHA256"
+ALGO_MAPPING[b'\x09'] = "MAC"
+ALGO_MAPPING[b'\x0a'] = "HMAC"
+ALGO_MAPPING[b'\x0b'] = "CC"
+ALGO_MAPPING[b'\x0c'] = "RSA"
+ALGO_MAPPING[b'\x0d'] = "DSA"
 
 # Recerence control for select command, and record handling commands
 REF = {
