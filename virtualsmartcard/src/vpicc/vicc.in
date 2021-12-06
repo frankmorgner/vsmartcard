@@ -35,7 +35,7 @@ Report bugs to @PACKAGE_BUGREPORT@
 
 parser.add_argument("-t", "--type",
         action="store",
-        choices=['iso7816', 'cryptoflex', 'ePass', 'nPA', 'relay', 'handler_test'],
+        choices=['iso7816', 'cryptoflex', 'ePass', 'nPA', 'PTEID', 'relay', 'handler_test'],
         default='iso7816',
         help="type of smart card to emulate (default: %(default)s)")
 parser.add_argument("-v", "--verbose",
