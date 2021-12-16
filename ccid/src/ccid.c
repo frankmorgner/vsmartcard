@@ -641,14 +641,14 @@ perform_PC_to_RDR_XfrBlock(const u8 *in, size_t inlen, __u8** out, size_t *outle
 	}
 
     sc_result = sc_bytes2apdu(ctx, abDataIn, apdulen, &apdu);
-    if (sc_result >= 0)
+    if (sc_result >= 0) {
+        /* don't magically get additional data in OpenSC */
+        apdu.flags |= SC_APDU_FLAGS_NO_GET_RESP;
         sc_result = get_rapdu(&apdu, &abDataOut,
                 &abDataOutLen);
-    else
+    } else
         bin_log(ctx, SC_LOG_DEBUG_VERBOSE, "Invalid APDU", abDataIn,
                 __le32_to_cpu(request->dwLength));
-    /* don't magically get additional data in OpenSC */
-    apdu->flags |= SC_APDU_FLAGS_NO_GET_RESP;
 
     sc_result = get_RDR_to_PC_DataBlock(request->bSeq, sc_result,
             out, outlen, abDataOut, abDataOutLen);
