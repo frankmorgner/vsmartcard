@@ -200,6 +200,9 @@ int ccid_initialize(int reader_id, int verbose)
     i = initialize(reader_id, verbose, &ctx, &reader);
     if (i < 0)
         return i;
+    if (verbose > 0) {
+        sc_ctx_log_to_file(ctx, "stderr");
+    }
 
     return SC_SUCCESS;
 }
@@ -455,6 +458,9 @@ perform_PC_to_RDR_IccPowerOn(const __u8 *in, size_t inlen, __u8 **out, size_t *o
         sc_result = SC_SUCCESS;
     } else {
         sc_sm_stop(card);
+        /* avoid OpenSC's internal card driver magic. The default driver
+         * doesn't send any additional commands */
+        sc_set_card_driver(ctx, "default");
         sc_result = sc_connect_card(reader, &card);
         card->caps |= SC_CARD_CAP_APDU_EXT;
     }
@@ -641,6 +647,8 @@ perform_PC_to_RDR_XfrBlock(const u8 *in, size_t inlen, __u8** out, size_t *outle
     else
         bin_log(ctx, SC_LOG_DEBUG_VERBOSE, "Invalid APDU", abDataIn,
                 __le32_to_cpu(request->dwLength));
+    /* don't magically get additional data in OpenSC */
+    apdu->flags |= SC_APDU_FLAGS_NO_GET_RESP;
 
     sc_result = get_RDR_to_PC_DataBlock(request->bSeq, sc_result,
             out, outlen, abDataOut, abDataOutLen);
