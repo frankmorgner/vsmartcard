@@ -352,7 +352,7 @@ get_RDR_to_PC_SlotStatus(__u8 bSeq, int sc_result, __u8 **outbuf, size_t *outlen
     if (!outbuf)
         return SC_ERROR_INVALID_ARGUMENTS;
     if (abProtocolDataStructureLen > 0xffff) {
-        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "abProtocolDataStructure %u bytes too long",
+        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "abProtocolDataStructure %zu bytes too long",
                 abProtocolDataStructureLen-0xffff);
         return SC_ERROR_INVALID_DATA;
     }
@@ -384,7 +384,7 @@ get_RDR_to_PC_DataBlock(__u8 bSeq, int sc_result, __u8 **outbuf,
     if (!outbuf)
         return SC_ERROR_INVALID_ARGUMENTS;
     if (abDataLen > 0xffff) {
-        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "abProtocolDataStructure %u bytes too long",
+        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "abProtocolDataStructure %zu bytes too long",
                 abDataLen-0xffff);
         return SC_ERROR_INVALID_DATA;
     }
@@ -1078,7 +1078,7 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
 
 
     if (pace_output.ef_cardaccess_length > 0xffff) {
-        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "EF.CardAcces %u bytes too long",
+        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "EF.CardAcces %zu bytes too long",
                 pace_output.ef_cardaccess_length-0xffff);
         sc_result = SC_ERROR_INVALID_DATA;
         goto err;
@@ -1095,7 +1095,7 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
 
 
     if (pace_output.recent_car_length > 0xff) {
-        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Most recent CAR %u bytes too long",
+        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Most recent CAR %zu bytes too long",
                 pace_output.recent_car_length-0xff);
         sc_result = SC_ERROR_INVALID_DATA;
         goto err;
@@ -1110,7 +1110,7 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
 
 
     if (pace_output.previous_car_length > 0xff) {
-        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Previous CAR %u bytes too long",
+        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Previous CAR %zu bytes too long",
                 pace_output.previous_car_length-0xff);
         sc_result = SC_ERROR_INVALID_DATA;
         goto err;
@@ -1125,7 +1125,7 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
 
 
     if (pace_output.id_icc_length > 0xffff) {
-        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "ID ICC %u bytes too long",
+        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "ID ICC %zu bytes too long",
                 pace_output.id_icc_length-0xffff);
         sc_result = SC_ERROR_INVALID_DATA;
         goto err;
