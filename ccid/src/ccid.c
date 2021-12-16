@@ -157,9 +157,9 @@ ccid_desc = {
 #define debug_sc_result(sc_result) \
 do { \
     if (sc_result < 0) \
-        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, sc_strerror(sc_result)); \
+        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "%s", sc_strerror(sc_result)); \
     else \
-        sc_debug(ctx, SC_LOG_DEBUG_NORMAL, sc_strerror(sc_result)); \
+        sc_debug(ctx, SC_LOG_DEBUG_NORMAL,  "%s", sc_strerror(sc_result)); \
 } while (0)
 
 static int
