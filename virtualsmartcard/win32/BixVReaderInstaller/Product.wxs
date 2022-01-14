@@ -12,7 +12,7 @@
   <?error Unsupported value of sys.BUILDARCH=$(sys.BUILDARCH)?>
 <?endif?>
     
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:fire="http://schemas.microsoft.com/wix/FirewallExtension">
 	<Product Id="*" Name="Virtual Smart Card Reader ($(sys.BUILDARCH))" Language="1033" Version="1.0.0.0" Manufacturer="Frank Morgner" UpgradeCode="6d60b0e4-c325-4d3b-b727-2f3e0b0a8afa">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
@@ -23,6 +23,9 @@
       <Directory Id="$(var.ProgramFilesARCHFolder)">
         <Directory Id="INSTALLDIR" Name="BixVReader">          
             <Component Id="BixVReaderDriver" Guid="60FF3BFF-E235-4F84-8A25-E22CB3164FB1">
+              <fire:FirewallException Id="virtual_card_reader_port" Name="virtual_card_reader_port"
+                            Description="Port for virtual card reader" Port="35963"
+                                Profile="all" Protocol="tcp" Scope="any" /> 
               <File Id="BixVReader.dll" Source="$(var.BixVReader.TargetDir)BixVReader\BixVReader.dll" />
               <File Id="BixVReader.inf" Source="$(var.BixVReader.TargetDir)BixVReader\BixVReader.inf" />
               <File Id="WudfUpdate_01011.dll" Source="$(var.BixVReader.TargetDir)BixVReader\WudfUpdate_01011.dll" />
