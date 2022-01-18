@@ -1,0 +1,22 @@
+name: Coverity Scan
+
+# We only want to test master or explicitly via coverity branch
+on:
+  push:
+    branches: [master, coverity]
+
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - run: .github/build-virtualsmartcard.sh coverity
+    - run: .github/build-ccid.sh coverity
+    - run: .github/build-pcsc-relay.sh coverity
+    - uses: vapier/coverity-scan-action@v0
+      with:
+        project: frankmorgner%2Fvsmartcard
+        token: ${{ secrets.COVERITY_SCAN_TOKEN }}
+        email: 'frankmorgner@gmail.com'
+        command: 'make -C $GITHUB_WORKSPACE/virtualsmartcard; make -C $GITHUB_WORKSPACE/ccid; make -C $GITHUB_WORKSPACE/pcsc-relay'

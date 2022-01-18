@@ -1,0 +1,82 @@
+name: Build
+
+on:
+  pull_request:
+    paths:
+      - '**.c'
+      - '**.h'
+      - '**.in'
+      - '**.sh'
+      - '**.py'
+      - '**.java'
+      - .github/workflows/ci.yml
+  push:
+
+
+jobs:
+  virtualsmartcard-macos:
+    runs-on: macos-11
+    steps:
+    - uses: actions/checkout@v2
+    - run: .github/build-virtualsmartcard.sh macos
+    - uses: actions/upload-artifact@v2
+      with:
+        name: virtualsmartcard-macos
+        path:
+          virtualsmartcard/virtualsmartcard*.dmg
+
+  virtualsmartcard-ubuntu:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - run: .github/build-virtualsmartcard.sh ubuntu
+    - uses: actions/upload-artifact@v2
+      with:
+        name: virtualsmartcard
+        path:
+          virtualsmartcard/virtualsmartcard*.tar.gz
+
+  ccid-ubuntu:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - run: .github/build-ccid.sh ubuntu
+    - uses: actions/upload-artifact@v2
+      with:
+        name: ccid-emulator
+        path:
+          ccid/ccid-emulator*.tar.gz
+
+  pcsc-relay-macos:
+    runs-on: macos-11
+    steps:
+    - uses: actions/checkout@v2
+    - run: .github/build-pcsc-relay.sh macos
+
+  pcsc-relay-ubuntu:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - run: .github/build-pcsc-relay.sh ubuntu
+    - uses: actions/upload-artifact@v2
+      with:
+        name: pcsc-relay
+        path:
+          pcsc-relay/pcsc-relay*.tar.gz
+
+#  pcsc-relay-mingw-32:
+#    runs-on: ubuntu-20.04
+#    steps:
+#    - uses: actions/checkout@v2
+#    - run: .github/build-pcsc-relay.sh mingw-32
+
+  pcsc-relay-mingw-64:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - run: .github/build-pcsc-relay.sh mingw-64
+    - uses: actions/upload-artifact@v2
+      with:
+        name: pcsc-relay-mingw-64
+        path:
+          pcsc-relay/src/pcsc-relay.exe
