@@ -162,7 +162,6 @@ AC_FUNC_REALLOC
 
 AC_CONFIG_FILES([Makefile
                  doc/Makefile
-                 win32/Makefile
                  src/Makefile])
 
 AC_OUTPUT

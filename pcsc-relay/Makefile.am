@@ -1,6 +1,3 @@
-SUBDIRS=src doc win32
+SUBDIRS=src doc
 
 EXTRA_DIST = docs
-
-win:
-	make -C win32 $@
