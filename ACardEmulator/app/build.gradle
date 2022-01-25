@@ -36,9 +36,6 @@ android {
         }
     }
     sourceSets {
-        main.java.srcDirs += 'src/main/external/vJCRE/src'
-        main.java.exclude('pro/javacard/vre/VJCREProvider*')
-        main.java.exclude('visa/*')
         main.java.srcDirs += 'src/main/external/jcardsim/src/main/java'
         main.java.exclude('com/licel/jcardsim/smartcardio/*')
         main.java.exclude('com/licel/jcardsim/remote/*')
@@ -47,10 +44,6 @@ android {
         main.java.exclude('com/licel/jcardsim/io/CAD*')
         main.java.exclude('javacard/framework/service/CardRemoteObject*')
         main.java.exclude('javacard/framework/service/RMIService*')
-        main.java.exclude('com/licel/jcardsim/utils/JavaCardApiProcessor*')
-        main.java.exclude('com/licel/jcardsim/framework/service/*')
-        main.java.exclude('com/licel/jcardsim/samples/*')
-        main.java.exclude('com/licel/jcardsim/crypto/*')
         main.java.srcDirs += 'src/main/external/GidsApplet/src'
         main.java.exclude('com/mysmartlogon/gidsAppletTests/*')
         main.java.srcDirs += 'src/main/external/IsoApplet/src'
@@ -95,6 +88,6 @@ dependencies {
     compile 'com.android.support:design:23.2.1'
     compile 'com.journeyapps:zxing-android-embedded:3.2.0@aar'
     compile 'com.google.zxing:core:3.2.1'
-    compile 'org.bouncycastle:bcprov-jdk14:1.49'
+    compile 'org.bouncycastle:bcprov-jdk14:1.46'
     fullCompile files('libs/sdk-v1.0.0.jar')
 }
