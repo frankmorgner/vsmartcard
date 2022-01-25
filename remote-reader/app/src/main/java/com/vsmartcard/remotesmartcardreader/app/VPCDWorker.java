@@ -195,7 +195,7 @@ class VPCDWorker extends AsyncTask<VPCDWorker.VPCDWorkerParams, Void, Void> {
             return;
         }
 
-        Log.i(this.getClass().getName(), "Connecting to " + params.hostname + ":" + Integer.toString(params.port) + "...");
+        Log.i(this.getClass().getName(), "Connecting to " + params.hostname + ":" + params.port + "...");
         vpcdConnect(params.hostname, params.port);
         Log.i(this.getClass().getName(), "Connected to VPCD");
     }

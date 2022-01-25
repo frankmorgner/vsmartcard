@@ -39,7 +39,7 @@ import java.io.IOException;
 public class NFCReader implements SCReader {
 
     private final IsoDep card;
-    private Activity activity;
+    private final Activity activity;
 
     private NFCReader(IsoDep sc, Activity activity) throws IOException {
         this.card = sc;
@@ -47,7 +47,7 @@ public class NFCReader implements SCReader {
         SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(activity);
         int timeout = Integer.parseInt(SP.getString("timeout", "500"));
         card.setTimeout(timeout);
-        com.example.android.common.logger.Log.i(getClass().getName(), "Timeout set to " + Integer.toString(timeout));
+        com.example.android.common.logger.Log.i(getClass().getName(), "Timeout set to " + timeout);
         this.activity = activity;
         avoidScreenTimeout();
     }

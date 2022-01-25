@@ -22,7 +22,7 @@ import android.widget.TextView;
 
 /** Simple TextView which is used to output log data received through the LogNode interface.
 */
-public class LogView extends TextView implements LogNode {
+public class LogView extends androidx.appcompat.widget.AppCompatTextView implements LogNode {
 
     public LogView(Context context) {
         super(context);
