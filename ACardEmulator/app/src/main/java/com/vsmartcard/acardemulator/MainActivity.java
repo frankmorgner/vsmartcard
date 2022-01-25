@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences settings = getSharedPreferences(PREFS, 0);
         if (settings.getInt(PREF_LASTVERSION, 0) != BuildConfig.VERSION_CODE) {
             showStartupMessage();
-            settings.edit().putInt(PREF_LASTVERSION, BuildConfig.VERSION_CODE).commit();
+            settings.edit().putInt(PREF_LASTVERSION, BuildConfig.VERSION_CODE).apply();
         }
 
         LocalBroadcastManager bManager = LocalBroadcastManager.getInstance(this);
