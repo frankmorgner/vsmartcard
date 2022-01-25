@@ -19,9 +19,6 @@
 [submodule "ACardEmulator/app/src/main/external/PivApplet"]
 	path = ACardEmulator/app/src/main/external/PivApplet
 	url = https://github.com/frankmorgner/PivApplet.git
-[submodule "ACardEmulator/app/src/main/external/vJCRE"]
-	path = ACardEmulator/app/src/main/external/vJCRE
-	url = https://github.com/frankmorgner/vJCRE.git
 [submodule "ccid/src/OpenSC"]
 	path = ccid/src/OpenSC
 	url = https://github.com/OpenSC/OpenSC.git
