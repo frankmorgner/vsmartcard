@@ -80,3 +80,14 @@ jobs:
         name: pcsc-relay-mingw-64
         path:
           pcsc-relay/src/pcsc-relay.exe
+
+  remote-reader-ubuntu:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - run: .github/build-remote-reader.sh
+    - uses: actions/upload-artifact@v2
+      with:
+        name: remote-reader
+        path:
+          remote-reader/app/build/outputs/apk/*/*.apk
