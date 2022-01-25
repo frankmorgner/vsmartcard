@@ -91,3 +91,14 @@ jobs:
         name: remote-reader
         path:
           remote-reader/app/build/outputs/apk/*/*.apk
+
+  ACardEmulator-ubuntu:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - run: .github/build-ACardEmulator.sh
+    - uses: actions/upload-artifact@v2
+      with:
+        name: ACardEmulator
+        path:
+          ACardEmulator/app/build/outputs/apk/*/*.apk
