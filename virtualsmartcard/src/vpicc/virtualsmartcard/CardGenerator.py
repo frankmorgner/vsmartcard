@@ -78,17 +78,19 @@ class CardGenerator(object):
         from virtualsmartcard.cards.ePass import PassportSAM
 
         # TODO: Sanity checks
-        MRZ = raw_input("Please enter the MRZ as one string: ")
+        MRZ = input(
+                "Please enter the Machine Readable Zone\n" +
+                "Example: P<UTOERIKSSON<<ANNA<MARIX<<<<<<<<<<<<<<<<<<<L898902C<3UTO6908061F9406236ZE184226B<<<<<14\n" +
+                "MRZ:     ")
+        MRZ = bytes(MRZ, "ascii")
 
         readline.set_completer_delims("")
         readline.parse_and_bind("tab: complete")
 
-        picturepath = raw_input("Please enter the path to an image: ")
+        picturepath = input(
+                "Please enter the path to your facial image\n"
+                "Path:    ")
         picturepath = picturepath.strip()
-
-        # MRZ1 = "P<UTOERIKSSON<<ANNA<MARIX<<<<<<<<<<<<<<<<<<<"
-        # MRZ2 = "L898902C<3UTO6908061F9406236ZE184226B<<<<<14"
-        # MRZ = MRZ1 + MRZ2
 
         try:
             im = Image.open(picturepath)
@@ -123,11 +125,11 @@ class CardGenerator(object):
 
         # EF.DG2
         if picture is not None:
-            IIB = "\x00\x01" + inttostring(pic_width, 2) +\
-                    inttostring(pic_height, 2) + 6 * "\x00"
+            IIB = b"\x00\x01" + inttostring(pic_width, 2) +\
+                    inttostring(pic_height, 2) + 6 * b"\x00"
             length = 32 + len(picture)  # 32 is the length of IIB + FIB
-            FIB = inttostring(length, 4) + 16 * "\x00"
-            FRH = "FAC" + "\x00" + "010" + "\x00" +\
+            FIB = inttostring(length, 4) + 16 * b"\x00"
+            FRH = b"FAC" + b"\x00" + b"010" + b"\x00" +\
                   inttostring(14 + length, 4) + inttostring(1, 2)
             picture = FRH + FIB + IIB + picture
             DG2 = pack([(0xA1, 8, b"\x87\x02\x01\x01\x88\x02\x05\x01"),
