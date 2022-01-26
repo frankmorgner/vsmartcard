@@ -11,11 +11,10 @@ tasks.withType(JavaCompile) {
 
 android {
     compileSdkVersion 23
-    buildToolsVersion '25.0.0'
     defaultConfig {
         applicationId "com.vsmartcard.acardemulator"
         minSdkVersion 19
-        targetSdkVersion 23
+        targetSdkVersion 29
         versionCode 7
         versionName "3.4"
     }
@@ -74,7 +73,7 @@ android.applicationVariants.all { variant ->
         } else {
             newApkName = "${appName}-${output.baseName}-${variant.versionName}-unaligned.apk"
         }
-        output.outputFile = new File(output.outputFile.parent, newApkName)
+        output.outputFileName = new File(newApkName)
     }
 }
 
@@ -82,12 +81,12 @@ dependencies {
     shadow localGroovy()
     shadow gradleApi()
 
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:23.0.1'
-    compile 'com.android.support:support-v4:23.0.1'
-    compile 'com.android.support:design:23.2.1'
-    compile 'com.journeyapps:zxing-android-embedded:3.2.0@aar'
-    compile 'com.google.zxing:core:3.2.1'
-    compile 'org.bouncycastle:bcprov-jdk14:1.46'
-    fullCompile files('libs/sdk-v1.0.0.jar')
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.android.support:appcompat-v7:23.0.1'
+    implementation 'com.android.support:support-v4:23.0.1'
+    implementation 'com.android.support:design:23.2.1'
+    implementation 'com.journeyapps:zxing-android-embedded:3.2.0@aar'
+    implementation 'com.google.zxing:core:3.2.1'
+    implementation 'org.bouncycastle:bcprov-jdk14:1.46'
+    fullImplementation files('libs/sdk-v1.0.0.jar')
 }
