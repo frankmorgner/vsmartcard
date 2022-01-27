@@ -38,6 +38,7 @@ typedef WORD uint16_t;
 #else
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <netinet/in.h>
 #include <poll.h>
 #include <stdint.h>
 #include <sys/socket.h>
