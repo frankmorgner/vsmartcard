@@ -335,6 +335,6 @@ Notes and References
 .. _`Fabio Ottavi's UMDF Driver for a Virtual Smart Card Reader`: http://www.codeproject.com/Articles/134010/An-UMDF-Driver-for-a-Virtual-Smart-Card-Reader
 .. _`Windows Driver Kit 10 and Visual Studio 2015`: https://msdn.microsoft.com/en-us/library/windows/hardware/ff557573
 .. _`WiX Toolset 3.10`: https://wixtoolset.org/releases/v3.10/stable
-.. _`Windows binaries`: https://github.com/frankmorgner/vsmartcard/releases/download/virtualsmartcard-0.7/virtualsmartcard-0.7_win32.zip
+.. _`Windows binaries`: https://github.com/frankmorgner/vsmartcard/releases/tag/virtualsmartcard-0.8
 .. _npa-tool: https://github.com/frankmorgner/OpenSC
 .. _`Using CertMgr to Install Test Certificates on a Test Computer`: https://docs.microsoft.com/en-us/windows-hardware/drivers/install/using-certmgr-to-install-test-certificates-on-a-test-computer
