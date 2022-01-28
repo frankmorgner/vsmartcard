@@ -166,10 +166,21 @@ to download the `Windows binaries`_, you may directly jump to step 4.
    the installer (:file:`BixVReaderInstaller.msi`) in
    :file:`virtualsmartcard\\win32\\BixVReaderInstaller\\bin\\*Release`
 
-4. To install |vpcd|, double click :file:`BixVReaderInstaller.msi`. Since we
-   are currently not signing the Installer, this will yield a warning about an
-   unverified driver software publisher on Windows 8 and later. Click
-   :guilabel:`Install this driver software anyway`.
+4. To import the installer's test signing certificate, double click
+   :file:`BixVReader.cer` and add it to the *Trusted Root Certification
+   Authority* and the *Trusted Publishers* at the *Local Computer" (not the
+   *Current User*).
+
+   On the commandline, you could do this :ref:`as follows<Using CertMgr to
+   Install Test Certificates on a Test Computer>`::
+
+    CertMgr.exe /add BixVReader.cer /s /r localMachine root /all
+    CertMgr.exe /add BixVReader.cer /s /r localMachine trustedpublisher
+
+   Feel free to remove the certificate from the certificate stores once the
+   device is installed.
+
+5. To install |vpcd|, double click :file:`BixVReaderInstaller.msi`.
 
 For debugging |vpcd| and building the driver with an older version of Visual
 Studio or WDK please see `Fabio Ottavi's UMDF Driver for a Virtual Smart Card
@@ -326,3 +337,4 @@ Notes and References
 .. _`WiX Toolset 3.10`: https://wixtoolset.org/releases/v3.10/stable
 .. _`Windows binaries`: https://github.com/frankmorgner/vsmartcard/releases/download/virtualsmartcard-0.7/virtualsmartcard-0.7_win32.zip
 .. _npa-tool: https://github.com/frankmorgner/OpenSC
+.. _`Using CertMgr to Install Test Certificates on a Test Computer`: https://docs.microsoft.com/en-us/windows-hardware/drivers/install/using-certmgr-to-install-test-certificates-on-a-test-computer
