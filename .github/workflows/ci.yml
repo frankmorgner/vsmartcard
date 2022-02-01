@@ -90,7 +90,7 @@ jobs:
       with:
         name: remote-reader
         path:
-          remote-reader/app/build/outputs/apk/*/*.apk
+          remote-reader/app/build/outputs/apk
 
   ACardEmulator-ubuntu:
     runs-on: ubuntu-20.04
@@ -101,4 +101,4 @@ jobs:
       with:
         name: ACardEmulator
         path:
-          ACardEmulator/app/build/outputs/apk/*/*.apk
+          ACardEmulator/app/build/outputs/apk
