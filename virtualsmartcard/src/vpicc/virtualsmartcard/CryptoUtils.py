@@ -240,5 +240,5 @@ def _makesalt():
 
     This function is not suitable for generating cryptographic secrets.
     """
-    binarysalt = "".join([pack("@H", randint(0, 0xffff)) for i in range(3)])
+    binarysalt = b"".join([pack("@H", randint(0, 0xffff)) for i in range(3)])
     return b64encode(binarysalt, "./")

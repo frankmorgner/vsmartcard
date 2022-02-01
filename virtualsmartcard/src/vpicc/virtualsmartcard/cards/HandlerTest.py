@@ -29,51 +29,51 @@ class HandlerTestOS(SmartcardOS):
     and handler_test(1).
     """
     def __init__(self):
-        lastCommandOffcut = ''
+        lastCommandOffcut = b''
 
     def getATR(self):
-        return '\x3B\xD6\x18\x00\x80\xB1\x80\x6D\x1F\x03\x80\x51\x00\x61' + \
-               '\x10\x30\x9E'
+        return b'\x3B\xD6\x18\x00\x80\xB1\x80\x6D\x1F\x03\x80\x51\x00\x61' + \
+               b'\x10\x30\x9E'
 
     def __output_from_le(self, msg):
         le = (ord(msg[2]) << 8) + ord(msg[3])
         return ''.join([bytes(num & 0xff) for num in xrange(le)])
 
     def execute(self, msg):
-        ok = '\x90\x00'
-        error = '\x6d\x00'
-        if (msg == '\x00\xA4\x04\x00\x06\xA0\x00\x00\x00\x18\x50' or
-                msg == '\x00\xA4\x04\x00\x06\xA0\x00\x00\x00\x18\xFF'):
+        ok = b'\x90\x00'
+        error = b'\x6d\x00'
+        if (msg == b'\x00\xA4\x04\x00\x06\xA0\x00\x00\x00\x18\x50' or
+                msg == b'\x00\xA4\x04\x00\x06\xA0\x00\x00\x00\x18\xFF'):
             logging.info('Select applet')
             return ok
-        elif msg.startswith('\x80\x38\x00'):
+        elif msg.startswith(b'\x80\x38\x00'):
             logging.info('Time Request')
             return ok
-        elif msg == '\x80\x30\x00\x00':
+        elif msg == b'\x80\x30\x00\x00':
             logging.info('Case 1, APDU')
             return ok
-        elif msg == '\x80\x30\x00\x00\x00':
+        elif msg == b'\x80\x30\x00\x00\x00':
             logging.info('Case 1, TPDU')
             return ok
-        elif msg.startswith('\x80\x32\x00\x00'):
+        elif msg.startswith(b'\x80\x32\x00\x00'):
             logging.info('Case 3')
             return ok
-        elif msg.startswith('\x80\x34'):
+        elif msg.startswith(b'\x80\x34'):
             logging.info('Case 2')
             return self.__output_from_le(msg) + ok
-        elif msg.startswith('\x80\x36'):
+        elif msg.startswith(b'\x80\x36'):
             if len(msg) == 5+ord(msg[4]):
                 logging.info('Case 4, TPDU')
                 self.lastCommandOffcut = self.__output_from_le(msg)
                 if len(self.lastCommandOffcut) > 0xFF:
-                    return '\x61\x00'
-                return '' + bytes(len(self.lastCommandOffcut) & 0xFF)
+                    return b'\x61\x00'
+                return b'' + bytes(len(self.lastCommandOffcut) & 0xFF)
             elif len(msg) == 6+ord(msg[4]):
                 logging.info('Case 4, APDU')
                 return self.__output_from_le(msg) + ok
             else:
                 return error
-        elif msg.startswith('\x80\xC0\x00\x00'):
+        elif msg.startswith(b'\x80\xC0\x00\x00'):
             logging.info('Get response')
             out = self.lastCommandOffcut[:ord(msg[4])]
             self.lastCommandOffcut = self.lastCommandOffcut[ord(msg[4]):]

@@ -34,7 +34,7 @@ import logging
 class CryptoflexOS(Iso7816OS):
     def __init__(self, mf, sam, ins2handler=None, maxle=MAX_SHORT_LE):
         Iso7816OS.__init__(self, mf, sam, ins2handler, maxle)
-        self.atr = '\x3B\xE2\x00\x00\x40\x20\x49\x06'
+        self.atr = b'\x3B\xE2\x00\x00\x40\x20\x49\x06'
 
     def execute(self, msg):
         def notImplemented(*argz, **args):
@@ -56,7 +56,7 @@ class CryptoflexOS(Iso7816OS):
             logging.info(e.message)
             # traceback.print_exception(*sys.exc_info())
             sw = e.sw
-            result = ""
+            result = b""
 
         r = self.formatResult(c.ins, c.le, result, sw)
         return r
@@ -179,7 +179,7 @@ class CryptoflexSAM(SAM):
     def internal_authenticate(self, p1, p2, data):
         data = data[::-1]  # Reverse Byte order
         sw, data = SAM.internal_authenticate(self, p1, p2, data)
-        if data != "":
+        if data != b"":
             data = data[::-1]
         return sw, data
 
@@ -189,7 +189,7 @@ class CryptoflexMF(MF):  # {{{
     @staticmethod
     def create(p1, p2, data):
 
-        if data[0:2] != "\xff\xff":
+        if data[0:2] != b"\xff\xff":
             raise SwError(SW["ERR_INCORRECTPARAMETERS"])
 
         args = {
@@ -197,11 +197,11 @@ class CryptoflexMF(MF):  # {{{
                 "filedescriptor": 0,
                 "fid": stringtoint(data[4:6]),
                 }
-        if data[6] == "\x01":
+        if data[6] == b"\x01":
             args["data"] = bytes(0)*stringtoint(data[2:4])
             args["filedescriptor"] = FDB["EFSTRUCTURE_TRANSPARENT"]
             new_file = TransparentStructureEF(**args)
-        elif data[6] == "\x02":
+        elif data[6] == b"\x02":
             if len(data) > 16:
                 args["maxrecordsize"] = stringtoint(data[16])
             elif p2:
@@ -210,15 +210,15 @@ class CryptoflexMF(MF):  # {{{
             args["filedescriptor"] = FDB["EFSTRUCTURE_LINEAR_FIXED_"
                                          "NOFURTHERINFO"]
             new_file = RecordStructureEF(**args)
-        elif data[6] == "\x03":
+        elif data[6] == b"\x03":
             args["filedescriptor"] = FDB["EFSTRUCTURE_LINEAR_VARIABLE_"
                                          "NOFURTHERINFO"]
             new_file = RecordStructureEF(**args)
-        elif data[6] == "\x04":
+        elif data[6] == b"\x04":
             args["filedescriptor"] = FDB["EFSTRUCTURE_CYCLIC_NOFURTHERINFO"]
             new_file = RecordStructureEF(**args)
-        elif data[6] == "\x38":
-            if data[12] != "\x03":
+        elif data[6] == b"\x38":
+            if data[12] != b"\x03":
                 raise SwError(SW["ERR_INCORRECTPARAMETERS"])
             new_file = DF(**args)
         else:

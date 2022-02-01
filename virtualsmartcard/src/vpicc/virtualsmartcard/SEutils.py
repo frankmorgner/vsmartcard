@@ -297,7 +297,7 @@ class Security_Environment(object):
             to_authenticate = vsCrypto.append_padding(self.cct.blocklength,
                                                       to_authenticate)
         else:
-            to_authenticate = ""
+            to_authenticate = b""
 
         for tlv in structure:
             tag, length, value = tlv
@@ -407,7 +407,7 @@ class Security_Environment(object):
         if p2 is None:
             p2 = CAPDU.p2
         # FIXME:
-        # if expected != "":
+        # if expected != b"":
         #    raise SwError(SW["ERR_SECMESSOBJECTSMISSING"])
 
         if isinstance(le, bytes):
@@ -419,7 +419,7 @@ class Security_Environment(object):
             le = le_int
 
         c = C_APDU(cla=cla, ins=ins, p1=p1, p2=p2, le=le,
-                   data="".join(return_data))
+                   data=b"".join(return_data))
         return c
 
     def protect_response(self, sw, result):
@@ -429,7 +429,7 @@ class Security_Environment(object):
         :returns: the protected data and the SW bytes
         """
 
-        return_data = ""
+        return_data = b""
         # if sw == SW["NORMAL"]:
         #    sw = inttostring(sw)
         #    length = len(sw)
@@ -437,9 +437,9 @@ class Security_Environment(object):
         #    tlv_sw = pack([(tag,length,sw)])
         #    return_data += tlv_sw
 
-        if result != "":  # Encrypt the data included in the RAPDU
+        if result != b"":  # Encrypt the data included in the RAPDU
             encrypted = self.encipher(0x82, 0x80, result)
-            encrypted = "\x01" + encrypted
+            encrypted = b"\x01" + encrypted
             encrypted_tlv = pack([(
                                 SM_Class["CRYPTOGRAM_PADDING_INDICATOR_ODD"],
                                 len(encrypted),
@@ -497,7 +497,7 @@ class Security_Environment(object):
             response_data = self.decipher(p1, p2, data)
 
         if p1 == 0x00:
-            assert response_data == ""
+            assert response_data == b""
 
         return SW["NORMAL"], response_data
 
@@ -531,11 +531,11 @@ class Security_Environment(object):
         if self.dst.key is None:
             raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
 
-        to_sign = ""
+        to_sign = b""
         if p2 == 0x9A:  # Data to be signed
             to_sign = data
         elif p2 == 0xAC:  # Data objects, sign values
-            to_sign = ""
+            to_sign = b""
             structure = unpack(data)
             for tag, length, value in structure:
                 to_sign += value
@@ -570,8 +570,8 @@ class Security_Environment(object):
         Data field must contain a cryptographic checksum (tag 0x8E) and a plain
         value (tag 0x80)
         """
-        plain = ""
-        cct = ""
+        plain = b""
+        cct = b""
 
         algo = self.cct.algorithm
         key = self.cct.key
@@ -585,7 +585,7 @@ class Security_Environment(object):
                 plain = value
             elif tag == 0x8E:
                 cct = value
-        if plain == "" or cct == "":
+        if plain == b"" or cct == b"":
             raise SwError(SW["ERR_SECMESSOBJECTSMISSING"])
         else:
             my_cct = vsCrypto.crypto_checksum(algo, key, plain, iv)
@@ -601,8 +601,8 @@ class Security_Environment(object):
         (0x9E)
         """
         key = self.dst.key
-        to_sign = ""
-        signature = ""
+        to_sign = b""
+        signature = b""
 
         if key is None:
             raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
@@ -618,7 +618,7 @@ class Security_Environment(object):
             elif tag == 0xBC:
                 pass
 
-        if to_sign == "" or signature == "":
+        if to_sign == b"" or signature == b"":
             raise SwError(SW["ERR_SECMESSOBJECTSMISSING"])
 
         my_signature = key.sign(value)

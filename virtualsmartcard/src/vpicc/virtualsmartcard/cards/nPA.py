@@ -431,7 +431,7 @@ class nPA_SE(Security_Environment):
     def __eac_ca(self, data):
         tlv_data = nPA_SE.__unpack_general_authenticate(data)
 
-        pubkey = ""
+        pubkey = b""
         for tag, length, value in tlv_data:
             if tag == 0x80:
                 pubkey = value

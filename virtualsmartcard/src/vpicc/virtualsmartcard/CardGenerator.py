@@ -35,14 +35,14 @@ from virtualsmartcard.SmartcardSAM import SAM
 
 # pgp directory
 # self.mf.append(DF(parent=self.mf,
-#                   fid=4, dfname='\xd2\x76\x00\x01\x24\x01', bertlv_data=[]))
+#                   fid=4, dfname=b'\xd2\x76\x00\x01\x24\x01', bertlv_data=[]))
 # pkcs-15 directories
 # self.mf.append(DF(parent=self.mf,
-#                fid=1, dfname='\xa0\x00\x00\x00\x01'))
+#                fid=1, dfname=b'\xa0\x00\x00\x00\x01'))
 # self.mf.append(DF(parent=self.mf,
-#                fid=2, dfname='\xa0\x00\x00\x03\x08\x00\x00\x10\x00'))
+#                fid=2, dfname=b'\xa0\x00\x00\x03\x08\x00\x00\x10\x00'))
 # self.mf.append(DF(parent=self.mf,
-#                fid=3, dfname='\xa0\x00\x00\x03\x08\x00\x00\x10\x00\x01\x00'))
+#                fid=3, dfname=b'\xa0\x00\x00\x03\x08\x00\x00\x10\x00\x01\x00'))
 
 
 class CardGenerator(object):
@@ -107,7 +107,7 @@ class CardGenerator(object):
         mf = MF()
 
         # We need a MF with Application DF \xa0\x00\x00\x02G\x10\x01
-        df = DF(parent=mf, fid=4, dfname='\xa0\x00\x00\x02G\x10\x01',
+        df = DF(parent=mf, fid=4, dfname=b'\xa0\x00\x00\x02G\x10\x01',
                 bertlv_data=[])
 
         # EF.COM
@@ -137,13 +137,13 @@ class CardGenerator(object):
             DG2 = pack([(0x02, 1, b"\x01"), (0x7F60, len(DG2), DG2)])
             DG2 = pack([(0x7F61, len(DG2), DG2)])
         else:
-            DG2 = ""
+            DG2 = b""
         df.append(TransparentStructureEF(parent=df, fid=0x0102,
                   filedescriptor=0, data=DG2))
 
         # EF.SOD
         df.append(TransparentStructureEF(parent=df, fid=0x010D,
-                  filedescriptor=0, data=""))
+                  filedescriptor=0, data=b""))
 
         mf.append(df)
 
@@ -392,95 +392,95 @@ class CardGenerator(object):
         # Nationality, BirthName, ResidencePermit1 and ResidencePermit2, refer
         # to BSI TR-03127
         if (DocumentType.rstrip() != "<NotOnChip>"):
-            dg1 = pack([(0x61, 0, [(0x13, 0, DocumentType)])], True)
+            dg1 = pack([(0x61, 0, [(0x13, 0, bytes(DocumentType, "ascii"))])], True)
         else:
             dg1 = None
         if (IssuingState.rstrip() != "<NotOnChip>"):
-            dg2 = pack([(0x62, 0, [(0x13, 0, IssuingState)])], True)
+            dg2 = pack([(0x62, 0, [(0x13, 0, bytes(IssuingState, "ascii"))])], True)
         else:
             dg2 = None
         if (DateOfExpiry.rstrip() != "<NotOnChip>"):
-            dg3 = pack([(0x63, 0, [(0x12, 0, DateOfExpiry)])], True)
+            dg3 = pack([(0x63, 0, [(0x12, 0, bytes(DateOfExpiry, "ascii"))])], True)
         else:
             dg3 = None
         if (GivenNames.rstrip() != "<NotOnChip>"):
-            dg4 = pack([(0x64, 0, [(0x0C, 0, GivenNames)])], True)
+            dg4 = pack([(0x64, 0, [(0x0C, 0, bytes(GivenNames, "ascii"))])], True)
         else:
             dg4 = None
         if (FamilyNames.rstrip() != "<NotOnChip>"):
-            dg5 = pack([(0x65, 0, [(0x0C, 0, FamilyNames)])], True)
+            dg5 = pack([(0x65, 0, [(0x0C, 0, bytes(FamilyNames, "ascii"))])], True)
         else:
             dg5 = None
         if (ReligiousArtisticName.rstrip() != "<NotOnChip>"):
-            dg6 = pack([(0x66, 0, [(0x0C, 0, ReligiousArtisticName)])], True)
+            dg6 = pack([(0x66, 0, [(0x0C, 0, bytes(ReligiousArtisticName, "ascii"))])], True)
         else:
             dg6 = None
         if (AcademicTitle.rstrip() != "<NotOnChip>"):
-            dg7 = pack([(0x67, 0, [(0x0C, 0, AcademicTitle)])], True)
+            dg7 = pack([(0x67, 0, [(0x0C, 0, bytes(AcademicTitle, "ascii"))])], True)
         else:
             dg7 = None
         if (DateOfBirth.rstrip() != "<NotOnChip>"):
-            dg8 = pack([(0x68, 0, [(0x12, 0, DateOfBirth)])], True)
+            dg8 = pack([(0x68, 0, [(0x12, 0, bytes(DateOfBirth, "ascii"))])], True)
         else:
             dg8 = None
         if (PlaceOfBirth.rstrip() != "<NotOnChip>"):
-            dg9 = pack([(0x69, 0, [(0xA1, 0, [(0x0C, 0, PlaceOfBirth)])])],
+            dg9 = pack([(0x69, 0, [(0xA1, 0, [(0x0C, 0, bytes(PlaceOfBirth, "ascii"))])])],
                        True)
         else:
             dg9 = None
         if (Nationality.rstrip() != "<NotOnChip>"):
-            dg10 = pack([(0x6A, 0, [(0x13, 0, Nationality)])], True)
+            dg10 = pack([(0x6A, 0, [(0x13, 0, bytes(Nationality, "ascii"))])], True)
         else:
             dg10 = None
         if (Sex.rstrip() != "<NotOnChip>"):
-            dg11 = pack([(0x6B, 0, [(0x13, 0, Sex)])], True)
+            dg11 = pack([(0x6B, 0, [(0x13, 0, bytes(Sex, "ascii"))])], True)
         else:
             dg11 = None
         if (dg12_param.rstrip() != "<NotOnChip>"):
-            dg12 = dg12_param
+            dg12 = bytes(dg12_param, "ascii")
         else:
             dg12 = None
         if (BirthName.rstrip() != "<NotOnChip>"):
-            dg13 = pack([(0x6D, 0, [(0x0C, 0, BirthName)])], True)
+            dg13 = pack([(0x6D, 0, [(0x0C, 0, bytes(BirthName, "ascii"))])], True)
         else:
             dg13 = None
         if (dg14_param.rstrip() != "<NotOnChip>"):
-            dg14 = dg14_param
+            dg14 = bytes(dg14_param, "ascii")
         else:
             dg14 = None
         if (dg15_param.rstrip() != "<NotOnChip>"):
-            dg15 = dg15_param
+            dg15 = bytes(dg15_param, "ascii")
         else:
             dg15 = None
         if (dg16_param.rstrip() != "<NotOnChip>"):
-            dg16 = dg16_param
+            dg16 = bytes(dg16_param, "ascii")
         else:
             dg16 = None
         if (PlaceOfResidence.rstrip() != "<NotOnChip>"):
             dg17 = pack([(0x71, 0, [(0x30, 0, [
-                    (0xAA, 0, [(0x0C, 0, Street)]),
-                    (0xAB, 0, [(0x0C, 0, City)]),
-                    (0xAD, 0, [(0x13, 0, Country)]),
-                    (0xAE, 0, [(0x13, 0, ZIP)])
+                    (0xAA, 0, [(0x0C, 0, bytes(Street, "ascii"))]),
+                    (0xAB, 0, [(0x0C, 0, bytes(City, "ascii"))]),
+                    (0xAD, 0, [(0x13, 0, bytes(Country, "ascii"))]),
+                    (0xAE, 0, [(0x13, 0, bytes(ZIP, "ascii"))])
                     ])])], True)
         else:
             dg17 = None
         if (CommunityID.rstrip() != "<NotOnChip>"):
-            dg18 = pack([(0x72, 0, [(0x04, 0, CommunityID_Binary)])], True)
+            dg18 = pack([(0x72, 0, [(0x04, 0, bytes(CommunityID_Binary, "ascii"))])], True)
         else:
             dg18 = None
         if (ResidencePermit1.rstrip() != "<NotOnChip>"):
             dg19 = pack([(0x73, 0, [(0xA1, 0,
-                                    [(0x0C, 0, ResidencePermit1)])])], True)
+                                    [(0x0C, 0, bytes(ResidencePermit1, "ascii"))])])], True)
         else:
             dg19 = None
         if (ResidencePermit1.rstrip() != "<NotOnChip>"):
             dg20 = pack([(0x74, 0, [(0xA1, 0,
-                                    [(0x0C, 0, ResidencePermit2)])])], True)
+                                    [(0x0C, 0, bytes(ResidencePermit2, "ascii"))])])], True)
         else:
             dg20 = None
         if (dg21_param.rstrip() != "<NotOnChip>"):
-            dg21 = dg21_param
+            dg21 = bytes(dg21_param, "ascii")
         else:
             dg21 = None
 

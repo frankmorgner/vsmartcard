@@ -175,7 +175,7 @@ class APDU(object):
 
     def _deldata(self):
         del self._data
-        self.data = ""
+        self.data = b""
 
     data = property(_getdata, _setdata, None,
                     "The data contents of this APDU")
@@ -229,12 +229,12 @@ class C_APDU(APDU):
         self.CLA, self.INS, self.P1, self.P2 = apdu[:4]  # case 1, 2, 3, 4
         self.__extended_length = False
         if len(apdu) == 4:                          # case 1
-            self.data = ""
+            self.data = b""
         elif (len(apdu) >= 7) and (apdu[4] == 0):   # extended length apdu
             self.__extended_length = True
             if len(apdu) == 7:                      # case 2 extended length
                 self.Le = (apdu[-2] << 8) + apdu[-1]
-                self.data = ""
+                self.data = b""
             else:                                   # case 3, 4 extended length
                 self.Lc = (apdu[5] << 8) + apdu[6]
                 if len(apdu) == 7 + self.Lc:        # case 3 extended length
@@ -254,7 +254,7 @@ class C_APDU(APDU):
         else:                                           # short apdu
             if len(apdu) == 5:                          # case 2 short apdu
                 self.Le = apdu[-1]
-                self.data = ""
+                self.data = b""
             elif len(apdu) > 5:                         # case 3, 4 short apdu
                 self.Lc = apdu[4]
                 if len(apdu) == 5 + self.Lc:            # case 3

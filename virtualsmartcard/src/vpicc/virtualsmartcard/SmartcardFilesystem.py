@@ -89,7 +89,7 @@ def getfile_byrefdataobj(mf, refdataobjs):
             if length % 2 == 1:
                 raise NotImplementedError
             else:
-                if newvalue[:2] == "\x3f\x00":
+                if newvalue[:2] == b"\x3f\x00":
                     # absolute
                     file = walk(mf, newvalue[2:])
                 else:
@@ -419,7 +419,7 @@ class DF(File):
     def __init__(self, parent, fid,
                  filedescriptor=FDB["NOTSHAREABLEFILE"] | FDB["DF"],
                  lifecycle=LCB["ACTIVATED"],
-                 simpletlv_data=None, bertlv_data=None, dfname=None, data=""):
+                 simpletlv_data=None, bertlv_data=None, dfname=None, data=b""):
         """
         See File for more.
         """
@@ -1451,7 +1451,7 @@ class TransparentStructureEF(EF):
                  filedescriptor=FDB["EFSTRUCTURE_TRANSPARENT"],
                  lifecycle=LCB["ACTIVATED"],
                  simpletlv_data=None, bertlv_data=None,
-                 datacoding=DCB["ONETIMEWRITE"], shortfid=0, data=""):
+                 datacoding=DCB["ONETIMEWRITE"], shortfid=0, data=b""):
         """
         See EF for more.
         """
@@ -1521,7 +1521,7 @@ class Record(object):
     identifier = make_property("identifier", "integer with 1 <= identifier <="
                                              " 0xfe. The record's identifier.")
     """Class for a Record of an elementary of record structure"""
-    def __init__(self, identifier=None, data=""):
+    def __init__(self, identifier=None, data=b""):
         """
         The constructor is supposed to be involved by EF.appendrecord.
         """
