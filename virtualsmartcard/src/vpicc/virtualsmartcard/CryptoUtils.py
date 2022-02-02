@@ -215,10 +215,7 @@ def hash(hashmethod, data):
 def operation_on_string(string1, string2, op):
     if len(string1) != len(string2):
         raise ValueError("string1 and string2 must be of equal length")
-    result = []
-    for i in range(len(string1)):
-        result.append(chr(op(ord(string1[i]), ord(string2[i]))))
-    return "".join(result)
+    return bytes([op(_a, _b) for _a, _b in zip(string1, string2)])
 
 
 # *******************************************************************
