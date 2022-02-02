@@ -311,6 +311,35 @@ through the PC/SC API. You can use the :command:`opensc-explorer` or
 provide scripts for testing with npa-tool_ and PCSC-Lite's smart card
 reader driver tester.
 
+--------------------------------------------------------------------------------
+Testing |vpicc| -t ePass
+--------------------------------------------------------------------------------
+
+A simple tool to test |BAC| is available for Python 2.7. On Ubuntu, its
+requiremets are installed as follows::
+    sudo apt-get install python2.7-dev
+    curl https://bootstrap.pypa.io/pip/2.7/get-pip.py -o get-pip.py
+    python2.7 get-pip.py
+    python2.7 -m pip install pycrypto pyscard
+    python2.7 readpass.py --no-gui
+    git clone https://github.com/henryk/cyberflex-shell
+    cd cyberflex-shell
+
+Now we can create and run a small script::
+    echo "select_application a0000002471001" > script.txt
+    echo "perform_bac L898902C<3UTO6908061F9406236ZE184226B<<<<<14" >> script.txt
+    python2.7 cyberflex-shell.py script.txt
+
+The tool will wait for a (virtual) smart card to appear. Start |vicc| and make
+sure to configure it with the correct MRZ, i.e.
+``P<UTOERIKSSON<<ANNA<MARIX<<<<<<<<<<<<<<<<<<<L898902C<3UTO6908061F9406236ZE184226B<<<<<14``
+in this case::
+    vicc -t ePass
+
+Once the card is connected, ``cyberflex-shell`` will quickly perform |BAC| and
+exit.  Running the tool without arguments allows entering in interactive mode
+to run additional tests.
+
 
 .. include:: questions.txt
 
