@@ -283,12 +283,8 @@ class Iso7816OS(SmartcardOS):
             """
             raise SwError(SW["ERR_INSNOTSUPPORTED"])
 
-        logging.info("Command APDU (%d bytes):\n  %s", len(msg),
-                hexdump(msg, indent=2))
-
         try:
             c = C_APDU(msg)
-            logging.debug("%s", str(c))
         except ValueError as e:
             logging.warning(str(e))
             return self.formatResult(False, 0, b"",
@@ -607,10 +603,21 @@ class VirtualICC(object):
                                     size, len(msg))
 
                 logging.info("Command APDU (%d bytes):\n  %s\n", len(msg),
-                             hexdump(msg, indent=2))
+                        hexdump(msg, indent=2))
+                try:
+                    logging.debug(str(C_APDU(msg)))
+                except:
+                    pass
+
                 answer = self.os.execute(msg)
+
+                try:
+                    logging.debug(str(R_APDU(answer)))
+                except:
+                    pass
                 logging.info("Response APDU (%d bytes):\n  %s\n", len(answer),
-                             hexdump(answer, indent=2))
+                        hexdump(answer, indent=2))
+
                 self.__sendToVPICC(answer)
 
     def stop(self):
