@@ -53,7 +53,7 @@ class RelayOS(SmartcardOS):
         try:
             self.session = smartcard.Session(self.reader)
         except smartcard.Exceptions.CardConnectionException as e:
-            logging.critical("Error connecting to card: %s", e.message)
+            logging.critical("Error connecting to card: %s", str(e))
             sys.exit()
 
         logging.info("Connected to card in '%s'", self.reader)
@@ -69,7 +69,7 @@ class RelayOS(SmartcardOS):
         try:
             self.session.close()
         except smartcard.Exceptions.CardConnectionException as e:
-            logging.warning("Error disconnecting from card: %s", e.message)
+            logging.warning("Error disconnecting from card: %s", str(e))
 
     def getATR(self):
         # when powerDown has been called, fetching the ATR will throw an error.
@@ -83,7 +83,7 @@ class RelayOS(SmartcardOS):
                 self.session = smartcard.Session(self.reader)
                 atr = self.session.getATR()
             except smartcard.Exceptions.CardConnectionException as e:
-                logging.critical("Error getting ATR: %s", e.message)
+                logging.critical("Error getting ATR: %s", str(e))
                 sys.exit()
 
         return "".join([chr(b) for b in atr])
@@ -99,7 +99,7 @@ class RelayOS(SmartcardOS):
             try:
                 self.session = smartcard.Session(self.reader)
             except smartcard.Exceptions.CardConnectionException as e:
-                logging.critical("Error connecting to card: %s", e.message)
+                logging.critical("Error connecting to card: %s", str(e))
                 sys.exit()
 
     def powerDown(self):
