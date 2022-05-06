@@ -476,8 +476,8 @@ class VirtualICC(object):
                 self.sock.settimeout(None)
                 self.server_sock = None
             except socket.error as e:
-                logging.error("Failed to open socket: %s", str(e))
-                logging.error("Is pcscd running at %s? Is vpcd loaded? Is a \
+                logging.critical("Failed to open socket: %s", str(e))
+                logging.critical("Is pcscd running at %s? Is vpcd loaded? Is a \
                               firewall blocking port %u?", host, port)
                 sys.exit()
         else:
@@ -498,8 +498,8 @@ class VirtualICC(object):
                 (self.sock, self.server_sock, host) = self.openPort(port)
                 self.sock.settimeout(None)
             except socket.error as e:
-                logging.error("Failed to open socket: %s", str(e))
-                logging.error("Is pcscd running? Is vpcd loaded and in \
+                logging.critical("Failed to open socket: %s", str(e))
+                logging.critical("Is pcscd running? Is vpcd loaded and in \
                               reversed connection mode? Is a firewall \
                               blocking port %u?", port)
                 sys.exit()
@@ -581,6 +581,7 @@ class VirtualICC(object):
                     (self.sock, address) = self.server_sock.accept()
                     continue
                 else:
+                    logging.critical(str(e))
                     sys.exit()
 
             if not size:

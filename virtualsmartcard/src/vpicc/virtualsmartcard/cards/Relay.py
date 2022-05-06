@@ -41,7 +41,7 @@ class RelayOS(SmartcardOS):
         # See which readers are available
         readers = smartcard.System.listReaders()
         if len(readers) <= readernum:
-            logging.error("Invalid number of reader '%u' (only %u available)",
+            logging.critical("Invalid number of reader '%u' (only %u available)",
                           readernum, len(readers))
             sys.exit()
 
@@ -53,7 +53,7 @@ class RelayOS(SmartcardOS):
         try:
             self.session = smartcard.Session(self.reader)
         except smartcard.Exceptions.CardConnectionException as e:
-            logging.error("Error connecting to card: %s", e.message)
+            logging.critical("Error connecting to card: %s", e.message)
             sys.exit()
 
         logging.info("Connected to card in '%s'", self.reader)
@@ -83,7 +83,7 @@ class RelayOS(SmartcardOS):
                 self.session = smartcard.Session(self.reader)
                 atr = self.session.getATR()
             except smartcard.Exceptions.CardConnectionException as e:
-                logging.error("Error getting ATR: %s", e.message)
+                logging.critical("Error getting ATR: %s", e.message)
                 sys.exit()
 
         return "".join([chr(b) for b in atr])
@@ -99,7 +99,7 @@ class RelayOS(SmartcardOS):
             try:
                 self.session = smartcard.Session(self.reader)
             except smartcard.Exceptions.CardConnectionException as e:
-                logging.error("Error connecting to card: %s", e.message)
+                logging.critical("Error connecting to card: %s", e.message)
                 sys.exit()
 
     def powerDown(self):
@@ -108,7 +108,7 @@ class RelayOS(SmartcardOS):
         try:
             self.session.close()
         except smartcard.Exceptions.CardConnectionException as e:
-            logging.error("Error disconnecting from card: %s", str(e))
+            logging.critical("Error disconnecting from card: %s", str(e))
             sys.exit()
 
     def reset(self):
@@ -127,7 +127,7 @@ class RelayOS(SmartcardOS):
         try:
             rapdu, sw1, sw2 = self.session.sendCommandAPDU(apdu)
         except smartcard.Exceptions.CardConnectionException as e:
-            logging.error("Error transmitting APDU: %s", str(e))
+            logging.critical("Error transmitting APDU: %s", str(e))
             sys.exit()
 
         # XXX this is a workaround, see on sourceforge bug #3083586
