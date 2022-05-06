@@ -605,6 +605,8 @@ class VirtualICC(object):
                     logging.warning("Expected %u bytes, but received only %u",
                                     size, len(msg))
 
+                logging.info("Command APDU (%d bytes):\n  %s\n", len(msg),
+                             hexdump(msg, indent=2))
                 answer = self.os.execute(msg)
                 logging.info("Response APDU (%d bytes):\n  %s\n", len(answer),
                              hexdump(answer, indent=2))
