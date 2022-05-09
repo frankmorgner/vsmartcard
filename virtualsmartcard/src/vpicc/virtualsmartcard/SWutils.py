@@ -67,34 +67,38 @@ SW = {
 SW_MESSAGES = {
     0x9000: 'Normal processing (No further qualification)',
 
-    0x6200: 'Warning processing (State of non-volatile memory is unchanged): '
+    0x6200: 'Warning processing (State of NVM is unchanged): '
             'No information given',
-    0x6281: 'Warning processing (State of non-volatile memory is unchanged): '
+    0x6281: 'Warning processing (State of NVM is unchanged): '
             'Part of returned data may be corrupted',
-    0x6282: 'Warning processing (State of non-volatile memory is unchanged): '
+    0x6282: 'Warning processing (State of NVM is unchanged): '
             'End of file or record reached before reading Ne bytes',
-    0x6283: 'Warning processing (State of non-volatile memory is unchanged): '
+    0x6283: 'Warning processing (State of NVM is unchanged): '
             'Selected file deactivated',
-    0x6284: 'Warning processing (State of non-volatile memory is unchanged): '
+    0x6284: 'Warning processing (State of NVM is unchanged): '
             'File control information not formatted according to 5.3.3',
-    0x6285: 'Warning processing (State of non-volatile memory is unchanged): '
+    0x6285: 'Warning processing (State of NVM is unchanged): '
             'Selected file in termination state',
-    0x6286: 'Warning processing (State of non-volatile memory is unchanged): '
+    0x6286: 'Warning processing (State of NVM is unchanged): '
             'No input data available from a sensor on the card',
+    0x6287: 'Warning processing (State of NVM is unchanged): '
+            'At least one of the referenced records is deactivated',
 
-    0x6300: 'Warning processing (State of non-volatile memory has changed): '
+    0x6300: 'Warning processing (State of NVM may have changed): '
             'No information given',
-    0x6381: 'Warning processing (State of non-volatile memory has changed): '
+    0x6340: 'Warning processing (State of NVM may have changed): '
+            'Unsuccessful comparison',
+    0x6381: 'Warning processing (State of NVM may have changed): '
             'File filled up by the last write',
 
-    0x6400: 'Execution error (State of non-volatile memory is unchanged): '
+    0x6400: 'Execution error (State of NVM is unchanged): '
             'Execution error',
-    0x6401: 'Execution error (State of non-volatile memory is unchanged): '
+    0x6401: 'Execution error (State of NVM is unchanged): '
             'Immediate response required by the card',
 
-    0x6500: 'Execution error (State of non-volatile memory has changed): '
+    0x6500: 'Execution error (State of NVM may have changed): '
             'No information given',
-    0x6581: 'Execution error (State of non-volatile memory has changed): '
+    0x6581: 'Execution error (State of NVM may have changed): '
             'Memory failure',
 
     0x6700: 'Checking error: Wrong length; no further indication',
@@ -167,6 +171,9 @@ for i in range(0, 0xff):
     SW_MESSAGES[0x6600 + i] = 'Execution error (Security-related issues)'
     SW_MESSAGES[0x6C00 + i] = 'Checking error (Wrong Le field; ' + str(i) + \
                               ' available data bytes)'
+    if i >= 0xC0:
+        SW_MESSAGES[0x6300 + i] = 'Warning processing (State of NVM may have changed); ' + str(i - 0xC0) + \
+                                  ' further allowed tries)'
 
 
 class SwError(Exception):

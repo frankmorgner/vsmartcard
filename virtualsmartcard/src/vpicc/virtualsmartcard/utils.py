@@ -20,6 +20,7 @@ import binascii
 import string
 import struct
 from virtualsmartcard.ConstantDefinitions import MAX_SHORT_LE, MAX_EXTENDED_LE
+from virtualsmartcard.SWutils import SW_MESSAGES
 
 
 def stringtoint(data):
@@ -201,11 +202,33 @@ class APDU(object):
     def __str__(self):
         result = "%s(%s)" % (self.__class__.__name__,
                              ", ".join(self._format_fields()))
-
         if len(self.data) > 0:
-            return result + ":\n  " + hexdump(self.data, indent=2)
-        else:
-            return result
+            result = result + "\n  " + hexdump(self.data, indent=2)
+
+        if hasattr(self, "SW"):
+            sw_int = int.from_bytes(self.SW, 'big')
+            if sw_int in SW_MESSAGES.keys():
+                result = result + '\n' + SW_MESSAGES[sw_int]
+
+        if hasattr(self, "CLA"):
+            debug_CLA = []
+            if self.CLA & 0b10000000 == 0b10000000:
+                debug_CLA.append('proprietary class')
+            if self.CLA & 0b00010000 == 0b00010000:
+                debug_CLA.append('command chaining')
+            if self.CLA & 0b00001100 == 0b00000100:
+                debug_CLA.append('proprietary secure messaging')
+            if self.CLA & 0b00001100 == 0b00001000:
+                debug_CLA.append('secure messaging (command header not processed)')
+            if self.CLA & 0b00001100 == 0b00001100:
+                debug_CLA.append('secure messaging (command header authenticated)')
+            if self.CLA & 0b00000011:
+                debug_CLA.append('logical channel %d' % self.CLA & 0b00000011)
+            if debug_CLA:
+                result = result + '\n' + ', '.join(debug_CLA)
+
+        return result
+
 
     def __repr__(self):
         parts = self._format_fields()

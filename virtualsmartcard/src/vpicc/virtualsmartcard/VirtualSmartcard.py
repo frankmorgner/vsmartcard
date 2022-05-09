@@ -23,7 +23,6 @@ import logging
 import socket
 import struct
 import sys
-import traceback
 from virtualsmartcard.ConstantDefinitions import MAX_EXTENDED_LE, MAX_SHORT_LE
 from virtualsmartcard.SWutils import SwError, SW
 from virtualsmartcard.SmartcardFilesystem import make_property
@@ -351,8 +350,6 @@ class Iso7816OS(SmartcardOS):
             answer = self.formatResult(Iso7816OS.seekable(c.ins),
                                        c.effective_Le, result, sw, sm)
         except SwError as e:
-            logging.debug(traceback.format_exc().rstrip())
-            logging.info(e.message)
             sw = e.sw
             result = b""
             answer = self.formatResult(False, 0, result, sw, sm)
@@ -602,20 +599,25 @@ class VirtualICC(object):
                     logging.warning("Expected %u bytes, but received only %u",
                                     size, len(msg))
 
-                logging.info("Command APDU (%d bytes):\n  %s\n", len(msg),
+                logging.info("Command APDU (%d bytes):\n  %s", len(msg),
                         hexdump(msg, indent=2))
+                proprietary = False
                 try:
-                    logging.debug(str(C_APDU(msg)))
+                    parsed = C_APDU(msg)
+                    logging.debug(str(parsed))
+                    if parsed.CLA & 0b10000000 == 0b10000000:
+                        proprietary = True
                 except:
-                    pass
+                    proprietary = True
 
                 answer = self.os.execute(msg)
 
                 try:
-                    logging.debug(str(R_APDU(answer)))
+                    if not proprietary:
+                        logging.debug(str(R_APDU(answer)))
                 except:
                     pass
-                logging.info("Response APDU (%d bytes):\n  %s\n", len(answer),
+                logging.info("Response APDU (%d bytes):\n  %s", len(answer),
                         hexdump(answer, indent=2))
 
                 self.__sendToVPICC(answer)
