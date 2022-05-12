@@ -10,3 +10,5 @@ You can find the latest release of Android Smart Card Emulator on `Github
 Alternatively, you can clone our git repository::
 
     git clone https://github.com/frankmorgner/vsmartcard.git
+    cd vsmartcard
+    git submodule update --init --recursive

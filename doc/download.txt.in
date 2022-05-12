@@ -12,3 +12,5 @@ still available on `Sourceforge
 Alternatively, you can clone our git repository::
 
     git clone https://github.com/frankmorgner/vsmartcard.git
+    cd vsmartcard
+    git submodule update --init --recursive
