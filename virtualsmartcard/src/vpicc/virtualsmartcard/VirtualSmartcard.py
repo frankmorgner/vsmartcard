@@ -476,7 +476,7 @@ class VirtualICC(object):
         else:
             # use reversed connection mode
             try:
-                local_ip = [(s.connect(('8.8.8.8', 53)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]
+                local_ip = [(s.connect(('9.9.9.9', 53)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]
                 custom_url = 'vicc://%s:%d' % (local_ip, port)
                 print('VICC hostname:  %s' % local_ip)
                 print('VICC port:      %d' % port)
