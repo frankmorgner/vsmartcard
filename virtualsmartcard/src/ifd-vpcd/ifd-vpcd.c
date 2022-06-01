@@ -222,6 +222,13 @@ IFDHGetCapabilities (DWORD Lun, DWORD Tag, PDWORD Length, PUCHAR Value)
         goto err;
 
     switch (Tag) {
+#ifdef SCARD_ATTR_ATR_STRING
+        case SCARD_ATTR_ATR_STRING:
+            /* fall through */
+#else
+        case 0x00090303:
+            /* fall through */
+#endif
         case TAG_IFD_ATR:
 
             size = vicc_getatr(ctx[slot], &atr);
