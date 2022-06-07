@@ -272,7 +272,7 @@ static ssize_t recvFromVICC(struct vicc_ctx *ctx, unsigned char **buffer)
 int vicc_eject(struct vicc_ctx *ctx)
 {
     int r = 0;
-    if (ctx && ctx->client_sock > 0) {
+    if (ctx && ctx->client_sock != INVALID_SOCKET) {
         if (close(ctx->client_sock) < 0) {
             r -= 1;
         }
@@ -334,7 +334,7 @@ int vicc_exit(struct vicc_ctx *ctx)
     if (ctx) {
         free_lock(ctx->io_lock);
         free(ctx->hostname);
-        if (ctx->server_sock > 0) {
+        if (ctx->server_sock != INVALID_SOCKET) {
             ctx->server_sock = close(ctx->server_sock);
             if (ctx->server_sock == INVALID_SOCKET) {
                 r -= 1;
@@ -380,12 +380,9 @@ int vicc_connect(struct vicc_ctx *ctx, long secs, long usecs)
         return 0;
 
     if (ctx->client_sock == INVALID_SOCKET) {
-        if (ctx->server_sock) {
+        if(!ctx->hostname) {
             /* server mode, try to accept a client */
             ctx->client_sock = waitforclient(ctx->server_sock, secs, usecs);
-            if (!ctx->client_sock) {
-                ctx->client_sock = INVALID_SOCKET;
-            }
         } else {
             /* client mode, try to connect (again) */
             ctx->client_sock = connectsock(ctx->hostname, ctx->port);
