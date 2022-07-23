@@ -27,12 +27,11 @@ from virtualsmartcard.utils import inttostring
 try:
     # Use PyCrypto (if available)
     from Crypto.Cipher import DES3, DES, AES, ARC4  # @UnusedImport
-    from Crypto.Hash import HMAC, SHA as SHA1
+    from Crypto.Hash import HMAC
 
 except ImportError:
     # PyCrypto not available.  Use the Python standard library.
     from hashlib import hmac as HMAC
-    from hashlib import sha as SHA1
 
 CYBERFLEX_IV = b'\x00' * 8
 
