@@ -31,7 +31,7 @@ try:
 
 except ImportError:
     # PyCrypto not available.  Use the Python standard library.
-    from hashlib import hmac as HMAC
+    import hmac as HMAC
 
 CYBERFLEX_IV = b'\x00' * 8
 
