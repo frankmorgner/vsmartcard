@@ -201,7 +201,6 @@ def decrypt(cipherspec, key, data, iv=None):
 
 
 def hash(hashmethod, data):
-    from Crypto.Hash import SHA, MD5  # , RIPEMD
     hash_class = locals().get(hashmethod.upper(), None)
     if hash_class is None:
         logging.error("Unknown Hash method %s" % hashmethod)
