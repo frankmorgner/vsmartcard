@@ -145,10 +145,14 @@ Building and installing |vpcd| on Windows
     PC/SC.
 
 For the Windows integration we extended `Fabio Ottavi's UMDF Driver for a
-Virtual Smart Card Reader`_ with a |vpcd| interface. To build |vpcd| for
-Windows we use `Windows Driver Kit 10 and Visual Studio 2015`_. The vpcd
-installer requires the `WiX Toolset 3.10`_. If you choose
+Virtual Smart Card Reader`_ with a |vpcd| interface. If you choose
 to download the `Windows binaries`_, you may directly jump to step 4.
+
+In the CI environment, we're building |vpcd| for Windows with Visual Studio
+Community 2019 with SDK/WDK for Windows 11. (The WDK version needs to match
+at least your targeted version of Windows, see this `guide for installing VS
+with WDK`_) The vpcd installer additionally
+requires the `WiX Toolset 3.10`_ to be installed.
 
 1. Clone the git repository and make sure it is initialized with all
    submodules::
@@ -362,7 +366,7 @@ Notes and References
 .. _OpenPACE: https://github.com/frankmorgner/openpace
 .. _libqrencode: https://fukuchi.org/works/qrencode/
 .. _`Fabio Ottavi's UMDF Driver for a Virtual Smart Card Reader`: http://www.codeproject.com/Articles/134010/An-UMDF-Driver-for-a-Virtual-Smart-Card-Reader
-.. _`Windows Driver Kit 10 and Visual Studio 2015`: https://msdn.microsoft.com/en-us/library/windows/hardware/ff557573
+.. _`guide for installing VS with WDK`: https://learn.microsoft.com/en-us/windows-hardware/drivers/download-the-wdk
 .. _`WiX Toolset 3.10`: https://wixtoolset.org/releases/v3.10/stable
 .. _`Windows binaries`: https://github.com/frankmorgner/vsmartcard/releases/tag/virtualsmartcard-0.8
 .. _npa-tool: https://github.com/frankmorgner/OpenSC
