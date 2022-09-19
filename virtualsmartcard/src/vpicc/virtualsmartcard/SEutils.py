@@ -683,8 +683,6 @@ class Security_Environment(object):
                      P1-P2 different from '0000'
         """
 
-        from Crypto.PublicKey import RSA, DSA
-
         cipher = self.ct.algorithm
 
         c_class = locals().get(cipher, None)

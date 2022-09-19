@@ -103,7 +103,7 @@ Depending on your usage of the |vpicc| you may need to install the following:
 
 - Python_
 - pyscard_ (relaying a local smart card with `--type=relay`)
-- PyCrypto_, PBKDF2_, PIL_, readline_ or PyReadline_ (emulation of electronic
+- PyCryptodome, PBKDF2_, PIL_, readline_ or PyReadline_ (emulation of electronic
   passport with `--type=ePass`)
 - OpenPACE_ (emulation of German identity card with `--type=nPA`)
 - libqrencode_ (to print a QR code on the command line for `vpcd-config`; an
@@ -320,7 +320,7 @@ requiremets are installed as follows::
     sudo apt-get install python2.7-dev
     curl https://bootstrap.pypa.io/pip/2.7/get-pip.py -o get-pip.py
     python2.7 get-pip.py
-    python2.7 -m pip install pycrypto pyscard
+    python2.7 -m pip install pycryptodomex pyscard
     python2.7 readpass.py --no-gui
     git clone https://github.com/henryk/cyberflex-shell
     cd cyberflex-shell
@@ -354,7 +354,7 @@ Notes and References
 .. _PCSC-lite: https://pcsclite.apdu.fr/
 .. _Python: http://www.python.org/
 .. _pyscard: http://pyscard.sourceforge.net/
-.. _PyCrypto: http://pycrypto.org/
+.. _PyCryptodome: https://www.pycryptodome.org/
 .. _PBKDF2: https://www.dlitz.net/software/python-pbkdf2/
 .. _readline: https://docs.python.org/3.3/library/readline.html
 .. _PyReadline: https://pypi.python.org/pypi/pyreadline

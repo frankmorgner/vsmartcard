@@ -103,7 +103,7 @@ Depending on your usage of the |vpicc| you may need to install the following:
 
 - Python_
 - pyscard_ (relaying a local smart card with `--type=relay`)
-- PyCrypto_, PBKDF2_, PIL_, readline_ or PyReadline_ (emulation of electronic
+- PyCryptodome_, PBKDF2_, PIL_, readline_ or PyReadline_ (emulation of electronic
   passport with `--type=ePass`)
 - OpenPACE_ (emulation of German identity card with `--type=nPA`)
 - libqrencode_ (to print a QR code on the command line for `vpcd-config`; an
@@ -314,7 +314,7 @@ Notes and References
 .. _PCSC-lite: https://pcsclite.apdu.fr/
 .. _Python: http://www.python.org/
 .. _pyscard: http://pyscard.sourceforge.net/
-.. _PyCrypto: http://pycrypto.org/
+.. _PyCryptodome: https://www.pycryptodome.org/
 .. _PBKDF2: https://www.dlitz.net/software/python-pbkdf2/
 .. _readline: https://docs.python.org/3.3/library/readline.html
 .. _PyReadline: https://pypi.python.org/pypi/pyreadline

@@ -98,8 +98,7 @@ class CryptoflexSE(Security_Environment):
             Used to specify the key length. The mapping is: 0x40 => 256 Bit,
             0x60 => 512 Bit, 0x80 => 1024
         """
-        from Crypto.PublicKey import RSA
-        from Crypto.Util.randpool import RandomPool
+        from Cryptodome.PublicKey import RSA
 
         keynumber = p1  # TODO: Check if key exists
 
@@ -110,8 +109,7 @@ class CryptoflexSE(Security_Environment):
         else:
             keylength = keylength_dict[p2]
 
-        rnd = RandomPool()
-        PublicKey = RSA.generate(keylength, rnd.get_bytes)
+        PublicKey = RSA.generate(keylength)
         self.dst.key = PublicKey
 
         e_in = struct.unpack("<i", data)

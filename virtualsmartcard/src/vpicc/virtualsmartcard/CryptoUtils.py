@@ -25,12 +25,12 @@ from random import randint
 from virtualsmartcard.utils import inttostring
 
 try:
-    # Use PyCrypto (if available)
-    from Crypto.Cipher import DES3, DES, AES, ARC4  # @UnusedImport
-    from Crypto.Hash import HMAC
+    # Use PyCryptodome (if available)
+    from Cryptodome.Cipher import DES3, DES, AES, ARC4  # @UnusedImport
+    from Cryptodome.Hash import HMAC
 
 except ImportError:
-    # PyCrypto not available.  Use the Python standard library.
+    # PyCryptodome not available.  Use the Python standard library.
     import hmac as HMAC
 
 CYBERFLEX_IV = b'\x00' * 8
@@ -83,7 +83,7 @@ def get_cipher_keylen(cipherspec):
     # cipher = globals().get(cipherparts[0].upper(), None)
     # Note: return cipher.key_size does not work on Ubuntu, because e.g.
     # AES.key_size == 0
-    if cipher == "AES":  # Pycrypto uses AES128
+    if cipher == "AES":  # PyCryptodome uses AES128
         return 16
     elif cipher == "DES":
         return 8
@@ -201,7 +201,6 @@ def decrypt(cipherspec, key, data, iv=None):
 
 
 def hash(hashmethod, data):
-    from Crypto.Hash import SHA, MD5  # , RIPEMD
     hash_class = locals().get(hashmethod.upper(), None)
     if hash_class is None:
         logging.error("Unknown Hash method %s" % hashmethod)
