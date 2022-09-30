@@ -17,7 +17,7 @@ autoreconf -vis
 
 case "$1" in
     ubuntu)
-        make distcheck
+        make distcheck CLANGTIDY=""
         ;;
     coverity)
         # exclude opensc from analysis by building it here
