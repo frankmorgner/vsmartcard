@@ -340,7 +340,7 @@ class CardGenerator(object):
             "ReligiousArtisticName" in self.datagroups else ''
         AcademicTitle = self.datagroups["AcademicTitle"] if \
             "AcademicTitle" in self.datagroups else ''
-       aDateOfBirth = self.datagroups["DateOfBirth"] if "DateOfBirth" in \
+        aDateOfBirth = self.datagroups["DateOfBirth"] if "DateOfBirth" in \
             self.datagroups else '19640812'
         PlaceOfBirth = self.datagroups["PlaceOfBirth"] if "PlaceOfBirth" in \
             self.datagroups else 'BERLIN'
