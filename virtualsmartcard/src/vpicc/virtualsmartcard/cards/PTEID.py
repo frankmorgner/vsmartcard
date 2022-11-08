@@ -29,36 +29,41 @@ from virtualsmartcard.utils import inttostring, stringtoint, C_APDU, R_APDU
 import logging
 from binascii import hexlify, b2a_base64, a2b_base64
 import sys
-from Crypto.Cipher import PKCS1_v1_5
-from Crypto.PublicKey import RSA
-from Crypto.Hash import SHA
 import json
 
 logger = logging.getLogger('pteid')
 logger.setLevel(logging.DEBUG)
 
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives.serialization import load_der_private_key
+from cryptography.hazmat.backends import default_backend
+
 class PTEIDOS(Iso7816OS):
     def __init__(self, mf, sam, ins2handler=None, maxle=MAX_SHORT_LE):
         Iso7816OS.__init__(self, mf, sam, ins2handler, maxle)
-        self.atr = '\x3B\x7D\x95\x00\x00\x80\x31\x80\x65\xB0\x83\x11\x00\xC8\x83\x00\x90\x00'
+        self.atr = '\x3B\xFF\x96\x00\x00\x81\x31\xFE\x43\x80\x31\x80\x65\xB0\x85\x04\x01\x20\x12\x0F\xFF\x82\x90\x00\xD0'
 
     def execute(self, msg):
         def notImplemented(*argz, **args):
             raise SwError(SW["ERR_INSNOTSUPPORTED"])
 
-        logger.info("Command APDU (%d bytes):\n  %s", len(msg),
+        logger.debug("Command APDU (%d bytes):\n  %s", len(msg),
                      hexdump(msg, indent=2))
-
+        
         try:
             c = C_APDU(msg)
         except ValueError as e:
             logger.exception(f"Failed to parse {e} APDU {msg}")
             return self.formatResult(False, 0, 0, "",
                                      SW["ERR_INCORRECTPARAMETERS"])
+        
+        result = ''
+        sw = 0x900
 
         try:
+            logger.debug(f"Handle {hex(c.ins)}")
             if c.ins == 0x80:
-                logger.info("Handle 0x80")
                 sw, result = self.sam.handle_0x80(c.p1, c.p2, c.data)
             else:
                 sw, result = self.ins2handler.get(c.ins, notImplemented)(c.p1,
@@ -68,30 +73,30 @@ class PTEIDOS(Iso7816OS):
             #logger.error(self.ins2handler.get(c.ins, None))
             logger.exception("SWERROR")
             sw = e.sw
-            result = ""
         except Exception as e:
             logger.exception(f"ERROR: {e}")
+        if isinstance(result, str):
+            result = result.encode()
+
+        logger.debug(f"Result: {hexlify(result)} {hex(sw)}")
 
         r = self.formatResult(c.ins, c.p1, c.p2, c.le, result, sw)
         return r
 
     def formatResult(self, ins, p1, p2, le, data, sw):
         logger.debug(
-            f"FormatResult: ins={hex(ins)} le={le} length={len(data)} sw={hex(sw)}")
+            f"FormatResult: ins={hex(ins)} p1={hex(p1)} p2={hex(p2)} le={le} length={len(data)} sw={hex(sw)}")
         
-        if ins == 0x2a and p1 == 0x9e and p2 == 0x9a and le != len(data):
-            r = R_APDU(inttostring(0x6C00 + len(data))).render()
-        else:
-            if ins == 0xb0 and le == 0 or ins == 0xa4:
-                le = min(255, len(data))
+        if ins == 0xb0 and le == 0 or ins == 0xa4:
+            le = min(255, len(data))
 
-            if ins == 0xa4 and len(data):
-                self.lastCommandSW = sw
-                self.lastCommandOffcut = data
-                r = R_APDU(inttostring(SW["NORMAL_REST"] +
+        if ins == 0xa4 and len(data):
+            self.lastCommandSW = sw
+            self.lastCommandOffcut = data
+            r = R_APDU(inttostring(SW["NORMAL_REST"] +
                                    min(0xff, len(data) ))).render()
-            else:
-                r = Iso7816OS.formatResult(self, Iso7816OS.seekable(ins), le,
+        else:
+            r = Iso7816OS.formatResult(self, Iso7816OS.seekable(ins), le,
                                        data, sw, False)
         return r
 
@@ -114,10 +119,11 @@ class PTEID_SE(Security_Environment):
         Compute a digital signature for the given data.
         Algorithm and key are specified in the current SE
         """
+        
         if self.data_to_sign == b'':
             return self.signature
 
-        logging.info(f"Compute digital signature {hex(p1)} {hex(p2)} {len(self.data_to_sign)} {hexlify(self.data_to_sign)}")
+        logger.debug(f"Compute digital signature p1={hex(p1)} p2={hex(p2)} dsl={len(self.data_to_sign)} ds={hexlify(self.data_to_sign)} d={data}")
 
         if p1 != 0x9E or p2 not in (0x9A, 0xAC, 0xBC):
             raise SwError(SW["ERR_INCORRECTP1P2"])
@@ -129,20 +135,28 @@ class PTEID_SE(Security_Environment):
             raise SwError(SW["ERR_CONDITIONNOTSATISFIED"])
 
         to_sign = b''
+    
         if p2 == 0x9A:  # Data to be signed
             to_sign = self.data_to_sign
+
         elif p2 == 0xAC:  # Data objects, sign values
             to_sign = b''
             structure = unpack(data)
             for tag, length, value in structure:
                 to_sign += value
         elif p2 == 0xBC:  # Data objects to be signed
-            logging.warning("Data objects to be signed: 0xBC")
-            pass
+            logger.warning("Data objects to be signed: 0xBC")
         
-        logging.debug(f"Actual data signed: {hexlify(to_sign)}")
-        signature = self.dst.key.sign(to_sign, "")
-        return signature
+        logger.debug(f"Actual data signed: {hexlify(to_sign)}")
+        self.signature = bytes(self.dst.key.sign(
+            to_sign,
+            padding.PKCS1v15(),
+            hashes.SHA1()
+        ))
+
+        logger.debug(f"Signature: {self.signature}")
+        return self.signature
+
 
     def hash(self, p1, p2, data):
         """
@@ -151,12 +165,15 @@ class PTEID_SE(Security_Environment):
 
         :return: raw data (no TLV coding).
         """
-        logging.info(f"Compute Hash {hex(p1)} {hex(p2)} {data[2:]}")
-        hash = super().hash(p1, p2, data[2:])
+        logger.debug("Compute Hash {hex(p1)} {hex(p2)} {hexlify(data[17:])}")
+        
+        ## OpenSC driver will add data to beginning. Must remove it.
+        hash_data = data[-20:] #super().hash(p1, p2, data[17:])
+        logger.debug(f"Hash_data: {hexlify(hash_data)}")
 
-        self.data_to_sign = hash
+        self.data_to_sign = hash_data
 
-        return hash
+        return hash_data
 
 class PTEID_SAM(SAM):
     def __init__(self, mf=None, private_key=None):
@@ -167,8 +184,7 @@ class PTEID_SAM(SAM):
         self.current_SE.ht.algorithm = "SHA"
         self.current_SE.algorithm = "AES-CBC"
 
-
-        self.current_SE.dst.key = RSA.importKey(private_key)
+        self.current_SE.dst.key = load_der_private_key(private_key, password=None, backend=default_backend())
 
     def handle_0x80(self, p1, p2, data):
         logger.debug(f"Handle 0x80 {hex(p1)} {hex(p2)} {hex(data)}")
@@ -188,10 +204,9 @@ class PTEID_SAM(SAM):
         return r, b''
 
     def verify(self, p1, p2, PIN):
-        logging.debug("Received PIN: %s", PIN.strip())
         PIN = PIN.replace(b"\0", b"").strip()  # Strip NULL characters
         PIN = PIN.replace(b"\xFF", b"")  # Strip \xFF characters
-        logging.debug("PIN to use: %s", PIN)
+        logger.debug("PIN to use: %s", PIN)
 
         if len(PIN) == 0:
             raise SwError(SW["WARN_NOINFO63"])
@@ -201,7 +216,7 @@ class PTEID_SAM(SAM):
 class PTEID_MF(MF):  # {{{
     def getDataPlain(self, p1, p2, data):
 
-        logger.info(
+        logger.debug(
             f"GetData Plain {hex(p1)} {hex(p2)} {hexlify(data)}")
 
         tag = (p1 << 8) + p2
@@ -212,10 +227,10 @@ class PTEID_MF(MF):  # {{{
         return 0x9000, b''
 
     def readBinaryPlain(self, p1, p2, data):
-        logger.debug(f"Read Binary {hex(p1)} {hex(p2)}")
-        if p2 != 0:
-            p1 = 0
-            p2 = 0
+        logger.debug(f"Read Binary P1={hex(p1)} P2={hex(p2)} {data}")
+        ef, offsets, datalist = self.dataUnitsDecodePlain(p1, p2, data)
+        logger.debug(f"EF={ef} offsets={offsets} datalist={datalist}")
+
         try:
             sw, result = super().readBinaryPlain(p1, p2, data)
             return 0x9000, result
@@ -224,7 +239,6 @@ class PTEID_MF(MF):  # {{{
 
 
     def selectFile(self, p1, p2, data):
-        # return super().selectFile(p1, p2, data)
         """
         Function for instruction 0xa4. Takes the parameter bytes 'p1', 'p2' as
         integers and 'data' as binary string. Returns the status bytes as two
@@ -232,31 +246,54 @@ class PTEID_MF(MF):  # {{{
         """
         logger.debug(f"SelectFile: fid=0x{hexlify(data).decode('latin')} p2={p2}")
 
-        P2_FCI = p2 & (3 << 2) == 0
-        P2_FCP = p2 & 4 != 0
-        P2_FMD = p2 & 8 != 0
-        P2_NONE = 3 << 2
+        P1_MF_DF_EF = p1 == 0
+        P1_CHILD_DF = p1 & 0x01 == 0x01
+        P1_EF_IN_DF = p1 & 0x02 == 0x02
+        P1_PARENT_DF = p1 & 0x03 == 0x03
+        P1_BY_DFNAME = p1 & 0x4 != 0 
+        P1_DIRECT_BY_DFNAME = p1 & 0x7 == 0x04
+        P1_BY_PATH = p1 & 0x8 != 0
+        P1_FROM_MF = p1 & 0xf == 0x08
+        P1_FROM_CURR_DF = p1  & 0xf == 0x09
+
+        P2_FCI = p2 & 0x0C == 0
+        P2_FCP = p2 & 0x04 != 0
+        P2_FMD = p2 & 0x08 != 0
+        P2_NONE = p2 & 0x0C != 0
 
 
-        logger.debug(f"FCI: {P2_FCI}, FCP: {P2_FCP} FMD:{P2_FMD}")
+        logger.debug(f"P1 - MF_DF_EF:{P1_MF_DF_EF} CHILD_DF:{P1_CHILD_DF} EF_IN_DF:{P1_EF_IN_DF} PARENT_DF:{P1_PARENT_DF} BY_DFNAME:{P1_BY_DFNAME} DIR_BY_DFNAME:{P1_DIRECT_BY_DFNAME} BY_PATH:{P1_BY_PATH} FROM_MF:{P1_FROM_MF} FROM_CUR_DF:{P1_FROM_CURR_DF}")
+        logger.debug(f"P2 - FCI:{P2_FCI}, FCP:{P2_FCP} FMD:{P2_FMD} NONE:{P2_NONE}")
+       
+        # Patch instruction to Find MF to replicate PTEID behavior
+        if data == b'\x4f\x00':
+            p1 |= 8
+
+        # Patch Applet AID
+        if data == b'\x60\x46\x32\xFF\x00\x00\x02':
+            return 0x9000, b''
 
         # Will fail with exception if File Not Found
         file = self._selectFile(p1, p2, data)
         self.current = file
-
+        extra = b''
+       
+        if P2_NONE:
+            pass
+        elif P2_FCI:
+            extra = self.get_fci(file)
+            logger.debug(f"FCI: {extra}")
+        else:
+            extra = b''
+    
+        
         if isinstance(file, EF):
             logger.debug("IS EF")
-            fci = self.get_fci(file)
-            return 0x9000, fci
 
         elif isinstance(file, DF):
-            # Search by Name
-            if p1 == 0x04:
-                return 0x9000, b''
-
             logger.debug("IS DF")
-            fci = self.get_fci(file)
-            return 0x9000, fci
+        
+        return 0x9000, extra
 
     def get_fci(self, file):
         try:
@@ -271,7 +308,7 @@ class PTEID_MF(MF):  # {{{
                 fcid = b'\x6F\x14' + \
                     b'\x83\x02' + file.fid.to_bytes(2, byteorder='big') + \
                     file.extra_fci_data
-                print(file.extra_fci_data)
+                logger.debug(f"FCI Data: {file.extra_fci_data}")
                 name = getattr(file, 'dfname')
                 if len(name) > 0:
                     fcid = fcid + b'\x84' + len(name).to_bytes(1, byteorder='big') + name

@@ -340,7 +340,7 @@ class CardGenerator(object):
             "ReligiousArtisticName" in self.datagroups else ''
         AcademicTitle = self.datagroups["AcademicTitle"] if \
             "AcademicTitle" in self.datagroups else ''
-        DateOfBirth = self.datagroups["DateOfBirth"] if "DateOfBirth" in \
+       aDateOfBirth = self.datagroups["DateOfBirth"] if "DateOfBirth" in \
             self.datagroups else '19640812'
         PlaceOfBirth = self.datagroups["PlaceOfBirth"] if "PlaceOfBirth" in \
             self.datagroups else 'BERLIN'
@@ -690,12 +690,14 @@ class CardGenerator(object):
         import json
         from binascii import a2b_base64
         logging.info("Opening card.json")
-
+            
         f = open('card.json', 'r')
         data = json.loads(f.read())
         f.close()
+        
+        name, fci, fdata = ___get_fs_entry(data, '3f00')
+        self.mf = PTEID_MF(dfname=name)
 
-        self.mf = PTEID_MF()
         name, fci, fdata = ___get_fs_entry(data, '3f00-0001')
         fk = DF(parent=self.mf, fid=0x0001,
                     dfname=name,

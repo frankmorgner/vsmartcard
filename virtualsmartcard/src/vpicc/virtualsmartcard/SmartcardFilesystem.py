@@ -411,9 +411,9 @@ class DF(File):
     """Class for a dedicated file"""
     data = make_property("data", "unknown")
     content = make_property("content", "list of files of the DF")
-    dfname = b"" # make_property("dfname", "string with up to 16 bytes. DF name,"
-                #                     "which can also be used as application"
-                #                     "identifier.")
+    dfname =  make_property("dfname", "string with up to 16 bytes. DF name,"
+                                      "which can also be used as application"
+                                      "identifier.")
 
     def __init__(self, parent, fid,
                  filedescriptor=FDB["NOTSHAREABLEFILE"] | FDB["DF"],
@@ -507,18 +507,20 @@ class DF(File):
 
         for i in indexes:
             file = search_in[i]
-            if (hasattr(file, attribute) and
-                    ((getattr(file, attribute) == value) or
+            if hasattr(file, attribute):
+                    data = getattr(file, attribute)
+
+                    if (data == value) or \
                         (attribute == 'dfname' and
-                            getattr(file, attribute).startswith(value)))):
-                return file
+                           data[:min(len(data), len(value))] == value):
+                        return file
         # not found
         if isinstance(value, int):
-            logging.debug("file (%s=%x) not found in:\n%s" %
-                          (attribute, value, self.fid))
+            logging.debug("file (%s=%x) not found in: %s" %
+                          (attribute, value, hex(self.fid)))
         elif isinstance(value, str):
-            logging.debug("file (%s=%r) not found in:\n%s" %
-                          (attribute, value, self.fid))
+            logging.debug("file (%s=%r) not found in: %s" %
+                          (attribute, value, hex(self.fid)))
         raise SwError(SW["ERR_FILENOTFOUND"])
 
     def remove(self, file):
@@ -678,7 +680,7 @@ class MF(DF):
         P1_DF_NAME = 0x04
         P1_PATH_FROM_MF = 0x08
         P1_PATH_FROM_CURRENTDF = 0x09
-
+        logging.debug(f"P1: {p1} P2:{p2}")
         #if (p1 >> 4) != 0 or 
         if p1 == P1_FILE:
             import binascii
@@ -687,16 +689,16 @@ class MF(DF):
             # When P1='00', the card knows either because of a specific coding
             # of the file identifier or because of the context of execution of
             # the command if the file to select is the MF, a DF or an EF.
-            try:
-                if data[:2] == inttostring(self.fid):
-                    selected = walk(self, data[2:])
-                elif data[:2] == inttostring(self.currentDF().fid):
-                    selected = walk(self.currentDF(), data[2:])
-                else:
-                    selected = walk(self.currentDF(), data)
-            except SwError as e:
+            #try:
+            if data[:2] == inttostring(self.fid):
+                selected = walk(self, data[2:])
+            elif data[:2] == inttostring(self.currentDF().fid):
+                selected = walk(self.currentDF(), data[2:])
+            else:
+                selected = walk(self.currentDF(), data)
+            #except SwError as e:
                 # If everything fails, look at MF
-                selected = walk(self, data)
+                #selected = walk(self, data)
 
         elif p1 == P1_CHILD_DF or p1 == P1_CHILD_EF:
             logging.debug("P1_CHILD_DF or P1_CHILD_EF")
@@ -707,7 +709,7 @@ class MF(DF):
                 raise SwError(SW["ERR_INCOMPATIBLEWITHFILE"])
         elif p1 == P1_PATH_FROM_MF:
             logging.debug("P1 PATH FROM MF")
-            selected = walk(self, data)
+            selected = walk(self.getMF(), data)
         elif p1 == P1_PATH_FROM_CURRENTDF:
             logging.debug("P1 PATH FROM CURRENT DF")
             selected = walk(self.currentDF(), data)
