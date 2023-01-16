@@ -30,6 +30,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
+
+#ifdef HAVE_ARPA_INET_H
+#include <arpa/inet.h>
+#endif
 
 /* pcscd allows at most 16 readers. Apple's SmartCardServices on OS X 10.10
  * freaks out if more than 8 slots are registered. We want only two slots... */
@@ -99,6 +104,52 @@ void log_msg(const int priority, const char *fmt, ...)
 #define Log9(priority, fmt, data1, data2, data3, data4, data5, data6, data7, data8) do { } while(0)
 
 #endif
+#endif
+
+/* Copied from pcsc-lite reader.h */
+#ifndef SCARD_CTL_CODE
+#ifdef _WIN32
+#include <winioctl.h>
+#define SCARD_CTL_CODE(code) CTL_CODE(FILE_DEVICE_SMARTCARD,(code),METHOD_BUFFERED,FILE_ANY_ACCESS)
+#else
+#define SCARD_CTL_CODE(code) (0x42000000 + (code))
+#endif
+#endif
+
+/**
+ * PC/SC v2.02.05 part 10 reader tags
+ */
+#define CM_IOCTL_GET_FEATURE_REQUEST SCARD_CTL_CODE(3400)
+#define FEATURE_GET_TLV_PROPERTIES 0x12
+#define PCSCv2_PART10_PROPERTY_dwMaxAPDUDataSize 10
+
+/* Copied from libccid ccid_ifdhandler.h */
+#define CLASS2_IOCTL_MAGIC 0x330000
+#define IOCTL_FEATURE_GET_TLV_PROPERTIES \
+    SCARD_CTL_CODE(FEATURE_GET_TLV_PROPERTIES + CLASS2_IOCTL_MAGIC)
+
+/* Copied from OpenSC internal-wincard.sh */
+/* Set structure elements alignment on bytes
+ * http://gcc.gnu.org/onlinedocs/gcc/Structure_002dPacking-Pragmas.html */
+#if defined(__APPLE__) || defined(sun)
+#pragma pack(1)
+#else
+#pragma pack(push, 1)
+#endif
+
+/** the structure must be 6-bytes long */
+typedef struct
+{
+    uint8_t tag; /**< Tag */
+    uint8_t length; /**< Length */
+    uint32_t value; /**< This value is always in BIG ENDIAN format as documented in PCSC v2 part 10 ch 2.2 page 2. You can use ntohl() for example */
+} PCSC_TLV_STRUCTURE;
+
+/* restore default structure elements alignment */
+#if defined(__APPLE__) || defined(sun)
+#pragma pack()
+#else
+#pragma pack(pop)
 #endif
 
 static struct vicc_ctx *ctx[VICC_MAX_SLOTS];
@@ -181,13 +232,48 @@ RESPONSECODE
 IFDHControl (DWORD Lun, DWORD dwControlCode, PUCHAR TxBuffer, DWORD TxLength,
         PUCHAR RxBuffer, DWORD RxLength, LPDWORD pdwBytesReturned)
 {
-    Log9(PCSC_LOG_DEBUG, "IFDHControl not supported (Lun=%u ControlCode=%u TxBuffer=%p TxLength=%u RxBuffer=%p RxLength=%u pBytesReturned=%p)%s",
+    Log9(PCSC_LOG_DEBUG, "IFDHControl (Lun=%u ControlCode=%u TxBuffer=%p TxLength=%u RxBuffer=%p RxLength=%u pBytesReturned=%p)%s",
             (unsigned int) Lun, (unsigned int) dwControlCode,
             (unsigned char *) TxBuffer, (unsigned int) TxLength,
             (unsigned char *) RxBuffer, (unsigned int) RxLength,
             (unsigned int *) pdwBytesReturned, "");
-    if (pdwBytesReturned)
-        *pdwBytesReturned = 0;
+
+    if (pdwBytesReturned == NULL)
+        return IFD_COMMUNICATION_ERROR;
+
+    if (dwControlCode == CM_IOCTL_GET_FEATURE_REQUEST)
+    {
+        if (RxLength < sizeof(PCSC_TLV_STRUCTURE))
+            return IFD_ERROR_INSUFFICIENT_BUFFER;
+
+        PCSC_TLV_STRUCTURE *pcsc_tlv = (PCSC_TLV_STRUCTURE *)RxBuffer;
+        pcsc_tlv->tag = FEATURE_GET_TLV_PROPERTIES;
+        pcsc_tlv->length = sizeof(uint32_t);
+        uint32_t value = htonl(IOCTL_FEATURE_GET_TLV_PROPERTIES);
+        memcpy(&pcsc_tlv->value, &value, sizeof(uint32_t));
+        *pdwBytesReturned = sizeof(PCSC_TLV_STRUCTURE);
+        return IFD_SUCCESS;
+    }
+
+    if (dwControlCode == IOCTL_FEATURE_GET_TLV_PROPERTIES)
+    {
+        if (RxLength < 6)
+            return IFD_ERROR_INSUFFICIENT_BUFFER;
+
+        // Support extended APDUs with 65536 bytes
+        unsigned int MaxAPDUDataSize = 0x10000;
+        unsigned int p = 0;
+        RxBuffer[p++] = PCSCv2_PART10_PROPERTY_dwMaxAPDUDataSize;
+        RxBuffer[p++] = 4;  /* length */
+        RxBuffer[p++] = MaxAPDUDataSize & 0xFF;
+        RxBuffer[p++] = (MaxAPDUDataSize >> 8) & 0xFF;
+        RxBuffer[p++] = (MaxAPDUDataSize >> 16) & 0xFF;
+        RxBuffer[p++] = (MaxAPDUDataSize >> 24) & 0xFF;
+        *pdwBytesReturned = p;
+        return IFD_SUCCESS;
+    }
+
+    *pdwBytesReturned = 0;
     return IFD_ERROR_NOT_SUPPORTED;
 }
 
