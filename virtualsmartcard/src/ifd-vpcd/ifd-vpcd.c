@@ -27,9 +27,14 @@
 
 #include <errno.h>
 #include <ifdhandler.h>
+#include <reader.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifdef HAVE_ARPA_INET_H
+#include <arpa/inet.h>
+#endif
 
 /* pcscd allows at most 16 readers. Apple's SmartCardServices on OS X 10.10
  * freaks out if more than 8 slots are registered. We want only two slots... */
@@ -100,6 +105,11 @@ void log_msg(const int priority, const char *fmt, ...)
 
 #endif
 #endif
+
+/* Copied from libccid ccid_ifdhandler.h */
+#define CLASS2_IOCTL_MAGIC 0x330000
+#define IOCTL_FEATURE_GET_TLV_PROPERTIES \
+    SCARD_CTL_CODE(FEATURE_GET_TLV_PROPERTIES + CLASS2_IOCTL_MAGIC)
 
 static struct vicc_ctx *ctx[VICC_MAX_SLOTS];
 const char *hostname = NULL;
@@ -181,13 +191,46 @@ RESPONSECODE
 IFDHControl (DWORD Lun, DWORD dwControlCode, PUCHAR TxBuffer, DWORD TxLength,
         PUCHAR RxBuffer, DWORD RxLength, LPDWORD pdwBytesReturned)
 {
-    Log9(PCSC_LOG_DEBUG, "IFDHControl not supported (Lun=%u ControlCode=%u TxBuffer=%p TxLength=%u RxBuffer=%p RxLength=%u pBytesReturned=%p)%s",
+    Log9(PCSC_LOG_DEBUG, "IFDHControl (Lun=%u ControlCode=%u TxBuffer=%p TxLength=%u RxBuffer=%p RxLength=%u pBytesReturned=%p)%s",
             (unsigned int) Lun, (unsigned int) dwControlCode,
             (unsigned char *) TxBuffer, (unsigned int) TxLength,
             (unsigned char *) RxBuffer, (unsigned int) RxLength,
             (unsigned int *) pdwBytesReturned, "");
-    if (pdwBytesReturned)
-        *pdwBytesReturned = 0;
+
+    if (pdwBytesReturned == NULL)
+        return IFD_COMMUNICATION_ERROR;
+
+    if (dwControlCode == CM_IOCTL_GET_FEATURE_REQUEST) {
+        if (RxLength < sizeof(PCSC_TLV_STRUCTURE))
+            return IFD_ERROR_INSUFFICIENT_BUFFER;
+
+        PCSC_TLV_STRUCTURE *pcsc_tlv = (PCSC_TLV_STRUCTURE *)RxBuffer;
+        pcsc_tlv->tag = FEATURE_GET_TLV_PROPERTIES;
+        pcsc_tlv->length = sizeof(uint32_t);
+        uint32_t value = htonl(IOCTL_FEATURE_GET_TLV_PROPERTIES);
+        memcpy(&pcsc_tlv->value, &value, sizeof(uint32_t));
+        *pdwBytesReturned = sizeof(PCSC_TLV_STRUCTURE);
+        return IFD_SUCCESS;
+    }
+
+    if (dwControlCode == IOCTL_FEATURE_GET_TLV_PROPERTIES) {
+        if (RxLength < 6)
+            return IFD_ERROR_INSUFFICIENT_BUFFER;
+
+        // Support extended APDUs with 65536 bytes
+        unsigned int MaxAPDUDataSize = 0x10000;
+        unsigned int p = 0;
+        RxBuffer[p++] = PCSCv2_PART10_PROPERTY_dwMaxAPDUDataSize;
+        RxBuffer[p++] = 4;  /* length */
+        RxBuffer[p++] = MaxAPDUDataSize & 0xFF;
+        RxBuffer[p++] = (MaxAPDUDataSize >> 8) & 0xFF;
+        RxBuffer[p++] = (MaxAPDUDataSize >> 16) & 0xFF;
+        RxBuffer[p++] = (MaxAPDUDataSize >> 24) & 0xFF;
+        *pdwBytesReturned = p;
+        return IFD_SUCCESS;
+    }
+
+    *pdwBytesReturned = 0;
     return IFD_ERROR_NOT_SUPPORTED;
 }
 

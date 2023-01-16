@@ -1,14 +1,35 @@
 /*
- * MUSCLE SmartCard Development ( http://www.linuxnet.com )
+ * MUSCLE SmartCard Development ( https://pcsclite.apdu.fr/ )
  *
  * Copyright (C) 1999-2004
- *  David Corcoran <corcoran@linuxnet.com>
+ *  David Corcoran <corcoran@musclecard.com>
  * Copyright (C) 2003-2004
  *  Damien Sauveron <damien.sauveron@labri.fr>
  * Copyright (C) 2002-2011
  *  Ludovic Rousseau <ludovic.rousseau@free.fr>
  *
- * $Id: ifdhandler.h 6413 2012-08-08 09:35:18Z rousseau $
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. The name of the author may not be used to endorse or promote products
+   derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 /**
@@ -19,13 +40,13 @@
 The routines specified hereafter will allow you to write an IFD handler
 for the PC/SC Lite resource manager. Please use the complement
 developer's kit complete with headers and Makefile at:
-http://www.musclecard.com/drivers.html
+https://muscle.apdu.fr/musclecard.com/sourcedrivers.html
 
 This gives a common API for communication to most readers in a
 homogeneous fashion. This document assumes that the driver developer is
 experienced with standards such as ISO-7816-(1, 2, 3, 4), EMV and MCT
 specifications. For listings of these specifications please access the
-above web site. 
+above web site.
 
 @section UsbReaders USB readers
 
@@ -61,7 +82,7 @@ Example:
     <string>0x04E6</string>
 @endverbatim
 
-You may have an OEM of this reader in which an additional @c <string>
+You may have an OEM of this reader in which an additional @c \<string>
 can be used like in the below example:
 
 @verbatim
@@ -77,9 +98,8 @@ also. You may chose not to support this feature but it is useful when
 reader vendors OEM products so you only distribute one driver.
 
 
-The CCID driver from Ludovic Rousseau
-http://pcsclite.alioth.debian.org/ccid.html uses this feature since the
-same driver supports many different readers.
+The CCID driver from Ludovic Rousseau https://ccid.apdu.fr/ uses this
+feature since the same driver supports many different readers.
 
 @subsection ifdProductID
 
@@ -98,6 +118,8 @@ same driver supports many different readers.
    <key>ifdFriendlyName</key>
    <string>SCM Microsystems USB Reader</string>
 @endverbatim
+
+The reader name must use the ASCII character set.
 
 @subsection CFBundleExecutable
 
@@ -166,7 +188,7 @@ Complete sample file:
 @endverbatim
 
 As indicated in the XML file the DTD is available at
-http://www.apple.com/DTDs/PropertyList-1.0.dtd. 
+http://www.apple.com/DTDs/PropertyList-1.0.dtd.
 
 @section SerialReaders Serial readers
 
@@ -180,7 +202,7 @@ It has the following syntax:
 # Configuration file for pcsc-lite
 # David Corcoran <corcoran@musclecard.com>
 
-FRIENDLYNAME  Generic Reader
+FRIENDLYNAME  "Generic Reader"
 DEVICENAME    /dev/ttyS0
 LIBPATH       /usr/lib/pcsc/drivers/libgen_ifd.so
 CHANNELID     1
@@ -306,6 +328,7 @@ whichever location your reader resides.
 #define TAG_IFD_POLLING_THREAD_KILLABLE 0x0FB1	/**< the polling thread can be killed */
 #define TAG_IFD_STOP_POLLING_THREAD     0x0FB2	/**< method used to stop the polling thread (instead of just pthread_kill()) */
 #define TAG_IFD_POLLING_THREAD_WITH_TIMEOUT 0x0FB3	/**< driver uses a polling thread with a timeout parameter */
+#define TAG_IFD_DEVICE_REMOVED          0x0FB4	/**< signals the reader has been removed*/
 
 	/*
 	 * IFD Handler version number enummerations
@@ -485,7 +508,7 @@ you want extended functionality.
   pdwBytesReturned.
 
 @note
-  @p *pdwBytesReturned should be set to zero on error. 
+  @p *pdwBytesReturned should be set to zero on error.
 
 @return Error codes
 @retval IFD_SUCCESS Successful (\ref IFD_SUCCESS)
@@ -526,7 +549,7 @@ Once the channel is opened the reader must be in a state in which it is
 possible to query IFDHICCPresence() for card status.
 
 USB readers can ignore the @p Channel parameter and query the USB bus
-for the particular reader by manufacturer and product id. 
+for the particular reader by manufacturer and product id.
 
 @ingroup IFDHandler
 @param[in] Lun Logical Unit Number\n
@@ -594,16 +617,17 @@ don't mind loading a new driver for each reader then ignore Lun.
 - \ref TAG_IFD_THREAD_SAFE
   If the driver supports more than one reader (see
   \ref TAG_IFD_SIMULTANEOUS_ACCESS above) this tag indicates if the
-  driver supports access to multiple readers at the same time.\n
-  <tt>Value[0] = 1</tt> indicates the driver supports simultaneous accesses.
+  driver supports access to multiple readers at the same time.
+  - <tt>Value[0] = 0</tt>: the driver DOES NOT support simultaneous accesses.
+  - <tt>Value[0] = 1</tt>: the driver supports simultaneous accesses.
 - \ref TAG_IFD_SLOTS_NUMBER
   Return the number of slots in this reader in <tt>Value[0]</tt>.
 - \ref TAG_IFD_SLOT_THREAD_SAFE
   If the reader has more than one slot (see \ref TAG_IFD_SLOTS_NUMBER
   above) this tag indicates if the driver supports access to multiple
-  slots of the same reader at the same time.\n
-  <tt>Value[0] = 1</tt> indicates the driver supports simultaneous slot
-  accesses.
+  slots of the same reader at the same time.
+  - <tt>value[0] = 0</tt>: the driver supports only 1 slot access at a time.
+  - <tt>value[0] = 1</tt>: the driver supports simultaneous slot accesses.
 - \ref TAG_IFD_POLLING_THREAD
   Unused/deprecated
 - \ref TAG_IFD_POLLING_THREAD_WITH_TIMEOUT
@@ -614,6 +638,10 @@ don't mind loading a new driver for each reader then ignore Lun.
 @endverbatim
 - \ref TAG_IFD_POLLING_THREAD_KILLABLE
   Tell if the polling thread can be killed (pthread_kill()) by pcscd
+  - <tt>value[0] = 0</tt>: the driver can NOT be stopped using
+	pthread_cancel(). The driver must then implement
+	\ref TAG_IFD_STOP_POLLING_THREAD
+  - <tt>value[0] = 1</tt>: the driver can be stopped using pthread_cancel()
 - \ref TAG_IFD_STOP_POLLING_THREAD
   Returns a pointer in @p Value to the function used to stop the polling
   thread returned by \ref TAG_IFD_POLLING_THREAD_WITH_TIMEOUT. The
@@ -626,6 +654,8 @@ don't mind loading a new driver for each reader then ignore Lun.
 
 @return Error codes
 @retval IFD_SUCCESS Successful (\ref IFD_SUCCESS)
+@retval IFD_ERROR_INSUFFICIENT_BUFFER Buffer is too small (\ref IFD_ERROR_INSUFFICIENT_BUFFER)
+@retval IFD_COMMUNICATION_ERROR Error has occurred (\ref IFD_COMMUNICATION_ERROR)
 @retval IFD_ERROR_TAG Invalid tag given (\ref IFD_ERROR_TAG)
 @retval IFD_NO_SUCH_DEVICE The reader is no more present (\ref IFD_NO_SUCH_DEVICE)
  */
@@ -635,7 +665,7 @@ RESPONSECODE IFDHGetCapabilities(DWORD Lun, DWORD Tag, PDWORD Length,
 /**
 This function should set the slot/card capabilities for a particular
 slot/card specified by @p Lun. Again, if you have only 1 card slot and
-don't mind loading a new driver for each reader then ignore @p Lun. 
+don't mind loading a new driver for each reader then ignore @p Lun.
 
 @ingroup IFDHandler
 @param[in] Lun Logical Unit Number
@@ -644,7 +674,7 @@ don't mind loading a new driver for each reader then ignore @p Lun.
 @param[out] Value Value of the desired data
 
 This function is also called when the application uses the PC/SC
-SCardGetAttrib() function. The list of supported tags is not limited.
+SCardSetAttrib() function. The list of supported tags is not limited.
 
 @return Error codes
 @retval IFD_SUCCESS Successful (\ref IFD_SUCCESS)
@@ -657,7 +687,7 @@ RESPONSECODE IFDHSetCapabilities(DWORD Lun, DWORD Tag, DWORD Length, PUCHAR Valu
 
 /**
 This function should set the Protocol Type Selection (PTS) of a
-particular card/slot using the three PTS parameters sent 
+particular card/slot using the three PTS parameters sent
 
 @ingroup IFDHandler
 @param[in] Lun Logical Unit Number
@@ -667,7 +697,7 @@ particular card/slot using the three PTS parameters sent
 - \ref SCARD_PROTOCOL_T1
   T=1 protocol
 @param[in] Flags Logical OR of possible values to determine which PTS values
-to negotiate 
+to negotiate
 - \ref IFD_NEGOTIATE_PTS1
 - \ref IFD_NEGOTIATE_PTS2
 - \ref IFD_NEGOTIATE_PTS3
@@ -781,7 +811,7 @@ This function returns the status of the card inserted in the reader/slot
 specified by @p Lun. In cases where the device supports asynchronous
 card insertion/removal detection, it is advised that the driver manages
 this through a thread so the driver does not have to send and receive a
-command each time this function is called. 
+command each time this function is called.
 
 @ingroup IFDHandler
 @param[in] Lun Logical Unit Number
