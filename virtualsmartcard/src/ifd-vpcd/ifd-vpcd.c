@@ -201,8 +201,7 @@ IFDHControl (DWORD Lun, DWORD dwControlCode, PUCHAR TxBuffer, DWORD TxLength,
     if (pdwBytesReturned == NULL)
         return IFD_COMMUNICATION_ERROR;
 
-    if (dwControlCode == CM_IOCTL_GET_FEATURE_REQUEST)
-    {
+    if (dwControlCode == CM_IOCTL_GET_FEATURE_REQUEST) {
         if (RxLength < sizeof(PCSC_TLV_STRUCTURE))
             return IFD_ERROR_INSUFFICIENT_BUFFER;
 
@@ -215,8 +214,7 @@ IFDHControl (DWORD Lun, DWORD dwControlCode, PUCHAR TxBuffer, DWORD TxLength,
         return IFD_SUCCESS;
     }
 
-    if (dwControlCode == IOCTL_FEATURE_GET_TLV_PROPERTIES)
-    {
+    if (dwControlCode == IOCTL_FEATURE_GET_TLV_PROPERTIES) {
         if (RxLength < 6)
             return IFD_ERROR_INSUFFICIENT_BUFFER;
 
