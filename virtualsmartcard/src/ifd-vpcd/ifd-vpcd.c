@@ -27,6 +27,7 @@
 
 #include <errno.h>
 #include <ifdhandler.h>
+#include <reader.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -106,51 +107,10 @@ void log_msg(const int priority, const char *fmt, ...)
 #endif
 #endif
 
-/* Copied from pcsc-lite reader.h */
-#ifndef SCARD_CTL_CODE
-#ifdef _WIN32
-#include <winioctl.h>
-#define SCARD_CTL_CODE(code) CTL_CODE(FILE_DEVICE_SMARTCARD,(code),METHOD_BUFFERED,FILE_ANY_ACCESS)
-#else
-#define SCARD_CTL_CODE(code) (0x42000000 + (code))
-#endif
-#endif
-
-/**
- * PC/SC v2.02.05 part 10 reader tags
- */
-#define CM_IOCTL_GET_FEATURE_REQUEST SCARD_CTL_CODE(3400)
-#define FEATURE_GET_TLV_PROPERTIES 0x12
-#define PCSCv2_PART10_PROPERTY_dwMaxAPDUDataSize 10
-
 /* Copied from libccid ccid_ifdhandler.h */
 #define CLASS2_IOCTL_MAGIC 0x330000
 #define IOCTL_FEATURE_GET_TLV_PROPERTIES \
     SCARD_CTL_CODE(FEATURE_GET_TLV_PROPERTIES + CLASS2_IOCTL_MAGIC)
-
-/* Copied from OpenSC internal-wincard.sh */
-/* Set structure elements alignment on bytes
- * http://gcc.gnu.org/onlinedocs/gcc/Structure_002dPacking-Pragmas.html */
-#if defined(__APPLE__) || defined(sun)
-#pragma pack(1)
-#else
-#pragma pack(push, 1)
-#endif
-
-/** the structure must be 6-bytes long */
-typedef struct
-{
-    uint8_t tag; /**< Tag */
-    uint8_t length; /**< Length */
-    uint32_t value; /**< This value is always in BIG ENDIAN format as documented in PCSC v2 part 10 ch 2.2 page 2. You can use ntohl() for example */
-} PCSC_TLV_STRUCTURE;
-
-/* restore default structure elements alignment */
-#if defined(__APPLE__) || defined(sun)
-#pragma pack()
-#else
-#pragma pack(pop)
-#endif
 
 static struct vicc_ctx *ctx[VICC_MAX_SLOTS];
 const char *hostname = NULL;
