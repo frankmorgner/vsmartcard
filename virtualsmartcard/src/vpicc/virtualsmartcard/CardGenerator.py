@@ -466,7 +466,7 @@ class CardGenerator(object):
         else:
             dg17 = None
         if (CommunityID.rstrip() != "<NotOnChip>"):
-            dg18 = pack([(0x72, 0, [(0x04, 0, bytes(CommunityID_Binary, "ascii"))])], True)
+            dg18 = pack([(0x72, 0, [(0x04, 0, CommunityID_Binary)])], True)
         else:
             dg18 = None
         if (ResidencePermit1.rstrip() != "<NotOnChip>"):
