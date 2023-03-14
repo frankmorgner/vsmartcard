@@ -179,13 +179,12 @@ class VPCDWorker extends AsyncTask<VPCDWorker.VPCDWorkerParams, Void, Void> {
     private void sendToVPCD(byte[] data) throws IOException {
         /* convert length to network byte order.
         Note that Java always uses network byte order internally. */
-        byte[] length = new byte[2];
-        length[0] = (byte) (data.length >> 8);
-        length[1] = (byte) (data.length & 0xff);
-        outputStream.write(length);
+        byte[] packet = new byte[2 + data.length];
+        packet[0] = (byte) (data.length >> 8);
+        packet[1] = (byte) (data.length & 0xff);
+        System.arraycopy(data, 0, packet, 2, data.length);
 
-        outputStream.write(data, 0, data.length);
-
+        outputStream.write(packet);
         outputStream.flush();
     }
 
