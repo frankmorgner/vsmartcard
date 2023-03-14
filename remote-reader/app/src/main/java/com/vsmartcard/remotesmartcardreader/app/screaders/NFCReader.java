@@ -201,11 +201,14 @@ public class NFCReader implements SCReader {
         return historicalBytes;
     }
 
+    private static final int[] ATQB_FRAME_SIZES = { 16, 24, 32, 40, 48, 64, 96, 128, 256 };
+
     public static Byte translateToMbli(byte[] protocolInfo, int maxUnit) {
         // retrieve maximum frame size from protocol info
-        int maxFrameSize = (protocolInfo[1] >> (byte)4) & 0xF;
-        if (maxFrameSize == 0)
-            return null;
+        int maxFrameSizeCode = (protocolInfo[1] >> (byte)4) & 0xF;
+        if (maxFrameSizeCode >= ATQB_FRAME_SIZES.length)
+            return null; // values 9..15 are RFU
+        int maxFrameSize = ATQB_FRAME_SIZES[maxFrameSizeCode];
 
         // there's 3 to 5 bytes of overhead in a buffer.
         int predictedMbl = maxUnit + 5; // (can be up to 2 bytes larger)
