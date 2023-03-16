@@ -226,8 +226,14 @@ static ssize_t sendToVICC(struct vicc_ctx *ctx, size_t length, const unsigned ch
         return -1;
     }
 
+    /* allocate buffer for outgoing message */
+    sendBuffer = (char *) malloc(length + 2);
+    if (sendBuffer == NULL) {
+        errno = ENOMEM;
+	return -1;
+    }
+
     /* send size of message on 2 bytes */
-    sendBuffer = (char *) alloca(length + 2);
     size = htons((uint16_t) length);
     memcpy(sendBuffer, &size, 2);
     memcpy(sendBuffer + 2, buffer, length);
@@ -236,6 +242,7 @@ static ssize_t sendToVICC(struct vicc_ctx *ctx, size_t length, const unsigned ch
     if (r < 0)
         vicc_eject(ctx);
 
+    free(sendBuffer);
     return r;
 }
 
