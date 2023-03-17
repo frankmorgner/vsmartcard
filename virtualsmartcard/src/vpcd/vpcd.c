@@ -219,22 +219,30 @@ static ssize_t sendToVICC(struct vicc_ctx *ctx, size_t length, const unsigned ch
 {
     ssize_t r;
     uint16_t size;
+    char *sendBuffer;
 
     if (!ctx || length > 0xFFFF) {
         errno = EINVAL;
         return -1;
     }
 
+    /* allocate buffer for outgoing message */
+    sendBuffer = (char *) malloc(length + 2);
+    if (sendBuffer == NULL) {
+        errno = ENOMEM;
+	return -1;
+    }
+
     /* send size of message on 2 bytes */
     size = htons((uint16_t) length);
-    r = sendall(ctx->client_sock, (void *) &size, sizeof size);
-    if (r == sizeof size)
-        /* send message */
-        r = sendall(ctx->client_sock, buffer, length);
+    memcpy(sendBuffer, &size, 2);
+    memcpy(sendBuffer + 2, buffer, length);
+    r = sendall(ctx->client_sock, sendBuffer, length + 2);
 
     if (r < 0)
         vicc_eject(ctx);
 
+    free(sendBuffer);
     return r;
 }
 
