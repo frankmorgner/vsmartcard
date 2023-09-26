@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([PC/SC Relay], [0.5], [https://github.com/frankmorgner/vsmartcard/issues], [pcsc-relay], [http://frankmorgner.github.io/vsmartcard/pcsc-relay/README.html])
+AC_INIT([PC/SC Relay], [0.6], [https://github.com/frankmorgner/vsmartcard/issues], [pcsc-relay], [http://frankmorgner.github.io/vsmartcard/pcsc-relay/README.html])
 AC_CONFIG_SRCDIR([src/pcsc-relay.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
