@@ -11,6 +11,7 @@ noinst_HEADERS = misc.h
 
 nobase_include_HEADERS  = \
 						  PCSC/pcsclite.h \
+						  PCSC/reader.h \
 						  PCSC/winscard.h \
 						  PCSC/ifdhandler.h \
 						  PCSC/wintypes.h
