@@ -6,6 +6,7 @@ os: Visual Studio 2019
 
 install:
  - set PATH=PATH=C:\Python36;C:\Python36\\Scripts;C:\\cygwin\\bin;%PATH%
+ - takeown /f . /r /d y
 
  - date /T & time /T
  - python --version
