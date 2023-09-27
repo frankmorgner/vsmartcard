@@ -45,6 +45,7 @@ relayed to one of the following **connectors**:
   @enduml
 
 ::
+
      ┌────────┐          ┌──────────┐          ┌─────────┐
      │Emulator│          │pcsc-relay│          │Connector│
      └───┬────┘          └────┬─────┘          └────┬────┘
