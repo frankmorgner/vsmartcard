@@ -168,12 +168,6 @@ tools.
     \texttt{/dev/gadget/ep2-bulk}\\
     \texttt{/dev/gadget/ep3-bulk}\\};
 
-
-Running the USB CCID Emulator has the following dependencies:
-
-- Linux Kernel with GadgetFS_
-- OpenSC_
-
 Whereas using the USB CCID Emulator on the host system as smart card reader only
 needs a usable PC/SC middleware with USB CCID driver. This is the case for most
 modern Windows and Unix-like systems by default.
@@ -266,7 +260,12 @@ modern Windows and Unix-like systems by default.
 .. include:: autotools.txt
 
 The USB CCID Emulator depends on :program:`libopensc`, which is automatically
-built from a snapshot of the OpenSC source code and then statically linked.
+built from a snapshot of the OpenSC_ source code and then statically linked.
+
+Running the USB CCID Emulator has the following dependencies:
+
+- Linux Kernel with GadgetFS_
+- OpenSSL_ 1.0.0 or later
 
 
 =================
@@ -334,6 +333,7 @@ Notes and References
 
 .. _`GadgetFS`: http://www.linux-usb.org/gadget/
 .. _`OpenSC`: https://github.com/frankmorgner/OpenSC
+.. _`OpenSSL`: https://www.openssl.org
 .. _`libccid`: https://ccid.apdu.fr/
 .. _`Windows USB CCID driver`: http://msdn.microsoft.com/en-us/windows/hardware/gg487509
 .. _`OpenMoko Wiki`: http://wiki.openmoko.org/wiki/Building_Gadget_USB_Module

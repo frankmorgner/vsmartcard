@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Android Smart Card Emulator &#8212; vsmartcard 2021-04-28 documentation</title>
+    <title>Android Smart Card Emulator &#8212; vsmartcard 2023-09-27 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
@@ -12,10 +12,6 @@
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/js/jquery-1.11.0.min.js"></script>
-    <script src="../_static/js/jquery-fix.js"></script>
-    <script src="../_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
-    <script src="../_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="../_static/chip.ico"/>
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Tizen Smart Card Emulator" href="../TCardEmulator/README.html" />
@@ -24,6 +20,10 @@
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
 
   </head><body>
   
@@ -138,7 +138,7 @@
 
 <div class="container">
   <div class="row">
-    <div class="col-md-12 content">
+    <div class="body col-md-12 content" role="main">
       
   <div class="section" id="android-smart-card-emulator">
 <span id="acardemulator"></span><h1>Android Smart Card Emulator<a class="headerlink" href="#android-smart-card-emulator" title="Permalink to this headline">¶</a></h1>
@@ -180,14 +180,51 @@ which allows emulating a contactless card from an existing contact-based card
 (by relaying the commands from PC/SC to the phone).</p>
 <p>You may also attach your own simulation to the remote interface by implementing
 a simple interface through a socket communication.</p>
-<div class="figure" id="id1" style="text-align: center">
-<p><img  src="../_images/tikz-f7010fa8209b3752026a52619d57bbebb8fa2bcd.svg" alt="Figure made with TikZ" /></p>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<span class="docutils literal">\input{$wd/bilder/tikzstyles.tex}
+\node (reader) {\includegraphics[width=3cm]{$wd/bilder/my_cardreader.pdf}};
+\node [below=0cm of reader, kleiner] {Contact-less Reader};
+\node (phone) [right=1cm of reader] {\includegraphics[width=3cm]{$wd/bilder/smartphone.pdf}};
+\node (app) [at=(phone.center)] {\includegraphics[width=2.8cm, height=4.9cm]{$wd/bilder/ACardEmulator.png}};
+
+\begin{pgfonlayer}{background}
+    \draw [rfid] (reader.center) -- (phone.west) ;
+\end{pgfonlayer}</span>)</p>
+<p>!pdf2svg command cannot be run</p>
+</div>
 <p class="caption"><span class="caption-text">Simulate a contact-less Java Card with Android Smart Card Emulator</span></p>
-</div><div class="figure" id="id2" style="text-align: center">
-<p><img  src="../_images/tikz-ae1e764f23cec8b5d67952bc6d8bbe66280e80d1.svg" alt="Figure made with TikZ" /></p>
+</div><div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<span class="docutils literal">\input{$wd/bilder/tikzstyles.tex}
+\node (reader) {\includegraphics[width=3cm]{$wd/bilder/my_cardreader.pdf}};
+\node [below=0cm of reader, kleiner] {Contact-less Reader};
+\node (phone) [right=1cm of reader] {\includegraphics[width=3cm]{$wd/bilder/smartphone.pdf}};
+\node (app) [at=(phone.center)] {\includegraphics[width=2.8cm, height=4.9cm]{$wd/bilder/ACardEmulator.png}};
+\node (vicc) [aktivbox, right=2cm of phone, kleiner] {\texttt{vicc --reversed}};
+
+\begin{pgfonlayer}{background}
+    \draw [rfid] (reader.center) -- (phone.west) ;
+    \path[linie] (phone) edge node {\includegraphics[width=1.5cm]{$wd/bilder/simplecloud.pdf}} (vicc) ;
+\end{pgfonlayer}</span>)</p>
+<p>!pdf2svg command cannot be run</p>
+</div>
 <p class="caption"><span class="caption-text">Simulate a contact-less smart card with a remote virtual smart card</span></p>
-</div><div class="figure" id="id3" style="text-align: center">
-<p><img  src="../_images/tikz-30c9c7049675e5b06e8364c63b0718d51986e380.svg" alt="Figure made with TikZ" /></p>
+</div><div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<span class="docutils literal">\input{$wd/bilder/tikzstyles.tex}
+\node (reader) {\includegraphics[width=3cm]{$wd/bilder/my_cardreader.pdf}};
+\node [below=0cm of reader, kleiner] {Contact-less Reader};
+\node (phone) [right=1cm of reader] {\includegraphics[width=3cm]{$wd/bilder/smartphone.pdf}};
+\node (app) [at=(phone.center)] {\includegraphics[width=2.8cm, height=4.9cm]{$wd/bilder/ACardEmulator.png}};
+\node (pcsc-relay) [aktivbox, right=2cm of phone, kleiner] {\texttt{pcsc-relay --emulator=vpcd}};
+\node (card) [below=.5cm of pcsc-relay)] {\includegraphics[width=0.8cm]{$wd/bilder/smartcard.pdf}};
+\node (reader2) [below=1cm of pcsc-relay] {\includegraphics[width=1.3cm]{$wd/bilder/my_cardreader.pdf}};
+
+\begin{pgfonlayer}{background}
+    \draw [rfid] (reader.center) -- (phone.west) ;
+    \path[linie] (phone) edge node {\includegraphics[width=1.5cm]{$wd/bilder/simplecloud.pdf}} (pcsc-relay) ;
+    \path[linie] (pcsc-relay) edge (reader2) ;
+\end{pgfonlayer}</span>)</p>
+<p>!pdf2svg command cannot be run</p>
+</div>
 <p class="caption"><span class="caption-text">Relaying a contact-based smart card with pcsc-relay</span></p>
 </div><p>The Android Smart Card Emulator has the following dependencies:</p>
 <ul class="simple">
@@ -211,9 +248,7 @@ to have a look at <a class="reference external" href="http://sar.informatik.hu-b
 submodules:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/frankmorgner/vsmartcard.git
 <span class="nb">cd</span> vsmartcard
-<span class="c1"># fetch the applets that are in the submodules</span>
-git submodule init
-git submodule update
+git submodule update --init --recursive
 </pre></div>
 </div>
 <p>We use <a class="reference external" href="http://developer.android.com/sdk/installing/studio.html">Android Studio</a> <a class="footnote-reference brackets" href="#id18" id="id19">8</a> to build and deploy the application. Use
@@ -268,7 +303,7 @@ more than welcome! Please use our <a class="reference external" href="https://gi
       
     </p>
     <p>
-        &copy; Copyright 2009-2021 by Dominik Oepen and Frank Morgner.<br/>
+        &copy; Copyright 2009-2023 by Dominik Oepen and Frank Morgner.<br/>
     </p>
   </div>
 </footer>

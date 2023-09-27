@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Virtual Smart Card &#8212; vsmartcard 2021-04-28 documentation</title>
+    <title>Virtual Smart Card &#8212; vsmartcard 2023-09-27 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
@@ -12,10 +12,6 @@
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/js/jquery-1.11.0.min.js"></script>
-    <script src="../_static/js/jquery-fix.js"></script>
-    <script src="../_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
-    <script src="../_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="../_static/chip.ico"/>
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Remote Smart Card Reader" href="../remote-reader/README.html" />
@@ -24,6 +20,10 @@
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
 
   </head><body>
   
@@ -103,7 +103,10 @@
 <li><a class="reference internal" href="#configuring-vpcd-on-unix">Configuring <abbr title="virtual smart card reader">vpcd</abbr> on Unix</a></li>
 <li><a class="reference internal" href="#configuring-vpcd-on-mac-os-x">Configuring <abbr title="virtual smart card reader">vpcd</abbr> on Mac OS X</a></li>
 <li><a class="reference internal" href="#configuring-vpcd-on-windows">Configuring <abbr title="virtual smart card reader">vpcd</abbr> on Windows</a></li>
-<li><a class="reference internal" href="#running-vpicc">Running <abbr title="virtual smart card">vpicc</abbr></a></li>
+<li><a class="reference internal" href="#running-vpicc">Running <abbr title="virtual smart card">vpicc</abbr></a><ul>
+<li><a class="reference internal" href="#testing-vpicc-t-epass">Testing <abbr title="virtual smart card">vpicc</abbr> -t ePass</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a class="reference internal" href="#question">Question</a></li>
@@ -151,7 +154,7 @@
 
 <div class="container">
   <div class="row">
-    <div class="col-md-12 content">
+    <div class="body col-md-12 content" role="main">
       
   <div class="section" id="virtual-smart-card">
 <span id="vicc"></span><h1>Virtual Smart Card<a class="headerlink" href="#virtual-smart-card" title="Permalink to this headline">¶</a></h1>
@@ -189,8 +192,25 @@ internet for example.</p>
 <a class="reference internal" href="../pcsc-relay/README.html#pcsc-relay"><span class="std std-ref">PC/SC Relay</span></a> to make it accessible to an external contact-less smart card
 reader.</p>
 <p>The file <code class="file docutils literal notranslate"><span class="pre">utils.py</span></code> was taken from Henryk Plötz’s <a class="reference external" href="https://github.com/henryk/cyberflex-shell">cyberflex-shell</a> <a class="footnote-reference brackets" href="#id3" id="id4">1</a>.</p>
-<div class="figure" id="id1" style="text-align: center">
-<p><img  src="../_images/tikz-b5a668553fb9bf21fb5abcc4cae46289d11490d1.svg" alt="Figure made with TikZ" /></p>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<span class="docutils literal">\input{$wd/bilder/tikzstyles.tex}
+    \node (pcsclite)
+[klein, aktivbox, inner xsep=.7cm, text width=3cm]
+    {PC/SC Framework\\\
+(\texttt{pcscd} or \texttt{SCardSvr})
+    };
+\node (sca) [aktivbox, klein, left=of pcsclite] {Smart Card\\Application};
+\node (vpcd) [box, at=(pcsclite.east), xshift=-.3cm] {\texttt{vpcd}};
+    \node (vicc) [aktivbox, right=2cm of pcsclite] {\texttt{vicc}};
+
+\begin{pgfonlayer}{background}
+    \path[linie]
+    (sca) edge (pcsclite)
+    (vpcd) edge node {\includegraphics[width=1.2cm]{$wd/bilder/simplecloud.pdf}} (vicc)
+    ;
+\end{pgfonlayer}</span>)</p>
+<p>!pdf2svg command cannot be run</p>
+</div>
 <p class="caption"><span class="caption-text">Virtual Smart Card used with PCSC-Lite or WinSCard</span></p>
 </div><div class="versionadded">
 <p><span class="versionmodified added">New in version 0.7: </span>The Virtual Smart Card optionally brings its own standalone implementation of
@@ -198,8 +218,24 @@ PC/SC. This allows accessing <abbr title="virtual smart card">vpicc</abbr> witho
 implementation acts as replacement for <code class="docutils literal notranslate"><span class="pre">libpcsclite</span></code> which can lead to
 problems when used in parallel with PCSC-Lite.</p>
 </div>
-<div class="figure" id="id2" style="text-align: center">
-<p><img  src="../_images/tikz-c523bba45f9fcaa801dd4f6284c7efa1f320c9b1.svg" alt="Figure made with TikZ" /></p>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<span class="docutils literal">\input{$wd/bilder/tikzstyles.tex}
+    \node (pcsclite)
+[klein, box, text width=4cm]
+    {Virtual Smart Card's\\
+PC/SC Framework
+    };
+\node (sca) [aktivbox, klein, left=of pcsclite] {Smart Card\\Application};
+    \node (vicc) [aktivbox, right=2cm of pcsclite] {\texttt{vicc}};
+
+\begin{pgfonlayer}{background}
+    \path[linie]
+    (sca) edge (pcsclite)
+    (pcsclite) edge node {\includegraphics[width=1.5cm]{$wd/bilder/simplecloud.pdf}} (vicc)
+    ;
+\end{pgfonlayer}</span>)</p>
+<p>!pdf2svg command cannot be run</p>
+</div>
 <p class="caption"><span class="caption-text">Virtual Smart Card used with its own PC/SC implementation</span></p>
 </div><p>On Android, where a traditional PC/SC framework is not available, you can use
 our framework to make your real contact-less smart accessible through PKCS#11.
@@ -211,10 +247,10 @@ responses via NFC to a contact-less smart card that signs the mail.</p>
 <ul class="simple">
 <li><p><a class="reference external" href="http://www.python.org/">Python</a> <a class="footnote-reference brackets" href="#id7" id="id8">3</a></p></li>
 <li><p><a class="reference external" href="http://pyscard.sourceforge.net/">pyscard</a> <a class="footnote-reference brackets" href="#id9" id="id10">4</a> (relaying a local smart card with <cite>–type=relay</cite>)</p></li>
-<li><p><a class="reference external" href="https://www.pycryptodome.org/">PyCryptodome</a> <a class="footnote-reference brackets" href="#id11" id="id12">5</a>, <a class="reference external" href="https://www.dlitz.net/software/python-pbkdf2/">PBKDF2</a> <a class="footnote-reference brackets" href="#id13" id="id14">6</a>, <a class="reference external" href="http://www.pythonware.com/products/pil/">PIL</a> <a class="footnote-reference brackets" href="#id19" id="id20">9</a>, <a class="reference external" href="https://docs.python.org/3.3/library/readline.html">readline</a> <a class="footnote-reference brackets" href="#id15" id="id16">7</a> or <a class="reference external" href="https://pypi.python.org/pypi/pyreadline">PyReadline</a> <a class="footnote-reference brackets" href="#id17" id="id18">8</a> (emulation of electronic
+<li><p>PyCryptodome, <a class="reference external" href="https://www.dlitz.net/software/python-pbkdf2/">PBKDF2</a> <a class="footnote-reference brackets" href="#id11" id="id12">5</a>, <a class="reference external" href="http://www.pythonware.com/products/pil/">PIL</a> <a class="footnote-reference brackets" href="#id17" id="id18">8</a>, <a class="reference external" href="https://docs.python.org/3.3/library/readline.html">readline</a> <a class="footnote-reference brackets" href="#id13" id="id14">6</a> or <a class="reference external" href="https://pypi.python.org/pypi/pyreadline">PyReadline</a> <a class="footnote-reference brackets" href="#id15" id="id16">7</a> (emulation of electronic
 passport with <cite>–type=ePass</cite>)</p></li>
-<li><p><a class="reference external" href="https://github.com/frankmorgner/openpace">OpenPACE</a> <a class="footnote-reference brackets" href="#id21" id="id22">10</a> (emulation of German identity card with <cite>–type=nPA</cite>)</p></li>
-<li><p><a class="reference external" href="https://fukuchi.org/works/qrencode/">libqrencode</a> <a class="footnote-reference brackets" href="#id23" id="id24">11</a> (to print a QR code on the command line for <cite>vpcd-config</cite>; an
+<li><p><a class="reference external" href="https://github.com/frankmorgner/openpace">OpenPACE</a> <a class="footnote-reference brackets" href="#id19" id="id20">9</a> (emulation of German identity card with <cite>–type=nPA</cite>)</p></li>
+<li><p><a class="reference external" href="https://fukuchi.org/works/qrencode/">libqrencode</a> <a class="footnote-reference brackets" href="#id21" id="id22">10</a> (to print a QR code on the command line for <cite>vpcd-config</cite>; an
 URL will be printed if libqrencode is not available)</p></li>
 </ul>
 <div class="section" id="download">
@@ -223,6 +259,8 @@ URL will be printed if libqrencode is not available)</p></li>
 still available on <a class="reference external" href="http://sourceforge.net/projects/vsmartcard/files">Sourceforge</a>.</p>
 <p>Alternatively, you can clone our git repository:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/frankmorgner/vsmartcard.git
+<span class="nb">cd</span> vsmartcard
+git submodule update --init --recursive
 </pre></div>
 </div>
 </div>
@@ -269,10 +307,13 @@ make install
 PC/SC.</p>
 </div>
 <p>For the Windows integration we extended <a class="reference external" href="http://www.codeproject.com/Articles/134010/An-UMDF-Driver-for-a-Virtual-Smart-Card-Reader">Fabio Ottavi’s UMDF Driver for a
-Virtual Smart Card Reader</a> <a class="footnote-reference brackets" href="#id25" id="id26">12</a> with a <abbr title="virtual smart card reader">vpcd</abbr> interface. To build <abbr title="virtual smart card reader">vpcd</abbr> for
-Windows we use <a class="reference external" href="https://msdn.microsoft.com/en-us/library/windows/hardware/ff557573">Windows Driver Kit 10 and Visual Studio 2015</a> <a class="footnote-reference brackets" href="#id28" id="id29">13</a>. The vpcd
-installer requires the <a class="reference external" href="https://wixtoolset.org/releases/v3.10/stable">WiX Toolset 3.10</a> <a class="footnote-reference brackets" href="#id30" id="id31">14</a>. If you choose
-to download the <a class="reference external" href="https://github.com/frankmorgner/vsmartcard/releases/download/virtualsmartcard-0.7/virtualsmartcard-0.7_win32.zip">Windows binaries</a> <a class="footnote-reference brackets" href="#id32" id="id33">15</a>, you may directly jump to step 4.</p>
+Virtual Smart Card Reader</a> <a class="footnote-reference brackets" href="#id23" id="id24">11</a> with a <abbr title="virtual smart card reader">vpcd</abbr> interface. If you choose
+to download the <a class="reference external" href="https://github.com/frankmorgner/vsmartcard/releases/tag/virtualsmartcard-0.8">Windows binaries</a> <a class="footnote-reference brackets" href="#id30" id="id31">14</a>, you may directly jump to step 4.</p>
+<p>In the CI environment, we’re building <abbr title="virtual smart card reader">vpcd</abbr> for Windows with Visual Studio
+Community 2019 with SDK/WDK for Windows 11. (The WDK version needs to match
+at least your targeted version of Windows, see this <a class="reference external" href="https://learn.microsoft.com/en-us/windows-hardware/drivers/download-the-wdk">guide for installing VS
+with WDK</a> <a class="footnote-reference brackets" href="#id26" id="id27">12</a>) The vpcd installer additionally
+requires the <a class="reference external" href="https://wixtoolset.org/releases/v3.10/stable">WiX Toolset 3.10</a> <a class="footnote-reference brackets" href="#id28" id="id29">13</a> to be installed.</p>
 <ol class="arabic">
 <li><p>Clone the git repository and make sure it is initialized with all
 submodules:</p>
@@ -289,14 +330,23 @@ configuration manager, that the project is built for your platform (i.e.
 <li><p>If you can successfully <span class="guilabel">Build the solution</span>, you can find
 the installer (<code class="file docutils literal notranslate"><span class="pre">BixVReaderInstaller.msi</span></code>) in
 <code class="file docutils literal notranslate"><span class="pre">virtualsmartcard\win32\BixVReaderInstaller\bin\*Release</span></code></p></li>
-<li><p>To install <abbr title="virtual smart card reader">vpcd</abbr>, double click <code class="file docutils literal notranslate"><span class="pre">BixVReaderInstaller.msi</span></code>. Since we
-are currently not signing the Installer, this will yield a warning about an
-unverified driver software publisher on Windows 8 and later. Click
-<span class="guilabel">Install this driver software anyway</span>.</p></li>
+<li><p>To import the installer’s test signing certificate, double click
+<code class="file docutils literal notranslate"><span class="pre">BixVReader.cer</span></code> and add it to the <em>Trusted Root Certification
+Authority</em> and the <em>Trusted Publishers</em> at the <em>Local Computer” (not the
+*Current User</em>).</p>
+<p>On the commandline, you could do this <span class="xref std std-ref">as follows</span>:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>CertMgr.exe /add BixVReader.cer /s /r localMachine root /all
+CertMgr.exe /add BixVReader.cer /s /r localMachine trustedpublisher
+</pre></div>
+</div>
+<p>Feel free to remove the certificate from the certificate stores once the
+device is installed.</p>
+</li>
+<li><p>To install <abbr title="virtual smart card reader">vpcd</abbr>, double click <code class="file docutils literal notranslate"><span class="pre">BixVReaderInstaller.msi</span></code>.</p></li>
 </ol>
 <p>For debugging <abbr title="virtual smart card reader">vpcd</abbr> and building the driver with an older version of Visual
 Studio or WDK please see <a class="reference external" href="http://www.codeproject.com/Articles/134010/An-UMDF-Driver-for-a-Virtual-Smart-Card-Reader">Fabio Ottavi’s UMDF Driver for a Virtual Smart Card
-Reader</a> <a class="footnote-reference brackets" href="#id25" id="id27">12</a> for details.</p>
+Reader</a> <a class="footnote-reference brackets" href="#id23" id="id25">11</a> for details.</p>
 <p>All of Fabio’s card connectors are still available, but inactive by default
 (see <a class="reference internal" href="#configuring-vpcd-on-windows">Configuring vpcd on Windows</a> below).</p>
 </div>
@@ -454,7 +504,7 @@ to open should be specified in <code class="docutils literal notranslate"><span 
 </div>
 <div class="section" id="running-vpicc">
 <h3>Running <abbr title="virtual smart card">vpicc</abbr><a class="headerlink" href="#running-vpicc" title="Permalink to this headline">¶</a></h3>
-<p>The compiled <a class="reference external" href="https://github.com/frankmorgner/vsmartcard/releases/download/virtualsmartcard-0.7/virtualsmartcard-0.7_win32.zip">Windows binaries</a> <a class="footnote-reference brackets" href="#id32" id="id34">15</a> of <abbr title="virtual smart card">vpicc</abbr> include OpenPACE. The other
+<p>The compiled <a class="reference external" href="https://github.com/frankmorgner/vsmartcard/releases/tag/virtualsmartcard-0.8">Windows binaries</a> <a class="footnote-reference brackets" href="#id30" id="id32">14</a> of <abbr title="virtual smart card">vpicc</abbr> include OpenPACE. The other
 dependencies listed above need to be installed seperately. You can start the
 <abbr title="virtual smart card">vpicc</abbr> via <strong class="command">python.exe vicc.py</strong>. On all other systems an executable
 script <strong class="command">vicc</strong> is installed using the autotools.</p>
@@ -538,8 +588,38 @@ chosen accordingly (<cite>–hostname</cite> and <cite>–port</cite>)
 <p>When <abbr title="virtual smart card reader">vpcd</abbr> and <abbr title="virtual smart card">vpicc</abbr> are connected you should be able to access the card
 through the PC/SC API. You can use the <strong class="command">opensc-explorer</strong> or
 <strong class="command">pcsc_scan</strong> for testing. In Virtual Smart Card’s root directory we also
-provide scripts for testing with <a class="reference external" href="https://github.com/frankmorgner/OpenSC">npa-tool</a> <a class="footnote-reference brackets" href="#id35" id="id36">16</a> and PCSC-Lite’s smart card
+provide scripts for testing with <a class="reference external" href="https://github.com/frankmorgner/OpenSC">npa-tool</a> <a class="footnote-reference brackets" href="#id33" id="id34">15</a> and PCSC-Lite’s smart card
 reader driver tester.</p>
+<div class="section" id="testing-vpicc-t-epass">
+<h4>Testing <abbr title="virtual smart card">vpicc</abbr> -t ePass<a class="headerlink" href="#testing-vpicc-t-epass" title="Permalink to this headline">¶</a></h4>
+<p>A simple tool to test <abbr title="Basic Access Control">BAC</abbr> is available for Python 2.7. On Ubuntu, its
+requiremets are installed as follows:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>sudo apt-get install python2.7-dev
+curl https://bootstrap.pypa.io/pip/2.7/get-pip.py -o get-pip.py
+python2.7 get-pip.py
+python2.7 -m pip install pycryptodomex pyscard
+python2.7 readpass.py --no-gui
+git clone https://github.com/henryk/cyberflex-shell
+<span class="nb">cd</span> cyberflex-shell
+</pre></div>
+</div>
+<p>Now we can create and run a small script:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nb">echo</span> <span class="s2">&quot;select_application a0000002471001&quot;</span> &gt; script.txt
+<span class="nb">echo</span> <span class="s2">&quot;perform_bac L898902C&lt;3UTO6908061F9406236ZE184226B&lt;&lt;&lt;&lt;&lt;14&quot;</span> &gt;&gt; script.txt
+python2.7 cyberflex-shell.py script.txt
+</pre></div>
+</div>
+<p>The tool will wait for a (virtual) smart card to appear. Start <abbr title="virtual smart card">vpicc</abbr> and make
+sure to configure it with the correct MRZ, i.e.
+<code class="docutils literal notranslate"><span class="pre">P&lt;UTOERIKSSON&lt;&lt;ANNA&lt;MARIX&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;L898902C&lt;3UTO6908061F9406236ZE184226B&lt;&lt;&lt;&lt;&lt;14</span></code>
+in this case:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>vicc -t ePass
+</pre></div>
+</div>
+<p>Once the card is connected, <code class="docutils literal notranslate"><span class="pre">cyberflex-shell</span></code> will quickly perform <abbr title="Basic Access Control">BAC</abbr> and
+exit.  Running the tool without arguments allows entering in interactive mode
+to run additional tests.</p>
+</div>
 </div>
 </div>
 <div class="section" id="question">
@@ -563,39 +643,36 @@ more than welcome! Please use our <a class="reference external" href="https://gi
 <dd><p><a class="reference external" href="http://pyscard.sourceforge.net/">http://pyscard.sourceforge.net/</a></p>
 </dd>
 <dt class="label" id="id11"><span class="brackets"><a class="fn-backref" href="#id12">5</a></span></dt>
-<dd><p><a class="reference external" href="https://www.pycryptodome.org/">https://www.pycryptodome.org/</a></p>
-</dd>
-<dt class="label" id="id13"><span class="brackets"><a class="fn-backref" href="#id14">6</a></span></dt>
 <dd><p><a class="reference external" href="https://www.dlitz.net/software/python-pbkdf2/">https://www.dlitz.net/software/python-pbkdf2/</a></p>
 </dd>
-<dt class="label" id="id15"><span class="brackets"><a class="fn-backref" href="#id16">7</a></span></dt>
+<dt class="label" id="id13"><span class="brackets"><a class="fn-backref" href="#id14">6</a></span></dt>
 <dd><p><a class="reference external" href="https://docs.python.org/3.3/library/readline.html">https://docs.python.org/3.3/library/readline.html</a></p>
 </dd>
-<dt class="label" id="id17"><span class="brackets"><a class="fn-backref" href="#id18">8</a></span></dt>
+<dt class="label" id="id15"><span class="brackets"><a class="fn-backref" href="#id16">7</a></span></dt>
 <dd><p><a class="reference external" href="https://pypi.python.org/pypi/pyreadline">https://pypi.python.org/pypi/pyreadline</a></p>
 </dd>
-<dt class="label" id="id19"><span class="brackets"><a class="fn-backref" href="#id20">9</a></span></dt>
+<dt class="label" id="id17"><span class="brackets"><a class="fn-backref" href="#id18">8</a></span></dt>
 <dd><p><a class="reference external" href="http://www.pythonware.com/products/pil/">http://www.pythonware.com/products/pil/</a></p>
 </dd>
-<dt class="label" id="id21"><span class="brackets"><a class="fn-backref" href="#id22">10</a></span></dt>
+<dt class="label" id="id19"><span class="brackets"><a class="fn-backref" href="#id20">9</a></span></dt>
 <dd><p><a class="reference external" href="https://github.com/frankmorgner/openpace">https://github.com/frankmorgner/openpace</a></p>
 </dd>
-<dt class="label" id="id23"><span class="brackets"><a class="fn-backref" href="#id24">11</a></span></dt>
+<dt class="label" id="id21"><span class="brackets"><a class="fn-backref" href="#id22">10</a></span></dt>
 <dd><p><a class="reference external" href="https://fukuchi.org/works/qrencode/">https://fukuchi.org/works/qrencode/</a></p>
 </dd>
-<dt class="label" id="id25"><span class="brackets">12</span><span class="fn-backref">(<a href="#id26">1</a>,<a href="#id27">2</a>)</span></dt>
+<dt class="label" id="id23"><span class="brackets">11</span><span class="fn-backref">(<a href="#id24">1</a>,<a href="#id25">2</a>)</span></dt>
 <dd><p><a class="reference external" href="http://www.codeproject.com/Articles/134010/An-UMDF-Driver-for-a-Virtual-Smart-Card-Reader">http://www.codeproject.com/Articles/134010/An-UMDF-Driver-for-a-Virtual-Smart-Card-Reader</a></p>
 </dd>
-<dt class="label" id="id28"><span class="brackets"><a class="fn-backref" href="#id29">13</a></span></dt>
-<dd><p><a class="reference external" href="https://msdn.microsoft.com/en-us/library/windows/hardware/ff557573">https://msdn.microsoft.com/en-us/library/windows/hardware/ff557573</a></p>
+<dt class="label" id="id26"><span class="brackets"><a class="fn-backref" href="#id27">12</a></span></dt>
+<dd><p><a class="reference external" href="https://learn.microsoft.com/en-us/windows-hardware/drivers/download-the-wdk">https://learn.microsoft.com/en-us/windows-hardware/drivers/download-the-wdk</a></p>
 </dd>
-<dt class="label" id="id30"><span class="brackets"><a class="fn-backref" href="#id31">14</a></span></dt>
+<dt class="label" id="id28"><span class="brackets"><a class="fn-backref" href="#id29">13</a></span></dt>
 <dd><p><a class="reference external" href="https://wixtoolset.org/releases/v3.10/stable">https://wixtoolset.org/releases/v3.10/stable</a></p>
 </dd>
-<dt class="label" id="id32"><span class="brackets">15</span><span class="fn-backref">(<a href="#id33">1</a>,<a href="#id34">2</a>)</span></dt>
-<dd><p><a class="reference external" href="https://github.com/frankmorgner/vsmartcard/releases/download/virtualsmartcard-0.7/virtualsmartcard-0.7_win32.zip">https://github.com/frankmorgner/vsmartcard/releases/download/virtualsmartcard-0.7/virtualsmartcard-0.7_win32.zip</a></p>
+<dt class="label" id="id30"><span class="brackets">14</span><span class="fn-backref">(<a href="#id31">1</a>,<a href="#id32">2</a>)</span></dt>
+<dd><p><a class="reference external" href="https://github.com/frankmorgner/vsmartcard/releases/tag/virtualsmartcard-0.8">https://github.com/frankmorgner/vsmartcard/releases/tag/virtualsmartcard-0.8</a></p>
 </dd>
-<dt class="label" id="id35"><span class="brackets"><a class="fn-backref" href="#id36">16</a></span></dt>
+<dt class="label" id="id33"><span class="brackets"><a class="fn-backref" href="#id34">15</a></span></dt>
 <dd><p><a class="reference external" href="https://github.com/frankmorgner/OpenSC">https://github.com/frankmorgner/OpenSC</a></p>
 </dd>
 </dl>
@@ -614,7 +691,7 @@ more than welcome! Please use our <a class="reference external" href="https://gi
       
     </p>
     <p>
-        &copy; Copyright 2009-2021 by Dominik Oepen and Frank Morgner.<br/>
+        &copy; Copyright 2009-2023 by Dominik Oepen and Frank Morgner.<br/>
     </p>
   </div>
 </footer>

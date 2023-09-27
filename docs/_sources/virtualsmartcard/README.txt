@@ -103,7 +103,7 @@ Depending on your usage of the |vpicc| you may need to install the following:
 
 - Python_
 - pyscard_ (relaying a local smart card with `--type=relay`)
-- PyCryptodome_, PBKDF2_, PIL_, readline_ or PyReadline_ (emulation of electronic
+- PyCryptodome, PBKDF2_, PIL_, readline_ or PyReadline_ (emulation of electronic
   passport with `--type=ePass`)
 - OpenPACE_ (emulation of German identity card with `--type=nPA`)
 - libqrencode_ (to print a QR code on the command line for `vpcd-config`; an
@@ -145,10 +145,14 @@ Building and installing |vpcd| on Windows
     PC/SC.
 
 For the Windows integration we extended `Fabio Ottavi's UMDF Driver for a
-Virtual Smart Card Reader`_ with a |vpcd| interface. To build |vpcd| for
-Windows we use `Windows Driver Kit 10 and Visual Studio 2015`_. The vpcd
-installer requires the `WiX Toolset 3.10`_. If you choose
+Virtual Smart Card Reader`_ with a |vpcd| interface. If you choose
 to download the `Windows binaries`_, you may directly jump to step 4.
+
+In the CI environment, we're building |vpcd| for Windows with Visual Studio
+Community 2019 with SDK/WDK for Windows 11. (The WDK version needs to match
+at least your targeted version of Windows, see this `guide for installing VS
+with WDK`_) The vpcd installer additionally
+requires the `WiX Toolset 3.10`_ to be installed.
 
 1. Clone the git repository and make sure it is initialized with all
    submodules::
@@ -166,10 +170,21 @@ to download the `Windows binaries`_, you may directly jump to step 4.
    the installer (:file:`BixVReaderInstaller.msi`) in
    :file:`virtualsmartcard\\win32\\BixVReaderInstaller\\bin\\*Release`
 
-4. To install |vpcd|, double click :file:`BixVReaderInstaller.msi`. Since we
-   are currently not signing the Installer, this will yield a warning about an
-   unverified driver software publisher on Windows 8 and later. Click
-   :guilabel:`Install this driver software anyway`.
+4. To import the installer's test signing certificate, double click
+   :file:`BixVReader.cer` and add it to the *Trusted Root Certification
+   Authority* and the *Trusted Publishers* at the *Local Computer" (not the
+   *Current User*).
+
+   On the commandline, you could do this :ref:`as follows<Using CertMgr to
+   Install Test Certificates on a Test Computer>`::
+
+    CertMgr.exe /add BixVReader.cer /s /r localMachine root /all
+    CertMgr.exe /add BixVReader.cer /s /r localMachine trustedpublisher
+
+   Feel free to remove the certificate from the certificate stores once the
+   device is installed.
+
+5. To install |vpcd|, double click :file:`BixVReaderInstaller.msi`.
 
 For debugging |vpcd| and building the driver with an older version of Visual
 Studio or WDK please see `Fabio Ottavi's UMDF Driver for a Virtual Smart Card
@@ -300,6 +315,38 @@ through the PC/SC API. You can use the :command:`opensc-explorer` or
 provide scripts for testing with npa-tool_ and PCSC-Lite's smart card
 reader driver tester.
 
+--------------------------------------------------------------------------------
+Testing |vpicc| -t ePass
+--------------------------------------------------------------------------------
+
+A simple tool to test |BAC| is available for Python 2.7. On Ubuntu, its
+requiremets are installed as follows::
+
+    sudo apt-get install python2.7-dev
+    curl https://bootstrap.pypa.io/pip/2.7/get-pip.py -o get-pip.py
+    python2.7 get-pip.py
+    python2.7 -m pip install pycryptodomex pyscard
+    python2.7 readpass.py --no-gui
+    git clone https://github.com/henryk/cyberflex-shell
+    cd cyberflex-shell
+
+Now we can create and run a small script::
+
+    echo "select_application a0000002471001" > script.txt
+    echo "perform_bac L898902C<3UTO6908061F9406236ZE184226B<<<<<14" >> script.txt
+    python2.7 cyberflex-shell.py script.txt
+
+The tool will wait for a (virtual) smart card to appear. Start |vpicc| and make
+sure to configure it with the correct MRZ, i.e.
+``P<UTOERIKSSON<<ANNA<MARIX<<<<<<<<<<<<<<<<<<<L898902C<3UTO6908061F9406236ZE184226B<<<<<14``
+in this case::
+
+    vicc -t ePass
+
+Once the card is connected, ``cyberflex-shell`` will quickly perform |BAC| and
+exit.  Running the tool without arguments allows entering in interactive mode
+to run additional tests.
+
 
 .. include:: questions.txt
 
@@ -322,7 +369,8 @@ Notes and References
 .. _OpenPACE: https://github.com/frankmorgner/openpace
 .. _libqrencode: https://fukuchi.org/works/qrencode/
 .. _`Fabio Ottavi's UMDF Driver for a Virtual Smart Card Reader`: http://www.codeproject.com/Articles/134010/An-UMDF-Driver-for-a-Virtual-Smart-Card-Reader
-.. _`Windows Driver Kit 10 and Visual Studio 2015`: https://msdn.microsoft.com/en-us/library/windows/hardware/ff557573
+.. _`guide for installing VS with WDK`: https://learn.microsoft.com/en-us/windows-hardware/drivers/download-the-wdk
 .. _`WiX Toolset 3.10`: https://wixtoolset.org/releases/v3.10/stable
-.. _`Windows binaries`: https://github.com/frankmorgner/vsmartcard/releases/download/virtualsmartcard-0.7/virtualsmartcard-0.7_win32.zip
+.. _`Windows binaries`: https://github.com/frankmorgner/vsmartcard/releases/tag/virtualsmartcard-0.8
 .. _npa-tool: https://github.com/frankmorgner/OpenSC
+.. _`Using CertMgr to Install Test Certificates on a Test Computer`: https://docs.microsoft.com/en-us/windows-hardware/drivers/install/using-certmgr-to-install-test-certificates-on-a-test-computer

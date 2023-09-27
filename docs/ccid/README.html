@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>USB CCID Emulator &#8212; vsmartcard 2021-04-28 documentation</title>
+    <title>USB CCID Emulator &#8212; vsmartcard 2023-09-27 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
@@ -12,10 +12,6 @@
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/js/jquery-1.11.0.min.js"></script>
-    <script src="../_static/js/jquery-fix.js"></script>
-    <script src="../_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
-    <script src="../_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="../_static/chip.ico"/>
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Creating a Virtual Smart Card" href="../virtualsmartcard/api.html" />
@@ -24,6 +20,10 @@
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
 
   </head><body>
   
@@ -144,7 +144,7 @@
 
 <div class="container">
   <div class="row">
-    <div class="col-md-12 content">
+    <div class="body col-md-12 content" role="main">
       
   <div class="section" id="usb-ccid-emulator">
 <span id="ccid-emulator"></span><h1>USB CCID Emulator<a class="headerlink" href="#usb-ccid-emulator" title="Permalink to this headline">¶</a></h1>
@@ -163,8 +163,51 @@
 standard USB CCID reader. USB CCID Emulator can be used as trusted intermediary
 enabling secure PIN entry and PIN modification. In combination with <a class="reference external" href="https://github.com/frankmorgner/OpenSC">OpenSC</a> <a class="footnote-reference brackets" href="#id7" id="id8">2</a>
 also <abbr title="Password Authenticated Connection Establishment">PACE</abbr> can be performed by the emulator.</p>
-<div class="figure" id="id1" style="text-align: center">
-<p><img  src="../_images/tikz-1281452b980f69540bc7520179e10f3ccc59fe36.svg" alt="Figure made with TikZ" /></p>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<span class="docutils literal">\input{$wd/bilder/tikzstyles.tex}
+\tikzstyle{bla}=[kleiner, text width=.45\textwidth]
+
+\node (reader)
+{\includegraphics[width=1cm]{$wd/bilder/my_cardreader.pdf}};
+\node (readertext) [right=0of reader, bla]
+{Smartphone provides smart card reader via USB};
+\node (display) [below=0of reader]
+{\includegraphics[width=1cm]{$wd/bilder/display.pdf}};
+\node (displaytext) [right=0of display, bla]
+{Secure display of service provider and purpose of transaction};
+\node (keyboard) [below=0of display]
+{\includegraphics[width=1cm]{$wd/bilder/keyboard.pdf}};
+\node (keyboardtext) [right=0of keyboard, bla]
+{Secure PIN Entry};
+\node (firewall) [below=0of keyboard]
+{\includegraphics[width=1cm]{$wd/bilder/Firewall.pdf}};
+\node (firewalltext) [right=0of firewall, bla]
+{Verification of terminal authentication and sanitiy checks};
+
+\node (features) [fit=(display) (keyboard) (reader) (firewall)] {};
+
+\node (moko) [left=0of features.west] {\includegraphics[height=4cm]{$wd/bilder/phone-fic-neo-freerunner.pdf}};
+
+\node (epa) [left=1.5of moko, yshift=-2cm]
+{\includegraphics[width=3cm]{$wd/bilder/nPA_VS.png}};
+\node (pc)  [left=1.5of moko, yshift=1.5cm]
+{\includegraphics[width=3cm]{$wd/bilder/computer-tango.pdf}};
+
+\begin{pgfonlayer}{background}
+
+    \node (mokobox)
+    [box,
+    fit=(moko) (readertext) (displaytext) (keyboardtext) (firewalltext)
+    (features)] {};
+
+    \draw [usb]
+    (moko) -- (pc.center) ;
+    \draw [decorate, decoration={expanding waves, angle=20, segment length=6}, nichtrundelinie]
+    (moko) -- (epa) ;
+
+\end{pgfonlayer}</span>)</p>
+<p>!pdf2svg command cannot be run</p>
+</div>
 <p class="caption"><span class="caption-text">Portable smart card reader with trusted user interface</span></p>
 </div><p>If the machine running <strong class="command">ccid-emulator</strong> is in USB device mode, a local
 reader is forwareded via USB to another machine. If in USB host mode, the USB
@@ -201,7 +244,7 @@ their PC/SC counterpart:</p>
 transmitting (SCardTransmit) specially crafted APDUs.  Only the alternative
 initialization of <abbr title="Password Authenticated Connection Establishment">PACE</abbr> using SCardControl requires patching the driver
 (available for libccid, see <code class="file docutils literal notranslate"><span class="pre">patches</span></code>). The pseudo APDUs with no need for
-patches are defined as follows (see <a class="reference external" href="https://www.bsi.bund.de/DE/Publikationen/TechnischeRichtlinien/tr03119/index_htm.html">BSI TR-03119 1.3</a> <a class="footnote-reference brackets" href="#id16" id="id17">6</a> p. 33-34):</p>
+patches are defined as follows (see <a class="reference external" href="https://www.bsi.bund.de/DE/Publikationen/TechnischeRichtlinien/tr03119/index_htm.html">BSI TR-03119 1.3</a> <a class="footnote-reference brackets" href="#id18" id="id19">7</a> p. 33-34):</p>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 18%" />
@@ -269,19 +312,143 @@ an error</p></td>
 <p>The USB CCID Emulator is implemented using <a class="reference external" href="http://www.linux-usb.org/gadget/">GadgetFS</a> <a class="footnote-reference brackets" href="#id4" id="id5">1</a>. Some fragments of the source
 code are based on the GadgetFS example and on the source code of the OpenSC
 tools.</p>
-<div class="figure" id="id2" style="text-align: center">
-<p><img  src="../_images/tikz-5b402031da401947efbeae7481d47bd35196791d.svg" alt="Figure made with TikZ" /></p>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<span class="docutils literal">\input{$wd/bilder/tikzstyles.tex}
+\tikzstyle{schicht}=[text width=5cm, align=right]
+\tikzstyle{fade down}=[path fading=south, color=huslateblue]
+
+    \node (kernel)
+[box, shape=rectangle split, rectangle split parts=3, kleiner]
+    {Linux  Kernel
+    \nodepart{second}
+\footnotesize S3C24xx Controller Driver
+    \nodepart{third}
+\footnotesize GadgetFS
+    };
+
+    \node (ccid)
+    [aktivbox, shape=rectangle split, rectangle split parts=2, below=of kernel]
+    {CCID Emulator
+    \nodepart{second}
+\texttt{usb}\qquad\texttt{ccid}
+    };
+    \draw [box] ($(ccid.text split)-(.05cm,0)$) -- ($(ccid.south)-(.05cm,0)$);
+
+    \node (opensc) [box, below=of ccid, kleiner] {OpenSC};
+
+\node (controller) [klein, right=0of kernel.two east, schicht]
+{Driver for USB Controller};
+\node (gadget) [klein, right=0of kernel.three east, schicht]
+{Gadget Driver};
+\node (upper) [klein, right=0of kernel.three east, schicht, yshift=-1.75cm]
+{Upper Layers};
+
+\tikzstyle{rechts}=[to path={-- ++(1,0) |- (\tikztotarget)}]
+\tikzstyle{links}=[to path={-- ++(-1,0) |- (\tikztotarget)}]
+\begin{pgfonlayer}{background}
+    \path
+    (ccid.two west) edge [links, linie] (kernel.three west)
+    (ccid.two east) edge [rechts, linie] (opensc.east)
+    ;
+
+    \path [color=black!30]
+    (controller.north east) edge +(-9,0)
+    (gadget.north east) edge +(-9,0)
+    (upper.north east) edge +(-9,0)
+    ;
+\end{pgfonlayer}
+
+\node [kleiner, anchor=east, text width=3cm]
+at ($($(ccid.two west)+(-3,0)$)!.5!(kernel.three west)$)
+{\color{hublue}
+\texttt{/dev/gadget/ep1-bulk}\\
+\texttt{/dev/gadget/ep2-bulk}\\
+\texttt{/dev/gadget/ep3-bulk}\\};</span>)</p>
+<p>!pdf2svg command cannot be run</p>
+</div>
 <p class="caption"><span class="caption-text">Software stack of the USB CCID Emulator running on the OpenMoko Neo FreeRunner</span></p>
-</div><p>Running the USB CCID Emulator has the following dependencies:</p>
-<ul class="simple">
-<li><p>Linux Kernel with <a class="reference external" href="http://www.linux-usb.org/gadget/">GadgetFS</a> <a class="footnote-reference brackets" href="#id4" id="id6">1</a></p></li>
-<li><p><a class="reference external" href="https://github.com/frankmorgner/OpenSC">OpenSC</a> <a class="footnote-reference brackets" href="#id7" id="id9">2</a></p></li>
-</ul>
-<p>Whereas using the USB CCID Emulator on the host system as smart card reader only
+</div><p>Whereas using the USB CCID Emulator on the host system as smart card reader only
 needs a usable PC/SC middleware with USB CCID driver. This is the case for most
 modern Windows and Unix-like systems by default.</p>
-<div class="figure" id="id3" style="text-align: center">
-<p><img  src="../_images/tikz-6e71605956d62bb837a2533794c8c50348b2f87c.svg" alt="Figure made with TikZ" /></p>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<span class="docutils literal">\input{$wd/bilder/tikzstyles.tex}
+\tikzstyle{keks}=[to path={-- ++(.1,0) |- (\tikztotarget)}]
+
+\tikzstyle{bla}=[shape=rectangle split, rectangle split parts=2,
+every text node part/.style={align=center, klein}, text width=7cm,
+every second node part/.style={kleiner}, inner sep=0pt]
+
+\node (ccid-emulator)
+{\texttt{ccid-emulator}};
+
+\node (basis) [below=3of ccid-emulator]
+{\includegraphics[keepaspectratio, height=2cm,
+    width=2cm]{$wd/bilder/moko/basisleser_plain_klein.png}};
+\node (basisbeschreibung) [below=0cm of basis, kleiner, text width=2cm]
+{Reiner SCT RFID basis};
+
+\node (npa) [left=1.5of basis]
+{\includegraphics[keepaspectratio, height=3cm,
+    width=3cm]{$wd/bilder/nPA_VS.png}};
+\node (npabeschreibung) [below=0cm of npa, kleiner]
+{German identity card};
+
+\node (funktionenchat) [right=.6cm of ccid-emulator.east, anchor=text west, bla]
+{
+    PACE
+    \nodepart{second}
+    \begin{itemize}
+
+    \item Display CHAT
+        \begin{itemize}
+            \item Display context (eID/eSign)
+            \item Display requested permissions
+        \end{itemize}
+
+        \item Display certificate description
+        \begin{itemize}
+            \item Identification of service provider
+            \item Display purpose of transaction
+        \end{itemize}
+
+        \item Secure PIN entry
+    \end{itemize}
+};
+\node (funktionenpace) [below=.5 of funktionenchat, bla]
+{
+    Terminal Authentication
+    \nodepart{second}
+            \begin{itemize}
+        \item Verify authenticy of terminal
+        \item Check freshness of cv certificate
+    \end{itemize}
+};
+
+\begin{pgfonlayer}{background}
+    \node (box) [fit=(ccid-emulator) (basis) (basisbeschreibung)
+    (funktionenchat) (funktionenpace), box, inner sep=.5cm] {};
+    \node (boxbild) at (box.north west)
+    {\includegraphics[keepaspectratio, height=1.5cm,
+    width=1.5cm]{$wd/bilder/moko/moko_reader.png}};
+    \node [right=0cm of boxbild.east, yshift=.3cm]
+    {Openmoko Neo FreeRunner};
+\end{pgfonlayer}
+
+\node (a) [above=1of npa]
+    {\includegraphics[keepaspectratio, height=3cm,
+    width=3cm]{$wd/bilder/computer-tango.pdf}};
+
+
+\begin{pgfonlayer}{background}
+    \path
+    (ccid-emulator) edge [doppelpfeil] (basis)
+    (basis) edge [rfid] (npa)
+    (a.center) edge [usb] (ccid-emulator)
+    (ccid-emulator.east) edge [pfeil, keks] (funktionenchat.text west)
+    (ccid-emulator.east) edge [pfeil, keks] (funktionenpace.text west);
+\end{pgfonlayer}</span>)</p>
+<p>!pdf2svg command cannot be run</p>
+</div>
 <p class="caption"><span class="caption-text">Implementation of a mobile smart card reader for the German ID card</span></p>
 </div><div class="section" id="download">
 <h2>Download<a class="headerlink" href="#download" title="Permalink to this headline">¶</a></h2>
@@ -289,6 +456,8 @@ modern Windows and Unix-like systems by default.</p>
 still available on <a class="reference external" href="http://sourceforge.net/projects/vsmartcard/files">Sourceforge</a>.</p>
 <p>Alternatively, you can clone our git repository:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/frankmorgner/vsmartcard.git
+<span class="nb">cd</span> vsmartcard
+git submodule update --init --recursive
 </pre></div>
 </div>
 </div>
@@ -312,13 +481,18 @@ make install
 </pre></div>
 </div>
 <p>The USB CCID Emulator depends on <strong class="program">libopensc</strong>, which is automatically
-built from a snapshot of the OpenSC source code and then statically linked.</p>
+built from a snapshot of the <a class="reference external" href="https://github.com/frankmorgner/OpenSC">OpenSC</a> <a class="footnote-reference brackets" href="#id7" id="id9">2</a> source code and then statically linked.</p>
+<p>Running the USB CCID Emulator has the following dependencies:</p>
+<ul class="simple">
+<li><p>Linux Kernel with <a class="reference external" href="http://www.linux-usb.org/gadget/">GadgetFS</a> <a class="footnote-reference brackets" href="#id4" id="id6">1</a></p></li>
+<li><p><a class="reference external" href="https://www.openssl.org">OpenSSL</a> <a class="footnote-reference brackets" href="#id10" id="id11">3</a> 1.0.0 or later</p></li>
+</ul>
 </div>
 <div class="section" id="hints-on-gadgetfs">
 <h3>Hints on GadgetFS<a class="headerlink" href="#hints-on-gadgetfs" title="Permalink to this headline">¶</a></h3>
 <p>To create a USB Gadget in both USB host and USB client mode, you need to load
 the kernel module <strong class="program">gadgetfs</strong>. Here is how to get a running version of
-GadgetFS on a Debian system (see also <a class="reference external" href="http://wiki.openmoko.org/wiki/Building_Gadget_USB_Module">OpenMoko Wiki</a> <a class="footnote-reference brackets" href="#id14" id="id15">5</a>):</p>
+GadgetFS on a Debian system (see also <a class="reference external" href="http://wiki.openmoko.org/wiki/Building_Gadget_USB_Module">OpenMoko Wiki</a> <a class="footnote-reference brackets" href="#id16" id="id17">6</a>):</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>sudo apt-get install linux-source linux-headers-<span class="sb">`</span>uname -r<span class="sb">`</span>
 sudo tar xjf /usr/src/linux-source-*.tar.bz2
 <span class="nb">cd</span> linux-source-*/drivers/usb/gadget
@@ -349,12 +523,12 @@ loading the module, you maybe want to check out <a class="reference external" hr
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
 <p>The USB CCID Emulator has various command line options to customize the appearance
 on the USB host. In order to run the USB CCID Emulator GadgetFS must be loaded
-and mounted.  The USB CCID Emulator is compatible with the unix driver <a class="reference external" href="https://ccid.apdu.fr/">libccid</a> <a class="footnote-reference brackets" href="#id10" id="id11">3</a>
-and the <a class="reference external" href="http://msdn.microsoft.com/en-us/windows/hardware/gg487509">Windows USB CCID driver</a> <a class="footnote-reference brackets" href="#id12" id="id13">4</a>. PIN commands are supported if implemented
+and mounted.  The USB CCID Emulator is compatible with the unix driver <a class="reference external" href="https://ccid.apdu.fr/">libccid</a> <a class="footnote-reference brackets" href="#id12" id="id13">4</a>
+and the <a class="reference external" href="http://msdn.microsoft.com/en-us/windows/hardware/gg487509">Windows USB CCID driver</a> <a class="footnote-reference brackets" href="#id14" id="id15">5</a>. PIN commands are supported if implemented
 by the driver.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 0.7: </span>USB CCID Emulator now supports the boxing commands defined in <a class="reference external" href="https://www.bsi.bund.de/DE/Publikationen/TechnischeRichtlinien/tr03119/index_htm.html">BSI TR-03119
-1.3</a> <a class="footnote-reference brackets" href="#id16" id="id18">6</a>.</p>
+1.3</a> <a class="footnote-reference brackets" href="#id18" id="id20">7</a>.</p>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Usage: ccid-emulator [OPTION]...
 Emulate a USB CCID compliant smart card reader
@@ -396,15 +570,18 @@ more than welcome! Please use our <a class="reference external" href="https://gi
 <dd><p><a class="reference external" href="https://github.com/frankmorgner/OpenSC">https://github.com/frankmorgner/OpenSC</a></p>
 </dd>
 <dt class="label" id="id10"><span class="brackets"><a class="fn-backref" href="#id11">3</a></span></dt>
-<dd><p><a class="reference external" href="https://ccid.apdu.fr/">https://ccid.apdu.fr/</a></p>
+<dd><p><a class="reference external" href="https://www.openssl.org">https://www.openssl.org</a></p>
 </dd>
 <dt class="label" id="id12"><span class="brackets"><a class="fn-backref" href="#id13">4</a></span></dt>
-<dd><p><a class="reference external" href="http://msdn.microsoft.com/en-us/windows/hardware/gg487509">http://msdn.microsoft.com/en-us/windows/hardware/gg487509</a></p>
+<dd><p><a class="reference external" href="https://ccid.apdu.fr/">https://ccid.apdu.fr/</a></p>
 </dd>
 <dt class="label" id="id14"><span class="brackets"><a class="fn-backref" href="#id15">5</a></span></dt>
+<dd><p><a class="reference external" href="http://msdn.microsoft.com/en-us/windows/hardware/gg487509">http://msdn.microsoft.com/en-us/windows/hardware/gg487509</a></p>
+</dd>
+<dt class="label" id="id16"><span class="brackets"><a class="fn-backref" href="#id17">6</a></span></dt>
 <dd><p><a class="reference external" href="http://wiki.openmoko.org/wiki/Building_Gadget_USB_Module">http://wiki.openmoko.org/wiki/Building_Gadget_USB_Module</a></p>
 </dd>
-<dt class="label" id="id16"><span class="brackets">6</span><span class="fn-backref">(<a href="#id17">1</a>,<a href="#id18">2</a>)</span></dt>
+<dt class="label" id="id18"><span class="brackets">7</span><span class="fn-backref">(<a href="#id19">1</a>,<a href="#id20">2</a>)</span></dt>
 <dd><p><a class="reference external" href="https://www.bsi.bund.de/DE/Publikationen/TechnischeRichtlinien/tr03119/index_htm.html">https://www.bsi.bund.de/DE/Publikationen/TechnischeRichtlinien/tr03119/index_htm.html</a></p>
 </dd>
 </dl>
@@ -423,7 +600,7 @@ more than welcome! Please use our <a class="reference external" href="https://gi
       
     </p>
     <p>
-        &copy; Copyright 2009-2021 by Dominik Oepen and Frank Morgner.<br/>
+        &copy; Copyright 2009-2023 by Dominik Oepen and Frank Morgner.<br/>
     </p>
   </div>
 </footer>

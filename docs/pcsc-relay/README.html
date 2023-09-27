@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PC/SC Relay &#8212; vsmartcard 2021-04-28 documentation</title>
+    <title>PC/SC Relay &#8212; vsmartcard 2023-09-27 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
@@ -12,10 +12,6 @@
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/js/jquery-1.11.0.min.js"></script>
-    <script src="../_static/js/jquery-fix.js"></script>
-    <script src="../_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
-    <script src="../_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="../_static/chip.ico"/>
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="USB CCID Emulator" href="../ccid/README.html" />
@@ -24,6 +20,10 @@
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
 
   </head><body>
   
@@ -146,7 +146,7 @@
 
 <div class="container">
   <div class="row">
-    <div class="col-md-12 content">
+    <div class="body col-md-12 content" role="main">
       
   <div class="section" id="pc-sc-relay">
 <span id="pcsc-relay"></span><h1>PC/SC Relay<a class="headerlink" href="#pc-sc-relay" title="Permalink to this headline">¶</a></h1>
@@ -166,7 +166,7 @@
 </div>
 <p>Welcome to PC/SC Relay. The purpose of PC/SC Relay is to relay a smart
 card using an contact-less interface. Currently the following contact-less
-emulators are supported:</p>
+<strong>emulators</strong> are supported:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="http://nfc-tools.org/index.php?title=Devices_compatibility_matrix">Hardware supported by libnfc</a> <a class="footnote-reference brackets" href="#id3" id="id4">1</a></p></li>
 <li><p><a class="reference external" href="http://www.openpcd.org/OpenPICC">OpenPICC</a> <a class="footnote-reference brackets" href="#id5" id="id6">2</a></p></li>
@@ -174,7 +174,7 @@ emulators are supported:</p>
 </ul>
 <p>Command APDUs are received with the contact-less interface and relayed. The
 Response APDUs are then sent back via RFID. The contact-less data will be
-relayed to one of the following:</p>
+relayed to one of the following <strong>connectors</strong>:</p>
 <ul class="simple">
 <li><p>to a <em>real</em> smart card inserted into one of the systems’ smart card readers.
 The smart card reader must be accessible with PC/SC. The smart card may be
@@ -183,14 +183,147 @@ contact-based <em>or</em> contact-less.</p></li>
 smart card’s native interface is used and (despite its name) PC/SC Relay
 does not need to access PC/SC in this case.</p></li>
 </ul>
-<div class="figure" id="id1" style="text-align: center">
-<p><img  src="../_images/tikz-115ce7f91e19ed28b7af35a9f18aa096148209ea.svg" alt="Figure made with TikZ" /></p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>┌────────┐          ┌──────────┐          ┌─────────┐
+│Emulator│          │pcsc-relay│          │Connector│
+└───┬────┘          └────┬─────┘          └────┬────┘
+    │    Command APDU    │                     │
+    │ ───────────────────&gt;                     │
+    │                    │ ───────────────────&gt;│
+    │                    │ &lt;───────────────────│
+    │    Response APDU   │                     │
+    │ &lt;───────────────────                     │
+┌───┴────┐          ┌────┴─────┐          ┌────┴────┐
+│Emulator│          │pcsc-relay│          │Connector│
+└────────┘          └──────────┘          └─────────┘
+</pre></div>
+</div>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<span class="docutils literal">\input{$wd/bilder/tikzstyles.tex}
+\node (pcsc-relay) {\texttt{pcsc-relay}};
+
+\node [kleiner, right=2cm of pcsc-relay, yshift=.9cm]
+(libnfc) {Libnfc Devices};
+\node [kleiner, right=2cm of pcsc-relay, yshift=.3cm]
+(openpicc) {OpenPICC};
+\node [kleiner, right=2cm of pcsc-relay, yshift=-.3cm]
+(vpcd) {Virtual Smart Card Reader};
+\node [kleiner, right=2cm of pcsc-relay, yshift=-.9cm]
+(acardemulator) {Android Smart Card Emulator};
+
+\node [kleiner, left=2cm of pcsc-relay, yshift=.9cm]
+(contactbased) {Contact-based Smart Card};
+\node [kleiner, left=2cm of pcsc-relay, yshift=.3cm]
+(contactless) {Contact-less Smart Card};
+\node [kleiner, left=2cm of pcsc-relay, yshift=-.9cm]
+(remotereader) {Remote Smart Card Reader};
+\node [kleiner, left=2cm of pcsc-relay, yshift=-.3cm]
+(virtual) {Virtual Smart Card};
+
+\node [above=.3cm of pcsc-relay, kleiner, xshift=1.2cm]
+(capdu) {Command APDU};
+\node [below=.3cm of pcsc-relay, kleiner, xshift=-1.2cm]
+(rapdu) {Response APDU};
+\draw (rapdu.east) edge [pfeil] +(1,0);
+\draw (capdu.west) edge [pfeil] +(-1,0);
+
+\begin{pgfonlayer}{background}
+\path[line width=.5cm,color=hublue!20]
+(pcsc-relay.mid) edge [out=180, in=0] (contactbased.east)
+edge [out=180, in=0] (contactless.east)
+edge [out=180, in=0] (virtual.east)
+edge [out=180, in=0] (remotereader.east)
+edge [out=0, in=180] (libnfc.west)
+edge [out=0, in=180] (openpicc.west)
+edge [out=0, in=180] (vpcd.west)
+edge [out=0, in=180] (acardemulator.west)
+;
+\end{pgfonlayer}</span>)</p>
+<p>!pdf2svg command cannot be run</p>
+</div>
 <p class="caption"><span class="caption-text">Debug, Analyze and Emulate with PC/SC Relay</span></p>
 </div><p>With PC/SC Relay you can relay a contact-less or contact based smart card
 over a long distance. Also you can use it in combination with the <a class="reference internal" href="../virtualsmartcard/README.html#vicc"><span class="std std-ref">Virtual Smart Card</span></a>
 to completely emulate an ISO/IEC 14443 smart card.</p>
-<div class="figure" id="id2" style="text-align: center">
-<p><img  src="../_images/tikz-0405e52eb98193c32482e91a30737e1e9684bad0.svg" alt="Figure made with TikZ" /></p>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<span class="docutils literal">\input{$wd/bilder/tikzstyles.tex}
+\tikzstyle{bla}=[shape=rectangle split, rectangle split parts=2,
+every text node part/.style={align=center, klein}, text width=7cm,
+every second node part/.style={kleiner}, inner sep=0pt]
+
+\tikzstyle{keks}=[to path={-- ++(.1,0) |- (\tikztotarget)}]
+
+\node (touchatag)
+    {\includegraphics[keepaspectratio, height=2cm,
+    width=2cm]{$wd/bilder/touchatag.png}};
+\node (touchatagbeschreibung) [below=0cm of touchatag, kleiner]
+{touchatag};
+
+\node (pcsc-relay) [right=of touchatag]
+{\texttt{pcsc-relay}};
+\node (pcsc-relaybeschreibung) [below=0cm of pcsc-relay, kleiner]
+{NFC emulator
+};
+
+\node (vicc) [right=of pcsc-relay]
+{\texttt{vicc -t nPA}};
+\node (viccbeschreibung) [below=0cm of vicc, kleiner]
+{nPA emulator};
+
+\node (group) [fit=(touchatag) (pcsc-relay) (vicc) (touchatagbeschreibung)
+(pcsc-relaybeschreibung) (viccbeschreibung)] {};
+\node (funktionenchat) [below=0cm of group, bla]
+{
+    PACE
+    \nodepart{second}
+            \begin{itemize}
+        \item Display context (eID/eSign)
+        \item Display requested permissions
+    \end{itemize}
+};
+\node (funktionenpace) [below=.5 of funktionenchat, bla]
+{
+    Terminal Authentication
+    \nodepart{second}
+            \begin{itemize}
+        \item Verify authenticy of terminal
+        \item Check freshness of cv certificate
+        \item With certificate database
+            \begin{itemize}
+                \item Identification of service provider
+                \item Display purpose of transaction
+            \end{itemize}
+    \end{itemize}
+};
+
+\begin{pgfonlayer}{background}
+    \node (box) [fit=(touchatag) (pcsc-relay) (vicc) (touchatagbeschreibung)
+    (pcsc-relaybeschreibung) (viccbeschreibung) (funktionenchat)
+    (funktionenpace), box, inner sep=.5cm] {};
+    \node (boxbild) at (box.north west)
+    {\includegraphics[keepaspectratio, height=1.5cm,
+    width=1.5cm]{$wd/bilder/moko/moko_reader.png}};
+    \node [right=0cm of boxbild.east, yshift=.3cm]
+    {Openmoko Neo FreeRunner};
+\end{pgfonlayer}
+
+\node (a) [left=1.5of box]
+    {\includegraphics[keepaspectratio, height=4cm,
+    width=4cm]{$wd/bilder/ivak_kiosk-terminal.pdf}};
+\node (e) [below=0cm of a, text width=2.5cm, align=center]
+{(Public) Terminal};
+
+
+\begin{pgfonlayer}{background}
+    \path
+    (touchatag)  edge  [doppelpfeil] (pcsc-relay)
+    (pcsc-relay) edge [doppelpfeil] (vicc)
+    (vicc.east) edge [keks, pfeil] (funktionenchat.text east)
+    (vicc.east) edge [keks, pfeil] (funktionenpace.text east)
+    (a) edge [decorate, decoration={expanding waves, angle=20, segment
+    length=6}, nichtrundelinie] (touchatag.south west);
+\end{pgfonlayer}</span>)</p>
+<p>!pdf2svg command cannot be run</p>
+</div>
 <p class="caption"><span class="caption-text">Emulate a contact-less German ID card to perform sanity checks</span></p>
 </div><p>PC/SC Relay has the following dependencies:</p>
 <ul class="simple">
@@ -209,6 +342,8 @@ but it generally concerns <em>all</em> contact-less smart cards.</p>
 still available on <a class="reference external" href="http://sourceforge.net/projects/vsmartcard/files">Sourceforge</a>.</p>
 <p>Alternatively, you can clone our git repository:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/frankmorgner/vsmartcard.git
+<span class="nb">cd</span> vsmartcard
+git submodule update --init --recursive
 </pre></div>
 </div>
 </div>
@@ -420,7 +555,7 @@ more than welcome! Please use our <a class="reference external" href="https://gi
       
     </p>
     <p>
-        &copy; Copyright 2009-2021 by Dominik Oepen and Frank Morgner.<br/>
+        &copy; Copyright 2009-2023 by Dominik Oepen and Frank Morgner.<br/>
     </p>
   </div>
 </footer>

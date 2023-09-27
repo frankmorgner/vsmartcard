@@ -134,9 +134,7 @@ submodules::
 
     git clone https://github.com/frankmorgner/vsmartcard.git
     cd vsmartcard
-    # fetch the applets that are in the submodules
-    git submodule init
-    git submodule update
+    git submodule update --init --recursive
 
 We use `Android Studio`_ to build and deploy the application. Use
 :menuselection:`File --> Open` to select :file:`vsmartcard/ACardEmulator`.
