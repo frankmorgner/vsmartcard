@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PC/SC Relay &#8212; vsmartcard 2023-09-27 documentation</title>
+    <title>PC/SC Relay &#8212; vsmartcard 2023-09-30 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
@@ -197,133 +197,14 @@ does not need to access PC/SC in this case.</p></li>
 └────────┘          └──────────┘          └─────────┘
 </pre></div>
 </div>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<span class="docutils literal">\input{$wd/bilder/tikzstyles.tex}
-\node (pcsc-relay) {\texttt{pcsc-relay}};
-
-\node [kleiner, right=2cm of pcsc-relay, yshift=.9cm]
-(libnfc) {Libnfc Devices};
-\node [kleiner, right=2cm of pcsc-relay, yshift=.3cm]
-(openpicc) {OpenPICC};
-\node [kleiner, right=2cm of pcsc-relay, yshift=-.3cm]
-(vpcd) {Virtual Smart Card Reader};
-\node [kleiner, right=2cm of pcsc-relay, yshift=-.9cm]
-(acardemulator) {Android Smart Card Emulator};
-
-\node [kleiner, left=2cm of pcsc-relay, yshift=.9cm]
-(contactbased) {Contact-based Smart Card};
-\node [kleiner, left=2cm of pcsc-relay, yshift=.3cm]
-(contactless) {Contact-less Smart Card};
-\node [kleiner, left=2cm of pcsc-relay, yshift=-.9cm]
-(remotereader) {Remote Smart Card Reader};
-\node [kleiner, left=2cm of pcsc-relay, yshift=-.3cm]
-(virtual) {Virtual Smart Card};
-
-\node [above=.3cm of pcsc-relay, kleiner, xshift=1.2cm]
-(capdu) {Command APDU};
-\node [below=.3cm of pcsc-relay, kleiner, xshift=-1.2cm]
-(rapdu) {Response APDU};
-\draw (rapdu.east) edge [pfeil] +(1,0);
-\draw (capdu.west) edge [pfeil] +(-1,0);
-
-\begin{pgfonlayer}{background}
-\path[line width=.5cm,color=hublue!20]
-(pcsc-relay.mid) edge [out=180, in=0] (contactbased.east)
-edge [out=180, in=0] (contactless.east)
-edge [out=180, in=0] (virtual.east)
-edge [out=180, in=0] (remotereader.east)
-edge [out=0, in=180] (libnfc.west)
-edge [out=0, in=180] (openpicc.west)
-edge [out=0, in=180] (vpcd.west)
-edge [out=0, in=180] (acardemulator.west)
-;
-\end{pgfonlayer}</span>)</p>
-<p>!pdf2svg command cannot be run</p>
-</div>
+<div class="figure" id="id1" style="text-align: center">
+<p><img  src="../_images/tikz-115ce7f91e19ed28b7af35a9f18aa096148209ea.svg" alt="Figure made with TikZ" /></p>
 <p class="caption"><span class="caption-text">Debug, Analyze and Emulate with PC/SC Relay</span></p>
 </div><p>With PC/SC Relay you can relay a contact-less or contact based smart card
 over a long distance. Also you can use it in combination with the <a class="reference internal" href="../virtualsmartcard/README.html#vicc"><span class="std std-ref">Virtual Smart Card</span></a>
 to completely emulate an ISO/IEC 14443 smart card.</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<span class="docutils literal">\input{$wd/bilder/tikzstyles.tex}
-\tikzstyle{bla}=[shape=rectangle split, rectangle split parts=2,
-every text node part/.style={align=center, klein}, text width=7cm,
-every second node part/.style={kleiner}, inner sep=0pt]
-
-\tikzstyle{keks}=[to path={-- ++(.1,0) |- (\tikztotarget)}]
-
-\node (touchatag)
-    {\includegraphics[keepaspectratio, height=2cm,
-    width=2cm]{$wd/bilder/touchatag.png}};
-\node (touchatagbeschreibung) [below=0cm of touchatag, kleiner]
-{touchatag};
-
-\node (pcsc-relay) [right=of touchatag]
-{\texttt{pcsc-relay}};
-\node (pcsc-relaybeschreibung) [below=0cm of pcsc-relay, kleiner]
-{NFC emulator
-};
-
-\node (vicc) [right=of pcsc-relay]
-{\texttt{vicc -t nPA}};
-\node (viccbeschreibung) [below=0cm of vicc, kleiner]
-{nPA emulator};
-
-\node (group) [fit=(touchatag) (pcsc-relay) (vicc) (touchatagbeschreibung)
-(pcsc-relaybeschreibung) (viccbeschreibung)] {};
-\node (funktionenchat) [below=0cm of group, bla]
-{
-    PACE
-    \nodepart{second}
-            \begin{itemize}
-        \item Display context (eID/eSign)
-        \item Display requested permissions
-    \end{itemize}
-};
-\node (funktionenpace) [below=.5 of funktionenchat, bla]
-{
-    Terminal Authentication
-    \nodepart{second}
-            \begin{itemize}
-        \item Verify authenticy of terminal
-        \item Check freshness of cv certificate
-        \item With certificate database
-            \begin{itemize}
-                \item Identification of service provider
-                \item Display purpose of transaction
-            \end{itemize}
-    \end{itemize}
-};
-
-\begin{pgfonlayer}{background}
-    \node (box) [fit=(touchatag) (pcsc-relay) (vicc) (touchatagbeschreibung)
-    (pcsc-relaybeschreibung) (viccbeschreibung) (funktionenchat)
-    (funktionenpace), box, inner sep=.5cm] {};
-    \node (boxbild) at (box.north west)
-    {\includegraphics[keepaspectratio, height=1.5cm,
-    width=1.5cm]{$wd/bilder/moko/moko_reader.png}};
-    \node [right=0cm of boxbild.east, yshift=.3cm]
-    {Openmoko Neo FreeRunner};
-\end{pgfonlayer}
-
-\node (a) [left=1.5of box]
-    {\includegraphics[keepaspectratio, height=4cm,
-    width=4cm]{$wd/bilder/ivak_kiosk-terminal.pdf}};
-\node (e) [below=0cm of a, text width=2.5cm, align=center]
-{(Public) Terminal};
-
-
-\begin{pgfonlayer}{background}
-    \path
-    (touchatag)  edge  [doppelpfeil] (pcsc-relay)
-    (pcsc-relay) edge [doppelpfeil] (vicc)
-    (vicc.east) edge [keks, pfeil] (funktionenchat.text east)
-    (vicc.east) edge [keks, pfeil] (funktionenpace.text east)
-    (a) edge [decorate, decoration={expanding waves, angle=20, segment
-    length=6}, nichtrundelinie] (touchatag.south west);
-\end{pgfonlayer}</span>)</p>
-<p>!pdf2svg command cannot be run</p>
-</div>
+<div class="figure" id="id2" style="text-align: center">
+<p><img  src="../_images/tikz-0405e52eb98193c32482e91a30737e1e9684bad0.svg" alt="Figure made with TikZ" /></p>
 <p class="caption"><span class="caption-text">Emulate a contact-less German ID card to perform sanity checks</span></p>
 </div><p>PC/SC Relay has the following dependencies:</p>
 <ul class="simple">

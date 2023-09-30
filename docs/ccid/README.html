@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>USB CCID Emulator &#8212; vsmartcard 2023-09-27 documentation</title>
+    <title>USB CCID Emulator &#8212; vsmartcard 2023-09-30 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
@@ -163,51 +163,8 @@
 standard USB CCID reader. USB CCID Emulator can be used as trusted intermediary
 enabling secure PIN entry and PIN modification. In combination with <a class="reference external" href="https://github.com/frankmorgner/OpenSC">OpenSC</a> <a class="footnote-reference brackets" href="#id7" id="id8">2</a>
 also <abbr title="Password Authenticated Connection Establishment">PACE</abbr> can be performed by the emulator.</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<span class="docutils literal">\input{$wd/bilder/tikzstyles.tex}
-\tikzstyle{bla}=[kleiner, text width=.45\textwidth]
-
-\node (reader)
-{\includegraphics[width=1cm]{$wd/bilder/my_cardreader.pdf}};
-\node (readertext) [right=0of reader, bla]
-{Smartphone provides smart card reader via USB};
-\node (display) [below=0of reader]
-{\includegraphics[width=1cm]{$wd/bilder/display.pdf}};
-\node (displaytext) [right=0of display, bla]
-{Secure display of service provider and purpose of transaction};
-\node (keyboard) [below=0of display]
-{\includegraphics[width=1cm]{$wd/bilder/keyboard.pdf}};
-\node (keyboardtext) [right=0of keyboard, bla]
-{Secure PIN Entry};
-\node (firewall) [below=0of keyboard]
-{\includegraphics[width=1cm]{$wd/bilder/Firewall.pdf}};
-\node (firewalltext) [right=0of firewall, bla]
-{Verification of terminal authentication and sanitiy checks};
-
-\node (features) [fit=(display) (keyboard) (reader) (firewall)] {};
-
-\node (moko) [left=0of features.west] {\includegraphics[height=4cm]{$wd/bilder/phone-fic-neo-freerunner.pdf}};
-
-\node (epa) [left=1.5of moko, yshift=-2cm]
-{\includegraphics[width=3cm]{$wd/bilder/nPA_VS.png}};
-\node (pc)  [left=1.5of moko, yshift=1.5cm]
-{\includegraphics[width=3cm]{$wd/bilder/computer-tango.pdf}};
-
-\begin{pgfonlayer}{background}
-
-    \node (mokobox)
-    [box,
-    fit=(moko) (readertext) (displaytext) (keyboardtext) (firewalltext)
-    (features)] {};
-
-    \draw [usb]
-    (moko) -- (pc.center) ;
-    \draw [decorate, decoration={expanding waves, angle=20, segment length=6}, nichtrundelinie]
-    (moko) -- (epa) ;
-
-\end{pgfonlayer}</span>)</p>
-<p>!pdf2svg command cannot be run</p>
-</div>
+<div class="figure" id="id1" style="text-align: center">
+<p><img  src="../_images/tikz-1281452b980f69540bc7520179e10f3ccc59fe36.svg" alt="Figure made with TikZ" /></p>
 <p class="caption"><span class="caption-text">Portable smart card reader with trusted user interface</span></p>
 </div><p>If the machine running <strong class="command">ccid-emulator</strong> is in USB device mode, a local
 reader is forwareded via USB to another machine. If in USB host mode, the USB
@@ -312,143 +269,14 @@ an error</p></td>
 <p>The USB CCID Emulator is implemented using <a class="reference external" href="http://www.linux-usb.org/gadget/">GadgetFS</a> <a class="footnote-reference brackets" href="#id4" id="id5">1</a>. Some fragments of the source
 code are based on the GadgetFS example and on the source code of the OpenSC
 tools.</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<span class="docutils literal">\input{$wd/bilder/tikzstyles.tex}
-\tikzstyle{schicht}=[text width=5cm, align=right]
-\tikzstyle{fade down}=[path fading=south, color=huslateblue]
-
-    \node (kernel)
-[box, shape=rectangle split, rectangle split parts=3, kleiner]
-    {Linux  Kernel
-    \nodepart{second}
-\footnotesize S3C24xx Controller Driver
-    \nodepart{third}
-\footnotesize GadgetFS
-    };
-
-    \node (ccid)
-    [aktivbox, shape=rectangle split, rectangle split parts=2, below=of kernel]
-    {CCID Emulator
-    \nodepart{second}
-\texttt{usb}\qquad\texttt{ccid}
-    };
-    \draw [box] ($(ccid.text split)-(.05cm,0)$) -- ($(ccid.south)-(.05cm,0)$);
-
-    \node (opensc) [box, below=of ccid, kleiner] {OpenSC};
-
-\node (controller) [klein, right=0of kernel.two east, schicht]
-{Driver for USB Controller};
-\node (gadget) [klein, right=0of kernel.three east, schicht]
-{Gadget Driver};
-\node (upper) [klein, right=0of kernel.three east, schicht, yshift=-1.75cm]
-{Upper Layers};
-
-\tikzstyle{rechts}=[to path={-- ++(1,0) |- (\tikztotarget)}]
-\tikzstyle{links}=[to path={-- ++(-1,0) |- (\tikztotarget)}]
-\begin{pgfonlayer}{background}
-    \path
-    (ccid.two west) edge [links, linie] (kernel.three west)
-    (ccid.two east) edge [rechts, linie] (opensc.east)
-    ;
-
-    \path [color=black!30]
-    (controller.north east) edge +(-9,0)
-    (gadget.north east) edge +(-9,0)
-    (upper.north east) edge +(-9,0)
-    ;
-\end{pgfonlayer}
-
-\node [kleiner, anchor=east, text width=3cm]
-at ($($(ccid.two west)+(-3,0)$)!.5!(kernel.three west)$)
-{\color{hublue}
-\texttt{/dev/gadget/ep1-bulk}\\
-\texttt{/dev/gadget/ep2-bulk}\\
-\texttt{/dev/gadget/ep3-bulk}\\};</span>)</p>
-<p>!pdf2svg command cannot be run</p>
-</div>
+<div class="figure" id="id2" style="text-align: center">
+<p><img  src="../_images/tikz-5b402031da401947efbeae7481d47bd35196791d.svg" alt="Figure made with TikZ" /></p>
 <p class="caption"><span class="caption-text">Software stack of the USB CCID Emulator running on the OpenMoko Neo FreeRunner</span></p>
 </div><p>Whereas using the USB CCID Emulator on the host system as smart card reader only
 needs a usable PC/SC middleware with USB CCID driver. This is the case for most
 modern Windows and Unix-like systems by default.</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<span class="docutils literal">\input{$wd/bilder/tikzstyles.tex}
-\tikzstyle{keks}=[to path={-- ++(.1,0) |- (\tikztotarget)}]
-
-\tikzstyle{bla}=[shape=rectangle split, rectangle split parts=2,
-every text node part/.style={align=center, klein}, text width=7cm,
-every second node part/.style={kleiner}, inner sep=0pt]
-
-\node (ccid-emulator)
-{\texttt{ccid-emulator}};
-
-\node (basis) [below=3of ccid-emulator]
-{\includegraphics[keepaspectratio, height=2cm,
-    width=2cm]{$wd/bilder/moko/basisleser_plain_klein.png}};
-\node (basisbeschreibung) [below=0cm of basis, kleiner, text width=2cm]
-{Reiner SCT RFID basis};
-
-\node (npa) [left=1.5of basis]
-{\includegraphics[keepaspectratio, height=3cm,
-    width=3cm]{$wd/bilder/nPA_VS.png}};
-\node (npabeschreibung) [below=0cm of npa, kleiner]
-{German identity card};
-
-\node (funktionenchat) [right=.6cm of ccid-emulator.east, anchor=text west, bla]
-{
-    PACE
-    \nodepart{second}
-    \begin{itemize}
-
-    \item Display CHAT
-        \begin{itemize}
-            \item Display context (eID/eSign)
-            \item Display requested permissions
-        \end{itemize}
-
-        \item Display certificate description
-        \begin{itemize}
-            \item Identification of service provider
-            \item Display purpose of transaction
-        \end{itemize}
-
-        \item Secure PIN entry
-    \end{itemize}
-};
-\node (funktionenpace) [below=.5 of funktionenchat, bla]
-{
-    Terminal Authentication
-    \nodepart{second}
-            \begin{itemize}
-        \item Verify authenticy of terminal
-        \item Check freshness of cv certificate
-    \end{itemize}
-};
-
-\begin{pgfonlayer}{background}
-    \node (box) [fit=(ccid-emulator) (basis) (basisbeschreibung)
-    (funktionenchat) (funktionenpace), box, inner sep=.5cm] {};
-    \node (boxbild) at (box.north west)
-    {\includegraphics[keepaspectratio, height=1.5cm,
-    width=1.5cm]{$wd/bilder/moko/moko_reader.png}};
-    \node [right=0cm of boxbild.east, yshift=.3cm]
-    {Openmoko Neo FreeRunner};
-\end{pgfonlayer}
-
-\node (a) [above=1of npa]
-    {\includegraphics[keepaspectratio, height=3cm,
-    width=3cm]{$wd/bilder/computer-tango.pdf}};
-
-
-\begin{pgfonlayer}{background}
-    \path
-    (ccid-emulator) edge [doppelpfeil] (basis)
-    (basis) edge [rfid] (npa)
-    (a.center) edge [usb] (ccid-emulator)
-    (ccid-emulator.east) edge [pfeil, keks] (funktionenchat.text west)
-    (ccid-emulator.east) edge [pfeil, keks] (funktionenpace.text west);
-\end{pgfonlayer}</span>)</p>
-<p>!pdf2svg command cannot be run</p>
-</div>
+<div class="figure" id="id3" style="text-align: center">
+<p><img  src="../_images/tikz-6e71605956d62bb837a2533794c8c50348b2f87c.svg" alt="Figure made with TikZ" /></p>
 <p class="caption"><span class="caption-text">Implementation of a mobile smart card reader for the German ID card</span></p>
 </div><div class="section" id="download">
 <h2>Download<a class="headerlink" href="#download" title="Permalink to this headline">¶</a></h2>

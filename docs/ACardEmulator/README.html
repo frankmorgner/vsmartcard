@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Android Smart Card Emulator &#8212; vsmartcard 2023-09-27 documentation</title>
+    <title>Android Smart Card Emulator &#8212; vsmartcard 2023-09-30 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
@@ -180,51 +180,14 @@ which allows emulating a contactless card from an existing contact-based card
 (by relaying the commands from PC/SC to the phone).</p>
 <p>You may also attach your own simulation to the remote interface by implementing
 a simple interface through a socket communication.</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<span class="docutils literal">\input{$wd/bilder/tikzstyles.tex}
-\node (reader) {\includegraphics[width=3cm]{$wd/bilder/my_cardreader.pdf}};
-\node [below=0cm of reader, kleiner] {Contact-less Reader};
-\node (phone) [right=1cm of reader] {\includegraphics[width=3cm]{$wd/bilder/smartphone.pdf}};
-\node (app) [at=(phone.center)] {\includegraphics[width=2.8cm, height=4.9cm]{$wd/bilder/ACardEmulator.png}};
-
-\begin{pgfonlayer}{background}
-    \draw [rfid] (reader.center) -- (phone.west) ;
-\end{pgfonlayer}</span>)</p>
-<p>!pdf2svg command cannot be run</p>
-</div>
+<div class="figure" id="id1" style="text-align: center">
+<p><img  src="../_images/tikz-f7010fa8209b3752026a52619d57bbebb8fa2bcd.svg" alt="Figure made with TikZ" /></p>
 <p class="caption"><span class="caption-text">Simulate a contact-less Java Card with Android Smart Card Emulator</span></p>
-</div><div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<span class="docutils literal">\input{$wd/bilder/tikzstyles.tex}
-\node (reader) {\includegraphics[width=3cm]{$wd/bilder/my_cardreader.pdf}};
-\node [below=0cm of reader, kleiner] {Contact-less Reader};
-\node (phone) [right=1cm of reader] {\includegraphics[width=3cm]{$wd/bilder/smartphone.pdf}};
-\node (app) [at=(phone.center)] {\includegraphics[width=2.8cm, height=4.9cm]{$wd/bilder/ACardEmulator.png}};
-\node (vicc) [aktivbox, right=2cm of phone, kleiner] {\texttt{vicc --reversed}};
-
-\begin{pgfonlayer}{background}
-    \draw [rfid] (reader.center) -- (phone.west) ;
-    \path[linie] (phone) edge node {\includegraphics[width=1.5cm]{$wd/bilder/simplecloud.pdf}} (vicc) ;
-\end{pgfonlayer}</span>)</p>
-<p>!pdf2svg command cannot be run</p>
-</div>
+</div><div class="figure" id="id2" style="text-align: center">
+<p><img  src="../_images/tikz-ae1e764f23cec8b5d67952bc6d8bbe66280e80d1.svg" alt="Figure made with TikZ" /></p>
 <p class="caption"><span class="caption-text">Simulate a contact-less smart card with a remote virtual smart card</span></p>
-</div><div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<span class="docutils literal">\input{$wd/bilder/tikzstyles.tex}
-\node (reader) {\includegraphics[width=3cm]{$wd/bilder/my_cardreader.pdf}};
-\node [below=0cm of reader, kleiner] {Contact-less Reader};
-\node (phone) [right=1cm of reader] {\includegraphics[width=3cm]{$wd/bilder/smartphone.pdf}};
-\node (app) [at=(phone.center)] {\includegraphics[width=2.8cm, height=4.9cm]{$wd/bilder/ACardEmulator.png}};
-\node (pcsc-relay) [aktivbox, right=2cm of phone, kleiner] {\texttt{pcsc-relay --emulator=vpcd}};
-\node (card) [below=.5cm of pcsc-relay)] {\includegraphics[width=0.8cm]{$wd/bilder/smartcard.pdf}};
-\node (reader2) [below=1cm of pcsc-relay] {\includegraphics[width=1.3cm]{$wd/bilder/my_cardreader.pdf}};
-
-\begin{pgfonlayer}{background}
-    \draw [rfid] (reader.center) -- (phone.west) ;
-    \path[linie] (phone) edge node {\includegraphics[width=1.5cm]{$wd/bilder/simplecloud.pdf}} (pcsc-relay) ;
-    \path[linie] (pcsc-relay) edge (reader2) ;
-\end{pgfonlayer}</span>)</p>
-<p>!pdf2svg command cannot be run</p>
-</div>
+</div><div class="figure" id="id3" style="text-align: center">
+<p><img  src="../_images/tikz-30c9c7049675e5b06e8364c63b0718d51986e380.svg" alt="Figure made with TikZ" /></p>
 <p class="caption"><span class="caption-text">Relaying a contact-based smart card with pcsc-relay</span></p>
 </div><p>The Android Smart Card Emulator has the following dependencies:</p>
 <ul class="simple">

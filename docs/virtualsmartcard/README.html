@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Virtual Smart Card &#8212; vsmartcard 2023-09-27 documentation</title>
+    <title>Virtual Smart Card &#8212; vsmartcard 2023-09-30 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
@@ -192,25 +192,8 @@ internet for example.</p>
 <a class="reference internal" href="../pcsc-relay/README.html#pcsc-relay"><span class="std std-ref">PC/SC Relay</span></a> to make it accessible to an external contact-less smart card
 reader.</p>
 <p>The file <code class="file docutils literal notranslate"><span class="pre">utils.py</span></code> was taken from Henryk Plötz’s <a class="reference external" href="https://github.com/henryk/cyberflex-shell">cyberflex-shell</a> <a class="footnote-reference brackets" href="#id3" id="id4">1</a>.</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<span class="docutils literal">\input{$wd/bilder/tikzstyles.tex}
-    \node (pcsclite)
-[klein, aktivbox, inner xsep=.7cm, text width=3cm]
-    {PC/SC Framework\\\
-(\texttt{pcscd} or \texttt{SCardSvr})
-    };
-\node (sca) [aktivbox, klein, left=of pcsclite] {Smart Card\\Application};
-\node (vpcd) [box, at=(pcsclite.east), xshift=-.3cm] {\texttt{vpcd}};
-    \node (vicc) [aktivbox, right=2cm of pcsclite] {\texttt{vicc}};
-
-\begin{pgfonlayer}{background}
-    \path[linie]
-    (sca) edge (pcsclite)
-    (vpcd) edge node {\includegraphics[width=1.2cm]{$wd/bilder/simplecloud.pdf}} (vicc)
-    ;
-\end{pgfonlayer}</span>)</p>
-<p>!pdf2svg command cannot be run</p>
-</div>
+<div class="figure" id="id1" style="text-align: center">
+<p><img  src="../_images/tikz-b5a668553fb9bf21fb5abcc4cae46289d11490d1.svg" alt="Figure made with TikZ" /></p>
 <p class="caption"><span class="caption-text">Virtual Smart Card used with PCSC-Lite or WinSCard</span></p>
 </div><div class="versionadded">
 <p><span class="versionmodified added">New in version 0.7: </span>The Virtual Smart Card optionally brings its own standalone implementation of
@@ -218,24 +201,8 @@ PC/SC. This allows accessing <abbr title="virtual smart card">vpicc</abbr> witho
 implementation acts as replacement for <code class="docutils literal notranslate"><span class="pre">libpcsclite</span></code> which can lead to
 problems when used in parallel with PCSC-Lite.</p>
 </div>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<span class="docutils literal">\input{$wd/bilder/tikzstyles.tex}
-    \node (pcsclite)
-[klein, box, text width=4cm]
-    {Virtual Smart Card's\\
-PC/SC Framework
-    };
-\node (sca) [aktivbox, klein, left=of pcsclite] {Smart Card\\Application};
-    \node (vicc) [aktivbox, right=2cm of pcsclite] {\texttt{vicc}};
-
-\begin{pgfonlayer}{background}
-    \path[linie]
-    (sca) edge (pcsclite)
-    (pcsclite) edge node {\includegraphics[width=1.5cm]{$wd/bilder/simplecloud.pdf}} (vicc)
-    ;
-\end{pgfonlayer}</span>)</p>
-<p>!pdf2svg command cannot be run</p>
-</div>
+<div class="figure" id="id2" style="text-align: center">
+<p><img  src="../_images/tikz-c523bba45f9fcaa801dd4f6284c7efa1f320c9b1.svg" alt="Figure made with TikZ" /></p>
 <p class="caption"><span class="caption-text">Virtual Smart Card used with its own PC/SC implementation</span></p>
 </div><p>On Android, where a traditional PC/SC framework is not available, you can use
 our framework to make your real contact-less smart accessible through PKCS#11.

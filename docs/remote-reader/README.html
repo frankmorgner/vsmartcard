@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Remote Smart Card Reader &#8212; vsmartcard 2023-09-27 documentation</title>
+    <title>Remote Smart Card Reader &#8212; vsmartcard 2023-09-30 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
@@ -157,26 +157,8 @@
 smartcard reader. On the host computer a special smart card driver, <abbr title="virtual smart card reader">vpcd</abbr>, must
 be installed. The app establishes a connection to <abbr title="virtual smart card reader">vpcd</abbr> over the network when a
 contact-less card is detected.</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<span class="docutils literal">\input{$wd/bilder/tikzstyles.tex}
-    \node (pcsc) [klein, aktivbox, inner xsep=.75cm, align=center] {PC/SC\\Framework};
-\node (sca) [aktivbox, klein, left=.75cm of pcsc, align=center] {Smart Card\\Application};
-\node (vpcd) [box, at=(pcsc.east), kleiner] {\texttt{vpcd}};
-\node (phone) [right=2cm of vpcd] {\includegraphics[width=3cm]{$wd/bilder/smartphone.pdf}};
-\node (app) [at=(phone.center)] {\includegraphics[width=2.8cm, height=4.9cm]{$wd/bilder/remote-reader.png}};
-\node (card) [right=0cm of phone, rotate=45] {\includegraphics[width=2cm]{$wd/bilder/smartcard.pdf}};
-
-\begin{pgfonlayer}{background}
-    \node (box) [box, fit=(pcsc) (sca) (vpcd), inner ysep=1.5em] {};
-    \node [at=(box.north west)] {\includegraphics[width=1cm]{$wd/bilder/computer-tango.pdf}};
-    \path[linie]
-    (sca) edge (pcsc)
-    (vpcd) edge node {\includegraphics[width=1.5cm]{$wd/bilder/simplecloud.pdf}} (app)
-    ;
-    \draw [rfid] (phone.center) -- (card.center) ;
-\end{pgfonlayer}</span>)</p>
-<p>!pdf2svg command cannot be run</p>
-</div>
+<div class="figure" id="id1" style="text-align: center">
+<p><img  src="../_images/tikz-ce55fa00e38973c00fdf255926bb46304226f2dc.svg" alt="Figure made with TikZ" /></p>
 <p class="caption"><span class="caption-text">Remote Smart Card Reader used to access a contact-less card</span></p>
 </div><p>The Remote Smart Card Reader has the following dependencies:</p>
 <ul class="simple">
@@ -189,30 +171,8 @@ requires permission to access the camera</p></li>
 </ul>
 <p>For remotely accessing a traditional smart card reader on one computer from an
 other computer, the <a class="reference internal" href="../virtualsmartcard/README.html#vicc"><span class="std std-ref">Virtual Smart Card</span></a> in relay mode can be used:</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<span class="docutils literal">\input{$wd/bilder/tikzstyles.tex}
-    \node (pcsc) [klein, aktivbox, inner xsep=.75cm, align=center] {PC/SC\\Framework};
-\node (sca) [aktivbox, klein, left=.75cm of pcsc, align=center] {Smart Card\\Application};
-\node (vpcd) [box, at=(pcsc.east), kleiner] {\texttt{vpcd}};
-    \node (pcsc2) [klein, aktivbox, inner xsep=.75cm, align=center, below=2.5cm of vpcd] {PC/SC\\Framework};
-\node (vicc) [aktivbox, left=1cm of pcsc2, kleiner] {\texttt{vicc -t relay}};
-\node (reader) [right=1cm of pcsc2] {\includegraphics[width=2cm]{$wd/bilder/my_cardreader.pdf}};
-\node (card) [at=(reader.east), rotate=45] {\includegraphics[width=2cm]{$wd/bilder/smartcard.pdf}};
-
-\begin{pgfonlayer}{background}
-    \node (box) [box, fit=(pcsc) (sca) (vpcd), inner ysep=1.5em] {};
-    \node (box2) [box, fit=(vicc) (pcsc2), inner ysep=1.5em] {};
-    \node [at=(box.north west)] {\includegraphics[width=1cm]{$wd/bilder/computer-tango.pdf}};
-    \node [at=(box2.north west)] {\includegraphics[width=1cm]{$wd/bilder/computer-tango.pdf}};
-    \path[linie]
-    (sca) edge (pcsc)
-    (vpcd) edge [out=south, in=north] node {\includegraphics[width=1.5cm]{$wd/bilder/simplecloud.pdf}} (vicc)
-    (vicc) edge (pcsc2)
-    (pcsc2) edge [usb] (reader.center)
-    ;
-\end{pgfonlayer}</span>)</p>
-<p>!pdf2svg command cannot be run</p>
-</div>
+<div class="figure" id="id2" style="text-align: center">
+<p><img  src="../_images/tikz-f675fc9e85a93771428d0790db395907b3f662fe.svg" alt="Figure made with TikZ" /></p>
 <p class="caption"><span class="caption-text">Virtual Smart Card used in relay mode to remotely access a card</span></p>
 </div><div class="admonition note">
 <p class="admonition-title">Note</p>
