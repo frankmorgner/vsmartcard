@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Virtual Smart Card &#8212; vsmartcard 2023-09-30 documentation</title>
+    <title>Virtual Smart Card &#8212; vsmartcard 2023-10-01 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
@@ -96,7 +96,8 @@
 <li><a class="reference internal" href="#installation">Installation</a><ul>
 <li><a class="reference internal" href="#installation-on-linux-unix-and-similar">Installation on Linux, Unix and similar</a></li>
 <li><a class="reference internal" href="#building-and-installing-vpcd-on-mac-os-x">Building and installing <abbr title="virtual smart card reader">vpcd</abbr> on Mac OS X</a></li>
-<li><a class="reference internal" href="#building-and-installing-vpcd-on-windows">Building and installing <abbr title="virtual smart card reader">vpcd</abbr> on Windows</a></li>
+<li><a class="reference internal" href="#building-vpcd-on-windows">Building <abbr title="virtual smart card reader">vpcd</abbr> on Windows</a></li>
+<li><a class="reference internal" href="#istalling-vpcd-on-windows">Istalling <abbr title="virtual smart card reader">vpcd</abbr> on Windows</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#using-the-virtual-smart-card">Using the Virtual Smart Card</a><ul>
@@ -266,8 +267,8 @@ make install
 </pre></div>
 </div>
 </div>
-<div class="section" id="building-and-installing-vpcd-on-windows">
-<h3>Building and installing <abbr title="virtual smart card reader">vpcd</abbr> on Windows<a class="headerlink" href="#building-and-installing-vpcd-on-windows" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="building-vpcd-on-windows">
+<h3>Building <abbr title="virtual smart card reader">vpcd</abbr> on Windows<a class="headerlink" href="#building-vpcd-on-windows" title="Permalink to this headline">¶</a></h3>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 0.7: </span>We implemented <abbr title="virtual smart card reader">vpcd</abbr> as user mode device driver for Windows so that
 <abbr title="virtual smart card">vpicc</abbr> can directly be used in Windows’ smart card applications that use
@@ -297,6 +298,16 @@ configuration manager, that the project is built for your platform (i.e.
 <li><p>If you can successfully <span class="guilabel">Build the solution</span>, you can find
 the installer (<code class="file docutils literal notranslate"><span class="pre">BixVReaderInstaller.msi</span></code>) in
 <code class="file docutils literal notranslate"><span class="pre">virtualsmartcard\win32\BixVReaderInstaller\bin\*Release</span></code></p></li>
+</ol>
+<p>For debugging <abbr title="virtual smart card reader">vpcd</abbr> and building the driver with an older version of Visual
+Studio or WDK please see <a class="reference external" href="http://www.codeproject.com/Articles/134010/An-UMDF-Driver-for-a-Virtual-Smart-Card-Reader">Fabio Ottavi’s UMDF Driver for a Virtual Smart Card
+Reader</a> <a class="footnote-reference brackets" href="#id23" id="id25">11</a> for details.</p>
+<p>All of Fabio’s card connectors are still available, but inactive by default
+(see <a class="reference internal" href="#configuring-vpcd-on-windows">Configuring vpcd on Windows</a> below).</p>
+</div>
+<div class="section" id="istalling-vpcd-on-windows">
+<h3>Istalling <abbr title="virtual smart card reader">vpcd</abbr> on Windows<a class="headerlink" href="#istalling-vpcd-on-windows" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic">
 <li><p>To import the installer’s test signing certificate, double click
 <code class="file docutils literal notranslate"><span class="pre">BixVReader.cer</span></code> and add it to the <em>Trusted Root Certification
 Authority</em> and the <em>Trusted Publishers</em> at the <em>Local Computer” (not the
@@ -311,11 +322,6 @@ device is installed.</p>
 </li>
 <li><p>To install <abbr title="virtual smart card reader">vpcd</abbr>, double click <code class="file docutils literal notranslate"><span class="pre">BixVReaderInstaller.msi</span></code>.</p></li>
 </ol>
-<p>For debugging <abbr title="virtual smart card reader">vpcd</abbr> and building the driver with an older version of Visual
-Studio or WDK please see <a class="reference external" href="http://www.codeproject.com/Articles/134010/An-UMDF-Driver-for-a-Virtual-Smart-Card-Reader">Fabio Ottavi’s UMDF Driver for a Virtual Smart Card
-Reader</a> <a class="footnote-reference brackets" href="#id23" id="id25">11</a> for details.</p>
-<p>All of Fabio’s card connectors are still available, but inactive by default
-(see <a class="reference internal" href="#configuring-vpcd-on-windows">Configuring vpcd on Windows</a> below).</p>
 </div>
 </div>
 <div class="section" id="using-the-virtual-smart-card">

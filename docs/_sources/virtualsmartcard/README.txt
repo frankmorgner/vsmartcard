@@ -136,7 +136,7 @@ card reader with an :file:`Info.plist`::
     make install
 
 ================================================================================
-Building and installing |vpcd| on Windows
+Building |vpcd| on Windows
 ================================================================================
 
 .. versionadded:: 0.7
@@ -170,28 +170,15 @@ requires the `WiX Toolset 3.10`_ to be installed.
    the installer (:file:`BixVReaderInstaller.msi`) in
    :file:`virtualsmartcard\\win32\\BixVReaderInstaller\\bin\\*Release`
 
-4. To import the installer's test signing certificate, double click
-   :file:`BixVReader.cer` and add it to the *Trusted Root Certification
-   Authority* and the *Trusted Publishers* at the *Local Computer" (not the
-   *Current User*).
-
-   On the commandline, you could do this :ref:`as follows<Using CertMgr to
-   Install Test Certificates on a Test Computer>`::
-
-    CertMgr.exe /add BixVReader.cer /s /r localMachine root /all
-    CertMgr.exe /add BixVReader.cer /s /r localMachine trustedpublisher
-
-   Feel free to remove the certificate from the certificate stores once the
-   device is installed.
-
-5. To install |vpcd|, double click :file:`BixVReaderInstaller.msi`.
-
 For debugging |vpcd| and building the driver with an older version of Visual
 Studio or WDK please see `Fabio Ottavi's UMDF Driver for a Virtual Smart Card
 Reader`_ for details.
 
 All of Fabio's card connectors are still available, but inactive by default
 (see `Configuring vpcd on Windows`_ below).
+
+
+.. include:: install.txt
 
 
 ********************************************************************************
