@@ -477,6 +477,27 @@ static int autoconfig ()
             = USB_DIR_IN | 3;
         EP_STATUS_NAME = "ep3in-int";
 
+	/* Raspberry Pi Zero, high/full speed */
+	} else if (stat (DEVNAME = "20980000.usb", &statb) == 0) {
+		HIGHSPEED = 1;
+		device_desc.bcdDevice = __constant_cpu_to_le16 (0x0100);
+
+		fs_source_desc.bEndpointAddress
+			= hs_source_desc.bEndpointAddress
+			= USB_DIR_IN | 1;
+		EP_IN_NAME = "ep1in";
+		fs_sink_desc.bEndpointAddress
+			= hs_sink_desc.bEndpointAddress
+			= USB_DIR_OUT | 2;
+		EP_OUT_NAME = "ep2out";
+
+		source_sink_intf.bNumEndpoints = 3;
+
+		fs_status_desc.bEndpointAddress
+			= hs_status_desc.bEndpointAddress
+			= USB_DIR_IN | 3;
+		EP_STATUS_NAME = "ep3in";
+
 	} else {
 		DEVNAME = 0;
 		return -ENODEV;
