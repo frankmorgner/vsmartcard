@@ -136,7 +136,7 @@ static int vicc_receive_capdu(driver_data_t *driver_data,
                     goto err;
             }
         } else {
-            // finaly we got the capdu
+            // finally we got the C-APDU
             *len = size;
             r = 1;
         }

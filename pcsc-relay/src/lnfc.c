@@ -207,13 +207,15 @@ static int lnfc_receive_capdu(driver_data_t *driver_data,
     }
 
 
-    p = realloc(*capdu, data->iCapduLen);
-    if (!p) {
-        RELAY_ERROR("Error allocating memory for C-APDU\n");
-        return 0;
+    if (data->iCapduLen) {
+        p = realloc(*capdu, data->iCapduLen);
+        if (!p) {
+            RELAY_ERROR("Error allocating memory for C-APDU (%d bytes)\n", data->iCapduLen);
+            return 0;
+        }
+        memcpy(p, data->abtCapdu, data->iCapduLen);
+        *capdu = p;
     }
-    memcpy(p, data->abtCapdu, data->iCapduLen);
-    *capdu = p;
     *len = data->iCapduLen;
 
 
@@ -230,13 +232,15 @@ static int lnfc_send_rapdu(driver_data_t *driver_data,
         return 0;
 
 
-    r = nfc_target_send_bytes(data->pndTarget, rapdu, len, -1);
-    if (r < 0) {
-        RELAY_ERROR ("nfc_target_send_bytes: %s\n", nfc_strerror(data->pndTarget));
-        return 0;
+    if (len)  {
+        r = nfc_target_send_bytes(data->pndTarget, rapdu, len, -1);
+        if (r < 0) {
+            RELAY_ERROR ("nfc_target_send_bytes: %s\n", nfc_strerror(data->pndTarget));
+            return 0;
+        }
+        if (r < len)
+            INFO ("Transmitted %u less bytes than desired: %s\n", (unsigned int) len-r, nfc_strerror(data->pndTarget));
     }
-    if (r < len)
-        INFO ("Transmitted %u less bytes than desired: %s\n", (unsigned int) len-r, nfc_strerror(data->pndTarget));
 
 
     return 1;

@@ -208,15 +208,13 @@ static int picc_receive_capdu(driver_data_t *driver_data,
 
     /* read C-APDU */
     linelen = getline(&data->line, &data->linemax, data->fd);
-    if (linelen <= 0) {
-        if (linelen < 0) {
-            RELAY_ERROR("Error reading from %s: %s\n", PICCDEV, strerror(errno));
-            return 0;
-        }
-        if (linelen == 0) {
-            *len = 0;
-            return 1;
-        }
+    if (linelen < 0) {
+        RELAY_ERROR("Error reading from %s: %s\n", PICCDEV, strerror(errno));
+        return 0;
+    }
+    if (linelen == 0) {
+        *len = 0;
+        return 1;
     }
     if (fflush(data->fd) != 0)
         RELAY_ERROR("Warning, fflush failed: %s\n", strerror(errno));
@@ -236,6 +234,9 @@ static int picc_send_rapdu(driver_data_t *driver_data,
 
     if (!data || !rapdu)
         return 0;
+
+    if (!len)
+        return 1;
 
 
     /* encode R-APDU */
