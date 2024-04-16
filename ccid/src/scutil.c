@@ -36,7 +36,7 @@ int initialize(int reader_id, int verbose,
 
     int r = sc_establish_context(ctx, "");
     if (r < 0 || !*ctx) {
-        fprintf(stderr, "Failed to create initial context: %s", sc_strerror(r));
+        fprintf(stderr, "Failed to create initial context: %s\n", sc_strerror(r));
         return r;
     }
 
