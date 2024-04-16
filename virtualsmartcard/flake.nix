@@ -16,23 +16,44 @@
       packages = rec {
 
         vicc = pkgs.stdenv.mkDerivation {
-          name = "parse-ts";
+          name = "vicc";
           src = self;
-          buildInputs = with pkgs; [ autoconf automake libtool pkg-config help2man pcsclite ];
+          buildInputs = with pkgs; [ 
+            
+            pcsclite 
+          ];
+          propagatedBuildInputs = with pkgs; [
+            (python3.withPackages (ps: with ps; [ pyscard ]))
+          ];
+          nativeBuildInputs = with pkgs; [
+            autoconf 
+            automake 
+            libtool 
+            pkg-config 
+            help2man 
+            python3Packages.setuptools
+            python3Packages.wrapPython
+          ];
           buildPhase = ''
             autoreconf -vfi
-            ./configure --prefix=$out
+            ./configure --prefix=$out --sysconfdir=$out/etc
             make
           '';
           installPhase = ''
             make install
+          '';
+          postFixup = ''
+            wrapProgram "$out/bin/vicc" \
+              --prefix PYTHONPATH : "$PYTHONPATH" \
+              --prefix PYTHONPATH : "$out/${pkgs.python3.sitePackages}" \
+              --prefix PATH : "${pkgs.python3}/bin"
           '';
         };
 
       };
       
       shell = pkgs.mkShell {
-        buildInputs = with pkgs; [ autoconf automake libtool pkg-config help2man pcsclite ];
+        buildInputs = with pkgs; [ autoconf automake libtool pkg-config help2man pcsclite python3 ];
       };
 
       defaultPackage = packages.vicc;
