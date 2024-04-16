@@ -1,8 +1,8 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.64])
-AC_INIT([Virtual Smart Card], [0.10], [https://github.com/frankmorgner/vsmartcard/issues], [virtualsmartcard], [http://frankmorgner.github.io/vsmartcard/virtualsmartcard/README.html])
+AC_PREREQ([2.72])
+AC_INIT([Virtual Smart Card],[0.10],[https://github.com/frankmorgner/vsmartcard/issues],[virtualsmartcard],[http://frankmorgner.github.io/vsmartcard/virtualsmartcard/README.html])
 AC_CONFIG_SRCDIR([src/vpcd/vpcd.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -70,12 +70,12 @@ m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
 # --enable-infoplist
 AC_ARG_ENABLE(infoplist,
-	AC_HELP_STRING([--enable-infoplist],[Builds Info.plist for OSX @<:@default=no@:>@]),
+	AS_HELP_STRING([--enable-infoplist],[Builds Info.plist for OSX @<:@default=no@:>@]),
 	[infoplist="yes"], [infoplist=no])
 
 # --enable-libpcsclite
 AC_ARG_ENABLE(libpcsclite,
-	AC_HELP_STRING([--enable-libpcsclite],[Build a lightweight version of
+	AS_HELP_STRING([--enable-libpcsclite],[Build a lightweight version of
 					libpcsclite, conflicts with PCSC-Lite @<:@default=no@:>@]),
 	[libpcsclite="${enableval}"], [libpcsclite=no])
 if test "${libpcsclite}" = no ; then
@@ -102,7 +102,7 @@ if test "${libpcsclite}" = no ; then
 
 	# --enable-serialdropdir=DIR
 	AC_ARG_ENABLE(serialdropdir,
-		AC_HELP_STRING([--enable-serialdropdir=DIR],[directory to install the
+		AS_HELP_STRING([--enable-serialdropdir=DIR],[directory to install the
 		serial wrapper driver (default to pcscd config or $(prefix)/pcsc/drivers/serial)]),
 		[serialdropdir="${enableval}"], [serialdropdir=no])
 	if test "${serialdropdir}" = no ; then
@@ -148,7 +148,7 @@ if test "${libpcsclite}" = no ; then
 
 	# --enable-serialconfdir=DIR
 	AC_ARG_ENABLE(serialconfdir,
-		AC_HELP_STRING([--enable-serialconfdir=DIR],[directory to install the
+		AS_HELP_STRING([--enable-serialconfdir=DIR],[directory to install the
 		serial wrapper driver (default to pcscd config or /etc/reader.conf.d)]),
 		[serialconfdir="${enableval}"], [serialconfdir=no])
 	if test "${serialconfdir}" = no ; then
@@ -202,7 +202,7 @@ fi
 
 # --enable-vpcdhost
 AC_ARG_ENABLE(vpcdhost,
-	AC_HELP_STRING([--enable-vpcdhost=ADDRESS],[Default address to connect to when
+	AS_HELP_STRING([--enable-vpcdhost=ADDRESS],[Default address to connect to when
 					communicating with vicc. Use "/dev/null" if vpcd shall open
 					the socket and wait for an incoming connection.
 					@<:@default=/dev/null@:>@]),
@@ -217,7 +217,7 @@ fi
 
 # --enable-vpcdslots
 AC_ARG_ENABLE(vpcdslots,
-	AC_HELP_STRING([--enable-vpcdslots=COUNT],[Default number of slots to open.
+	AS_HELP_STRING([--enable-vpcdslots=COUNT],[Default number of slots to open.
 					vpcd will open one socket for each slot incrementing the
 					port number each time. @<:@default=2@:>@]),
 	[vpcdslots="${enableval}"], [vpcdslots=2])
