@@ -19,11 +19,17 @@
           name = "vicc";
           src = self;
           buildInputs = with pkgs; [ 
-            
             pcsclite 
           ];
           propagatedBuildInputs = with pkgs; [
-            (python3.withPackages (ps: with ps; [ pyscard ]))
+            (python3.withPackages (ps: with ps; [ 
+              pyscard 
+              pillow
+              readline
+              pbkdf2
+              pycryptodome
+            ]))
+            qrencode
           ];
           nativeBuildInputs = with pkgs; [
             autoconf 
