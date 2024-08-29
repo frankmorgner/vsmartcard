@@ -84,9 +84,9 @@ jobs:
   remote-reader-ubuntu:
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - run: .github/build-remote-reader.sh
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: remote-reader
         path:
