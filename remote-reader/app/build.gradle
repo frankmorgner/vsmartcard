@@ -1,13 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 33
 
     defaultConfig {
         applicationId "com.vsmartcard.remotesmartcardreader.app"
         // NFC reader mode was added in KitKat
         minSdkVersion 19
-        targetSdkVersion 29
+        //noinspection ExpiredTargetSdkVersion
+        targetSdkVersion 30
         versionCode 7
         versionName "2.3"
     }
