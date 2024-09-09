@@ -284,7 +284,7 @@ int vicc_eject(struct vicc_ctx *ctx)
     int r = 0;
     if (ctx && ctx->client_sock != INVALID_SOCKET) {
         if (close(ctx->client_sock) < 0) {
-            r -= 1;
+            r = -1;
         }
         ctx->client_sock = INVALID_SOCKET;
     }
@@ -347,7 +347,7 @@ int vicc_exit(struct vicc_ctx *ctx)
         if (ctx->server_sock != INVALID_SOCKET) {
             ctx->server_sock = close(ctx->server_sock);
             if (ctx->server_sock == INVALID_SOCKET) {
-                r -= 1;
+                r = -1;
             }
         }
         free(ctx);
