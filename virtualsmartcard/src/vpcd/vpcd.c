@@ -64,21 +64,23 @@ static SOCKET connectsock(const char *hostname, unsigned short port);
 
 ssize_t sendall(SOCKET sock, const void *buffer, size_t size)
 {
-    size_t sent;
+    size_t sent = 0;
     ssize_t r;
 
     /* FIXME we should actually check the length instead of simply casting from
      * size_t to ssize_t (or int), which have both the same width! */
-	for (sent = 0; sent < size; sent += r) {
+    while (sent < size) {
         r = send(sock, (void *) (((unsigned char *) buffer)+sent),
 #ifdef _WIN32
                 (int)
 #endif
                 (size-sent), MSG_NOSIGNAL);
 
-		if (r < 0)
-			return r;
-	}
+        if (r < 0)
+            return r;
+
+        sent += r;
+    }
 
     return (ssize_t) sent;
 }
