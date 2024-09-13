@@ -94,3 +94,7 @@ crash-info/
 
 *.apk
 keystore.properties
+
+
+#nix related
+**/result

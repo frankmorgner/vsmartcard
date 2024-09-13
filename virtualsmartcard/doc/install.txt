@@ -1,5 +1,5 @@
 ================================================================================
-Istalling |vpcd| on Windows
+Installing |vpcd| on Windows
 ================================================================================
 
 1. To import the installer's test signing certificate, double click
