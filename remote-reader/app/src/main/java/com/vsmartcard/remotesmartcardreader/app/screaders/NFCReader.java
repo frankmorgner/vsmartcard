@@ -25,6 +25,8 @@ import android.content.SharedPreferences;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.IsoDep;
+import android.nfc.tech.NfcA;
+import android.nfc.tech.NfcB;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -109,14 +111,14 @@ public class NFCReader implements SCReader {
         selectMF();
     }
 
-    /* calculation based on https://code.google.com/p/ifdnfc/source/browse/src/atr.c */
+    /* generate the mapped ATR from 14443 data according to PC/SC part 3 section 3.1.3.2.3 */
     @Override
     public byte[] getATR() {
-        // get historical bytes for 14443-A
+        // for 14443 Type A, use the historical bytes returned as part of the ATS
         byte[] historicalBytes = card.getHistoricalBytes();
         if (historicalBytes == null) {
-            // get historical bytes for 14443-B
-            historicalBytes = card.getHiLayerResponse();
+            // for 14443 Type B, use Application Data + Protocol Info + MBLI
+            historicalBytes = getTypeBHistoricalBytes();
         }
         if (historicalBytes == null) {
             historicalBytes = new byte[0];
@@ -176,5 +178,50 @@ public class NFCReader implements SCReader {
             e.printStackTrace();
         }
         return nfcReader;
+    }
+
+    public byte[] getTypeBHistoricalBytes() {
+        NfcB nfcB = NfcB.get(card.getTag());
+        if (nfcB == null)
+            return null;
+
+        byte[] appData = nfcB.getApplicationData();
+        byte[] protocolInfo = nfcB.getProtocolInfo();
+        if (!(appData.length == 4 && protocolInfo.length == 3))
+            return null;
+
+        Byte mbli = translateToMbli(protocolInfo, nfcB.getMaxTransceiveLength());
+        if (mbli == null)
+            return null;
+
+        byte[] historicalBytes = new byte[8];
+        System.arraycopy(appData, 0, historicalBytes, 0, 4);
+        System.arraycopy(protocolInfo, 0, historicalBytes, 4, 3);
+        historicalBytes[7] = (byte)(mbli << 4);
+        return historicalBytes;
+    }
+
+    private static final int[] ATQB_FRAME_SIZES = { 16, 24, 32, 40, 48, 64, 96, 128, 256 };
+
+    public static Byte translateToMbli(byte[] protocolInfo, int maxUnit) {
+        // retrieve maximum frame size from protocol info
+        int maxFrameSizeCode = (protocolInfo[1] >> (byte)4) & 0xF;
+        if (maxFrameSizeCode >= ATQB_FRAME_SIZES.length)
+            return null; // values 9..15 are RFU
+        int maxFrameSize = ATQB_FRAME_SIZES[maxFrameSizeCode];
+
+        // there's 3 to 5 bytes of overhead in a buffer.
+        int predictedMbl = maxUnit + 5; // (can be up to 2 bytes larger)
+
+        // buffer length must be maxFrameSize * {power of 2}.
+        int mbl = Integer.highestOneBit(predictedMbl / maxFrameSize) * maxFrameSize;
+        if (predictedMbl - mbl > 2)
+            return null;
+
+        // now that we know we have a valid MBL, calculate MBLI from it
+        int mbli = Integer.numberOfTrailingZeros(mbl / maxFrameSize) + 1;
+        if (mbli > 15)
+            return null;
+        return (byte)mbli;
     }
 }
