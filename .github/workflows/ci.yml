@@ -19,7 +19,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - run: .github/build-virtualsmartcard.sh macos
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: virtualsmartcard-macos
         path:
@@ -30,7 +30,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - run: .github/build-virtualsmartcard.sh ubuntu
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: virtualsmartcard
         path:
@@ -41,7 +41,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - run: .github/build-ccid.sh ubuntu
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: ccid-emulator
         path:
@@ -58,7 +58,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - run: .github/build-pcsc-relay.sh ubuntu
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: pcsc-relay
         path:
@@ -75,7 +75,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - run: .github/build-pcsc-relay.sh mingw-64
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: pcsc-relay-mingw-64
         path:
@@ -97,7 +97,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - run: .github/build-ACardEmulator.sh
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: ACardEmulator
         path:
