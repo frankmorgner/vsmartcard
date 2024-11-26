@@ -5,12 +5,14 @@ android {
 
     defaultConfig {
         applicationId "com.vsmartcard.remotesmartcardreader.app"
-        // NFC reader mode was added in KitKat
-        minSdkVersion 19
+        // NFC reader mode was added in KitKat (19)
+        // androidx.appcompat:appcompat-resources:1.7.0 reqires 21
+        minSdkVersion 21
         //noinspection ExpiredTargetSdkVersion
         targetSdkVersion 30
         versionCode 7
         versionName "2.3"
+        archivesBaseName = "remote-reader-$versionName"
     }
 
     buildTypes {
@@ -20,27 +22,6 @@ android {
         }
     }
     namespace 'com.vsmartcard.remotesmartcardreader.app'
-}
-
-android.applicationVariants.configureEach { variant ->
-    def appName
-    //Check if an applicationName property is supplied; if not use the name of the parent project.
-    if (project.hasProperty("applicationName")) {
-        appName = applicationName
-    } else {
-        appName = parent.name
-    }
-
-    variant.outputs.each { output ->
-        def newApkName
-        //If there's no ZipAlign task it means that our artifact will be unaligned and we need to mark it as such.
-        if (output.zipAlign) {
-            newApkName = "${appName}-${output.baseName}-${variant.versionName}.apk"
-        } else {
-            newApkName = "${appName}-${output.baseName}-${variant.versionName}-unaligned.apk"
-        }
-        output.outputFileName = new File(newApkName)
-    }
 }
 
 repositories {
