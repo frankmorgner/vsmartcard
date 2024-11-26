@@ -216,6 +216,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     @Override
     public void onResume() {
         super.onResume();
+        /* See https://github.com/frankmorgner/vsmartcard/issues/281
         Intent intent = getIntent();
         // Check to see that the Activity started due to a discovered tag
         if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(intent.getAction())) {
@@ -227,6 +228,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 super.onNewIntent(intent);
             }
         }
+        */
         enableReaderMode();
     }
 
