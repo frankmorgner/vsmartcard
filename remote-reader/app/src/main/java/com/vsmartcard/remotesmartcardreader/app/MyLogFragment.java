@@ -19,6 +19,8 @@
 
 package com.vsmartcard.remotesmartcardreader.app;
 
+import static com.vsmartcard.remotesmartcardreader.app.R.id.*;
+
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;

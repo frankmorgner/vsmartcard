@@ -39,6 +39,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/fab_margin"
+        android:contentDescription="@string/use_dummy_card_to_test_connection"
         android:src="@mipmap/ic_connect"
         app:layout_anchor="@id/app_bar"
         app:layout_anchorGravity="bottom|end" />

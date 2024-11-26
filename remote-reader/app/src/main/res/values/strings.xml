@@ -56,5 +56,6 @@
 
     <string name="title_activity_settings">Settings</string>
     <string name="hint_vpcd_listen">Listen for connections</string>
+    <string name="use_dummy_card_to_test_connection">Use dummy card to test connection</string>
 
 </resources>
