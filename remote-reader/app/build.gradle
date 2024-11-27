@@ -10,8 +10,8 @@ android {
         minSdkVersion 21
         //noinspection ExpiredTargetSdkVersion
         targetSdkVersion 30
-        versionCode 7
-        versionName "2.3"
+        versionCode 8
+        versionName "2.4"
         archivesBaseName = "remote-reader-$versionName"
     }
 
