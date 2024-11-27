@@ -147,6 +147,7 @@ public class NFCReader implements SCReader {
         return card.transceive(apdu);
     }
 
+    /* See https://github.com/frankmorgner/vsmartcard/issues/281
     public static NFCReader get(Intent intent, Activity activity) {
         NFCReader nfcReader = null;
 
@@ -154,7 +155,7 @@ public class NFCReader implements SCReader {
             Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
             if (tag != null) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    /* Disconnect from the tag here. The reader mode will capture the tag again */
+                    // Disconnect from the tag here. The reader mode will capture the tag again
                     try {
                         IsoDep.get(tag).close();
                     } catch (IOException e) {
@@ -169,6 +170,7 @@ public class NFCReader implements SCReader {
 
         return nfcReader;
     }
+    */
 
     public static NFCReader get(Tag tag, Activity activity) {
         NFCReader nfcReader = null;
