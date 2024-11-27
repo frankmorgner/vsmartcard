@@ -20,13 +20,11 @@
 package com.vsmartcard.remotesmartcardreader.app;
 
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -41,6 +39,8 @@ import androidx.appcompat.app.ActionBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+
+import java.util.Objects;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -102,7 +102,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     }
 
     /**
-     * A settings value change listener that updates the settings's summary
+     * A settings value change listener that updates the settings' summary
      * to reflect its new value.
      */
     private static final Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
@@ -112,7 +112,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
             if (preference instanceof ListPreference) {
                 // For list preferences, look up the correct display value in
-                // the settings's 'entries' list.
+                // the settings' 'entries' list.
                 ListPreference listPreference = (ListPreference) preference;
                 int index = listPreference.findIndexOfValue(stringValue);
 
@@ -131,7 +131,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     };
 
     /**
-     * Binds a settings's summary to its value. More specifically, when the
+     * Binds a settings' summary to its value. More specifically, when the
      * settings's value is changed, its summary (line of text below the
      * settings title) is updated to reflect the value. The summary is also
      * immediately updated upon calling this method. The exact display format is
@@ -143,7 +143,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         // Set the listener to watch for value changes.
         preference.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
 
-        // Trigger the listener immediately with the settings's
+        // Trigger the listener immediately with the settings'
         // current value.
         sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
                 PreferenceManager
@@ -155,7 +155,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
      * This fragment shows data and sync preferences only. It is used when the
      * activity is showing a two-pane settings UI.
      */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static class VPCDPreferenceFragment extends PreferenceFragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -203,12 +202,10 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
-        switch(requestCode) {
-            case IntentIntegrator.REQUEST_CODE:
-                if (resultCode != RESULT_CANCELED) {
-                    handleScannedURI(Uri.parse(scanResult.getContents()));
-                }
-                break;
+        if (requestCode == IntentIntegrator.REQUEST_CODE) {
+            if (resultCode != RESULT_CANCELED) {
+                handleScannedURI(Uri.parse(scanResult.getContents()));
+            }
         }
     }
 
@@ -227,7 +224,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             getFragmentManager().beginTransaction().replace(android.R.id.content,
                     new VPCDPreferenceFragment()).commit();
         } catch (Exception e) {
-            Snackbar.make(this.getCurrentFocus(), "Could not import configuration", Snackbar.LENGTH_LONG)
+            Snackbar.make(Objects.requireNonNull(this.getCurrentFocus()), "Could not import configuration", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show();
         }
     }

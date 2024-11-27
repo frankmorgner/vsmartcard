@@ -6,7 +6,7 @@ android {
     defaultConfig {
         applicationId "com.vsmartcard.remotesmartcardreader.app"
         // NFC reader mode was added in KitKat (19)
-        // androidx.appcompat:appcompat-resources:1.7.0 reqires 21
+        // androidx.appcompat:appcompat-resources:1.7.0 requires 21
         minSdkVersion 21
         //noinspection ExpiredTargetSdkVersion
         targetSdkVersion 30

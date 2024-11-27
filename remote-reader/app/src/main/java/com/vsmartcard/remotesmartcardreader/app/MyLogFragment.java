@@ -19,8 +19,6 @@
 
 package com.vsmartcard.remotesmartcardreader.app;
 
-import static com.vsmartcard.remotesmartcardreader.app.R.id.*;
-
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -28,6 +26,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+
+import androidx.annotation.NonNull;
 
 import com.example.android.common.logger.LogFragment;
 import com.google.android.material.snackbar.Snackbar;
@@ -41,9 +41,9 @@ public class MyLogFragment extends LogFragment {
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         // TODO Add your menu entries here
-        getActivity().getMenuInflater().inflate(R.menu.menu_log, menu);
+        requireActivity().getMenuInflater().inflate(R.menu.menu_log, menu);
     }
 
     @Override
@@ -52,10 +52,10 @@ public class MyLogFragment extends LogFragment {
         switch (item.getItemId()) {
             case R.id.action_copy:
                 // Code to Copy the content of Text View to the Clip board.
-                ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipboardManager clipboard = (ClipboardManager) requireActivity().getSystemService(Context.CLIPBOARD_SERVICE);
                 ClipData clip = ClipData.newPlainText("simple text", getLogView().getText());
                 clipboard.setPrimaryClip(clip);
-                Snackbar.make(getView(), "Log copied to clipboard.", Snackbar.LENGTH_LONG)
+                Snackbar.make(requireView(), "Log copied to clipboard.", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
                 return true;
             case R.id.action_delete:

@@ -18,7 +18,6 @@ package com.example.android.common.logger;
 import android.app.Activity;
 import android.content.Context;
 import android.util.*;
-import android.widget.TextView;
 
 /** Simple TextView which is used to output log data received through the LogNode interface.
 */
@@ -124,7 +123,7 @@ public class LogView extends androidx.appcompat.widget.AppCompatTextView impleme
      */
     private StringBuilder appendIfNotNull(StringBuilder source, String addStr, String delimiter) {
         if (addStr != null) {
-            if (addStr.length() == 0) {
+            if (addStr.isEmpty()) {
                 delimiter = "";
             }
 

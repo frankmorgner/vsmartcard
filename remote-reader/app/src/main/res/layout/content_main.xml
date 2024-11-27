@@ -8,7 +8,7 @@
     tools:context="com.vsmartcard.remotesmartcardreader.app.MainActivity"
     tools:showIn="@layout/activity_main">
 
-    <fragment
+    <androidx.fragment.app.FragmentContainerView
         android:name="com.vsmartcard.remotesmartcardreader.app.MyLogFragment"
         android:id="@+id/log_fragment"
         android:layout_margin="@dimen/text_margin"

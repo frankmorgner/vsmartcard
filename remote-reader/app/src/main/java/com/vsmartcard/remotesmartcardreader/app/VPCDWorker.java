@@ -29,7 +29,6 @@ import com.vsmartcard.remotesmartcardreader.app.screaders.SCReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
@@ -39,7 +38,6 @@ import java.net.SocketTimeoutException;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 class VPCDWorker extends AsyncTask<VPCDWorker.VPCDWorkerParams, Void, Void> {
 
@@ -117,7 +115,7 @@ class VPCDWorker extends AsyncTask<VPCDWorker.VPCDWorkerParams, Void, Void> {
                             break;
                         case VPCD_CTRL_RESET:
                             reader.reset();
-                            Log.i(this.getClass().getName(), "Resetted the card (warm reset)");
+                            Log.i(this.getClass().getName(), "Reset the card (warm reset)");
                             break;
                         case VPCD_CTRL_ATR:
                             out = reader.getATR();
@@ -284,7 +282,7 @@ class VPCDWorker extends AsyncTask<VPCDWorker.VPCDWorkerParams, Void, Void> {
      * Usage of API level 24+ would allow streams(), join can be removed.
      */
     private static String join(String separator, List<String> input) {
-        if (input == null || input.size() <= 0) return "";
+        if (input == null || input.isEmpty()) return "";
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < input.size(); i++) {
             sb.append(input.get(i));

@@ -25,8 +25,11 @@ public interface SCReader {
 
     void eject() throws IOException;
 
+    /** @noinspection EmptyMethod*/
     void powerOn() throws IOException;
+    /** @noinspection EmptyMethod*/
     void powerOff() throws IOException;
+    /** @noinspection EmptyMethod*/
     void reset() throws IOException;
 
     /**

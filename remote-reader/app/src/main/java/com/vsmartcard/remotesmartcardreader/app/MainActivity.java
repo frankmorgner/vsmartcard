@@ -19,7 +19,6 @@
 
 package com.vsmartcard.remotesmartcardreader.app;
 
-import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -27,7 +26,6 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
@@ -48,7 +46,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.vsmartcard.remotesmartcardreader.app.screaders.*;
 
-@TargetApi(Build.VERSION_CODES.KITKAT)
 public class MainActivity extends AppCompatActivity implements NfcAdapter.ReaderCallback {
 
     private VPCDWorker vpcdTest;
@@ -95,7 +92,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
             return true;
@@ -124,7 +120,9 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         // On screen logging via a fragment with a TextView.
         LogFragment logFragment = (LogFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.log_fragment);
-        msgFilter.setNext(logFragment.getLogView());
+        if (logFragment != null) {
+            msgFilter.setNext(logFragment.getLogView());
+        }
     }
 
     @Override
