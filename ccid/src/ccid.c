@@ -352,7 +352,7 @@ get_RDR_to_PC_SlotStatus(__u8 bSeq, int sc_result, __u8 **outbuf, size_t *outlen
     if (!outbuf)
         return SC_ERROR_INVALID_ARGUMENTS;
     if (abProtocolDataStructureLen > 0xffff) {
-        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "abProtocolDataStructure %zu bytes too long",
+        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "abProtocolDataStructure %"SC_FORMAT_LEN_SIZE_T"u bytes too long",
                 abProtocolDataStructureLen-0xffff);
         return SC_ERROR_INVALID_DATA;
     }
@@ -384,7 +384,7 @@ get_RDR_to_PC_DataBlock(__u8 bSeq, int sc_result, __u8 **outbuf,
     if (!outbuf)
         return SC_ERROR_INVALID_ARGUMENTS;
     if (abDataLen > 0xffff) {
-        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "abProtocolDataStructure %zu bytes too long",
+        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "abProtocolDataStructure %"SC_FORMAT_LEN_SIZE_T"u bytes too long",
                 abDataLen-0xffff);
         return SC_ERROR_INVALID_DATA;
     }
@@ -785,7 +785,7 @@ get_datasize_for_pin(const struct sc_pin_cmd_pin *pin, uint8_t length_size)
     if (!pin)
         return 0;
 
-    bytes_for_length = pin->length_offset + (length_size+7)/8;
+    bytes_for_length = (length_size+7)/8;
     if (pin->encoding == CCID_PIN_ENCODING_BCD)
         bytes_for_pin = pin->offset + (pin->len+1)/2;
     else
@@ -803,8 +803,7 @@ write_pin_length(sc_apdu_t *apdu, const struct sc_pin_cmd_pin *pin,
 {
     u8 *p;
 
-    if (!apdu || !apdu->data || !pin || apdu->datalen <= pin->length_offset ||
-            !sc_result) {
+    if (!apdu || !apdu->data || !pin || !sc_result) {
 		if (sc_result)
 			*sc_result = SC_ERROR_INVALID_ARGUMENTS;
         return 0;
@@ -819,7 +818,7 @@ write_pin_length(sc_apdu_t *apdu, const struct sc_pin_cmd_pin *pin,
             return 0;
         }
         p = (u8 *) apdu->data;
-        p[pin->length_offset] = pin->len;
+        p[0] = pin->len;
     }
 
     *sc_result = SC_SUCCESS;
@@ -921,7 +920,7 @@ write_pin(sc_apdu_t *apdu, struct sc_pin_cmd_pin *pin, uint8_t blocksize,
         if (encoding == CCID_PIN_ENCODING_BCD) {
             if (pin->len % 2) {
                 sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Right aligning BCD encoded PIN only if it fits "
-                        "into a full byte (length of encoded PIN was %u bits)",
+                        "into a full byte (length of encoded PIN was %"SC_FORMAT_LEN_SIZE_T"u bits)",
                         (pin->len)*4);
                 *sc_result = SC_ERROR_NOT_SUPPORTED;
                 return 0;
@@ -1078,7 +1077,7 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
 
 
     if (pace_output.ef_cardaccess_length > 0xffff) {
-        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "EF.CardAcces %zu bytes too long",
+        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "EF.CardAcces %"SC_FORMAT_LEN_SIZE_T"u bytes too long",
                 pace_output.ef_cardaccess_length-0xffff);
         sc_result = SC_ERROR_INVALID_DATA;
         goto err;
@@ -1095,7 +1094,7 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
 
 
     if (pace_output.recent_car_length > 0xff) {
-        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Most recent CAR %zu bytes too long",
+        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Most recent CAR %"SC_FORMAT_LEN_SIZE_T"u bytes too long",
                 pace_output.recent_car_length-0xff);
         sc_result = SC_ERROR_INVALID_DATA;
         goto err;
@@ -1110,7 +1109,7 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
 
 
     if (pace_output.previous_car_length > 0xff) {
-        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Previous CAR %zu bytes too long",
+        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Previous CAR %"SC_FORMAT_LEN_SIZE_T"u bytes too long",
                 pace_output.previous_car_length-0xff);
         sc_result = SC_ERROR_INVALID_DATA;
         goto err;
@@ -1125,7 +1124,7 @@ perform_PC_to_RDR_Secure_EstablishPACEChannel(sc_card_t *card,
 
 
     if (pace_output.id_icc_length > 0xffff) {
-        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "ID ICC %zu bytes too long",
+        sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "ID ICC %"SC_FORMAT_LEN_SIZE_T"u bytes too long",
                 pace_output.id_icc_length-0xffff);
         sc_result = SC_ERROR_INVALID_DATA;
         goto err;
@@ -1435,15 +1434,19 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
         }
     }
 
-    /* Note: pin.offset and pin.length_offset are relative to the first
+    /* Note: pin.offset and length_offset are relative to the first
      * databyte */
+    size_t eff_length_offset;
     if (verify || (modify->bConfirmPIN & CCID_PIN_INSERT_OLD)) {
         if (!get_effective_offset(system_units, pin_offset, &curr_pin.offset,
                     &sc_result)
                 || !write_pin(&apdu, &curr_pin, blocksize, justify_right, encoding,
                     &sc_result)
                 || !get_effective_offset(system_units, length_offset,
-                    &curr_pin.length_offset, &sc_result)
+                    &eff_length_offset, &sc_result)
+                /* TODO support for length_offset has been removed from OpenSC.
+                 * We should be strict to check the eff_length_offset to match the
+                 * default value */
                 || !write_pin_length(&apdu, &curr_pin, system_units, length_size,
                     &sc_result)) {
             sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Writing current PIN to PIN block failed.\n");
