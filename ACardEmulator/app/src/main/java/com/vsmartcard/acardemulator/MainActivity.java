@@ -35,6 +35,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -47,13 +48,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import java.util.Objects;
+
 public class MainActivity extends AppCompatActivity {
 
     private TextView textViewVPCDStatus;
-    private BroadcastReceiver bReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver bReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(EmulatorSingleton.TAG)) {
+            if (Objects.requireNonNull(intent.getAction()).equals(EmulatorSingleton.TAG)) {
                 String capdu = intent.getStringExtra(EmulatorSingleton.EXTRA_CAPDU);
                 String rapdu = intent.getStringExtra(EmulatorSingleton.EXTRA_RAPDU);
                 String error = intent.getStringExtra(EmulatorSingleton.EXTRA_ERROR);
@@ -76,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
     private AlertDialog dialog;
     final String PREFS = "ACardEmulatorPrefs";
     final String PREF_LASTVERSION = "last version";
-    private static String SAVED_STATUS = "textViewVPCDStatus";
+    private static final String SAVED_STATUS = "textViewVPCDStatus";
 
     private void showStartupMessage() {
         if (dialog == null)
@@ -94,17 +97,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = findViewById(R.id.fab);
         assert fab != null;
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                 String emulator = SP.getString("emulator", "");
-                if (emulator != getString(R.string.vicc)) {
+                if (!emulator.equals(getString(R.string.vicc))) {
                     Snackbar.make(view, "Scheduled re-installation of all applets...", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                     EmulatorSingleton.destroyEmulator();
@@ -112,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        textViewVPCDStatus = (TextView) findViewById(R.id.textViewLog);
+        textViewVPCDStatus = findViewById(R.id.textViewLog);
         SharedPreferences settings = getSharedPreferences(PREFS, 0);
         if (settings.getInt(PREF_LASTVERSION, 0) != BuildConfig.VERSION_CODE) {
             showStartupMessage();
@@ -161,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRestoreInstanceState(Bundle savedInstanceState) {
+    public void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         textViewVPCDStatus.setText(savedInstanceState.getCharSequence(SAVED_STATUS));
     }

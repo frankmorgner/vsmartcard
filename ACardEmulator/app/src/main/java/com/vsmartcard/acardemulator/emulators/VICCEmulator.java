@@ -20,10 +20,8 @@ public class VICCEmulator implements Emulator {
     public VICCEmulator(String hostname, int port) {
         if  (socket == null) {
             try {
-                if (android.os.Build.VERSION.SDK_INT > 9) {
-                    StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-                    StrictMode.setThreadPolicy(policy);
-                }
+                StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+                StrictMode.setThreadPolicy(policy);
                 vpcdConnect(hostname, port);
                 sendPowerOn();
             } catch (IOException e) {
@@ -113,7 +111,7 @@ public class VICCEmulator implements Emulator {
     }
 
     private void vpcdConnect(String hostname, int port) throws IOException {
-        Log.d("", "Connecting to " + hostname + ":" + Integer.toString(port));
+        Log.d("", "Connecting to " + hostname + ":" + port);
         socket = new Socket(InetAddress.getByName(hostname), port);
         outputStream = socket.getOutputStream();
         inputStream = socket.getInputStream();

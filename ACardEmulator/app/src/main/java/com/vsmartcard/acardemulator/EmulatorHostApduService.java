@@ -36,11 +36,6 @@ public class EmulatorHostApduService extends HostApduService {
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
-
-    @Override
     public byte[] processCommandApdu(byte[] capdu, Bundle extras) {
         return EmulatorSingleton.process(this, capdu);
     }

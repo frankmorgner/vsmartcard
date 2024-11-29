@@ -20,13 +20,11 @@
 package com.vsmartcard.acardemulator;
 
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -42,6 +40,8 @@ import androidx.appcompat.app.ActionBar;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.vsmartcard.acardemulator.emulators.VICCEmulator;
+
+import java.util.Objects;
 
 import ACardEmulator.BuildConfig;
 import ACardEmulator.R;
@@ -127,7 +127,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                                 : null);
             } else if (preference instanceof SwitchPreference) {
                 SwitchPreference switchPreference = (SwitchPreference) preference;
-                if (stringValue == "true") {
+                if (stringValue.equals("true")) {
                     CharSequence aid = switchPreference.getSwitchTextOn();
                     preference.setSummary("Selectable with AID " + aid);
                 } else {
@@ -174,7 +174,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
      * This fragment shows data and sync preferences only. It is used when the
      * activity is showing a two-pane settings UI.
      */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static class VICCPreferenceFragment extends PreferenceFragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -208,16 +207,13 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             Preference internal_nfc = findPreference("internal_nfc");
             internal_nfc.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 public boolean onPreferenceClick(Preference preference) {
-                    if (android.os.Build.VERSION.SDK_INT >= 16) {
-                        startActivity(new Intent(android.provider.Settings.ACTION_NFC_SETTINGS));
-                    } else {
-                        startActivity(new Intent(android.provider.Settings.ACTION_WIRELESS_SETTINGS));
-                    }
+                    startActivity(new Intent(android.provider.Settings.ACTION_NFC_SETTINGS));
                     return true;
                 }
             });
 
             final Preference gear_nfc = findPreference("gear_nfc");
+            //noinspection ConstantValue
             if (BuildConfig.FLAVOR.equals("fdroid")) {
                 gear_nfc.setSummary("Samsung Gear integration is disabled in F-Droid");
             } else {
@@ -248,12 +244,10 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
-        switch(requestCode) {
-            case IntentIntegrator.REQUEST_CODE:
-                if (resultCode != RESULT_CANCELED) {
-                    handleScannedURI(Uri.parse(scanResult.getContents()));
-                }
-                break;
+        if (requestCode == IntentIntegrator.REQUEST_CODE) {
+            if (resultCode != RESULT_CANCELED) {
+                handleScannedURI(Uri.parse(scanResult.getContents()));
+            }
         }
     }
 
@@ -273,7 +267,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             getFragmentManager().beginTransaction().replace(android.R.id.content,
                     new VICCPreferenceFragment()).commit();
         } catch (Exception e) {
-            Snackbar.make(this.getCurrentFocus(), "Could not import configuration", Snackbar.LENGTH_LONG)
+            Snackbar.make(Objects.requireNonNull(this.getCurrentFocus()), "Could not import configuration", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show();
         }
     }

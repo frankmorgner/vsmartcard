@@ -2,10 +2,10 @@ package com.vsmartcard.acardemulator.emulators;
 
 public interface Emulator {
 
-    public void deactivate();
+    void deactivate();
 
-    public void destroy();
+    void destroy();
 
-    public byte[] process(byte[] commandAPDU);
+    byte[] process(byte[] commandAPDU);
 
 }
