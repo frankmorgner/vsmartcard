@@ -22,7 +22,7 @@ package com.vsmartcard.acardemulator;
 import android.content.Intent;
 import android.nfc.cardemulation.HostApduService;
 import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.vsmartcard.acardemulator.emulators.EmulatorSingleton;

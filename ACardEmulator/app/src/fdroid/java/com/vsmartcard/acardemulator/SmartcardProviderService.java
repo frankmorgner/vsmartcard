@@ -21,7 +21,8 @@ package com.vsmartcard.acardemulator;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.support.annotation.Nullable;
+
+import androidx.annotation.Nullable;
 
 public class SmartcardProviderService extends IntentService {
     public SmartcardProviderService () {

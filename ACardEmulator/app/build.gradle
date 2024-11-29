@@ -1,20 +1,12 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.github.johnrengelman.shadow'
-
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-task shadowJar(type: ShadowJar) {
-    configurations = [project.configurations.shadow]
-}
-tasks.withType(JavaCompile) {
-    compileTask -> compileTask.dependsOn shadowJar
-}
 
 android {
-    compileSdkVersion 23
+    compileSdkVersion 34
     defaultConfig {
         applicationId "com.vsmartcard.acardemulator"
-        minSdkVersion 19
-        targetSdkVersion 29
+        minSdkVersion 21
+        //noinspection ExpiredTargetSdkVersion
+        targetSdkVersion 30
         versionCode 8
         versionName "3.5"
     }
@@ -23,6 +15,9 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+    buildFeatures {
+        buildConfig true
     }
     flavorDimensions "distribution"
     productFlavors {
@@ -51,9 +46,6 @@ android {
         main.java.srcDirs += 'src/main/external/ykneo-openpgp/applet/src'
         main.java.srcDirs += 'src/main/external/ykneo-oath/applet/src'
     }
-    shadowJar {
-        relocate 'org.bouncycastle', 'com.vsmartcard.acardemulator.org.bouncycastle'
-    }
 }
 
 android.applicationVariants.all { variant ->
@@ -77,16 +69,17 @@ android.applicationVariants.all { variant ->
     }
 }
 
-dependencies {
-    shadow localGroovy()
-    shadow gradleApi()
+repositories {
+    mavenCentral()
+}
 
+dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.android.support:appcompat-v7:23.0.1'
-    implementation 'com.android.support:support-v4:23.0.1'
-    implementation 'com.android.support:design:23.2.1'
-    implementation 'com.journeyapps:zxing-android-embedded:3.2.0@aar'
-    implementation 'com.google.zxing:core:3.2.1'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'com.journeyapps:zxing-android-embedded:4.3.0@aar'
+    implementation 'com.google.zxing:core:3.4.1'
     implementation 'org.bouncycastle:bcprov-jdk14:1.46'
     fullImplementation files('libs/sdk-v1.0.0.jar')
 }

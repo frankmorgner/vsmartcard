@@ -2,18 +2,19 @@ package com.vsmartcard.acardemulator.emulators;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.content.LocalBroadcastManager;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.licel.jcardsim.base.Simulator;
 import com.licel.jcardsim.base.SimulatorRuntime;
 import com.licel.jcardsim.utils.AIDUtil;
 import com.mysmartlogon.gidsApplet.GidsApplet;
-import com.vsmartcard.acardemulator.R;
 import com.vsmartcard.acardemulator.Util;
 
 import net.pwendland.javacard.pki.isoapplet.IsoApplet;
 import net.cooperi.pivapplet.PivApplet;
 
+import ACardEmulator.R;
 import openpgpcard.OpenPGPApplet;
 import pkgYkneoOath.YkneoOath;
 

@@ -22,16 +22,12 @@ package com.vsmartcard.acardemulator.emulators;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.content.res.XmlResourceParser;
-import android.nfc.NfcAdapter;
-import android.nfc.cardemulation.CardEmulation;
 import android.preference.PreferenceManager;
-import android.support.annotation.XmlRes;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.vsmartcard.acardemulator.R;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 import com.vsmartcard.acardemulator.Util;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -40,6 +36,8 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import ACardEmulator.R;
 
 public class EmulatorSingleton {
     public static final String TAG = "com.vsmartcard.acardemulator.EmulatorService";

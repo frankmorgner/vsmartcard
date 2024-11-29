@@ -93,9 +93,9 @@ jobs:
           remote-reader/app/build/outputs/apk
 
   ACardEmulator-ubuntu:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - run: .github/build-ACardEmulator.sh
     - uses: actions/upload-artifact@v4
       with:
