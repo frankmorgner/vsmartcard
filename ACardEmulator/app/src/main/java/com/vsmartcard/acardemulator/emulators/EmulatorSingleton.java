@@ -22,14 +22,20 @@ package com.vsmartcard.acardemulator.emulators;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.XmlResourceParser;
 import android.preference.PreferenceManager;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.util.Log;
 
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-
+import ACardEmulator.R;
 import com.vsmartcard.acardemulator.Util;
 
-import ACardEmulator.R;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class EmulatorSingleton {
     public static final String TAG = "com.vsmartcard.acardemulator.EmulatorService";
@@ -90,6 +96,32 @@ public class EmulatorSingleton {
         LocalBroadcastManager.getInstance(context).sendBroadcast(i);
 
         return rapdu;
+    }
+
+    public static String[] getRegisteredAids(Context context) {
+        List<String> aidList = new ArrayList<>();
+        XmlResourceParser aidXmlParser = context.getResources().getXml(R.xml.aid_list);
+
+        try {
+            while (aidXmlParser.getEventType() != XmlPullParser.END_DOCUMENT) {
+                if (aidXmlParser.getEventType() == XmlPullParser.START_TAG) {
+                    if (aidXmlParser.getName().equals("aid-filter")) {
+                        int aid = aidXmlParser.getAttributeResourceValue(0, -1);
+                        if (aid != -1) {
+                            aidList.add(context.getResources().getString(aid));
+                        }
+                    }
+                }
+
+                aidXmlParser.next();
+            }
+
+            aidXmlParser.close();
+        } catch (XmlPullParserException | IOException e) {
+            Log.e(TAG.substring(0, 23), "Couldn't parse aid xml list.");
+        }
+
+        return aidList.toArray(new String[0]);
     }
 
     public static void deactivate() {
