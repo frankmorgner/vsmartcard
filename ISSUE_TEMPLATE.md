@@ -1,3 +1,27 @@
+### System setup
+
+#### Operating System
+
+- [ ] Windows
+- [ ] Linux
+- [ ] macOS
+- [ ] Android
+- [ ] Tizen
+
+#### Components involved
+
+- [ ] [Virtual Smart Card](http://frankmorgner.github.io/vsmartcard/virtualsmartcard/README.html)
+- [ ] [Remote Smart Card Reader](http://frankmorgner.github.io/vsmartcard/remote-reader/README.html)
+- [ ] [Android Smart Card Emulator](http://frankmorgner.github.io/vsmartcard/ACardEmulator/README.html)
+- [ ] [Tizen Smart Card Emulator](http://frankmorgner.github.io/vsmartcard/TCardEmulator/README.html)
+- [ ] [PC/SC Relay](http://frankmorgner.github.io/vsmartcard/TCardEmulator/README.html)
+- [ ] [USB CCID Emulator](http://frankmorgner.github.io/vsmartcard/ccid/README.html)
+
+#### Software version
+
+- The version of the software did you use?
+- How did you download, build and/or install the software?
+
 ### Expected behaviour
 
 What should happen?
@@ -17,7 +41,9 @@ What happens instead?
 
 ### Logs
 
-Please use Gist (https://gist.github.com/) or a similar code paster for longer
-logs.
-
-```Paste Log output with less than 10 lines here```
+<details>
+<summary>Click to expand</summary>
+```
+Paste Log output here
+```
+</details>
