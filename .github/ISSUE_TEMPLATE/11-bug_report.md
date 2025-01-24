@@ -1,3 +1,12 @@
+---
+name: Generic Bug Report
+about: Create a report to help us improve
+title: ''
+labels: bug
+assignees: ''
+
+---
+
 ### System setup
 
 #### Operating System
@@ -21,6 +30,11 @@
 
 - The version of the software did you use?
 - How did you download, build and/or install the software?
+
+#### Required research
+
+- [ ] I checked the documentation
+- [ ] I searched the Github issues for this issue
 
 ### Expected behaviour
 
