@@ -26,7 +26,7 @@ jobs:
           virtualsmartcard/virtualsmartcard*.dmg
 
   virtualsmartcard-ubuntu:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v2
     - run: .github/build-virtualsmartcard.sh ubuntu
@@ -37,7 +37,7 @@ jobs:
           virtualsmartcard/virtualsmartcard*.tar.gz
 
   ccid-ubuntu:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v2
     - run: .github/build-ccid.sh ubuntu
@@ -54,7 +54,7 @@ jobs:
     - run: .github/build-pcsc-relay.sh macos
 
   pcsc-relay-ubuntu:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v2
     - run: .github/build-pcsc-relay.sh ubuntu
@@ -65,13 +65,13 @@ jobs:
           pcsc-relay/pcsc-relay*.tar.gz
 
 #  pcsc-relay-mingw-32:
-#    runs-on: ubuntu-20.04
+#    runs-on: ubuntu-24.04
 #    steps:
 #    - uses: actions/checkout@v2
 #    - run: .github/build-pcsc-relay.sh mingw-32
 
   pcsc-relay-mingw-64:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v2
     - run: .github/build-pcsc-relay.sh mingw-64

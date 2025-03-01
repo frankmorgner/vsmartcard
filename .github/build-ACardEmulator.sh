@@ -8,6 +8,6 @@ pushd ACardEmulator
 
 git submodule update --init --recursive .
 
-./gradlew assemble
+./gradlew build --stacktrace
 
 popd
