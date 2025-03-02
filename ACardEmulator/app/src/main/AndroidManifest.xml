@@ -46,7 +46,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".EmulatorHostApduService"
+        <service android:name="com.vsmartcard.acardemulator.EmulatorHostApduService"
             android:exported="true"
             android:permission="android.permission.BIND_NFC_SERVICE">
             <intent-filter>
@@ -57,7 +57,7 @@
                 android:resource="@xml/aid_list"/>
         </service>
 
-        <service android:name=".SmartcardProviderService" />
+        <service android:name="com.vsmartcard.acardemulator.SmartcardProviderService" />
         <receiver android:name="com.samsung.android.sdk.accessory.RegisterUponInstallReceiver"
             android:exported="true">
             <intent-filter>
