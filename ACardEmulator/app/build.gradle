@@ -6,10 +6,10 @@ android {
         applicationId "com.vsmartcard.acardemulator"
         minSdk 21
         //noinspection ExpiredTargetSdkVersion
-        targetSdk 30
+        targetSdk 34
         versionCode 8
         versionName "3.5"
-        archivesBaseName = "ACardEmulator-$versionName"
+        base.archivesName = "ACardEmulator-$versionName"
     }
     buildTypes {
         release {

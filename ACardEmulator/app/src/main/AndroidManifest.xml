@@ -6,9 +6,8 @@
     <uses-permission android:name="android.permission.NFC" />
 
     <uses-feature android:name="android.hardware.nfc.hce" android:required="true" />
-    
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
     <uses-permission android:name="com.samsung.accessory.permission.ACCESSORY_FRAMEWORK" />
     <uses-permission android:name="com.samsung.android.providers.context.permission.WRITE_USE_APP_FEATURE_SURVEY" />
     <uses-permission android:name="com.samsung.WATCH_APP_TYPE.Companion" />
@@ -33,7 +32,7 @@
 
         <activity
             android:name="com.vsmartcard.acardemulator.SettingsActivity"
-            android:exported="false"
+            android:exported="true"
             android:label="@string/action_settings" >
 
             <intent-filter>

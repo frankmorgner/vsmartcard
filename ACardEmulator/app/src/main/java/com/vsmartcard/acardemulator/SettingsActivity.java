@@ -220,10 +220,16 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 gear_nfc.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
                         String gearPackage = "com.samsung.android.gearoplugin";
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
                         try {
-                            startActivity(new Intent(android.content.Intent.ACTION_VIEW, Uri.parse("market://details?id="+gearPackage)));
+                            intent.setData(Uri.parse(
+                                    "https://play.google.com/store/apps/details?id="+gearPackage));
+                            intent.setPackage("com.android.vending");
+                            startActivity(intent);
                         } catch (android.content.ActivityNotFoundException e) {
-                            startActivity(new Intent(android.content.Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id="+gearPackage)));
+                            intent.setData(Uri.parse(
+                                    "market://details?id="+gearPackage));
+                            intent.setPackage("com.sec.android.app.samsungapps");
                         }
                         return true;
                     }
