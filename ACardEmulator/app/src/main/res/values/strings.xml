@@ -9,7 +9,6 @@
     <string name="status_rapdu">R-APDU</string>
     <string name="status_install">Installed Applets</string>
 
-    <string name="action_restart">Restart Emulator</string>
     <string name="action_copy">Copy Log</string>
     <string name="action_delete">Clear Log</string>
     <string name="action_help">Show Help</string>
@@ -49,9 +48,10 @@
     <string name="jcardsim">Builtin Java Card Simulator</string>
     <string name="vicc">Remote Virtual Smart Card</string>
 
-    <string name="vicc_config_info">If you choose the virtual smart card (VICC) as emulator, you need to start the it on your computer with the `--reversed` flag and configure the connection parameters here accordingly.</string>
+    <string name="vicc_config_info">If you choose the virtual smart card (VICC) as emulator, you need to start the it on your computer with the `—reversed` flag and configure the connection parameters here accordingly.</string>
     <string name="hint_vicc_port">VICC Port</string>
     <string name="hint_vicc_hostname">VICC Hostname</string>
     <string name="scheme_vicc">vicc</string>
+    <string name="connect_disconnect">Connect/Disconnect</string>
 
 </resources>

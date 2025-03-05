@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 34
+    compileSdk 34
     defaultConfig {
         applicationId "com.vsmartcard.acardemulator"
-        minSdkVersion 21
+        minSdk 21
         //noinspection ExpiredTargetSdkVersion
-        targetSdkVersion 30
+        targetSdk 30
         versionCode 8
         versionName "3.5"
         archivesBaseName = "ACardEmulator-$versionName"
@@ -20,7 +20,7 @@ android {
     buildFeatures {
         buildConfig true
     }
-    flavorDimensions "distribution"
+    flavorDimensions = ["distribution"]
     productFlavors {
         full {
             dimension "distribution"

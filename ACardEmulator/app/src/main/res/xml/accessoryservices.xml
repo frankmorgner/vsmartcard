@@ -25,7 +25,8 @@
     <!ATTLIST serviceChannel priority (LOW | MEDIUM | HIGH | low | medium | high) #REQUIRED>
     <!ATTLIST serviceChannel reliability (ENABLE | DISABLE | enable | disable ) #REQUIRED>
     ]>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="UnusedResources">
 
     <application name="VirtualSmartCardReader" >
         <serviceProfile

@@ -47,7 +47,7 @@ public class SmartcardProviderService extends SAAgent {
     private static final Class<ServiceConnection> SASOCKET_CLASS = ServiceConnection.class;
     private final IBinder mBinder = new LocalBinder();
     private ServiceConnection mConnectionHandler = null;
-    Handler mHandler = new Handler();
+    final Handler mHandler = new Handler();
 
     public SmartcardProviderService() {
         super(TAG, SASOCKET_CLASS);
@@ -61,7 +61,6 @@ public class SmartcardProviderService extends SAAgent {
             mAccessory.initialize(this);
             EmulatorSingleton.createEmulator(this);
         } catch (SsdkUnsupportedException e) {
-            // try to handle SsdkUnsupportedException
             if (processUnsupportedException(e)) {
                 EmulatorSingleton.createEmulator(this);
                 return;
