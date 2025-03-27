@@ -23,6 +23,8 @@ import logging
 try:
     import readline
 except ImportError:
+    import collections
+    collections.Callable = collections.abc.Callable
     import pyreadline as readline
 import sys
 
