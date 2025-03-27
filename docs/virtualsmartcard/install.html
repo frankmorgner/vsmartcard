@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Istalling |vpcd| on Windows &#8212; vsmartcard 2025-03-27 documentation</title>
+    <title>Installing |vpcd| on Windows &#8212; vsmartcard 2025-03-27 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css?v=fa2d15c4" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
@@ -89,7 +89,7 @@
   <ul class="dropdown-menu localtoc"
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">Istalling |vpcd| on Windows</a></li>
+<li><a class="reference internal" href="#">Installing |vpcd| on Windows</a></li>
 </ul>
 </ul>
 </li>
@@ -125,7 +125,7 @@
   <div class="row">
       <div class="col-md-3">
         <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
-<li><a class="reference internal" href="#">Istalling |vpcd| on Windows</a></li>
+<li><a class="reference internal" href="#">Installing |vpcd| on Windows</a></li>
 </ul>
 
 <form action="../search.html" method="get">
@@ -139,16 +139,16 @@
       </div>
     <div class="body col-md-9 content" role="main">
       
-  <section id="istalling-vpcd-on-windows">
-<h1>Istalling <a href="#id1"><span class="problematic" id="id2">|vpcd|</span></a> on Windows<a class="headerlink" href="#istalling-vpcd-on-windows" title="Link to this heading">¶</a></h1>
+  <section id="installing-vpcd-on-windows">
+<h1>Installing <a href="#id1"><span class="problematic" id="id2">|vpcd|</span></a> on Windows<a class="headerlink" href="#installing-vpcd-on-windows" title="Link to this heading">¶</a></h1>
 <ol class="arabic">
 <li><p>To import the installer’s test signing certificate, double click
 <code class="file docutils literal notranslate"><span class="pre">BixVReader.cer</span></code> and add it to the <em>Trusted Root Certification
 Authority</em> and the <em>Trusted Publishers</em> at the <em>Local Computer” (not the
 *Current User</em>).</p>
-<p>On the commandline, you could do this <span class="xref std std-ref">as follows</span>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">CertMgr</span><span class="o">.</span><span class="n">exe</span> <span class="o">/</span><span class="n">add</span> <span class="n">BixVReader</span><span class="o">.</span><span class="n">cer</span> <span class="o">/</span><span class="n">s</span> <span class="o">/</span><span class="n">r</span> <span class="n">localMachine</span> <span class="n">root</span> <span class="o">/</span><span class="nb">all</span>
-<span class="n">CertMgr</span><span class="o">.</span><span class="n">exe</span> <span class="o">/</span><span class="n">add</span> <span class="n">BixVReader</span><span class="o">.</span><span class="n">cer</span> <span class="o">/</span><span class="n">s</span> <span class="o">/</span><span class="n">r</span> <span class="n">localMachine</span> <span class="n">trustedpublisher</span>
+<p>On the commandline, you could do this <a class="reference external" href="https://docs.microsoft.com/en-us/windows-hardware/drivers/install/using-certmgr-to-install-test-certificates-on-a-test-computer">as follows</a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">CertMgr</span> <span class="o">/</span><span class="n">add</span> <span class="n">BixVReader</span><span class="o">.</span><span class="n">cer</span> <span class="o">/</span><span class="n">s</span> <span class="o">/</span><span class="n">r</span> <span class="n">localMachine</span> <span class="n">root</span> <span class="o">/</span><span class="nb">all</span>
+<span class="n">CertMgr</span> <span class="o">/</span><span class="n">add</span> <span class="n">BixVReader</span><span class="o">.</span><span class="n">cer</span> <span class="o">/</span><span class="n">s</span> <span class="o">/</span><span class="n">r</span> <span class="n">localMachine</span> <span class="n">trustedpublisher</span>
 </pre></div>
 </div>
 <p>Feel free to remove the certificate from the certificate stores once the

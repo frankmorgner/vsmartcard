@@ -19,14 +19,11 @@ do_subst = $(SED) \
 
 EXTRA_DIST = README.txt.in autotools.txt.in questions.txt.in download.txt.in vpcd_example.conf
 
-dist_noinst_SCRIPTS = generate_modules.py
-
-doc: $(top_srcdir)/src/vpicc/virtualsmartcard/*.py $(top_srcdir)/src/vpicc/virtualsmartcard/cards/*.py generate_modules.py *.in
+doc: *.in
 	$(do_subst) < autotools.txt.in > autotools.txt
 	$(do_subst) < questions.txt.in > questions.txt
 	$(do_subst) < download.txt.in  > download.txt
 	$(do_subst) < README.txt.in  > README.txt
-	./generate_modules.py $(top_srcdir)/src/vpicc --dest-dir=api --suffix=txt --no-toc -1 -f
 	touch doc
 
 clean-local:

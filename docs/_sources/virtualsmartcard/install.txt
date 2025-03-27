@@ -1,5 +1,5 @@
 ================================================================================
-Istalling |vpcd| on Windows
+Installing |vpcd| on Windows
 ================================================================================
 
 1. To import the installer's test signing certificate, double click
@@ -7,11 +7,10 @@ Istalling |vpcd| on Windows
    Authority* and the *Trusted Publishers* at the *Local Computer" (not the
    *Current User*).
 
-   On the commandline, you could do this :ref:`as follows<Using CertMgr to
-   Install Test Certificates on a Test Computer>`::
+   On the commandline, you could do this `as follows <https://docs.microsoft.com/en-us/windows-hardware/drivers/install/using-certmgr-to-install-test-certificates-on-a-test-computer>`_::
 
-    CertMgr.exe /add BixVReader.cer /s /r localMachine root /all
-    CertMgr.exe /add BixVReader.cer /s /r localMachine trustedpublisher
+    CertMgr /add BixVReader.cer /s /r localMachine root /all
+    CertMgr /add BixVReader.cer /s /r localMachine trustedpublisher
 
    Feel free to remove the certificate from the certificate stores once the
    device is installed.

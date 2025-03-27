@@ -97,7 +97,7 @@
 <li><a class="reference internal" href="#installation-on-linux-unix-and-similar">Installation on Linux, Unix and similar</a></li>
 <li><a class="reference internal" href="#building-and-installing-vpcd-on-mac-os-x">Building and installing <abbr title="virtual smart card reader">vpcd</abbr> on Mac OS X</a></li>
 <li><a class="reference internal" href="#building-vpcd-on-windows">Building <abbr title="virtual smart card reader">vpcd</abbr> on Windows</a></li>
-<li><a class="reference internal" href="#istalling-vpcd-on-windows">Istalling <abbr title="virtual smart card reader">vpcd</abbr> on Windows</a></li>
+<li><a class="reference internal" href="#installing-vpcd-on-windows">Installing <abbr title="virtual smart card reader">vpcd</abbr> on Windows</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#using-the-virtual-smart-card">Using the Virtual Smart Card</a><ul>
@@ -163,7 +163,7 @@
 <li><a class="reference internal" href="#installation-on-linux-unix-and-similar">Installation on Linux, Unix and similar</a></li>
 <li><a class="reference internal" href="#building-and-installing-vpcd-on-mac-os-x">Building and installing <abbr title="virtual smart card reader">vpcd</abbr> on Mac OS X</a></li>
 <li><a class="reference internal" href="#building-vpcd-on-windows">Building <abbr title="virtual smart card reader">vpcd</abbr> on Windows</a></li>
-<li><a class="reference internal" href="#istalling-vpcd-on-windows">Istalling <abbr title="virtual smart card reader">vpcd</abbr> on Windows</a></li>
+<li><a class="reference internal" href="#installing-vpcd-on-windows">Installing <abbr title="virtual smart card reader">vpcd</abbr> on Windows</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#using-the-virtual-smart-card">Using the Virtual Smart Card</a><ul>
@@ -354,16 +354,16 @@ Reader</a> <a class="footnote-reference brackets" href="#id23" id="id25" role="d
 <p>All of Fabio’s card connectors are still available, but inactive by default
 (see <a class="reference internal" href="#configuring-vpcd-on-windows">Configuring vpcd on Windows</a> below).</p>
 </section>
-<section id="istalling-vpcd-on-windows">
-<h3>Istalling <abbr title="virtual smart card reader">vpcd</abbr> on Windows<a class="headerlink" href="#istalling-vpcd-on-windows" title="Link to this heading">¶</a></h3>
+<section id="installing-vpcd-on-windows">
+<h3>Installing <abbr title="virtual smart card reader">vpcd</abbr> on Windows<a class="headerlink" href="#installing-vpcd-on-windows" title="Link to this heading">¶</a></h3>
 <ol class="arabic">
 <li><p>To import the installer’s test signing certificate, double click
 <code class="file docutils literal notranslate"><span class="pre">BixVReader.cer</span></code> and add it to the <em>Trusted Root Certification
 Authority</em> and the <em>Trusted Publishers</em> at the <em>Local Computer” (not the
 *Current User</em>).</p>
-<p>On the commandline, you could do this <span class="xref std std-ref">as follows</span>:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>CertMgr.exe<span class="w"> </span>/add<span class="w"> </span>BixVReader.cer<span class="w"> </span>/s<span class="w"> </span>/r<span class="w"> </span>localMachine<span class="w"> </span>root<span class="w"> </span>/all
-CertMgr.exe<span class="w"> </span>/add<span class="w"> </span>BixVReader.cer<span class="w"> </span>/s<span class="w"> </span>/r<span class="w"> </span>localMachine<span class="w"> </span>trustedpublisher
+<p>On the commandline, you could do this <a class="reference external" href="https://docs.microsoft.com/en-us/windows-hardware/drivers/install/using-certmgr-to-install-test-certificates-on-a-test-computer">as follows</a>:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>CertMgr<span class="w"> </span>/add<span class="w"> </span>BixVReader.cer<span class="w"> </span>/s<span class="w"> </span>/r<span class="w"> </span>localMachine<span class="w"> </span>root<span class="w"> </span>/all
+CertMgr<span class="w"> </span>/add<span class="w"> </span>BixVReader.cer<span class="w"> </span>/s<span class="w"> </span>/r<span class="w"> </span>localMachine<span class="w"> </span>trustedpublisher
 </pre></div>
 </div>
 <p>Feel free to remove the certificate from the certificate stores once the

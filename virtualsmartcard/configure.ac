@@ -319,7 +319,6 @@ esac
 
 AC_CONFIG_FILES([Makefile
                  doc/Makefile
-                 doc/api/Makefile
                  npa-example-data/Makefile
                  npa-example-data/dh/Makefile
                  npa-example-data/ecdh/Makefile
