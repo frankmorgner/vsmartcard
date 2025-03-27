@@ -23,7 +23,7 @@ import logging
 try:
     import readline
 except ImportError:
-    import pyreadline as readline
+    import pyreadline3 as readline
 import sys
 
 from pickle import loads, dumps
