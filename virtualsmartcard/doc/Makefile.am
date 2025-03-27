@@ -1,5 +1,3 @@
-SUBDIRS = api
-
 do_subst = $(SED) \
 	   -e 's,[@]PACKAGE_NAME[@],$(PACKAGE_NAME),g' \
 	   -e 's,[@]PACKAGE_TARNAME[@],$(PACKAGE_TARNAME),g' \
