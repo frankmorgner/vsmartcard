@@ -1,0 +1,13 @@
+<map id="inheritance645263d8d9" name="inheritance645263d8d9">
+<area shape="rect" id="node1" href="virtualsmartcard.SEutils.html#virtualsmartcard.SEutils.Security_Environment" target="_top" title="virtualsmartcard.SEutils.Security_Environment" alt="" coords="5,79,173,93"/>
+<area shape="rect" id="node11" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSE" target="_top" title="virtualsmartcard.cards.cryptoflex.CryptoflexSE" alt="" coords="204,79,372,93"/>
+<area shape="rect" id="node2" href="virtualsmartcard.SmartcardFilesystem.html#virtualsmartcard.SmartcardFilesystem.DF" target="_top" title="Class for a dedicated file" alt="" coords="212,54,364,67"/>
+<area shape="rect" id="node4" href="virtualsmartcard.SmartcardFilesystem.html#virtualsmartcard.SmartcardFilesystem.MF" target="_top" title="Class for a master file" alt="" coords="409,54,562,67"/>
+<area shape="rect" id="node3" href="virtualsmartcard.SmartcardFilesystem.html#virtualsmartcard.SmartcardFilesystem.File" target="_top" title="Template class for a smartcard file." alt="" coords="12,54,166,67"/>
+<area shape="rect" id="node8" href="#virtualsmartcard.cards.cryptoflex.CryptoflexMF" target="_top" title="virtualsmartcard.cards.cryptoflex.CryptoflexMF" alt="" coords="595,54,765,67"/>
+<area shape="rect" id="node5" href="virtualsmartcard.SmartcardSAM.html#virtualsmartcard.SmartcardSAM.SAM" target="_top" title="This class is used to store the data needed by the SAM." alt="" coords="20,28,158,41"/>
+<area shape="rect" id="node10" href="#virtualsmartcard.cards.cryptoflex.CryptoflexSAM" target="_top" title="virtualsmartcard.cards.cryptoflex.CryptoflexSAM" alt="" coords="200,28,376,41"/>
+<area shape="rect" id="node6" href="virtualsmartcard.VirtualSmartcard.html#virtualsmartcard.VirtualSmartcard.Iso7816OS" target="_top" title="virtualsmartcard.VirtualSmartcard.Iso7816OS" alt="" coords="206,3,370,16"/>
+<area shape="rect" id="node9" href="#virtualsmartcard.cards.cryptoflex.CryptoflexOS" target="_top" title="virtualsmartcard.cards.cryptoflex.CryptoflexOS" alt="" coords="401,3,570,16"/>
+<area shape="rect" id="node7" href="virtualsmartcard.VirtualSmartcard.html#virtualsmartcard.VirtualSmartcard.SmartcardOS" target="_top" title="Base class for a smart card OS" alt="" coords="3,3,175,16"/>
+</map>

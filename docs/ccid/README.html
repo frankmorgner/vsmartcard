@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 
-<html>
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>USB CCID Emulator &#8212; vsmartcard 2023-10-01 documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <link rel="shortcut icon" href="../_static/chip.ico"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>USB CCID Emulator &#8212; vsmartcard 2025-03-27 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css?v=fa2d15c4" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <script src="../_static/documentation_options.js?v=41bab39b"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="icon" href="../_static/chip.ico"/>
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Creating a Virtual Smart Card" href="../virtualsmartcard/api.html" />
     <link rel="prev" title="PC/SC Relay" href="../pcsc-relay/README.html" />
@@ -20,10 +20,10 @@
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
-<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
-<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
-<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
 
   </head><body>
   
@@ -144,28 +144,60 @@
 
 <div class="container">
   <div class="row">
-    <div class="body col-md-12 content" role="main">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li><a class="reference internal" href="#">USB CCID Emulator</a><ul>
+<li><a class="reference internal" href="#download">Download</a></li>
+<li><a class="reference internal" href="#installation">Installation</a><ul>
+<li><a class="reference internal" href="#installation-on-linux-unix-and-similar">Installation on Linux, Unix and similar</a></li>
+<li><a class="reference internal" href="#hints-on-gadgetfs">Hints on GadgetFS</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#usage">Usage</a></li>
+<li><a class="reference internal" href="#question">Question</a></li>
+<li><a class="reference internal" href="#notes-and-references">Notes and References</a></li>
+</ul>
+</li>
+</ul>
+
+  <li>
+    <a href="../pcsc-relay/README.html" title="Previous Chapter: PC/SC Relay"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; PC/SC Relay</span>
+    </a>
+  </li>
+  <li>
+    <a href="../virtualsmartcard/api.html" title="Next Chapter: Creating a Virtual Smart Card"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">Creating a Vi... &raquo;</span>
+    </a>
+  </li>
+<form action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+    <div class="body col-md-9 content" role="main">
       
-  <div class="section" id="usb-ccid-emulator">
-<span id="ccid-emulator"></span><h1>USB CCID Emulator<a class="headerlink" href="#usb-ccid-emulator" title="Permalink to this headline">¶</a></h1>
-<div class="sidebar">
+  <section id="usb-ccid-emulator">
+<span id="ccid-emulator"></span><h1>USB CCID Emulator<a class="headerlink" href="#usb-ccid-emulator" title="Link to this heading">¶</a></h1>
+<aside class="sidebar">
 <p class="sidebar-title">Emulate a USB CCID compliant smart card reader</p>
 <dl class="field-list simple">
-<dt class="field-odd">License</dt>
+<dt class="field-odd">License<span class="colon">:</span></dt>
 <dd class="field-odd"><p>GPL version 3</p>
 </dd>
-<dt class="field-even">Tested Platforms</dt>
+<dt class="field-even">Tested Platforms<span class="colon">:</span></dt>
 <dd class="field-even"><p>Linux (Debian, Ubuntu, OpenMoko)</p>
 </dd>
 </dl>
-</div>
+</aside>
 <p>The USB CCID Emulator forwards a locally present PC/SC smart card reader as a
 standard USB CCID reader. USB CCID Emulator can be used as trusted intermediary
-enabling secure PIN entry and PIN modification. In combination with <a class="reference external" href="https://github.com/frankmorgner/OpenSC">OpenSC</a> <a class="footnote-reference brackets" href="#id7" id="id8">2</a>
+enabling secure PIN entry and PIN modification. In combination with <a class="reference external" href="https://github.com/frankmorgner/OpenSC">OpenSC</a> <a class="footnote-reference brackets" href="#id7" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>
 also <abbr title="Password Authenticated Connection Establishment">PACE</abbr> can be performed by the emulator.</p>
-<div class="figure" id="id1" style="text-align: center">
-<p><img  src="../_images/tikz-1281452b980f69540bc7520179e10f3ccc59fe36.svg" alt="Figure made with TikZ" /></p>
-<p class="caption"><span class="caption-text">Portable smart card reader with trusted user interface</span></p>
+<div class="figure" id="id1" style="text-align: center"><p><img  src="../_images/tikz-1281452b980f69540bc7520179e10f3ccc59fe36.svg" alt="Figure made with TikZ" /></p>
+<p><span class="caption-text">Portable smart card reader with trusted user interface</span></p>
 </div><p>If the machine running <strong class="command">ccid-emulator</strong> is in USB device mode, a local
 reader is forwareded via USB to another machine. If in USB host mode, the USB
 CCID reader will locally be present.</p>
@@ -176,10 +208,6 @@ modern OS.</p>
 <p>Here is a subset of USB CCID commands supported by the USB CCID Emulator with
 their PC/SC counterpart:</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 36%" />
-<col style="width: 64%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>USB CCID</p></th>
 <th class="head"><p>PC/SC</p></th>
@@ -201,18 +229,8 @@ their PC/SC counterpart:</p>
 transmitting (SCardTransmit) specially crafted APDUs.  Only the alternative
 initialization of <abbr title="Password Authenticated Connection Establishment">PACE</abbr> using SCardControl requires patching the driver
 (available for libccid, see <code class="file docutils literal notranslate"><span class="pre">patches</span></code>). The pseudo APDUs with no need for
-patches are defined as follows (see <a class="reference external" href="https://www.bsi.bund.de/DE/Publikationen/TechnischeRichtlinien/tr03119/index_htm.html">BSI TR-03119 1.3</a> <a class="footnote-reference brackets" href="#id18" id="id19">7</a> p. 33-34):</p>
+patches are defined as follows (see <a class="reference external" href="https://www.bsi.bund.de/DE/Publikationen/TechnischeRichtlinien/tr03119/index_htm.html">BSI TR-03119 1.3</a> <a class="footnote-reference brackets" href="#id18" id="id19" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a> p. 33-34):</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 18%" />
-<col style="width: 7%" />
-<col style="width: 7%" />
-<col style="width: 7%" />
-<col style="width: 7%" />
-<col style="width: 22%" />
-<col style="width: 24%" />
-<col style="width: 8%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head" rowspan="2"></th>
 <th class="head" colspan="5"><p>Command APDU</p></th>
@@ -266,78 +284,76 @@ an error</p></td>
 </tr>
 </tbody>
 </table>
-<p>The USB CCID Emulator is implemented using <a class="reference external" href="http://www.linux-usb.org/gadget/">GadgetFS</a> <a class="footnote-reference brackets" href="#id4" id="id5">1</a>. Some fragments of the source
+<p>The USB CCID Emulator is implemented using <a class="reference external" href="http://www.linux-usb.org/gadget/">GadgetFS</a> <a class="footnote-reference brackets" href="#id4" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>. Some fragments of the source
 code are based on the GadgetFS example and on the source code of the OpenSC
 tools.</p>
-<div class="figure" id="id2" style="text-align: center">
-<p><img  src="../_images/tikz-5b402031da401947efbeae7481d47bd35196791d.svg" alt="Figure made with TikZ" /></p>
-<p class="caption"><span class="caption-text">Software stack of the USB CCID Emulator running on the OpenMoko Neo FreeRunner</span></p>
+<div class="figure" id="id2" style="text-align: center"><p><img  src="../_images/tikz-5b402031da401947efbeae7481d47bd35196791d.svg" alt="Figure made with TikZ" /></p>
+<p><span class="caption-text">Software stack of the USB CCID Emulator running on the OpenMoko Neo FreeRunner</span></p>
 </div><p>Whereas using the USB CCID Emulator on the host system as smart card reader only
 needs a usable PC/SC middleware with USB CCID driver. This is the case for most
 modern Windows and Unix-like systems by default.</p>
-<div class="figure" id="id3" style="text-align: center">
-<p><img  src="../_images/tikz-6e71605956d62bb837a2533794c8c50348b2f87c.svg" alt="Figure made with TikZ" /></p>
-<p class="caption"><span class="caption-text">Implementation of a mobile smart card reader for the German ID card</span></p>
-</div><div class="section" id="download">
-<h2>Download<a class="headerlink" href="#download" title="Permalink to this headline">¶</a></h2>
+<div class="figure" id="id3" style="text-align: center"><p><img  src="../_images/tikz-6e71605956d62bb837a2533794c8c50348b2f87c.svg" alt="Figure made with TikZ" /></p>
+<p><span class="caption-text">Implementation of a mobile smart card reader for the German ID card</span></p>
+</div><section id="download">
+<h2>Download<a class="headerlink" href="#download" title="Link to this heading">¶</a></h2>
 <p>You can find the latest release of USB CCID Emulator on <a class="reference external" href="https://github.com/frankmorgner/vsmartcard/releases">Github</a>. Older releases are
 still available on <a class="reference external" href="http://sourceforge.net/projects/vsmartcard/files">Sourceforge</a>.</p>
 <p>Alternatively, you can clone our git repository:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/frankmorgner/vsmartcard.git
-<span class="nb">cd</span> vsmartcard
-git submodule update --init --recursive
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/frankmorgner/vsmartcard.git
+<span class="nb">cd</span><span class="w"> </span>vsmartcard
+git<span class="w"> </span>submodule<span class="w"> </span>update<span class="w"> </span>--init<span class="w"> </span>--recursive
 </pre></div>
 </div>
-</div>
-<div class="section" id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="installation-on-linux-unix-and-similar">
-<h3>Installation on Linux, Unix and similar<a class="headerlink" href="#installation-on-linux-unix-and-similar" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading">¶</a></h2>
+<section id="installation-on-linux-unix-and-similar">
+<h3>Installation on Linux, Unix and similar<a class="headerlink" href="#installation-on-linux-unix-and-similar" title="Link to this heading">¶</a></h3>
 <p>The USB CCID Emulator uses the GNU Build System to compile and install. If you are
 unfamiliar with it, please have a look at <code class="file docutils literal notranslate"><span class="pre">INSTALL</span></code>. If you can not find
 it, you are probably working bleeding edge in the repository. To generate the
 missing standard auxiliary files you need to additionally install <cite>libtool</cite> and
 <cite>pkg-config</cite> and run the following command in <code class="file docutils literal notranslate"><span class="pre">ccid-emulator</span></code>:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>autoreconf --verbose --install
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>autoreconf<span class="w"> </span>--verbose<span class="w"> </span>--install
 </pre></div>
 </div>
 <p>To configure (<strong class="command">configure --help</strong> lists possible options), build and
 install the USB CCID Emulator now do the following:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>./configure
 make
-make install
+make<span class="w"> </span>install
 </pre></div>
 </div>
 <p>The USB CCID Emulator depends on <strong class="program">libopensc</strong>, which is automatically
-built from a snapshot of the <a class="reference external" href="https://github.com/frankmorgner/OpenSC">OpenSC</a> <a class="footnote-reference brackets" href="#id7" id="id9">2</a> source code and then statically linked.</p>
+built from a snapshot of the <a class="reference external" href="https://github.com/frankmorgner/OpenSC">OpenSC</a> <a class="footnote-reference brackets" href="#id7" id="id9" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> source code and then statically linked.</p>
 <p>Running the USB CCID Emulator has the following dependencies:</p>
 <ul class="simple">
-<li><p>Linux Kernel with <a class="reference external" href="http://www.linux-usb.org/gadget/">GadgetFS</a> <a class="footnote-reference brackets" href="#id4" id="id6">1</a></p></li>
-<li><p><a class="reference external" href="https://www.openssl.org">OpenSSL</a> <a class="footnote-reference brackets" href="#id10" id="id11">3</a> 1.0.0 or later</p></li>
+<li><p>Linux Kernel with <a class="reference external" href="http://www.linux-usb.org/gadget/">GadgetFS</a> <a class="footnote-reference brackets" href="#id4" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p></li>
+<li><p><a class="reference external" href="https://www.openssl.org">OpenSSL</a> <a class="footnote-reference brackets" href="#id10" id="id11" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a> 1.0.0 or later</p></li>
 </ul>
-</div>
-<div class="section" id="hints-on-gadgetfs">
-<h3>Hints on GadgetFS<a class="headerlink" href="#hints-on-gadgetfs" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="hints-on-gadgetfs">
+<h3>Hints on GadgetFS<a class="headerlink" href="#hints-on-gadgetfs" title="Link to this heading">¶</a></h3>
 <p>To create a USB Gadget in both USB host and USB client mode, you need to load
 the kernel module <strong class="program">gadgetfs</strong>. Here is how to get a running version of
-GadgetFS on a Debian system (see also <a class="reference external" href="http://wiki.openmoko.org/wiki/Building_Gadget_USB_Module">OpenMoko Wiki</a> <a class="footnote-reference brackets" href="#id16" id="id17">6</a>):</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>sudo apt-get install linux-source linux-headers-<span class="sb">`</span>uname -r<span class="sb">`</span>
-sudo tar xjf /usr/src/linux-source-*.tar.bz2
-<span class="nb">cd</span> linux-source-*/drivers/usb/gadget
+GadgetFS on a Debian system (see also <a class="reference external" href="http://wiki.openmoko.org/wiki/Building_Gadget_USB_Module">OpenMoko Wiki</a> <a class="footnote-reference brackets" href="#id16" id="id17" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a>):</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>linux-source<span class="w"> </span>linux-headers-<span class="sb">`</span>uname<span class="w"> </span>-r<span class="sb">`</span>
+sudo<span class="w"> </span>tar<span class="w"> </span>xjf<span class="w"> </span>/usr/src/linux-source-*.tar.bz2
+<span class="nb">cd</span><span class="w"> </span>linux-source-*/drivers/usb/gadget
 <span class="c1"># build dummy_hcd and gadgetfs</span>
-<span class="nb">echo</span> <span class="s2">&quot;KDIR := /lib/modules/`uname -r`/build&quot;</span> &gt;&gt; Makefile
-<span class="nb">echo</span> <span class="s2">&quot;PWD := `pwd`&quot;</span> &gt;&gt; Makefile
-<span class="nb">echo</span> <span class="s2">&quot;obj-m := dummy_hcd.o gadgetfs.o&quot;</span> &gt;&gt; Makefile
-<span class="nb">echo</span> <span class="s2">&quot;default: &quot;</span> &gt;&gt; Makefile
-<span class="nb">echo</span> -e <span class="s2">&quot;\t\$(MAKE) -C \$(KDIR) SUBDIRS=\$(PWD) modules&quot;</span> &gt;&gt; Makefile
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;KDIR := /lib/modules/`uname -r`/build&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>Makefile
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;PWD := `pwd`&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>Makefile
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;obj-m := dummy_hcd.o gadgetfs.o&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>Makefile
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;default: &quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>Makefile
+<span class="nb">echo</span><span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;\t\$(MAKE) -C \$(KDIR) SUBDIRS=\$(PWD) modules&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>Makefile
 make
 <span class="c1"># load GadgetFS with its dependencies</span>
-sudo modprobe udc-core
-sudo insmod ./dummy_hcd.ko
-sudo insmod ./gadgetfs.ko <span class="nv">default_uid</span><span class="o">=</span><span class="sb">`</span>id -u<span class="sb">`</span>
+sudo<span class="w"> </span>modprobe<span class="w"> </span>udc-core
+sudo<span class="w"> </span>insmod<span class="w"> </span>./dummy_hcd.ko
+sudo<span class="w"> </span>insmod<span class="w"> </span>./gadgetfs.ko<span class="w"> </span><span class="nv">default_uid</span><span class="o">=</span><span class="sb">`</span>id<span class="w"> </span>-u<span class="sb">`</span>
 <span class="c1"># mount GadgetFS</span>
-sudo mkdir /dev/gadget
-sudo mount -t gadgetfs gadgetfs /dev/gadget
+sudo<span class="w"> </span>mkdir<span class="w"> </span>/dev/gadget
+sudo<span class="w"> </span>mount<span class="w"> </span>-t<span class="w"> </span>gadgetfs<span class="w"> </span>gadgetfs<span class="w"> </span>/dev/gadget
 </pre></div>
 </div>
 <p>On OpenMoko it is likely that you need to <a class="reference external" href="http://docs.openmoko.org/trac/ticket/2206">patch your kernel</a>. If you also want to switch
@@ -345,18 +361,18 @@ multiple times between <strong class="program">gadgetfs</strong> and <strong cla
 patch is needed</a>.</p>
 <p>If you are using a more recent version of <strong class="program">dummy_hcd</strong> and get an error
 loading the module, you maybe want to check out <a class="reference external" href="http://comments.gmane.org/gmane.linux.usb.general/47440">this patch</a>.</p>
-</div>
-</div>
-<div class="section" id="usage">
-<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
 <p>The USB CCID Emulator has various command line options to customize the appearance
 on the USB host. In order to run the USB CCID Emulator GadgetFS must be loaded
-and mounted.  The USB CCID Emulator is compatible with the unix driver <a class="reference external" href="https://ccid.apdu.fr/">libccid</a> <a class="footnote-reference brackets" href="#id12" id="id13">4</a>
-and the <a class="reference external" href="http://msdn.microsoft.com/en-us/windows/hardware/gg487509">Windows USB CCID driver</a> <a class="footnote-reference brackets" href="#id14" id="id15">5</a>. PIN commands are supported if implemented
+and mounted.  The USB CCID Emulator is compatible with the unix driver <a class="reference external" href="https://ccid.apdu.fr/">libccid</a> <a class="footnote-reference brackets" href="#id12" id="id13" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>
+and the <a class="reference external" href="http://msdn.microsoft.com/en-us/windows/hardware/gg487509">Windows USB CCID driver</a> <a class="footnote-reference brackets" href="#id14" id="id15" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a>. PIN commands are supported if implemented
 by the driver.</p>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 0.7: </span>USB CCID Emulator now supports the boxing commands defined in <a class="reference external" href="https://www.bsi.bund.de/DE/Publikationen/TechnischeRichtlinien/tr03119/index_htm.html">BSI TR-03119
-1.3</a> <a class="footnote-reference brackets" href="#id18" id="id20">7</a>.</p>
+<p><span class="versionmodified added">Added in version 0.7: </span>USB CCID Emulator now supports the boxing commands defined in <a class="reference external" href="https://www.bsi.bund.de/DE/Publikationen/TechnischeRichtlinien/tr03119/index_htm.html">BSI TR-03119
+1.3</a> <a class="footnote-reference brackets" href="#id18" id="id20" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a>.</p>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Usage: ccid-emulator [OPTION]...
 Emulate a USB CCID compliant smart card reader
@@ -382,39 +398,49 @@ Report bugs to https://github.com/frankmorgner/vsmartcard/issues
 Written by Frank Morgner &lt;frankmorgner@gmail.com&gt;
 </pre></div>
 </div>
-</div>
-<div class="section" id="question">
-<h2>Question<a class="headerlink" href="#question" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="question">
+<h2>Question<a class="headerlink" href="#question" title="Link to this heading">¶</a></h2>
 <p>Do you have questions, suggestions or contributions? Feedback of any kind is
 more than welcome! Please use our <a class="reference external" href="https://github.com/frankmorgner/vsmartcard/issues">project trackers</a>.</p>
-</div>
-<div class="section" id="notes-and-references">
-<h2>Notes and References<a class="headerlink" href="#notes-and-references" title="Permalink to this headline">¶</a></h2>
-<dl class="footnote brackets">
-<dt class="label" id="id4"><span class="brackets">1</span><span class="fn-backref">(<a href="#id5">1</a>,<a href="#id6">2</a>)</span></dt>
-<dd><p><a class="reference external" href="http://www.linux-usb.org/gadget/">http://www.linux-usb.org/gadget/</a></p>
-</dd>
-<dt class="label" id="id7"><span class="brackets">2</span><span class="fn-backref">(<a href="#id8">1</a>,<a href="#id9">2</a>)</span></dt>
-<dd><p><a class="reference external" href="https://github.com/frankmorgner/OpenSC">https://github.com/frankmorgner/OpenSC</a></p>
-</dd>
-<dt class="label" id="id10"><span class="brackets"><a class="fn-backref" href="#id11">3</a></span></dt>
-<dd><p><a class="reference external" href="https://www.openssl.org">https://www.openssl.org</a></p>
-</dd>
-<dt class="label" id="id12"><span class="brackets"><a class="fn-backref" href="#id13">4</a></span></dt>
-<dd><p><a class="reference external" href="https://ccid.apdu.fr/">https://ccid.apdu.fr/</a></p>
-</dd>
-<dt class="label" id="id14"><span class="brackets"><a class="fn-backref" href="#id15">5</a></span></dt>
-<dd><p><a class="reference external" href="http://msdn.microsoft.com/en-us/windows/hardware/gg487509">http://msdn.microsoft.com/en-us/windows/hardware/gg487509</a></p>
-</dd>
-<dt class="label" id="id16"><span class="brackets"><a class="fn-backref" href="#id17">6</a></span></dt>
-<dd><p><a class="reference external" href="http://wiki.openmoko.org/wiki/Building_Gadget_USB_Module">http://wiki.openmoko.org/wiki/Building_Gadget_USB_Module</a></p>
-</dd>
-<dt class="label" id="id18"><span class="brackets">7</span><span class="fn-backref">(<a href="#id19">1</a>,<a href="#id20">2</a>)</span></dt>
-<dd><p><a class="reference external" href="https://www.bsi.bund.de/DE/Publikationen/TechnischeRichtlinien/tr03119/index_htm.html">https://www.bsi.bund.de/DE/Publikationen/TechnischeRichtlinien/tr03119/index_htm.html</a></p>
-</dd>
-</dl>
-</div>
-</div>
+</section>
+<section id="notes-and-references">
+<h2>Notes and References<a class="headerlink" href="#notes-and-references" title="Link to this heading">¶</a></h2>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id4" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id5">1</a>,<a role="doc-backlink" href="#id6">2</a>)</span>
+<p><a class="reference external" href="http://www.linux-usb.org/gadget/">http://www.linux-usb.org/gadget/</a></p>
+</aside>
+<aside class="footnote brackets" id="id7" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id8">1</a>,<a role="doc-backlink" href="#id9">2</a>)</span>
+<p><a class="reference external" href="https://github.com/frankmorgner/OpenSC">https://github.com/frankmorgner/OpenSC</a></p>
+</aside>
+<aside class="footnote brackets" id="id10" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id11">3</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://www.openssl.org">https://www.openssl.org</a></p>
+</aside>
+<aside class="footnote brackets" id="id12" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id13">4</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://ccid.apdu.fr/">https://ccid.apdu.fr/</a></p>
+</aside>
+<aside class="footnote brackets" id="id14" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id15">5</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="http://msdn.microsoft.com/en-us/windows/hardware/gg487509">http://msdn.microsoft.com/en-us/windows/hardware/gg487509</a></p>
+</aside>
+<aside class="footnote brackets" id="id16" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id17">6</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="http://wiki.openmoko.org/wiki/Building_Gadget_USB_Module">http://wiki.openmoko.org/wiki/Building_Gadget_USB_Module</a></p>
+</aside>
+<aside class="footnote brackets" id="id18" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id19">1</a>,<a role="doc-backlink" href="#id20">2</a>)</span>
+<p><a class="reference external" href="https://www.bsi.bund.de/DE/Publikationen/TechnischeRichtlinien/tr03119/index_htm.html">https://www.bsi.bund.de/DE/Publikationen/TechnischeRichtlinien/tr03119/index_htm.html</a></p>
+</aside>
+</aside>
+</section>
+</section>
 
 
     </div>
@@ -428,7 +454,7 @@ more than welcome! Please use our <a class="reference external" href="https://gi
       
     </p>
     <p>
-        &copy; Copyright 2009-2023 by Dominik Oepen and Frank Morgner.<br/>
+        &copy; Copyright 2009-2025 by Dominik Oepen and Frank Morgner.<br/>
     </p>
   </div>
 </footer>

@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 
-<html>
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Android Smart Card Emulator &#8212; vsmartcard 2023-10-01 documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <link rel="shortcut icon" href="../_static/chip.ico"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Android Smart Card Emulator &#8212; vsmartcard 2025-03-27 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css?v=fa2d15c4" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <script src="../_static/documentation_options.js?v=41bab39b"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="icon" href="../_static/chip.ico"/>
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Tizen Smart Card Emulator" href="../TCardEmulator/README.html" />
     <link rel="prev" title="Remote Smart Card Reader" href="../remote-reader/README.html" />
@@ -20,10 +20,10 @@
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
-<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
-<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
-<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
 
   </head><body>
   
@@ -138,21 +138,48 @@
 
 <div class="container">
   <div class="row">
-    <div class="body col-md-12 content" role="main">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li><a class="reference internal" href="#">Android Smart Card Emulator</a><ul>
+<li><a class="reference internal" href="#download-and-install">Download and Install</a></li>
+<li><a class="reference internal" href="#question">Question</a></li>
+<li><a class="reference internal" href="#notes-and-references">Notes and References</a></li>
+</ul>
+</li>
+</ul>
+
+  <li>
+    <a href="../remote-reader/README.html" title="Previous Chapter: Remote Smart Card Reader"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; Remote Smart ...</span>
+    </a>
+  </li>
+  <li>
+    <a href="../TCardEmulator/README.html" title="Next Chapter: Tizen Smart Card Emulator"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">Tizen Smart C... &raquo;</span>
+    </a>
+  </li>
+<form action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+    <div class="body col-md-9 content" role="main">
       
-  <div class="section" id="android-smart-card-emulator">
-<span id="acardemulator"></span><h1>Android Smart Card Emulator<a class="headerlink" href="#android-smart-card-emulator" title="Permalink to this headline">¶</a></h1>
-<div class="sidebar">
+  <section id="android-smart-card-emulator">
+<span id="acardemulator"></span><h1>Android Smart Card Emulator<a class="headerlink" href="#android-smart-card-emulator" title="Link to this heading">¶</a></h1>
+<aside class="sidebar">
 <p class="sidebar-title">Use an Android phone as contact-less smart card</p>
 <dl class="field-list simple">
-<dt class="field-odd">License</dt>
+<dt class="field-odd">License<span class="colon">:</span></dt>
 <dd class="field-odd"><p>GPL version 3</p>
 </dd>
-<dt class="field-even">Tested Platform</dt>
+<dt class="field-even">Tested Platform<span class="colon">:</span></dt>
 <dd class="field-even"><p>Android, CyanogenMod</p>
 </dd>
 </dl>
-</div>
+</aside>
 <p>The Android Smart Card Emulator allows the emulation of a contact-less smart card.
 The emulator uses Android’s <abbr title="host card emulation">HCE</abbr> to fetch APDUs from a contact-less reader.
 The app allows to process the Command APDUs either by delegating them to a
@@ -160,13 +187,13 @@ remote virtual smart card or by a built-in Java Card simulator. The response
 APDUs are then returned to the smart card reader. Together with
 <a class="reference internal" href="../TCardEmulator/README.html#tcardemulator"><span class="std std-ref">Tizen Smart Card Emulator</span></a> it is also possible to use a smartwatch as communication
 device instead of the phone.</p>
-<p>With the built-in Java Card runtime of <a class="reference external" href="http://www.jcardsim.org/">jCardSim</a> <a class="footnote-reference brackets" href="#id4" id="id5">1</a> the app includes the following
+<p>With the built-in Java Card runtime of <a class="reference external" href="http://www.jcardsim.org/">jCardSim</a> <a class="footnote-reference brackets" href="#id4" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> the app includes the following
 Applets:</p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://developers.yubico.com/ykneo-openpgp/">OpenPGP Applet</a> <a class="footnote-reference brackets" href="#id6" id="id7">2</a> (application identifier <code class="docutils literal notranslate"><span class="pre">D2760001240102000000000000010000</span></code>)</p></li>
-<li><p><a class="reference external" href="https://developers.yubico.com/ykneo-oath/">OATH Applet</a> <a class="footnote-reference brackets" href="#id8" id="id9">3</a> (application identifier <code class="docutils literal notranslate"><span class="pre">A000000527210101</span></code>)</p></li>
-<li><p><a class="reference external" href="http://www.pwendland.net/IsoApplet/">ISO Applet</a> <a class="footnote-reference brackets" href="#id10" id="id11">4</a> (application identifier <code class="docutils literal notranslate"><span class="pre">F276A288BCFBA69D34F31001</span></code>)</p></li>
-<li><p><a class="reference external" href="https://github.com/vletoux/GidsApplet">GIDS Applet</a> <a class="footnote-reference brackets" href="#id12" id="id13">5</a> (application identifier <code class="docutils literal notranslate"><span class="pre">A000000397425446590201</span></code>)</p></li>
+<li><p><a class="reference external" href="https://developers.yubico.com/ykneo-openpgp/">OpenPGP Applet</a> <a class="footnote-reference brackets" href="#id6" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> (application identifier <code class="docutils literal notranslate"><span class="pre">D2760001240102000000000000010000</span></code>)</p></li>
+<li><p><a class="reference external" href="https://developers.yubico.com/ykneo-oath/">OATH Applet</a> <a class="footnote-reference brackets" href="#id8" id="id9" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a> (application identifier <code class="docutils literal notranslate"><span class="pre">A000000527210101</span></code>)</p></li>
+<li><p><a class="reference external" href="http://www.pwendland.net/IsoApplet/">ISO Applet</a> <a class="footnote-reference brackets" href="#id10" id="id11" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a> (application identifier <code class="docutils literal notranslate"><span class="pre">F276A288BCFBA69D34F31001</span></code>)</p></li>
+<li><p><a class="reference external" href="https://github.com/vletoux/GidsApplet">GIDS Applet</a> <a class="footnote-reference brackets" href="#id12" id="id13" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a> (application identifier <code class="docutils literal notranslate"><span class="pre">A000000397425446590201</span></code>)</p></li>
 </ul>
 <p>The remote interface can be used together with the <a class="reference internal" href="../virtualsmartcard/README.html#vicc"><span class="std std-ref">Virtual Smart Card</span></a>, which allows
 emulating the following cards:</p>
@@ -180,15 +207,12 @@ which allows emulating a contactless card from an existing contact-based card
 (by relaying the commands from PC/SC to the phone).</p>
 <p>You may also attach your own simulation to the remote interface by implementing
 a simple interface through a socket communication.</p>
-<div class="figure" id="id1" style="text-align: center">
-<p><img  src="../_images/tikz-f7010fa8209b3752026a52619d57bbebb8fa2bcd.svg" alt="Figure made with TikZ" /></p>
-<p class="caption"><span class="caption-text">Simulate a contact-less Java Card with Android Smart Card Emulator</span></p>
-</div><div class="figure" id="id2" style="text-align: center">
-<p><img  src="../_images/tikz-ae1e764f23cec8b5d67952bc6d8bbe66280e80d1.svg" alt="Figure made with TikZ" /></p>
-<p class="caption"><span class="caption-text">Simulate a contact-less smart card with a remote virtual smart card</span></p>
-</div><div class="figure" id="id3" style="text-align: center">
-<p><img  src="../_images/tikz-30c9c7049675e5b06e8364c63b0718d51986e380.svg" alt="Figure made with TikZ" /></p>
-<p class="caption"><span class="caption-text">Relaying a contact-based smart card with pcsc-relay</span></p>
+<div class="figure" id="id1" style="text-align: center"><p><img  src="../_images/tikz-f7010fa8209b3752026a52619d57bbebb8fa2bcd.svg" alt="Figure made with TikZ" /></p>
+<p><span class="caption-text">Simulate a contact-less Java Card with Android Smart Card Emulator</span></p>
+</div><div class="figure" id="id2" style="text-align: center"><p><img  src="../_images/tikz-ae1e764f23cec8b5d67952bc6d8bbe66280e80d1.svg" alt="Figure made with TikZ" /></p>
+<p><span class="caption-text">Simulate a contact-less smart card with a remote virtual smart card</span></p>
+</div><div class="figure" id="id3" style="text-align: center"><p><img  src="../_images/tikz-30c9c7049675e5b06e8364c63b0718d51986e380.svg" alt="Figure made with TikZ" /></p>
+<p><span class="caption-text">Relaying a contact-based smart card with pcsc-relay</span></p>
 </div><p>The Android Smart Card Emulator has the following dependencies:</p>
 <ul class="simple">
 <li><p>NFC hardware built into the smartphone for <abbr title="host card emulation">HCE</abbr></p></li>
@@ -202,57 +226,66 @@ using the remote interface</p></li>
 <p>Please note that the currently emulated applets are verifying the PIN by
 transmitting it without any protection between card and terminal. You may want
 to have a look at <a class="reference external" href="http://sar.informatik.hu-berlin.de/research/publications/SAR-PR-2014-08/SAR-PR-2014-08_.pdf">Erik Nellesson’s</a>
-<a class="reference external" href="https://github.com/eriknellessen/Virtual-Keycard">Virtual Keycard</a> <a class="footnote-reference brackets" href="#id14" id="id15">6</a>, which uses the PACE protocol for PIN verification.</p>
-<div class="section" id="download-and-install">
-<span id="acardemulator-install"></span><h2>Download and Install<a class="headerlink" href="#download-and-install" title="Permalink to this headline">¶</a></h2>
-<p>The Android Smart Card Emulator is available on <a class="reference external" href="https://f-droid.org/repository/browse/?fdid=com.vsmartcard.remotesmartcardreader.app">F-Droid</a> <a class="footnote-reference brackets" href="#id16" id="id17">7</a>.</p>
-<a class="reference external image-reference" href="https://f-droid.org/repository/browse/?fdid=com.vsmartcard.acardemulator"><img alt="Android Smart Card Emulator on F-Droid" src="../_images/acardemu-qrcode.png" style="width: 265px; height: 265px;" /></a>
+<a class="reference external" href="https://github.com/eriknellessen/Virtual-Keycard">Virtual Keycard</a> <a class="footnote-reference brackets" href="#id14" id="id15" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a>, which uses the PACE protocol for PIN verification.</p>
+<section id="download-and-install">
+<span id="acardemulator-install"></span><h2>Download and Install<a class="headerlink" href="#download-and-install" title="Link to this heading">¶</a></h2>
+<p>The Android Smart Card Emulator is available on <a class="reference external" href="https://f-droid.org/repository/browse/?fdid=com.vsmartcard.remotesmartcardreader.app">F-Droid</a> <a class="footnote-reference brackets" href="#id16" id="id17" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a>.</p>
+<a class="reference external image-reference" href="https://f-droid.org/repository/browse/?fdid=com.vsmartcard.acardemulator"><img alt="Android Smart Card Emulator on F-Droid" src="../_images/acardemu-qrcode.png" style="width: 265px; height: 265px;" />
+</a>
 <p>To manually compile the app you need to fetch the sources and initialize the
 submodules:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/frankmorgner/vsmartcard.git
-<span class="nb">cd</span> vsmartcard
-git submodule update --init --recursive
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/frankmorgner/vsmartcard.git
+<span class="nb">cd</span><span class="w"> </span>vsmartcard
+git<span class="w"> </span>submodule<span class="w"> </span>update<span class="w"> </span>--init<span class="w"> </span>--recursive
 </pre></div>
 </div>
-<p>We use <a class="reference external" href="http://developer.android.com/sdk/installing/studio.html">Android Studio</a> <a class="footnote-reference brackets" href="#id18" id="id19">8</a> to build and deploy the application. Use
+<p>We use <a class="reference external" href="http://developer.android.com/sdk/installing/studio.html">Android Studio</a> <a class="footnote-reference brackets" href="#id18" id="id19" role="doc-noteref"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></a> to build and deploy the application. Use
 <span class="menuselection">File ‣ Open</span> to select <code class="file docutils literal notranslate"><span class="pre">vsmartcard/ACardEmulator</span></code>.
 Attach your smartphone and choose <span class="menuselection">Run ‣ Run ‘app’</span>.</p>
-</div>
-<div class="section" id="question">
-<h2>Question<a class="headerlink" href="#question" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="question">
+<h2>Question<a class="headerlink" href="#question" title="Link to this heading">¶</a></h2>
 <p>Do you have questions, suggestions or contributions? Feedback of any kind is
 more than welcome! Please use our <a class="reference external" href="https://github.com/frankmorgner/vsmartcard/issues">project trackers</a>.</p>
-</div>
-<div class="section" id="notes-and-references">
-<h2>Notes and References<a class="headerlink" href="#notes-and-references" title="Permalink to this headline">¶</a></h2>
-<dl class="footnote brackets">
-<dt class="label" id="id4"><span class="brackets"><a class="fn-backref" href="#id5">1</a></span></dt>
-<dd><p><a class="reference external" href="http://www.jcardsim.org/">http://www.jcardsim.org/</a></p>
-</dd>
-<dt class="label" id="id6"><span class="brackets"><a class="fn-backref" href="#id7">2</a></span></dt>
-<dd><p><a class="reference external" href="https://developers.yubico.com/ykneo-openpgp/">https://developers.yubico.com/ykneo-openpgp/</a></p>
-</dd>
-<dt class="label" id="id8"><span class="brackets"><a class="fn-backref" href="#id9">3</a></span></dt>
-<dd><p><a class="reference external" href="https://developers.yubico.com/ykneo-oath/">https://developers.yubico.com/ykneo-oath/</a></p>
-</dd>
-<dt class="label" id="id10"><span class="brackets"><a class="fn-backref" href="#id11">4</a></span></dt>
-<dd><p><a class="reference external" href="http://www.pwendland.net/IsoApplet/">http://www.pwendland.net/IsoApplet/</a></p>
-</dd>
-<dt class="label" id="id12"><span class="brackets"><a class="fn-backref" href="#id13">5</a></span></dt>
-<dd><p><a class="reference external" href="https://github.com/vletoux/GidsApplet">https://github.com/vletoux/GidsApplet</a></p>
-</dd>
-<dt class="label" id="id14"><span class="brackets"><a class="fn-backref" href="#id15">6</a></span></dt>
-<dd><p><a class="reference external" href="https://github.com/eriknellessen/Virtual-Keycard">https://github.com/eriknellessen/Virtual-Keycard</a></p>
-</dd>
-<dt class="label" id="id16"><span class="brackets"><a class="fn-backref" href="#id17">7</a></span></dt>
-<dd><p><a class="reference external" href="https://f-droid.org/repository/browse/?fdid=com.vsmartcard.remotesmartcardreader.app">https://f-droid.org/repository/browse/?fdid=com.vsmartcard.remotesmartcardreader.app</a></p>
-</dd>
-<dt class="label" id="id18"><span class="brackets"><a class="fn-backref" href="#id19">8</a></span></dt>
-<dd><p><a class="reference external" href="http://developer.android.com/sdk/installing/studio.html">http://developer.android.com/sdk/installing/studio.html</a></p>
-</dd>
-</dl>
-</div>
-</div>
+</section>
+<section id="notes-and-references">
+<h2>Notes and References<a class="headerlink" href="#notes-and-references" title="Link to this heading">¶</a></h2>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id4" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">1</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="http://www.jcardsim.org/">http://www.jcardsim.org/</a></p>
+</aside>
+<aside class="footnote brackets" id="id6" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id7">2</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://developers.yubico.com/ykneo-openpgp/">https://developers.yubico.com/ykneo-openpgp/</a></p>
+</aside>
+<aside class="footnote brackets" id="id8" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id9">3</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://developers.yubico.com/ykneo-oath/">https://developers.yubico.com/ykneo-oath/</a></p>
+</aside>
+<aside class="footnote brackets" id="id10" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id11">4</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="http://www.pwendland.net/IsoApplet/">http://www.pwendland.net/IsoApplet/</a></p>
+</aside>
+<aside class="footnote brackets" id="id12" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id13">5</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://github.com/vletoux/GidsApplet">https://github.com/vletoux/GidsApplet</a></p>
+</aside>
+<aside class="footnote brackets" id="id14" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id15">6</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://github.com/eriknellessen/Virtual-Keycard">https://github.com/eriknellessen/Virtual-Keycard</a></p>
+</aside>
+<aside class="footnote brackets" id="id16" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id17">7</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://f-droid.org/repository/browse/?fdid=com.vsmartcard.remotesmartcardreader.app">https://f-droid.org/repository/browse/?fdid=com.vsmartcard.remotesmartcardreader.app</a></p>
+</aside>
+<aside class="footnote brackets" id="id18" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id19">8</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="http://developer.android.com/sdk/installing/studio.html">http://developer.android.com/sdk/installing/studio.html</a></p>
+</aside>
+</aside>
+</section>
+</section>
 
 
     </div>
@@ -266,7 +299,7 @@ more than welcome! Please use our <a class="reference external" href="https://gi
       
     </p>
     <p>
-        &copy; Copyright 2009-2023 by Dominik Oepen and Frank Morgner.<br/>
+        &copy; Copyright 2009-2025 by Dominik Oepen and Frank Morgner.<br/>
     </p>
   </div>
 </footer>

@@ -1,27 +1,27 @@
 <!DOCTYPE html>
 
-<html>
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SEutils Module &#8212; vsmartcard 2023-10-01 documentation</title>
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
-    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <link rel="shortcut icon" href="../../_static/chip.ico"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>SEutils Module &#8212; vsmartcard 2025-03-27 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-sphinx.css?v=fa2d15c4" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+    <script src="../../_static/documentation_options.js?v=41bab39b"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="icon" href="../../_static/chip.ico"/>
     <link rel="search" title="Search" href="../../search.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js "></script>
-<script type="text/javascript" src="../../_static/js/jquery-fix.js "></script>
-<script type="text/javascript" src="../../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
-<script type="text/javascript" src="../../_static/bootstrap-sphinx.js "></script>
+<script type="text/javascript" src="../../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
 
   </head><body>
   
@@ -89,7 +89,35 @@
   <ul class="dropdown-menu localtoc"
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">SEutils Module</a></li>
+<li><a class="reference internal" href="#">SEutils Module</a><ul>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.ControlReferenceTemplate"><code class="docutils literal notranslate"><span class="pre">ControlReferenceTemplate</span></code></a><ul>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.ControlReferenceTemplate.__replace_tag"><code class="docutils literal notranslate"><span class="pre">ControlReferenceTemplate.__replace_tag()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.ControlReferenceTemplate.__set_algo"><code class="docutils literal notranslate"><span class="pre">ControlReferenceTemplate.__set_algo()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.ControlReferenceTemplate.__set_iv"><code class="docutils literal notranslate"><span class="pre">ControlReferenceTemplate.__set_iv()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.ControlReferenceTemplate.__set_key"><code class="docutils literal notranslate"><span class="pre">ControlReferenceTemplate.__set_key()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.ControlReferenceTemplate.parse_SE_config"><code class="docutils literal notranslate"><span class="pre">ControlReferenceTemplate.parse_SE_config()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.ControlReferenceTemplate.to_string"><code class="docutils literal notranslate"><span class="pre">ControlReferenceTemplate.to_string()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.Security_Environment"><code class="docutils literal notranslate"><span class="pre">Security_Environment</span></code></a><ul>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.Security_Environment._set_SE"><code class="docutils literal notranslate"><span class="pre">Security_Environment._set_SE()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.Security_Environment.compute_cryptographic_checksum"><code class="docutils literal notranslate"><span class="pre">Security_Environment.compute_cryptographic_checksum()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.Security_Environment.compute_digital_signature"><code class="docutils literal notranslate"><span class="pre">Security_Environment.compute_digital_signature()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.Security_Environment.decipher"><code class="docutils literal notranslate"><span class="pre">Security_Environment.decipher()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.Security_Environment.encipher"><code class="docutils literal notranslate"><span class="pre">Security_Environment.encipher()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.Security_Environment.generate_public_key_pair"><code class="docutils literal notranslate"><span class="pre">Security_Environment.generate_public_key_pair()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.Security_Environment.hash"><code class="docutils literal notranslate"><span class="pre">Security_Environment.hash()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.Security_Environment.manage_security_environment"><code class="docutils literal notranslate"><span class="pre">Security_Environment.manage_security_environment()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.Security_Environment.parse_SM_CAPDU"><code class="docutils literal notranslate"><span class="pre">Security_Environment.parse_SM_CAPDU()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.Security_Environment.perform_security_operation"><code class="docutils literal notranslate"><span class="pre">Security_Environment.perform_security_operation()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.Security_Environment.protect_response"><code class="docutils literal notranslate"><span class="pre">Security_Environment.protect_response()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.Security_Environment.verify_certificate"><code class="docutils literal notranslate"><span class="pre">Security_Environment.verify_certificate()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.Security_Environment.verify_cryptographic_checksum"><code class="docutils literal notranslate"><span class="pre">Security_Environment.verify_cryptographic_checksum()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.Security_Environment.verify_digital_signature"><code class="docutils literal notranslate"><span class="pre">Security_Environment.verify_digital_signature()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </ul>
 </li>
@@ -123,17 +151,59 @@
 
 <div class="container">
   <div class="row">
-    <div class="body col-md-12 content" role="main">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li><a class="reference internal" href="#">SEutils Module</a><ul>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.ControlReferenceTemplate"><code class="docutils literal notranslate"><span class="pre">ControlReferenceTemplate</span></code></a><ul>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.ControlReferenceTemplate.__replace_tag"><code class="docutils literal notranslate"><span class="pre">ControlReferenceTemplate.__replace_tag()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.ControlReferenceTemplate.__set_algo"><code class="docutils literal notranslate"><span class="pre">ControlReferenceTemplate.__set_algo()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.ControlReferenceTemplate.__set_iv"><code class="docutils literal notranslate"><span class="pre">ControlReferenceTemplate.__set_iv()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.ControlReferenceTemplate.__set_key"><code class="docutils literal notranslate"><span class="pre">ControlReferenceTemplate.__set_key()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.ControlReferenceTemplate.parse_SE_config"><code class="docutils literal notranslate"><span class="pre">ControlReferenceTemplate.parse_SE_config()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.ControlReferenceTemplate.to_string"><code class="docutils literal notranslate"><span class="pre">ControlReferenceTemplate.to_string()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.Security_Environment"><code class="docutils literal notranslate"><span class="pre">Security_Environment</span></code></a><ul>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.Security_Environment._set_SE"><code class="docutils literal notranslate"><span class="pre">Security_Environment._set_SE()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.Security_Environment.compute_cryptographic_checksum"><code class="docutils literal notranslate"><span class="pre">Security_Environment.compute_cryptographic_checksum()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.Security_Environment.compute_digital_signature"><code class="docutils literal notranslate"><span class="pre">Security_Environment.compute_digital_signature()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.Security_Environment.decipher"><code class="docutils literal notranslate"><span class="pre">Security_Environment.decipher()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.Security_Environment.encipher"><code class="docutils literal notranslate"><span class="pre">Security_Environment.encipher()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.Security_Environment.generate_public_key_pair"><code class="docutils literal notranslate"><span class="pre">Security_Environment.generate_public_key_pair()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.Security_Environment.hash"><code class="docutils literal notranslate"><span class="pre">Security_Environment.hash()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.Security_Environment.manage_security_environment"><code class="docutils literal notranslate"><span class="pre">Security_Environment.manage_security_environment()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.Security_Environment.parse_SM_CAPDU"><code class="docutils literal notranslate"><span class="pre">Security_Environment.parse_SM_CAPDU()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.Security_Environment.perform_security_operation"><code class="docutils literal notranslate"><span class="pre">Security_Environment.perform_security_operation()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.Security_Environment.protect_response"><code class="docutils literal notranslate"><span class="pre">Security_Environment.protect_response()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.Security_Environment.verify_certificate"><code class="docutils literal notranslate"><span class="pre">Security_Environment.verify_certificate()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.Security_Environment.verify_cryptographic_checksum"><code class="docutils literal notranslate"><span class="pre">Security_Environment.verify_cryptographic_checksum()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SEutils.Security_Environment.verify_digital_signature"><code class="docutils literal notranslate"><span class="pre">Security_Environment.verify_digital_signature()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<form action="../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+    <div class="body col-md-9 content" role="main">
       
-  <div class="section" id="seutils-module">
-<h1>SEutils Module<a class="headerlink" href="#seutils-module" title="Permalink to this headline">¶</a></h1>
-<div class="graphviz"><img src="../../_images/inheritance-46d14c049d401c956999e7b7618e351618dbc61c.png" alt="Inheritance diagram of virtualsmartcard.SEutils" usemap="#inheritance7064aeb8f6" class="inheritance graphviz" /></div>
+  <section id="seutils-module">
+<h1>SEutils Module<a class="headerlink" href="#seutils-module" title="Link to this heading">¶</a></h1>
+<div class="graphviz"><img src="../../_images/inheritance-22653a083fdf0cd1dadeae3df386893116d1ec9d.png" alt="Inheritance diagram of virtualsmartcard.SEutils" usemap="#inheritance7064aeb8f6" class="inheritance graphviz" /></div>
 <map id="inheritance7064aeb8f6" name="inheritance7064aeb8f6">
 <area shape="rect" id="node1" href="#virtualsmartcard.SEutils.ControlReferenceTemplate" target="_top" title="Control Reference Templates are used to configure the Security" alt="" coords="5,55,360,80"/>
 <area shape="rect" id="node2" href="#virtualsmartcard.SEutils.Security_Environment" target="_top" title="virtualsmartcard.SEutils.Security_Environment" alt="" coords="20,5,345,31"/>
-</map><span class="target" id="module-virtualsmartcard.SEutils"></span><dl class="py class">
-<dt id="virtualsmartcard.SEutils.ControlReferenceTemplate">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">virtualsmartcard.SEutils.</span></code><code class="sig-name descname"><span class="pre">ControlReferenceTemplate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.ControlReferenceTemplate" title="Permalink to this definition">¶</a></dt>
+</map><dl class="py class" id="module-virtualsmartcard.SEutils">
+<dt class="sig sig-object py" id="virtualsmartcard.SEutils.ControlReferenceTemplate">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">virtualsmartcard.SEutils.</span></span><span class="sig-name descname"><span class="pre">ControlReferenceTemplate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.ControlReferenceTemplate" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Control Reference Templates are used to configure the Security
 Environments. They specify which algorithms to use in which mode of
@@ -141,8 +211,8 @@ operation and with which keys. There are six different types of Control
 Reference Template:
 HT, AT, KT, CCT, DST, CT-sym, CT-asym.</p>
 <dl class="py method">
-<dt id="virtualsmartcard.SEutils.ControlReferenceTemplate.__replace_tag">
-<code class="sig-name descname"><span class="pre">__replace_tag</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.ControlReferenceTemplate.__replace_tag" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.SEutils.ControlReferenceTemplate.__replace_tag">
+<span class="sig-name descname"><span class="pre">__replace_tag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.ControlReferenceTemplate.__replace_tag" title="Link to this definition">¶</a></dt>
 <dd><p>Adjust the config string using a given tag, value combination. If the
 config string already contains a tag, value pair for the given tag,
 replace it. Otherwise append tag, length and value to the config
@@ -150,72 +220,72 @@ string.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="virtualsmartcard.SEutils.ControlReferenceTemplate.__set_algo">
-<code class="sig-name descname"><span class="pre">__set_algo</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.ControlReferenceTemplate.__set_algo" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.SEutils.ControlReferenceTemplate.__set_algo">
+<span class="sig-name descname"><span class="pre">__set_algo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.ControlReferenceTemplate.__set_algo" title="Link to this definition">¶</a></dt>
 <dd><p>Set the algorithm to be used by this CRT. The algorithms are specified
 in a global dictionary. New cards may add or modify this table in order
 to support new or different algorithms.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>data</strong> – reference to an algorithm</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="virtualsmartcard.SEutils.ControlReferenceTemplate.__set_iv">
-<code class="sig-name descname"><span class="pre">__set_iv</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.ControlReferenceTemplate.__set_iv" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.SEutils.ControlReferenceTemplate.__set_iv">
+<span class="sig-name descname"><span class="pre">__set_iv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.ControlReferenceTemplate.__set_iv" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="virtualsmartcard.SEutils.ControlReferenceTemplate.__set_key">
-<code class="sig-name descname"><span class="pre">__set_key</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.ControlReferenceTemplate.__set_key" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.SEutils.ControlReferenceTemplate.__set_key">
+<span class="sig-name descname"><span class="pre">__set_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.ControlReferenceTemplate.__set_key" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="virtualsmartcard.SEutils.ControlReferenceTemplate.parse_SE_config">
-<code class="sig-name descname"><span class="pre">parse_SE_config</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.ControlReferenceTemplate.parse_SE_config" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.SEutils.ControlReferenceTemplate.parse_SE_config">
+<span class="sig-name descname"><span class="pre">parse_SE_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.ControlReferenceTemplate.parse_SE_config" title="Link to this definition">¶</a></dt>
 <dd><p>Parse a control reference template as given e.g. in an MSE APDU.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>config</strong> – a TLV string containing the configuration for the CRT.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="virtualsmartcard.SEutils.ControlReferenceTemplate.to_string">
-<code class="sig-name descname"><span class="pre">to_string</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.ControlReferenceTemplate.to_string" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.SEutils.ControlReferenceTemplate.to_string">
+<span class="sig-name descname"><span class="pre">to_string</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.ControlReferenceTemplate.to_string" title="Link to this definition">¶</a></dt>
 <dd><p>Return the content of the CRT, encoded as TLV data in a string</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="virtualsmartcard.SEutils.Security_Environment">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">virtualsmartcard.SEutils.</span></code><code class="sig-name descname"><span class="pre">Security_Environment</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">MF</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SAM</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.SEutils.Security_Environment">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">virtualsmartcard.SEutils.</span></span><span class="sig-name descname"><span class="pre">Security_Environment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">MF</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SAM</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
-<dt id="virtualsmartcard.SEutils.Security_Environment._set_SE">
-<code class="sig-name descname"><span class="pre">_set_SE</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment._set_SE" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.SEutils.Security_Environment._set_SE">
+<span class="sig-name descname"><span class="pre">_set_SE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment._set_SE" title="Link to this definition">¶</a></dt>
 <dd><p>Manipulate the current Security Environment. P2 is the tag of a
 control reference template, data contains control reference objects</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="virtualsmartcard.SEutils.Security_Environment.compute_cryptographic_checksum">
-<code class="sig-name descname"><span class="pre">compute_cryptographic_checksum</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.compute_cryptographic_checksum" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.SEutils.Security_Environment.compute_cryptographic_checksum">
+<span class="sig-name descname"><span class="pre">compute_cryptographic_checksum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.compute_cryptographic_checksum" title="Link to this definition">¶</a></dt>
 <dd><p>Compute a cryptographic checksum (e.g. MAC) for the given data.
 Algorithm and key are specified in the current SE</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="virtualsmartcard.SEutils.Security_Environment.compute_digital_signature">
-<code class="sig-name descname"><span class="pre">compute_digital_signature</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.compute_digital_signature" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.SEutils.Security_Environment.compute_digital_signature">
+<span class="sig-name descname"><span class="pre">compute_digital_signature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.compute_digital_signature" title="Link to this definition">¶</a></dt>
 <dd><p>Compute a digital signature for the given data.
 Algorithm and key are specified in the current SE</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>p1</strong> – Must be 0x9E = Secure Messaging class for digital signatures</p></li>
 <li><p><strong>p2</strong> – Must be one of 0x9A, 0xAC, 0xBC. Indicates what kind of data
@@ -226,37 +296,37 @@ is included in the data field.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="virtualsmartcard.SEutils.Security_Environment.decipher">
-<code class="sig-name descname"><span class="pre">decipher</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.decipher" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.SEutils.Security_Environment.decipher">
+<span class="sig-name descname"><span class="pre">decipher</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.decipher" title="Link to this definition">¶</a></dt>
 <dd><p>Decipher data using key, algorithm, IV and Padding specified
 by the current Security environment.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>raw data (no TLV coding). Padding is not removed!!!</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="virtualsmartcard.SEutils.Security_Environment.encipher">
-<code class="sig-name descname"><span class="pre">encipher</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.encipher" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.SEutils.Security_Environment.encipher">
+<span class="sig-name descname"><span class="pre">encipher</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.encipher" title="Link to this definition">¶</a></dt>
 <dd><p>Encipher data using key, algorithm, IV and Padding specified
 by the current Security environment.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>raw data (no TLV coding).</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="virtualsmartcard.SEutils.Security_Environment.generate_public_key_pair">
-<code class="sig-name descname"><span class="pre">generate_public_key_pair</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.generate_public_key_pair" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.SEutils.Security_Environment.generate_public_key_pair">
+<span class="sig-name descname"><span class="pre">generate_public_key_pair</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.generate_public_key_pair" title="Link to this definition">¶</a></dt>
 <dd><p>The GENERATE PUBLIC-KEY PAIR command either initiates the generation
 and storing of a key pair, i.e., a public key and a private key, in the
 card, or accesses a key pair previously generated in the card.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>p1</strong> – should be 0x00 (generate new key)</p></li>
 <li><p><strong>p2</strong> – ‘00’ (no information provided) or reference of the key to
@@ -269,39 +339,28 @@ P1-P2 different from ‘0000’</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="virtualsmartcard.SEutils.Security_Environment.hash">
-<code class="sig-name descname"><span class="pre">hash</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.hash" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.SEutils.Security_Environment.hash">
+<span class="sig-name descname"><span class="pre">hash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.hash" title="Link to this definition">¶</a></dt>
 <dd><p>Hash the given data using the algorithm specified by the current
 Security environment.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>raw data (no TLV coding).</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="virtualsmartcard.SEutils.Security_Environment.manage_security_environment">
-<code class="sig-name descname"><span class="pre">manage_security_environment</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.manage_security_environment" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.SEutils.Security_Environment.manage_security_environment">
+<span class="sig-name descname"><span class="pre">manage_security_environment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.manage_security_environment" title="Link to this definition">¶</a></dt>
 <dd><p>This method is used to store, restore or erase Security Environments
 or to manipulate the various parameters of the current SE.
 P1 specifies the operation to perform, p2 is either the SEID for the
 referred SE or the tag of a control reference template</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>p1</strong> – <p>Bitmask according to this table</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 4%" />
-<col style="width: 4%" />
-<col style="width: 4%" />
-<col style="width: 4%" />
-<col style="width: 4%" />
-<col style="width: 4%" />
-<col style="width: 4%" />
-<col style="width: 4%" />
-<col style="width: 71%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>b8</p></th>
 <th class="head"><p>b7</p></th>
@@ -501,63 +560,63 @@ authentication and key agreement</p></td>
 </dd></dl>
 
 <dl class="py method">
-<dt id="virtualsmartcard.SEutils.Security_Environment.parse_SM_CAPDU">
-<code class="sig-name descname"><span class="pre">parse_SM_CAPDU</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">CAPDU</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">authenticate_header</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.parse_SM_CAPDU" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.SEutils.Security_Environment.parse_SM_CAPDU">
+<span class="sig-name descname"><span class="pre">parse_SM_CAPDU</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">CAPDU</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">authenticate_header</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.parse_SM_CAPDU" title="Link to this definition">¶</a></dt>
 <dd><p>This methods parses a data field including Secure Messaging objects.
 SM_header indicates whether or not the header of the message shall be
 authenticated. It returns an unprotected command APDU</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>CAPDU</strong> – The protected CAPDU to be parsed</p></li>
 <li><p><strong>authenticate_header</strong> – Whether or not the header should be
 included in authentication mechanisms</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Unprotected command APDU</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="virtualsmartcard.SEutils.Security_Environment.perform_security_operation">
-<code class="sig-name descname"><span class="pre">perform_security_operation</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.perform_security_operation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.SEutils.Security_Environment.perform_security_operation">
+<span class="sig-name descname"><span class="pre">perform_security_operation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.perform_security_operation" title="Link to this definition">¶</a></dt>
 <dd><p>In the end this command is nothing but a big switch for all the other
 commands in ISO 7816-8. It will invoke the appropriate command and
 return its result</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="virtualsmartcard.SEutils.Security_Environment.protect_response">
-<code class="sig-name descname"><span class="pre">protect_response</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sw</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.protect_response" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.SEutils.Security_Environment.protect_response">
+<span class="sig-name descname"><span class="pre">protect_response</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sw</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.protect_response" title="Link to this definition">¶</a></dt>
 <dd><p>This method protects a response APDU using secure messaging mechanisms</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>the protected data and the SW bytes</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="virtualsmartcard.SEutils.Security_Environment.verify_certificate">
-<code class="sig-name descname"><span class="pre">verify_certificate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.verify_certificate" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.SEutils.Security_Environment.verify_certificate">
+<span class="sig-name descname"><span class="pre">verify_certificate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.verify_certificate" title="Link to this definition">¶</a></dt>
 <dd><p>Verify a certificate send by the terminal using the internal trust
 anchors.
 This method is currently not implemented.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="virtualsmartcard.SEutils.Security_Environment.verify_cryptographic_checksum">
-<code class="sig-name descname"><span class="pre">verify_cryptographic_checksum</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.verify_cryptographic_checksum" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.SEutils.Security_Environment.verify_cryptographic_checksum">
+<span class="sig-name descname"><span class="pre">verify_cryptographic_checksum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.verify_cryptographic_checksum" title="Link to this definition">¶</a></dt>
 <dd><p>Verify the cryptographic checksum contained in the data field.
 Data field must contain a cryptographic checksum (tag 0x8E) and a plain
 value (tag 0x80)</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="virtualsmartcard.SEutils.Security_Environment.verify_digital_signature">
-<code class="sig-name descname"><span class="pre">verify_digital_signature</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.verify_digital_signature" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.SEutils.Security_Environment.verify_digital_signature">
+<span class="sig-name descname"><span class="pre">verify_digital_signature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SEutils.Security_Environment.verify_digital_signature" title="Link to this definition">¶</a></dt>
 <dd><p>Verify the digital signature contained in the data field. Data must
 contain a data to sign (tag 0x9A, 0xAC or 0xBC) and a digital signature
 (0x9E)</p>
@@ -565,7 +624,7 @@ contain a data to sign (tag 0x9A, 0xAC or 0xBC) and a digital signature
 
 </dd></dl>
 
-</div>
+</section>
 
 
     </div>
@@ -579,7 +638,7 @@ contain a data to sign (tag 0x9A, 0xAC or 0xBC) and a digital signature
       
     </p>
     <p>
-        &copy; Copyright 2009-2023 by Dominik Oepen and Frank Morgner.<br/>
+        &copy; Copyright 2009-2025 by Dominik Oepen and Frank Morgner.<br/>
     </p>
   </div>
 </footer>

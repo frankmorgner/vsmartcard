@@ -1,0 +1,6 @@
+<map id="inheritancef880455e0d" name="inheritancef880455e0d">
+<area shape="rect" id="node1" href="virtualsmartcard.SEutils.html#virtualsmartcard.SEutils.Security_Environment" target="_top" title="virtualsmartcard.SEutils.Security_Environment" alt="" coords="5,55,331,80"/>
+<area shape="rect" id="node4" href="#virtualsmartcard.cards.ePass.ePass_SE" target="_top" title="This class implements the Security Environment of the ICAO Passports. It" alt="" coords="391,55,665,80"/>
+<area shape="rect" id="node2" href="virtualsmartcard.SmartcardSAM.html#virtualsmartcard.SmartcardSAM.SAM" target="_top" title="This class is used to store the data needed by the SAM." alt="" coords="35,5,301,31"/>
+<area shape="rect" id="node3" href="#virtualsmartcard.cards.ePass.PassportSAM" target="_top" title="SAM for ICAO ePassport. Implements Basic access control and key derivation" alt="" coords="379,5,677,31"/>
+</map>

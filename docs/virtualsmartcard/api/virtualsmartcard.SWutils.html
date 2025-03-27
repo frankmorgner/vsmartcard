@@ -1,27 +1,27 @@
 <!DOCTYPE html>
 
-<html>
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SWutils Module &#8212; vsmartcard 2023-10-01 documentation</title>
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
-    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <link rel="shortcut icon" href="../../_static/chip.ico"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>SWutils Module &#8212; vsmartcard 2025-03-27 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-sphinx.css?v=fa2d15c4" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+    <script src="../../_static/documentation_options.js?v=41bab39b"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="icon" href="../../_static/chip.ico"/>
     <link rel="search" title="Search" href="../../search.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js "></script>
-<script type="text/javascript" src="../../_static/js/jquery-fix.js "></script>
-<script type="text/javascript" src="../../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
-<script type="text/javascript" src="../../_static/bootstrap-sphinx.js "></script>
+<script type="text/javascript" src="../../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
 
   </head><body>
   
@@ -89,7 +89,15 @@
   <ul class="dropdown-menu localtoc"
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">SWutils Module</a></li>
+<li><a class="reference internal" href="#">SWutils Module</a><ul>
+<li><a class="reference internal" href="#virtualsmartcard.SWutils.SwError"><code class="docutils literal notranslate"><span class="pre">SwError</span></code></a><ul>
+<li><a class="reference internal" href="#virtualsmartcard.SWutils.SwError.add_note"><code class="docutils literal notranslate"><span class="pre">SwError.add_note()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SWutils.SwError.args"><code class="docutils literal notranslate"><span class="pre">SwError.args</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SWutils.SwError.with_traceback"><code class="docutils literal notranslate"><span class="pre">SwError.with_traceback()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </ul>
 </li>
@@ -123,32 +131,61 @@
 
 <div class="container">
   <div class="row">
-    <div class="body col-md-12 content" role="main">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li><a class="reference internal" href="#">SWutils Module</a><ul>
+<li><a class="reference internal" href="#virtualsmartcard.SWutils.SwError"><code class="docutils literal notranslate"><span class="pre">SwError</span></code></a><ul>
+<li><a class="reference internal" href="#virtualsmartcard.SWutils.SwError.add_note"><code class="docutils literal notranslate"><span class="pre">SwError.add_note()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SWutils.SwError.args"><code class="docutils literal notranslate"><span class="pre">SwError.args</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.SWutils.SwError.with_traceback"><code class="docutils literal notranslate"><span class="pre">SwError.with_traceback()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<form action="../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+    <div class="body col-md-9 content" role="main">
       
-  <div class="section" id="swutils-module">
-<h1>SWutils Module<a class="headerlink" href="#swutils-module" title="Permalink to this headline">¶</a></h1>
-<div class="graphviz"><img src="../../_images/inheritance-2d3c003f9dce8873984cd7de1ec63e38780a764a.png" alt="Inheritance diagram of virtualsmartcard.SWutils" usemap="#inheritancef021466e51" class="inheritance graphviz" /></div>
+  <section id="swutils-module">
+<h1>SWutils Module<a class="headerlink" href="#swutils-module" title="Link to this heading">¶</a></h1>
+<div class="graphviz"><img src="../../_images/inheritance-c0e2e2b002f186e3dc57723d17a76799739ca6fa.png" alt="Inheritance diagram of virtualsmartcard.SWutils" usemap="#inheritancef021466e51" class="inheritance graphviz" /></div>
 <map id="inheritancef021466e51" name="inheritancef021466e51">
 <area shape="rect" id="node1" href="#virtualsmartcard.SWutils.SwError" target="_top" title="virtualsmartcard.SWutils.SwError" alt="" coords="5,5,243,31"/>
-</map><span class="target" id="module-virtualsmartcard.SWutils"></span><dl class="py exception">
-<dt id="virtualsmartcard.SWutils.SwError">
-<em class="property"><span class="pre">exception</span> </em><code class="sig-prename descclassname"><span class="pre">virtualsmartcard.SWutils.</span></code><code class="sig-name descname"><span class="pre">SwError</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sw</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SWutils.SwError" title="Permalink to this definition">¶</a></dt>
+</map><dl class="py exception" id="module-virtualsmartcard.SWutils">
+<dt class="sig sig-object py" id="virtualsmartcard.SWutils.SwError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">virtualsmartcard.SWutils.</span></span><span class="sig-name descname"><span class="pre">SwError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sw</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SWutils.SwError" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="virtualsmartcard.SWutils.SwError.add_note">
+<span class="sig-name descname"><span class="pre">add_note</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SWutils.SwError.add_note" title="Link to this definition">¶</a></dt>
+<dd><p>Exception.add_note(note) –
+add a note to the exception</p>
+</dd></dl>
+
 <dl class="py attribute">
-<dt id="virtualsmartcard.SWutils.SwError.args">
-<code class="sig-name descname"><span class="pre">args</span></code><a class="headerlink" href="#virtualsmartcard.SWutils.SwError.args" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.SWutils.SwError.args">
+<span class="sig-name descname"><span class="pre">args</span></span><a class="headerlink" href="#virtualsmartcard.SWutils.SwError.args" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="virtualsmartcard.SWutils.SwError.with_traceback">
-<code class="sig-name descname"><span class="pre">with_traceback</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SWutils.SwError.with_traceback" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.SWutils.SwError.with_traceback">
+<span class="sig-name descname"><span class="pre">with_traceback</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.SWutils.SwError.with_traceback" title="Link to this definition">¶</a></dt>
 <dd><p>Exception.with_traceback(tb) –
 set self.__traceback__ to tb and return self.</p>
 </dd></dl>
 
 </dd></dl>
 
-</div>
+</section>
 
 
     </div>
@@ -162,7 +199,7 @@ set self.__traceback__ to tb and return self.</p>
       
     </p>
     <p>
-        &copy; Copyright 2009-2023 by Dominik Oepen and Frank Morgner.<br/>
+        &copy; Copyright 2009-2025 by Dominik Oepen and Frank Morgner.<br/>
     </p>
   </div>
 </footer>

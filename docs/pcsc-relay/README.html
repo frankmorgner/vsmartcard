@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 
-<html>
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PC/SC Relay &#8212; vsmartcard 2023-10-01 documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <link rel="shortcut icon" href="../_static/chip.ico"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>PC/SC Relay &#8212; vsmartcard 2025-03-27 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css?v=fa2d15c4" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <script src="../_static/documentation_options.js?v=41bab39b"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="icon" href="../_static/chip.ico"/>
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="USB CCID Emulator" href="../ccid/README.html" />
     <link rel="prev" title="Tizen Smart Card Emulator" href="../TCardEmulator/README.html" />
@@ -20,10 +20,10 @@
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
-<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
-<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
-<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
 
   </head><body>
   
@@ -146,30 +146,65 @@
 
 <div class="container">
   <div class="row">
-    <div class="body col-md-12 content" role="main">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li><a class="reference internal" href="#">PC/SC Relay</a><ul>
+<li><a class="reference internal" href="#download">Download</a></li>
+<li><a class="reference internal" href="#installation">Installation</a><ul>
+<li><a class="reference internal" href="#installation-on-linux-unix-and-similar">Installation on Linux, Unix and similar</a></li>
+<li><a class="reference internal" href="#hints-on-libnfc">Hints on libnfc</a></li>
+<li><a class="reference internal" href="#hints-on-android-smart-card-emulator">Hints on Android Smart Card Emulator</a></li>
+<li><a class="reference internal" href="#hints-on-pc-sc-middleware">Hints on PC/SC middleware</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#usage">Usage</a></li>
+<li><a class="reference internal" href="#question">Question</a></li>
+<li><a class="reference internal" href="#notes-and-references">Notes and References</a></li>
+</ul>
+</li>
+</ul>
+
+  <li>
+    <a href="../TCardEmulator/README.html" title="Previous Chapter: Tizen Smart Card Emulator"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; Tizen Smart C...</span>
+    </a>
+  </li>
+  <li>
+    <a href="../ccid/README.html" title="Next Chapter: USB CCID Emulator"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">USB CCID Emulator &raquo;</span>
+    </a>
+  </li>
+<form action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+    <div class="body col-md-9 content" role="main">
       
-  <div class="section" id="pc-sc-relay">
-<span id="pcsc-relay"></span><h1>PC/SC Relay<a class="headerlink" href="#pc-sc-relay" title="Permalink to this headline">¶</a></h1>
-<div class="sidebar">
+  <section id="pc-sc-relay">
+<span id="pcsc-relay"></span><h1>PC/SC Relay<a class="headerlink" href="#pc-sc-relay" title="Link to this heading">¶</a></h1>
+<aside class="sidebar">
 <p class="sidebar-title">Relay a smart card to a contactless interface</p>
 <dl class="field-list simple">
-<dt class="field-odd">License</dt>
+<dt class="field-odd">License<span class="colon">:</span></dt>
 <dd class="field-odd"><p>GPL version 3</p>
 </dd>
-<dt class="field-even">Tested Platforms</dt>
+<dt class="field-even">Tested Platforms<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p>Windows</p></li>
 <li><p>Linux (Debian, Ubuntu, OpenMoko)</p></li>
 </ul>
 </dd>
 </dl>
-</div>
+</aside>
 <p>Welcome to PC/SC Relay. The purpose of PC/SC Relay is to relay a smart
 card using an contact-less interface. Currently the following contact-less
 <strong>emulators</strong> are supported:</p>
 <ul class="simple">
-<li><p><a class="reference external" href="http://nfc-tools.org/index.php?title=Devices_compatibility_matrix">Hardware supported by libnfc</a> <a class="footnote-reference brackets" href="#id3" id="id4">1</a></p></li>
-<li><p><a class="reference external" href="http://www.openpcd.org/OpenPICC">OpenPICC</a> <a class="footnote-reference brackets" href="#id5" id="id6">2</a></p></li>
+<li><p><a class="reference external" href="http://nfc-tools.org/index.php?title=Devices_compatibility_matrix">Hardware supported by libnfc</a> <a class="footnote-reference brackets" href="#id3" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p></li>
+<li><p><a class="reference external" href="http://www.openpcd.org/OpenPICC">OpenPICC</a> <a class="footnote-reference brackets" href="#id5" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a></p></li>
 <li><p><a class="reference internal" href="../ACardEmulator/README.html#acardemulator"><span class="std std-ref">Android Smart Card Emulator</span></a></p></li>
 </ul>
 <p>Command APDUs are received with the contact-less interface and relayed. The
@@ -183,29 +218,27 @@ contact-based <em>or</em> contact-less.</p></li>
 smart card’s native interface is used and (despite its name) PC/SC Relay
 does not need to access PC/SC in this case.</p></li>
 </ul>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>┌────────┐          ┌──────────┐          ┌─────────┐
-│Emulator│          │pcsc-relay│          │Connector│
-└───┬────┘          └────┬─────┘          └────┬────┘
-    │    Command APDU    │                     │
-    │ ───────────────────&gt;                     │
-    │                    │ ───────────────────&gt;│
-    │                    │ &lt;───────────────────│
-    │    Response APDU   │                     │
-    │ &lt;───────────────────                     │
-┌───┴────┐          ┌────┴─────┐          ┌────┴────┐
-│Emulator│          │pcsc-relay│          │Connector│
-└────────┘          └──────────┘          └─────────┘
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>┌────────┐<span class="w">          </span>┌──────────┐<span class="w">          </span>┌─────────┐
+│Emulator│<span class="w">          </span>│pcsc-relay│<span class="w">          </span>│Connector│
+└───┬────┘<span class="w">          </span>└────┬─────┘<span class="w">          </span>└────┬────┘
+<span class="w">    </span>│<span class="w">    </span>Command<span class="w"> </span>APDU<span class="w">    </span>│<span class="w">                     </span>│
+<span class="w">    </span>│<span class="w"> </span>───────────────────&gt;<span class="w">                     </span>│
+<span class="w">    </span>│<span class="w">                    </span>│<span class="w"> </span>───────────────────&gt;│
+<span class="w">    </span>│<span class="w">                    </span>│<span class="w"> </span>&lt;───────────────────│
+<span class="w">    </span>│<span class="w">    </span>Response<span class="w"> </span>APDU<span class="w">   </span>│<span class="w">                     </span>│
+<span class="w">    </span>│<span class="w"> </span>&lt;───────────────────<span class="w">                     </span>│
+┌───┴────┐<span class="w">          </span>┌────┴─────┐<span class="w">          </span>┌────┴────┐
+│Emulator│<span class="w">          </span>│pcsc-relay│<span class="w">          </span>│Connector│
+└────────┘<span class="w">          </span>└──────────┘<span class="w">          </span>└─────────┘
 </pre></div>
 </div>
-<div class="figure" id="id1" style="text-align: center">
-<p><img  src="../_images/tikz-115ce7f91e19ed28b7af35a9f18aa096148209ea.svg" alt="Figure made with TikZ" /></p>
-<p class="caption"><span class="caption-text">Debug, Analyze and Emulate with PC/SC Relay</span></p>
+<div class="figure" id="id1" style="text-align: center"><p><img  src="../_images/tikz-115ce7f91e19ed28b7af35a9f18aa096148209ea.svg" alt="Figure made with TikZ" /></p>
+<p><span class="caption-text">Debug, Analyze and Emulate with PC/SC Relay</span></p>
 </div><p>With PC/SC Relay you can relay a contact-less or contact based smart card
 over a long distance. Also you can use it in combination with the <a class="reference internal" href="../virtualsmartcard/README.html#vicc"><span class="std std-ref">Virtual Smart Card</span></a>
 to completely emulate an ISO/IEC 14443 smart card.</p>
-<div class="figure" id="id2" style="text-align: center">
-<p><img  src="../_images/tikz-0405e52eb98193c32482e91a30737e1e9684bad0.svg" alt="Figure made with TikZ" /></p>
-<p class="caption"><span class="caption-text">Emulate a contact-less German ID card to perform sanity checks</span></p>
+<div class="figure" id="id2" style="text-align: center"><p><img  src="../_images/tikz-0405e52eb98193c32482e91a30737e1e9684bad0.svg" alt="Figure made with TikZ" /></p>
+<p><span class="caption-text">Emulate a contact-less German ID card to perform sanity checks</span></p>
 </div><p>PC/SC Relay has the following dependencies:</p>
 <ul class="simple">
 <li><p>PC/SC middleware</p></li>
@@ -217,61 +250,61 @@ to the card. We discussed the impact especially on the <a class="reference exter
 against the German ID card</a>,
 but it generally concerns <em>all</em> contact-less smart cards.</p>
 </div>
-<div class="section" id="download">
-<h2>Download<a class="headerlink" href="#download" title="Permalink to this headline">¶</a></h2>
+<section id="download">
+<h2>Download<a class="headerlink" href="#download" title="Link to this heading">¶</a></h2>
 <p>You can find the latest release of PC/SC Relay on <a class="reference external" href="https://github.com/frankmorgner/vsmartcard/releases">Github</a>. Older releases are
 still available on <a class="reference external" href="http://sourceforge.net/projects/vsmartcard/files">Sourceforge</a>.</p>
 <p>Alternatively, you can clone our git repository:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/frankmorgner/vsmartcard.git
-<span class="nb">cd</span> vsmartcard
-git submodule update --init --recursive
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/frankmorgner/vsmartcard.git
+<span class="nb">cd</span><span class="w"> </span>vsmartcard
+git<span class="w"> </span>submodule<span class="w"> </span>update<span class="w"> </span>--init<span class="w"> </span>--recursive
 </pre></div>
 </div>
-</div>
-<div class="section" id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="installation-on-linux-unix-and-similar">
-<h3>Installation on Linux, Unix and similar<a class="headerlink" href="#installation-on-linux-unix-and-similar" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading">¶</a></h2>
+<section id="installation-on-linux-unix-and-similar">
+<h3>Installation on Linux, Unix and similar<a class="headerlink" href="#installation-on-linux-unix-and-similar" title="Link to this heading">¶</a></h3>
 <p>The PC/SC Relay uses the GNU Build System to compile and install. If you are
 unfamiliar with it, please have a look at <code class="file docutils literal notranslate"><span class="pre">INSTALL</span></code>. If you can not find
 it, you are probably working bleeding edge in the repository. To generate the
 missing standard auxiliary files you need to additionally install <cite>libtool</cite> and
 <cite>pkg-config</cite> and run the following command in <code class="file docutils literal notranslate"><span class="pre">pcsc-relay</span></code>:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>autoreconf --verbose --install
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>autoreconf<span class="w"> </span>--verbose<span class="w"> </span>--install
 </pre></div>
 </div>
 <p>To configure (<strong class="command">configure --help</strong> lists possible options), build and
 install the PC/SC Relay now do the following:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>./configure
 make
-make install
+make<span class="w"> </span>install
 </pre></div>
 </div>
-</div>
-<div class="section" id="hints-on-libnfc">
-<h3>Hints on libnfc<a class="headerlink" href="#hints-on-libnfc" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="hints-on-libnfc">
+<h3>Hints on libnfc<a class="headerlink" href="#hints-on-libnfc" title="Link to this heading">¶</a></h3>
 <p>Here is an example of how to get the standard
 installation of libnfc:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nv">PREFIX</span><span class="o">=</span>/tmp/install
 <span class="nv">LIBNFC</span><span class="o">=</span>libnfc
-git clone https://github.com/nfc-tools/libnfc <span class="nv">$LIBNFC</span>
-<span class="nb">cd</span> <span class="nv">$LIBNFC</span>
-autoreconf -i
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/nfc-tools/libnfc<span class="w"> </span><span class="nv">$LIBNFC</span>
+<span class="nb">cd</span><span class="w"> </span><span class="nv">$LIBNFC</span>
+autoreconf<span class="w"> </span>-i
 <span class="c1"># See `./configure --help` for enabling support of additional hardware</span>
-./configure --prefix<span class="o">=</span><span class="nv">$PREFIX</span>
+./configure<span class="w"> </span>--prefix<span class="o">=</span><span class="nv">$PREFIX</span>
 make
-make install
+make<span class="w"> </span>install
 </pre></div>
 </div>
 <p>Building PC/SC Relay with libnfc is done best using <strong class="command">pkg-config</strong>.  The file
 <code class="file docutils literal notranslate"><span class="pre">libnfc.pc</span></code> should be located in <code class="docutils literal notranslate"><span class="pre">$INSTALL/lib/pkgconfig</span></code>. Here is how to
 configure PC/SC Relay to use it:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>./configure <span class="nv">PKG_CONFIG_PATH</span><span class="o">=</span><span class="nv">$PREFIX</span>/lib/pkgconfig
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>./configure<span class="w"> </span><span class="nv">PKG_CONFIG_PATH</span><span class="o">=</span><span class="nv">$PREFIX</span>/lib/pkgconfig
 </pre></div>
 </div>
-</div>
-<div class="section" id="hints-on-android-smart-card-emulator">
-<h3>Hints on Android Smart Card Emulator<a class="headerlink" href="#hints-on-android-smart-card-emulator" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="hints-on-android-smart-card-emulator">
+<h3>Hints on Android Smart Card Emulator<a class="headerlink" href="#hints-on-android-smart-card-emulator" title="Link to this heading">¶</a></h3>
 <p>The Android Smart Card Emulator is build around the host card emulation mode of
 Android 4.4 and later. This mode activates the app if the terminal issues a
 SELECT command with one of the app’s application identifiers. By default, the
@@ -283,7 +316,7 @@ it should relay command APDUs to PC/SC Relay.</p>
 <p>Modify the Smart Card Emulator settings to use <code class="docutils literal notranslate"><span class="pre">Remote</span> <span class="pre">Virtual</span> <span class="pre">Smart</span> <span class="pre">Card</span></code> as
 <span class="guilabel">Smart Card Emulator</span>. Now start <strong class="command">pcsc-relay</strong> by specifying
 usage of the vpcd emulator:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pcsc-relay --emulator vpcd
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pcsc-relay<span class="w"> </span>--emulator<span class="w"> </span>vpcd
 </pre></div>
 </div>
 <p>In the app, change the <span class="guilabel">VICC Hostname</span> and <span class="guilabel">VICC Port</span> to
@@ -293,21 +326,21 @@ AIDs, it will connect to <strong class="command">pcsc-relay</strong>, which will
 command for processing.</p>
 <p>Compiling and installing Android Smart Card Emulator is covered in its
 <a class="reference internal" href="../ACardEmulator/README.html#acardemulator-install"><span class="std std-ref">Download and Install</span></a> section.</p>
-</div>
-<div class="section" id="hints-on-pc-sc-middleware">
-<h3>Hints on PC/SC middleware<a class="headerlink" href="#hints-on-pc-sc-middleware" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="hints-on-pc-sc-middleware">
+<h3>Hints on PC/SC middleware<a class="headerlink" href="#hints-on-pc-sc-middleware" title="Link to this heading">¶</a></h3>
 <p>A PC/SC middleware is included by default in most modern operating systems. On
-Unix-like systems (Linux, OS X, Sun OS) it is realized by <a class="reference external" href="https://pcsclite.apdu.fr/">PCSC-Lite</a> <a class="footnote-reference brackets" href="#id7" id="id8">3</a>. To
+Unix-like systems (Linux, OS X, Sun OS) it is realized by <a class="reference external" href="https://pcsclite.apdu.fr/">PCSC-Lite</a> <a class="footnote-reference brackets" href="#id7" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>. To
 compile PC/SC Relay you will need to install the PCSC-Lite headers from
 your distribution.</p>
 <p>Windows also ships with a PC/SC middleware in form of the Winscard module.
 PC/SC Relay can be (cross) compiled with MinGW-w64. Also, Microsoft’s
 developement environment Visual Studio includes all necessary data for building
 PC/SC Relay.</p>
-</div>
-</div>
-<div class="section" id="usage">
-<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Usage: pcsc-relay [OPTION]...
 Relay a smart card to a contactless interface
 
@@ -351,10 +384,6 @@ Written by Frank Morgner and Dominik Oepen
 <p>Below we explain what option to choose for the emulator which receives a
 command APDU and transmits a response APDU back to the terminal:</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 78%" />
-<col style="width: 22%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Option</p></th>
 <th class="head"><p><code class="docutils literal notranslate"><span class="pre">--emulator</span></code></p></th>
@@ -378,10 +407,6 @@ command APDU and transmits a response APDU back to the terminal:</p>
 <p>Below we explain what option to choose for the connector which calculates
 a response APDU from a given command APDU:</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 77%" />
-<col style="width: 23%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Option</p></th>
 <th class="head"><p><code class="docutils literal notranslate"><span class="pre">--connector</span></code></p></th>
@@ -402,27 +427,30 @@ a response APDU from a given command APDU:</p>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="question">
-<h2>Question<a class="headerlink" href="#question" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="question">
+<h2>Question<a class="headerlink" href="#question" title="Link to this heading">¶</a></h2>
 <p>Do you have questions, suggestions or contributions? Feedback of any kind is
 more than welcome! Please use our <a class="reference external" href="https://github.com/frankmorgner/vsmartcard/issues">project trackers</a>.</p>
-</div>
-<div class="section" id="notes-and-references">
-<h2>Notes and References<a class="headerlink" href="#notes-and-references" title="Permalink to this headline">¶</a></h2>
-<dl class="footnote brackets">
-<dt class="label" id="id3"><span class="brackets"><a class="fn-backref" href="#id4">1</a></span></dt>
-<dd><p><a class="reference external" href="http://nfc-tools.org/index.php?title=Devices_compatibility_matrix">http://nfc-tools.org/index.php?title=Devices_compatibility_matrix</a></p>
-</dd>
-<dt class="label" id="id5"><span class="brackets"><a class="fn-backref" href="#id6">2</a></span></dt>
-<dd><p><a class="reference external" href="http://www.openpcd.org/OpenPICC">http://www.openpcd.org/OpenPICC</a></p>
-</dd>
-<dt class="label" id="id7"><span class="brackets"><a class="fn-backref" href="#id8">3</a></span></dt>
-<dd><p><a class="reference external" href="https://pcsclite.apdu.fr/">https://pcsclite.apdu.fr/</a></p>
-</dd>
-</dl>
-</div>
-</div>
+</section>
+<section id="notes-and-references">
+<h2>Notes and References<a class="headerlink" href="#notes-and-references" title="Link to this heading">¶</a></h2>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id3" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">1</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="http://nfc-tools.org/index.php?title=Devices_compatibility_matrix">http://nfc-tools.org/index.php?title=Devices_compatibility_matrix</a></p>
+</aside>
+<aside class="footnote brackets" id="id5" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">2</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="http://www.openpcd.org/OpenPICC">http://www.openpcd.org/OpenPICC</a></p>
+</aside>
+<aside class="footnote brackets" id="id7" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id8">3</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://pcsclite.apdu.fr/">https://pcsclite.apdu.fr/</a></p>
+</aside>
+</aside>
+</section>
+</section>
 
 
     </div>
@@ -436,7 +464,7 @@ more than welcome! Please use our <a class="reference external" href="https://gi
       
     </p>
     <p>
-        &copy; Copyright 2009-2023 by Dominik Oepen and Frank Morgner.<br/>
+        &copy; Copyright 2009-2025 by Dominik Oepen and Frank Morgner.<br/>
     </p>
   </div>
 </footer>

@@ -1,5 +1,0 @@
-<map id="inheritance305ec42f0e" name="inheritance305ec42f0e">
-<area shape="rect" id="node1" href="#virtualsmartcard.utils.APDU" target="_top" title="Base class for an APDU" alt="" coords="5,31,208,56"/>
-<area shape="rect" id="node2" href="#virtualsmartcard.utils.C_APDU" target="_top" title="Class for a command APDU" alt="" coords="256,5,475,31"/>
-<area shape="rect" id="node3" href="#virtualsmartcard.utils.R_APDU" target="_top" title="Class for a response APDU" alt="" coords="256,55,475,80"/>
-</map>

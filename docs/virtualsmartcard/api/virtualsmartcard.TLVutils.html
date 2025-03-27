@@ -1,27 +1,27 @@
 <!DOCTYPE html>
 
-<html>
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TLVutils Module &#8212; vsmartcard 2023-10-01 documentation</title>
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
-    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <link rel="shortcut icon" href="../../_static/chip.ico"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>TLVutils Module &#8212; vsmartcard 2025-03-27 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-sphinx.css?v=fa2d15c4" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+    <script src="../../_static/documentation_options.js?v=41bab39b"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="icon" href="../../_static/chip.ico"/>
     <link rel="search" title="Search" href="../../search.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js "></script>
-<script type="text/javascript" src="../../_static/js/jquery-fix.js "></script>
-<script type="text/javascript" src="../../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
-<script type="text/javascript" src="../../_static/bootstrap-sphinx.js "></script>
+<script type="text/javascript" src="../../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
 
   </head><body>
   
@@ -89,7 +89,26 @@
   <ul class="dropdown-menu localtoc"
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">TLVutils Module</a></li>
+<li><a class="reference internal" href="#">TLVutils Module</a><ul>
+<li><a class="reference internal" href="#virtualsmartcard.TLVutils.bertlv_pack"><code class="docutils literal notranslate"><span class="pre">bertlv_pack()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.TLVutils.bertlv_unpack"><code class="docutils literal notranslate"><span class="pre">bertlv_unpack()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.TLVutils.decodeDiscretionaryDataObjects"><code class="docutils literal notranslate"><span class="pre">decodeDiscretionaryDataObjects()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.TLVutils.decodeExtendedHeaderList"><code class="docutils literal notranslate"><span class="pre">decodeExtendedHeaderList()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.TLVutils.decodeHeaderList"><code class="docutils literal notranslate"><span class="pre">decodeHeaderList()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.TLVutils.decodeOffsetDataObjects"><code class="docutils literal notranslate"><span class="pre">decodeOffsetDataObjects()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.TLVutils.decodeTagList"><code class="docutils literal notranslate"><span class="pre">decodeTagList()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.TLVutils.encodeDataOffsetObjects"><code class="docutils literal notranslate"><span class="pre">encodeDataOffsetObjects()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.TLVutils.encodeDiscretionaryDataObjects"><code class="docutils literal notranslate"><span class="pre">encodeDiscretionaryDataObjects()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.TLVutils.encodebertlvDatalist"><code class="docutils literal notranslate"><span class="pre">encodebertlvDatalist()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.TLVutils.pack"><code class="docutils literal notranslate"><span class="pre">pack()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.TLVutils.simpletlv_pack"><code class="docutils literal notranslate"><span class="pre">simpletlv_pack()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.TLVutils.simpletlv_unpack"><code class="docutils literal notranslate"><span class="pre">simpletlv_unpack()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.TLVutils.tlv_find_tag"><code class="docutils literal notranslate"><span class="pre">tlv_find_tag()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.TLVutils.tlv_find_tags"><code class="docutils literal notranslate"><span class="pre">tlv_find_tags()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.TLVutils.tlv_unpack"><code class="docutils literal notranslate"><span class="pre">tlv_unpack()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.TLVutils.unpack"><code class="docutils literal notranslate"><span class="pre">unpack()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </ul>
 </li>
@@ -123,83 +142,116 @@
 
 <div class="container">
   <div class="row">
-    <div class="body col-md-12 content" role="main">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li><a class="reference internal" href="#">TLVutils Module</a><ul>
+<li><a class="reference internal" href="#virtualsmartcard.TLVutils.bertlv_pack"><code class="docutils literal notranslate"><span class="pre">bertlv_pack()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.TLVutils.bertlv_unpack"><code class="docutils literal notranslate"><span class="pre">bertlv_unpack()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.TLVutils.decodeDiscretionaryDataObjects"><code class="docutils literal notranslate"><span class="pre">decodeDiscretionaryDataObjects()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.TLVutils.decodeExtendedHeaderList"><code class="docutils literal notranslate"><span class="pre">decodeExtendedHeaderList()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.TLVutils.decodeHeaderList"><code class="docutils literal notranslate"><span class="pre">decodeHeaderList()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.TLVutils.decodeOffsetDataObjects"><code class="docutils literal notranslate"><span class="pre">decodeOffsetDataObjects()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.TLVutils.decodeTagList"><code class="docutils literal notranslate"><span class="pre">decodeTagList()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.TLVutils.encodeDataOffsetObjects"><code class="docutils literal notranslate"><span class="pre">encodeDataOffsetObjects()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.TLVutils.encodeDiscretionaryDataObjects"><code class="docutils literal notranslate"><span class="pre">encodeDiscretionaryDataObjects()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.TLVutils.encodebertlvDatalist"><code class="docutils literal notranslate"><span class="pre">encodebertlvDatalist()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.TLVutils.pack"><code class="docutils literal notranslate"><span class="pre">pack()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.TLVutils.simpletlv_pack"><code class="docutils literal notranslate"><span class="pre">simpletlv_pack()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.TLVutils.simpletlv_unpack"><code class="docutils literal notranslate"><span class="pre">simpletlv_unpack()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.TLVutils.tlv_find_tag"><code class="docutils literal notranslate"><span class="pre">tlv_find_tag()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.TLVutils.tlv_find_tags"><code class="docutils literal notranslate"><span class="pre">tlv_find_tags()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.TLVutils.tlv_unpack"><code class="docutils literal notranslate"><span class="pre">tlv_unpack()</span></code></a></li>
+<li><a class="reference internal" href="#virtualsmartcard.TLVutils.unpack"><code class="docutils literal notranslate"><span class="pre">unpack()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+<form action="../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+    <div class="body col-md-9 content" role="main">
       
-  <div class="section" id="tlvutils-module">
-<h1>TLVutils Module<a class="headerlink" href="#tlvutils-module" title="Permalink to this headline">¶</a></h1>
-<span class="target" id="module-virtualsmartcard.TLVutils"></span><dl class="py function">
-<dt id="virtualsmartcard.TLVutils.bertlv_pack">
-<code class="sig-prename descclassname"><span class="pre">virtualsmartcard.TLVutils.</span></code><code class="sig-name descname"><span class="pre">bertlv_pack</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.TLVutils.bertlv_pack" title="Permalink to this definition">¶</a></dt>
+  <section id="tlvutils-module">
+<h1>TLVutils Module<a class="headerlink" href="#tlvutils-module" title="Link to this heading">¶</a></h1>
+<dl class="py function" id="module-virtualsmartcard.TLVutils">
+<dt class="sig sig-object py" id="virtualsmartcard.TLVutils.bertlv_pack">
+<span class="sig-prename descclassname"><span class="pre">virtualsmartcard.TLVutils.</span></span><span class="sig-name descname"><span class="pre">bertlv_pack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.TLVutils.bertlv_pack" title="Link to this definition">¶</a></dt>
 <dd><p>Packs a bertlv list of 3-tuples (tag, length, newvalue) into a string</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="virtualsmartcard.TLVutils.bertlv_unpack">
-<code class="sig-prename descclassname"><span class="pre">virtualsmartcard.TLVutils.</span></code><code class="sig-name descname"><span class="pre">bertlv_unpack</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.TLVutils.bertlv_unpack" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.TLVutils.bertlv_unpack">
+<span class="sig-prename descclassname"><span class="pre">virtualsmartcard.TLVutils.</span></span><span class="sig-name descname"><span class="pre">bertlv_unpack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.TLVutils.bertlv_unpack" title="Link to this definition">¶</a></dt>
 <dd><p>Unpacks a bertlv coded string into a list of 3-tuples (tag, length,
 newvalue).</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="virtualsmartcard.TLVutils.decodeDiscretionaryDataObjects">
-<code class="sig-prename descclassname"><span class="pre">virtualsmartcard.TLVutils.</span></code><code class="sig-name descname"><span class="pre">decodeDiscretionaryDataObjects</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tlv_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.TLVutils.decodeDiscretionaryDataObjects" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.TLVutils.decodeDiscretionaryDataObjects">
+<span class="sig-prename descclassname"><span class="pre">virtualsmartcard.TLVutils.</span></span><span class="sig-name descname"><span class="pre">decodeDiscretionaryDataObjects</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tlv_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.TLVutils.decodeDiscretionaryDataObjects" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="virtualsmartcard.TLVutils.decodeExtendedHeaderList">
-<code class="sig-prename descclassname"><span class="pre">virtualsmartcard.TLVutils.</span></code><code class="sig-name descname"><span class="pre">decodeExtendedHeaderList</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tlv_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.TLVutils.decodeExtendedHeaderList" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.TLVutils.decodeExtendedHeaderList">
+<span class="sig-prename descclassname"><span class="pre">virtualsmartcard.TLVutils.</span></span><span class="sig-name descname"><span class="pre">decodeExtendedHeaderList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tlv_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.TLVutils.decodeExtendedHeaderList" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="virtualsmartcard.TLVutils.decodeHeaderList">
-<code class="sig-prename descclassname"><span class="pre">virtualsmartcard.TLVutils.</span></code><code class="sig-name descname"><span class="pre">decodeHeaderList</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tlv_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.TLVutils.decodeHeaderList" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.TLVutils.decodeHeaderList">
+<span class="sig-prename descclassname"><span class="pre">virtualsmartcard.TLVutils.</span></span><span class="sig-name descname"><span class="pre">decodeHeaderList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tlv_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.TLVutils.decodeHeaderList" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="virtualsmartcard.TLVutils.decodeOffsetDataObjects">
-<code class="sig-prename descclassname"><span class="pre">virtualsmartcard.TLVutils.</span></code><code class="sig-name descname"><span class="pre">decodeOffsetDataObjects</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tlv_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.TLVutils.decodeOffsetDataObjects" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.TLVutils.decodeOffsetDataObjects">
+<span class="sig-prename descclassname"><span class="pre">virtualsmartcard.TLVutils.</span></span><span class="sig-name descname"><span class="pre">decodeOffsetDataObjects</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tlv_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.TLVutils.decodeOffsetDataObjects" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="virtualsmartcard.TLVutils.decodeTagList">
-<code class="sig-prename descclassname"><span class="pre">virtualsmartcard.TLVutils.</span></code><code class="sig-name descname"><span class="pre">decodeTagList</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tlv_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.TLVutils.decodeTagList" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.TLVutils.decodeTagList">
+<span class="sig-prename descclassname"><span class="pre">virtualsmartcard.TLVutils.</span></span><span class="sig-name descname"><span class="pre">decodeTagList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tlv_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.TLVutils.decodeTagList" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="virtualsmartcard.TLVutils.encodeDataOffsetObjects">
-<code class="sig-prename descclassname"><span class="pre">virtualsmartcard.TLVutils.</span></code><code class="sig-name descname"><span class="pre">encodeDataOffsetObjects</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datalist</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.TLVutils.encodeDataOffsetObjects" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.TLVutils.encodeDataOffsetObjects">
+<span class="sig-prename descclassname"><span class="pre">virtualsmartcard.TLVutils.</span></span><span class="sig-name descname"><span class="pre">encodeDataOffsetObjects</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datalist</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.TLVutils.encodeDataOffsetObjects" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="virtualsmartcard.TLVutils.encodeDiscretionaryDataObjects">
-<code class="sig-prename descclassname"><span class="pre">virtualsmartcard.TLVutils.</span></code><code class="sig-name descname"><span class="pre">encodeDiscretionaryDataObjects</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datalist</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.TLVutils.encodeDiscretionaryDataObjects" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.TLVutils.encodeDiscretionaryDataObjects">
+<span class="sig-prename descclassname"><span class="pre">virtualsmartcard.TLVutils.</span></span><span class="sig-name descname"><span class="pre">encodeDiscretionaryDataObjects</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datalist</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.TLVutils.encodeDiscretionaryDataObjects" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="virtualsmartcard.TLVutils.encodebertlvDatalist">
-<code class="sig-prename descclassname"><span class="pre">virtualsmartcard.TLVutils.</span></code><code class="sig-name descname"><span class="pre">encodebertlvDatalist</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datalist</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.TLVutils.encodebertlvDatalist" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.TLVutils.encodebertlvDatalist">
+<span class="sig-prename descclassname"><span class="pre">virtualsmartcard.TLVutils.</span></span><span class="sig-name descname"><span class="pre">encodebertlvDatalist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datalist</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.TLVutils.encodebertlvDatalist" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="virtualsmartcard.TLVutils.pack">
-<code class="sig-prename descclassname"><span class="pre">virtualsmartcard.TLVutils.</span></code><code class="sig-name descname"><span class="pre">pack</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tlv_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recalculate_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.TLVutils.pack" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.TLVutils.pack">
+<span class="sig-prename descclassname"><span class="pre">virtualsmartcard.TLVutils.</span></span><span class="sig-name descname"><span class="pre">pack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tlv_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recalculate_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.TLVutils.pack" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="virtualsmartcard.TLVutils.simpletlv_pack">
-<code class="sig-prename descclassname"><span class="pre">virtualsmartcard.TLVutils.</span></code><code class="sig-name descname"><span class="pre">simpletlv_pack</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tlv_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recalculate_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.TLVutils.simpletlv_pack" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.TLVutils.simpletlv_pack">
+<span class="sig-prename descclassname"><span class="pre">virtualsmartcard.TLVutils.</span></span><span class="sig-name descname"><span class="pre">simpletlv_pack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tlv_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recalculate_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.TLVutils.simpletlv_pack" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="virtualsmartcard.TLVutils.simpletlv_unpack">
-<code class="sig-prename descclassname"><span class="pre">virtualsmartcard.TLVutils.</span></code><code class="sig-name descname"><span class="pre">simpletlv_unpack</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.TLVutils.simpletlv_unpack" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.TLVutils.simpletlv_unpack">
+<span class="sig-prename descclassname"><span class="pre">virtualsmartcard.TLVutils.</span></span><span class="sig-name descname"><span class="pre">simpletlv_unpack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.TLVutils.simpletlv_unpack" title="Link to this definition">¶</a></dt>
 <dd><p>Unpacks a simpletlv coded string into a list of 3-tuples (tag, length,
 newvalue).</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="virtualsmartcard.TLVutils.tlv_find_tag">
-<code class="sig-prename descclassname"><span class="pre">virtualsmartcard.TLVutils.</span></code><code class="sig-name descname"><span class="pre">tlv_find_tag</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tlv_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.TLVutils.tlv_find_tag" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.TLVutils.tlv_find_tag">
+<span class="sig-prename descclassname"><span class="pre">virtualsmartcard.TLVutils.</span></span><span class="sig-name descname"><span class="pre">tlv_find_tag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tlv_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.TLVutils.tlv_find_tag" title="Link to this definition">¶</a></dt>
 <dd><p>Find (and return) all instances of tag in the given tlv structure (as
 returned by unpack).
 If num_results is specified then at most that many results will be
@@ -207,24 +259,24 @@ returned.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="virtualsmartcard.TLVutils.tlv_find_tags">
-<code class="sig-prename descclassname"><span class="pre">virtualsmartcard.TLVutils.</span></code><code class="sig-name descname"><span class="pre">tlv_find_tags</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tlv_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.TLVutils.tlv_find_tags" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.TLVutils.tlv_find_tags">
+<span class="sig-prename descclassname"><span class="pre">virtualsmartcard.TLVutils.</span></span><span class="sig-name descname"><span class="pre">tlv_find_tags</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tlv_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.TLVutils.tlv_find_tags" title="Link to this definition">¶</a></dt>
 <dd><p>Find (and return) all instances of tags in the given tlv structure (as
 returned by unpack).  If num_results is specified then at most that many
 results will be returned.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="virtualsmartcard.TLVutils.tlv_unpack">
-<code class="sig-prename descclassname"><span class="pre">virtualsmartcard.TLVutils.</span></code><code class="sig-name descname"><span class="pre">tlv_unpack</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.TLVutils.tlv_unpack" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.TLVutils.tlv_unpack">
+<span class="sig-prename descclassname"><span class="pre">virtualsmartcard.TLVutils.</span></span><span class="sig-name descname"><span class="pre">tlv_unpack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.TLVutils.tlv_unpack" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="virtualsmartcard.TLVutils.unpack">
-<code class="sig-prename descclassname"><span class="pre">virtualsmartcard.TLVutils.</span></code><code class="sig-name descname"><span class="pre">unpack</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_marks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_filler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.TLVutils.unpack" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="virtualsmartcard.TLVutils.unpack">
+<span class="sig-prename descclassname"><span class="pre">virtualsmartcard.TLVutils.</span></span><span class="sig-name descname"><span class="pre">unpack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_marks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_filler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#virtualsmartcard.TLVutils.unpack" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
-</div>
+</section>
 
 
     </div>
@@ -238,7 +290,7 @@ results will be returned.</p>
       
     </p>
     <p>
-        &copy; Copyright 2009-2023 by Dominik Oepen and Frank Morgner.<br/>
+        &copy; Copyright 2009-2025 by Dominik Oepen and Frank Morgner.<br/>
     </p>
   </div>
 </footer>

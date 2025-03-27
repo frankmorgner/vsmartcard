@@ -1,28 +1,28 @@
 <!DOCTYPE html>
 
-<html>
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Creating a Virtual Smart Card &#8212; vsmartcard 2023-10-01 documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <link rel="shortcut icon" href="../_static/chip.ico"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Creating a Virtual Smart Card &#8212; vsmartcard 2025-03-27 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css?v=fa2d15c4" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <script src="../_static/documentation_options.js?v=41bab39b"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="icon" href="../_static/chip.ico"/>
     <link rel="search" title="Search" href="../search.html" />
     <link rel="prev" title="USB CCID Emulator" href="../ccid/README.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
-<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
-<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
-<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
 
   </head><body>
   
@@ -135,21 +135,40 @@
 
 <div class="container">
   <div class="row">
-    <div class="body col-md-12 content" role="main">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li><a class="reference internal" href="#">Creating a Virtual Smart Card</a><ul>
+<li><a class="reference internal" href="#examples">Examples</a><ul>
+<li><a class="reference internal" href="#implementing-a-iso-7816-like-smart-card">Implementing a ISO 7816 like Smart Card</a></li>
+<li><a class="reference internal" href="#implementing-an-other-type-of-card">Implementing an Other Type of Card</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <li>
+    <a href="../ccid/README.html" title="Previous Chapter: USB CCID Emulator"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; USB CCID Emulator</span>
+    </a>
+  </li>
+<form action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+    <div class="body col-md-9 content" role="main">
       
-  <div class="section" id="creating-a-virtual-smart-card">
-<span id="virtualsmartcard-api"></span><h1>Creating a Virtual Smart Card<a class="headerlink" href="#creating-a-virtual-smart-card" title="Permalink to this headline">¶</a></h1>
+  <section id="creating-a-virtual-smart-card">
+<span id="virtualsmartcard-api"></span><h1>Creating a Virtual Smart Card<a class="headerlink" href="#creating-a-virtual-smart-card" title="Link to this heading">¶</a></h1>
 <p><abbr title="virtual smart card reader">vpcd</abbr> communicates over a socked with <abbr title="virtual smart card">vpicc</abbr> usually on port <code class="docutils literal notranslate"><span class="pre">0x8C7B</span></code>
 (configurably via <code class="file docutils literal notranslate"><span class="pre">/etc/reader.conf.d/vpcd</span></code>). So you can connect
 virtually any program to the virtual smart card reader, as long as you respect
 the following protocol:</p>
 <table class="docutils align-default" id="vpcd-commands">
-<colgroup>
-<col style="width: 22%" />
-<col style="width: 34%" />
-<col style="width: 22%" />
-<col style="width: 22%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head" colspan="2"><p><abbr title="virtual smart card reader">vpcd</abbr></p></th>
 <th class="head" colspan="2"><p><abbr title="virtual smart card">vpicc</abbr></p></th>
@@ -190,10 +209,10 @@ the following protocol:</p>
 </table>
 <p>The communication is initiated by <abbr title="virtual smart card reader">vpcd</abbr>. First the length of the data (in
 network byte order, i.e. big endian) is sent followed by the data itself.</p>
-<div class="section" id="examples">
-<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="implementing-a-iso-7816-like-smart-card">
-<h3>Implementing a ISO 7816 like Smart Card<a class="headerlink" href="#implementing-a-iso-7816-like-smart-card" title="Permalink to this headline">¶</a></h3>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h2>
+<section id="implementing-a-iso-7816-like-smart-card">
+<h3>Implementing a ISO 7816 like Smart Card<a class="headerlink" href="#implementing-a-iso-7816-like-smart-card" title="Link to this heading">¶</a></h3>
 <p><abbr title="virtual smart card">vpicc</abbr> includes an emulation of a card acting according to ISO 7816. This
 includes all standard commands for file management and secure messaging.</p>
 <p>Let’s assume we want to create a cryptoflex card, that acts mostly according to
@@ -210,12 +229,12 @@ is only a buffer that is forwarded to the smart card OS. First we modify
 <a class="reference internal" href="api/virtualsmartcard.cards.cryptoflex.html#virtualsmartcard.cards.cryptoflex.CryptoflexOS" title="virtualsmartcard.cards.cryptoflex.CryptoflexOS"><code class="xref py py-class docutils literal notranslate"><span class="pre">CryptoflexOS</span></code></a>. The
 <a class="reference internal" href="api/virtualsmartcard.CardGenerator.html#module-virtualsmartcard.CardGenerator" title="virtualsmartcard.CardGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">CardGenerator</span></code></a> is used to create a file system and a
 <abbr title="Secure Access Module">SAM</abbr> specific to the cryptoflex (we come back to this later).</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datasetfile</span><span class="p">,</span> <span class="n">card_type</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datasetfile</span><span class="p">,</span> <span class="n">card_type</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span>
                  <span class="n">readernum</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mitmPath</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ef_cardsecurity</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ef_cardaccess</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">ca_key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cvca</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">disable_checks</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">esign_key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">esign_ca_cert</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">esign_cert</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">logginglevel</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">):</span>
-        <span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">exists</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">os.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">exists</span>
 
         <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logginglevel</span><span class="p">,</span>
                             <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(asctime)s</span><span class="s2">  [</span><span class="si">%(levelname)s</span><span class="s2">] </span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">,</span>
@@ -236,22 +255,22 @@ is only a buffer that is forwarded to the smart card OS. First we modify
         <span class="k">if</span> <span class="n">card_type</span> <span class="o">==</span> <span class="s2">&quot;iso7816&quot;</span> <span class="ow">or</span> <span class="n">card_type</span> <span class="o">==</span> <span class="s2">&quot;ePass&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">os</span> <span class="o">=</span> <span class="n">Iso7816OS</span><span class="p">(</span><span class="n">MF</span><span class="p">,</span> <span class="n">SAM</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">card_type</span> <span class="o">==</span> <span class="s2">&quot;nPA&quot;</span><span class="p">:</span>
-            <span class="kn">from</span> <span class="nn">virtualsmartcard.cards.nPA</span> <span class="k">import</span> <span class="n">NPAOS</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">virtualsmartcard.cards.nPA</span><span class="w"> </span><span class="kn">import</span> <span class="n">NPAOS</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">os</span> <span class="o">=</span> <span class="n">NPAOS</span><span class="p">(</span><span class="n">MF</span><span class="p">,</span> <span class="n">SAM</span><span class="p">,</span> <span class="n">ef_cardsecurity</span><span class="o">=</span><span class="n">ef_cardsecurity</span><span class="p">,</span>
                             <span class="n">ef_cardaccess</span><span class="o">=</span><span class="n">ef_cardaccess</span><span class="p">,</span> <span class="n">ca_key</span><span class="o">=</span><span class="n">ca_key</span><span class="p">,</span>
                             <span class="n">cvca</span><span class="o">=</span><span class="n">cvca</span><span class="p">,</span> <span class="n">disable_checks</span><span class="o">=</span><span class="n">disable_checks</span><span class="p">,</span>
                             <span class="n">esign_key</span><span class="o">=</span><span class="n">esign_key</span><span class="p">,</span> <span class="n">esign_ca_cert</span><span class="o">=</span><span class="n">esign_ca_cert</span><span class="p">,</span>
                             <span class="n">esign_cert</span><span class="o">=</span><span class="n">esign_cert</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">card_type</span> <span class="o">==</span> <span class="s2">&quot;cryptoflex&quot;</span><span class="p">:</span>
-            <span class="kn">from</span> <span class="nn">virtualsmartcard.cards.cryptoflex</span> <span class="k">import</span> <span class="n">CryptoflexOS</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">virtualsmartcard.cards.cryptoflex</span><span class="w"> </span><span class="kn">import</span> <span class="n">CryptoflexOS</span>
 <span class="hll">            <span class="bp">self</span><span class="o">.</span><span class="n">os</span> <span class="o">=</span> <span class="n">CryptoflexOS</span><span class="p">(</span><span class="n">MF</span><span class="p">,</span> <span class="n">SAM</span><span class="p">)</span>
 </span><span class="hll">        <span class="k">elif</span> <span class="n">card_type</span> <span class="o">==</span> <span class="s2">&quot;relay&quot;</span><span class="p">:</span>
-</span><span class="hll">            <span class="kn">from</span> <span class="nn">virtualsmartcard.cards.Relay</span> <span class="k">import</span> <span class="n">RelayOS</span>
-</span>            <span class="kn">from</span> <span class="nn">virtualsmartcard.cards.RelayMiddleman</span> <span class="k">import</span> <span class="n">RelayMiddleman</span>
+</span><span class="hll">            <span class="kn">from</span><span class="w"> </span><span class="nn">virtualsmartcard.cards.Relay</span><span class="w"> </span><span class="kn">import</span> <span class="n">RelayOS</span>
+</span>            <span class="kn">from</span><span class="w"> </span><span class="nn">virtualsmartcard.cards.RelayMiddleman</span><span class="w"> </span><span class="kn">import</span> <span class="n">RelayMiddleman</span>
             <span class="n">mitm</span> <span class="o">=</span> <span class="n">loadMitMFromPath</span><span class="p">(</span><span class="n">mitmPath</span><span class="p">)</span> <span class="k">if</span> <span class="n">mitmPath</span> <span class="k">else</span> <span class="n">RelayMiddleman</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">os</span> <span class="o">=</span> <span class="n">RelayOS</span><span class="p">(</span><span class="n">readernum</span><span class="p">,</span><span class="n">mitm</span><span class="o">=</span><span class="n">mitm</span><span class="p">)</span> 
         <span class="k">elif</span> <span class="n">card_type</span> <span class="o">==</span> <span class="s2">&quot;handler_test&quot;</span><span class="p">:</span>
-            <span class="kn">from</span> <span class="nn">virtualsmartcard.cards.HandlerTest</span> <span class="k">import</span> <span class="n">HandlerTestOS</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">virtualsmartcard.cards.HandlerTest</span><span class="w"> </span><span class="kn">import</span> <span class="n">HandlerTestOS</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">os</span> <span class="o">=</span> <span class="n">HandlerTestOS</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Unknown cardtype </span><span class="si">%s</span><span class="s2">. Will use standard card_type </span><span class="se">\</span>
@@ -283,7 +302,7 @@ is only a buffer that is forwarded to the smart card OS. First we modify
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;VICC port:      </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">port</span><span class="p">)</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;On your NFC phone with the Android Smart Card Emulator app scan this code:&#39;</span><span class="p">)</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="kn">import</span> <span class="nn">qrcode</span>
+                    <span class="kn">import</span><span class="w"> </span><span class="nn">qrcode</span>
                     <span class="n">qr</span> <span class="o">=</span> <span class="n">qrcode</span><span class="o">.</span><span class="n">QRCode</span><span class="p">()</span>
                     <span class="n">qr</span><span class="o">.</span><span class="n">add_data</span><span class="p">(</span><span class="n">custom_url</span><span class="p">)</span>
                     <span class="n">qr</span><span class="o">.</span><span class="n">print_ascii</span><span class="p">()</span>
@@ -308,7 +327,7 @@ a command was successfull (or not) there is a little difference in what is
 returned. So we need to edit
 <a class="reference internal" href="api/virtualsmartcard.cards.cryptoflex.html#virtualsmartcard.cards.cryptoflex.CryptoflexOS.formatResult" title="virtualsmartcard.cards.cryptoflex.CryptoflexOS.formatResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">formatResult</span></code></a>, which is
 called to encode the <abbr title="status bytes SW 1 and SW 2">SWs</abbr> and the resulting data.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">formatResult</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ins</span><span class="p">,</span> <span class="n">le</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">sw</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span><span class="w"> </span><span class="nf">formatResult</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ins</span><span class="p">,</span> <span class="n">le</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">sw</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">le</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
             <span class="c1"># cryptoflex does not inpterpret le==0 as maxle</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">lastCommandSW</span> <span class="o">=</span> <span class="n">sw</span>
@@ -377,7 +396,7 @@ completely different when creating a file on the smart card. So we derive
 
         <span class="k">return</span> <span class="p">[</span><span class="n">new_file</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">recordHandlingDecode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">recordHandlingDecode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">):</span>
 </pre></div>
 </div>
 <p>As you can see it is quite simple to extend the virtual smart card to your
@@ -385,9 +404,9 @@ requirements. Simply overwrite those functions, that differ from ISO 78166. But
 as said before, the virtual smart card is quite complex and you might have to
 read some documentation or even source code to find out where it’s best to do
 your modifications…</p>
-</div>
-<div class="section" id="implementing-an-other-type-of-card">
-<h3>Implementing an Other Type of Card<a class="headerlink" href="#implementing-an-other-type-of-card" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="implementing-an-other-type-of-card">
+<h3>Implementing an Other Type of Card<a class="headerlink" href="#implementing-an-other-type-of-card" title="Link to this heading">¶</a></h3>
 <p>If you have a card entirely different to ISO 7816, you surely want to avoid all
 magic that is done while parsing a buffer (an <abbr title="Application Protocol Data Unit">APDU</abbr>). As example we will
 connect to an other smart card using PC/SC and forward it to <abbr title="virtual smart card reader">vpcd</abbr>.</p>
@@ -399,15 +418,15 @@ main functions from the template
 to the <a class="reference internal" href="#vpcd-commands"><span class="std std-ref">commands sent by vpcd</span></a>. If you know how to use
 <a class="reference external" href="http://pyscard.sourceforge.net/">pyscard</a> then the rest is pretty straight
 forward, but see yourself…</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">RelayOS</span><span class="p">(</span><span class="n">SmartcardOS</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">RelayOS</span><span class="p">(</span><span class="n">SmartcardOS</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This class implements relaying of a (physical) smartcard. The RelayOS</span>
 <span class="sd">    forwards the command APDUs received from the vpcd to the real smartcard via</span>
 <span class="sd">    an actual smart card reader and sends the responses back to the vpcd.</span>
 <span class="sd">    This class can be used to implement relay or MitM attacks.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">readernum</span><span class="p">,</span> <span class="n">mitm</span><span class="o">=</span><span class="n">RelayMiddleman</span><span class="p">()):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">readernum</span><span class="p">,</span> <span class="n">mitm</span><span class="o">=</span><span class="n">RelayMiddleman</span><span class="p">()):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize the connection to the (physical) smart card via a given</span>
 <span class="sd">        reader</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -436,8 +455,8 @@ forward, but see yourself…</p>
 
         <span class="n">atexit</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cleanup</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Close the connection to the physical card</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
@@ -445,7 +464,7 @@ forward, but see yourself…</p>
         <span class="k">except</span> <span class="n">smartcard</span><span class="o">.</span><span class="n">Exceptions</span><span class="o">.</span><span class="n">CardConnectionException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Error disconnecting from card: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">getATR</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getATR</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># when powerDown has been called, fetching the ATR will throw an error.</span>
         <span class="c1"># In this case we must try to reconnect (and then get the ATR).</span>
         <span class="k">try</span><span class="p">:</span>
@@ -462,7 +481,7 @@ forward, but see yourself…</p>
 
         <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">chr</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">atr</span><span class="p">])</span>
 
-    <span class="k">def</span> <span class="nf">powerUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">powerUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># When powerUp is called multiple times the session is valid (and the</span>
         <span class="c1"># card is implicitly powered) we can check for an ATR. But when</span>
         <span class="c1"># powerDown has been called, the session gets lost. In this case we</span>
@@ -476,7 +495,7 @@ forward, but see yourself…</p>
                 <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Error connecting to card: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
                 <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">powerDown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">powerDown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># There is no power down in the session context so we simply</span>
         <span class="c1"># disconnect, which should implicitly power down the card.</span>
         <span class="k">try</span><span class="p">:</span>
@@ -485,11 +504,11 @@ forward, but see yourself…</p>
             <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Error disconnecting from card: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">powerDown</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">powerUp</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
         <span class="c1"># sendCommandAPDU() expects a list of APDU bytes</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span><span class="nb">str</span><span class="p">):</span>
             <span class="n">apdu</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">ord</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
@@ -518,9 +537,9 @@ forward, but see yourself…</p>
         <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">chr</span><span class="p">,</span> <span class="n">rapdu</span><span class="p">))</span>
 </pre></div>
 </div>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
     </div>
@@ -534,7 +553,7 @@ forward, but see yourself…</p>
       
     </p>
     <p>
-        &copy; Copyright 2009-2023 by Dominik Oepen and Frank Morgner.<br/>
+        &copy; Copyright 2009-2025 by Dominik Oepen and Frank Morgner.<br/>
     </p>
   </div>
 </footer>

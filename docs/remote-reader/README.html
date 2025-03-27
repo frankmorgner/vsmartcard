@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 
-<html>
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Remote Smart Card Reader &#8212; vsmartcard 2023-10-01 documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <link rel="shortcut icon" href="../_static/chip.ico"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Remote Smart Card Reader &#8212; vsmartcard 2025-03-27 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css?v=fa2d15c4" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <script src="../_static/documentation_options.js?v=41bab39b"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="icon" href="../_static/chip.ico"/>
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Android Smart Card Emulator" href="../ACardEmulator/README.html" />
     <link rel="prev" title="Virtual Smart Card" href="../virtualsmartcard/README.html" />
@@ -20,10 +20,10 @@
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
-<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
-<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
-<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
 
   </head><body>
   
@@ -138,28 +138,54 @@
 
 <div class="container">
   <div class="row">
-    <div class="body col-md-12 content" role="main">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li><a class="reference internal" href="#">Remote Smart Card Reader</a><ul>
+<li><a class="reference internal" href="#download-and-install">Download and Install</a></li>
+<li><a class="reference internal" href="#question">Question</a></li>
+<li><a class="reference internal" href="#notes-and-references">Notes and References</a></li>
+</ul>
+</li>
+</ul>
+
+  <li>
+    <a href="../virtualsmartcard/README.html" title="Previous Chapter: Virtual Smart Card"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; Virtual Smart Card</span>
+    </a>
+  </li>
+  <li>
+    <a href="../ACardEmulator/README.html" title="Next Chapter: Android Smart Card Emulator"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">Android Smart... &raquo;</span>
+    </a>
+  </li>
+<form action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+    <div class="body col-md-9 content" role="main">
       
-  <div class="section" id="remote-smart-card-reader">
-<span id="remote-reader"></span><h1>Remote Smart Card Reader<a class="headerlink" href="#remote-smart-card-reader" title="Permalink to this headline">¶</a></h1>
-<div class="sidebar">
+  <section id="remote-smart-card-reader">
+<span id="remote-reader"></span><h1>Remote Smart Card Reader<a class="headerlink" href="#remote-smart-card-reader" title="Link to this heading">¶</a></h1>
+<aside class="sidebar">
 <p class="sidebar-title">Use an Android phone as contact-less smart card reader</p>
 <dl class="field-list simple">
-<dt class="field-odd">License</dt>
+<dt class="field-odd">License<span class="colon">:</span></dt>
 <dd class="field-odd"><p>GPL version 3</p>
 </dd>
-<dt class="field-even">Tested Platform</dt>
+<dt class="field-even">Tested Platform<span class="colon">:</span></dt>
 <dd class="field-even"><p>Android, CyanogenMod</p>
 </dd>
 </dl>
-</div>
+</aside>
 <p>Allow a host computer to use the smartphone’s NFC hardware as contact-less
 smartcard reader. On the host computer a special smart card driver, <abbr title="virtual smart card reader">vpcd</abbr>, must
 be installed. The app establishes a connection to <abbr title="virtual smart card reader">vpcd</abbr> over the network when a
 contact-less card is detected.</p>
-<div class="figure" id="id1" style="text-align: center">
-<p><img  src="../_images/tikz-ce55fa00e38973c00fdf255926bb46304226f2dc.svg" alt="Figure made with TikZ" /></p>
-<p class="caption"><span class="caption-text">Remote Smart Card Reader used to access a contact-less card</span></p>
+<div class="figure" id="id1" style="text-align: center"><p><img  src="../_images/tikz-ce55fa00e38973c00fdf255926bb46304226f2dc.svg" alt="Figure made with TikZ" /></p>
+<p><span class="caption-text">Remote Smart Card Reader used to access a contact-less card</span></p>
 </div><p>The Remote Smart Card Reader has the following dependencies:</p>
 <ul class="simple">
 <li><p>NFC hardware built into the smartphone</p></li>
@@ -171,9 +197,8 @@ requires permission to access the camera</p></li>
 </ul>
 <p>For remotely accessing a traditional smart card reader on one computer from an
 other computer, the <a class="reference internal" href="../virtualsmartcard/README.html#vicc"><span class="std std-ref">Virtual Smart Card</span></a> in relay mode can be used:</p>
-<div class="figure" id="id2" style="text-align: center">
-<p><img  src="../_images/tikz-f675fc9e85a93771428d0790db395907b3f662fe.svg" alt="Figure made with TikZ" /></p>
-<p class="caption"><span class="caption-text">Virtual Smart Card used in relay mode to remotely access a card</span></p>
+<div class="figure" id="id2" style="text-align: center"><p><img  src="../_images/tikz-f675fc9e85a93771428d0790db395907b3f662fe.svg" alt="Figure made with TikZ" /></p>
+<p><span class="caption-text">Virtual Smart Card used in relay mode to remotely access a card</span></p>
 </div><div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This software can actually be used in a relay attack allowing full access
@@ -181,15 +206,16 @@ to the card. We discussed the impact especially on the <a class="reference exter
 against the German ID card</a>,
 but it generally concerns <em>all</em> contact-less smart cards.</p>
 </div>
-<div class="section" id="download-and-install">
-<h2>Download and Install<a class="headerlink" href="#download-and-install" title="Permalink to this headline">¶</a></h2>
-<p>The Remote Smart Card Reader is available on <a class="reference external" href="https://f-droid.org/repository/browse/?fdid=com.vsmartcard.remotesmartcardreader.app">F-Droid</a> <a class="footnote-reference brackets" href="#id5" id="id6">2</a>.</p>
-<a class="reference external image-reference" href="https://f-droid.org/repository/browse/?fdid=com.vsmartcard.remotesmartcardreader.app"><img alt="Remote Smart Card Reader on F-Droid" src="../_images/remote-reader-qrcode.png" style="width: 265px; height: 265px;" /></a>
+<section id="download-and-install">
+<h2>Download and Install<a class="headerlink" href="#download-and-install" title="Link to this heading">¶</a></h2>
+<p>The Remote Smart Card Reader is available on <a class="reference external" href="https://f-droid.org/repository/browse/?fdid=com.vsmartcard.remotesmartcardreader.app">F-Droid</a> <a class="footnote-reference brackets" href="#id5" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p>
+<a class="reference external image-reference" href="https://f-droid.org/repository/browse/?fdid=com.vsmartcard.remotesmartcardreader.app"><img alt="Remote Smart Card Reader on F-Droid" src="../_images/remote-reader-qrcode.png" style="width: 265px; height: 265px;" />
+</a>
 <p>To manually compile the app you need to fetch the sources:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/frankmorgner/vsmartcard.git
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/frankmorgner/vsmartcard.git
 </pre></div>
 </div>
-<p>We use <a class="reference external" href="http://developer.android.com/sdk/installing/studio.html">Android Studio</a> <a class="footnote-reference brackets" href="#id3" id="id4">1</a> to build and deploy the application. Use
+<p>We use <a class="reference external" href="http://developer.android.com/sdk/installing/studio.html">Android Studio</a> <a class="footnote-reference brackets" href="#id3" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> to build and deploy the application. Use
 <span class="menuselection">File ‣ Open</span> to select <code class="file docutils literal notranslate"><span class="pre">vsmartcard/remote-reader</span></code>.
 Attach your smartphone and choose <span class="menuselection">Run ‣ Run ‘app’</span>.</p>
 <p>On the host system, where the smart card at the phone’s NFC interface is relayed to,
@@ -197,24 +223,26 @@ Attach your smartphone and choose <span class="menuselection">Run ‣ Run ‘app
 host computer, <strong class="command">vpcd-config</strong> prints a QR code to configure the Remote
 Smart Card Reader. Scan the configuration with the bar code scanner of your
 choice.</p>
-</div>
-<div class="section" id="question">
-<h2>Question<a class="headerlink" href="#question" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="question">
+<h2>Question<a class="headerlink" href="#question" title="Link to this heading">¶</a></h2>
 <p>Do you have questions, suggestions or contributions? Feedback of any kind is
 more than welcome! Please use our <a class="reference external" href="https://github.com/frankmorgner/vsmartcard/issues">project trackers</a>.</p>
-</div>
-<div class="section" id="notes-and-references">
-<h2>Notes and References<a class="headerlink" href="#notes-and-references" title="Permalink to this headline">¶</a></h2>
-<dl class="footnote brackets">
-<dt class="label" id="id3"><span class="brackets"><a class="fn-backref" href="#id4">1</a></span></dt>
-<dd><p><a class="reference external" href="http://developer.android.com/sdk/installing/studio.html">http://developer.android.com/sdk/installing/studio.html</a></p>
-</dd>
-<dt class="label" id="id5"><span class="brackets"><a class="fn-backref" href="#id6">2</a></span></dt>
-<dd><p><a class="reference external" href="https://f-droid.org/repository/browse/?fdid=com.vsmartcard.remotesmartcardreader.app">https://f-droid.org/repository/browse/?fdid=com.vsmartcard.remotesmartcardreader.app</a></p>
-</dd>
-</dl>
-</div>
-</div>
+</section>
+<section id="notes-and-references">
+<h2>Notes and References<a class="headerlink" href="#notes-and-references" title="Link to this heading">¶</a></h2>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id3" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">1</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="http://developer.android.com/sdk/installing/studio.html">http://developer.android.com/sdk/installing/studio.html</a></p>
+</aside>
+<aside class="footnote brackets" id="id5" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">2</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://f-droid.org/repository/browse/?fdid=com.vsmartcard.remotesmartcardreader.app">https://f-droid.org/repository/browse/?fdid=com.vsmartcard.remotesmartcardreader.app</a></p>
+</aside>
+</aside>
+</section>
+</section>
 
 
     </div>
@@ -228,7 +256,7 @@ more than welcome! Please use our <a class="reference external" href="https://gi
       
     </p>
     <p>
-        &copy; Copyright 2009-2023 by Dominik Oepen and Frank Morgner.<br/>
+        &copy; Copyright 2009-2025 by Dominik Oepen and Frank Morgner.<br/>
     </p>
   </div>
 </footer>

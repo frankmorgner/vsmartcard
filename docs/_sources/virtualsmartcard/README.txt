@@ -129,8 +129,15 @@ Mac OS X 10.10 (and later) ships with a proprietary implementation of the PC/SC
 layer instead of with PCSC-Lite. As far as we know, this means that smart card
 readers must be USB devices instead of directly allowing a more generic type of
 reader. To make |vpcd| work we simply configure it to pretend being a USB smart
-card reader with an :file:`Info.plist`::
+card reader with an :file:`Info.plist`. Also, macOS 13 (and later) seem to be
+incompatible with the distribution's :file:`configure` script which is
+generated on Linux. As workaround, check out the source code from Github and
+generate it by hand via autotools. The complete installation procedure looks
+like this::
 
+    git clone https://github.com/frankmorgner/vsmartcard.git
+    cd vsmartcard/virtualsmartcard
+    autoreconf -vis
     ./configure --enable-infoplist
     make
     make install
@@ -229,7 +236,13 @@ as USB device:
 
 2. Run the following command to get the device's product and vendor ID::
 
-    system_profiler SPUSBDataType
+    system_profiler SPUSBDataType \
+      | awk '
+        /Product ID:/{p=$3}
+        /Vendor ID:/{v=$3}
+        /Manufacturer:/{sub(/.*: /,""); m=$0}
+        /Location ID:/{sub(/.*: /,""); printf("%s:%s %s (%s)\n", v, p, $0, m);}
+      '
 
 3. Change :file:`/usr/local/libexec/SmartCardServices/drivers/ifd-vpcd.bundle/Info.plist`
    to match your product and vendor ID:

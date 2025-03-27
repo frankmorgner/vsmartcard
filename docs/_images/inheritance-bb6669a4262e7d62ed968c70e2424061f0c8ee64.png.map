@@ -1,0 +1,5 @@
+<map id="inheritance4bd50c7c14" name="inheritance4bd50c7c14">
+<area shape="rect" id="node1" href="#virtualsmartcard.VirtualSmartcard.Iso7816OS" target="_top" title="virtualsmartcard.VirtualSmartcard.Iso7816OS" alt="" coords="387,55,704,80"/>
+<area shape="rect" id="node2" href="#virtualsmartcard.VirtualSmartcard.SmartcardOS" target="_top" title="Base class for a smart card OS" alt="" coords="5,55,339,80"/>
+<area shape="rect" id="node3" href="#virtualsmartcard.VirtualSmartcard.VirtualICC" target="_top" title="This class is responsible for maintaining the communication of the virtual" alt="" coords="15,5,329,31"/>
+</map>
