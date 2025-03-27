@@ -23,9 +23,7 @@ import logging
 try:
     import readline
 except ImportError:
-    import collections
-    collections.Callable = collections.abc.Callable
-    import pyreadline as readline
+    import pyreadline3 as readline
 import sys
 
 from pickle import loads, dumps

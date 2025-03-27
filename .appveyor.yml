@@ -41,7 +41,7 @@ install:
  - pip install pycryptodomex
  - pip install pbkdf2
  - pip install Pillow
- - pip install pyreadline
+ - pip install pyreadline3
  - pip install pyscard
  - pip install pyinstaller
 
