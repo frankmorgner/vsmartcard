@@ -30,6 +30,10 @@
     <string name="applet_openpgp">Yubico\'s OpenPGP Applet</string>
     <string name="aid_oath">A000000527210101</string>
     <string name="applet_oath">Yubico\'s OATH Applet</string>
+    <string name="applet_npa">TR-03110 Identity Card with Protected MRTD Application</string>
+    <string name="aid_npa_eid">E80704007F00070302</string>
+    <string name="aid_npa_emrtd">A0000002471001</string>
+    <string name="aid_npa_esign">A000000167455349474E</string>
     <string name="startup_title">Tap To Emulate!</string>
     <string name="startup_message">The following smart card applets are supported:\n
         \n
