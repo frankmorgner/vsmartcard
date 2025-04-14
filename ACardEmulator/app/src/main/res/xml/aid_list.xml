@@ -31,10 +31,8 @@
         <aid-filter android:name="@string/aid_gidsapplet_truncated2"/>
     </aid-group>
 
-    <aid-group android:description="@string/applet_npa" android:category="other">
-        <aid-filter android:name="@string/aid_npa_eid"/>
-        <aid-filter android:name="@string/aid_npa_emrtd"/>
-        <aid-filter android:name="@string/aid_npa_esign"/>
+    <aid-group android:description="@string/applet_persosim" android:category="other">
+        <aid-filter android:name="@string/aid_persosim"/>
     </aid-group>
 
 </host-apdu-service>
