@@ -42,6 +42,23 @@ The remote interface can also be used together with the :ref:`pcsc-relay`,
 which allows emulating a contactless card from an existing contact-based card
 (by relaying the commands from PC/SC to the phone).
 
+An additional way of simulating a german electronic identity card (nPA) is
+PersoSim. (`PersoSim <https://persosim.de>`_). Select "VSmartcard" in the
+"Reader Type" menu and connect from the smartphone. The "Configure VSmartcard"
+menu entry opens a dialog for setting the port to be used and shows an QR-code
+that can be scanned in the app. PersoSim tries to listen for connections on all
+available interfaces.
+
+.. image:: persosim.png
+    :alt: Screenshot of PersoSim Menu for using VSmartcard
+
+.. image:: persosim-config.png
+    :alt: Screenshot of PersoSim VSmartcard configuration dialog
+
+The official eID-client (`AusweisApp <https://www.ausweisapp.bund.de/home>`_)
+can then be used to access the simulated card usind the different profiles
+included in PersoSim.
+
 You may also attach your own simulation to the remote interface by implementing
 a simple interface through a socket communication.
 
