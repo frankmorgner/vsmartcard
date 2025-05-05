@@ -32,7 +32,7 @@ install:
  - ps: $current_path = Get-Location | select -ExpandProperty Path
  - ps: $full_path = $current_path + "\swigwin-4.0.2.zip"
  - ps: $folder_path = $current_path + "\swig_win"
- - ps: (new-object net.webclient).DownloadFile("https://kumisystems.dl.sourceforge.net/project/swig/swigwin/swigwin-4.0.2/swigwin-4.0.2.zip", $full_path)
+ - ps: (new-object net.webclient).DownloadFile("https://downloads.sourceforge.net/project/swig/swigwin/swigwin-4.0.2/swigwin-4.0.2.zip", $full_path)
  - ps: Expand-Archive -LiteralPath $full_path -DestinationPath $folder_path
  - ps: $env:Path += ";"+$folder_path+"\swigwin-4.0.2"
  - python -m pip install --upgrade pip
