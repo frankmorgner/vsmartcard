@@ -22,4 +22,6 @@ which allows emulating the following cards:
 - German electronic identity card (nPA)
 - Electronic passport
 
+Additionally [PersoSim](https://persosim.de) can be used to emulate a german electronic identity card.
+
 Please refer to [our project's website](http://frankmorgner.github.io/vsmartcard/ACardEmulator/README.html) for more information.
