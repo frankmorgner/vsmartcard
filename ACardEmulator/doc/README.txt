@@ -43,11 +43,12 @@ which allows emulating a contactless card from an existing contact-based card
 (by relaying the commands from PC/SC to the phone).
 
 An additional way of simulating a german electronic identity card (nPA) is
-PersoSim. (`PersoSim <https://persosim.de>`_). Select "VSmartcard" in the
-"Reader Type" menu and connect from the smartphone. The "Configure VSmartcard"
-menu entry opens a dialog for setting the port to be used and shows an QR-code
-that can be scanned in the app. PersoSim tries to listen for connections on all
-available interfaces.
+PersoSim in version 1.2.0 or newer. (`PersoSim <https://persosim.de>`_).
+Select "VSmartcard" in the "Interface" menu and connect from the smartphone. The
+"Configure VSmartcard" menu entry opens a dialog for setting the port to be used
+and shows an QR-code for each network interface that can be scanned in the app.
+PersoSim tries to listen for connections on all available interfaces but you
+need to select an interface where the phone is reachable to get a valid QR code.
 
 .. image:: persosim.png
     :alt: Screenshot of PersoSim Menu for using VSmartcard
