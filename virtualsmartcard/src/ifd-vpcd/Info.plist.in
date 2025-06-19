@@ -16,6 +16,10 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>@VERSION@</string>
+	<key>CFBundleShortVersionString</key>
+        <string>@VERSION@</string>
+        <key>CFBundleIdentifier</key>
+        <string>io.github.frankmorgner</string>
 
 	<key>ifdManufacturerString</key>
 	<string>Virtual Smart Card Architecture</string>
@@ -41,7 +45,7 @@
 
 	<key>ifdFriendlyName</key>
 	<array>
-		<string>@VPCDHOST@:0x8C7B</string>
+		<string>Virtual PCD</string>
 	</array>
 
 	<key>Copyright</key>
