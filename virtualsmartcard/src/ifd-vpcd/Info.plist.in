@@ -16,6 +16,10 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>@VERSION@</string>
+	<key>CFBundleShortVersionString</key>
+	<string>@VERSION@</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.vsmartcard.virtualsmartcard.mac.ifd-vpcd</string>
 
 	<key>ifdManufacturerString</key>
 	<string>Virtual Smart Card Architecture</string>
