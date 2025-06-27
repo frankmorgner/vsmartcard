@@ -15,7 +15,11 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>0.8</string>
+	<string>0.10</string>
+	<key>CFBundleShortVersionString</key>
+	<string>@VERSION@</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.vsmartcard.virtualsmartcard.mac.ifd-vpcd</string>
 
 	<key>ifdManufacturerString</key>
 	<string>Virtual Smart Card Architecture</string>
@@ -31,17 +35,24 @@
 
 	<key>ifdVendorID</key>
 	<array>
+		<!-- This is the USB vendor ID of the device which triggers loading the driver -->
 		<string>0x18d1</string>
 	</array>
 
 	<key>ifdProductID</key>
 	<array>
+		<!-- This is the USB product ID of the device which triggers loading the driver -->
 		<string>0x4ee1</string>
 	</array>
 
 	<key>ifdFriendlyName</key>
 	<array>
-		<string>/dev/null:0x8C7B</string>
+		<!-- Use the reader name below to allow a virtual card connect to vpcd at port 35963 and 35964 (the default configuration) -->
+		<!--<string>/dev/null:0x8C7B</string>-->
+		<!-- Use the reader name below to connect to a virtual card, which listens at 192.168.0.4 at port 35963 ("reversed mode") -->
+		<!--<string>192.168.0.4:0x8C7B</string>-->
+		<!-- reader names without ':' will load the default configuration -->
+		<string>Virtual PCD</string>
 	</array>
 
 	<key>Copyright</key>

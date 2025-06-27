@@ -267,6 +267,7 @@ To verify the installation, execute::
 In case of a problem, inspect the logs::
 
     log show --predicate '(subsystem == "com.apple.CryptoTokenKit")' --info --debug
+    log stream --predicate 'process = "com.apple.ifdbundle"' --info --debug
 
 
 ================================================================================

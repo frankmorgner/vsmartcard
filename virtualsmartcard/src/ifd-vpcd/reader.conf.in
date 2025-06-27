@@ -1,4 +1,7 @@
 FRIENDLYNAME "Virtual PCD"
+# Use the device name below to allow a virtual card to connect to vpcd at port 35963 and 35964 (the default configuration)
 DEVICENAME   @VPCDHOST@:0x8C7B
+# Use the device name below to connect to a virtual card, which listens at 192.168.0.4 at port 35963 ("reversed mode")
+#DEVICENAME   192.168.0.4:0x8C7B
 LIBPATH      @TARGET@
 CHANNELID    0x8C7B
