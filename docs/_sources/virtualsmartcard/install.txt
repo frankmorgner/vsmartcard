@@ -7,12 +7,13 @@ Installing |vpcd| on Windows
    Authority* and the *Trusted Publishers* at the *Local Computer" (not the
    *Current User*).
 
-   On the commandline, you could do this `as follows <https://docs.microsoft.com/en-us/windows-hardware/drivers/install/using-certmgr-to-install-test-certificates-on-a-test-computer>`_::
+   On the commandline, you could do this as follows:
 
-    CertMgr /add BixVReader.cer /s /r localMachine root /all
-    CertMgr /add BixVReader.cer /s /r localMachine trustedpublisher
+    install_vpcd.bat
 
    Feel free to remove the certificate from the certificate stores once the
-   device is installed.
+   device is installed. You can do this from the command line via:
+
+    uninstall_vpcd.bat
 
 2. To install |vpcd|, double click :file:`BixVReaderInstaller.msi`.
