@@ -171,7 +171,14 @@ public class NFCReader implements SCReader {
     public static NFCReader get(Tag tag, Activity activity) {
         NFCReader nfcReader = null;
         try {
-            nfcReader = new NFCReader(IsoDep.get(tag), activity);
+            IsoDep isoDep = IsoDep.get(tag);
+
+            if (isoDep == null) {
+                com.example.android.common.logger.Log.e(NFCReader.class.getName(), "Tag does not support ISO-DEP (ISO 14443-4) data transfer");
+                return null;
+            }
+
+            nfcReader = new NFCReader(isoDep, activity);
         } catch (IOException e) {
             e.printStackTrace();
         }
