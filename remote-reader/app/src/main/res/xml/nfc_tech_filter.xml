@@ -3,5 +3,9 @@
     <tech-list>
         <!-- catches both, NfcA and NfcB -->
         <tech>android.nfc.tech.IsoDep</tech>
+        <tech>android.nfc.tech.NfcA</tech>
+        <tech>android.nfc.tech.NfcB</tech>
+        <tech>android.nfc.tech.NfcF</tech>
+        <tech>android.nfc.tech.NfcV</tech>
     </tech-list>
 </resources>
