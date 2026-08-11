@@ -60,7 +60,7 @@ bool VpcdReader::QueryTransmit(BYTE *APDU,int APDUlen,BYTE **Resp,int *Resplen) 
 	return r;
 }
 
-bool VpcdReader::QueryATR(BYTE *ATR,DWORD *ATRsize,bool reset) {
+bool VpcdReader::QueryATR(BYTE *ATR,DWORD *ATRsize,bool) {
 	unsigned char *atr = NULL;
 	int atr_len;
 	bool r = false;
@@ -75,15 +75,26 @@ bool VpcdReader::QueryATR(BYTE *ATR,DWORD *ATRsize,bool reset) {
 			*ATRsize = atr_len;
 			free(atr);
 			r = true;
-			if (reset) {
-				vicc_reset((struct vicc_ctx *) ctx);
-			}
 		} else {
 			signalRemoval();
 		}
 	}
 
 	return r;
+}
+
+void VpcdReader::Power(DWORD code) {
+	switch (code) {
+		case SCARD_POWER_DOWN:
+			vicc_poweroff((struct vicc_ctx *) ctx);
+			break;
+		case SCARD_COLD_RESET:
+			vicc_poweron((struct vicc_ctx *) ctx);
+			break;
+		case SCARD_WARM_RESET:
+			vicc_reset((struct vicc_ctx *) ctx);
+			break;
+	}
 }
 
 DWORD VpcdReader::startServer() {

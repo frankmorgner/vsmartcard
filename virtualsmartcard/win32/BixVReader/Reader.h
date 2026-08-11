@@ -35,6 +35,7 @@ public:
 	bool initProtocols();
 	virtual bool QueryTransmit(BYTE *APDU,int APDUlen,BYTE **Resp,int *Resplen);
 	virtual bool QueryATR(BYTE *ATR,DWORD *ATRsize,bool reset=false);
+	virtual void Power(DWORD code) { code; }
 	virtual bool CheckATR();
 	virtual DWORD startServer();
 	virtual void shutdown();
@@ -95,6 +96,7 @@ public:
 	~VpcdReader();
 	bool QueryTransmit(BYTE *APDU,int APDUlen,BYTE **Resp,int *Resplen);
 	bool QueryATR(BYTE *ATR,DWORD *ATRsize,bool reset=false);
+	void Power(DWORD code);
 	bool CheckATR();
 	DWORD startServer();
 	void shutdown();
