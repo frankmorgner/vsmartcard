@@ -73,6 +73,7 @@ void Reader::IoSmartCardPower(IWDFIoRequest* pRequest,SIZE_T inBufSize,SIZE_T ou
 	UNREFERENCED_PARAMETER(outBufSize);
 	OutputDebugString(L"[BixVReader][POWR]IOCTL_SMARTCARD_POWER");
 	DWORD code=getInt(pRequest);
+	Power(code);
 	if (code==SCARD_COLD_RESET) {
 		OutputDebugString(L"[BixVReader][POWR]SCARD_COLD_RESET");
 		protocol=0;
