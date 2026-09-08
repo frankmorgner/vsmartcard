@@ -7,8 +7,8 @@ android {
         minSdk 21
         //noinspection ExpiredTargetSdkVersion
         targetSdk 34
-        versionCode 8
-        versionName "3.5"
+        versionCode 9
+        versionName "4.0"
         base.archivesName = "ACardEmulator-$versionName"
     }
     buildTypes {
