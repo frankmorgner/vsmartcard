@@ -3,6 +3,11 @@
 #include "reader.h"
 #include "device.h"
 #include <winscard.h>
+
+#ifndef SCARD_CHANNEL_TYPE_PCSC
+#define SCARD_CHANNEL_TYPE_PCSC 0x00000002
+#endif
+
 #include "memory.h"
 #include <Sddl.h>
 #include "SectionLocker.h"
@@ -314,6 +319,11 @@ void Reader::IoSmartCardGetAttribute(IWDFIoRequest* pRequest,SIZE_T inBufSize,SI
 				SectionLocker lock(device->m_RequestLock);
 				pRequest->CompleteWithInformation(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED), 0);
 			}
+			return;
+		case SCARD_ATTR_CHANNEL_ID:
+			// DWORD 0xDDDDCCCC: channel type in high word, channel number in low word
+			OutputDebugString(L"[BixVReader][GATT]SCARD_ATTR_CHANNEL_ID");
+			setInt(device, pRequest, (SCARD_CHANNEL_TYPE_PCSC << 16) | ((DWORD)deviceUnit & 0xFFFF));
 			return;
 		case SCARD_ATTR_CHARACTERISTICS:
 			// 0x00000000 No special characteristics
