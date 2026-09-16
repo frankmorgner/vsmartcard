@@ -1,4 +1,4 @@
-#include "internal.h"
+﻿#include "internal.h"
 #include "VirtualSCReader_h.h"
 #include "reader.h"
 #include "device.h"
@@ -179,7 +179,7 @@ DWORD PipeReader::startServer() {
 					while (!waitInsertIpr.empty()) {
 						CComPtr<IWDFIoRequest> ipr = waitInsertIpr.back();
 						if (ipr->UnmarkCancelable()==S_OK) {
-							ipr->CompleteWithInformation(STATUS_SUCCESS, 0);
+							ipr->CompleteWithInformation(S_OK, 0);
 						}
 						waitInsertIpr.pop_back();
 					}
@@ -205,7 +205,7 @@ DWORD PipeReader::startServer() {
 							OutputDebugString(L"[BixVReader]complete Wait Remove");
 							if (ipr->UnmarkCancelable()==S_OK) {
 								OutputDebugString(L"[BixVReader]Wait Remove Unmarked");
-								ipr->CompleteWithInformation(STATUS_SUCCESS, 0);
+								ipr->CompleteWithInformation(S_OK, 0);
 								OutputDebugString(L"[BixVReader]Wait Remove Completed");
 							}
 							waitRemoveIpr.pop_back();
@@ -239,7 +239,7 @@ DWORD PipeReader::startServer() {
 					while (!waitRemoveIpr.empty()) {
 						CComPtr<IWDFIoRequest> ipr = waitRemoveIpr.back();
 						if (ipr->UnmarkCancelable()==S_OK)
-							ipr->CompleteWithInformation(STATUS_SUCCESS, 0);
+							ipr->CompleteWithInformation(S_OK, 0);
 						waitRemoveIpr.pop_back();
 					}
 				}
@@ -251,7 +251,7 @@ DWORD PipeReader::startServer() {
 					while (!waitInsertIpr.empty()) {
 						CComPtr<IWDFIoRequest> ipr = waitInsertIpr.back();
 						if (ipr->UnmarkCancelable()==S_OK)
-							ipr->CompleteWithInformation(STATUS_SUCCESS, 0);
+							ipr->CompleteWithInformation(S_OK, 0);
 						waitInsertIpr.pop_back();
 					}
 				}
@@ -285,3 +285,4 @@ void PipeReader::shutdown() {
 		waitInsertIpr.pop_back();
 	}
 }
+

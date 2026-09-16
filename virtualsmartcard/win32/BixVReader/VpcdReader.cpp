@@ -1,4 +1,4 @@
-#include "internal.h"
+﻿#include "internal.h"
 #include "VirtualSCReader_h.h"
 #include "reader.h"
 #include "device.h"
@@ -141,7 +141,7 @@ void VpcdReader::signalRemoval(void) {
 			while (!waitRemoveIpr.empty()) {
 				CComPtr<IWDFIoRequest> ipr = waitRemoveIpr.back();
 				if (ipr->UnmarkCancelable()==S_OK) {
-					ipr->CompleteWithInformation(STATUS_SUCCESS, 0);
+					ipr->CompleteWithInformation(S_OK, 0);
 				}
 				waitRemoveIpr.pop_back();
 			}
@@ -168,7 +168,7 @@ void VpcdReader::signalInsertion(void) {
 				while (!waitInsertIpr.empty()) {
 					CComPtr<IWDFIoRequest> ipr = waitInsertIpr.back();
 					if (ipr->UnmarkCancelable()==S_OK) {
-						ipr->CompleteWithInformation(STATUS_SUCCESS, 0);
+						ipr->CompleteWithInformation(S_OK, 0);
 					}
 					waitInsertIpr.pop_back();
 				}
@@ -177,3 +177,4 @@ void VpcdReader::signalInsertion(void) {
 		}
 	}
 }
+
