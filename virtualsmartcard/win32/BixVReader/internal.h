@@ -1,4 +1,4 @@
-
+﻿
 #pragma once
 
 #define WIN32_LEAN_AND_MEAN
@@ -31,9 +31,6 @@
 #include <initguid.h>
 #include <propkeydef.h>
 #include <propvarutil.h>
-#include "PortableDeviceTypes.h"
-#include "PortableDeviceClassExtension.h"
-#include "PortableDevice.h"
 
 #include "wudfddi.h"
 
@@ -74,3 +71,4 @@ DEFINE_GUID(SmartCardReaderGuid, 0x50DD5230, 0xBA8A, 0x11D1, 0xBF,0x5D,0x00,0x00
 
 //#define inFunc funcTrace _ftrace(__FUNCTION__);
 #define inFunc
+
