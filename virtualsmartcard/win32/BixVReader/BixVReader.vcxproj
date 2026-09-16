@@ -1,6 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|ARM64">
+      <Configuration>Debug</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM64">
+      <Configuration>Release</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
@@ -56,7 +64,7 @@
     <Configuration>Debug</Configuration>
     <Platform Condition="'$(Platform)' == ''">x64</Platform>
     <RootNamespace>BixVReader</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -73,6 +81,32 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <TargetVersion>Windows10</TargetVersion>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseOfAtl>Static</UseOfAtl>
+    <UMDF_VERSION_MAJOR>1</UMDF_VERSION_MAJOR>
+    <UMDF_VERSION_MINOR>9</UMDF_VERSION_MINOR>
+    <UmdfLibraryVersion>1.9</UmdfLibraryVersion>
+    <DriverTargetPlatform>Desktop</DriverTargetPlatform>
+    <DriverType>UMDF</DriverType>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="Configuration">
+    <TargetVersion>Windows10</TargetVersion>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseOfAtl>Static</UseOfAtl>
+    <UMDF_VERSION_MAJOR>1</UMDF_VERSION_MAJOR>
+    <UMDF_VERSION_MINOR>9</UMDF_VERSION_MINOR>
+    <UmdfLibraryVersion>1.9</UmdfLibraryVersion>
+    <DriverTargetPlatform>Desktop</DriverTargetPlatform>
+    <DriverType>UMDF</DriverType>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="Configuration">
     <TargetVersion>Windows10</TargetVersion>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
@@ -137,6 +171,44 @@
       <AdditionalDependencies>Ws2_32.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
+<ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>
+        $(WindowsSdkDir)Include\wdf\umdf\$(UMDF_VERSION_MAJOR).$(UMDF_VERSION_MINOR);
+        $(WindowsSdkDir)Include\shared;
+        $(IntDir);
+        %(AdditionalIncludeDirectories)
+      </AdditionalIncludeDirectories>
+      <WppEnabled>true</WppEnabled>
+      <PreprocessorDefinitions>UMDF_VERSION_MAJOR=1;UMDF_VERSION_MINOR=9;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WppScanConfigurationData Condition="'%(ClCompile.ScanConfigurationData)' == ''">internal.h</WppScanConfigurationData>
+      <TreatWarningAsError>false</TreatWarningAsError>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <ModuleDefinitionFile>.\Exports.def</ModuleDefinitionFile>
+      <AdditionalDependencies>Ws2_32.lib</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+<ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>
+        $(WindowsSdkDir)Include\wdf\umdf\$(UMDF_VERSION_MAJOR).$(UMDF_VERSION_MINOR);
+        $(WindowsSdkDir)Include\shared;
+        $(IntDir);
+        %(AdditionalIncludeDirectories)
+      </AdditionalIncludeDirectories>
+      <WppEnabled>true</WppEnabled>
+      <PreprocessorDefinitions>UMDF_VERSION_MAJOR=1;UMDF_VERSION_MINOR=9;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WppScanConfigurationData Condition="'%(ClCompile.ScanConfigurationData)' == ''">internal.h</WppScanConfigurationData>
+      <TreatWarningAsError>false</TreatWarningAsError>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <ModuleDefinitionFile>.\Exports.def</ModuleDefinitionFile>
+      <AdditionalDependencies>Ws2_32.lib</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <FilesToPackage Include="$(TargetPath)" />
   </ItemGroup>
@@ -160,7 +232,8 @@
       <StampinfPath>&quot;$(WindowsSDK_DesktopBinPath)Stampinf.exe&quot;</StampinfPath>
       <Inf2CatPath>&quot;$(WindowsSDK_DesktopBinPath)inf2cat.exe&quot;</Inf2CatPath>
       <SignToolPath>&quot;$(WindowsSDK_DesktopBinPath)signtool.exe&quot;</SignToolPath>
-      <Inf2CatOS>10_$(PlatformShortName)</Inf2CatOS>
+      <Inf2CatOS Condition="'$(PlatformShortName)'=='ARM64'">10_RS3_ARM64</Inf2CatOS>
+      <Inf2CatOS Condition="'$(PlatformShortName)'!='ARM64'">10_$(PlatformShortName)</Inf2CatOS>
     </PropertyGroup>
     <Exec
       Command="$(StampinfPath) -f BixVReader.inf -d * -v 1.0.0.0 -a $(PlatformShortName)"
@@ -180,3 +253,5 @@
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
 </Project>
+
+

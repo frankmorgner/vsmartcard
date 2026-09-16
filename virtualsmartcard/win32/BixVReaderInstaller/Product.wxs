@@ -26,9 +26,9 @@
               <fire:FirewallException Id="virtual_card_reader_port" Name="virtual_card_reader_port"
                             Description="Port for virtual card reader" Port="35963"
                                 Profile="all" Protocol="tcp" Scope="any" IgnoreFailure="yes" /> 
-              <File Id="BixVReader.dll" Source="$(var.BixVReader.TargetDir)BixVReader.dll" />
-              <File Id="BixVReader.inf" Source="$(var.BixVReader.TargetDir)BixVReader.inf" />
-              <File Id="wudf.cat" Source="$(var.BixVReader.TargetDir)bixvreader.cat" />
+              <File Id="BixVReader.dll" Source="$(var.SolutionDir)$(var.DriverPlatform)\Release\BixVReader.dll" />
+              <File Id="BixVReader.inf" Source="$(var.SolutionDir)$(var.DriverPlatform)\Release\BixVReader.inf" />
+              <File Id="wudf.cat" Source="$(var.SolutionDir)$(var.DriverPlatform)\Release\bixvreader.cat" />
             </Component>         
         </Directory>
       </Directory>
@@ -40,7 +40,11 @@
       </Directory>
     </Directory>
     
-    <Binary Id="DevMsi" SourceFile="$(var.DevMsi.TargetPath)" />
+    <?if $(var.DriverPlatform)="ARM64" ?>
+      <Binary Id="DevMsi" SourceFile="$(var.SolutionDir)..\bin\x64\Release\DevMsi.dll" />
+    <?else ?>
+      <Binary Id="DevMsi" SourceFile="$(var.SolutionDir)..\bin\$(var.DriverPlatform)\Release\DevMsi.dll" />
+    <?endif ?>
 
     <CustomAction Id="AddDevice" BinaryKey="DevMsi" DllEntry="CreateDevnode" Execute="deferred" Impersonate="no" />
     <CustomAction Id="AddDevice.SetParam" Return="check" Property="AddDevice" Value='"[INSTALLDIR]BixVReader.inf" root\BixVirtualReader' />
@@ -48,10 +52,10 @@
     <CustomAction Id="DelDevice" Return="ignore" BinaryKey="DevMsi" DllEntry="RemoveDevnode" Execute="deferred" Impersonate="no" />
     <CustomAction Id="DelDevice.SetParam" Return="check" Property="DelDevice" Value="root\BixVirtualReader" />
 
-		<Feature Id="ProductFeature" Title="BixVReader" Level="1">
+    <Feature Id="ProductFeature" Title="BixVReader" Level="1">
       <ComponentRef Id="BixVReaderDriver" />
       <ComponentRef Id="BixVReaderConfiguration" />
-		</Feature>
+    </Feature>
 
     <InstallExecuteSequence>
       <!-- Custom Actions that will be executed if "Installed" -->
