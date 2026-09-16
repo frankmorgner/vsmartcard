@@ -25,7 +25,7 @@
             <Component Id="BixVReaderDriver" Guid="60FF3BFF-E235-4F84-8A25-E22CB3164FB1">
               <fire:FirewallException Id="virtual_card_reader_port" Name="virtual_card_reader_port"
                             Description="Port for virtual card reader" Port="35963"
-                                Profile="all" Protocol="tcp" Scope="any" /> 
+                                Profile="all" Protocol="tcp" Scope="any" IgnoreFailure="yes" /> 
               <File Id="BixVReader.dll" Source="$(var.BixVReader.TargetDir)BixVReader.dll" />
               <File Id="BixVReader.inf" Source="$(var.BixVReader.TargetDir)BixVReader.inf" />
               <File Id="wudf.cat" Source="$(var.BixVReader.TargetDir)bixvreader.cat" />
