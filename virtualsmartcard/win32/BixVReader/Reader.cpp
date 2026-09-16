@@ -1,4 +1,4 @@
-#include "internal.h"
+﻿#include "internal.h"
 #include "VirtualSCReader_h.h"
 #include "reader.h"
 #include "device.h"
@@ -25,7 +25,7 @@ void Reader::IoSmartCardIsPresent(IWDFIoRequest* pRequest,SIZE_T inBufSize,SIZE_
 	if (CheckATR()) {
 		// there's a smart card present, so complete the request
 		SectionLocker lock(device->m_RequestLock);
-		pRequest->CompleteWithInformation(STATUS_SUCCESS, 0);
+		pRequest->CompleteWithInformation(S_OK, 0);
 	}
 	else {
 		// there's no smart card present, so leave the request pending; it will be completed later
@@ -54,7 +54,7 @@ void Reader::IoSmartCardIsAbsent(IWDFIoRequest* pRequest,SIZE_T inBufSize,SIZE_T
 	if (!CheckATR()) {
 		// there's no smart card present, so complete the request
 		SectionLocker lock(device->m_RequestLock);
-		pRequest->CompleteWithInformation(STATUS_SUCCESS, 0);
+		pRequest->CompleteWithInformation(S_OK, 0);
 	}
 	else {
 		SectionLocker lock(device->m_RequestLock);
@@ -97,14 +97,14 @@ void Reader::IoSmartCardPower(IWDFIoRequest* pRequest,SIZE_T inBufSize,SIZE_T ou
 		DWORD ATRsize=sizeof(ATR);
 		if (!QueryATR(ATR,&ATRsize,true))
 		{
-			pRequest->CompleteWithInformation(STATUS_NO_MEDIA, 0);
+			pRequest->CompleteWithInformation(HRESULT_FROM_NT(STATUS_NO_MEDIA), 0);
 			return;
 		}
 		setBuffer(device,pRequest,ATR,ATRsize);
 	}
 	else {
 		SectionLocker lock(device->m_RequestLock);
-		pRequest->CompleteWithInformation(STATUS_SUCCESS, 0);
+		pRequest->CompleteWithInformation(S_OK, 0);
 	}
 
 }
@@ -125,7 +125,7 @@ void Reader::IoSmartCardSetProtocol(IWDFIoRequest* pRequest,SIZE_T inBufSize,SIZ
 	if (!QueryATR(ATR,&ATRsize,true))
 	{
 		SectionLocker lock(device->m_RequestLock);
-		pRequest->CompleteWithInformation(STATUS_NO_MEDIA, 0);
+		pRequest->CompleteWithInformation(HRESULT_FROM_NT(STATUS_NO_MEDIA), 0);
 		return;
 	}
 
@@ -133,7 +133,7 @@ void Reader::IoSmartCardSetProtocol(IWDFIoRequest* pRequest,SIZE_T inBufSize,SIZ
 		((availableProtocol & SCARD_PROTOCOL_T1) != 0)) {
 		protocol = SCARD_PROTOCOL_T1;
 		SectionLocker lock(device->m_RequestLock);
-		pRequest->CompleteWithInformation(STATUS_SUCCESS, 0);
+		pRequest->CompleteWithInformation(S_OK, 0);
 		OutputDebugString(L"[BixVReader]PROTOCOL SET: T1");
 		return;
 	}
@@ -142,7 +142,7 @@ void Reader::IoSmartCardSetProtocol(IWDFIoRequest* pRequest,SIZE_T inBufSize,SIZ
 		((availableProtocol & SCARD_PROTOCOL_T0) != 0)) {
 		protocol = SCARD_PROTOCOL_T0;
 		SectionLocker lock(device->m_RequestLock);
-		pRequest->CompleteWithInformation(STATUS_SUCCESS, 0);
+		pRequest->CompleteWithInformation(S_OK, 0);
 		OutputDebugString(L"[BixVReader]PROTOCOL SET: T0");
 		return;
 	}
@@ -151,7 +151,7 @@ void Reader::IoSmartCardSetProtocol(IWDFIoRequest* pRequest,SIZE_T inBufSize,SIZ
 		((availableProtocol & SCARD_PROTOCOL_T1) != 0)) {
 		protocol = SCARD_PROTOCOL_T1;
 		SectionLocker lock(device->m_RequestLock);
-		pRequest->CompleteWithInformation(STATUS_SUCCESS, 0);
+		pRequest->CompleteWithInformation(S_OK, 0);
 		OutputDebugString(L"[BixVReader]PROTOCOL SET: T1");
 		return;
 	}
@@ -160,7 +160,7 @@ void Reader::IoSmartCardSetProtocol(IWDFIoRequest* pRequest,SIZE_T inBufSize,SIZ
 		((availableProtocol & SCARD_PROTOCOL_T0) != 0)) {
 		protocol = SCARD_PROTOCOL_T0;
 		SectionLocker lock(device->m_RequestLock);
-		pRequest->CompleteWithInformation(STATUS_SUCCESS, 0);
+		pRequest->CompleteWithInformation(S_OK, 0);
 		OutputDebugString(L"[BixVReader]PROTOCOL SET: T0");
 		return;
 	}
@@ -188,7 +188,7 @@ void Reader::IoSmartCardSetProtocol(IWDFIoRequest* pRequest,SIZE_T inBufSize,SIZ
 	if (minCode==SCARD_ATTR_DEVICE_IN_USE) {
 		SectionLocker lock(device->m_RequestLock);
 		OutputDebugString(L"[BixVReader][SATT]SCARD_ATTR_DEVICE_IN_USE");
-		pRequest->CompleteWithInformation(STATUS_SUCCESS, 0);
+		pRequest->CompleteWithInformation(S_OK, 0);
 		handled=true;
 	}
 	inmem->Release();
@@ -213,7 +213,7 @@ void Reader::IoSmartCardTransmit(IWDFIoRequest* pRequest,SIZE_T inBufSize,SIZE_T
 			|| scardRequestSize<sizeof *scardRequest
 			|| scardRequest->dwProtocol!=protocol) {
 		SectionLocker lock(device->m_RequestLock);
-        pRequest->CompleteWithInformation(STATUS_INVALID_DEVICE_STATE, 0);
+        pRequest->CompleteWithInformation(HRESULT_FROM_NT(STATUS_INVALID_DEVICE_STATE), 0);
 		goto end;
 	}
 	if (!QueryTransmit((BYTE *)(scardRequest+1),
@@ -221,13 +221,13 @@ void Reader::IoSmartCardTransmit(IWDFIoRequest* pRequest,SIZE_T inBufSize,SIZE_T
 				&RAPDU,&RAPDUSize))
 	{
 		SectionLocker lock(device->m_RequestLock);
-		pRequest->CompleteWithInformation(STATUS_NO_MEDIA, 0);					
+		pRequest->CompleteWithInformation(HRESULT_FROM_NT(STATUS_NO_MEDIA), 0);					
 		goto end;
 	}
 	SCARD_IO_REQUEST *p=(SCARD_IO_REQUEST *)realloc(scardRequest,RAPDUSize+sizeof(SCARD_IO_REQUEST));
 	if (p==NULL) {
 		SectionLocker lock(device->m_RequestLock);
-        pRequest->CompleteWithInformation(STATUS_INVALID_DEVICE_STATE, 0);
+        pRequest->CompleteWithInformation(HRESULT_FROM_NT(STATUS_INVALID_DEVICE_STATE), 0);
 		goto end;
 	}
 	scardRequest = p;
@@ -351,7 +351,7 @@ void Reader::IoSmartCardGetAttribute(IWDFIoRequest* pRequest,SIZE_T inBufSize,SI
 				if (!QueryATR(ATR,&ATRsize))
 				{
 					SectionLocker lock(device->m_RequestLock);
-					pRequest->CompleteWithInformation(STATUS_NO_MEDIA, 0);
+					pRequest->CompleteWithInformation(HRESULT_FROM_NT(STATUS_NO_MEDIA), 0);
 					return;
 				}
 				setBuffer(device,pRequest,ATR,ATRsize);
@@ -453,3 +453,4 @@ DWORD Reader::startServer() {
 
 void Reader::shutdown() {
 }
+
