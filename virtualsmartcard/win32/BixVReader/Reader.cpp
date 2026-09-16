@@ -1,4 +1,4 @@
-﻿#include "internal.h"
+#include "internal.h"
 #include "VirtualSCReader_h.h"
 #include "reader.h"
 #include "device.h"
@@ -40,12 +40,11 @@ void Reader::IoSmartCardIsPresent(IWDFIoRequest* pRequest,SIZE_T inBufSize,SIZE_
 
 void Reader::IoSmartCardGetState(IWDFIoRequest* pRequest,SIZE_T inBufSize,SIZE_T outBufSize) {
 	UNREFERENCED_PARAMETER(inBufSize);
-	UNREFERENCED_PARAMETER(outBufSize);
 	OutputDebugString(L"[BixVReader][GSTA]IOCTL_SMARTCARD_GET_STATE");
 	wchar_t log[300];
 	swprintf(log,L"[BixVReader]STATE:%08X",state);
 	OutputDebugString(log);
-	setInt(device,pRequest,state);
+	setInt(device,pRequest,state,outBufSize);
 }
 void Reader::IoSmartCardIsAbsent(IWDFIoRequest* pRequest,SIZE_T inBufSize,SIZE_T outBufSize) {
 	UNREFERENCED_PARAMETER(inBufSize);
@@ -100,7 +99,7 @@ void Reader::IoSmartCardPower(IWDFIoRequest* pRequest,SIZE_T inBufSize,SIZE_T ou
 			pRequest->CompleteWithInformation(HRESULT_FROM_NT(STATUS_NO_MEDIA), 0);
 			return;
 		}
-		setBuffer(device,pRequest,ATR,ATRsize);
+		setBuffer(device,pRequest,ATR,ATRsize,outBufSize);
 	}
 	else {
 		SectionLocker lock(device->m_RequestLock);
@@ -234,7 +233,7 @@ void Reader::IoSmartCardTransmit(IWDFIoRequest* pRequest,SIZE_T inBufSize,SIZE_T
 	scardRequest->cbPciLength=sizeof(SCARD_IO_REQUEST);
 	scardRequest->dwProtocol=protocol;
 	memcpy(scardRequest+1,RAPDU,RAPDUSize);
-	setBuffer(device,pRequest,scardRequest,RAPDUSize+sizeof(SCARD_IO_REQUEST));
+	setBuffer(device,pRequest,scardRequest,RAPDUSize+sizeof(SCARD_IO_REQUEST),outBufSize);
 end:
 	free(scardRequest);
 	free(RAPDU);
@@ -254,7 +253,7 @@ void Reader::IoSmartCardGetAttribute(IWDFIoRequest* pRequest,SIZE_T inBufSize,SI
 		case SCARD_ATTR_VALUE(SCARD_CLASS_VENDOR_DEFINED, 0xA009):
 			// custom attribute; RPC_TYPE
 			OutputDebugString(L"[BixVReader][GATT]RPC_TYPE");
-			setInt(device,pRequest,rpcType);
+			setInt(device,pRequest,rpcType,outBufSize);
 			return;
 		case SCARD_ATTR_VALUE(SCARD_CLASS_VENDOR_DEFINED, 0xA00a):
 			// custom attribute; PipeName
@@ -289,7 +288,7 @@ void Reader::IoSmartCardGetAttribute(IWDFIoRequest* pRequest,SIZE_T inBufSize,SI
 			if (rpcType==1) {
 				TcpIpReader *tcpIp=(TcpIpReader *)this;
 				OutputDebugString(L"[BixVReader][GATT]PORT");
-				setInt(device,pRequest,tcpIp->port);
+				setInt(device,pRequest,tcpIp->port,outBufSize);
 			}
 			else {
 				SectionLocker lock(device->m_RequestLock);
@@ -301,7 +300,7 @@ void Reader::IoSmartCardGetAttribute(IWDFIoRequest* pRequest,SIZE_T inBufSize,SI
 			if (rpcType==1) {
 				TcpIpReader *tcpIp=(TcpIpReader *)this;
 				OutputDebugString(L"[BixVReader][GATT]EVENT_PORT");
-				setInt(device,pRequest,tcpIp->eventPort);
+				setInt(device,pRequest,tcpIp->eventPort,outBufSize);
 			}
 			else {
 				SectionLocker lock(device->m_RequestLock);
@@ -313,7 +312,7 @@ void Reader::IoSmartCardGetAttribute(IWDFIoRequest* pRequest,SIZE_T inBufSize,SI
 			if (rpcType==1) {
 				TcpIpReader *tcpIp=(TcpIpReader *)this;
 				OutputDebugString(L"[BixVReader][GATT]BASE_PORT");
-				setInt(device,pRequest,tcpIp->portBase);
+				setInt(device,pRequest,tcpIp->portBase,outBufSize);
 				tcpIp;
 			}
 			else {
@@ -324,12 +323,12 @@ void Reader::IoSmartCardGetAttribute(IWDFIoRequest* pRequest,SIZE_T inBufSize,SI
 		case SCARD_ATTR_CHANNEL_ID:
 			// DWORD 0xDDDDCCCC: channel type in high word, channel number in low word
 			OutputDebugString(L"[BixVReader][GATT]SCARD_ATTR_CHANNEL_ID");
-			setInt(device, pRequest, (SCARD_CHANNEL_TYPE_PCSC << 16) | ((DWORD)deviceUnit & 0xFFFF));
+			setInt(device, pRequest, (SCARD_CHANNEL_TYPE_PCSC << 16) | ((DWORD)deviceUnit & 0xFFFF), outBufSize);
 			return;
 		case SCARD_ATTR_CHARACTERISTICS:
 			// 0x00000000 No special characteristics
 			OutputDebugString(L"[BixVReader][GATT]SCARD_ATTR_CHARACTERISTICS");
-			setInt(device,pRequest,0);
+			setInt(device,pRequest,0,outBufSize);
 			return;
 		case SCARD_ATTR_VENDOR_NAME:
 			OutputDebugString(L"[BixVReader][GATT]SCARD_ATTR_VENDOR_NAME");
@@ -341,7 +340,7 @@ void Reader::IoSmartCardGetAttribute(IWDFIoRequest* pRequest,SIZE_T inBufSize,SI
 			return;
 		case SCARD_ATTR_DEVICE_UNIT:
 			OutputDebugString(L"[BixVReader][GATT]SCARD_ATTR_DEVICE_UNIT");
-			setInt(device,pRequest,deviceUnit);
+			setInt(device,pRequest,deviceUnit,outBufSize);
 			return;
 		case SCARD_ATTR_ATR_STRING:
 			{
@@ -354,12 +353,12 @@ void Reader::IoSmartCardGetAttribute(IWDFIoRequest* pRequest,SIZE_T inBufSize,SI
 					pRequest->CompleteWithInformation(HRESULT_FROM_NT(STATUS_NO_MEDIA), 0);
 					return;
 				}
-				setBuffer(device,pRequest,ATR,ATRsize);
+				setBuffer(device,pRequest,ATR,ATRsize,outBufSize);
 				return;
 			}
 		case SCARD_ATTR_CURRENT_PROTOCOL_TYPE:
 			OutputDebugString(L"[BixVReader][GATT]SCARD_ATTR_CURRENT_PROTOCOL_TYPE");
-			setInt(device,pRequest,protocol); // T=0 or T=1
+			setInt(device,pRequest,protocol,outBufSize); // T=0 or T=1
 			return;
 		default: {
 			swprintf(log,L"[BixVReader][GATT]ERROR_NOT_SUPPORTED:%08X",code);

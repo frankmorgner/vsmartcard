@@ -26,45 +26,46 @@ bool getBuffer(IWDFIoRequest* pRequest,void **buffer,SIZE_T *bufferLen) {
 	}
 }
 
-void setBuffer(CMyDevice *device,IWDFIoRequest* pRequest,void *result,SIZE_T inSize) {
+void setBuffer(CMyDevice *device,IWDFIoRequest* pRequest,void *result,SIZE_T inSize,SIZE_T outSize) {
 	IWDFMemory *outmem=NULL;
 	pRequest->GetOutputMemory (&outmem);
-	if (outmem==NULL) {
+	if (outSize < inSize || outmem == NULL) {
 		SectionLocker lock(device->m_RequestLock);
-		OutputDebugString(L"GetOutputMemory failed");
-        pRequest->Complete(HRESULT_FROM_WIN32(ERROR_GEN_FAILURE));
+		if (outmem) outmem->Release();
+		pRequest->CompleteWithInformation(HRESULT_FROM_WIN32(ERROR_INSUFFICIENT_BUFFER), inSize);
 	}
 	else {
 		SectionLocker lock(device->m_RequestLock);
 		outmem->CopyFromBuffer(0,result,inSize);
 		outmem->Release();
-        pRequest->CompleteWithInformation(0,(SIZE_T)inSize);
+        pRequest->CompleteWithInformation(0,inSize);
 	}
 }
 
 void setString(CMyDevice *device,IWDFIoRequest* pRequest,char *result,SIZE_T outSize) {
 	IWDFMemory *outmem=NULL;
 	pRequest->GetOutputMemory (&outmem);
-	if (outmem==NULL) {
+	SIZE_T requiredSize = strlen(result) + 1;
+	if (outSize < requiredSize || outmem == NULL) {
 		SectionLocker lock(device->m_RequestLock);
-		OutputDebugString(L"GetOutputMemory failed");
-        pRequest->Complete(HRESULT_FROM_WIN32(ERROR_GEN_FAILURE));
+		if (outmem) outmem->Release();
+		pRequest->CompleteWithInformation(HRESULT_FROM_WIN32(ERROR_INSUFFICIENT_BUFFER), requiredSize);
 	}
 	else {
 		SectionLocker lock(device->m_RequestLock);
-		SIZE_T size=min(outSize,strlen(result)+1);
-		outmem->CopyFromBuffer(0,result,size);
+		outmem->CopyFromBuffer(0,result,requiredSize);
 		outmem->Release();
-        pRequest->CompleteWithInformation(0,(SIZE_T)size);
+        pRequest->CompleteWithInformation(0,requiredSize);
 	}
 }
-void setInt(CMyDevice *device,IWDFIoRequest* pRequest,DWORD result) {
+
+void setInt(CMyDevice *device,IWDFIoRequest* pRequest,DWORD result,SIZE_T outSize) {
 	IWDFMemory *outmem=NULL;
 	pRequest->GetOutputMemory (&outmem);
-	if (outmem==NULL) {
+	if (outSize < sizeof(result) || outmem == NULL) {
 		SectionLocker lock(device->m_RequestLock);
-		OutputDebugString(L"GetOutputMemory failed");
-        pRequest->Complete(HRESULT_FROM_WIN32(ERROR_GEN_FAILURE));
+		if (outmem) outmem->Release();
+		pRequest->CompleteWithInformation(HRESULT_FROM_WIN32(ERROR_INSUFFICIENT_BUFFER), sizeof(result));
 	}
 	else {
 		SectionLocker lock(device->m_RequestLock);
@@ -73,6 +74,7 @@ void setInt(CMyDevice *device,IWDFIoRequest* pRequest,DWORD result) {
         pRequest->CompleteWithInformation(0,sizeof(result));
 	}
 }
+
 DWORD getInt(IWDFIoRequest* pRequest) {
 
 	IWDFMemory *inmem=NULL;
