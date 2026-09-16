@@ -16,13 +16,13 @@ Enter-VsDevShell -VsInstallPath "$VS_PATH" -Arch $env:VCVARS_PLATFORM -HostArch 
 
 & python --version
 & python -m pip install -q --upgrade pip
-& pip install -q virtualenv
-& pip install -q -U setuptools
-& pip install -q pycryptodomex
-& pip install -q pbkdf2
-& pip install -q Pillow
-& pip install -q pyreadline3
-& pip install -q pyscard
-& pip install -q pyinstaller
+& python -m pip install -q virtualenv
+& python -m pip install -q -U setuptools
+& python -m pip install -q pycryptodomex
+& python -m pip install -q pbkdf2
+& python -m pip install -q Pillow
+& python -m pip install -q pyreadline3
+& python -m pip install -q pyscard
+& python -m pip install -q pyinstaller
 
-& pyinstaller --onefile virtualsmartcard\src\vpicc\vicc.in -i doc\_static\chip.ico
+& python -m PyInstaller --onefile virtualsmartcard\src\vpicc\vicc.in -i doc\_static\chip.ico
