@@ -323,6 +323,7 @@ STDMETHODIMP_ (void) CMyDevice::OnCancel(IN IWDFIoRequest*  pWdfRequest) {
         if (pWdfRequest == *it) {
             OutputDebugString(L"[BixVReader]Cancel Remove");
             reader.waitRemoveIpr.erase(it);
+            break;
         }
     }
     for (std::vector< CComPtr<IWDFIoRequest> >::iterator it = reader.waitInsertIpr.begin();
@@ -330,6 +331,7 @@ STDMETHODIMP_ (void) CMyDevice::OnCancel(IN IWDFIoRequest*  pWdfRequest) {
         if (pWdfRequest == *it) {
             OutputDebugString(L"[BixVReader]Cancel Insert");
             reader.waitInsertIpr.erase(it);
+            break;
         }
     }
     pWdfRequest->CompleteWithInformation(HRESULT_FROM_WIN32(ERROR_CANCELLED), 0);
