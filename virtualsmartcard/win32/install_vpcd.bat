@@ -18,7 +18,19 @@ if %errorlevel% neq 0 (
     exit /b
 )
 
-echo Running with administrative privileges.
+:: -------------------------------
+:: Check testsigning
+:: -------------------------------
+bcdedit /enum {current} | findstr /i "testsigning" | findstr /i "Yes" >nul
+if %errorlevel% neq 0 (
+    echo ERROR: "testsigning" is not enabled.
+    echo Please enable testsigning by running: bcdedit /set testsigning on
+    echo A reboot will be required afterwards.
+    pause
+    exit /b 1
+)
+
+echo Testsigning is enabled. Proceeding with installation.
 echo.
 
 :: -------------------------------
