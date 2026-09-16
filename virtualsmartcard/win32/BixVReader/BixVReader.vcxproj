@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -56,13 +56,13 @@
     <Configuration>Debug</Configuration>
     <Platform Condition="'$(Platform)' == ''">x64</Platform>
     <RootNamespace>BixVReader</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <TargetVersion>Windows10</TargetVersion>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>WindowsUserModeDriver10.0</PlatformToolset>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseOfAtl>Static</UseOfAtl>
     <UMDF_VERSION_MAJOR>1</UMDF_VERSION_MAJOR>
@@ -75,7 +75,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <TargetVersion>Windows10</TargetVersion>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>WindowsUserModeDriver10.0</PlatformToolset>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseOfAtl>Static</UseOfAtl>
     <UMDF_VERSION_MAJOR>1</UMDF_VERSION_MAJOR>
@@ -160,7 +160,7 @@
       <StampinfPath>&quot;$(WindowsSDK_DesktopBinPath)Stampinf.exe&quot;</StampinfPath>
       <Inf2CatPath>&quot;$(WindowsSDK_DesktopBinPath)inf2cat.exe&quot;</Inf2CatPath>
       <SignToolPath>&quot;$(WindowsSDK_DesktopBinPath)signtool.exe&quot;</SignToolPath>
-      <Inf2CatOS>10_$(PlatformShortName),ServerRS5_$(PlatformShortName),ServerFE_$(PlatformShortName)</Inf2CatOS>
+      <Inf2CatOS>10_$(PlatformShortName)</Inf2CatOS>
     </PropertyGroup>
     <Exec
       Command="$(StampinfPath) -f BixVReader.inf -d * -v 1.0.0.0 -a $(PlatformShortName)"
@@ -173,7 +173,7 @@
       Command="$(Inf2CatPath) /driver:. /os:$(Inf2CatOS) /verbose"
       WorkingDirectory="$(OutDir)"
       />
-    <Exec Command="$(SignToolPath) sign /fd SHA256 /v bixvreader.cat"
+    <Exec Command="$(SignToolPath) sign /a /fd SHA256 /v bixvreader.cat"
       WorkingDirectory="$(OutDir)"
       />
   </Target>
