@@ -68,10 +68,9 @@ void Reader::IoSmartCardIsAbsent(IWDFIoRequest* pRequest,SIZE_T inBufSize,SIZE_T
 }
 
 void Reader::IoSmartCardPower(IWDFIoRequest* pRequest,SIZE_T inBufSize,SIZE_T outBufSize) {
-	UNREFERENCED_PARAMETER(inBufSize);
 	UNREFERENCED_PARAMETER(outBufSize);
 	OutputDebugString(L"[BixVReader][POWR]IOCTL_SMARTCARD_POWER");
-	DWORD code=getInt(pRequest);
+	DWORD code=getInt(pRequest, inBufSize);
 	Power(code);
 	if (code==SCARD_COLD_RESET) {
 		OutputDebugString(L"[BixVReader][POWR]SCARD_COLD_RESET");
@@ -109,11 +108,10 @@ void Reader::IoSmartCardPower(IWDFIoRequest* pRequest,SIZE_T inBufSize,SIZE_T ou
 }
 
 void Reader::IoSmartCardSetProtocol(IWDFIoRequest* pRequest,SIZE_T inBufSize,SIZE_T outBufSize) {
-	UNREFERENCED_PARAMETER(inBufSize);
 	UNREFERENCED_PARAMETER(outBufSize);
 	UNREFERENCED_PARAMETER(instance);
 
-	DWORD requestedProtocol=getInt(pRequest);
+	DWORD requestedProtocol=getInt(pRequest, inBufSize);
 	wchar_t log[300];
 	swprintf(log,L"[BixVReader][SPRT]IOCTL_SMARTCARD_SET_PROTOCOL:%08X",requestedProtocol);
 	OutputDebugString(log);
@@ -170,8 +168,7 @@ void Reader::IoSmartCardSetProtocol(IWDFIoRequest* pRequest,SIZE_T inBufSize,SIZ
 	}
 }
 
-	void Reader::IoSmartCardSetAttribute(IWDFIoRequest* pRequest,SIZE_T inBufSize,SIZE_T outBufSize) {
-	UNREFERENCED_PARAMETER(inBufSize);
+void Reader::IoSmartCardSetAttribute(IWDFIoRequest* pRequest,SIZE_T inBufSize,SIZE_T outBufSize) {
 	UNREFERENCED_PARAMETER(outBufSize);
 	UNREFERENCED_PARAMETER(instance);
 	OutputDebugString(L"[BixVReader][SATT]IOCTL_SMARTCARD_SET_ATTRIBUTE");
@@ -181,6 +178,13 @@ void Reader::IoSmartCardSetProtocol(IWDFIoRequest* pRequest,SIZE_T inBufSize,SIZ
 
 	SIZE_T size;
 	BYTE *data=(BYTE *)inmem->GetDataBuffer(&size);
+	if (size != inBufSize) {
+		OutputDebugString(L"Size mismatch in SetAttribute");
+		inmem->Release();
+		SectionLocker lock(device->m_RequestLock);
+		pRequest->CompleteWithInformation(HRESULT_FROM_WIN32(ERROR_INVALID_PARAMETER), 0);
+		return;
+	}
 
 	DWORD minCode=*(DWORD*)(data);
 	bool handled=false;
@@ -201,14 +205,13 @@ void Reader::IoSmartCardSetProtocol(IWDFIoRequest* pRequest,SIZE_T inBufSize,SIZ
 }
 
 void Reader::IoSmartCardTransmit(IWDFIoRequest* pRequest,SIZE_T inBufSize,SIZE_T outBufSize) {
-	UNREFERENCED_PARAMETER(inBufSize);
 	UNREFERENCED_PARAMETER(outBufSize);
 	OutputDebugString(L"[BixVReader][TRSM]IOCTL_SMARTCARD_TRANSMIT");
 	SCARD_IO_REQUEST *scardRequest=NULL;
 	SIZE_T scardRequestSize=0;
 	BYTE *RAPDU=NULL;
 	int RAPDUSize=0;
-	if (!getBuffer(pRequest,(void **)&scardRequest,&scardRequestSize)
+	if (!getBuffer(pRequest,(void **)&scardRequest,&scardRequestSize,inBufSize)
 			|| scardRequestSize<sizeof *scardRequest
 			|| scardRequest->dwProtocol!=protocol) {
 		SectionLocker lock(device->m_RequestLock);
@@ -240,12 +243,10 @@ end:
 }
 
 void Reader::IoSmartCardGetAttribute(IWDFIoRequest* pRequest,SIZE_T inBufSize,SIZE_T outBufSize) {
-	UNREFERENCED_PARAMETER(inBufSize);
-
 	wchar_t log[300]=L"";
 	char temp[300];
 
-	DWORD code=getInt(pRequest);
+	DWORD code=getInt(pRequest, inBufSize);
 	swprintf(log,L"[BixVReader][GATT]  - code %0X",code);
 	OutputDebugString(log);
 
