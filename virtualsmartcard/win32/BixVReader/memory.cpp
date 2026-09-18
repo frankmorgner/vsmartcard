@@ -1,7 +1,7 @@
 #include "memory.h"
 #include "SectionLocker.h"
 
-bool getBuffer(IWDFIoRequest* pRequest,void **buffer,SIZE_T *bufferLen) {
+bool getBuffer(IWDFIoRequest* pRequest,void **buffer,SIZE_T *bufferLen,SIZE_T inBufSize) {
 	IWDFMemory *inmem=NULL;
 	pRequest->GetInputMemory(&inmem);
 	if (inmem==NULL) {
@@ -11,6 +11,11 @@ bool getBuffer(IWDFIoRequest* pRequest,void **buffer,SIZE_T *bufferLen) {
 	else {
 		SIZE_T size;
 		void *data=inmem->GetDataBuffer(&size);
+		if (size != inBufSize) {
+			OutputDebugString(L"Size mismatch in getBuffer");
+			inmem->Release();
+			return false;
+		}
 		if (0 != size) {
 			void *out = realloc(*buffer, size);
 			if (out==NULL) {
@@ -75,7 +80,7 @@ void setInt(CMyDevice *device,IWDFIoRequest* pRequest,DWORD result,SIZE_T outSiz
 	}
 }
 
-DWORD getInt(IWDFIoRequest* pRequest) {
+DWORD getInt(IWDFIoRequest* pRequest,SIZE_T inBufSize) {
 
 	IWDFMemory *inmem=NULL;
 	pRequest->GetInputMemory(&inmem);
@@ -86,6 +91,11 @@ DWORD getInt(IWDFIoRequest* pRequest) {
 	else {
 		SIZE_T size;
 		void *data=inmem->GetDataBuffer(&size);
+		if (size != inBufSize) {
+			OutputDebugString(L"Size mismatch in getInt");
+			inmem->Release();
+			return 0xffffffff;
+		}
 		if (size<sizeof(DWORD)) {
 			OutputDebugString(L"Invalid input");
 			return 0xffffffff;
