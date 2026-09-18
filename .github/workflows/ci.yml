@@ -12,6 +12,8 @@ on:
       - .github/workflows/ci.yml
   push:
 
+permissions:
+  contents: read
 
 jobs:
   virtualsmartcard-macos:
