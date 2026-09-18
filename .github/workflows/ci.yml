@@ -103,32 +103,43 @@ jobs:
         path:
           ACardEmulator/app/build/outputs/apk
 
-  virtualsmartcard-windows-x64:
-    runs-on: windows-2022
+  virtualsmartcard-windows:
+    strategy:
+      matrix:
+        include:
+          - os: windows-2025
+            platform: x64
+            vcvars: amd64
+          - os: windows-2025
+            platform: ARM64
+            vcvars: arm64
+    runs-on: ${{ matrix.os }}
     env:
-      MSBUILD_PLATFORM: x64
-      VCVARS_PLATFORM: amd64
+      MSBUILD_PLATFORM: ${{ matrix.platform }}
+      VCVARS_PLATFORM: ${{ matrix.vcvars }}
     steps:
     - uses: actions/checkout@v6
       with:
         submodules: recursive
+    - run: choco install windowsdriverkit10 -y
     - run: .github/build-virtualsmartcard.ps1
-    - run: Move-Item -Path "virtualsmartcard\win32\BixVReaderInstaller\bin\${{ env.MSBUILD_PLATFORM }}\Release\BixVReaderInstaller.msi" -Destination "."
+    - run: Move-Item -Path "virtualsmartcard\win32\BixVReaderInstaller\bin\x64\Release\BixVReaderInstaller.msi" -Destination "."
     - run: Move-Item -Path "virtualsmartcard\win32\install_vpcd.bat" -Destination "."
     - run: Move-Item -Path "virtualsmartcard\win32\uninstall_vpcd.bat" -Destination "."
     - run: Move-Item -Path "dist\vicc.exe" -Destination "."
     - run: Start-Process "install_vpcd.bat" -NoNewWindow -Wait
+      # the runner is a x64 platform
+      if: matrix.platform == 'x64'
     - run: Get-Content "install.log"
+      # the runner is a x64 platform
+      if: matrix.platform == 'x64'
     - uses: actions/upload-artifact@v4
       with:
-        name: virtualsmartcard-win64
+        name: virtualsmartcard-win-${{ matrix.platform }}
         path: |
           install_vpcd.bat
           uninstall_vpcd.bat
           vicc.exe
           vpcd-config.exe
-# FIXME driver installation fails (see content of "install.log" above
-# The error persists since migrating to migrating to newer VS/WDK.
-# For now, skip publishing the driver and pull driver from previous releases
-#         BixVReaderInstaller.msi
-#         BixVReader.cer
+          BixVReaderInstaller.msi
+          BixVReader.cer
