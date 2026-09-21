@@ -21,7 +21,7 @@ jobs:
     steps:
     - uses: actions/checkout@v6
     - run: .github/build-virtualsmartcard.sh macos
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
         name: virtualsmartcard-macos
         path:
@@ -32,7 +32,7 @@ jobs:
     steps:
     - uses: actions/checkout@v6
     - run: .github/build-virtualsmartcard.sh ubuntu
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
         name: virtualsmartcard
         path:
@@ -43,7 +43,7 @@ jobs:
     steps:
     - uses: actions/checkout@v6
     - run: .github/build-ccid.sh ubuntu
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
         name: ccid-emulator
         path:
@@ -60,7 +60,7 @@ jobs:
     steps:
     - uses: actions/checkout@v6
     - run: .github/build-pcsc-relay.sh ubuntu
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
         name: pcsc-relay
         path:
@@ -77,7 +77,7 @@ jobs:
     steps:
     - uses: actions/checkout@v6
     - run: .github/build-pcsc-relay.sh mingw-64
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
         name: pcsc-relay-mingw-64
         path:
@@ -88,7 +88,7 @@ jobs:
     steps:
     - uses: actions/checkout@v6
     - run: .github/build-remote-reader.sh
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
         name: remote-reader
         path:
@@ -99,7 +99,7 @@ jobs:
     steps:
     - uses: actions/checkout@v6
     - run: .github/build-ACardEmulator.sh
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
         name: ACardEmulator
         path:
@@ -135,7 +135,9 @@ jobs:
     - run: Get-Content "install.log"
       # the runner is a x64 platform
       if: matrix.platform == 'x64'
-    - uses: actions/upload-artifact@v4
+    - name: Archive artifacts
+      id: upload-unsigned-artifact
+      uses: actions/upload-artifact@v7
       with:
         name: virtualsmartcard-win-${{ matrix.platform }}
         path: |
@@ -145,3 +147,13 @@ jobs:
           vpcd-config.exe
           BixVReaderInstaller.msi
           BixVReader.cer
+    - name: Push to Signpath.io
+      #if: ${{ startsWith(github.ref, 'refs/tags/') && github.repository == 'frankmorgner/vsmartcard' }}
+      uses: signpath/github-action-submit-signing-request@v3
+      with:
+        api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
+        organization-id: 'dc3833ee-761b-421d-bb75-c4eb9ca8c753'
+        project-slug: 'vsmartcard'
+        signing-policy-slug: 'test-signing'
+        github-artifact-id: '${{ steps.upload-unsigned-artifact.outputs.artifact-id }}'
+        wait-for-completion: false
