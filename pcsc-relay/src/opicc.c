@@ -122,7 +122,12 @@ int picc_decode_apdu(const char *inbuf, size_t inlen,
         p[pos++] = b;
     }
 
-    *outlen = length;
+    if (pos < length) {
+        RELAY_ERROR("Incomplete C-APDU received\n");
+        return 0;
+    }
+
+    *outlen = pos;
 
     return 1;
 }
