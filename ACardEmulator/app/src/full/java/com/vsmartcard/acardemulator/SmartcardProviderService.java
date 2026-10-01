@@ -97,11 +97,31 @@ public class SmartcardProviderService extends SAAgent {
         Log.d(TAG, "onFindPeerAgentResponse : result =" + result);
     }
 
+    private boolean isPeerAuthorized(SAPeerAgent peerAgent) {
+        if (peerAgent == null) {
+            return false;
+        }
+        if (peerAgent.getAccessory() == null) {
+            Log.w(TAG, "Peer agent has no associated accessory");
+            return false;
+        }
+        String appName = peerAgent.getAppName();
+        if (appName == null || appName.isEmpty()) {
+            Log.w(TAG, "Peer agent has no application name");
+            return false;
+        }
+        return true;
+    }
+
     @Override
     protected void onServiceConnectionRequested(SAPeerAgent peerAgent) {
         if (peerAgent != null) {
-            //TODO: Check for keys and everything
-            acceptServiceConnectionRequest(peerAgent);
+            if (isPeerAuthorized(peerAgent)) {
+                acceptServiceConnectionRequest(peerAgent);
+            } else {
+                Log.w(TAG, "Rejecting unauthorized peer agent connection request from " + peerAgent.getAppName());
+                rejectServiceConnectionRequest(peerAgent);
+            }
         }
     }
 
