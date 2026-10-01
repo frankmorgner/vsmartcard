@@ -47,9 +47,6 @@ echo.
 :: Optional: Remove Developer Certificate
 :: -------------------------------
 if exist "%CERT_FILE%" (
-    echo Removing developer certificate from Trusted Root...
-    certutil -delstore "Root" "%CERT_FILE%"
-
     echo Removing developer certificate from Trusted Publisher...
     certutil -delstore "TrustedPublisher" "%CERT_FILE%"
 
