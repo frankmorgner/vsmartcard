@@ -1,4 +1,4 @@
-﻿#include "internal.h"
+#include "internal.h"
 #include "VirtualSCReader_h.h"
 #include "reader.h"
 #include "device.h"
@@ -36,7 +36,7 @@ bool TcpIpReader::CheckATR() {
 	if ((read=recv(AcceptSocket,(char*)&size,sizeof(DWORD),MSG_WAITALL))<=0) {
 		return false;
 	}
-	if (size==0)
+	if (size == 0 || size > sizeof(ATR))
 		return false;
 	BYTE ATR[100];
 	if ((read=recv(AcceptSocket,(char*)ATR,size,MSG_WAITALL))<=0) {
