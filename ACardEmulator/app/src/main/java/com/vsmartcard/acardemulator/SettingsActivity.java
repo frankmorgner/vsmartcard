@@ -21,6 +21,7 @@ package com.vsmartcard.acardemulator;
 
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -36,6 +37,7 @@ import com.google.android.material.snackbar.Snackbar;
 import android.view.MenuItem;
 
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
@@ -257,24 +259,45 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         }
     }
 
+    private void applyConfiguration(String host, String port) {
+        SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(this);
+        SP.edit().putString("hostname", host).apply();
+        SP.edit().putString("port", port).apply();
+        SP.edit().putString("emulator", getString(R.string.vicc)).apply();
+        getFragmentManager().beginTransaction().replace(android.R.id.content,
+                new VICCPreferenceFragment()).commit();
+    }
+
     private void handleScannedURI(Uri uri) {
         try {
-            String h, p;
-            h = uri.getHost();
+            if (uri == null) {
+                return;
+            }
+            final String h = uri.getHost();
+            if (h == null || h.isEmpty()) {
+                return;
+            }
             int _p = uri.getPort();
             if (_p < 0) {
                 _p = VICCEmulator.DEFAULT_PORT;
             }
-            p = Integer.toString(_p);
-            SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(this);
-            SP.edit().putString("hostname", h).apply();
-            SP.edit().putString("port", p).apply();
-            SP.edit().putString("emulator", getString(R.string.vicc)).apply();
-            getFragmentManager().beginTransaction().replace(android.R.id.content,
-                    new VICCPreferenceFragment()).commit();
+            final String p = Integer.toString(_p);
+
+            new AlertDialog.Builder(this)
+                    .setTitle("Update Connection Settings")
+                    .setMessage("Do you want to update the connection settings to " + h + ":" + p + "?")
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            applyConfiguration(h, p);
+                        }
+                    })
+                    .setNegativeButton(android.R.string.no, null)
+                    .show();
         } catch (Exception e) {
-            Snackbar.make(Objects.requireNonNull(this.getCurrentFocus()), "Could not import configuration", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show();
+            if (getCurrentFocus() != null) {
+                Snackbar.make(getCurrentFocus(), "Could not import configuration", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
         }
     }
 
@@ -285,7 +308,10 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         // Check to see that the Activity started due to a configuration URI
         if (Intent.ACTION_VIEW.equals(intent.getAction())) {
             Uri uri = intent.getData();
-            handleScannedURI(uri);
+            if (uri != null) {
+                intent.setData(null);
+                handleScannedURI(uri);
+            }
             super.onNewIntent(intent);
         }
     }
