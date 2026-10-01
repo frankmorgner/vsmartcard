@@ -110,9 +110,16 @@ void CMyDevice::ProcessIoControl(__in IWDFIoQueue*     pQueue,
         if (pFileObject != NULL)
         {
             DWORD logLen=300;
-            pFileObject->RetrieveFileName(log,&logLen);
-            instance=_wtoi(log+(logLen-2));
+            if (SUCCEEDED(pFileObject->RetrieveFileName(log,&logLen)) && logLen >= 2)
+            {
+                instance=_wtoi(log+(logLen-2));
+            }
         }
+    }
+
+    if (instance < 0 || instance >= (int)readers.size() || readers[instance] == NULL) {
+        pRequest->CompleteWithInformation(HRESULT_FROM_WIN32(ERROR_INVALID_PARAMETER), 0);
+        return;
     }
     Reader &reader=*readers[instance];
 
@@ -312,9 +319,15 @@ STDMETHODIMP_ (void) CMyDevice::OnCancel(IN IWDFIoRequest*  pWdfRequest) {
         if (pFileObject != NULL)
         {
             DWORD logLen=300;
-            pFileObject->RetrieveFileName(log,&logLen);
-            instance=_wtoi(log+(logLen-2));
+            if (SUCCEEDED(pFileObject->RetrieveFileName(log,&logLen)) && logLen >= 2)
+            {
+                instance=_wtoi(log+(logLen-2));
+            }
         }
+    }
+
+    if (instance < 0 || instance >= (int)readers.size() || readers[instance] == NULL) {
+        return;
     }
     Reader &reader=*readers[instance];
 
