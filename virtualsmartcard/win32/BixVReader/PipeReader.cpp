@@ -61,9 +61,9 @@ bool PipeReader::CheckATR() {
 	if (!ReadFile(pipe,&size,sizeof(DWORD),&read,NULL)) {
 		return false;
 	}
+	BYTE ATR[100];
 	if (size == 0 || size > sizeof(ATR))
 		return false;
-	BYTE ATR[100];
 	if (!ReadFile(pipe,ATR,size,&read,NULL)) {
 		return false;
 	}
