@@ -366,14 +366,28 @@ class Iso7816OS(SmartcardOS):
 def loadMitMFromPath(path):
     from importlib import import_module
     from pathlib import Path
+
+    if not path or not isinstance(path, str):
+        raise ValueError("Invalid MitM module path")
+
+    resolved = Path(path).resolve()
+    if not resolved.is_file() or resolved.suffix != ".py":
+        raise ValueError("MitM module must be an existing .py file: %s" % path)
+
+    cwd = Path.cwd().resolve()
+    try:
+        rel_path = resolved.relative_to(cwd)
+    except ValueError:
+        raise ValueError("MitM module path must be within the current working directory: %s" % path)
+
     def onNth(tup,ind,func):
         start = tup[0:ind] + (func(tup[ind]),)
         return start if ind + 1 == 0 else start + tup[ind+1:]
 
-    def pathToModuleName(path):
-        return ".".join(onNth(Path(path).parts,-1,lambda fName : str(Path(fName).stem)))
+    def pathToModuleName(p):
+        return ".".join(onNth(p.parts,-1,lambda fName : str(Path(fName).stem)))
 
-    mitmModule = import_module(pathToModuleName(path))
+    mitmModule = import_module(pathToModuleName(rel_path))
 
     # Sanity Checks
     if not getattr(mitmModule,"get_MitM",None):
