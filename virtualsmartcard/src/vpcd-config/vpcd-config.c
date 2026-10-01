@@ -51,15 +51,14 @@ void print_qrcode(const char *uri)
 
 #ifdef _WIN32
 
-#define IE_PATH "\"C:\\Program Files\\Internet Explorer\\IExplore.exe\" "
+#include <shellapi.h>
+#pragma comment(lib, "shell32.lib")
+
 void print_qrcode(const char *uri)
 {
-    char command[200];
-    memset(command, 0, sizeof command);
-    strcpy(command, IE_PATH);
-    strcat(command, QR_SERVICE_URL);
-    strcat(command, uri);
-    system(command);
+    char url[512];
+    snprintf(url, sizeof url, "%s%s", QR_SERVICE_URL, uri);
+    ShellExecuteA(NULL, "open", url, NULL, NULL, SW_SHOWNORMAL);
 }
 
 #else
