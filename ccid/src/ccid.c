@@ -1248,6 +1248,11 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
             bmFormatString = verify->bmFormatString;
             bNumberMessage = verify->bNumberMessage;
             abPINApdu = (__u8*) verify + sizeof(*verify);
+            if (__le32_to_cpu(request->dwLength) < sizeof(*verify) + sizeof(__u8)) {
+                sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "dwLength too small for abPINDataStucture_Verification_t");
+                sc_result = SC_ERROR_INVALID_DATA;
+                goto err;
+            }
             apdulen = __le32_to_cpu(request->dwLength) - sizeof(*verify) - sizeof(__u8);
             break;
         case 0x01:
@@ -1269,6 +1274,14 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
             bNumberMessage = modify->bNumberMessage;
 			/* bTeoPrologue adds another 3 bytes */
             abPINApdu = (__u8*) modify + sizeof *modify + 3*(sizeof(__u8));
+            {
+                unsigned int extra_msg = (bNumberMessage == 0x03 ? 2 : (bNumberMessage == 0x02 ? 1 : 0));
+                if (__le32_to_cpu(request->dwLength) < sizeof *modify + 4*sizeof(__u8) + extra_msg) {
+                    sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "dwLength too small for abPINDataStucture_Modification_t");
+                    sc_result = SC_ERROR_INVALID_DATA;
+                    goto err;
+                }
+            }
             apdulen = __le32_to_cpu(request->dwLength) - sizeof *modify - 4*sizeof(__u8);
             switch (bNumberMessage) {
                 case 0x03:
@@ -1308,7 +1321,7 @@ perform_PC_to_RDR_Secure(const __u8 *in, size_t inlen, __u8** out, size_t *outle
             goto err;
     }
 
-	if (inlen - (abData - abPINApdu) < apdulen) {
+	if (inlen < (size_t)(abPINApdu - abData) || inlen - (size_t)(abPINApdu - abData) < apdulen) {
         sc_debug(ctx, SC_LOG_DEBUG_VERBOSE, "Not enough Data for APDU");
 		sc_result = SC_ERROR_INVALID_DATA;
 		goto err;
