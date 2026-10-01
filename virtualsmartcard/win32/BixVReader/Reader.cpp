@@ -175,10 +175,16 @@ void Reader::IoSmartCardSetAttribute(IWDFIoRequest* pRequest,SIZE_T inBufSize,SI
 
 	IWDFMemory *inmem=NULL;
 	pRequest->GetInputMemory(&inmem);
+	if (inmem == NULL) {
+		OutputDebugString(L"GetInputMemory failed");
+		SectionLocker lock(device->m_RequestLock);
+		pRequest->CompleteWithInformation(HRESULT_FROM_WIN32(ERROR_INVALID_PARAMETER), 0);
+		return;
+	}
 
-	SIZE_T size;
+	SIZE_T size = 0;
 	BYTE *data=(BYTE *)inmem->GetDataBuffer(&size);
-	if (size != inBufSize) {
+	if (data == NULL || size != inBufSize || size < sizeof(DWORD)) {
 		OutputDebugString(L"Size mismatch in SetAttribute");
 		inmem->Release();
 		SectionLocker lock(device->m_RequestLock);
