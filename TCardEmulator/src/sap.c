@@ -90,6 +90,10 @@ static void on_data_recieved(sap_socket_h socket,
 		void *user_data) {
 	dlog_print(DLOG_INFO, LOG_TAG, "received data: %p, len:%d", buffer, payload_length);
 
+	if (buffer == NULL || payload_length <= 1) {
+		return;
+	}
+
 	char* string_buffer = (char*) buffer;
 	if (string_buffer[0] == 'a') {
 		install_aids(buffer + sizeof(char), payload_length - 1);
