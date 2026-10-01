@@ -465,10 +465,10 @@ class PinpadGTK(object):
         """Pass the entered secret to npa-tool. If npa-tool is run
            sucessfully exit, otherwise restart the PIN entry"""
 
-        env_args = os.environ
+        env_args = os.environ.copy()
 
         #cmd contains the command and all the parameters for our subproccess
-        cmd = ["npa-tool"]
+        cmd = ["npa-tool", "--env"]
 
         #We have to select the type of secret to use via a command line
         #parameter and provide the actual secret via an environment variable
@@ -632,14 +632,16 @@ class PINChanger(PinpadGTK):
         def __check_old_pin(self):
             """Run PACE with the old pin to see if it is correct"""
             #cmd contains the command and all the parameters for our subproccess
-            cmd = ["npa-tool", "--pin=" + self.pin]
+            env_args = os.environ.copy()
+            env_args["PIN"] = self.pin
+            cmd = ["npa-tool", "--env", "--pin"]
 
             #Try to call npa-tool. This is a blocking call. An animation is being
             #shown while the subprocess is running
             try:
             #Stop polling the card while PACE is running
                self.cardChecker.pause()
-               proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, close_fds=True)
+               proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, env=env_args, close_fds=True)
             except OSError:
                 popup = MsgBox(self.window, "npa-tool wurde nicht gefunden",
                                "error")
@@ -685,15 +687,17 @@ class PINChanger(PinpadGTK):
             """Change the pin using npa-tool"""
 
             #cmd contains the command and all the parameters for our subproccess
-            cmd = ["npa-tool", "--pin=" + self.__old_pin,
-                        "--new-pin=" + self.__new_pin1]
+            env_args = os.environ.copy()
+            env_args["PIN"] = self.__old_pin
+            env_args["NEWPIN"] = self.__new_pin1
+            cmd = ["npa-tool", "--env", "--pin", "--new-pin"]
 
             #Try to call npa-tool. This is a blocking call. An animation is being
             #shown while the subprocess is running
             try:
             #Stop polling the card while PACE is running
                self.cardChecker.pause()
-               proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, close_fds=True)
+               proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, env=env_args, close_fds=True)
             except OSError:
                 popup = MsgBox(self.window, "npa-tool wurde nicht gefunden",
                                "error")
