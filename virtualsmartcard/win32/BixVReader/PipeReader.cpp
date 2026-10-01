@@ -1,4 +1,4 @@
-﻿#include "internal.h"
+#include "internal.h"
 #include "VirtualSCReader_h.h"
 #include "reader.h"
 #include "device.h"
@@ -61,7 +61,7 @@ bool PipeReader::CheckATR() {
 	if (!ReadFile(pipe,&size,sizeof(DWORD),&read,NULL)) {
 		return false;
 	}
-	if (size==0)
+	if (size == 0 || size > sizeof(ATR))
 		return false;
 	BYTE ATR[100];
 	if (!ReadFile(pipe,ATR,size,&read,NULL)) {
