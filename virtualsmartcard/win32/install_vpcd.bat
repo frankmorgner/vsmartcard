@@ -51,14 +51,6 @@ if not exist "%MSI_FILE%" (
 :: -------------------------------
 :: Import Developer Certificate
 :: -------------------------------
-echo Importing certificate into Trusted Root...
-certutil -addstore -f "Root" "%CERT_FILE%"
-if %errorlevel% neq 0 (
-    echo ERROR: Failed to import certificate into Root store.
-    pause
-    exit /b 1
-)
-
 echo Importing certificate into Trusted Publisher...
 certutil -addstore -f "TrustedPublisher" "%CERT_FILE%"
 if %errorlevel% neq 0 (
