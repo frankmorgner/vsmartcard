@@ -85,6 +85,56 @@ other computer, the :ref:`vicc` in relay mode can be used:
 
 .. include:: relay-note.txt
 
+*****************************************************
+Supported Card Technologies and PC/SC APDU Interface
+*****************************************************
+
+ISO 14443-4 (ISO-DEP)
+=====================
+
+Standard ISO/IEC 7816-4 APDUs are exchanged transparently via Android's
+``IsoDep`` interface. ATR generation follows PC/SC Part 3 Section 3.1.3.2.3.
+
+
+JIS X 6319-4 / FeliCa (NFC-F)
+=============================
+
+FeliCa cards do not natively use ISO/IEC 7816-4 APDUs. ``remote-reader``
+therefore exposes a PC/SC-style APDU interface combining PC/SC Part 3 Storage
+Card commands, Sony PaSoRi PC/SC extensions, and direct frame pass-through:
+
++------------------------------+------------------------------------+--------------------------------------------------------------------------------------------------------------+
+| APDU / Command               | Specification / Origin             | Description                                                                                                  |
++==============================+====================================+==============================================================================================================+
+| `FF CA 00 00 00`             | PC/SC Part 3 Section 3.2.2.1.3     | **GET DATA (UID)**: Returns card UID (8-byte IDm for FeliCa), followed by `90 00`.                           |
++------------------------------+------------------------------------+--------------------------------------------------------------------------------------------------------------+
+| `FF CA 01 00 00`             | Sony PaSoRi PC/SC extension        | **GET DATA (PMm)**: Returns the 8-byte FeliCa PMm, followed by `90 00`.                                      |
++------------------------------+------------------------------------+--------------------------------------------------------------------------------------------------------------+
+| `FF CA 02 00 00`             | `remote-reader` extension          | **GET DATA (System Code)**: Returns the 2-byte FeliCa System Code, followed by `90 00`.                      |
++------------------------------+------------------------------------+--------------------------------------------------------------------------------------------------------------+
+| `FF A4 00 01 02 [SC]`        | Sony PaSoRi PC/SC extension        | **SELECT SERVICE**: Selects active 16-bit FeliCa Service Code (little-endian) for subsequent read/update.    |
++------------------------------+------------------------------------+--------------------------------------------------------------------------------------------------------------+
+| `FF B0 P1 P2 Le`             | PC/SC Part 3 Section 3.2.2.1.8 /   | **READ BINARY**: Reads 16-byte FeliCa block(s) at block number `(P1 << 8) | P2` from the active service      |
+|                              | Sony PaSoRi PC/SC extension        | via FeliCa *Read Without Encryption* (`0x06`), followed by `90 00`.                                          |
++------------------------------+------------------------------------+--------------------------------------------------------------------------------------------------------------+
+| `FF D6 P1 P2 Lc Data`        | PC/SC Part 3 Section 3.2.2.1.9 /   | **UPDATE BINARY**: Writes a 16-byte FeliCa block at block number `(P1 << 8) | P2` to active service          |
+|                              | Sony PaSoRi PC/SC extension        | via FeliCa *Write Without Encryption* (`0x08`), returning `90 00`.                                           |
++------------------------------+------------------------------------+--------------------------------------------------------------------------------------------------------------+
+| `FF 00 00 00 Lc [Data]`      | ACS ACR122U Direct Transmit        | **DIRECT TRANSMIT**: Strips 5-byte ACR122U pseudo-APDU header and forwards encapsulated FeliCa packet        |
+|                              | convention                         | to `NfcF.transceive()`, followed by `90 00`.                                                                 |
++------------------------------+------------------------------------+--------------------------------------------------------------------------------------------------------------+
+| `[LEN] [CMD] ...`            | Native FeliCa packet format        | **RAW PACKET**: Accepts native FeliCa packet beginning with length byte (`LEN == apdu.length`,               |
+|                              | (JIS X 6319-4 Section 6.2)         | JIS X 6319-4) and forwards it directly to `NfcF.transceive()`.                                               |
++------------------------------+------------------------------------+--------------------------------------------------------------------------------------------------------------+
+
+References:
+
+- `PC/SC Workgroup Part 3 Rev 2.01.09: Requirements for PC-Connected Interface Devices <https://pcscworkgroup.com/Download/Specifications/pcsc3_v2.01.09.pdf>`_
+- `PC/SC Workgroup Part 3 Supplemental Document for Contactless ICCs <https://pcscworkgroup.com/Download/Specifications/pcsc3_v2.01.09_sup.pdf>`_
+- `ACS ACR122U Application Programming Interface (API) V2.04 <https://www.acs.com.hk/download-manual/419/API-ACR122U-2.04.pdf>`_, Section 6.1 "Direct Transmit" and Section 7.3 FeliCa example
+- Sony Corporation, *SDK for NFC User's Manual - PC/SC Edition (Lite)* (Doc No. M579-J02), Section 3.2.6 "Proprietary/Extended Commands" (defines ``FF CA 01 00 00`` for PMm and ``FF A4 00 01 02 [SC]`` / ``FF B0`` for FeliCa service selection and unencrypted block access on Sony PaSoRi readers; see practical usage in `4d-plugin-scard <https://github.com/miyako/4d-plugin-scard>`_ and `OpenSC with Sony PaSoRi <https://qiita.com/gebo/items/cb2dd393170767852fb3>`_)
+
+
 
 ********************
 Download and Install
