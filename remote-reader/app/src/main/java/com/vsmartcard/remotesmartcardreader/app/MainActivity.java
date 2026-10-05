@@ -52,6 +52,8 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     private AlertDialog dialog;
     private int oldOrientation;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -161,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         Bundle bundle = new Bundle();
         bundle.putInt(NfcAdapter.EXTRA_READER_PRESENCE_CHECK_DELAY, timeout * 10);
         adapter.enableReaderMode(this, this,
-                NfcAdapter.FLAG_READER_NFC_A | NfcAdapter.FLAG_READER_NFC_B | NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK,
+                NfcAdapter.FLAG_READER_NFC_A | NfcAdapter.FLAG_READER_NFC_B | NfcAdapter.FLAG_READER_NFC_F | NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK,
                 bundle);
     }
 
@@ -187,6 +189,10 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 Log.i(getClass().getName(), "Discovered ISO/IEC 14443-A tag");
             } else if (aTechList.equals("android.nfc.tech.NfcB")) {
                 Log.i(getClass().getName(), "Discovered ISO/IEC 14443-B tag");
+            } else if (aTechList.equals("android.nfc.tech.NfcF")) {
+                Log.i(getClass().getName(), "Discovered JIS 6319-4 / FeliCa tag");
+            } else if (aTechList.equals("android.nfc.tech.NfcV")) {
+                Log.i(getClass().getName(), "Discovered ISO 15693 tag");
             }
         }
         NFCReader nfcReader = NFCReader.get(tag, this);
@@ -210,6 +216,8 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             vpcdTest = null;
         }
     }
+
+
 
     @Override
     public void onResume() {
