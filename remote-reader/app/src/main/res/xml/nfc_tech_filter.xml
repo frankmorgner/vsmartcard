@@ -1,7 +1,20 @@
 <resources xmlns:tools="http://schemas.android.com/tools"
     tools:keep="@xml/nfc_tech_filter">
     <tech-list>
-        <!-- catches both, NfcA and NfcB -->
+        <!-- catches both, NfcA and NfcB with ISO 14443-4 -->
         <tech>android.nfc.tech.IsoDep</tech>
+    </tech-list>
+    <tech-list>
+        <!-- catches JIS 6319-4 / FeliCa -->
+        <tech>android.nfc.tech.NfcF</tech>
+    </tech-list>
+    <tech-list>
+        <tech>android.nfc.tech.NfcA</tech>
+    </tech-list>
+    <tech-list>
+        <tech>android.nfc.tech.NfcB</tech>
+    </tech-list>
+    <tech-list>
+        <tech>android.nfc.tech.NfcV</tech>
     </tech-list>
 </resources>
