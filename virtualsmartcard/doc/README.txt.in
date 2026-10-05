@@ -43,6 +43,9 @@ Although the @PACKAGE_NAME@ is a software emulator, you can use
 :ref:`pcsc-relay` to make it accessible to an external contact-less smart card
 reader.
 
+A Wireshark Lua dissector plugin is for the protocol is included in the
+repository.
+
 The file :file:`utils.py` was taken from Henryk Plötz's cyberflex-shell_.
 
 .. tikz:: @PACKAGE_NAME@ used with PCSC-Lite or WinSCard
