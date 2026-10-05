@@ -85,6 +85,52 @@ other computer, the :ref:`vicc` in relay mode can be used:
 
 .. include:: relay-note.txt
 
+*****************************************************
+Supported Card Technologies and PC/SC APDU Interface
+*****************************************************
+
+ISO 14443-4 (ISO-DEP)
+=====================
+
+Standard ISO/IEC 7816-4 APDUs are exchanged transparently via Android's
+``IsoDep`` interface. ATR generation follows PC/SC Part 3 Section 3.1.3.2.3.
+
+
+JIS X 6319-4 / FeliCa (NFC-F)
+=============================
+
+FeliCa cards do not natively use ISO/IEC 7816-4 APDUs. ``remote-reader``
+therefore exposes a PC/SC-style APDU interface based on the PC/SC Part 3
+Storage Card commands, together with reader-specific FeliCa conventions:
+
++------------------------------+------------------------------------+--------------------------------------------------------------------------------------------------------------+
+| APDU / Command               | Specification / Origin             | Description                                                                                                  |
++==============================+====================================+==============================================================================================================+
+| ``FF CA 00 00 00``           | PC/SC Part 3 Section 3.2.2.1.3     | **GET DATA (UID)**: Returns card UID (8-byte IDm for FeliCa), followed by ``90 00``.                         |
++------------------------------+------------------------------------+--------------------------------------------------------------------------------------------------------------+
+| ``FF CA 01 00 00``           | FeliCa-specific vendor extension   | **GET DATA (PMm)**: Returns the 8-byte FeliCa PMm, followed by ``90 00``.                                    |
++------------------------------+------------------------------------+--------------------------------------------------------------------------------------------------------------+
+| ``FF CA 02 00 00``           | FeliCa-specific vendor extension   | **GET DATA (System Code)**: Returns the 2-byte FeliCa System Code, followed by ``90 00``.                    |
++------------------------------+------------------------------------+--------------------------------------------------------------------------------------------------------------+
+| ``FF B0 P1 P2 Le``           | PC/SC Part 3 Section 3.2.2.1.8     | **READ BINARY**: Reads a FeliCa block via FeliCa *Read Without Encryption* (``0x06``).                       |
++------------------------------+------------------------------------+--------------------------------------------------------------------------------------------------------------+
+| ``FF D6 P1 P2 Lc Data``      | PC/SC Part 3 Section 3.2.2.1.9     | **UPDATE BINARY**: Writes a FeliCa 16-byte block via FeliCa *Write Without Encryption* (``0x08``).           |
++------------------------------+------------------------------------+--------------------------------------------------------------------------------------------------------------+
+| ``FF A4 00 01 02 [SC]``      | Vendor-specific FeliCa convention  | **SELECT SERVICE**: Selects the active 16-bit FeliCa Service Code for subsequent read/update.                |
++------------------------------+------------------------------------+--------------------------------------------------------------------------------------------------------------+
+| ``FF 00 00 00 Lc [Data]``    | ACS ACR122U Direct Transmit        | **DIRECT TRANSMIT**: Accepts ACR122U pseudo-APDU wrapper and forwards payload to                             |
+|                              | convention                         | ``NfcF.transceive()``.                                                                                       |
++------------------------------+------------------------------------+--------------------------------------------------------------------------------------------------------------+
+| ``[LEN] [CMD] ...``          | Native FeliCa packet format        | **RAW PACKET**: Accepts native FeliCa packet beginning with length byte (JIS X 6319-4 Section 6.2).          |
++------------------------------+------------------------------------+--------------------------------------------------------------------------------------------------------------+
+
+References:
+
+- `PC/SC Workgroup Part 3 Rev 2.01.09: Requirements for PC-Connected Interface Devices <https://pcscworkgroup.com/Download/Specifications/pcsc3_v2.01.09.pdf>`_
+- `PC/SC Workgroup Part 3 Supplemental Document for Contactless ICCs <https://pcscworkgroup.com/Download/Specifications/pcsc3_v2.01.09_sup.pdf>`_
+- `ACS ACR122U Application Programming Interface (API) V2.04 <https://www.acs.com.hk/download-manual/419/API-ACR122U-2.04.pdf>`_, Section 6.1 "Direct Transmit" and Section 7.3 FeliCa example
+
+
 
 ********************
 Download and Install
