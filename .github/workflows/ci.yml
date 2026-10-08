@@ -109,13 +109,11 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: windows-2025
-            platform: x64
+          - platform: x64
             vcvars: amd64
-          - os: windows-2025
-            platform: ARM64
+          - platform: ARM64
             vcvars: arm64
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-2025
     env:
       MSBUILD_PLATFORM: ${{ matrix.platform }}
       VCVARS_PLATFORM: ${{ matrix.vcvars }}
