@@ -39,12 +39,6 @@ config.sub
 py-compile
 
 *.rst
-doc/_build/
-npa/doc/Doxyfile
-npa/doc/html
-npa/doc/npa.tag
-npa/doc/xml/
-doc
 
 *.ggo
 cmdline.c
@@ -66,8 +60,6 @@ virtualsmartcard/src/vpicc/vicc
 virtualsmartcard/src/vpcd-config/vpcd-config
 
 *.pc
-
-virtualsmartcard/doc/api/*
 
 virtualsmartcard/src/pcsclite-vpcd/pcsclite.h
 virtualsmartcard/win32/vpcd-config/Debug
