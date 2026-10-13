@@ -430,11 +430,7 @@ class Security_Environment(object):
         """
 
         return_data = b""
-        # ISO/IEC 7816-4 secure messaging: carry the processing status in a
-        # DO'99' (PLAIN_PROCESSING_STATUS) so that it is covered by the
-        # cryptographic checksum / signature computed below. This was previously
-        # commented out, which returned the status word outside the MAC and let
-        # an active attacker alter SW1-SW2 undetected.
+        # Emit the status word as DO'99' so it is covered by the checksum/signature below (ISO 7816-4).
         status = inttostring(sw, 2)
         return_data += pack([(SM_Class["PLAIN_PROCESSING_STATUS"],
                               len(status), status)])
