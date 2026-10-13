@@ -166,10 +166,7 @@ def crypto_checksum(algo, key, data, iv=None, ssc=None):
         del hmac
     elif algo == "CC":
         if ssc is not None:
-            # Pad the send-sequence counter to the DES block size (8 bytes) so the
-            # Retail MAC is computed over a block-aligned input. inttostring(ssc)
-            # returns the minimal encoding, so a small SSC (e.g. 1 -> b"\x01")
-            # shifts the whole MAC input and produces a wrong checksum.
+            # SSC must fill a full DES block; inttostring(ssc) alone is minimal-length and misaligns the MAC.
             data = inttostring(ssc, 8) + data
         a = cipher(True, "des-cbc", key[:8], data)
         b = cipher(False, "des-ecb", key[8:16], a[-8:])
