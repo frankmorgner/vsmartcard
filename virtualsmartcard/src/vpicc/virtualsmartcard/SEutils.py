@@ -430,12 +430,14 @@ class Security_Environment(object):
         """
 
         return_data = b""
-        # if sw == SW["NORMAL"]:
-        #    sw = inttostring(sw)
-        #    length = len(sw)
-        #    tag = SM_Class["PLAIN_PROCESSING_STATUS"]
-        #    tlv_sw = pack([(tag,length,sw)])
-        #    return_data += tlv_sw
+        # ISO/IEC 7816-4 secure messaging: carry the processing status in a
+        # DO'99' (PLAIN_PROCESSING_STATUS) so that it is covered by the
+        # cryptographic checksum / signature computed below. This was previously
+        # commented out, which returned the status word outside the MAC and let
+        # an active attacker alter SW1-SW2 undetected.
+        status = inttostring(sw, 2)
+        return_data += pack([(SM_Class["PLAIN_PROCESSING_STATUS"],
+                              len(status), status)])
 
         if result != b"":  # Encrypt the data included in the RAPDU
             encrypted = self.encipher(0x82, 0x80, result)
