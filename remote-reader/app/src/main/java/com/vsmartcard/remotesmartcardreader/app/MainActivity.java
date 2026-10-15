@@ -193,6 +193,10 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 Log.i(getClass().getName(), "Discovered JIS 6319-4 / FeliCa tag");
             } else if (aTechList.equals("android.nfc.tech.NfcV")) {
                 Log.i(getClass().getName(), "Discovered ISO 15693 tag");
+            } else if (aTechList.equals("android.nfc.tech.MifareClassic")) {
+                Log.i(getClass().getName(), "Discovered MIFARE Classic tag");
+            } else if (aTechList.equals("android.nfc.tech.MifareUltralight")) {
+                Log.i(getClass().getName(), "Discovered MIFARE Ultralight tag");
             }
         }
         NFCReader nfcReader = NFCReader.get(tag, this);
