@@ -430,12 +430,10 @@ class Security_Environment(object):
         """
 
         return_data = b""
-        # if sw == SW["NORMAL"]:
-        #    sw = inttostring(sw)
-        #    length = len(sw)
-        #    tag = SM_Class["PLAIN_PROCESSING_STATUS"]
-        #    tlv_sw = pack([(tag,length,sw)])
-        #    return_data += tlv_sw
+        # Emit the status word as DO'99' so it is covered by the checksum/signature below (ISO 7816-4).
+        status = inttostring(sw, 2)
+        return_data += pack([(SM_Class["PLAIN_PROCESSING_STATUS"],
+                              len(status), status)])
 
         if result != b"":  # Encrypt the data included in the RAPDU
             encrypted = self.encipher(0x82, 0x80, result)
