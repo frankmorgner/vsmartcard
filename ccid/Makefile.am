@@ -4,7 +4,7 @@ SUBDIRS = . src doc
 
 DIST_SUBDIRS = $(SUBDIRS) src/OpenSC
 
-EXTRA_DIST = docs patches
+EXTRA_DIST = patches
 
 all-local:
 	cd src/OpenSC/src/common && $(MAKE) $(AM_MAKEFLAGS) all

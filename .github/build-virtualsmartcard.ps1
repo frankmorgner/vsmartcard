@@ -25,4 +25,4 @@ Enter-VsDevShell -VsInstallPath "$VS_PATH" -Arch $env:VCVARS_PLATFORM -HostArch 
 & python -m pip install -q pyscard
 & python -m pip install -q pyinstaller
 
-& python -m PyInstaller --onefile virtualsmartcard\src\vpicc\vicc.in -i doc\_static\chip.ico
+& python -m PyInstaller --onefile virtualsmartcard\src\vpicc\vicc.in -i doc\chip.ico
