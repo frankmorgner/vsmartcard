@@ -430,7 +430,6 @@ class Security_Environment(object):
         """
 
         return_data = b""
-        # Emit the status word as DO'99' so it is covered by the checksum/signature below (ISO 7816-4).
         status = inttostring(sw, 2)
         return_data += pack([(SM_Class["PLAIN_PROCESSING_STATUS"],
                               len(status), status)])
