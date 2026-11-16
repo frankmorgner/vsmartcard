@@ -166,7 +166,7 @@ def crypto_checksum(algo, key, data, iv=None, ssc=None):
         del hmac
     elif algo == "CC":
         if ssc is not None:
-            # SSC must fill a full DES block; inttostring(ssc) alone is minimal-length and misaligns the MAC.
+            # SSC must fill a full DES block
             data = inttostring(ssc, 8) + data
         a = cipher(True, "des-cbc", key[:8], data)
         b = cipher(False, "des-ecb", key[8:16], a[-8:])
