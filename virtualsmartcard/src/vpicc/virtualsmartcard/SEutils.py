@@ -430,12 +430,6 @@ class Security_Environment(object):
         """
 
         return_data = b""
-        # if sw == SW["NORMAL"]:
-        #    sw = inttostring(sw)
-        #    length = len(sw)
-        #    tag = SM_Class["PLAIN_PROCESSING_STATUS"]
-        #    tlv_sw = pack([(tag,length,sw)])
-        #    return_data += tlv_sw
 
         if result != b"":  # Encrypt the data included in the RAPDU
             encrypted = self.encipher(0x82, 0x80, result)
@@ -446,22 +440,25 @@ class Security_Environment(object):
                                 encrypted)])
             return_data += encrypted_tlv
 
-        if sw == SW["NORMAL"]:
-            if self.cct.algorithm is None:
-                raise SwError(SW["CONDITIONSNOTSATISFIED"])
-            elif self.cct.algorithm == "CC":
-                tag = SM_Class["CHECKSUM"]
-                padded = vsCrypto.append_padding(self.cct.blocklength,
-                                                 return_data)
-                auth = self.compute_cryptographic_checksum(0x8E, 0x80, padded)
-                length = len(auth)
-                return_data += pack([(tag, length, auth)])
-            elif self.cct.algorithm == "SIGNATURE":
-                tag = SM_Class["DIGITAL_SIGNATURE"]
-                hash = self.hash(0x90, 0x80, return_data)
-                auth = self.compute_digital_signature(0x9E, 0x9A, hash)
-                length = len(auth)
-                return_data += pack([(tag, length, auth)])
+        status = inttostring(sw, 2)
+        return_data += pack([(SM_Class["PLAIN_PROCESSING_STATUS"],
+                              len(status), status)])
+
+        if self.cct.algorithm is None:
+            raise SwError(SW["CONDITIONSNOTSATISFIED"])
+        elif self.cct.algorithm == "CC":
+            tag = SM_Class["CHECKSUM"]
+            padded = vsCrypto.append_padding(self.cct.blocklength,
+                                             return_data)
+            auth = self.compute_cryptographic_checksum(0x8E, 0x80, padded)
+            length = len(auth)
+            return_data += pack([(tag, length, auth)])
+        elif self.cct.algorithm == "SIGNATURE":
+            tag = SM_Class["DIGITAL_SIGNATURE"]
+            hash = self.hash(0x90, 0x80, return_data)
+            auth = self.compute_digital_signature(0x9E, 0x9A, hash)
+            length = len(auth)
+            return_data += pack([(tag, length, auth)])
 
         return sw, return_data
 
