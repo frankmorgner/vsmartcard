@@ -22,6 +22,8 @@ package com.vsmartcard.remotesmartcardreader.app.screaders;
 import android.app.Activity;
 import android.nfc.Tag;
 import android.nfc.tech.IsoDep;
+import android.nfc.tech.MifareClassic;
+import android.nfc.tech.MifareUltralight;
 import android.nfc.tech.NfcF;
 import android.os.Handler;
 import android.os.Looper;
@@ -102,7 +104,27 @@ public abstract class NFCReader implements SCReader {
             }
         }
 
-        com.example.android.common.logger.Log.e(NFCReader.class.getName(), "Tag does not support ISO-DEP (ISO 14443-4) or NFC-F (JIS 6319-4)");
+        MifareClassic mifareClassic = MifareClassic.get(tag);
+        if (mifareClassic != null) {
+            try {
+                return new MifareClassicReader(mifareClassic, activity);
+            } catch (IOException e) {
+                Log.e(NFCReader.class.getName(), "Error connecting to MifareClassic tag: " + e.getMessage(), e);
+                com.example.android.common.logger.Log.e(NFCReader.class.getName(), "Error connecting to MIFARE Classic tag: " + e.getMessage());
+            }
+        }
+
+        MifareUltralight mifareUltralight = MifareUltralight.get(tag);
+        if (mifareUltralight != null) {
+            try {
+                return new MifareUltralightReader(mifareUltralight, activity);
+            } catch (IOException e) {
+                Log.e(NFCReader.class.getName(), "Error connecting to MifareUltralight tag: " + e.getMessage(), e);
+                com.example.android.common.logger.Log.e(NFCReader.class.getName(), "Error connecting to MIFARE Ultralight tag: " + e.getMessage());
+            }
+        }
+
+        com.example.android.common.logger.Log.e(NFCReader.class.getName(), "Tag does not support ISO-DEP (ISO 14443-4), NFC-F (JIS 6319-4), MIFARE Classic, or MIFARE Ultralight");
         return null;
     }
 
